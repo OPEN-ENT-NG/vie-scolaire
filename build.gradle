@@ -65,3 +65,19 @@ def configurePom(def pom) {
 		}
 	}
 }
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(
+                    url: "$nexusUrl/content/repositories/releases") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+            snapshotRepository(
+                    url: "$nexusUrl/content/repositories/snapshots") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+						uniqueVersion=false
+        }
+    }
+}
+

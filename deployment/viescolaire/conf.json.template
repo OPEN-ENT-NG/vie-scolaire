@@ -1,11 +1,11 @@
     {
-      "name": "org.cgi~vie scolaire~0.1-SNAPSHOT",
+      "name": "org.cgi~viescolaire~0.1-SNAPSHOT",
       "config": {
-        "main" : "org.cgi.vie scolaire.Vie scolaire",
+        "main" : "org.cgi.viescolaire.Viescolaire",
         "port" : 8128,
-        "app-name" : "Vie scolaire",
-    	"app-address" : "/vie scolaire",
-    	"app-icon" : "Vie scolaire-large",
+        "app-name" : "Viescolaire",
+    	"app-address" : "/viescolaire",
+    	"app-icon" : "Viescolaire-large",
         "host": "${host}",
         "ssl" : $ssl,
         "auto-redeploy": false,

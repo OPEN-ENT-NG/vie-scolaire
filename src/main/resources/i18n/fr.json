@@ -1,19 +1,19 @@
 {
-	"vie scolaire.title"					: "Vie scolaire",
+	"viescolaire.title"					: "Viescolaire",
 
-	"vie scolaire.notify.saved"				: "La donnée a été sauvegardée",
-	"vie scolaire.notify.modified"			: "La donnée a été modifiée",
-	"vie scolaire.notify.deleted"			: "La donnée a été supprimée",
-	"vie scolaire.notify.shared"			: "La donnée a été partagée",
-	"vie scolaire.notify.trashed"			: "La donnée a été mise à la corbeille",
+	"viescolaire.notify.saved"				: "La donnée a été sauvegardée",
+	"viescolaire.notify.modified"			: "La donnée a été modifiée",
+	"viescolaire.notify.deleted"			: "La donnée a été supprimée",
+	"viescolaire.notify.shared"			: "La donnée a été partagée",
+	"viescolaire.notify.trashed"			: "La donnée a été mise à la corbeille",
 
-	"vie scolaire.mine"						: "Mes vie scolaire",
-	"vie scolaire.shared"					: "Vie scolaire partagés avec moi",
-	"vie scolaire.trash"					: "Corbeille",
+	"viescolaire.mine"						: "Mes viescolaire",
+	"viescolaire.shared"					: "Viescolaire partagés avec moi",
+	"viescolaire.trash"					: "Corbeille",
 
-	"vie scolaire.manager"					: "Gestion",
-	"vie scolaire.contrib"					: "Contribution",
-	"vie scolaire.read"						: "Lecture",
+	"viescolaire.manager"					: "Gestion",
+	"viescolaire.contrib"					: "Contribution",
+	"viescolaire.read"						: "Lecture",
 
 	"unsetImage"										: "Supprimer l'image",
 

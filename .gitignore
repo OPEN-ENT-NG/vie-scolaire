@@ -6,7 +6,3 @@
 /.gradle
 /.settings
 .jshintrc
-.iml
-/.idea
-/.tern-project
-/.gitignore

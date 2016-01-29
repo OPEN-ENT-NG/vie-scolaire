@@ -43,10 +43,10 @@ configurations.all {
 
 def configurePom(def pom) {
 	pom.project {
-		description 'Vie scolaire (ent-core)'
+		description 'Viescolaire (ent-core)'
 		inceptionYear '2016'
 		packaging 'zip'
-		url 'http://code.web-education.net/one/vie scolaire'
+		url 'http://code.web-education.net/one/viescolaire'
 
 		developers {
 			developer {
@@ -57,27 +57,11 @@ def configurePom(def pom) {
 		}
 
 		scm {
-			url 'git@code.web-education.net:one/vie scolaire.git'
+			url 'git@code.web-education.net:one/viescolaire.git'
 		}
 
 		properties {
 			setProperty('project.build.sourceEncoding', 'UTF8')
 		}
 	}
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(
-                    url: "$nexusUrl/content/repositories/releases") {
-                authentication(userName: nexusUsername, password: nexusPassword)
-            }
-            snapshotRepository(
-                    url: "$nexusUrl/content/repositories/snapshots") {
-                authentication(userName: nexusUsername, password: nexusPassword)
-            }
-						uniqueVersion=false
-        }
-    }
 }

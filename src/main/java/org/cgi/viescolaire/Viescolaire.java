@@ -1,8 +1,8 @@
-package org.cgi.vie scolaire;
+package org.cgi.viescolaire;
 
 import org.entcore.common.http.BaseServer;
 
-public class Vie scolaire extends BaseServer {
+public class Viescolaire extends BaseServer {
 
 	@Override
 	public void start() {

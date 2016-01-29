@@ -1,0 +1,11 @@
+{
+	"main" : "org.cgi.vie scolaire.Vie scolaire",
+	"port" : 8128,
+	"app-name" : "Vie scolaire",
+	"app-address" : "/vie scolaire",
+	"app-icon" : "Vie scolaire-large",
+	"app-displayName" : "Vie scolaire",
+	"mode": "dev",
+	"entcore.port" : 8090,
+	"auto-redeploy": true
+}

@@ -1,0 +1,83 @@
+apply from: "gradle/vertx.gradle"
+apply plugin: 'scala'
+
+dependencies {
+	compile "org.entcore:common:$entCoreVersion"
+	testCompile "org.entcore:tests:$entCoreVersion"
+	testCompile 'io.gatling.highcharts:gatling-charts-highcharts:2.0.3'
+}
+
+javadoc {
+  options.encoding = 'UTF-8'
+  classpath  = configurations.provided
+  classpath += configurations.compile
+}
+
+repositories {
+    maven {
+        url "http://maven.web-education.net/nexus/content/groups/public"
+    }
+	maven{
+		url "http://10.83.199.226:8088/content/groups/public/"
+	}
+}
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+task deploymentJar(type: Jar) {
+  classifier = 'deployment'
+  from 'deployment'
+}
+
+artifacts {
+  archives testJar
+  archives deploymentJar
+}
+
+configurations.all {
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+def configurePom(def pom) {
+	pom.project {
+		description 'Vie scolaire (ent-core)'
+		inceptionYear '2016'
+		packaging 'zip'
+		url 'http://code.web-education.net/one/vie scolaire'
+
+		developers {
+			developer {
+				id '329199'
+				name '"LEDUNOIS Simon"'
+				email 'simon.ledunois@cgi.com'
+			}
+		}
+
+		scm {
+			url 'git@code.web-education.net:one/vie scolaire.git'
+		}
+
+		properties {
+			setProperty('project.build.sourceEncoding', 'UTF8')
+		}
+	}
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(
+                    url: "$nexusUrl/content/repositories/releases") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+            snapshotRepository(
+                    url: "$nexusUrl/content/repositories/snapshots") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+						uniqueVersion=false
+        }
+    }
+}

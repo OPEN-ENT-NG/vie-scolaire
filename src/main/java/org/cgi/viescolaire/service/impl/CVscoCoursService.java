@@ -12,8 +12,8 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
  * Sercice pour la gestion et récupération des cours
- * @Schéma : viesco
- * @Table : cours
+ * Schéma : viesco
+ * Table : cours
  * Created by ledunoiss on 10/02/2016.
  */
 public class CVscoCoursService extends SqlCrudService implements IVscoCoursService {

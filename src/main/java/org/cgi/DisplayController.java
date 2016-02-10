@@ -1,5 +1,6 @@
 package org.cgi;
 
+import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -16,6 +17,7 @@ public class DisplayController extends ControllerHelper {
     }
 
     @Get("")
+    @ApiDoc("Get Vie Scolaire HTML view")
     @SecuredAction(value="Viescolaire.view")
     public void view(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -27,13 +29,12 @@ public class DisplayController extends ControllerHelper {
                 }else if(user.getType().equals("Personnel")){
                     renderView(request, null, "viescolaire/vsco_personnel.html", null);
                 }
-
-                // TODO rediriger sur le bon fichier pour les CPE
             }
         });
     }
 
     @Get("/absences")
+    @ApiDoc("Get Absences HTML view")
     @SecuredAction(value="Viescolaire.absences.view")
     public void viewAbsences(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {

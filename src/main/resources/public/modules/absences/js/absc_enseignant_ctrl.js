@@ -3,5 +3,5 @@
 	------------------
 	Main controller.
 **/
-function ViescolaireController($scope, $rootScope, model, template, route, date){
+function AbsencesController($scope, $rootScope, model, template, route, date){
 }

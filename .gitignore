@@ -6,3 +6,5 @@
 /.gradle
 /.settings
 .jshintrc
+/.idea
+*.iml

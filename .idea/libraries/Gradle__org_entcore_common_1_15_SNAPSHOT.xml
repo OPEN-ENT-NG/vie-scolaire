@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.entcore:common:1.15-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.15-SNAPSHOT/jar/7e82a08c1a1ff676eec0e2bf04ac26bc9388002/common-1.15-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.15-SNAPSHOT/source/4363312dcdba67144cc1e710fd8c98599aade92a/common-1.15-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

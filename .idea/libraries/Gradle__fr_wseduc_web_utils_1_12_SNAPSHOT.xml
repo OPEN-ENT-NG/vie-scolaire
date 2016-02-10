@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: fr.wseduc:web-utils:1.12-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.12-SNAPSHOT/jar/765c98697538b8f900291b7d35a433762aa3c106/web-utils-1.12-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.12-SNAPSHOT/source/5eb272cede79923dced7fbe3cbb9d79e13e98e59/web-utils-1.12-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

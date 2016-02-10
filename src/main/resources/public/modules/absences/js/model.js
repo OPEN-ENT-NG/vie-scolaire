@@ -2,6 +2,6 @@
 ///   MODEL.BUILD   ///
 
 model.build = function(){
-}
+};
 
 ///////////////////////

@@ -1,6 +1,7 @@
 package org.cgi;
 
 //import org.cgi.viescolaire.CVscoCoursController;
+import org.cgi.viescolaire.CVscoCoursController;
 import org.entcore.common.http.BaseServer;
 
 public class Viescolaire extends BaseServer {
@@ -10,6 +11,7 @@ public class Viescolaire extends BaseServer {
 	public final static String ABSC_SCHEMA = "abs";
 
 	public final static String VSCO_COURS_TABLE = "cours";
+	public final static String VSCO_ELEVE_TABLE = "eleve";
 
 	@Override
 	public void start() {
@@ -23,7 +25,7 @@ public class Viescolaire extends BaseServer {
 		/*
 			CONTROLLER VIE SCOLAIRE
 		 */
-		//addController(new CVscoCoursController());
+		addController(new CVscoCoursController());
 	}
 
 }

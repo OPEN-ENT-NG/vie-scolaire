@@ -16,14 +16,14 @@ public class DisplayController extends ControllerHelper {
     }
 
     @Get("")
-    @SecuredAction(value="viescolaire.view")
+    @SecuredAction(value="Viescolaire.view")
     public void view(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 
             @Override
             public void handle(UserInfos user) {
                 if(user.getType().equals("Teacher")) {
-                    renderView(request, null, "modules/absences/absc_vis_appel.html", null);
+                    renderView(request, null, "viescolaire/viescolaire.html", null);
                 }
 
                 // TODO rediriger sur le bon fichier pour les CPE

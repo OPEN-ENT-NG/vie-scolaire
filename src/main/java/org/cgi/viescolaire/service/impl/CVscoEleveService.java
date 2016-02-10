@@ -14,7 +14,7 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  * Created by ledunoiss on 10/02/2016.
  */
 public class CVscoEleveService extends SqlCrudService implements IVscoEleveService {
-    public CVscoEleveService(String schema, String table) {
+    public CVscoEleveService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_ELEVE_TABLE);
     }
 

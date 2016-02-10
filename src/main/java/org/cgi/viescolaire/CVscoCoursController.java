@@ -1,6 +1,5 @@
 package org.cgi.viescolaire;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;

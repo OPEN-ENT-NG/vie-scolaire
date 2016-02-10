@@ -10,6 +10,7 @@ public class Viescolaire extends BaseServer {
 	public final static String ABSC_SCHEMA = "abs";
 
 	public final static String VSCO_COURS_TABLE = "cours";
+	public final static String VSCO_ELEVE_TABLE = "eleve";
 
 	@Override
 	public void start() {

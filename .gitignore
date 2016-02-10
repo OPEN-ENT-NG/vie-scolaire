@@ -6,7 +6,7 @@
 /.gradle
 /.settings
 .jshintrc
-/.idea/*
+/.idea
 *.iml
 workspace.xml
 /.idea/workspace.xml

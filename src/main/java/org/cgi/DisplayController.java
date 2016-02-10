@@ -23,7 +23,9 @@ public class DisplayController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if(user.getType().equals("Teacher")) {
-                    renderView(request, null, "modules/absences/absc_vis_appel.html", null);
+                    renderView(request, null, "modules/absences/absc_enseignant.html", null);
+                } else {
+                    renderView(request, null, "modules/absences/absc_cpe.html", null);
                 }
 
                 // TODO rediriger sur le bon fichier pour les CPE

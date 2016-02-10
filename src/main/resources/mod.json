@@ -1,5 +1,5 @@
 {
-	"main" : "org.cgi.viescolaire.Viescolaire",
+	"main" : "org.cgi.Viescolaire",
 	"port" : 8128,
 	"app-name" : "Viescolaire",
 	"app-address" : "/viescolaire",

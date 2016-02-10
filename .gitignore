@@ -8,3 +8,4 @@
 .jshintrc
 /.idea/*
 *.iml
+workspace.xml

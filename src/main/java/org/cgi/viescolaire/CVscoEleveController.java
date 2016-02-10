@@ -15,7 +15,6 @@ import org.vertx.java.core.http.HttpServerRequest;
 public class CVscoEleveController extends ControllerHelper {
 
     private final IVscoEleveService iVscoEleveService;
-
     public CVscoEleveController(){
         iVscoEleveService = new CVscoEleveService();
     }

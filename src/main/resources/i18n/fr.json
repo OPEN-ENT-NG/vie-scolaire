@@ -1,19 +1,19 @@
 {
-	"viescolaire.title"					: "Viescolaire",
+	"viescolaire.title"									: "Viescolaire",
 
-	"viescolaire.notify.saved"				: "La donnée a été sauvegardée",
-	"viescolaire.notify.modified"			: "La donnée a été modifiée",
-	"viescolaire.notify.deleted"			: "La donnée a été supprimée",
-	"viescolaire.notify.shared"			: "La donnée a été partagée",
-	"viescolaire.notify.trashed"			: "La donnée a été mise à la corbeille",
+	"viescolaire.notify.saved"							: "La donnée a été sauvegardée",
+	"viescolaire.notify.modified"						: "La donnée a été modifiée",
+	"viescolaire.notify.deleted"						: "La donnée a été supprimée",
+	"viescolaire.notify.shared"							: "La donnée a été partagée",
+	"viescolaire.notify.trashed"						: "La donnée a été mise à la corbeille",
 
-	"viescolaire.mine"						: "Mes viescolaire",
-	"viescolaire.shared"					: "Viescolaire partagés avec moi",
-	"viescolaire.trash"					: "Corbeille",
+	"viescolaire.mine"									: "Mes viescolaire",
+	"viescolaire.shared"								: "Viescolaire partagés avec moi",
+	"viescolaire.trash"									: "Corbeille",
 
-	"viescolaire.manager"					: "Gestion",
-	"viescolaire.contrib"					: "Contribution",
-	"viescolaire.read"						: "Lecture",
+	"viescolaire.manager"								: "Gestion",
+	"viescolaire.contrib"								: "Contribution",
+	"viescolaire.read"									: "Lecture",
 
 	"unsetImage"										: "Supprimer l'image",
 
@@ -48,7 +48,12 @@
 
 
 	"viescolaire.viescolaire.title"						: "Vie scolaire",
-
+	"viescolaire.viescolaire.saisir.appel"				: "Saisir un appel",
+	"viescolaire.viescolaire.appels.oublies"			: "Appels oubliés",
+	"viescolaire.viescolaire.absences.sans.motif"		: "Absences sans motif",
+	"viescolaire.viescolaire.saisir.absence"			: "Saisir une absence",
+	"viescolaire.viescolaire.mots.pour.viescolaire"		: "Mots pour la vie scolaire",
+	"viescolaire.viescolaire.nb.absences.semaine"		: "Nombre d'absences de la semaine",
 
 
 
@@ -65,7 +70,7 @@
 
 
 
-	"viescolaire.absences.title"							: "Absences"
+	"viescolaire.absences.title"						: "Absences"
 
 
 

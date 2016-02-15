@@ -17,4 +17,13 @@ public interface IVscoCoursService extends CrudService{
      * @param handler Handler de retour
      */
     public void getClasseCours(String pSDateDebut, String pSDateFin, String pSIdClasse, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupération des cours d'un enseignant en fonction d'une date de début et d'une date de fin.
+     * @param pSDateDebut Date de début de la période
+     * @param pSDateFin Date de fin de la période
+     * @param psUserId Identifiant de l'enseignant
+     * @param handler Handler de retour
+     */
+    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, Handler<Either<String, JsonArray>> handler);
 }

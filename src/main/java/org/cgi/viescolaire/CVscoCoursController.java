@@ -9,7 +9,6 @@ import org.cgi.viescolaire.service.IVscoCoursService;
 import org.cgi.viescolaire.service.impl.CVscoCoursService;
 import org.entcore.common.controller.ControllerHelper;
 import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 
@@ -37,4 +36,18 @@ public class CVscoCoursController extends ControllerHelper{
 
         iVscoCoursService.getClasseCours(dateDebut, dateFin, idClasse, handler);
     }
+
+    @Get("/enseignant/:userId/cours/:dateDebut/:dateFin")
+    @ApiDoc("Get all course within a periode")
+    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
+    public void getCoursByUserId(final HttpServerRequest request){
+        String userId = request.params().get("userId");
+        String dateDebut= request.params().get("dateDebut");
+        String dateFin= request.params().get("dateFin");
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        iVscoCoursService.getCoursByUserId(dateDebut, dateFin, userId, handler);
+    }
+
 }

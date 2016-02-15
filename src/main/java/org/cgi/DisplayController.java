@@ -2,7 +2,6 @@ package org.cgi;
 
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
-import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
@@ -41,7 +40,7 @@ public class DisplayController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if(user.getType().equals("Teacher")) {
-                    renderView(request, null, "absences/absc_teacher.html", null);
+                    renderView(request, null, "absences/absc_teacher_appel.html", null);
                 }else if(user.getType().equals("Personnel")){
                     renderView(request, null, "absences/absc_personnel.html", null);
                 }

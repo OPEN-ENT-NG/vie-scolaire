@@ -1,7 +1,7 @@
 package org.cgi;
 
-//import org.cgi.viescolaire.CVscoCoursController;
 import org.cgi.viescolaire.CVscoCoursController;
+import org.cgi.viescolaire.CVscoEleveController;
 import org.entcore.common.http.BaseServer;
 
 public class Viescolaire extends BaseServer {
@@ -23,9 +23,14 @@ public class Viescolaire extends BaseServer {
 		addController(new DisplayController());
 
 		/*
-			CONTROLLER VIE SCOLAIRE
+			CONTROLLER VIE SCOLAIRE COURS
 		 */
 		addController(new CVscoCoursController());
+
+		/*
+			CONTROLLER VIE SCOLAIRE ELEVES
+		 */
+		addController(new CVscoEleveController());
 	}
 
 }

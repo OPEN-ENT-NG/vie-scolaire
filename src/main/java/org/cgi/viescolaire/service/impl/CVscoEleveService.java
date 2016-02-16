@@ -5,6 +5,7 @@ import org.cgi.Viescolaire;
 import org.cgi.viescolaire.service.IVscoEleveService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
@@ -23,14 +24,35 @@ public class CVscoEleveService extends SqlCrudService implements IVscoEleveServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT eleve.id, eleve.id_user_neo4j, eleve.nom, eleve.prenom")
-        .append("FROM viesco.eleve ")
-        .append("WHERE classe.id_classe_neo4j = ? ")
+        query.append("SELECT eleve.* ")
+        .append("FROM viesco.eleve, viesco.est_membre_de, viesco.classe ")
+        .append("WHERE classe.id = ? ")
         .append("AND classe.id = est_membre_de.id_classe ")
         .append("AND eleve.id = est_membre_de.id_eleve");
 
-        values.addString(pSIdClasse);
+        values.addNumber(new Integer(pSIdClasse));
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT abs.evenement.* ")
+                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.pv_appel")
+                .append("WHERE eleve.id = ? ")
+                .append("AND eleve.id = evenement.id_eleve ")
+                .append("AND evenement.id_appel = pv_appel.id_appel ")
+                .append("AND pv_appel.id_cours = cours.id ")
+                .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_debut ")
+                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY')");
+
+        values.addString(psIdEleve);
+        values.addString(psDateDebut);
+        values.addString(psDateFin);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 }

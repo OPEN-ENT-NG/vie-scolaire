@@ -31,11 +31,11 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 			// chargement des eleves de  chaque cours
 			model.courss.on('sync', function(){
 				model.courss.each(function(cours){
-					cours.eleves.sync(cours.id);
+					cours.eleves.sync();
 				})
 			});
 
-			template.open('main', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel.html');
+			template.open('main', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel');
 		}
 	});
 }

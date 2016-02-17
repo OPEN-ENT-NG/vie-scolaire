@@ -2,14 +2,18 @@ var gsPrefixVieScolaire = 'viescolaire';
 var gsPrefixNotes = 'notes';
 var gsPrefixAbsences = 'absences';
 
+function Historique() {
+
+}
+
 function Evenement() {
 
 }
 
 function Eleve() {
     this.collection(Evenement);
-    this.evenements.sync = function(idCours){
-        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/evenements/' + dateDebut + '/' + dateFin).done(function(data){
+    this.evenements.sync = function(psDateDebut, psDateFin){
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done(function(data){
             this.load(data);
         }.bind(this));
     }
@@ -28,7 +32,7 @@ function Cours(){
 ///////////////////////
 ///   MODEL.BUILD   ///
 model.build = function(){
-    this.makeModels([Eleve, Cours]);
+    this.makeModels([Eleve, Cours, Evenement]);
 
     this.collection(Cours);
 

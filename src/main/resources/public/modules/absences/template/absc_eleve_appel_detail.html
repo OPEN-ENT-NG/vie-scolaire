@@ -1,0 +1,57 @@
+<div class="cell pannel-in-cell">
+  <div class="six cell">
+    <h2>[[currentEleve.nom]] [[currentEleve.prenom]]</h2>
+  </div>
+  <div class="six cell">
+      <img src="[[currentEleve.n.data.picture]]" alt="" ng-if="currentEleve.n !== undefined && currentEleve.n !== null" />
+      <img src="/directory/public/img/no-avatar.jpg?thumbnail=48x48" alt="" ng-if="currentEleve.n === undefined || currentEleve.n === null" />
+  </div>
+
+  <div class="twelve cell">
+    <section>
+      <textarea ng-model="currentEleve.evenement.observation"
+                ng-required="false"
+                placeholder="Observations">
+      </textarea>
+    </section>
+    <section>
+      <input id="hasRetard" type="checkbox" ng-model="eleve.evenement.hasRetard">
+      <label for="hasRetard">
+        <i18n>viescolaire.absences.retard</i18n>
+      </label>
+
+      <input type="time" ng-model="eleve.evenement.retard.time" placeholder="Heure arrivé">
+
+      <textarea ng-model="currentEleve.evenement.retard.commentaire"
+                ng-required="false"
+                placeholder="Commentaire">
+      </textarea>
+    </section>
+
+
+    <section>
+      <input id="hasDepart" type="checkbox" ng-model="eleve.evenement.hasDepart">
+      <label for="hasDepart">
+        <i18n>viescolaire.absences.depart</i18n>
+      </label>
+
+      <input type="time" ng-model="eleve.evenement.depart.time" placeholder="Heure départ">
+
+      <textarea ng-model="currentEleve.evenement.depart.commentaire"
+                ng-required="false"
+                placeholder="Commentaire">
+      </textarea>
+    </section>
+    <section>
+      <input id="hasIncident" type="checkbox" ng-model="eleve.evenement.hasIncident">
+      <label for="hasIncident">
+        <i18n>viescolaire.absences.incident</i18n>
+      </label>
+
+
+      <select ng-model="eleve.evenement.incident">
+        <option value="1" selected="selected">Punition</option>
+      </select>
+    </section>
+  </div>
+</div>

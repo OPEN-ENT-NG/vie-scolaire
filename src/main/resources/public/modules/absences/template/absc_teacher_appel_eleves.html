@@ -1,0 +1,38 @@
+<div class="cell list-view-cgi pannel-in-cell">
+    <div class="row list-view-cgi__header">
+        <div class="one cell">
+            &nbsp;
+        </div>
+        <div class="four cell">
+            <i18n>viescolaire.absences.eleves</i18n>
+        </div>
+        <div class="two cell">
+            <i class="help" ng-click="getInfosAppel()"></i>
+        </div>
+        <div class="five cell">
+            <i18n>viescolaire.absences.historique</i18n>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
+            <div class="one cell cell-indent">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="eleve.selected">
+                    <span></span>
+                </label>
+            </div>
+            <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)">
+                [[eleve.nom]] [[eleve.prenom]]
+            </div>
+            <div class="two cell cell-indent">
+                &nbsp;
+            </div>
+            <div class="five cell cell-indent">
+                <span ng-repeat="evenement in eleve.evenements.all">
+                    [[evenement.mot_pour_la_vie_scolaire]]
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

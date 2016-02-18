@@ -1,0 +1,37 @@
+<div class="row twelve cell">
+
+    <!-- Header -->
+    <header class="header-absences">
+        <h1><i18n>viescolaire.absences.title</i18n></h1>
+    </header>
+
+    <!--  Menu de gauche  -->
+    <nav class="two cell">
+        <div class="pannel-in-cell">
+            <date-picker ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
+            <table class="appel-cours">
+                <thead>
+                <tr><th>Heure</th><td>Classe</td></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="cours in courss.all" ng-click="selectCours(cours)">
+                            <td>[[cours.timestamp_debut]]</td><td>[[cours.id_classe]]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </nav>
+
+    <div ng-show="currentCours !== undefined">
+        <!--  Liste eleves (zone centrale)  -->
+        <div class="cell" ng-class="{ten : !detailEleveOpen, seven: detailEleveOpen}">
+            <div ng-include="template.containers.absc_teacher_appel_eleves_container"></div>
+        </div>
+
+        <!--  Detail eleve (zone de droite)  -->
+        <aside class="three cell" ng-if="detailEleveOpen">
+            <container class="" template="rightSide_absc_eleve_appel_detail"></container>
+        </aside>
+    </div>
+
+</div>

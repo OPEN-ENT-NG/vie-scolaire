@@ -16,4 +16,14 @@ public interface IVscoEleveService extends CrudService {
      * @param handler Handler de retour
      */
     public void getEleveClasse(String pSIdClasse, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupération des évenements (absence/retard) d'un élève pour une période donnée
+     * @param psIdEleve identifiant de l'élève
+     * @param psDateDebut date de debut
+     * @param psDateFin date de fin
+     * @param handler Handler de retour
+     */
+    public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin,
+                              Handler<Either<String, JsonArray>> handler);
 }

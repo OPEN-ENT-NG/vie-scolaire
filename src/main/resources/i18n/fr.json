@@ -70,8 +70,15 @@
 
 
 
-	"viescolaire.absences.title"						: "Absences"
-
+	"viescolaire.absences.title"						: "Absences",
+	"viescolaire.absences.historique"					: "Historique de la journée",
+	"viescolaire.absences.eleves"						: "Eleves",
+	"viescolaire.absences.observations"					: "Observations",
+	"viescolaire.absences.commentaire"					: "Commentaire",
+	"viescolaire.absences.punition"						: "Punition",
+	"viescolaire.absences.retard"						: "Retard",
+	"viescolaire.absences.depart"						: "Départ",
+	"viescolaire.absences.incident"						: "Incident"
 
 
 

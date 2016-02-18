@@ -83,5 +83,6 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.scala-lang:scala-swing:2.10.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: io.gatling:gatling-recorder:2.0.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: net.minidev:json-smart:1.1.1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.entcore:directory:1.15-SNAPSHOT" level="project" />
   </component>
 </module>

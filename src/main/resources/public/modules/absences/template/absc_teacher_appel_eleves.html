@@ -27,11 +27,15 @@
                 [[eleve.nom]] [[eleve.prenom]]
             </div>
             <div class="two cell cell-indent">
-                &nbsp;
+                <span tooltip="Retard" class="appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                </span>
+                <span tooltip="Départ" class="appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                </span>
+                <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                </span>
             </div>
             <div class="five cell cell-indent">
-                <span ng-repeat="evenement in eleve.evenements.all">
-                    [[evenement.mot_pour_la_vie_scolaire]]
+                <span>
                 </span>
             </div>
         </div>

@@ -20,7 +20,7 @@
         <i18n>viescolaire.absences.retard</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementRetard.timestamp_d_arrive" placeholder="Heure arrivé">
+      <input type="time" ng-model="currentEleve.evenementRetard.heure" placeholder="Heure arrivé">
 
       <textarea ng-model="currentEleve.evenementRetard.mot_pour_la_vie_scolaire"
                 ng-required="false"
@@ -35,7 +35,7 @@
         <i18n>viescolaire.absences.depart</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementDepart.timestamp_d_arrive" placeholder="Heure départ">
+      <input type="time" ng-model="currentEleve.evenementDepart.heure" placeholder="Heure départ">
 
       <textarea ng-model="currentEleve.evenementDepart.mot_pour_la_vie_scolaire"
                 ng-required="false"
@@ -43,7 +43,7 @@
       </textarea>
     </section>
     <section>
-      <input id="hasIncident" type="checkbox" ng-model="currentEleve.evenementIncident.hasIncident">
+      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident">
       <label for="hasIncident">
         <i18n>viescolaire.absences.incident</i18n>
       </label>

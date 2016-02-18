@@ -11,7 +11,7 @@
             <date-picker ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
             <table class="appel-cours">
                 <thead>
-                <tr><th>Heure</th><td>Classe</td></tr>
+                <tr><th>Heure</th><th>Classe</th></tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="cours in courss.all" ng-click="selectCours(cours)">

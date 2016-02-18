@@ -2,12 +2,30 @@ var gsPrefixVieScolaire = 'viescolaire';
 var gsPrefixNotes = 'notes';
 var gsPrefixAbsences = 'absences';
 
-function Historique() {
-
+function Evenement() {
 }
 
-function Evenement() {
+Evenement.prototype = {
+    create : function(callback){
+        //http().postJson("todo", this.toJSON()).done(function(data) {
+        //        callback(data.id); // set de l'id sur la CompetenceNote
+        //    }
+        //);
+        //this.composer.isAbsent = true;
+        callback();
+    },
+    delete : function(callback){
+        //http().postJson("todo", this.toJSON()).done(function(data) {
+        //        callback(data.id); // set de l'id sur la CompetenceNote
+        //    }
+        //);
+        //this.composer.isAbsent = false;
+        callback();
+    }
+};
 
+
+function AbsencePrev() {
 }
 
 function Eleve() {
@@ -16,7 +34,13 @@ function Eleve() {
         http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done(function(data){
             this.load(data);
         }.bind(this));
-    }
+    };
+    this.collection(AbsencePrev);
+    this.absencePrevs.sync = function(psDateDebut, psDateFin) {
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done(function(data){
+            this.load(data);
+        }.bind(this));
+    };
 }
 
 function Cours(){
@@ -32,7 +56,7 @@ function Cours(){
 ///////////////////////
 ///   MODEL.BUILD   ///
 model.build = function(){
-    this.makeModels([Eleve, Cours, Evenement]);
+    this.makeModels([Eleve, Cours, Evenement, AbsencePrev]);
 
     this.collection(Cours);
 

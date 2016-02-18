@@ -9,47 +9,47 @@
 
   <div class="twelve cell">
     <section>
-      <textarea ng-model="currentEleve.evenement.observation"
+      <textarea ng-model="currentEleve.evenementObservation.mot_pour_la_vie_scolaire"
                 ng-required="false"
                 placeholder="Observations">
       </textarea>
     </section>
     <section>
-      <input id="hasRetard" type="checkbox" ng-model="eleve.evenement.hasRetard">
+      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard">
       <label for="hasRetard">
         <i18n>viescolaire.absences.retard</i18n>
       </label>
 
-      <input type="time" ng-model="eleve.evenement.retard.time" placeholder="Heure arrivé">
+      <input type="time" ng-model="currentEleve.evenementRetard.timestamp_d_arrive" placeholder="Heure arrivé">
 
-      <textarea ng-model="currentEleve.evenement.retard.commentaire"
+      <textarea ng-model="currentEleve.evenementRetard.mot_pour_la_vie_scolaire"
                 ng-required="false"
-                placeholder="Commentaire">
+                placeholder="Motif">
       </textarea>
     </section>
 
 
     <section>
-      <input id="hasDepart" type="checkbox" ng-model="eleve.evenement.hasDepart">
+      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart">
       <label for="hasDepart">
         <i18n>viescolaire.absences.depart</i18n>
       </label>
 
-      <input type="time" ng-model="eleve.evenement.depart.time" placeholder="Heure départ">
+      <input type="time" ng-model="currentEleve.evenementDepart.timestamp_d_arrive" placeholder="Heure départ">
 
-      <textarea ng-model="currentEleve.evenement.depart.commentaire"
+      <textarea ng-model="currentEleve.evenementDepart.mot_pour_la_vie_scolaire"
                 ng-required="false"
                 placeholder="Commentaire">
       </textarea>
     </section>
     <section>
-      <input id="hasIncident" type="checkbox" ng-model="eleve.evenement.hasIncident">
+      <input id="hasIncident" type="checkbox" ng-model="currentEleve.evenementIncident.hasIncident">
       <label for="hasIncident">
         <i18n>viescolaire.absences.incident</i18n>
       </label>
 
 
-      <select ng-model="eleve.evenement.incident">
+      <select ng-model="currentEleve.evenementIncident.mot_pour_la_vie_scolaire">
         <option value="1" selected="selected">Punition</option>
       </select>
     </section>

@@ -17,10 +17,11 @@
     <div class="row">
         <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
             <div class="one cell cell-indent">
-                <label class="checkbox">
-                    <input type="checkbox" ng-model="eleve.selected">
-                    <span></span>
-                </label>
+                <span class="appel__absence-icon"
+                        ng-class="{'absence-color' : eleve.isAbsent}"
+                        ng-click="ajouterEvenementAbsence(eleve)">
+
+                </span>
             </div>
             <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)">
                 [[eleve.nom]] [[eleve.prenom]]

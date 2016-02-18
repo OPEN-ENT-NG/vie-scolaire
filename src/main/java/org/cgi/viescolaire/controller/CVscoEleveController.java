@@ -1,4 +1,4 @@
-package org.cgi.viescolaire;
+package org.cgi.viescolaire.controller;
 
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -35,16 +35,4 @@ public class CVscoEleveController extends ControllerHelper {
         iVscoEleveService.getEleveClasse(idClasse, handler);
     }
 
-    @Get("/absences/eleve/:idEleve/evenements/:dateDebut/:dateFin")
-    @ApiDoc("Recupere tous le evenements d'un eleves sur une periode")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getEvenements(final HttpServerRequest request){
-        String sIdEleve = request.params().get("idEleve");
-        String sDateDebut = request.params().get("dateDebut");
-        String sDateFin = request.params().get("dateFin");
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        iVscoEleveService.getEvenements(sIdEleve, sDateDebut, sDateFin, handler);
-    }
 }

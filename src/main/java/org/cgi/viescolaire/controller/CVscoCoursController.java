@@ -1,4 +1,4 @@
-package org.cgi.viescolaire;
+package org.cgi.viescolaire.controller;
 
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;

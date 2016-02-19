@@ -82,7 +82,7 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	 */
 	$scope.selectAppel = function () {
 		$scope.ouvrirAppel($scope.appel.date);
-	}
+	};
 
 	/**
 	 * Sélection d'un cours : Affiche le panel central de la liste des élèves
@@ -148,7 +148,7 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 			evenementRetard 		: oEvenementRetard,
 			evenementIncident 		: oEvenementIncident
 
-		}
+		};
 
 		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
 	};

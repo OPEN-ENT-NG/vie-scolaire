@@ -1,0 +1,12 @@
+<div ng-controller="AbscFiltresPersonnelController">
+    <div class="filtre filtre-enseignants">
+        <input type="text" ng-model="pORecherche.pSNomEnseignant">
+        <div class="filtre__toolbar">
+            <button ng-click="switchAll(enseignants, true)" class="instantButtons select"></button>
+            <button ng-click="switchAll(enseignants, false)" class="instantButtons select"></button>
+        </div>
+        <ul class="selectable-list">
+            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant" ng-click="enseignant.selected = !enseignant.selected" ng-init="enseignant.selected = (enseignant.selected ? enseignant.selected : true)" ng-class="{selected : enseignant.selected}">[[enseignant.nom]] [[enseignant.prenom]]</li>
+        </ul>
+    </div>
+</div>

@@ -20,9 +20,9 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  */
 public class CVscoEleveController extends ControllerHelper {
 
-    private final IVscoEleveService iVscoEleveService;
+    private final IVscoEleveService mIVscoEleveService;
     public CVscoEleveController(){
-        iVscoEleveService = new CVscoEleveService();
+        mIVscoEleveService = new CVscoEleveService();
     }
 
     @Get("/classe/:idClasse/eleves")
@@ -32,7 +32,7 @@ public class CVscoEleveController extends ControllerHelper {
         String idClasse = request.params().get("idClasse");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        iVscoEleveService.getEleveClasse(idClasse, handler);
+        mIVscoEleveService.getEleveClasse(idClasse, handler);
     }
 
 }

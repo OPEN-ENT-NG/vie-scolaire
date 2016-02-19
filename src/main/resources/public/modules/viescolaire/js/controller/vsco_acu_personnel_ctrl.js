@@ -1,25 +1,6 @@
 /**
- Defining internal routes
- **/
-routes.define(function($routeProvider){
-	$routeProvider
-			.when('/viescolaire/accueil',{action:'accueil'})
-			.otherwise({
-				//redirectTo : '/devoirs/list'
-				redirectTo : '/viescolaire/accueil'
-			});
-});
+ * Created by ledunoiss on 18/02/2016.
+ */
+function VscoAcuPersonnelController($scope, $rootScope, model, template, route, date){
 
-/**
-	Wrapper controller
-	------------------
-	Main controller.
-**/
-function ViescolaireController($scope, $rootScope, model, template, route, date){
-
-	route({
-		accueil: function (params) {
-			template.open('main', '../modules/viescolaire/template/vsco_acu_personnel');
-		}
-	});
 }

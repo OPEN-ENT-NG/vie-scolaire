@@ -9,7 +9,7 @@
  *  7. Appel : Object contenant toutes les informations relatives à un appel fait en classe ou réalisé par le CPE/Personnel d'éducation.
  *  8. WAbsSansMotifs : Objet Widget contenant la liste des absences sans motifs.
  *  9. WAppelsOublies : Objet Widget contenant la liste des appels oubliés.
- *  10. WMotVsco: Objet Widget contenant la liste des mots pour la vie scolaire.
+ *  10.WMotVsco: Objet Widget contenant la liste des mots pour la vie scolaire.
  *  11.Widget : Objet contenant la liste des widgets de la page d'accueil CPE. Contient des listes de WAbsSansMotifs, WAppelsOublies et WMotVsco.
  */
 
@@ -36,13 +36,7 @@ function Widget(){
 
 model.build = function(){
     this.makeModels([Responsable, Evenement, Eleve, Classe, Enseignant, Matiere, Appel, WAbsSansMotifs, WAppelsOublies, WMotVsco, Widget]);
-    this.collection(Classe, {
-        sync : ""
-    });
-    this.collection(Enseignant, {
-        sync : ""
-    });
-    this.collection(Appel, {
-        sync : ""
-    });
+    this.collection(Classe);
+    this.collection(Enseignant);
+    this.collection(Appel);
 };

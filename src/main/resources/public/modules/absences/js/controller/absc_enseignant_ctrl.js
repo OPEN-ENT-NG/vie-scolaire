@@ -30,6 +30,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	};
 
 
+	$scope.getHeure = function (timestampDate) {
+		return moment(new Date(timestampDate)).format("HH:mm");
+	};
+
 	/**
 	 * Ajout un evenement de type absence pour l'élève passé en paramètre
 	 * @param poEleve l'objet élève
@@ -94,8 +98,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
 				oEleve.evenements.on('sync', function() {
-					var evenementEleve = oEleve.evenements.findWhere({id_type : 1});
-					oEleve.isAbsent = evenementEleve !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({id_type : 1}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4}) !== undefined;
 				});
 
 			});

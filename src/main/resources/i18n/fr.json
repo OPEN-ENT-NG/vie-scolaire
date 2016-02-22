@@ -79,6 +79,7 @@
 	"viescolaire.absences.retard"						: "Retard",
 	"viescolaire.absences.depart"						: "Départ",
 	"viescolaire.absences.incident"						: "Incident",
+	"viescolaire.absences.appel.crenau.vide"			: "CRENEAU VIDE",
 
 
 	"viescolaire.utils.selectAll" : "Tout sélectionner",

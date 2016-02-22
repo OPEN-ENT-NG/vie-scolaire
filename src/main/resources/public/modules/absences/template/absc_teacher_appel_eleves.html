@@ -15,7 +15,7 @@
     </div>
 
     <div class="row">
-        <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
+        <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all" ng-init="genererHistorique(eleve);">
             <div class="one cell cell-indent">
                 <span class="appel__absence-icon"
                         ng-class="{'absence-color' : eleve.isAbsent}"
@@ -35,8 +35,8 @@
                 </span>
             </div>
             <div class="five cell cell-indent">
-                <span>
-                </span>
+                <div id="historique-[[eleve.id]]">
+                </div>
             </div>
         </div>
     </div>

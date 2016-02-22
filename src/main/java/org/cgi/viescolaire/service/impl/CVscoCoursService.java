@@ -44,13 +44,14 @@ public class CVscoCoursService extends SqlCrudService implements IVscoCoursServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT viesco.cours.* ")
-                .append("FROM viesco.cours, viesco.est_assure_par, viesco.personnel ")
+        query.append("SELECT viesco.cours.*, to_char(viesco.cours.timestamp_debut, 'HH24:MI') as heure_debut, viesco.classe.libelle_classe as libelle_classe ")
+                .append("FROM viesco.cours, viesco.classe, viesco.est_assure_par, viesco.personnel ")
                 .append("WHERE personnel.id_user_neo4j::varchar = ? ")
                 .append("AND personnel.id_personnel = est_assure_par.id_personnel ")
                 .append("AND est_assure_par.id_cours = cours.id ")
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_debut ")
-                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY')");
+                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY') ")
+                .append("AND cours.id_classe = classe.id");
 
         values.addString(psUserId);
         values.addString(pSDateDebut);

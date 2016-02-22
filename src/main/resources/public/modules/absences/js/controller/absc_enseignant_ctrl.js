@@ -77,6 +77,51 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 		return evenementEleve;
 	};
 
+
+	/**
+	 * Action de check d'un incident sur un élève.
+	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
+	 */
+	$scope.checkHasIndicent = function () {
+		//$scope.currentEleve.hasIncident = !$scope.currentEleve.hasIncident;
+
+		if(!$scope.currentEleve.hasIncident) {
+			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementIncident);
+		}
+	};
+
+	/**
+	 * Action de check d'un retard sur un élève.
+	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
+	 */
+	$scope.checkHasRetard = function () {
+		if(!$scope.currentEleve.hasRetard) {
+			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementRetard);
+		}
+	};
+
+	/**
+	 * Action de check d'un départ sur un élève.
+	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
+	 */
+	$scope.checkHasDepart = function () {
+		if(!$scope.currentEleve.hasDepart) {
+			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementDepart);
+		}
+	};
+
+	/**
+	 * Supprime l'évenement d'un élève
+	 *
+	 * @param poEleve l'élève
+	 * @param poEvenement évenement à supprimer
+	 */
+	$scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
+		if(poEleve.evenements !== undefined) {
+			poEleve.evenements.remove(poEvenement);
+		}
+	};
+
 	/**
 	 * Ouverture d'un appel suite à la sélection d'une date
 	 */
@@ -90,6 +135,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
      */
 	$scope.selectCours = function(cours) {
 		$scope.currentCours = cours;
+
+		//TODO creer appel en mode "initialisé"
+		$scope.currentCours.appel = {};
+		$scope.currentCours.appel.id = 1;
 		$scope.currentCours.eleves.sync();
 
 		$scope.currentCours.eleves.on('sync', function(){
@@ -98,10 +147,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
 				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({id_type : 1}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4}) !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({id_type : 1, id_appel : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2, id_appel : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3, id_appel : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4, id_appel : $scope.currentCours.appel.id}) !== undefined;
 				});
 
 			});
@@ -117,20 +166,17 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 		$scope.currentEleve = poEleve;
 
 		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);
-		var bHasRetard = oEvenementRetard !== undefined;
-		if(!bHasRetard) {
+		if(oEvenementRetard === undefined) {
 			oEvenementRetard = new Evenement();
 		}
 
 		var oEvenementDepart = $scope.getEvenementEleve(poEleve, 3);
-		var bHasDepart = oEvenementDepart !== undefined;
-		if(!bHasDepart) {
+		if(oEvenementDepart === undefined) {
 			oEvenementDepart = new Evenement();
 		}
 
 		var oEvenementIncident = $scope.getEvenementEleve(poEleve, 4);
-		var bHasIndicent = oEvenementIncident !== undefined;
-		if(!bHasIndicent) {
+		if(oEvenementIncident === undefined) {
 			oEvenementIncident = new Evenement();
 		}
 
@@ -139,18 +185,30 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 			oEvenementObservation = new Evenement();
 		}
 
-		$scope.currentEleve = {
-			hasRetard 				: bHasRetard,
-			hasDepart 				: bHasDepart,
-			hasIncident 			: bHasIndicent,
-			evenementObservation 	: oEvenementObservation,
-			evenementDepart 		: oEvenementDepart,
-			evenementRetard 		: oEvenementRetard,
-			evenementIncident 		: oEvenementIncident
+		$scope.currentEleve.evenementObservation = oEvenementObservation;
+		$scope.currentEleve.evenementDepart = oEvenementDepart;
+		$scope.currentEleve.evenementRetard = oEvenementRetard;
+		$scope.currentEleve.evenementIncident = oEvenementIncident;
 
-		};
 
 		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
+	};
+
+	// TODO
+	$scope.genererHistorique = function (poEleve) {
+		_.each(poEleve.absencePrevs.all, function(absencePrev) {
+			var oHdebut = moment(absencePrev.timestamp_debut, gsFormatDate);
+			var oHfin = moment(absencePrev.timestamp_fin, gsFormatDate);
+
+			var iDureeEnMinutes = oHfin.diff(oHdebut, "minute");
+
+
+
+		});
+	};
+
+	$scope.genereListeCours = function (poCours) {
+
 	};
 
 	/**
@@ -176,24 +234,12 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 
 		// chargement des eleves de  chaque cours
 		model.courss.on('sync', function(){
-			// TODO ne charger que lors du clic sur un cours
-			//model.courss.each(function(oCours){
-			//	oCours.eleves.sync();
-            //
-			//	oCours.eleves.on('sync', function(){
-			//		oCours.eleves.each(function (oEleve) {
-			//			oEleve.evenements.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
-			//			oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
-            //
-			//			oEleve.evenements.on('sync', function() {
-			//				var evenementEleve = oEleve.evenements.findWhere({id_type : 1});
-			//				oEleve.isAbsent = evenementEleve !== undefined;
-			//			});
-            //
-			//		});
-			//	});
-			//})
+			model.creneaus.sync();
+			model.creneaus.on('sync', function(){
+				$scope.creneaus = model.creneaus;
+			});
 		});
+
 
 		$scope.courss = model.courss;
 	};

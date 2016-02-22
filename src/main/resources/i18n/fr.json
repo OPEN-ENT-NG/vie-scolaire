@@ -78,8 +78,11 @@
 	"viescolaire.absences.punition"						: "Punition",
 	"viescolaire.absences.retard"						: "Retard",
 	"viescolaire.absences.depart"						: "Départ",
-	"viescolaire.absences.incident"						: "Incident"
+	"viescolaire.absences.incident"						: "Incident",
 
 
-
+	"viescolaire.utils.selectAll" : "Tout sélectionner",
+	"viescolaire.utils.deselectAll" : "Tout désélectionner",
+	"viescolaire.utils.from" : "Du",
+	"viescolaire.utils.to" : "au"
 }

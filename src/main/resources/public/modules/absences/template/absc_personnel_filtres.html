@@ -1,12 +1,34 @@
 <div ng-controller="AbscFiltresPersonnelController">
-    <div class="filtre filtre-enseignants">
-        <input type="text" ng-model="pORecherche.pSNomEnseignant">
+    <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
+        <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">Enseignants
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.enseignants"></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.enseignants"></span>
+        </h4>
+        <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
-            <button ng-click="switchAll(enseignants, true)" class="instantButtons select"></button>
-            <button ng-click="switchAll(enseignants, false)" class="instantButtons select"></button>
+            <button ng-click="switchAll(enseignants, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant" ng-click="enseignant.selected = !enseignant.selected" ng-init="enseignant.selected = (enseignant.selected ? enseignant.selected : true)" ng-class="{selected : enseignant.selected}">[[enseignant.nom]] [[enseignant.prenom]]</li>
+            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant" ng-click="enseignant.selected = !enseignant.selected"
+                ng-init="enseignant.selected = (enseignant.selected ? enseignant.selected : true)"
+                ng-class="{selected : enseignant.selected}">[[enseignant.nom]] [[enseignant.prenom]]</li>
+        </ul>
+    </div>
+    <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
+        <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">Classes
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.classes" ></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.classes"></span>
+        </h4>
+        <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
+        <div class="filtre__toolbar">
+            <button ng-click="switchAll(classes, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
+        </div>
+        <ul class="selectable-list">
+            <li ng-repeat="classe in classes.all | filter:{libelle_classe:pORecherche.pSNomClasse}" ng-click="classe.selected = !classe.selected"
+                ng-init="classe.selected = (classe.selected ? classe.selected : true)"
+                ng-class="{selected : classe.selected}">[[classe.libelle_classe]]</li>
         </ul>
     </div>
 </div>

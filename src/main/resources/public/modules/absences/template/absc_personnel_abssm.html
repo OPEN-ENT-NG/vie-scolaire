@@ -1,6 +1,22 @@
-<div class="row">
-    <container template="AbscFiltres" class="three"></container>
-    <div class="ten" ng-controller="VscoAbssmPersonnelController">
+<div class="row" ng-controller="AbscAbssmPersonnelController">
+    <header>
+        <div class="header-nav">
+            <div class="header-nav__fil-ariane">
+                <a href="/viescolaire">Absences</a> > Sans motif
+            </div>
+            <div class="header-nav__date-pickers right-magnet">
+                <i18n>viescolaire.utils.from</i18n>
+                <date-picker ng-change="showDate = true"></date-picker>
+                <i18n>viescolaire.utils.to</i18n>
+                <date-picker ng-change="showDate = true"></date-picker>
+            </div>
+        </div>
+        <div class="header-button">
+            <button ng-click="goToPage('/viescolaire#/viescolaire/accueil')">Tableau de bord</button>
+        </div>
+    </header>
+    <container template="AbscFiltres" class="two cell"></container>
+    <div class="ten" >
 
     </div>
 </div>

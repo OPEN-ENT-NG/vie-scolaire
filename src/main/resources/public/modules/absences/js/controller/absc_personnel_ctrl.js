@@ -9,13 +9,22 @@ routes.define(function($routeProvider){
 		});
 });
 
-function AbsencesController($scope, $rootScope, model, template, route, date){
+function AbsencesController($scope, $location, $rootScope, model, template, route, date){
 	/**
 	 * Définition des références aux model.
 	 */
 	$scope.appels = model.appels;
 	$scope.classes = model.classes;
 	$scope.enseignants = model.enseignants;
+
+    $scope.goToPage = function(path){
+        location.replace(path);
+    };
+
+    $scope.goToState = function(path){
+        $location.path(path);
+        $location.replace();
+    };
 
 	$scope.safeApply = function(fn) {
 		var phase = this.$root.$$phase;

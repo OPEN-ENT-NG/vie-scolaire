@@ -77,4 +77,27 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getAbsencesSansMotifs(String psIdEtablissement, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT DISTINCT(evenement.id_evt), evenement.mot_pour_la_vie_scolaire, evenement.saisie_par_le_cpe," +
+                " eleve.nom, eleve.prenom, evenement.id_eleve, cours.timestamp_debut, cours.timestamp_fin, evenement.id_appel ")
+                .append("FROM viesco.eleve, viesco.est_membre_de, viesco.classe, abs.pv_appel, viesco.cours, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.id_evt = motif.id_evt) ")
+                .append("WHERE evenement.id_type = 1 ")
+                .append("AND evenement.id_eleve = eleve.id ")
+                .append("AND evenement.id_appel = pv_appel.id_appel ")
+                .append("AND pv_appel.id_cours = cours.id ")
+                .append("AND cours.timestamp_debut >= ? ")
+                .append("AND cours.timestamp_debut <= ? ")
+                .append("AND eleve.id = est_membre_de.id_eleve ")
+                .append("AND est_membre_de.id_classe = classe.id ")
+                .append("AND classe.id_etab_neo4j = ?::uuid");
+
+        values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultsHandler(handler));
+    }
 }

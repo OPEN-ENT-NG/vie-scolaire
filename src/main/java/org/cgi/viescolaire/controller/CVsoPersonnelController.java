@@ -29,7 +29,7 @@ public class CVsoPersonnelController extends BaseController {
 
     @Get("/enseignants/etablissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Get all teachers sorts by user structure id.")
+    @ApiDoc("Recupere tous les enseignant d'un établissement.")
     public void getEnseignantEtablissement(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

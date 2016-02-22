@@ -30,7 +30,7 @@ public class CVscoClasseController extends BaseController {
 
     @Get("/classes/etablissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Get all classes sorts by user structure id.")
+    @ApiDoc("Recupere toutes les classes d'un établissement donné.")
     public void getClasseEtablissement(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

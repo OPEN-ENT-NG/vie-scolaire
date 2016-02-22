@@ -13,7 +13,6 @@
 function Responsable(){};
 function Evenement(){};
 function Eleve(){
-    this.collection(Evenement);
     this.collection(Responsable);
 };
 function Classe(){
@@ -32,4 +31,10 @@ model.build = function(){
         sync : "/viescolaire/enseignants/etablissement"
     });
     this.collection(Appel);
+    this.collection(Evenement);
+    this.evenements.sync = function(){
+        http().getJSON('/viescolaire/absences/eleves/sansmotifs/:dateDebut/:dateFin').done(function(data){
+            this.load(data);
+        }).bind(this);
+    };
 };

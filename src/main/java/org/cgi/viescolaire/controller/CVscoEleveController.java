@@ -26,7 +26,7 @@ public class CVscoEleveController extends ControllerHelper {
     }
 
     @Get("/classe/:idClasse/eleves")
-    @ApiDoc("Get all student in idClasse class")
+    @ApiDoc("Recupere tous les élèves d'une classe.")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEleveClasse(final HttpServerRequest request){
         String idClasse = request.params().get("idClasse");

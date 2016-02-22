@@ -25,7 +25,7 @@ public class CVscoCoursController extends ControllerHelper{
 
     // TODO : Ajouter le filtre
     @Get("/:idClasse/cours/:dateDebut/:dateFin")
-    @ApiDoc("Get all course within a periode")
+    @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)
     public void getClasseCours(final HttpServerRequest request){
         String idClasse = request.params().get("idClasse");
@@ -38,7 +38,7 @@ public class CVscoCoursController extends ControllerHelper{
     }
 
     @Get("/enseignant/:userId/cours/:dateDebut/:dateFin")
-    @ApiDoc("Get all course within a periode")
+    @ApiDoc("Récupère tous les cours d'un utilisateur dans une période donnée.")
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)
     public void getCoursByUserId(final HttpServerRequest request){
         String userId = request.params().get("userId");

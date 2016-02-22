@@ -10,9 +10,12 @@ import org.cgi.absences.service.impl.CAbscEleveService;
 import org.cgi.viescolaire.service.IVscoEleveService;
 import org.cgi.viescolaire.service.impl.CVscoEleveService;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.impl.Json;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
@@ -63,5 +66,22 @@ public class CAbscEleveController extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         miAbscEleveService.getAbsencesPrev(sIdEleve, sDateDebut, sDateFin, handler);
+    }
+
+    @Get("/absences/eleves/sansmotifs/:dateDebut/:dateFin")
+    @ApiDoc("Recupere toutes les absences sans motifs dans une période donnée")
+    @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
+    public void getAbsencesSansMotifs(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                String sDateDebut = request.params().get("dateDebut");
+                String sDateFin = request.params().get("dateFin");
+
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+                miAbscEleveService.getAbsencesSansMotifs(user.getStructures().get(0), sDateDebut, sDateFin, handler);
+            }
+        });
     }
 }

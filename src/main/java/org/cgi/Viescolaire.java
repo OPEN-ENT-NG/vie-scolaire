@@ -17,6 +17,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_ELEVE_TABLE = "eleve";
 	public final static String VSCO_PERSONNEL_TABLE = "personnel";
 	public final static String VSCO_CLASSE_TABLE = "classe";
+	public final static String VSCO_APPEL_TABLE = "pv_appel";
 
 	@Override
 	public void start() {

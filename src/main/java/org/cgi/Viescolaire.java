@@ -19,6 +19,9 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_CLASSE_TABLE = "classe";
 	public final static String VSCO_APPEL_TABLE = "pv_appel";
 
+	public final static String VSCO_PATHPREFIX = "/viescolaire";
+	public final static String ABSC_PATHPREFIX = "/viescolaire/absences";
+
 	@Override
 	public void start() {
 		super.start();

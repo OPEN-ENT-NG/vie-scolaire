@@ -5,6 +5,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import org.cgi.Viescolaire;
 import org.cgi.absences.service.IAbscEleveService;
 import org.cgi.absences.service.impl.CAbscEleveService;
 import org.cgi.viescolaire.service.IVscoEleveService;
@@ -28,10 +29,11 @@ public class CAbscEleveController extends ControllerHelper {
 
 
     public CAbscEleveController(){
+        pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscEleveService = new CAbscEleveService();
     }
 
-    @Get("/absences/eleve/:idEleve/evenements/:dateDebut/:dateFin")
+    @Get("/eleve/:idEleve/evenements/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous le evenements d'un eleve sur une periode")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEvenements(final HttpServerRequest request){
@@ -44,7 +46,7 @@ public class CAbscEleveController extends ControllerHelper {
         miAbscEleveService.getEvenements(sIdEleve, sDateDebut, sDateFin, handler);
     }
 
-    @Get("/absences/eleve/:idEleve/absencesprev")
+    @Get("/eleve/:idEleve/absencesprev")
     @ApiDoc("Recupere tous le absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrev(final HttpServerRequest request){
@@ -55,7 +57,7 @@ public class CAbscEleveController extends ControllerHelper {
         miAbscEleveService.getAbsencesPrev(sIdEleve, handler);
     }
 
-    @Get("/absences/eleve/:idEleve/absencesprev/:dateDebut/:dateFin")
+    @Get("/eleve/:idEleve/absencesprev/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous le absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrevInPeriod (final HttpServerRequest request){
@@ -68,7 +70,7 @@ public class CAbscEleveController extends ControllerHelper {
         miAbscEleveService.getAbsencesPrev(sIdEleve, sDateDebut, sDateFin, handler);
     }
 
-    @Get("/absences/eleves/sansmotifs/:dateDebut/:dateFin")
+    @Get("/eleves/sansmotifs/:dateDebut/:dateFin")
     @ApiDoc("Recupere toutes les absences sans motifs dans une période donnée")
     @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
     public void getAbsencesSansMotifs(final HttpServerRequest request){

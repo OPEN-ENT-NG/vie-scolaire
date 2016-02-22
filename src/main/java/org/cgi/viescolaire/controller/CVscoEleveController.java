@@ -5,6 +5,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import org.cgi.Viescolaire;
 import org.cgi.viescolaire.service.IVscoEleveService;
 import org.cgi.viescolaire.service.impl.CVscoEleveService;
 import org.entcore.common.controller.ControllerHelper;
@@ -22,6 +23,7 @@ public class CVscoEleveController extends ControllerHelper {
 
     private final IVscoEleveService mIVscoEleveService;
     public CVscoEleveController(){
+        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         mIVscoEleveService = new CVscoEleveService();
     }
 

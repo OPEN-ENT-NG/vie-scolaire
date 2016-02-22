@@ -5,6 +5,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import org.cgi.Viescolaire;
 import org.cgi.viescolaire.service.IVscoCoursService;
 import org.cgi.viescolaire.service.impl.CVscoCoursService;
 import org.entcore.common.controller.ControllerHelper;
@@ -20,6 +21,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
 public class CVscoCoursController extends ControllerHelper{
     private final IVscoCoursService iVscoCoursService;
     public CVscoCoursController(){
+        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         iVscoCoursService = new CVscoCoursService();
     }
 

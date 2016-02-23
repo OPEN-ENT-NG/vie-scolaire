@@ -151,6 +151,11 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2, id_appel : $scope.currentCours.appel.id}) !== undefined;
 					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3, id_appel : $scope.currentCours.appel.id}) !== undefined;
 					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4, id_appel : $scope.currentCours.appel.id}) !== undefined;
+
+					oEleve.absencePrevs.on('sync', function() {
+						oEleve.creneaus.sync($scope.currentCours.appel.id);
+					});
+
 				});
 
 			});
@@ -194,23 +199,6 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
 	};
 
-	// TODO
-	$scope.genererHistorique = function (poEleve) {
-		_.each(poEleve.absencePrevs.all, function(absencePrev) {
-			var oHdebut = moment(absencePrev.timestamp_debut, gsFormatDate);
-			var oHfin = moment(absencePrev.timestamp_fin, gsFormatDate);
-
-			var iDureeEnMinutes = oHfin.diff(oHdebut, "minute");
-
-
-
-		});
-	};
-
-	$scope.genereListeCours = function (poCours) {
-
-	};
-
 	/**
 	* Charge un appel
 	* @param pdtDate la date du jour souhaitée
@@ -240,8 +228,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 			});
 		});
 
-
 		$scope.courss = model.courss;
+
+		model.plages.sync();
+		$scope.plages = model.plages;
 	};
 
 	route({

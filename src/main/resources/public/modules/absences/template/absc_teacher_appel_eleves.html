@@ -15,27 +15,49 @@
     </div>
 
     <div class="row">
-        <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all" ng-init="genererHistorique(eleve);">
-            <div class="one cell cell-indent">
-                <span class="appel__absence-icon"
-                        ng-class="{'absence-color' : eleve.isAbsent}"
-                        ng-click="ajouterEvenementAbsence(eleve)">
 
-                </span>
+        <div class="twelve cell">
+            <div class="seven cell cell-indent">
+                &nbsp;
             </div>
-            <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)">
-                [[eleve.nom]] [[eleve.prenom]]
+            <div class="five cell">
+                <div ng-repeat="plage in plages.all"
+                     ng-style="plage.style"
+                     class="appel__historiques-creneau-plage"
+                >
+                    [[plage.heure]]
+                </div>
             </div>
-            <div class="two cell cell-indent">
-                <span tooltip="Retard" class="appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
-                </span>
-                <span tooltip="Départ" class="appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
-                </span>
-                <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
-                </span>
-            </div>
-            <div class="five cell cell-indent">
-                <div id="historique-[[eleve.id]]">
+        </div>
+
+        <div class="list-view-cgi__grille">
+            <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
+                <div class="one cell cell-indent">
+                    <span class="appel__absence-icon"
+                            ng-class="{'absence-color' : eleve.isAbsent}"
+                            ng-click="ajouterEvenementAbsence(eleve)">
+
+                    </span>
+                </div>
+                <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)">
+                    [[eleve.nom]] [[eleve.prenom]]
+                </div>
+                <div class="two cell cell-indent">
+                    <span tooltip="Retard" class="appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                    </span>
+                    <span tooltip="Départ" class="appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                    </span>
+                    <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                    </span>
+                    <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
+                </div>
+                <div class="five cell">
+                    <div ng-repeat="creneau in eleve.creneaus.all"
+                         ng-style="creneau.style"
+                         ng-class="{'absence-color' : creneau.isAbsent, 'retard-color' : creneau.hasRetard, 'depart-color' : creneau.hasDepart, 'absence-prev-color' : creneau.hasAbsencePrev && !creneau.isAbsent}"
+                         class="appel__historiques-creneau-eleve"
+                    >
+                    </div>
                 </div>
             </div>
         </div>

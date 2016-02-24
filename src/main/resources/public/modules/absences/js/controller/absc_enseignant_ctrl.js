@@ -128,6 +128,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * Ouverture d'un appel suite à la sélection d'une date
 	 */
 	$scope.selectAppel = function () {
+		$scope.currentCours = undefined;
 		$scope.ouvrirAppel($scope.appel.date);
 	};
 
@@ -169,7 +170,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEleve l'objet eleve sélectionné
      */
 	$scope.detailEleveAppel = function(poEleve) {
-		$scope.detailEleveOpen = true;
+		$scope.detailEleveOpen = !$scope.detailEleveOpen;
 		$scope.currentEleve = poEleve;
 
 		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);

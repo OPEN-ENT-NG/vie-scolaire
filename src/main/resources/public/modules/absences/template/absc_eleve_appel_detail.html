@@ -15,7 +15,7 @@
       </textarea>
     </section>
     <section>
-      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard">
+      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard" ng-click="checkHasRetard();">
       <label for="hasRetard">
         <i18n>viescolaire.absences.retard</i18n>
       </label>
@@ -30,7 +30,7 @@
 
 
     <section>
-      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart">
+      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart" ng-click="checkHasDepart();">
       <label for="hasDepart">
         <i18n>viescolaire.absences.depart</i18n>
       </label>
@@ -43,7 +43,7 @@
       </textarea>
     </section>
     <section>
-      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident">
+      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click="checkHasIncident();">
       <label for="hasIncident">
         <i18n>viescolaire.absences.incident</i18n>
       </label>

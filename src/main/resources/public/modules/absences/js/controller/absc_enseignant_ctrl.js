@@ -170,8 +170,15 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEleve l'objet eleve sélectionné
      */
 	$scope.detailEleveAppel = function(poEleve) {
-		$scope.detailEleveOpen = !$scope.detailEleveOpen;
-		$scope.currentEleve = poEleve;
+		$scope.detailEleveOpen = $scope.currentEleve === undefined ||
+				($scope.currentEleve !==undefined && $scope.currentEleve.eleve_id !== poEleve.eleve_id);
+
+		if($scope.detailEleveOpen) {
+			$scope.currentEleve = poEleve;
+		} else {
+			$scope.currentEleve = undefined;
+			return;
+		}
 
 		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);
 		if(oEvenementRetard === undefined) {

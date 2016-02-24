@@ -41,13 +41,13 @@ public class CVscoEleveService extends SqlCrudService implements IVscoEleveServi
         JsonArray values = new JsonArray();
 
         query.append("SELECT abs.evenement.* ")
-                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.pv_appel ")
-                .append("WHERE eleve.id = ? ")
-                .append("AND eleve.id = evenement.id_eleve ")
-                .append("AND evenement.id_appel = pv_appel.id_appel ")
-                .append("AND pv_appel.id_cours = cours.id ")
-                .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_debut ")
-                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY')");
+                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.appel ")
+                .append("WHERE eleve.eleve_id = ? ")
+                .append("AND eleve.eleve_id = evenement.fk_eleve_id ")
+                .append("AND evenement.fk_appel_id = appel.appel_id ")
+                .append("AND appel.fk_cours_id = cours.cours_id ")
+                .append("AND to_date(?, 'DD-MM-YYYY') < cours.cours_timestamp_dt ")
+                .append("AND cours.cours_timestamp_fn < to_date(?, 'DD-MM-YYYY')");
 
         values.addNumber(new Integer(psIdEleve));
         values.addString(psDateDebut);

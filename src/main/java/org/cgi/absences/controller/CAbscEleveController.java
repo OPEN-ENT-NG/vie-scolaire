@@ -70,15 +70,15 @@ public class CAbscEleveController extends ControllerHelper {
         miAbscEleveService.getAbsencesPrev(sIdEleve, sDateDebut, sDateFin, handler);
     }
 
-    @Get("/eleves/sansmotifs/:dateDebut/:dateFin")
+    @Get("/eleves/evenements/:dateDebut/:dateFin")
     @ApiDoc("Recupere toutes les absences sans motifs dans une période donnée")
     @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
     public void getAbsencesSansMotifs(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                String sDateDebut = request.params().get("dateDebut");
-                String sDateFin = request.params().get("dateFin");
+                String sDateDebut = request.params().get("dateDebut")+" 00:00:00";
+                String sDateFin = request.params().get("dateFin")+" 23:59:59";
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 

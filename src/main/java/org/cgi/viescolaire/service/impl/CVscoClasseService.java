@@ -22,9 +22,9 @@ public class CVscoClasseService extends SqlCrudService implements IVscoClasseSer
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT classe.id, classe.id_classe_neo4j, classe.libelle_classe ")
+        query.append("SELECT classe.classe_id, classe.fk4j_classe_id, classe.classe_libelle ")
                 .append("FROM viesco.classe ")
-                .append("WHERE classe.id_etab_neo4j = ?::uuid");
+                .append("WHERE classe.fk4j_etab_id = ?::uuid");
 
         params.addString(idEtablissement);
 

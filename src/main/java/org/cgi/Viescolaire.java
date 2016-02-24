@@ -1,6 +1,8 @@
 package org.cgi;
 
+import org.cgi.absences.controller.CAbscAppelController;
 import org.cgi.absences.controller.CAbscEleveController;
+import org.cgi.absences.controller.CAbscMotifController;
 import org.cgi.viescolaire.controller.CVscoClasseController;
 import org.cgi.viescolaire.controller.CVscoCoursController;
 import org.cgi.viescolaire.controller.CVscoEleveController;
@@ -18,6 +20,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_PERSONNEL_TABLE = "personnel";
 	public final static String VSCO_CLASSE_TABLE = "classe";
 	public final static String VSCO_APPEL_TABLE = "pv_appel";
+	public final static String VSCO_MOTIF_TABLE = "motif";
 
 	public final static String VSCO_PATHPREFIX = "/viescolaire";
 	public final static String ABSC_PATHPREFIX = "/viescolaire/absences";
@@ -43,6 +46,8 @@ public class Viescolaire extends BaseServer {
 			CONTROLEURS ABSENCES
 		 */
 		addController(new CAbscEleveController());
+		addController(new CAbscMotifController());
+		addController(new CAbscAppelController());
 
 		/*
 			CONTROLEURS NOTES

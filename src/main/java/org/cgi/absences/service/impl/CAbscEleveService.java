@@ -21,14 +21,14 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT abs.evenement.*, to_char(abs.evenement.timestamp_d_arrive, 'HH24:mm') as heure ")
-                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.pv_appel ")
-                .append("WHERE eleve.id = ? ")
-                .append("AND eleve.id = evenement.id_eleve ")
-                .append("AND evenement.id_appel = pv_appel.id_appel ")
-                .append("AND pv_appel.id_cours = cours.id ")
-                .append("AND to_date(?, 'DD-MM-YYYY') <= cours.timestamp_debut ")
-                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY')");
+        query.append("SELECT abs.evenement.*, to_char(abs.evenement.evenement_timestamp_arrive, 'HH24:mm') as heure ")
+                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.appel ")
+                .append("WHERE eleve.eleve_id = ? ")
+                .append("AND eleve.eleve_id = evenement.fk_eleve_id ")
+                .append("AND evenement.fk_appel_id = appel.appel_id ")
+                .append("AND appel.fk_cours_id = cours.cours_id ")
+                .append("AND to_date(?, 'DD-MM-YYYY') <= cours.cours_timestamp_dt ")
+                .append("AND cours.cours_timestamp_fn < to_date(?, 'DD-MM-YYYY')");
 
         values.addNumber(new Integer(psIdEleve));
         values.addString(psDateDebut);
@@ -44,7 +44,7 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
 
         query.append("SELECT abs.absence_prev.* ")
                 .append("FROM abs.absence_prev ")
-                .append("WHERE absence_prev.id_eleve = ? ");
+                .append("WHERE absence_prev.fk_eleve_id = ? ");
 
         values.addNumber(new Integer(psIdEleve));
 
@@ -56,15 +56,15 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        // recéupération de toutes les absences prévisionnelle dont la date de début ou la date de fin
+        // récupération de toutes les absences prévisionnelles dont la date de début ou la date de fin
         // est comprise entre la date de début et de fin passée en paramètre (exemple date début et date fin d'un cours)
         query.append("SELECT abs.absence_prev.* ")
                 .append("FROM abs.absence_prev ")
-                .append("WHERE absence_prev.id_eleve = ? ")
+                .append("WHERE absence_prev.fk_eleve_id = ? ")
                 .append("AND ( ")
-                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_debut AND absence_prev.timestamp_fin < to_date(?, 'DD-MM-YYYY')) ")
+                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.absence_prev_timestamp_dt AND absence_prev.absence_prev_timestamp_dt < to_date(?, 'DD-MM-YYYY')) ")
                 .append("OR ")
-                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_fin  AND absence_prev.timestamp_fin < to_date(?, 'DD-MM-YYYY')) ")
+                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.absence_prev_timestamp_fn  AND absence_prev.absence_prev_timestamp_fn < to_date(?, 'DD-MM-YYYY')) ")
                 .append(")");
 
         values.addNumber(new Integer(psIdEleve));
@@ -83,21 +83,23 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT DISTINCT(evenement.id_evt), evenement.mot_pour_la_vie_scolaire, evenement.saisie_par_le_cpe," +
-                " eleve.nom, eleve.prenom, evenement.id_eleve, cours.timestamp_debut, cours.timestamp_fin, evenement.id_appel ")
-                .append("FROM viesco.eleve, viesco.est_membre_de, viesco.classe, abs.pv_appel, viesco.cours, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.id_evt = motif.id_evt) ")
-                .append("WHERE evenement.id_type = 1 ")
-                .append("AND evenement.id_eleve = eleve.id ")
-                .append("AND evenement.id_appel = pv_appel.id_appel ")
-                .append("AND pv_appel.id_cours = cours.id ")
-                .append("AND cours.timestamp_debut >= ? ")
-                .append("AND cours.timestamp_debut <= ? ")
-                .append("AND eleve.id = est_membre_de.id_eleve ")
-                .append("AND est_membre_de.id_classe = classe.id ")
-                .append("AND classe.id_etab_neo4j = ?::uuid");
+        query.append("SELECT DISTINCT(evenement.evenement_id), evenement.evenement_commentaire, evenement.evenement_saisie_cpe," +
+                " eleve.eleve_nom, eleve.eleve_prenom, evenement.fk_eleve_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id, classe.classe_id as id_classe, personnel.personnel_id ")
+                .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.evenement_id = motif.fk_evenement_id) ")
+                .append("WHERE evenement.fk_eleve_id = eleve.eleve_id ")
+                .append("AND evenement.fk_appel_id = appel.appel_id ")
+                .append("AND appel.fk_cours_id = cours.cours_id ")
+                .append("AND cours.cours_timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
+                .append("AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id ")
+                .append("AND rel_eleve_classe.fk_classe_id = classe.classe_id ")
+                .append("AND classe.fk4j_etab_id = ?::uuid ")
+                .append("AND cours.fk_classe_id = classe.classe_id ")
+                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
+                .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultsHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 }

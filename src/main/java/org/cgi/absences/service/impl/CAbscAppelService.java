@@ -28,8 +28,8 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
                 .append("WHERE pv_appel.id_personnel = personnel.id_personnel ")
                 .append("AND pv_appel.id_cours = cours.id ")
                 .append("AND cours.id_etab_neo4j = ? ")
-                .append("AND cours.timestamp_debut >= ? ")
-                .append("AND cours.timestamp_debut <= ? ");
+                .append("AND cours.timestamp_debut > to_date(?, 'DD-MM-YYYY HH24:MI:SS) ")
+                .append("AND cours.timestamp_debut < to_date(?, 'DD-MM-YYYY HH24:MI:SS) ");
 
         value.addString(psIdEtablissement).addString(psDateDebut).addString(psDateFin);
 

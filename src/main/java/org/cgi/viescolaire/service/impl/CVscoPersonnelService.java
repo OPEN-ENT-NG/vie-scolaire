@@ -22,9 +22,9 @@ public class CVscoPersonnelService extends SqlCrudService implements IVscoPerson
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT personnel.id_personnel, personnel.id_user_neo4j, personnel.nom, personnel.prenom, personnel.enseigne ")
-        .append("FROM viesco.personnel WHERE personnel.id_etab_neo4j = ?::uuid ")
-        .append("AND personnel.profil = 'Teacher'");
+        query.append("SELECT personnel.personnel_id, personnel.fk4j_user_id, personnel.personnel_nom, personnel.personnel_prenom, personnel.personnel_enseigne ")
+        .append("FROM viesco.personnel WHERE personnel.fk4j_etab_id = ?::uuid ")
+        .append("AND personnel.personnel_profil = 'Teacher'");
 
         params.addString(idEtablissement);
 

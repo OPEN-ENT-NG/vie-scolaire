@@ -19,9 +19,11 @@ routes.define(function($routeProvider){
 	------------------
 	Main controller.
 **/
-function AbsencesController($scope, $rootScope, model, template, route, date){
+function AbsencesController($scope, $rootScope, $route, model, template, route, date){
 
 	$scope.template = template;
+	$scope.routes = $route;
+
 	template.open('absc_teacher_appel_eleves_container', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_eleves');
 
 	$scope.detailEleveOpen = false;
@@ -197,6 +199,12 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 
 
 		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
+	};
+
+	$scope.fermerDetailEleve = function() {
+		$scope.currentEleve = undefined;
+		// booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
+		$scope.detailEleveOpen = false;
 	};
 
 	/**

@@ -1,10 +1,14 @@
 <div class="cell pannel-in-cell">
+
+  <div class="twelve cell fa fa-close appel__detail-eleve-close" ng-click="fermerDetailEleve()">
+  </div>
+
   <div class="six cell">
     <h2>[[currentEleve.eleve_nom]] [[currentEleve.eleve_prenom]]</h2>
   </div>
   <div class="six cell">
-      <img src="[[currentEleve.n.data.picture]]" alt="" ng-if="currentEleve.n !== undefined && currentEleve.n !== null" />
-      <img src="/directory/public/img/no-avatar.jpg?thumbnail=48x48" alt="" ng-if="currentEleve.n === undefined || currentEleve.n === null" />
+      <img class="appel__detail-eleve-img" src="[[currentEleve.n.data.picture]]" alt="" ng-if="currentEleve.n !== undefined && currentEleve.n !== null" />
+      <img class="appel__detail-eleve-img" src="/directory/public/img/no-avatar.jpg?thumbnail=48x48" alt="" ng-if="currentEleve.n === undefined || currentEleve.n === null" />
   </div>
 
   <div class="twelve cell">
@@ -48,10 +52,14 @@
         <i18n>viescolaire.absences.incident</i18n>
       </label>
 
-
       <select ng-model="currentEleve.evenementIncident.mot_pour_la_vie_scolaire">
         <option value="1" selected="selected">Punition</option>
       </select>
+
+      <textarea ng-model="currentEleve.evenementIncident.mot_pour_la_vie_scolaire"
+                ng-required="false"
+                placeholder="Commentaire">
+      </textarea>
     </section>
   </div>
 </div>

@@ -20,7 +20,7 @@
             <div class="seven cell cell-indent">
                 &nbsp;
             </div>
-            <div class="five cell">
+            <div class="five cell cell-indent">
                 <div ng-repeat="plage in plages.all"
                      ng-style="plage.style"
                      class="appel__historiques-creneau-plage"
@@ -51,7 +51,7 @@
                     </span>
                     <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
                 </div>
-                <div class="five cell">
+                <div class="five cell cell-indent">
                     <div ng-repeat="creneau in eleve.creneaus.all"
                          ng-style="creneau.style"
                          ng-class="{'absence-color' : creneau.isAbsent, 'retard-color' : creneau.hasRetard, 'depart-color' : creneau.hasDepart, 'absence-prev-color' : creneau.hasAbsencePrev && !creneau.isAbsent}"

@@ -25,10 +25,10 @@ public class CVscoEleveService extends SqlCrudService implements IVscoEleveServi
         JsonArray values = new JsonArray();
 
         query.append("SELECT eleve.* ")
-        .append("FROM viesco.eleve, viesco.est_membre_de, viesco.classe ")
-        .append("WHERE classe.id = ? ")
-        .append("AND classe.id = est_membre_de.id_classe ")
-        .append("AND eleve.id = est_membre_de.id_eleve");
+        .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe ")
+        .append("WHERE classe.classe_id = ? ")
+        .append("AND classe.classe_id = rel_eleve_classe.fk_classe_id ")
+        .append("AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id");
 
         values.addNumber(new Integer(pSIdClasse));
 

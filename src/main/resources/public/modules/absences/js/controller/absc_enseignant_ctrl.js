@@ -44,11 +44,11 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 		// creation absence
 		if(evenementAbsence === undefined) {
 			evenementAbsence = new Evenement();
-			evenementAbsence.id_eleve = poEleve.id;
-			evenementAbsence.id_type = 1;
+			evenementAbsence.fk_eleve_id = poEleve.eleve_id;
+			evenementAbsence.fk_type_evt_id = 1;
 			// TODO compléter
 			// TODO à voir si on créé tout d'un coup ou si on créé l'appel puis on met à jour au fur et à mesure
-			evenementAbsence.id_appel = $scope.appel.id;
+			evenementAbsence.fk_appel_id = $scope.appel.id;
 
 			poEleve.evenements.push(evenementAbsence);
 
@@ -73,7 +73,7 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	 * @returns l'évenement ouo undefined si aucun évenement trouvé.
      */
 	$scope.getEvenementEleve = function(poEleve, piTypeEvenement) {
-		var evenementEleve = poEleve.evenements.findWhere({id_type : parseInt(piTypeEvenement)});
+		var evenementEleve = poEleve.evenements.findWhere({fk_type_evt_id : parseInt(piTypeEvenement)});
 		return evenementEleve;
 	};
 
@@ -147,10 +147,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
 				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({id_type : 1, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4, id_appel : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
 
 					oEleve.absencePrevs.on('sync', function() {
 						oEleve.creneaus.sync($scope.currentCours.appel.id);

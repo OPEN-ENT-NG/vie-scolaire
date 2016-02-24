@@ -40,14 +40,14 @@ function AbsencePrev() {
 function Eleve() {
     this.collection(Evenement);
     this.evenements.sync = function(psDateDebut, psDateFin){
-        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done(function(data){
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.eleve_id + '/evenements/' + psDateDebut + '/' + psDateFin).done(function(data){
             this.load(data);
         }.bind(this));
     };
 
     this.collection(AbsencePrev);
     this.absencePrevs.sync = function(psDateDebut, psDateFin) {
-        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done(function(data){
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.eleve_id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done(function(data){
             this.load(data);
         }.bind(this));
     };
@@ -78,8 +78,8 @@ function Eleve() {
 
                 var oCurrentCours = model.courss.all[i];
 
-                var oHeureDebutCours = moment(moment(oCurrentCours.timestamp_debut).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-                var oHeureFinCours = moment(moment(oCurrentCours.timestamp_fin).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                var oHeureDebutCours = moment(moment(oCurrentCours.cours_timestamp_dt).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                var oHeureFinCours = moment(moment(oCurrentCours.cours_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
 
                 // si le cours est après le dernier creneau ajouté
                 if (oHeureDebutCours.diff(oHeureEnCours) > 0) {
@@ -112,16 +112,16 @@ function Eleve() {
                 creneau.hasAbsencePrev = false;
 
                 if(this.composer.evenements !== undefined && this.composer.evenements.all.length > 0) {
-                    creneau.isAbsent = this.composer.evenements.findWhere({id_eleve: this.composer.id, id_type: 1, id_appel: piIdAppel}) !== undefined;
-                    creneau.hasRetard = this.composer.evenements.findWhere({id_eleve: this.composer.id, id_type: 2, id_appel: piIdAppel}) !== undefined;
-                    creneau.hasDepart = this.composer.evenements.findWhere({id_eleve: this.composer.id, id_type: 3, id_appel: piIdAppel}) !== undefined;
+                    creneau.isAbsent = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 1, fk_appel_id: piIdAppel}) !== undefined;
+                    creneau.hasRetard = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 2, fk_appel_id: piIdAppel}) !== undefined;
+                    creneau.hasDepart = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 3, fk_appel_id: piIdAppel}) !== undefined;
                 }
 
                 if(this.composer.absencePrevs !== undefined && this.composer.absencePrevs.all.length > 0) {
-                    var iIdEleve = this.composer.id;
+                    var iIdEleve = this.composer.eleve_id;
                     var oAbsencePrevs = _.filter(this.composer.absencePrevs.all, function(poAbsencePrev) {
-                        var poDebutAbsenceMoment = moment(moment(poAbsencePrev.timestamp_debut).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-                        var poFinAbsenceMoment = moment(moment(poAbsencePrev.timestamp_fin).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                        var poDebutAbsenceMoment = moment(moment(poAbsencePrev.absence_prev_timestamp_dt).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                        var poFinAbsenceMoment = moment(moment(poAbsencePrev.absence_prev_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
 
                         // l'absence previsionnelle doit englobler le cours pour qu'on indique qu'il y ait eu absence prev sur celui-ci
                         return (iIdEleve === poAbsencePrev.id_eleve) && (oHeureDebutCours.diff(poDebutAbsenceMoment, "minute") >= 0) && (poFinAbsenceMoment.diff(oHeureFinCours, "minute") >= 0);
@@ -164,7 +164,7 @@ function Eleve() {
 function Cours(){
     this.collection(Eleve);
     this.eleves.sync = function(){
-        http().getJson('/' + gsPrefixVieScolaire + '/classe/' + this.composer.id_classe + '/eleves').done(function(data){
+        http().getJson('/' + gsPrefixVieScolaire + '/classe/' + this.composer.fk_classe_id + '/eleves').done(function(data){
             this.load(data);
         }.bind(this));
     };
@@ -232,8 +232,8 @@ model.build = function(){
 
                 var oCurrentCours = model.courss.all[i];
 
-                var oHeureDebutCours = moment(moment(oCurrentCours.timestamp_debut).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-                var oHeureFinCours = moment(moment(oCurrentCours.timestamp_fin).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                var oHeureDebutCours = moment(moment(oCurrentCours.cours_timestamp_dt).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
+                var oHeureFinCours = moment(moment(oCurrentCours.cours_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
 
                 // si le cours est après le dernier creneau ajouté
                 if (oHeureDebutCours.diff(oHeureEnCours) > 0) {

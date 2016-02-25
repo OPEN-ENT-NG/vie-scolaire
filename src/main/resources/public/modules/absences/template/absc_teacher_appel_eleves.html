@@ -17,8 +17,11 @@
     <div class="row">
 
         <div class="twelve cell">
-            <div class="seven cell cell-indent">
+            <div class="one cell cell-indent">
                 &nbsp;
+            </div>
+            <div class="six cell cell-indent">
+                <div class="appel_eleves-presents">Nb. presents : [[currentCours.nbPresents]] / [[currentCours.nbEleves]]</div>
             </div>
             <div class="five cell cell-indent">
                 <div ng-repeat="plage in plages.all"
@@ -43,11 +46,11 @@
                     [[eleve.eleve_nom]] [[eleve.eleve_prenom]]
                 </div>
                 <div class="two cell cell-indent">
-                    <span tooltip="Retard" class="appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                    <span tooltip="Retard" class="fa fa-clock-o appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
                     </span>
-                    <span tooltip="Départ" class="appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                    <span tooltip="Départ" class="fa fa-clock-o appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
                     </span>
-                    <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                    <span tooltip="Incident" class="fa fa-exclamation appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
                     </span>
                     <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
                 </div>

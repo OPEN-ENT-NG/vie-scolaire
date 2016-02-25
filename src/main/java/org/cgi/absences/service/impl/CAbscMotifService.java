@@ -14,7 +14,7 @@ import org.vertx.java.core.json.JsonArray;
  */
 public class CAbscMotifService extends SqlCrudService implements IAbscMotifService {
     public CAbscMotifService() {
-        super(Viescolaire.ABSC_SCHEMA, Viescolaire.VSCO_MOTIF_TABLE);
+        super(Viescolaire.ABSC_SCHEMA, Viescolaire.ABSC_MOTIF_TABLE);
     }
 
     @Override

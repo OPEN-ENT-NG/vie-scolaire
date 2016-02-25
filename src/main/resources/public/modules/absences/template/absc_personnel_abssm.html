@@ -1,22 +1,28 @@
 <div class="row" ng-controller="AbscAbssmPersonnelController">
-    <header>
-        <div class="header-nav">
-            <div class="header-nav__fil-ariane">
-                <a href="/viescolaire">Absences</a> > Sans motif
-            </div>
-            <div class="header-nav__date-pickers right-magnet">
-                <i18n>viescolaire.utils.from</i18n>
-                <date-picker ng-change="showDate = true"></date-picker>
-                <i18n>viescolaire.utils.to</i18n>
-                <date-picker ng-change="showDate = true"></date-picker>
+    <container template="AbscFiltres" class="cell" ng-class="{two : !menu.opened, three : menu.opened}"></container>
+    <div ng-class="{nine : menu.opened, ten : !menu.opened}" class="cell abscSM-content">
+        <div class="abscSM-content--student-search-input ten cell">
+            <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un élève">
+        </div>
+        <div class="list-view-cgi">
+            <div class="ten cell abscSM-content--SM-list panel-in-cell">
+                <div class="abscSM-content--SM-list--header">
+                    <div class="cell cell-indent three"><i18n>viescolaire.utils.student</i18n></div>
+                    <div class="cell cell-indent three"><i18n>viescolaire.utils.date</i18n></div>
+                    <div class="cell cell-indent five"><i18n>viescolaire.utils.reason</i18n></div>
+                </div>
+                <div class="abscSM-content--SM-list--list panel-in-cell">
+                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="evenement in sansMotifs | filter:personnelFilter | filter:poRecherche.nom">
+                        <div class="cell three">[[evenement.eleve_nom]] [[evenement.eleve_prenom]]</div>
+                        <div class="cell three">[[getJourDate(evenement.cours_timestamp_dt)]]</div>
+                        <div class="cell five">
+                            <label class="select-input">
+                                <select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" ng-init="evenement.motif = defaultMotif" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="header-button">
-            <button ng-click="goToPage('/viescolaire#/viescolaire/accueil')">Tableau de bord</button>
-        </div>
-    </header>
-    <container template="AbscFiltres" class="two cell"></container>
-    <div class="ten" >
-
     </div>
 </div>

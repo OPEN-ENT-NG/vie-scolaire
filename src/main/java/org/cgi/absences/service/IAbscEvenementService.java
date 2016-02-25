@@ -16,7 +16,7 @@ public interface IAbscEvenementService extends CrudService {
      * Met à jours l'évènement
      * @param pIIdEvenement identifiant de l'évènement.
      * @param pOEvenement objet contenant l'évènement.
-     * @param hanlder handler portant le résultat de la requête.
+     * @param handler handler portant le résultat de la requête.
      */
     public void updateEvenement(String pIIdEvenement, JsonObject pOEvenement, Handler<Either<String, JsonArray>> handler);
 }

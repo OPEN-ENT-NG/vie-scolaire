@@ -17,7 +17,7 @@
                         <div class="cell three">[[getJourDate(evenement.cours_timestamp_dt)]]</div>
                         <div class="cell five">
                             <label class="select-input">
-                                <select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" ng-init="evenement.motif = defaultMotif" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
+                                <select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" ng-init="initEvenement(evenement)" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
                             </label>
                         </div>
                     </div>

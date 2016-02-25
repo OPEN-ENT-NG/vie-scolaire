@@ -12,6 +12,7 @@
  */
 
 function Responsable(){};
+function Justificatif(){};
 function Evenement(){};
 Evenement.prototype = {
     update : function(){
@@ -34,7 +35,7 @@ function Appel(){};
 function Motif(){};
 
 model.build = function(){
-    this.makeModels([Responsable, Evenement, Eleve, Classe, Enseignant, Matiere, Appel, Motif]);
+    this.makeModels([Responsable, Evenement, Eleve, Classe, Enseignant, Matiere, Appel, Motif, Justificatif]);
     this.collection(Classe, {
         sync : "/viescolaire/classes/etablissement"
     });
@@ -69,5 +70,8 @@ model.build = function(){
                 });
             }.bind(this));
         }
-    })
+    });
+    this.collection(Justificatif, {
+       sync : '/viescolaire/absences/justificatifs'
+    });
 };

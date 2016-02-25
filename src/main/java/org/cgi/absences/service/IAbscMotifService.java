@@ -16,4 +16,12 @@ public interface IAbscMotifService extends CrudService {
      * @param handler handler portant le résultat de la requête.
      */
     public void getAbscMotifsEtbablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Recupere tous les justificatifs d'appels en fonction de l'id de l'établissement
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getAbscJustificatifsEtablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
 }

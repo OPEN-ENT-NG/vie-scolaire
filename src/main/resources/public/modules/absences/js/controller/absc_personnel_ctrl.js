@@ -4,7 +4,7 @@
 routes.define(function($routeProvider){
 	$routeProvider
 		.when('/sansmotifs',{action:'AbsencesSansMotifs'})
-		.when('/appels/oublies', {action:'AppelsOublies'})
+		.when('/appels/noneffectues', {action:'AppelsOublies'})
 		.when('/redirect', {action:'Redirect'})
 		.otherwise({
 			redirectTo : '/redirect'
@@ -22,6 +22,7 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 	$scope.enseignants = model.enseignants;
     $scope.evenements = model.evenements;
 	$scope.motifs = model.motifs;
+	$scope.justificatifs = model.justificatifs;
 
 	$scope.routes = $route;
 
@@ -45,6 +46,16 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 	$rootScope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute, $location){
 		$scope.safeApply();
 	});
+
+	$scope.loadData = function(){
+		if(($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+			if($location.path() === "/sansmotifs"){
+				model.evenements.sync($scope.periode.debut, $scope.periode.fin);
+			}else if($location.path() === "/appels/noneffectues"){
+				model.appels.sync($scope.periode.debut, $scope.periode.fin);
+			}
+		}
+	};
 
 	model.classes.on('sync', function(){
 		model.classes.map(function(classe){
@@ -89,6 +100,10 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 
 	$scope.enseignantFilter = function(event){
 		return ($scope.enseignants.findWhere({personnel_id : event.personnel_id, selected: true}) !== undefined);
+	};
+
+	$scope.alert = function(message){
+		alert(message);
 	};
 
 	route({

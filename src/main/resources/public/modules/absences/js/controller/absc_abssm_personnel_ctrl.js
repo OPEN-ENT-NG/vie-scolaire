@@ -22,4 +22,12 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
     $scope.updateEvtMotif = function(evt){
         evt.update();
     };
+
+    $scope.initEvenement = function(event){
+        if(event.fk_motif_id !== null){
+            event.motif = model.motifs.findWhere({motif_id : event.fk_motif_id});
+        }else{
+            event.motif = $scope.defaultMotif;
+        }
+    }
 }

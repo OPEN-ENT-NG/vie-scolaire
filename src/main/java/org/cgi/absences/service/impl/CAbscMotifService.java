@@ -30,4 +30,17 @@ public class CAbscMotifService extends SqlCrudService implements IAbscMotifServi
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getAbscJustificatifsEtablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT * ")
+                .append("FROM abs.justificatif_appel ")
+                .append("WHERE justificatif_appel.fk4j_etab_id = ?::uuid");
+
+        values.addString(psIdEtablissement);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

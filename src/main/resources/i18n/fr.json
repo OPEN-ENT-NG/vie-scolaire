@@ -99,7 +99,10 @@
 	"viescolaire.utils.groupe" : "groupe",
 	"viescolaire.utils.justifiant" : "Motifs justifiants",
 	"viescolaire.utils.nonjustifiant" : "Motifs non justifiants",
+	"viescolaire.utils.encours" : "en cours",
+	"viescolaire.utils.initialise" : "initialisé",
+	"viescolaire.utils.etatappel" : "état de l'appel",
 
 	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Sans motifs",
-	"viescolaire.absences.ariane.AppelsOublies" : "Appels oubliés"
+	"viescolaire.absences.ariane.AppelsOublies" : "Appels non effectués"
 }

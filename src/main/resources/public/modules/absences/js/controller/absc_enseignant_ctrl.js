@@ -31,7 +31,6 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		date	: {}
 	};
 
-
 	$scope.getHeure = function (timestampDate) {
 		return moment(new Date(timestampDate)).format("HH:mm");
 	};
@@ -61,7 +60,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		} else {
 			evenementAbsence.delete(function() {
 				poEleve.isAbsent = false;
-				poEleve.evenements.remove(evenementAbsence);
+				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
 			});
 		}
 	};
@@ -121,6 +120,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
 		if(poEleve.evenements !== undefined) {
 			poEleve.evenements.remove(poEvenement);
+			poEleve.creneaus.sync($scope.currentCours.appel.id);
 		}
 	};
 
@@ -143,17 +143,25 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.currentCours.appel = {};
 		$scope.currentCours.appel.id = 1;
 		$scope.currentCours.eleves.sync();
+		$scope.currentCours.nbPresents = 0;
+		$scope.currentCours.nbEleves = 0;
 
 		$scope.currentCours.eleves.on('sync', function(){
 			$scope.currentCours.eleves.each(function (oEleve) {
 				oEleve.evenements.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
+				$scope.currentCours.nbEleves++;
+
 				oEleve.evenements.on('sync', function() {
 					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
 					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
 					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
 					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+
+					if(!oEleve.isAbsent && !oEleve.hasDepart && !oEleve.hasRetard) {
+						$scope.currentCours.nbPresents++;
+					}
 
 					oEleve.absencePrevs.on('sync', function() {
 						oEleve.creneaus.sync($scope.currentCours.appel.id);

@@ -111,6 +111,7 @@ function Eleve() {
                 creneau.hasDepart = false;
                 creneau.hasAbsencePrev = false;
 
+                // TODO récupérer les évenements du currentCours et non les évenements de l'appel en cours
                 if(this.composer.evenements !== undefined && this.composer.evenements.all.length > 0) {
                     creneau.isAbsent = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 1, fk_appel_id: piIdAppel}) !== undefined;
                     creneau.hasRetard = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 2, fk_appel_id: piIdAppel}) !== undefined;
@@ -124,7 +125,7 @@ function Eleve() {
                         var poFinAbsenceMoment = moment(moment(poAbsencePrev.absence_prev_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
 
                         // l'absence previsionnelle doit englobler le cours pour qu'on indique qu'il y ait eu absence prev sur celui-ci
-                        return (iIdEleve === poAbsencePrev.id_eleve) && (oHeureDebutCours.diff(poDebutAbsenceMoment, "minute") >= 0) && (poFinAbsenceMoment.diff(oHeureFinCours, "minute") >= 0);
+                        return (iIdEleve === poAbsencePrev.fk_eleve_id) && (oHeureDebutCours.diff(poDebutAbsenceMoment, "minute") >= 0) && (poFinAbsenceMoment.diff(oHeureFinCours, "minute") >= 0);
                     });
                     creneau.hasAbsencePrev = oAbsencePrevs !== undefined && oAbsencePrevs.length > 0;
                 }

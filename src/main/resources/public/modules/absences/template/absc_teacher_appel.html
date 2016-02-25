@@ -1,19 +1,19 @@
 <div class="row twelve cell">
 
     <!-- Header -->
-    <header class="header-absences">
-        <h1><i18n>viescolaire.absences.title</i18n></h1>
-    </header>
+    <div class="header-nav__fil-ariane">
+        <a href="/viescolaire"><i18n>viescolaire.viescolaire.title</i18n></a> > <a href="/viescolaire/absences"><i18n>viescolaire.absences.title</i18n></a> > <span translate content="[['viescolaire.absences.ariane.'+routes.current.$$route.action]]"></span>
+    </div>
 
     <!--  Menu de gauche  -->
     <nav class="two cell">
         <div class="pannel-in-cell">
-            <div>
-                <date-picker ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
-            </div>
+            <label class="fa fa-calendar fa-2x pointer appel__calendar">
+                <date-picker class="pointer" ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
+            </label>
             <div class="appel__journee-calendar" ng-if="creneaus.all.length > 0">
                 <div ng-repeat="creneau in creneaus.all"
-                     ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.id === creneau.cours.id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
+                     ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.cours_id === creneau.cours.cours_id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
                      ng-style="creneau.style"
                 >
                     <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.heureDebut]]</div>

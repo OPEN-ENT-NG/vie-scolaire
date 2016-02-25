@@ -44,14 +44,14 @@ public class CVscoCoursService extends SqlCrudService implements IVscoCoursServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT viesco.cours.*, to_char(viesco.cours.timestamp_debut, 'HH24:MI') as heure_debut, viesco.classe.libelle_classe as libelle_classe ")
-                .append("FROM viesco.cours, viesco.classe, viesco.est_assure_par, viesco.personnel ")
-                .append("WHERE personnel.id_user_neo4j::varchar = ? ")
-                .append("AND personnel.id_personnel = est_assure_par.id_personnel ")
-                .append("AND est_assure_par.id_cours = cours.id ")
-                .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_debut ")
-                .append("AND cours.timestamp_fin < to_date(?, 'DD-MM-YYYY') ")
-                .append("AND cours.id_classe = classe.id");
+        query.append("SELECT viesco.cours.*, to_char(viesco.cours.cours_timestamp_dt, 'HH24:MI') as heure_debut, viesco.classe.classe_libelle as libelle_classe ")
+                .append("FROM viesco.cours, viesco.classe, viesco.rel_personnel_cours, viesco.personnel ")
+                .append("WHERE personnel.fk4j_user_id::varchar = ? ")
+                .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id ")
+                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
+                .append("AND to_date(?, 'DD-MM-YYYY') < cours.cours_timestamp_dt ")
+                .append("AND cours.cours_timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
+                .append("AND cours.fk_classe_id = classe.classe_id");
 
         values.addString(psUserId);
         values.addString(pSDateDebut);

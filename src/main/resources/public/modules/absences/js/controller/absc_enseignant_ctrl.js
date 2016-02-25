@@ -19,9 +19,11 @@ routes.define(function($routeProvider){
 	------------------
 	Main controller.
 **/
-function AbsencesController($scope, $rootScope, model, template, route, date){
+function AbsencesController($scope, $rootScope, $route, model, template, route, date){
 
 	$scope.template = template;
+	$scope.routes = $route;
+
 	template.open('absc_teacher_appel_eleves_container', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_eleves');
 
 	$scope.detailEleveOpen = false;
@@ -44,11 +46,11 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 		// creation absence
 		if(evenementAbsence === undefined) {
 			evenementAbsence = new Evenement();
-			evenementAbsence.id_eleve = poEleve.id;
-			evenementAbsence.id_type = 1;
+			evenementAbsence.fk_eleve_id = poEleve.eleve_id;
+			evenementAbsence.fk_type_evt_id = 1;
 			// TODO compléter
 			// TODO à voir si on créé tout d'un coup ou si on créé l'appel puis on met à jour au fur et à mesure
-			evenementAbsence.id_appel = $scope.appel.id;
+			evenementAbsence.fk_appel_id = $scope.appel.id;
 
 			poEleve.evenements.push(evenementAbsence);
 
@@ -73,7 +75,7 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	 * @returns l'évenement ouo undefined si aucun évenement trouvé.
      */
 	$scope.getEvenementEleve = function(poEleve, piTypeEvenement) {
-		var evenementEleve = poEleve.evenements.findWhere({id_type : parseInt(piTypeEvenement)});
+		var evenementEleve = poEleve.evenements.findWhere({fk_type_evt_id : parseInt(piTypeEvenement)});
 		return evenementEleve;
 	};
 
@@ -126,6 +128,7 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	 * Ouverture d'un appel suite à la sélection d'une date
 	 */
 	$scope.selectAppel = function () {
+		$scope.currentCours = undefined;
 		$scope.ouvrirAppel($scope.appel.date);
 	};
 
@@ -147,10 +150,10 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
 				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({id_type : 1, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({id_type : 2, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({id_type : 3, id_appel : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({id_type : 4, id_appel : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
 
 					oEleve.absencePrevs.on('sync', function() {
 						oEleve.creneaus.sync($scope.currentCours.appel.id);
@@ -167,8 +170,15 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 	 * @param poEleve l'objet eleve sélectionné
      */
 	$scope.detailEleveAppel = function(poEleve) {
-		$scope.detailEleveOpen = true;
-		$scope.currentEleve = poEleve;
+		$scope.detailEleveOpen = $scope.currentEleve === undefined ||
+				($scope.currentEleve !==undefined && $scope.currentEleve.eleve_id !== poEleve.eleve_id);
+
+		if($scope.detailEleveOpen) {
+			$scope.currentEleve = poEleve;
+		} else {
+			$scope.currentEleve = undefined;
+			return;
+		}
 
 		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);
 		if(oEvenementRetard === undefined) {
@@ -197,6 +207,12 @@ function AbsencesController($scope, $rootScope, model, template, route, date){
 
 
 		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
+	};
+
+	$scope.fermerDetailEleve = function() {
+		$scope.currentEleve = undefined;
+		// booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
+		$scope.detailEleveOpen = false;
 	};
 
 	/**

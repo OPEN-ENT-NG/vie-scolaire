@@ -1,0 +1,33 @@
+<div class="row" ng-controller="VscoAppoPersonnelController">
+    <container template="AbscFiltres" class="two cell" ng-class="{two : !menu.opened, three : menu.opened}"></container>
+    <div ng-class="{nine : menu.opened, ten : !menu.opened}" class="cell abscSM-content">
+        <div class="abscSM-content--student-search-input ten cell">
+            <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un enseignant">
+        </div>
+        <div class="list-view-cgi">
+            <div class="ten cell abscSM-content--SM-list panel-in-cell">
+                <div class="abscSM-content--SM-list--header">
+                    <div class="cell cell-indent one"></div>
+                    <div class="cell cell-indent two"><i18n>viescolaire.utils.enseignant</i18n></div>
+                    <div class="cell cell-indent two"><i18n>viescolaire.utils.classe</i18n> - <i18n>viescolaire.utils.groupe</i18n></div>
+                    <div class="cell cell-indent three"><i18n>viescolaire.utils.date</i18n> / <i18n>viescolaire.utils.heure</i18n></div>
+                    <div class="cell cell-indent three"><i18n>viescolaire.utils.matiere</i18n></div>
+                </div>
+                <div class="abscSM-content--SM-list--list panel-in-cell">
+                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="appel in nonEffectues | filter:personnelFilter | filter : poRecherche.nom">
+                        <div class="cell cell-indent one">
+                            <label class="checkbox">
+                                <input type="checkbox" ng-model="devoir.ramenerSur" ng-disabled="devoir.diviseur === 20" class="ng-pristine ng-valid">
+                                <span></span>
+                            </label>
+                        </div>
+                        <div class="cell cell-indent two">[[appel.personnel_nom]] [[appel.personnel_prenom]]</div>
+                        <div class="cell cell-indent two">[[appel.classe_libelle]]</div>
+                        <div class="cell cell-indent three">[[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]</div>
+                        <div class="cell cell-indent three">[[appel.cours_matiere]]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

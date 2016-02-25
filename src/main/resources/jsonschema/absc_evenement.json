@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "evenement_timestamp_arrivee": {
+      "type": "timestamp"
+    },
+    "evenement_timestamp_depart": {
+      "type": "timestamp"
+    },
+    "evenement_commentaire": {
+      "type" : ["string", "null"]
+    },
+    "evenement_saisie_cpe" : {
+      "type" : "boolean"
+    },
+    "fk_eleve_id": {
+      "type" : "integer"
+    },
+    "fk_appel_id": {
+      "type" : "integer"
+    },
+    "fk_type_evt": {
+      "type" : "integer"
+    },
+    "fk_pj_pj": {
+      "type" : "integer"
+    },
+    "fk_motif_id": {
+      "type" : "integer"
+    }
+  },
+  "required": [
+    "evenement_saisie_cpe",
+    "fk_eleve_id",
+    "fk_appel_id",
+    "fk_type_evt"
+  ]
+}

@@ -16,7 +16,11 @@
 
 	<body ng-controller="AbsencesController">
 		<portal>
-			<container template="main"></container>
+			<div class="row">
+				<container template="header"></container>
+				<container ng-class="{two : menu.opened, 'menu-zero' : !menu.opened}" class="cell" template="menu"></container>
+				<container ng-class="{ten : menu.opened, twelve : !menu.opened}" class="cell" template="main"></container>
+			</div>
 		</portal>
 	</body>
 

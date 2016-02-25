@@ -84,8 +84,8 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
         JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT(evenement.evenement_id), evenement.evenement_commentaire, evenement.evenement_saisie_cpe," +
-                " eleve.eleve_nom, eleve.eleve_prenom, evenement.fk_eleve_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id, classe.classe_id as id_classe, personnel.personnel_id ")
-                .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.evenement_id = motif.fk_evenement_id) ")
+                " eleve.eleve_nom, eleve.eleve_prenom, evenement.fk_eleve_id, evenement.fk_motif_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id, classe.classe_id, personnel.personnel_id ")
+                .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.fk_motif_id = motif.motif_id) ")
                 .append("WHERE evenement.fk_eleve_id = eleve.eleve_id ")
                 .append("AND evenement.fk_appel_id = appel.appel_id ")
                 .append("AND appel.fk_cours_id = cours.cours_id ")

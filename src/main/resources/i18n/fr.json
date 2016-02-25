@@ -85,5 +85,20 @@
 	"viescolaire.utils.selectAll" : "Tout sélectionner",
 	"viescolaire.utils.deselectAll" : "Tout désélectionner",
 	"viescolaire.utils.from" : "Du",
-	"viescolaire.utils.to" : "au"
+	"viescolaire.utils.to" : "au",
+	"viescolaire.utils.student" : "elève",
+	"viescolaire.utils.date": "date",
+	"viescolaire.utils.reason":"motif",
+	"viescolaire.utils.justad":"just. ad.",
+	"viescolaire.absences.sansmotifs" : "Sans motifs",
+	"viescolaire.utils.enseignant" : "enseignant",
+	"viescolaire.utils.classe" : "classe",
+	"viescolaire.utils.heure" : "heure",
+	"viescolaire.utils.matiere" : "matiere",
+	"viescolaire.utils.groupe" : "groupe",
+	"viescolaire.utils.justifiant" : "Motifs justifiants",
+	"viescolaire.utils.nonjustifiant" : "Motifs non justifiants",
+
+	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Sans motifs",
+	"viescolaire.absences.ariane.AppelsOublies" : "Appels oubliés"
 }

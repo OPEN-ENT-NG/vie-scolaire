@@ -19,4 +19,25 @@ public interface IAbscEvenementService extends CrudService {
      * @param handler handler portant le résultat de la requête.
      */
     public void updateEvenement(String pIIdEvenement, JsonObject pOEvenement, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Créé un evenement en base de données
+     * @param poEvenement l'objet JSON représentant l'évenement
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void createEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Met à jour un évenement.
+     * @param poEvenement l'objet JSON représentant l'évenement.
+     * @param handler portant le résultat de la requête.
+     */
+    public void updateEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Supprime un évenement à partir de son identifiant.
+     * @param poEvenementId Identifiant de l'evenement à supprimer.
+     * @param handler portant le résultat de la requête.
+     */
+    public void deleteEvenement(int poEvenementId, Handler<Either<String, JsonObject>> handler);
 }

@@ -16,20 +16,28 @@ function Evenement() {
 
 Evenement.prototype = {
     create : function(callback){
-        //http().postJson("todo", this.toJSON()).done(function(data) {
-        //        callback(data.id); // set de l'id sur la CompetenceNote
-        //    }
-        //);
-        //this.composer.isAbsent = true;
-        callback();
+        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/create', this).done(function(data){
+            callback(data.evenement_id);
+        });
+    },
+    update : function(callback){
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/update', this).done(function(data){
+            callback();
+        });
+    },
+    save : function() {
+        // si l'evenement a deja un identifiant alors il s'agit d'une maj
+        if(this.evenement_id){
+            this.update();
+            // sinon d'une création
+        }else{
+            this.create();
+        }
     },
     delete : function(callback){
-        //http().postJson("todo", this.toJSON()).done(function(data) {
-        //        callback(data.id); // set de l'id sur la CompetenceNote
-        //    }
-        //);
-        //this.composer.isAbsent = false;
-        callback();
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + evenement_id + '/delete').done(function(data){
+            callback();
+        });
     }
 };
 
@@ -162,7 +170,46 @@ function Eleve() {
     };
 }
 
+function Appel() {
+}
+
+Appel.prototype = {
+    // crée en bdd un appel
+    create : function() {
+        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/create', this).done(function(data){
+            this.load(data);
+        });
+    },
+    //maj en bdd un appel
+    update : function() {
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/update', this).done(function(data){
+            this.load(data);
+        });
+    },
+    save : function() {
+        // si l'appel a deja un identifiant alors il s'agit d'un  maj
+        if(this.appel_id){
+            this.update();
+        // sinon d'un création
+        }else{
+            this.create();
+        }
+    }
+};
+
 function Cours(){
+    var cours = this;
+    this.appel = new Appel();
+    this.appel.sync = function(){
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/' + cours.cours_id).done(function(data){
+            this.updateData(data);
+            // creation en bdd s'i l'appel n'existe pas encore
+            if(this.appel_id === undefined) {
+                this.create();
+            }
+        }.bind(this));
+    };
+
     this.collection(Eleve);
     this.eleves.sync = function(){
         http().getJson('/' + gsPrefixVieScolaire + '/classe/' + this.composer.fk_classe_id + '/eleves').done(function(data){
@@ -175,7 +222,7 @@ function Cours(){
 ///////////////////////
 ///   MODEL.BUILD   ///
 model.build = function(){
-    this.makeModels([Eleve, Cours, Evenement, AbsencePrev, Creneau, Plage]);
+    this.makeModels([Appel, Eleve, Cours, Evenement, AbsencePrev, Creneau, Plage]);
 
     this.collection(Cours);
 

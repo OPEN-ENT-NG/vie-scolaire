@@ -21,7 +21,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_PERSONNEL_TABLE = "personnel";
 	public final static String VSCO_CLASSE_TABLE = "classe";
 
-	public final static String ABSC_APPEL_TABLE = "pv_appel";
+	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
 	public final static String ABSC_EVENEMENT_TABLE = "evenement";
 

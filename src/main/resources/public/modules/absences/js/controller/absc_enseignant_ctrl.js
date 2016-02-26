@@ -31,6 +31,25 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		date	: {}
 	};
 
+	/**
+	 * Message pour les fonctionnalié pas encore développées
+	 */
+	$scope.alertNonImplementee = function() {
+		alert("Fonctionnalité non implémentée actuellement.")
+	};
+
+	/**
+	 * Calcule le nombre d'élèves présents et le renseigne dans $scope.currentCours.nbPresents
+	 */
+	$scope.calculerNbElevesPresents = function() {
+		var oElevesAbsents = $scope.currentCours.eleves.where({isAbsent : true});
+		var iNbAbsents = 0;
+		if(oElevesAbsents !== undefined) {
+			iNbAbsents = oElevesAbsents.length;
+		}
+		$scope.currentCours.nbPresents = $scope.currentCours.nbEleves - iNbAbsents;
+	};
+
 	$scope.getHeure = function (timestampDate) {
 		return moment(new Date(timestampDate)).format("HH:mm");
 	};
@@ -45,16 +64,16 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		// creation absence
 		if(evenementAbsence === undefined) {
 			evenementAbsence = new Evenement();
+			evenementAbsence.evenement_saisie_cpe = false;
 			evenementAbsence.fk_eleve_id = poEleve.eleve_id;
+			evenementAbsence.fk_appel_id = $scope.currentCours.appel.appel_id;
 			evenementAbsence.fk_type_evt_id = 1;
-			// TODO compléter
-			// TODO à voir si on créé tout d'un coup ou si on créé l'appel puis on met à jour au fur et à mesure
-			evenementAbsence.fk_appel_id = $scope.appel.id;
+			evenementAbsence.fk_motif_id = 8; // sans motif
 
-			poEleve.evenements.push(evenementAbsence);
-
-			evenementAbsence.create(function() {
+			evenementAbsence.create(function(piEvenementId) {
+				poEvenement.evenement_id = piEvenementId;
 				poEleve.isAbsent = true;
+				poEleve.evenements.push(evenementAbsence);
 			});
 		// suppression absence
 		} else {
@@ -63,6 +82,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
 			});
 		}
+		$scope.calculerNbElevesPresents();
 	};
 
 	/**
@@ -83,32 +103,63 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * Action de check d'un incident sur un élève.
 	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
 	 */
-	$scope.checkHasIndicent = function () {
-		//$scope.currentEleve.hasIncident = !$scope.currentEleve.hasIncident;
-
-		if(!$scope.currentEleve.hasIncident) {
-			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementIncident);
-		}
-	};
+	//$scope.checkHasIndicent = function () {
+	//	//$scope.currentEleve.hasIncident = !$scope.currentEleve.hasIncident;
+    //
+	//	if(!$scope.currentEleve.hasIncident) {
+	//		$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementIncident);
+	//	}
+	//};
 
 	/**
 	 * Action de check d'un retard sur un élève.
 	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
 	 */
-	$scope.checkHasRetard = function () {
-		if(!$scope.currentEleve.hasRetard) {
-			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementRetard);
-		}
-	};
+	//$scope.checkHasRetard = function () {
+	//	if(!$scope.currentEleve.hasRetard) {
+	//		$scope.currentEleve.evenementRetard.delete(function() {
+	//			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementRetard);
+	//		});
+	//	}
+	//};
 
 	/**
 	 * Action de check d'un départ sur un élève.
 	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
 	 */
-	$scope.checkHasDepart = function () {
-		if(!$scope.currentEleve.hasDepart) {
-			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementDepart);
+	//$scope.checkHasDepart = function () {
+	//	if(!$scope.currentEleve.hasDepart) {
+	//		$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementDepart);
+	//	}
+	//};
+
+	/**
+	 * Action de check d'un évenement de retard/départ/incident sur un élève.
+	 * Si m'on coche la checkbox, créé l'évenement en base s'il n'existe pas encore.
+	 * Si l'on décoche la checkbox, supprime l'évenement de la liste des évenements de l'élève.
+	 * @param pbIsChecked booleen permettant de savoir si la checbox est cochée ou non.
+	 * @param poEvenement l'évenement.
+	 */
+	$scope.checkEvenement = function (pbIsChecked, poEvenement) {
+		if(pbIsChecked && poEvenement.evenement_id === undefined) {
+			poEvenement.create(function(piEvenementId) {
+				poEvenement.evenement_id = piEvenementId;
+			});
+		}else {
+			poEvenement.delete(function() {
+				$scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
+			});
 		}
+	};
+
+	/**
+	 * Met à jour un évenement en BDD
+	 * @param poEvenement l'évenement.
+     */
+	$scope.updateEvenement = function(poEvenement) {
+		poEvenement.save(function(piEvenementId) {
+			poEvenement.evenement_id = piEvenementId;
+		});
 	};
 
 	/**
@@ -120,7 +171,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
 		if(poEleve.evenements !== undefined) {
 			poEleve.evenements.remove(poEvenement);
-			poEleve.creneaus.sync($scope.currentCours.appel.id);
+			poEleve.creneaus.sync($scope.currentCours.appel.appel_id);
 		}
 	};
 
@@ -139,32 +190,36 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.selectCours = function(cours) {
 		$scope.currentCours = cours;
 
-		//TODO creer appel en mode "initialisé"
-		$scope.currentCours.appel = {};
-		$scope.currentCours.appel.id = 1;
+		// Recuperation de l'appel associé (création en mode Init s'il n'existe pas)
+		$scope.currentCours.appel.sync();
+
 		$scope.currentCours.eleves.sync();
-		$scope.currentCours.nbPresents = 0;
-		$scope.currentCours.nbEleves = 0;
 
 		$scope.currentCours.eleves.on('sync', function(){
+			$scope.currentCours.nbPresents = 0;
+			$scope.currentCours.nbEleves = 0;
+			if($scope.currentCours.eleves !== undefined) {
+				$scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
+			}
+
+			//$scope.calculerNbElevesPresents();
+
 			$scope.currentCours.eleves.each(function (oEleve) {
 				oEleve.evenements.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
-				$scope.currentCours.nbEleves++;
-
 				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
 
 					if(!oEleve.isAbsent && !oEleve.hasDepart && !oEleve.hasRetard) {
 						$scope.currentCours.nbPresents++;
 					}
 
 					oEleve.absencePrevs.on('sync', function() {
-						oEleve.creneaus.sync($scope.currentCours.appel.id);
+						oEleve.creneaus.sync($scope.currentCours.appel.appel_id);
 					});
 
 				});
@@ -191,21 +246,41 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);
 		if(oEvenementRetard === undefined) {
 			oEvenementRetard = new Evenement();
+			oEvenementRetard.evenement_saisie_cpe = false;
+			oEvenementRetard.fk_eleve_id = poEleve.eleve_id;
+			oEvenementRetard.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementRetard.fk_type_evt_id = 1;
+			oEvenementRetard.fk_motif_id = 8; // sans motif
 		}
 
 		var oEvenementDepart = $scope.getEvenementEleve(poEleve, 3);
 		if(oEvenementDepart === undefined) {
 			oEvenementDepart = new Evenement();
+			oEvenementDepart.evenement_saisie_cpe = false;
+			oEvenementDepart.fk_eleve_id = poEleve.eleve_id;
+			oEvenementDepart.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementDepart.fk_type_evt_id = 1;
+			oEvenementDepart.fk_motif_id = 8; // sans motif
 		}
 
 		var oEvenementIncident = $scope.getEvenementEleve(poEleve, 4);
 		if(oEvenementIncident === undefined) {
 			oEvenementIncident = new Evenement();
+			oEvenementIncident.evenement_saisie_cpe = false;
+			oEvenementIncident.fk_eleve_id = poEleve.eleve_id;
+			oEvenementIncident.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementIncident.fk_type_evt_id = 1;
+			oEvenementIncident.fk_motif_id = 8; // sans motif
 		}
 
 		var oEvenementObservation = $scope.getEvenementEleve(poEleve, 5);
 		if(oEvenementObservation === undefined) {
 			oEvenementObservation = new Evenement();
+			oEvenementObservation.evenement_saisie_cpe = false;
+			oEvenementObservation.fk_eleve_id = poEleve.eleve_id;
+			oEvenementObservation.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementObservation.fk_type_evt_id = 1;
+			oEvenementObservation.fk_motif_id = 8; // sans motif
 		}
 
 		$scope.currentEleve.evenementObservation = oEvenementObservation;

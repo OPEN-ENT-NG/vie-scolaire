@@ -81,6 +81,10 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 		});
 	});
 
+	model.motifs.on('sync', function(){
+		model.motifs.synced = true;
+	});
+
     $scope.goToPage = function(path){
         location.replace(path);
     };

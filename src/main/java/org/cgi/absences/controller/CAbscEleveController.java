@@ -71,9 +71,9 @@ public class CAbscEleveController extends ControllerHelper {
     }
 
     @Get("/eleves/evenements/:dateDebut/:dateFin")
-    @ApiDoc("Recupere toutes les absences sans motifs dans une période donnée")
+    @ApiDoc("Recupere toutes les absences dans une période donnée")
     @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
-    public void getAbsencesSansMotifs(final HttpServerRequest request){
+    public void getAbsences(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
@@ -82,7 +82,24 @@ public class CAbscEleveController extends ControllerHelper {
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscEleveService.getAbsencesSansMotifs(user.getStructures().get(0), sDateDebut, sDateFin, handler);
+                miAbscEleveService.getAbsences(user.getStructures().get(0), sDateDebut, sDateFin, handler);
+            }
+        });
+    }
+
+    @Get("/sansmotifs/:dateDebut/:dateFin")
+    @ApiDoc("Recupere toutes les absences sans motifs dans une période donnée")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAbsencesSansMotifs(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+                String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
+                String psDateFin = request.params().get("dateFin")+" 23:59:59";
+
+                miAbscEleveService.getAbsencesSansMotifs(user.getStructures().get(0), psDateDebut, psDateFin, handler);
             }
         });
     }

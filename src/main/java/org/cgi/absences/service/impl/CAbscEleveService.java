@@ -1,5 +1,6 @@
 package org.cgi.absences.service.impl;
 
+import com.mongodb.util.JSON;
 import fr.wseduc.webutils.Either;
 import org.cgi.Viescolaire;
 import org.cgi.absences.service.IAbscEleveService;
@@ -79,7 +80,7 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
     }
 
     @Override
-    public void getAbsencesSansMotifs(String psIdEtablissement, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+    public void getAbsences(String psIdEtablissement, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -97,6 +98,31 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
                 .append("AND cours.fk_classe_id = classe.classe_id ")
                 .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
                 .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id");
+
+        values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getAbsencesSansMotifs(String psIdEtablissement, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT DISTINCT(evenement.evenement_id), evenement.evenement_commentaire, evenement.evenement_saisie_cpe, eleve.eleve_nom, eleve.eleve_prenom, evenement.fk_eleve_id, evenement.fk_motif_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id, classe.classe_id, personnel.personnel_id, motif.motif_id, motif.motif_libelle, motif.motif_justifiant " +
+                "FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement " +
+                "LEFT OUTER JOIN abs.motif on (evenement.fk_motif_id = motif.motif_id) " +
+                "WHERE evenement.fk_eleve_id = eleve.eleve_id AND evenement.fk_appel_id = appel.appel_id " +
+                "AND appel.fk_cours_id = cours.cours_id " +
+                "AND cours.cours_timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id " +
+                "AND evenement.fk_type_evt_id = 1 " +
+                "AND evenement.fk_motif_id = 8 " +
+                "AND rel_eleve_classe.fk_classe_id = classe.classe_id " +
+                "AND classe.fk4j_etab_id = ?::uuid " +
+                "AND cours.fk_classe_id = classe.classe_id AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
+                "AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 

@@ -47,4 +47,21 @@ public class CAbscAppelController extends ControllerHelper {
             }
         });
     }
+
+    @Get("/appels/noneffectues/:dateDebut/:dateFin")
+    @ApiDoc("Recupere tous les appels non effectués dans une période donnée")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAppelsNonEffectues(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
+                String psDateFin = request.params().get("dateFin")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date());
+
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+                miAbscAppelService.getAppelsNonEffectues(user.getStructures().get(0), psDateDebut, psDateFin, handler);
+            }
+        });
+    }
 }

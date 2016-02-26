@@ -40,8 +40,6 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
     };
 
     var initAllEvenement = function(){
-        console.log(model.evenements);
-        console.log(model.motifs);
         model.evenements.each(function(event){
             if(event.fk_type_evt_id === 1){
                 $scope.initEvenement(event);
@@ -65,7 +63,7 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
 
     $scope.absencesFilterFunction = function(event){
         if($scope.pOFilterAbsences.sansmotifs){
-            return (event.fk_type_evt_id === 1 && event.fk_motif_id === null);
+            return (event.fk_type_evt_id === 1 && event.fk_motif_id === 8);
         }else{
             return true;
         }

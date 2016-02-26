@@ -24,7 +24,8 @@ public interface IAbscAppelService extends CrudService {
      * Recupere tous les appels non effectues sur un établissement
      * @param psIdEtablissement identifiant de l'établissement.
      * @param psDateDebut date de début de la période.
+     * @param psDateFin date de fin de la période.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getAppelsNonEffectues(String psIdEtablissement, String psDateDebut, Handler<Either<String, JsonArray>> handler);
+    public void getAppelsNonEffectues(String psIdEtablissement, String psDateDebut,  String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

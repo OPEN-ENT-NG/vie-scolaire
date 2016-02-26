@@ -27,34 +27,12 @@
                             <tr>
                                 <th>Nom Prenom</th>
                                 <th>Date/Heure</th>
-                                <th>Classe</th>
-                                <th>Matière</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>AHIL Rayyan</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
-                            </tr>
-                            <tr>
-                                <td>AHIL Rayyan</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
-                            </tr>
-                            <tr>
-                                <td>AHIL Rayyan</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
-                            </tr>
-                            <tr>
-                                <td>AHIL Rayyan</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
+                            <tr ng-repeat="evenement in widget.WAbsSansMotifs.evenements.all">
+                                <td>[[evenement.eleve_nom]] [[evenement.eleve_prenom]]</td>
+                                <td>[[formatDate(evenement.cours_timestamp_dt, evenement.cours_timestamp_fn)]]</td>
                             </tr>
                         </tbody>
                     </table>
@@ -71,27 +49,13 @@
                                 <th>Enseignant</th>
                                 <th>Date/Heure</th>
                                 <th>Classe</th>
-                                <th>Matière</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>AMIOT C.</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
-                            </tr>
-                            <tr>
-                                <td>AMIOT C.</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
-                            </tr>
-                            <tr>
-                                <td>AMIOT C.</td>
-                                <td>02/02/2016 - 08h00</td>
-                                <td>3eme4</td>
-                                <td>Français</td>
+                            <tr ng-repeat="appel in widget.WAppelsOublies.appels.all">
+                                <td>[[appel.personnel_nom]] [[appel.personnel_prenom]]</td>
+                                <td>[[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]</td>
+                                <td>[[appel.classe_libelle]]</td>
                             </tr>
                         </tbody>
                     </table>
@@ -134,6 +98,7 @@
                     <select name="" id="">
                         <option value="">Nombre d'absences de la semaine</option>
                     </select>
+                    <img src="/viescolaire/public/img/chart.png" alt="">
                 </div>
             </article>
         </section>

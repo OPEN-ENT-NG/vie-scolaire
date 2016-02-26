@@ -22,7 +22,7 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT abs.evenement.*, to_char(abs.evenement.evenement_timestamp_arrive, 'HH24:mm') as heure ")
+        query.append("SELECT abs.evenement.*, to_char(abs.evenement.evenement_timestamp_arrive, 'HH24:mm') as evenement_heure_arrivee, to_char(abs.evenement.evenement_timestamp_depart, 'HH24:mm') as evenement_heure_depart ")
                 .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.appel ")
                 .append("WHERE eleve.eleve_id = ? ")
                 .append("AND eleve.eleve_id = evenement.fk_eleve_id ")

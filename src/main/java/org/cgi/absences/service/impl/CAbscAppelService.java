@@ -9,6 +9,9 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
+
+import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
 /**
  * Created by ledunoiss on 22/02/2016.
@@ -58,4 +61,54 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void createAppel(Integer poPersonnelId, Integer poCourId, Integer poEtatAppelId, Integer poJustificatifAppelId,
+                            Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("INSERT INTO abs.appel (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
+                .append("VALUES (?,?,?,?)");
+
+        values.addNumber(poPersonnelId);
+        values.addNumber(poCourId);
+        values.addNumber(poEtatAppelId);
+        values.addNumber(poJustificatifAppelId);
+
+        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void updateAppel(Integer poAppelId, Integer poPersonnelId, Integer poCourId, Integer poEtatAppelId,
+                            Integer poJustificatifAppelId, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("UPDATE abs.appel SET (appel_id, fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
+                .append("VALUES (?,?,?,?,?)");
+
+        values.addNumber(poAppelId);
+        values.addNumber(poPersonnelId);
+        values.addNumber(poCourId);
+        values.addNumber(poEtatAppelId);
+        values.addNumber(poJustificatifAppelId);
+
+        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT * FROM abs.appel ")
+                .append("WHERE appel.fk_cours_id = ?");
+
+        values.addNumber(poCoursId);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(handler));
+    }
+
+
 }

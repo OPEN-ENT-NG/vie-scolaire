@@ -81,6 +81,9 @@
 	"viescolaire.absences.incident"						: "Incident",
 	"viescolaire.absences.appel.crenau.vide"			: "CRENEAU VIDE",
 
+	"viescolaire.absences.nb.presents"					: "Nb. présents",
+	"viescolaire.absences.ariane.AppelsOublies" 		: "Appels oubliés",
+	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",
 
 	"viescolaire.utils.selectAll" : "Tout sélectionner",
 	"viescolaire.utils.deselectAll" : "Tout désélectionner",

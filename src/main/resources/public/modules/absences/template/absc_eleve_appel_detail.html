@@ -4,58 +4,67 @@
   </div>
 
   <div class="six cell">
-    <h2>[[currentEleve.eleve_nom]] [[currentEleve.eleve_prenom]]</h2>
+    <h2 class="appel__detail-eleve_nom">[[currentEleve.eleve_nom]] [[currentEleve.eleve_prenom]]</h2>
   </div>
   <div class="six cell">
-      <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.fk4j_user_id]]" alt="" />
+        <div class="two cell">
+          <a href="#" ng-click="alertNonImplementee();" class="fa fa-envelope fa-2x appel__detail-eleve-icon-mail" tooltip="Contacter la personne"></a>
+          <a href="#" ng-click="alertNonImplementee();" class="fa fa-line-chart fa-2x appel__detail-eleve-icon-stats" tooltip="Statistiques"></a>
+        </div>
+        <div class="ten cell">
+          <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.fk4j_user_id]]" alt="" />
+        </div>
   </div>
 
   <div class="twelve cell">
     <section>
-      <textarea ng-model="currentEleve.evenementObservation.mot_pour_la_vie_scolaire"
+      <textarea ng-model="currentEleve.evenementObservation.evenement_commentaire"
                 ng-required="false"
+                ng_change="updateEvenement(currentEleve.evenementObservation);"
                 placeholder="Observations">
       </textarea>
     </section>
     <section>
-      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard" ng-click="checkHasRetard();">
+      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard" ng-click="checkEvenement(currentEleve.hasRetard,currentEleve.evenementRetard);">
       <label for="hasRetard">
         <i18n>viescolaire.absences.retard</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementRetard.heure" placeholder="Heure arrivé">
+      <input type="time" ng-model="currentEleve.evenementRetard.evenement_heure_arrivee" placeholder="Heure arrivé">
 
-      <textarea ng-model="currentEleve.evenementRetard.mot_pour_la_vie_scolaire"
+      <textarea ng-model="currentEleve.evenementRetard.evenement_commentaire"
                 ng-required="false"
+                ng_change="updateEvenement(currentEleve.evenementRetard);"
                 placeholder="Motif">
       </textarea>
     </section>
 
 
     <section>
-      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart" ng-click="checkHasDepart();">
+      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart" ng-click="checkEvenement(currentEleve.hasDepart,currentEleve.evenementDepart);">
       <label for="hasDepart">
         <i18n>viescolaire.absences.depart</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementDepart.heure" placeholder="Heure départ">
+      <input type="time" ng-model="currentEleve.evenementDepart.evenement_heure_depart" placeholder="Heure départ">
 
-      <textarea ng-model="currentEleve.evenementDepart.mot_pour_la_vie_scolaire"
+      <textarea ng-model="currentEleve.evenementDepart.evenement_commentaire"
                 ng-required="false"
+                ng_change="updateEvenement(currentEleve.evenementDepart);"
                 placeholder="Commentaire">
       </textarea>
     </section>
     <section>
-      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click="checkHasIncident();">
+      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click="">
       <label for="hasIncident">
         <i18n>viescolaire.absences.incident</i18n>
       </label>
 
-      <select ng-model="currentEleve.evenementIncident.mot_pour_la_vie_scolaire">
+      <select>
         <option value="1" selected="selected">Punition</option>
       </select>
 
-      <textarea ng-model="currentEleve.evenementIncident.mot_pour_la_vie_scolaire"
+      <textarea ng-model="currentEleve.evenementIncident.evenement_commentaire"
                 ng-required="false"
                 placeholder="Commentaire">
       </textarea>

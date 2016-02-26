@@ -4,20 +4,29 @@
         <div class="abscSM-content--student-search-input ten cell">
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un élève">
         </div>
+        <ul class="selectable-list abscSM-content--SMSelectable-list">
+            <li ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs; applyAbsencesFilter()" ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="fa fa-exclamation-circle"></i><i18n>viescolaire.absences.ariane.AbsencesSansMotifs</i18n></li>
+        </ul>
         <div class="list-view-cgi">
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
                 <div class="abscSM-content--SM-list--header">
-                    <div class="cell cell-indent three"><i18n>viescolaire.utils.student</i18n></div>
-                    <div class="cell cell-indent three"><i18n>viescolaire.utils.date</i18n></div>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'eleve_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.student</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'eleve_nom' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'eleve_nom' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.date</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>
+                    </div>
                     <div class="cell cell-indent five"><i18n>viescolaire.utils.reason</i18n></div>
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
-                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="evenement in sansMotifs | filter:personnelFilter | filter:poRecherche.nom">
+                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="evenement in absences | filter:personnelFilter | filter:poRecherche.nom | filter:absencesFilter | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse">
                         <div class="cell three">[[evenement.eleve_nom]] [[evenement.eleve_prenom]]</div>
                         <div class="cell three">[[getJourDate(evenement.cours_timestamp_dt)]]</div>
                         <div class="cell five">
                             <label class="select-input">
-                                <select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" ng-init="evenement.motif = defaultMotif" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
+                                <select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
                             </label>
                         </div>
                     </div>

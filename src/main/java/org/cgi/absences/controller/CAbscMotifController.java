@@ -33,12 +33,25 @@ public class CAbscMotifController extends ControllerHelper {
     @Get("/motifs")
     @ApiDoc("Recupere tous les profils d'absences en fonction de l'id de l'établissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getAbscMotifsEtbablissement(final HttpServerRequest request){
+    public void getAbscMotifsEtablissement(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                 miAbscMotifService.getAbscMotifsEtbablissement(user.getStructures().get(0), handler);
+            }
+        });
+    }
+
+    @Get("/justificatifs")
+    @ApiDoc("Recupere tous les justificatifs d'appels en fonction de l'id de l'établissement")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAbscJustificatifsEtablissement(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                miAbscMotifService.getAbscJustificatifsEtablissement(user.getStructures().get(0), handler);
             }
         });
     }

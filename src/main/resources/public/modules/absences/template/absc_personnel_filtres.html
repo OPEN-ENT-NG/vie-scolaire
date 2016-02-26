@@ -29,4 +29,19 @@
                 ng-class="{selected : classe.selected}">[[classe.classe_libelle]]</li>
         </ul>
     </div>
+    <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">
+        <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables">Informations responsables
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.responsables" ></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.responsables"></span></h4>
+        <fieldset>
+            <legend>DUPONT Martin</legend>
+            <p><i class="fa fa-phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="fa fa-home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
+        <fieldset>
+            <legend>DUPONT Annick</legend>
+            <p><i class="fa fa-phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="fa fa-home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
+    </div>
 </div>

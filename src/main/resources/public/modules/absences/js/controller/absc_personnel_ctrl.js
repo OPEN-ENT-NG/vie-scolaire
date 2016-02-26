@@ -26,9 +26,19 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 
 	$scope.routes = $route;
 
+	$scope.psDisplayReponsables = false;
+
     $scope.menu = {
         opened : false
     };
+
+	/**
+	 * Critères de tris
+	 */
+	$scope.pOSortParameters = {
+		sortType : '',
+		sortReverse : false
+	};
 
 	/**
 	 * Critères de recherches personnels

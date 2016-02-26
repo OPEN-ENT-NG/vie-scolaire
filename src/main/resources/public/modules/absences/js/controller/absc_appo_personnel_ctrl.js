@@ -4,9 +4,9 @@
 function VscoAppoPersonnelController($scope, $rootScope, model, template, route, date){
     template.open('AbscFiltres', '../modules/absences/template/absc_personnel_filtres');
     $scope.pOFilterAppel = { //Objet permettant le filtre des appels oubliés / non oubliés
-        noneffectues : false
+        noneffectues : true
     };
-    $scope.appelFilter = null;
+    $scope.psDisplayReponsables = false;
     $scope.selectedAppels = [];
     $scope.periode.fin = new Date();
     model.appels.sync($scope.periode.debut, $scope.periode.fin);
@@ -26,11 +26,11 @@ function VscoAppoPersonnelController($scope, $rootScope, model, template, route,
         }else{
             return true;
         }
-    }
+    };
 
     $scope.applyAppelFilter = function(){
         $scope.appelFilter = $scope.pOFilterAppel.noneffectues ? $scope.appelFilterFunction : null;
-    }
+    };
 
     $scope.checkAppel = function(appel){
         var index = _.indexOf($scope.selectedAppels, appel);
@@ -41,4 +41,6 @@ function VscoAppoPersonnelController($scope, $rootScope, model, template, route,
         }
     };
 
+    // On set le filter sur les appels non effectues.
+    $scope.appelFilter = $scope.appelFilterFunction;
 }

@@ -3,6 +3,7 @@
  */
 function AbscAbssmPersonnelController($scope, $rootScope, model, template, route, date){
     template.open('AbscFiltres', '../modules/absences/template/absc_personnel_filtres');
+    $scope.psDisplayReponsables = true;
     model.evenements.sync($scope.periode.debut, $scope.periode.fin);
     model.evenements.on('sync', function(){
         $scope.sansMotifs = $scope.evenements.where({fk_type_evt_id : 1, fk_motif_id : null});

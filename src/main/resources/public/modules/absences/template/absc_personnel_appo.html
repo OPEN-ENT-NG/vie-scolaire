@@ -11,14 +11,29 @@
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
                 <div class="abscSM-content--SM-list--header">
                     <div class="cell cell-indent one"></div>
-                    <div class="cell cell-indent two"><i18n>viescolaire.utils.enseignant</i18n></div>
-                    <div class="cell cell-indent two"><i18n>viescolaire.utils.classe</i18n> - <i18n>viescolaire.utils.groupe</i18n></div>
-                    <div class="cell cell-indent three"><i18n>viescolaire.utils.date</i18n> / <i18n>viescolaire.utils.heure</i18n></div>
-                    <div class="cell cell-indent two"><i18n>viescolaire.utils.matiere</i18n></div>
-                    <div class="cell cell-indent one"><i class="fa fa-exclamation-circle"></i></div>
+                    <div class="cell cell-indent two" ng-click="pOSortParameters.sortType = 'personnel_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.enseignant</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'personnel_nom' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'personnel_nom' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent two" ng-click="pOSortParameters.sortType = 'classe_libelle'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.classe</i18n> - <i18n>viescolaire.utils.groupe</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'classe_libelle' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'classe_libelle' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.date</i18n> / <i18n>viescolaire.utils.heure</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent two" ng-click="pOSortParameters.sortType = 'cours_matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.matiere</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent one" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="fa fa-exclamation-circle"></i>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && pOSortParameters.sortReverse"></i>
+                    </div>
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
-                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="appel in appels.all | filter:personnelFilter | filter : poRecherche.nom | filter:appelFilter">
+                    <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="appel in appels.all | filter:personnelFilter | filter : poRecherche.nom | filter:appelFilter | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse">
                         <div class="cell cell-indent one">
                             <label class="checkbox">
                                 <input ng-disabled="appel.fk_etat_appel_id === 3" type="checkbox" ng-change="checkAppel(appel)" ng-init="appel.selected = false" ng-model="appel.selected" class="ng-pristine ng-valid">

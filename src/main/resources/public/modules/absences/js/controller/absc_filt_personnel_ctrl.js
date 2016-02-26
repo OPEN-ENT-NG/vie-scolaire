@@ -3,8 +3,9 @@
  */
 function AbscFiltresPersonnelController($scope, $rootScope, model, template, route, date){
     $scope.pOFilterCtrl = {
-        enseignants : true,
-        classes : true
+        enseignants : false,
+        classes : false,
+        responsables : false
     };
 
     $scope.switchAll = function(oListe, b){

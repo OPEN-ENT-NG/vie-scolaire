@@ -7,8 +7,14 @@
         <div class="list-view-cgi">
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
                 <div class="abscSM-content--SM-list--header">
-                    <div class="cell cell-indent three"><i18n>viescolaire.utils.student</i18n></div>
-                    <div class="cell cell-indent three"><i18n>viescolaire.utils.date</i18n></div>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'eleve_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.student</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'eleve_nom' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'eleve_nom' && pOSortParameters.sortReverse"></i>
+                    </div>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.date</i18n>
+                        <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>
+                        <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>
+                    </div>
                     <div class="cell cell-indent five"><i18n>viescolaire.utils.reason</i18n></div>
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">

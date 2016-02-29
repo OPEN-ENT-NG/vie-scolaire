@@ -28,7 +28,8 @@ public class CVscoEleveService extends SqlCrudService implements IVscoEleveServi
         .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe ")
         .append("WHERE classe.classe_id = ? ")
         .append("AND classe.classe_id = rel_eleve_classe.fk_classe_id ")
-        .append("AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id");
+        .append("AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id ")
+        .append("ORDER BY eleve_nom ASC, eleve_prenom ASC");
 
         values.addNumber(new Integer(pSIdClasse));
 

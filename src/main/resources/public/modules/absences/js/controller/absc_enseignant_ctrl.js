@@ -1,7 +1,17 @@
 var gsPrefixVieScolaire = 'viescolaire';
 var gsPrefixNotes = 'notes';
 var gsPrefixAbsences = 'absences';
+
 var gsFormatDate = 'DD-MM-YYYY';
+var gsFormatTimestampWithoutTimeZone = "YYYY-MM-DDTHH:mm:ss.SSSS";
+
+var giIdEvenementAbsence = 1;
+var giIdEvenementRetard = 2;
+var giIdEvenementDepart = 3;
+var giIdEvenementIncident = 4;
+var giIdEvenementObservation = 5;
+
+var giIdMotifSansMotif = 8;
 
 /**
  Defining internal routes
@@ -59,7 +69,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEleve l'objet élève
      */
 	$scope.ajouterEvenementAbsence = function(poEleve) {
-		var evenementAbsence = $scope.getEvenementEleve(poEleve, 1);
+		var evenementAbsence = $scope.getEvenementEleve(poEleve, giIdEvenementAbsence);
 
 		// creation absence
 		if(evenementAbsence === undefined) {
@@ -67,11 +77,11 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			evenementAbsence.evenement_saisie_cpe = false;
 			evenementAbsence.fk_eleve_id = poEleve.eleve_id;
 			evenementAbsence.fk_appel_id = $scope.currentCours.appel.appel_id;
-			evenementAbsence.fk_type_evt_id = 1;
-			evenementAbsence.fk_motif_id = 8; // sans motif
+			evenementAbsence.fk_type_evt_id = giIdEvenementAbsence;
+			evenementAbsence.fk_motif_id = giIdMotifSansMotif;
 
 			evenementAbsence.create(function(piEvenementId) {
-				poEvenement.evenement_id = piEvenementId;
+				evenementAbsence.evenement_id = piEvenementId;
 				poEleve.isAbsent = true;
 				poEleve.evenements.push(evenementAbsence);
 			});
@@ -100,40 +110,6 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 
 	/**
-	 * Action de check d'un incident sur un élève.
-	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
-	 */
-	//$scope.checkHasIndicent = function () {
-	//	//$scope.currentEleve.hasIncident = !$scope.currentEleve.hasIncident;
-    //
-	//	if(!$scope.currentEleve.hasIncident) {
-	//		$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementIncident);
-	//	}
-	//};
-
-	/**
-	 * Action de check d'un retard sur un élève.
-	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
-	 */
-	//$scope.checkHasRetard = function () {
-	//	if(!$scope.currentEleve.hasRetard) {
-	//		$scope.currentEleve.evenementRetard.delete(function() {
-	//			$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementRetard);
-	//		});
-	//	}
-	//};
-
-	/**
-	 * Action de check d'un départ sur un élève.
-	 * Supprime l'évenement de la liste des évenements de l'élève si l'on décoche la checkbox
-	 */
-	//$scope.checkHasDepart = function () {
-	//	if(!$scope.currentEleve.hasDepart) {
-	//		$scope.supprimerEvenementEleve($scope.currentEleve, $scope.currentEleve.evenementDepart);
-	//	}
-	//};
-
-	/**
 	 * Action de check d'un évenement de retard/départ/incident sur un élève.
 	 * Si m'on coche la checkbox, créé l'évenement en base s'il n'existe pas encore.
 	 * Si l'on décoche la checkbox, supprime l'évenement de la liste des évenements de l'élève.
@@ -142,6 +118,19 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 */
 	$scope.checkEvenement = function (pbIsChecked, poEvenement) {
 		if(pbIsChecked && poEvenement.evenement_id === undefined) {
+
+			var oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
+			var sHeureAujourDhui = moment().format("HH:mm");
+
+			// initalisation des heures selon l'heure courante et la date du cours
+			if(poEvenement.fk_type_evt_id === giIdEvenementDepart) {
+				poEvenement.evenement_heure_depart = sHeureAujourDhui;
+			} else if(poEvenement.fk_type_evt_id === giIdEvenementRetard) {
+				poEvenement.evenement_heure_arrivee = sHeureAujourDhui;
+			}
+
+			$scope.mapToTimestamp(poEvenement, oMomentDebutCours);
+
 			poEvenement.create(function(piEvenementId) {
 				poEvenement.evenement_id = piEvenementId;
 			});
@@ -157,9 +146,31 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEvenement l'évenement.
      */
 	$scope.updateEvenement = function(poEvenement) {
+		// conversion de l'heure saisie en timestamp
+		var oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
+		$scope.mapToTimestamp(poEvenement, oMomentDebutCours);
 		poEvenement.save(function(piEvenementId) {
 			poEvenement.evenement_id = piEvenementId;
 		});
+	};
+
+	/**
+	 * Selon l'évenement récupère l'heure de départ ou l'heure d'arrivée et la convertie en timestamp
+	 * pour la renseigner dans le champ correspondant (poEvenement.evenement_timestamp_depart ou poEvenement.evenement_timestamp_arrive).
+	 *
+	 * @param poEvenement l'evenement.
+	 * @param poMomentDebutCours objet moment.js représentant la date de début du cours (nécessaire pour avoir la date du jour).
+     */
+	$scope.mapToTimestamp = function (poEvenement, poMomentDebutCours) {
+		// initalisation des heures selon l'heure courante et la date du cours
+		if(poEvenement.fk_type_evt_id === giIdEvenementDepart) {
+			var oEvenementTimestampDepart = moment(poMomentDebutCours, gsFormatTimestampWithoutTimeZone).hour(poEvenement.evenement_heure_depart.split(":")[0]).minute(poEvenement.evenement_heure_depart.split(":")[1]);
+			poEvenement.evenement_timestamp_depart = oEvenementTimestampDepart.format(gsFormatTimestampWithoutTimeZone)
+
+		} else if(poEvenement.fk_type_evt_id === giIdEvenementRetard) {
+			var oEvenementTimestampArrive = moment(poMomentDebutCours, gsFormatTimestampWithoutTimeZone).hour(poEvenement.evenement_heure_arrivee.split(":")[0]).minute(poEvenement.evenement_heure_arrivee.split(":")[1]);
+			poEvenement.evenement_timestamp_arrive = oEvenementTimestampArrive.format(gsFormatTimestampWithoutTimeZone);
+		}
 	};
 
 	/**
@@ -170,6 +181,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 */
 	$scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
 		if(poEleve.evenements !== undefined) {
+			poEvenement.evenement_id = undefined;
 			poEleve.evenements.remove(poEvenement);
 			poEleve.creneaus.sync($scope.currentCours.appel.appel_id);
 		}
@@ -190,6 +202,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.selectCours = function(cours) {
 		$scope.currentCours = cours;
 
+		// réinitialsiation des valeurs pour ne pas afficher le panel detail eleve lorsque l'on change d'appel.
+		$scope.currentEleve = undefined;
+		$scope.detailEleveOpen = false;
+
 		// Recuperation de l'appel associé (création en mode Init s'il n'existe pas)
 		$scope.currentCours.appel.sync();
 
@@ -209,10 +225,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
 
 				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : 1, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : 2, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : 3, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : 4, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id :giIdEvenementRetard, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
 
 					if(!oEleve.isAbsent && !oEleve.hasDepart && !oEleve.hasRetard) {
 						$scope.currentCours.nbPresents++;
@@ -243,44 +259,44 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			return;
 		}
 
-		var oEvenementRetard = $scope.getEvenementEleve(poEleve, 2);
+		var oEvenementRetard = $scope.getEvenementEleve(poEleve, giIdEvenementRetard);
 		if(oEvenementRetard === undefined) {
 			oEvenementRetard = new Evenement();
 			oEvenementRetard.evenement_saisie_cpe = false;
 			oEvenementRetard.fk_eleve_id = poEleve.eleve_id;
 			oEvenementRetard.fk_appel_id = $scope.currentCours.appel.appel_id;
-			oEvenementRetard.fk_type_evt_id = 1;
-			oEvenementRetard.fk_motif_id = 8; // sans motif
+			oEvenementRetard.fk_type_evt_id = giIdEvenementRetard;
+			oEvenementRetard.fk_motif_id = giIdMotifSansMotif;
 		}
 
-		var oEvenementDepart = $scope.getEvenementEleve(poEleve, 3);
+		var oEvenementDepart = $scope.getEvenementEleve(poEleve, giIdEvenementDepart);
 		if(oEvenementDepart === undefined) {
 			oEvenementDepart = new Evenement();
 			oEvenementDepart.evenement_saisie_cpe = false;
 			oEvenementDepart.fk_eleve_id = poEleve.eleve_id;
 			oEvenementDepart.fk_appel_id = $scope.currentCours.appel.appel_id;
-			oEvenementDepart.fk_type_evt_id = 1;
-			oEvenementDepart.fk_motif_id = 8; // sans motif
+			oEvenementDepart.fk_type_evt_id = giIdEvenementDepart;
+			oEvenementDepart.fk_motif_id = giIdMotifSansMotif;
 		}
 
-		var oEvenementIncident = $scope.getEvenementEleve(poEleve, 4);
+		var oEvenementIncident = $scope.getEvenementEleve(poEleve, giIdEvenementIncident);
 		if(oEvenementIncident === undefined) {
 			oEvenementIncident = new Evenement();
 			oEvenementIncident.evenement_saisie_cpe = false;
 			oEvenementIncident.fk_eleve_id = poEleve.eleve_id;
 			oEvenementIncident.fk_appel_id = $scope.currentCours.appel.appel_id;
-			oEvenementIncident.fk_type_evt_id = 1;
-			oEvenementIncident.fk_motif_id = 8; // sans motif
+			oEvenementIncident.fk_type_evt_id = giIdEvenementIncident;
+			oEvenementIncident.fk_motif_id = giIdMotifSansMotif;
 		}
 
-		var oEvenementObservation = $scope.getEvenementEleve(poEleve, 5);
+		var oEvenementObservation = $scope.getEvenementEleve(poEleve, giIdEvenementObservation);
 		if(oEvenementObservation === undefined) {
 			oEvenementObservation = new Evenement();
 			oEvenementObservation.evenement_saisie_cpe = false;
 			oEvenementObservation.fk_eleve_id = poEleve.eleve_id;
 			oEvenementObservation.fk_appel_id = $scope.currentCours.appel.appel_id;
-			oEvenementObservation.fk_type_evt_id = 1;
-			oEvenementObservation.fk_motif_id = 8; // sans motif
+			oEvenementObservation.fk_type_evt_id = giIdEvenementObservation;
+			oEvenementObservation.fk_motif_id = giIdMotifSansMotif;
 		}
 
 		$scope.currentEleve.evenementObservation = oEvenementObservation;

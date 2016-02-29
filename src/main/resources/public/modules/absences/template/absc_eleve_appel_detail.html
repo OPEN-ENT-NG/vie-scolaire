@@ -20,7 +20,7 @@
     <section>
       <textarea ng-model="currentEleve.evenementObservation.evenement_commentaire"
                 ng-required="false"
-                ng_change="updateEvenement(currentEleve.evenementObservation);"
+                ng-blur="updateEvenement(currentEleve.evenementObservation);"
                 placeholder="Observations">
       </textarea>
     </section>
@@ -30,11 +30,12 @@
         <i18n>viescolaire.absences.retard</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementRetard.evenement_heure_arrivee" placeholder="Heure arrivé">
+      <input type="time" ng-model="currentEleve.evenementRetard.evenement_heure_arrivee" placeholder="Heure d'arrivée"
+             ng-blur="updateEvenement(currentEleve.evenementRetard);">
 
       <textarea ng-model="currentEleve.evenementRetard.evenement_commentaire"
                 ng-required="false"
-                ng_change="updateEvenement(currentEleve.evenementRetard);"
+                ng-blur="updateEvenement(currentEleve.evenementRetard);"
                 placeholder="Motif">
       </textarea>
     </section>
@@ -46,11 +47,12 @@
         <i18n>viescolaire.absences.depart</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementDepart.evenement_heure_depart" placeholder="Heure départ">
+      <input type="time" ng-model="currentEleve.evenementDepart.evenement_heure_depart" placeholder="Heure de départ"
+             ng-blur="updateEvenement(currentEleve.evenementDepart);">
 
       <textarea ng-model="currentEleve.evenementDepart.evenement_commentaire"
                 ng-required="false"
-                ng_change="updateEvenement(currentEleve.evenementDepart);"
+                ng-blur="updateEvenement(currentEleve.evenementDepart);"
                 placeholder="Commentaire">
       </textarea>
     </section>

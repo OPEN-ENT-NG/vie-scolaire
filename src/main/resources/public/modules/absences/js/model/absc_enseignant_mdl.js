@@ -22,20 +22,20 @@ Evenement.prototype = {
     },
     update : function(callback){
         http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/update', this).done(function(data){
-            callback();
+            callback(data.evenement_id);
         });
     },
-    save : function() {
+    save : function(callback) {
         // si l'evenement a deja un identifiant alors il s'agit d'une maj
         if(this.evenement_id){
-            this.update();
+            this.update(callback);
             // sinon d'une création
         }else{
-            this.create();
+            this.create(callback);
         }
     },
     delete : function(callback){
-        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + evenement_id + '/delete').done(function(data){
+        http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + this.evenement_id + '/delete').done(function(data){
             callback();
         });
     }

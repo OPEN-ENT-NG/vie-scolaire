@@ -16,7 +16,7 @@ function Justificatif(){};
 function Evenement(){};
 Evenement.prototype = {
     update : function(){
-        http().putJson('/viescolaire/absences/evenement/'+this.evenement_id, { evenement : this }).done(function(resp){
+        http().putJson('/viescolaire/absences/evenement/'+this.evenement_id+'/updatemotif', { evenement : this }).done(function(resp){
            console.log(resp);
         });
     }

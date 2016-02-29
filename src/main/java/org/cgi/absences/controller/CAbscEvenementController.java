@@ -36,7 +36,7 @@ public class CAbscEvenementController  extends ControllerHelper {
         miAbscEvenementService = new CAbscEvenementService();
     }
 
-    @Put("/evenement/:idEvenement")
+    @Put("/evenement/:idEvenement/updatemotif")
     @ApiDoc("Met à jours le motif de l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateMotifEvenement(final HttpServerRequest request){
@@ -70,20 +70,7 @@ public class CAbscEvenementController  extends ControllerHelper {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject poEvenement) {
-                Handler<Either<String,JsonObject>> handler = new Handler<Either<String, JsonObject>>() {
-                    @Override
-                    public void handle(Either<String, JsonObject> event) {
-                        if(event.isRight()){
-                            request.response()
-                                    .putHeader("content-type", "application/json; charset=utf-8")
-                                    .end(event.right().getValue().toString());
-                        }else{
-                            leftToResponse(request, event.left());
-                        }
-                    }
-                };
-                miAbscEvenementService.createEvenement(poEvenement,
-                        handler);
+                miAbscEvenementService.createEvenement(poEvenement,notEmptyResponseHandler(request));
             }
         });
     }

@@ -7,6 +7,7 @@
  */
 function Evenement(){}
 function Appel(){}
+function Observation(){}
 function WAbsSansMotifs(){
     this.collection(Evenement);
 }
@@ -23,21 +24,33 @@ function WAppelsOublies(){
 }
 WAppelsOublies.prototype = {
     sync : function(){
-        http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD'))
+        http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
             .done(function(data){
                 this.appels.load(data);
             }.bind(this));
     }
 };
-function WMotVsco(){}
+function WObservations(){
+    this.collection(Observation);
+}
+WObservations.prototype = {
+    sync : function(){
+        http().getJson('/viescolaire/absences/observations/'+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
+            .done(function(data){
+                this.observations.load(data);
+            }.bind(this));
+    }
+};
 function Widget(){}
 
 model.build = function(){
-    this.makeModels([WAbsSansMotifs, WAppelsOublies, WMotVsco, Widget, Evenement, Appel]);
+    this.makeModels([WAbsSansMotifs, WAppelsOublies, WObservations, Widget, Evenement, Appel, Observation]);
     this.widget = new Widget();
-    this.widget.WAbsSansMotifs = new WAbsSansMotifs();
-    this.widget.WAbsSansMotifs.sync();
-    this.widget.WAppelsOublies = new WAppelsOublies();
-    this.widget.WAppelsOublies.sync();
-    this.widget.WMotVsco = new WMotVsco();
+    var that = this.widget;
+    that.WAbsSansMotifs = new WAbsSansMotifs();
+    that.WAbsSansMotifs.sync();
+    that.WAppelsOublies = new WAppelsOublies();
+    that.WAppelsOublies.sync();
+    that.WObservations = new WObservations();
+    that.WObservations.sync();
 };

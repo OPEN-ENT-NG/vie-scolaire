@@ -19,81 +19,94 @@
     <div class="ten cell main-content">
 
         <section>
-            <article class="five cell margin-five box-accueil">
+            <article class="five cell box-accueil">
                 <h2><i18n>viescolaire.viescolaire.absences.sans.motif</i18n></h2>
                 <div class="content-box-accueil">
-                    <table class="list-view">
-                        <thead>
-                            <tr>
-                                <th>Nom Prenom</th>
-                                <th>Date/Heure</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="evenement in widget.WAbsSansMotifs.evenements.all">
-                                <td>[[evenement.eleve_nom]] [[evenement.eleve_prenom]]</td>
-                                <td>[[formatDate(evenement.cours_timestamp_dt, evenement.cours_timestamp_fn)]]</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="content-box-accueil--table">
+                        <div class="content-box-accueil--table--header row">
+                            <div class="six cell">
+                                <h5>Nom Prenom</h5>
+                            </div>
+                            <div class="six cell">
+                                <h5>Date/Heure</h5>
+                            </div>
+                        </div>
+                        <div class="content-box-accueil--table--content">
+                            <div class="row" ng-repeat="evenement in widget.WAbsSansMotifs.evenements.all">
+                                <div class="six cell">
+                                    [[evenement.eleve_nom]] [[evenement.eleve_prenom]]
+                                </div>
+                                <div class="six cell">
+                                    [[formatDate(evenement.cours_timestamp_dt, evenement.cours_timestamp_fn)]]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </section>
         <section>
-            <article class="five cell margin-five box-accueil">
+            <article class="five cell box-accueil">
                 <h2><i18n>viescolaire.viescolaire.appels.oublies</i18n></h2>
                 <div class="content-box-accueil">
-                    <table class="list-view">
-                        <thead>
-                            <tr>
-                                <th>Enseignant</th>
-                                <th>Date/Heure</th>
-                                <th>Classe</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="appel in widget.WAppelsOublies.appels.all">
-                                <td>[[appel.personnel_nom]] [[appel.personnel_prenom]]</td>
-                                <td>[[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]</td>
-                                <td>[[appel.classe_libelle]]</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
+                    <div class="content-box-accueil--table">
+                        <div class="content-box-accueil--table--header row">
+                            <div class="four cell">
+                                <h5>Enseignant</h5>
+                            </div>
+                            <div class="four cell">
+                                <h5>Date/Heure</h5>
+                            </div>
+                            <div class="four cell">
+                                <h5>Matiere</h5>
+                            </div>
+                        </div>
+                        <div class="content-box-accueil--table--content">
+                            <div class="row" ng-repeat="appel in widget.WAppelsOublies.appels.all">
+                                <div class="four cell">
+                                    [[appel.personnel_nom]] [[appel.personnel_prenom]]
+                                </div>
+                                <div class="four cell">
+                                    [[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]
+                                </div>
+                                <div class="four cell">
+                                    [[appel.classe_libelle]]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </section>
         <section>
             <article class="five cell margin-five box-accueil">
-                <h2><i18n>viescolaire.viescolaire.mots.pour.viescolaire</i18n></h2>
+                <h2><i18n>viescolaire.viescolaire.observations</i18n></h2>
                 <div class="content-box-accueil">
-                    <table class="list-view">
-                        <thead>
-                        <tr>
-                            <th>Date/Heure</th>
-                            <th>Mot</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>02/02/2016 - 08h00</td>
-                            <td>Riza GOK est notée absente mais bien présente lors de mon cours.</td>
-                        </tr>
-                        <tr>
-                            <td>02/02/2016 - 08h00</td>
-                            <td>Riza GOK est notée absente mais bien présente lors de mon cours.</td>
-                        </tr>
-                        <tr>
-                            <td>02/02/2016 - 08h00</td>
-                            <td>Riza GOK est notée absente mais bien présente lors de mon cours.</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div class="content-box-accueil--table">
+                        <div class="content-box-accueil--table--header row">
+                            <div class="four cell">
+                                <h5>Date/Heure</h5>
+                            </div>
+                            <div class="eight cell">
+                                <h5>Observation</h5>
+                            </div>
+                        </div>
+                        <div class="content-box-accueil--table--content">
+                            <div class="row" ng-repeat="observation in widget.WObservations.observations.all">
+                                <div class="four cell">
+                                    [[formatDate(observation.cours_timestamp_dt, observation.cours_timestamp_fn)]]
+                                </div>
+                                <div class="eight cell">
+                                    [[observation.evenement_commentaire]]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </section>
         <section>
-            <article class="five cell margin-five box-accueil">
+            <article class="five cell box-accueil">
                 <div class="content-box-accueil">
                     <select name="" id="">
                         <option value="">Nombre d'absences de la semaine</option>

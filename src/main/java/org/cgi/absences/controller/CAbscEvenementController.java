@@ -1,9 +1,6 @@
 package org.cgi.absences.controller;
 
-import fr.wseduc.rs.ApiDoc;
-import fr.wseduc.rs.Delete;
-import fr.wseduc.rs.Post;
-import fr.wseduc.rs.Put;
+import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -12,13 +9,17 @@ import org.cgi.Viescolaire;
 import org.cgi.absences.service.IAbscEvenementService;
 import org.cgi.absences.service.impl.CAbscEvenementService;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
@@ -93,5 +94,22 @@ public class CAbscEvenementController  extends ControllerHelper {
     public void deleteEvenement(final HttpServerRequest request){
         String oEvenementId = request.params().get("evenementId");
         miAbscEvenementService.deleteEvenement(Integer.parseInt(oEvenementId), defaultResponseHandler(request));
+    }
+
+    @Get("/observations/:dateDebut/:dateFin")
+    @ApiDoc("Recupere toutes les observations dans une période donnée")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getObservations(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
+                String psDateFin = request.params().get("dateFin")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date());
+
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+                miAbscEvenementService.getObservations(user.getStructures().get(0), psDateDebut, psDateFin, handler);
+            }
+        });
     }
 }

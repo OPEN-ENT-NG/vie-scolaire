@@ -40,4 +40,13 @@ public interface IAbscEvenementService extends CrudService {
      * @param handler portant le résultat de la requête.
      */
     public void deleteEvenement(int poEvenementId, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Récupère toutes les observations dans une période donnée.
+     * @param psEtablissementId identifiant de l'établissement.
+     * @param psDateDebut date de début de la période.
+     * @param psDateFin date de fin de la période.
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

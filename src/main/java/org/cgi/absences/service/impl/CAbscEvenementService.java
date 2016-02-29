@@ -98,4 +98,23 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
 
         Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
     }
+
+    @Override
+    public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT evenement.evenement_id, evenement.evenement_commentaire, cours.cours_timestamp_dt, cours.cours_timestamp_fn " +
+                "FROM abs.evenement, viesco.cours, abs.appel " +
+                "WHERE evenement.evenement_commentaire IS NOT NULL " +
+                "AND evenement.fk_appel_id = appel.appel_id " +
+                "AND appel.fk_cours_id = cours.cours_id " +
+                "AND cours.cours_timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.cours_timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
+                "AND cours.fk4j_etab_id = ?::uuid");
+
+        values.addString(psDateDebut).addString(psDateFin).addString(psEtablissementId);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

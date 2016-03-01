@@ -33,10 +33,11 @@ routes.define(function($routeProvider){
 	------------------
 	Main controller.
 **/
-function AbsencesController($scope, $rootScope, $route, model, template, route, date){
+function AbsencesController($scope, $rootScope, $route, model, template, route, date, $timeout){
 
 	$scope.template = template;
 	$scope.routes = $route;
+	$scope.showSuccess = false;
 
 	template.open('absc_teacher_appel_eleves_container', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_eleves');
 
@@ -386,6 +387,15 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.terminerAppel = function() {
 		$scope.changerEtatAppel(giIdEtatAppelFait);
 		$scope.currentCours.appel.update();
+		$scope.succesMessage("L'appel a bien été marqué comme terminé", 5000);
+	};
+
+	$scope.succesMessage = function (psMessage, piDuration) {
+		$scope.messageSuccess = psMessage;
+		$scope.showSuccess = true;
+		$timeout(function(){
+			$scope.showSuccess = false;
+		}, piDuration);
 	};
 
 	/**

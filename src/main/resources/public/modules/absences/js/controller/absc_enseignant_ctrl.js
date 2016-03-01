@@ -13,6 +13,10 @@ var giIdEvenementObservation = 5;
 
 var giIdMotifSansMotif = 8;
 
+var giIdEtatAppelInit = 1;
+var giIdEtatAppelEnCours = 2;
+var giIdEtatAppelFait = 3;
+
 /**
  Defining internal routes
  **/
@@ -39,6 +43,17 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.detailEleveOpen = false;
 	$scope.appel = {
 		date	: {}
+	};
+
+	$scope.safeApply = function(fn) {
+		var phase = this.$root.$$phase;
+		if(phase == '$apply' || phase == '$digest') {
+			if(fn && (typeof(fn) === 'function')) {
+				fn();
+			}
+		} else {
+			this.$apply(fn);
+		}
 	};
 
 	/**
@@ -84,12 +99,18 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				evenementAbsence.evenement_id = piEvenementId;
 				poEleve.isAbsent = true;
 				poEleve.evenements.push(evenementAbsence);
+
+				// l'état de l'appel repasse en cours
+				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});
 		// suppression absence
 		} else {
 			evenementAbsence.delete(function() {
 				poEleve.isAbsent = false;
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
+
+				// l'état de l'appel repasse en cours
+				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});
 		}
 		$scope.calculerNbElevesPresents();
@@ -133,10 +154,16 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 			poEvenement.create(function(piEvenementId) {
 				poEvenement.evenement_id = piEvenementId;
+
+				// l'état de l'appel repasse en cours
+				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});
 		}else {
 			poEvenement.delete(function() {
 				$scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
+
+				// l'état de l'appel repasse en cours
+				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});
 		}
 	};
@@ -151,6 +178,9 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.mapToTimestamp(poEvenement, oMomentDebutCours);
 		poEvenement.save(function(piEvenementId) {
 			poEvenement.evenement_id = piEvenementId;
+
+			// l'état de l'appel repasse en cours
+			$scope.changerEtatAppel(giIdEtatAppelEnCours);
 		});
 	};
 
@@ -183,6 +213,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		if(poEleve.evenements !== undefined) {
 			poEvenement.evenement_id = undefined;
 			poEleve.evenements.remove(poEvenement);
+
 			poEleve.creneaus.sync($scope.currentCours.appel.appel_id);
 		}
 	};
@@ -347,6 +378,24 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 		model.plages.sync();
 		$scope.plages = model.plages;
+	};
+
+	/**
+	 * Passage de l'état d'un appel à "Fait"
+	 */
+	$scope.terminerAppel = function() {
+		$scope.changerEtatAppel(giIdEtatAppelFait);
+		$scope.currentCours.appel.update();
+	};
+
+	/**
+	 * Change l'état d'un appel.
+	 * @param piIdEtatAppel l'identifiant de l'état souhaité.
+     */
+	$scope.changerEtatAppel = function (piIdEtatAppel) {
+		$scope.currentCours.appel.fk_etat_appel_id = piIdEtatAppel;
+		$scope.currentCours.appel.update();
+		$scope.safeApply();
 	};
 
 	route({

@@ -3,6 +3,8 @@
     <!-- Header -->
     <div class="header-nav__fil-ariane-appel">
         <a href="/viescolaire"><i18n>viescolaire.viescolaire.title</i18n></a> > <a href="/viescolaire/absences"><i18n>viescolaire.absences.title</i18n></a> > <span translate content="[['viescolaire.absences.ariane.'+routes.current.$$route.action]]"></span>
+
+        <a ng-disabled="currentCours !== undefined && currentCours.appel.fk_etat_appel_id === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></a>
     </div>
 
     <!--  Menu de gauche  -->

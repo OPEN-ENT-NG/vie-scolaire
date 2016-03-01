@@ -69,7 +69,7 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
         JsonArray values = new JsonArray();
 
         query.append("INSERT INTO abs.appel (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
-                .append("VALUES (?,?,?,?)");
+                .append("VALUES (?,?,?,?) RETURNING *");
 
         values.addNumber(poPersonnelId);
         values.addNumber(poCourId);
@@ -85,14 +85,14 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("UPDATE abs.appel SET (appel_id, fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
-                .append("VALUES (?,?,?,?,?)");
+        query.append("UPDATE abs.appel SET (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
+                .append("= (?,?,?,?) WHERE appel_id = ? RETURNING *");
 
-        values.addNumber(poAppelId);
         values.addNumber(poPersonnelId);
         values.addNumber(poCourId);
         values.addNumber(poEtatAppelId);
         values.addNumber(poJustificatifAppelId);
+        values.addNumber(poAppelId);
 
         Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
     }

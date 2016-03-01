@@ -84,6 +84,7 @@
 	"viescolaire.absences.nb.presents"					: "Nb. présents",
 	"viescolaire.absences.ariane.AppelsOublies" 		: "Appels oubliés",
 	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",
+	"viescolaire.absences.appel.button.enregistrer"		: "Terminer l'appel",
 
 	"viescolaire.utils.selectAll" : "Tout sélectionner",
 	"viescolaire.utils.deselectAll" : "Tout désélectionner",

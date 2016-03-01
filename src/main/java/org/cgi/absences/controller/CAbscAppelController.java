@@ -38,7 +38,7 @@ public class CAbscAppelController extends ControllerHelper {
         miAbscAppelService = new CAbscAppelService();
     }
 
-    @Get("/appel/:coursId")
+    @Get("/appel/get/:coursId")
     @ApiDoc("Recupere l'appel associé à un cours")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAppelCours(final HttpServerRequest request){
@@ -101,7 +101,7 @@ public class CAbscAppelController extends ControllerHelper {
         });
     }
 
-    @Post("/appel/update")
+    @Put("/appel/update")
     @ApiDoc("Met à jour un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateAppel(final HttpServerRequest request){

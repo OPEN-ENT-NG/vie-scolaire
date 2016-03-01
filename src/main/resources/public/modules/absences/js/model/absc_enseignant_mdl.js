@@ -183,7 +183,7 @@ Appel.prototype = {
     //maj en bdd un appel
     update : function() {
         http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/update', this).done(function(data){
-            this.load(data);
+            console.log("Appel mis à jour. Etat : " + data.fk_etat_appel_id);
         });
     },
     save : function() {
@@ -201,11 +201,13 @@ function Cours(){
     var cours = this;
     this.appel = new Appel();
     this.appel.sync = function(){
-        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/' + cours.cours_id).done(function(data){
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/get/' + cours.cours_id).done(function(data){
             this.updateData(data);
             // creation en bdd s'i l'appel n'existe pas encore
             if(this.appel_id === undefined) {
-                this.create();
+                this.create(function(piAppelId) {
+                    this.appel_id = piAppelId;
+                });
             }
         }.bind(this));
     };

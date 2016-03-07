@@ -16,12 +16,12 @@ function Evenement() {
 
 Evenement.prototype = {
     create : function(callback){
-        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/create', this).done(function(data){
+        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
             callback(data.evenement_id);
         });
     },
     update : function(callback){
-        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/update', this).done(function(data){
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
             callback(data.evenement_id);
         });
     },
@@ -35,7 +35,7 @@ Evenement.prototype = {
         }
     },
     delete : function(callback){
-        http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + this.evenement_id + '/delete').done(function(data){
+        http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + this.evenement_id).done(function(data){
             callback();
         });
     }
@@ -175,14 +175,16 @@ function Appel() {
 
 Appel.prototype = {
     // crée en bdd un appel
-    create : function() {
-        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/create', this).done(function(data){
-            this.load(data);
+    create : function(fn) {
+        http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel', this).done(function(data){
+            if(fn && (typeof(fn) === 'function')) {
+                fn(data);
+            }
         });
     },
     //maj en bdd un appel
     update : function() {
-        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/update', this).done(function(data){
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel', this).done(function(data){
             console.log("Appel mis à jour. Etat : " + data.fk_etat_appel_id);
         });
     },
@@ -201,12 +203,15 @@ function Cours(){
     var cours = this;
     this.appel = new Appel();
     this.appel.sync = function(){
-        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/get/' + cours.cours_id).done(function(data){
-            this.updateData(data);
+        http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/cours/' + cours.cours_id).done(function(data){
+            this.updateData(data[0]);
             // creation en bdd s'i l'appel n'existe pas encore
             if(this.appel_id === undefined) {
-                this.create(function(piAppelId) {
-                    this.appel_id = piAppelId;
+                this.fk_personnel_id = cours.fk_personnel_id;
+                this.fk_cours_id = cours.cours_id;
+                this.fk_etat_appel_id = 1;
+                this.create(function(appel) {
+                    cours.appel.appel_id = appel.appel_id;
                 });
             }
         }.bind(this));
@@ -216,8 +221,31 @@ function Cours(){
     this.eleves.sync = function(){
         http().getJson('/' + gsPrefixVieScolaire + '/classe/' + this.composer.fk_classe_id + '/eleves').done(function(data){
             this.load(data);
+            this.loadEvenements();
         }.bind(this));
     };
+
+    this.eleves.loadEvenements = function(){
+        http().getJson('/'+gsPrefixVieScolaire+'/'+gsPrefixAbsences+'/evenement/classe/'+cours.fk_classe_id+'/cours/'+cours.cours_id).done(function(data){
+            this.each(function(eleve){
+               eleve.evenements.load(_.where(data, {fk_eleve_id : eleve.eleve_id}));
+            });
+            this.loadAbscPrev();
+        }.bind(this));
+    };
+
+    this.eleves.loadAbscPrev = function(){
+        http().getJson('/'+gsPrefixVieScolaire+'/'+gsPrefixAbsences+'/absencesprev/classe/'+cours.fk_classe_id+'/'+moment(cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(cours.cours_timestamp_dt).format('YYYY-MM-DD')).done(function(data){
+            this.each(function(eleve){
+                eleve.absencePrevs.load(_.where(data, {fk_eleve_id : eleve.eleve_id}));
+            });
+            this.trigger("appelSynchronized");
+        }.bind(this));
+    }
+
+    this.eleves.loadAbscLastCours = function(){
+        http().getJson('/');
+    }
 }
 
 

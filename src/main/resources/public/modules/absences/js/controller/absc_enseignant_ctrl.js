@@ -45,6 +45,9 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.appel = {
 		date	: {}
 	};
+	$scope.lightbox = {
+		show : false
+	};
 
 	$scope.safeApply = function(fn) {
 		var phase = this.$root.$$phase;
@@ -68,6 +71,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * Calcule le nombre d'élèves présents et le renseigne dans $scope.currentCours.nbPresents
 	 */
 	$scope.calculerNbElevesPresents = function() {
+		$scope.currentCours.nbPresents = 0;
 		var oElevesAbsents = $scope.currentCours.eleves.where({isAbsent : true});
 		var iNbAbsents = 0;
 		if(oElevesAbsents !== undefined) {
@@ -243,37 +247,31 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 		$scope.currentCours.eleves.sync();
 
-		$scope.currentCours.eleves.on('sync', function(){
+		$scope.currentCours.eleves.on("appelSynchronized", function(){
 			$scope.currentCours.nbPresents = 0;
-			$scope.currentCours.nbEleves = 0;
-			if($scope.currentCours.eleves !== undefined) {
-				$scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
-			}
-
-			//$scope.calculerNbElevesPresents();
-
 			$scope.currentCours.eleves.each(function (oEleve) {
-				oEleve.evenements.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
-				oEleve.absencePrevs.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
-
-				oEleve.evenements.on('sync', function() {
-					oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id :giIdEvenementRetard, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-					oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-
-					if(!oEleve.isAbsent && !oEleve.hasDepart && !oEleve.hasRetard) {
-						$scope.currentCours.nbPresents++;
-					}
-
-					oEleve.absencePrevs.on('sync', function() {
-						oEleve.creneaus.sync($scope.currentCours.appel.appel_id);
-					});
-
-				});
-
+				oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+				oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+				oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
+				oEleve.creneaus.sync($scope.currentCours.appel.appel_id);
 			});
+			$scope.currentCours.nbPresents = $scope.currentCours.eleves.all.length - (($scope.currentCours.eleves.where({isAbsent : true})).length);
+			$scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
+			$scope.safeApply();
 		});
+	};
+
+	$scope.lightboxAppel = function(){
+		$scope.lightbox.show = true;
+		template.open('lightbox', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_help');
+	};
+
+	$scope.selectCurrentCours = function(){
+        var currentCours = model.courss.filter(function(cours){
+            return (moment().diff(moment(cours.cours_timestamp_dt)) > 0) && (moment().diff(moment(cours.cours_timestamp_fn)) < 0);
+        });
+        if (currentCours.length === 0) return undefined;
+        else return currentCours[0];
 	};
 
 	/**
@@ -337,7 +335,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.currentEleve.evenementIncident = oEvenementIncident;
 
 
-		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_eleve_appel_detail');
+		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_student_appel_detail');
 	};
 
 	$scope.fermerDetailEleve = function() {
@@ -372,6 +370,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			model.creneaus.sync();
 			model.creneaus.on('sync', function(){
 				$scope.creneaus = model.creneaus;
+                var currentCours = $scope.selectCurrentCours();
+                if(currentCours !== undefined){
+                    $scope.selectCours(currentCours);
+                }
 			});
 		});
 

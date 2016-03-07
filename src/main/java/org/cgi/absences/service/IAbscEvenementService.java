@@ -49,4 +49,6 @@ public interface IAbscEvenementService extends CrudService {
      * @param handler handler portant le résultat de la requête.
      */
     public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+
+    public void getEvenementClasseCours(String psClasseId, String psCoursId, Handler<Either<String, JsonArray>> handler);
 }

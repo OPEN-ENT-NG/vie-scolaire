@@ -105,6 +105,10 @@
 	"viescolaire.utils.encours" : "en cours",
 	"viescolaire.utils.initialise" : "initialisé",
 	"viescolaire.utils.etatappel" : "état de l'appel",
+	"viescolaire.utils.help" : "aide",
+	"viescolaire.utils.colours" : "couleurs",
+	"viescolaire.utils.iconography" : "Iconographie",
+	"viescolaire.utils.absence.previsionnelle" : "Absence prévisionnelle",
 
 	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Sans motifs",
 	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",

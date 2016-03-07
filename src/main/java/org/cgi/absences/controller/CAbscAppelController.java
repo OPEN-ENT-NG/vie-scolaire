@@ -15,6 +15,7 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -38,18 +39,14 @@ public class CAbscAppelController extends ControllerHelper {
         miAbscAppelService = new CAbscAppelService();
     }
 
-    @Get("/appel/get/:coursId")
+    @Get("/appel/cours/:coursId")
     @ApiDoc("Recupere l'appel associé à un cours")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAppelCours(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                Integer poCoursId = Integer.valueOf(request.params().get("coursId"));
+        Integer poCoursId = Integer.valueOf(request.params().get("coursId"));
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscAppelService.getAppelCours(poCoursId, defaultResponseHandler(request));
-            }
-        });
+        miAbscAppelService.getAppelCours(poCoursId, handler);
     }
 
     @Get("/appels/:dateDebut/:dateFin")
@@ -85,7 +82,7 @@ public class CAbscAppelController extends ControllerHelper {
         });
     }
 
-    @Post("/appel/create")
+    @Post("/appel")
     @ApiDoc("Créé un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createAppel(final HttpServerRequest request){
@@ -101,7 +98,7 @@ public class CAbscAppelController extends ControllerHelper {
         });
     }
 
-    @Put("/appel/update")
+    @Put("/appel")
     @ApiDoc("Met à jour un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateAppel(final HttpServerRequest request){

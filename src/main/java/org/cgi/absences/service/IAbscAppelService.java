@@ -3,6 +3,8 @@ package org.cgi.absences.service;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.json.impl.Json;
@@ -58,5 +60,5 @@ public interface IAbscAppelService extends CrudService {
      * @param poCoursId identifiant d'un cours.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonObject>> handler);
+    public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonArray>> handler);
 }

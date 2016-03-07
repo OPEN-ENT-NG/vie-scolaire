@@ -128,4 +128,22 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getAbsencesPrevClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT absence_prev.* " +
+                "FROM abs.absence_prev, viesco.eleve, viesco.rel_eleve_classe " +
+                "WHERE absence_prev.fk_eleve_id = eleve.eleve_id " +
+                "AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id " +
+                "AND rel_eleve_classe.fk_classe_id = ? " +
+                "AND absence_prev.absence_prev_timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND absence_prev.absence_prev_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')");
+
+        values.addNumber(piClasseId).addString(psDateDebut).addString(psDateFin);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

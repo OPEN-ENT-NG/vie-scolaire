@@ -8,6 +8,8 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
@@ -98,16 +100,16 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
     }
 
     @Override
-    public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonObject>> handler) {
+    public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
         query.append("SELECT * FROM abs.appel ")
-                .append("WHERE appel.fk_cours_id = ?");
+            .append("WHERE appel.fk_cours_id = ?");
 
         values.addNumber(poCoursId);
 
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
 

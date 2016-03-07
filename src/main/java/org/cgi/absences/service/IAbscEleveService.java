@@ -50,4 +50,13 @@ public interface IAbscEleveService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getAbsencesSansMotifs(String psIdEtablissement, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Recupere toutes les absences prévisionnelle pour une classe donnée dans une période donnée
+     * @param piClasseId identifiant de la classe
+     * @param psDateDebut date de début de la période
+     * @param psDateFin date de fin de la période
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getAbsencesPrevClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

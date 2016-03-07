@@ -7,7 +7,7 @@
             <i18n>viescolaire.absences.eleves</i18n>
         </div>
         <div class="two cell">
-            <i class="help" ng-click="getInfosAppel()"></i>
+            <i class="help" ng-click="lightboxAppel()"></i>
         </div>
         <div class="five cell">
             <i18n>viescolaire.absences.historique</i18n>
@@ -35,7 +35,7 @@
 
         <div class="list-view-cgi__grille">
             <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
-                <div class="one cell cell-indent">
+                <div class="one cell cell-indent appel__container-icon">
                     <span class="appel__absence-icon"
                             ng-class="{'absence-color' : eleve.isAbsent}"
                             ng-click="ajouterEvenementAbsence(eleve)">

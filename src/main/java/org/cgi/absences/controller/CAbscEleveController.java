@@ -103,4 +103,15 @@ public class CAbscEleveController extends ControllerHelper {
             }
         });
     }
+
+    @Get("/absencesprev/classe/:classeId/:dateDebut/:dateFin")
+    @ApiDoc("Recupere toutes les absences prévisionnelles pour une classe donnée dans une péiode données")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAbsencesPrevClassePeriode(final HttpServerRequest request){
+        Integer piClasseId = Integer.parseInt(request.params().get("classeId"));
+        String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
+        String psDateFin = request.params().get("dateFin")+" 23:59:59";
+
+        miAbscEleveService.getAbsencesPrevClassePeriode(piClasseId, psDateDebut, psDateFin, arrayResponseHandler(request));
+    }
 }

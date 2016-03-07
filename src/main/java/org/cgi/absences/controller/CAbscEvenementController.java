@@ -48,7 +48,7 @@ public class CAbscEvenementController  extends ControllerHelper {
         });
     }
 
-    @Put("/evenement/update")
+    @Put("/evenement")
     @ApiDoc("Met à jours l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateEvenement(final HttpServerRequest request){
@@ -61,7 +61,7 @@ public class CAbscEvenementController  extends ControllerHelper {
         });
     }
 
-    @Post("/evenement/create")
+    @Post("/evenement")
     @ApiDoc("Création d'un évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createEvenement(final HttpServerRequest request){
@@ -73,7 +73,7 @@ public class CAbscEvenementController  extends ControllerHelper {
         });
     }
 
-    @Delete("/evenement/:evenementId/delete")
+    @Delete("/evenement/:evenementId")
     @ApiDoc("Supprile l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteEvenement(final HttpServerRequest request){
@@ -96,5 +96,17 @@ public class CAbscEvenementController  extends ControllerHelper {
                 miAbscEvenementService.getObservations(user.getStructures().get(0), psDateDebut, psDateFin, handler);
             }
         });
+    }
+
+    @Get("/evenement/classe/:classeId/cours/:coursId")
+    @ApiDoc("Recupere tous les évènements d'une classe sur un cours donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getEvenementClasseCours(final HttpServerRequest request){
+        String psClasseId = request.params().get("classeId");
+        String psCoursId = request.params().get("coursId");
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        miAbscEvenementService.getEvenementClasseCours(psClasseId, psCoursId, handler);
     }
 }

@@ -27,14 +27,15 @@ public class CVscoCoursService extends SqlCrudService implements IVscoCoursServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours_id, fk4j_etab_id, cours_timestamp_dt, cours_timestamp_fn, cours_salle, cours_matiere, fk_classe_id ")
+        query.append("SELECT cours.cours_id, cours.fk4j_etab_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_salle, cours.cours_matiere, cours.fk_classe_id ")
         .append("FROM viesco.cours, viesco.classe ")
         .append("WHERE cours.fk_classe_id = classe.classe_id ")
-        .append("AND classe.fk4j_classe_id = ? ")
-        .append("AND cours.cours_timestamp_dt > ?")
-        .append("AND cours.cours_timestamp_fn < ?");
+        .append("AND cours.fk_classe_id = ? ")
+        .append("AND cours.cours_timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+        .append("AND cours.cours_timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+        .append("ORDER BY cours.cours_timestamp_fn ASC");
 
-        values.addString(pSIdClasse).addString(pSDateDebut).addString(pSDateFin);
+        values.addNumber(Integer.parseInt(pSIdClasse)).addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -52,7 +53,8 @@ public class CVscoCoursService extends SqlCrudService implements IVscoCoursServi
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.cours_timestamp_dt ")
                 .append("AND cours.cours_timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
                 .append("AND cours.fk_classe_id = classe.classe_id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id");
+                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
+                .append("ORDER BY cours.cours_timestamp_dt ASC");
 
         values.addString(psUserId);
         values.addString(pSDateDebut);

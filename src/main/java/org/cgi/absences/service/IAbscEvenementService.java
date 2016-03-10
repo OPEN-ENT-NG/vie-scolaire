@@ -50,5 +50,30 @@ public interface IAbscEvenementService extends CrudService {
      */
     public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Recupère tous les évènements pour une classe donnée sur un cours donné.
+     * @param psClasseId identifiant de la classe.
+     * @param psCoursId identifiant du cours.
+     * @param handler handler portant le résultat de la requête.
+     */
     public void getEvenementClasseCours(String psClasseId, String psCoursId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Recupere les absences sur le cours précédent en fonction de l'identifiant de l'utilisateur, de l'identifiant
+     * de la classe et qui n'est pas le cours donné.
+     * @param psUserId identifiant de l'utilisateur.
+     * @param psClasseId identifiant de la classe.
+     * @param psCoursId identifiant du cours.
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getAbsencesDernierCours(String psUserId, Integer psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Recupere tous les évènements pour une classe donnée sur une période donnée
+     * @param piClasseId identifiant de la classe (id postgresql).
+     * @param psDateDebut date de début de la période.
+     * @param psDateFin date de fin de la période.
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getEvtClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

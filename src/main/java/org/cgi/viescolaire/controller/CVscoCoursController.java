@@ -31,8 +31,8 @@ public class CVscoCoursController extends ControllerHelper{
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)
     public void getClasseCours(final HttpServerRequest request){
         String idClasse = request.params().get("idClasse");
-        String dateDebut= request.params().get("dateDebut");
-        String dateFin= request.params().get("dateFin");
+        String dateDebut= request.params().get("dateDebut")+" 00:00:00";
+        String dateFin= request.params().get("dateFin")+" 23:59:59";
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 

@@ -66,13 +66,14 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
         values.addNumber(poEvenement.getInteger("fk_pj_pj"));
         values.addNumber(poEvenement.getInteger("fk_motif_id"));
 
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(handler));
     }
 
     @Override
     public void updateEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
+
 
         query.append("UPDATE abs.evenement SET ")
                 .append("(evenement_timestamp_arrive,evenement_timestamp_depart,evenement_commentaire,evenement_saisie_cpe,fk_eleve_id,fk_appel_id,fk_type_evt_id,fk_pj_pj,fk_motif_id) ")
@@ -102,7 +103,7 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
         values.addNumber(poEvenement.getInteger("fk_motif_id"));
         values.addNumber(poEvenement.getInteger("evenement_id"));
 
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(handler));
     }
 
     @Override
@@ -140,7 +141,7 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT evenement.*, eleve.eleve_id, eleve.fk4j_user_id " +
+        query.append("SELECT evenement.*, eleve.eleve_id, eleve.fk4j_user_id, appel.fk_cours_id " +
                 "FROM abs.evenement, viesco.eleve, viesco.rel_eleve_classe, abs.appel " +
                 "WHERE evenement.fk_eleve_id = eleve.eleve_id " +
                 "AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id " +
@@ -149,6 +150,48 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
                 "AND appel.fk_cours_id = ?");
 
         values.addNumber(Integer.parseInt(psClasseId)).addNumber(Integer.parseInt(psCoursId));
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getAbsencesDernierCours(String psUserId, Integer psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT evenement.fk_eleve_id " +
+                "FROM abs.evenement " +
+                "WHERE evenement.fk_appel_id = ( " +
+                " SELECT appel.appel_id " +
+                " FROM viesco.cours, viesco.personnel, viesco.rel_personnel_cours, abs.appel " +
+                " WHERE personnel.fk4j_user_id = ?::uuid " +
+                " AND cours.fk_classe_id = ? " +
+                " AND appel.fk_cours_id = cours.cours_id " +
+                " AND cours.cours_id != ? " +
+                " AND cours.cours_id < ?" +
+                " ORDER BY cours.cours_timestamp_dt DESC " +
+                " LIMIT 1) " +
+                "AND evenement.fk_type_evt_id = 1");
+
+        values.addString(psUserId).addNumber(psClasseId).addNumber(psCoursId).addNumber(psCoursId);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getEvtClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT evenement.*, cours.cours_id " +
+                "FROM abs.evenement, abs.appel, viesco.cours " +
+                "WHERE cours.fk_classe_id = ? " +
+                "AND evenement.fk_appel_id = appel.appel_id " +
+                "AND appel.fk_cours_id = cours.cours_id " +
+                "AND cours.cours_timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.cours_timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
+
+        values.addNumber(piClasseId).addString(psDateDebut).addString(psDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

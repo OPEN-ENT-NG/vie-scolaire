@@ -20,29 +20,34 @@
     <section>
       <textarea ng-model="currentEleve.evenementObservation.evenement_commentaire"
                 ng-required="false"
-                ng-blur="updateEvenement(currentEleve.evenementObservation);"
+                ng-blur="updateEvenement(currentEleve.evenementObservation, 'evenement_commentaire');"
                 placeholder="Observations">
       </textarea>
     </section>
     <section>
-      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard" ng-click="checkEvenement(currentEleve.hasRetard,currentEleve.evenementRetard);">
+      <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard"
+             ng-click="checkEvenement(currentEleve.hasRetard,currentEleve.evenementRetard);"
+            ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe">
       <label for="hasRetard">
         <i18n>viescolaire.absences.retard</i18n>
       </label>
 
       <input type="time" ng-model="currentEleve.evenementRetard.evenement_heure_arrivee" placeholder="Heure d'arrivée"
-             ng-blur="updateEvenement(currentEleve.evenementRetard);">
+             ng-blur="updateEvenement(currentEleve.evenementRetard);" ng-value="getHeure(currentEleve.evenementRetard.evenement_heure_arrivee)">
 
       <textarea ng-model="currentEleve.evenementRetard.evenement_commentaire"
                 ng-required="false"
-                ng-blur="updateEvenement(currentEleve.evenementRetard);"
+                ng-blur="updateEvenement(currentEleve.evenementRetard, 'evenement_commentaire');"
+                ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe || !currentEleve.evenementRetard.evenement_id"
                 placeholder="Motif">
       </textarea>
     </section>
 
 
     <section>
-      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart" ng-click="checkEvenement(currentEleve.hasDepart,currentEleve.evenementDepart);">
+      <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart"
+             ng-click="checkEvenement(currentEleve.hasDepart,currentEleve.evenementDepart);"
+             ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe">
       <label for="hasDepart">
         <i18n>viescolaire.absences.depart</i18n>
       </label>
@@ -52,12 +57,14 @@
 
       <textarea ng-model="currentEleve.evenementDepart.evenement_commentaire"
                 ng-required="false"
-                ng-blur="updateEvenement(currentEleve.evenementDepart);"
+                ng-blur="updateEvenement(currentEleve.evenementDepart, 'evenement_commentaire');"
+                ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe || !currentEleve.evenementDepart.evenement_id"
                 placeholder="Commentaire">
       </textarea>
     </section>
     <section>
-      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click="">
+      <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click=""
+             ng-disabled="currentEleve.evenementIncident.evenement_saisie_cpe">
       <label for="hasIncident">
         <i18n>viescolaire.absences.incident</i18n>
       </label>
@@ -68,6 +75,7 @@
 
       <textarea ng-model="currentEleve.evenementIncident.evenement_commentaire"
                 ng-required="false"
+                ng-disabled="currentEleve.evenementIncident.evenement_saisie_cpe"
                 placeholder="Commentaire">
       </textarea>
     </section>

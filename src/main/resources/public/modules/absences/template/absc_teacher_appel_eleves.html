@@ -36,13 +36,18 @@
         <div class="list-view-cgi__grille">
             <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
                 <div class="one cell cell-indent appel__container-icon">
+                    <span class="appel__absence-icon appel__absence-icon--cpe"
+                            ng-if="saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
+
+                    </span>
                     <span class="appel__absence-icon"
-                            ng-class="{'absence-color' : eleve.isAbsent}"
-                            ng-click="ajouterEvenementAbsence(eleve)">
+                          ng-class="{'absence-color' : eleve.isAbsent}"
+                          ng-click="ajouterEvenementAbsence(eleve)"
+                          ng-if="!saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
 
                     </span>
                 </div>
-                <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)">
+                <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)" ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
                     [[eleve.eleve_nom]] [[eleve.eleve_prenom]]
                 </div>
                 <div class="two cell cell-indent">
@@ -54,12 +59,13 @@
                     </span>
                     <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
                 </div>
-                <div class="five cell cell-indent">
-                    <div ng-repeat="creneau in eleve.creneaus.all"
-                         ng-style="creneau.style"
-                         ng-class="{'absence-color' : creneau.isAbsent, 'retard-color' : creneau.hasRetard, 'depart-color' : creneau.hasDepart, 'absence-prev-color' : creneau.hasAbsencePrev && !creneau.isAbsent}"
-                         class="appel__historiques-creneau-eleve"
-                    >
+                <div class="five cell">
+                    <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
+                        <div ng-repeat="evt in plage.evenements.all track by $index"
+                             ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
+                            ng-class="{'absence-color' : evt.fk_type_evt_id === 1, 'retard-color' : evt.fk_type_evt_id === 2, 'depart-color' : evt.fk_type_evt_id === 3, 'absence-prev-color' : evt.fk_type_evt_id === 'abs-prev','incident-color' : evt.fk_type_evt_id === 4, 'commentaire-color' : evt.fk_type_evt_id === 5}"
+                            class="appel__historiques-creneau-eleve"
+                        ></div>
                     </div>
                 </div>
             </div>

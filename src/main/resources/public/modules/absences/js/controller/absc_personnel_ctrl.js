@@ -95,7 +95,8 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
     };
 
 	$scope.safeApply = function(fn) {
-		var phase = this.$root.$$phase;
+		var p
+		e = this.$root.$$phase;
 		if(phase == '$apply' || phase == '$digest') {
 			if(fn && (typeof(fn) === 'function')) {
 				fn();

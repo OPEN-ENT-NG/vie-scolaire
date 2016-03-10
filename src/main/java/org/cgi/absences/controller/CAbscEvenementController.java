@@ -55,8 +55,9 @@ public class CAbscEvenementController  extends ControllerHelper {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject poEvenement) {
+                Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
                 miAbscEvenementService.updateEvenement(poEvenement,
-                        notEmptyResponseHandler(request));
+                        handler);
             }
         });
     }
@@ -68,13 +69,14 @@ public class CAbscEvenementController  extends ControllerHelper {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject poEvenement) {
-                miAbscEvenementService.createEvenement(poEvenement,notEmptyResponseHandler(request));
+                Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
+                miAbscEvenementService.createEvenement(poEvenement, handler);
             }
         });
     }
 
     @Delete("/evenement/:evenementId")
-    @ApiDoc("Supprile l'évènement.")
+    @ApiDoc("Supprime l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteEvenement(final HttpServerRequest request){
         String oEvenementId = request.params().get("evenementId");
@@ -108,5 +110,36 @@ public class CAbscEvenementController  extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         miAbscEvenementService.getEvenementClasseCours(psClasseId, psCoursId, handler);
+    }
+
+    @Get("/precedentes/classe/:classeId/cours/:coursId")
+    @ApiDoc("Recupere toutes les absences du cours précédent en fonction de l'identifiant de la classe et de l'identifiant du cours")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAbsencesDernierCours(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                Integer psClasseId = Integer.parseInt(request.params().get("classeId"));
+                Integer psCoursId = Integer.parseInt(request.params().get("coursId"));
+                String psUserId = user.getUserId();
+
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+                miAbscEvenementService.getAbsencesDernierCours(psUserId, psClasseId, psCoursId, handler);
+            }
+        });
+    }
+
+    @Get("/evenement/classe/:classeId/periode/:dateDebut/:dateFin")
+    @ApiDoc("Recupere tous les évènements pour une classe donnée dans une période donnée")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getEvtClassePeriode(final HttpServerRequest request){
+        Integer iClasseId = Integer.parseInt(request.params().get("classeId"));
+        String oDateDebut = request.params().get("dateDebut")+" 00:00:00";
+        String oDateFin = request.params().get("dateFin")+" 23:59:59";
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        miAbscEvenementService.getEvtClassePeriode(iClasseId, oDateDebut, oDateFin, handler);
     }
 }

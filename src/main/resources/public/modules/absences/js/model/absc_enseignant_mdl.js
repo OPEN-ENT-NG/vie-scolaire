@@ -17,12 +17,12 @@ function Evenement() {
 Evenement.prototype = {
     create : function(callback){
         http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
-            callback(data.evenement_id);
+            callback(data.evenement_id, true);
         });
     },
     update : function(callback){
         http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
-            callback(data.evenement_id);
+            callback(data.evenement_id, false);
         });
     },
     save : function(callback) {
@@ -47,6 +47,9 @@ function AbsencePrev() {
 
 function Eleve() {
     this.collection(Evenement);
+    this.collection(Cours);
+    this.evenementsJour = new Collection(Evenement);
+    this.evenementsJour.composer = this.evenementsJour.model = this;
     this.evenements.sync = function(psDateDebut, psDateFin){
         http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/eleve/' + this.composer.eleve_id + '/evenements/' + psDateDebut + '/' + psDateFin).done(function(data){
             this.load(data);
@@ -60,113 +63,52 @@ function Eleve() {
         }.bind(this));
     };
 
-    this.collection(Creneau);
-    this.creneaus.sync = function(piIdAppel) {
-        var oListeCreneauxJson = [];
-        var oHeureEnCours;
-
-        // creation d'un objet moment pour la plage du debut de la journée
-        var goHeureDebutPlage = moment();
-        goHeureDebutPlage.hour(giHeureDebutPlage);
-        goHeureDebutPlage.minute(0);
-        goHeureDebutPlage = moment(moment(goHeureDebutPlage).format(gsFormatHeuresMinutes), gsFormatHeuresMinutes);
-
-        // creation d'un objet moment pour la plage de fin de journée
-        var goHeureFinPlage = moment();
-        goHeureFinPlage.hour(giHeureFinPlage);
-        goHeureFinPlage.minute(0);
-        goHeureFinPlage = moment(moment(goHeureFinPlage).format(gsFormatHeuresMinutes), gsFormatHeuresMinutes);
-
-        if(model.courss !== undefined && model.courss.all.length > 0) {
-
-            // initialsiation heure en cours (1ère heure à placer sur les crenaux)
-            oHeureEnCours = goHeureDebutPlage;
-
-            for (var i = 0; i < model.courss.all.length; i++) {
-
-                var oCurrentCours = model.courss.all[i];
-
-                var oHeureDebutCours = moment(moment(oCurrentCours.cours_timestamp_dt).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-                var oHeureFinCours = moment(moment(oCurrentCours.cours_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-
-                // si le cours est après le dernier creneau ajouté
-                if (oHeureDebutCours.diff(oHeureEnCours) > 0) {
-
-                    // on ajoute un crenau "vide" jusqu'au cours
-                    var creneau = {};
-                    creneau.heureDebut = oHeureEnCours.format(gsFormatHeuresMinutes);
-                    creneau.heureFin = oHeureDebutCours.format(gsFormatHeuresMinutes);
-                    creneau.cours = undefined;
-                    creneau.duree = oHeureDebutCours.diff(oHeureEnCours, "minute");
-                    creneau.style = {
-                        "width": (creneau.duree/60) * (1/(giHeureFinPlage-giHeureDebutPlage+1))*100 + "%"
-                    };
-                    oListeCreneauxJson.push(creneau);
-                    oHeureEnCours = oHeureDebutCours;
-                }
-
-                // crenau d'un cours
-                var creneau = {};
-                creneau.heureDebut = oHeureDebutCours.format(gsFormatHeuresMinutes);
-                // TODO tester si heureFin = 18h
-                creneau.heureFin = oHeureFinCours.format(gsFormatHeuresMinutes);
-                creneau.cours = oCurrentCours;
-                creneau.duree = oHeureFinCours.diff(oHeureDebutCours, "minute");
-
-                // calcul s'il y a des absences/retard/depart/absences prévisionnelles sur le cours
-                creneau.isAbsent = false;
-                creneau.hasRetard = false;
-                creneau.hasDepart = false;
-                creneau.hasAbsencePrev = false;
-
-                // TODO récupérer les évenements du currentCours et non les évenements de l'appel en cours
-                if(this.composer.evenements !== undefined && this.composer.evenements.all.length > 0) {
-                    creneau.isAbsent = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 1, fk_appel_id: piIdAppel}) !== undefined;
-                    creneau.hasRetard = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 2, fk_appel_id: piIdAppel}) !== undefined;
-                    creneau.hasDepart = this.composer.evenements.findWhere({fk_eleve_id: this.composer.eleve_id, fk_type_evt_id: 3, fk_appel_id: piIdAppel}) !== undefined;
-                }
-
-                if(this.composer.absencePrevs !== undefined && this.composer.absencePrevs.all.length > 0) {
-                    var iIdEleve = this.composer.eleve_id;
-                    var oAbsencePrevs = _.filter(this.composer.absencePrevs.all, function(poAbsencePrev) {
-                        var poDebutAbsenceMoment = moment(moment(poAbsencePrev.absence_prev_timestamp_dt).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-                        var poFinAbsenceMoment = moment(moment(poAbsencePrev.absence_prev_timestamp_fn).format(gsFormatHeuresMinutes),gsFormatHeuresMinutes);
-
-                        // l'absence previsionnelle doit englobler le cours pour qu'on indique qu'il y ait eu absence prev sur celui-ci
-                        return (iIdEleve === poAbsencePrev.fk_eleve_id) && (oHeureDebutCours.diff(poDebutAbsenceMoment, "minute") >= 0) && (poFinAbsenceMoment.diff(oHeureFinCours, "minute") >= 0);
-                    });
-                    creneau.hasAbsencePrev = oAbsencePrevs !== undefined && oAbsencePrevs.length > 0;
-                }
-
-                creneau.style = {
-                    "width": (creneau.duree/60) * (1/(giHeureFinPlage-giHeureDebutPlage+1))*100 + "%"
+    this.collection(Plage);
+    this.plages.sync = function(piIdAppel, cb) {
+        // Evenements du jours
+        var otEvt = this.composer.evenementsJour;
+        // Liste des cours
+        var otCours = this.composer.courss;
+        var that = this;
+        // On copie les plages dans un tableau
+        that.load(JSON.parse(JSON.stringify(model.plages)));
+        that.map(function(plage){
+            plage.evenements = new Collection(Evenement);
+            plage.evenements.composer = plage.evenements.model = this;
+        });
+        /**
+         * Pour chaque plage, on récupere le cours correspondant, puis pour la plage, on ajoute au tableau evenements
+         * la liste des evenements relatifs à la plage horaire.
+         */
+        otEvt.each(function(evenement){
+            var otCurrentCours = otCours.findWhere({cours_id : evenement.cours_id});
+            var otCurrentPlage = that.filter(function(plage){
+                var dt = parseInt(moment(otCurrentCours.cours_timestamp_dt).format('HH'));
+                return plage.heure === dt;
+            })[0];
+            otCurrentPlage.evenements.push(evenement, false);
+        });
+        /**
+         * Si il y a des absences previsionnelles, on les rajoutes dans le tableau d'évènements
+         */
+        if(this.composer.absencePrevs.all.length > 0){
+            this.composer.absencePrevs.each(function(abs){
+               abs.fk_type_evt_id = 'abs-prev';
+                var dt = parseInt(moment(abs.absence_prev_timestamp_dt).format('HH'));
+                var fn = parseInt(moment(abs.absence_prev_timestamp_fn).format('HH'));
+                var oIndex = {
+                    dt : undefined,
+                    fn : undefined
                 };
-
-                oListeCreneauxJson.push(creneau);
-                oHeureEnCours = oHeureFinCours;
-
-                // Lors du dernier cours parcouru, on complète par un dernier créneau vide
-                // si le cours ne se termine pas à la fin de la journée
-                if (i === (model.courss.all.length - 1)) {
-
-                    // si le cours ne termine pas la journée
-                    // on ajoute un crenau "vide" jusqu'à la fin de la journée
-                    if (goHeureFinPlage.diff(oHeureFinCours) > 0) {
-
-                        var creneau = {};
-                        creneau.heureDebut = oHeureFinCours.format(gsFormatHeuresMinutes);
-                        creneau.heureFin = goHeureFinPlage.format(gsFormatHeuresMinutes);
-                        creneau.cours = undefined;
-                        creneau.duree = goHeureFinPlage.diff(oHeureFinCours, "minute");
-                        creneau.style = {
-                            "width": (creneau.duree/60) * (1/(giHeureFinPlage-giHeureDebutPlage+1))*100 + "%"
-                        };
-                        oListeCreneauxJson.push(creneau);
+                oIndex.dt = that.indexOf(that.findWhere({heure : dt}));
+                oIndex.fn = that.indexOf(that.findWhere({heure : fn}));
+                if(oIndex.dt !== -1 && oIndex.fn !== -1){
+                    for(var i = oIndex.dt; i < oIndex.fn; i++){
+                        that.all[i].evenements.push(abs);
                     }
                 }
-            }
+            });
         }
-        this.load(oListeCreneauxJson);
     };
 }
 
@@ -220,18 +162,28 @@ function Cours(){
     this.collection(Eleve);
     this.eleves.sync = function(){
         http().getJson('/' + gsPrefixVieScolaire + '/classe/' + this.composer.fk_classe_id + '/eleves').done(function(data){
+            _.map(data, function(eleve){
+               eleve.cours = cours;
+            });
             this.load(data);
             this.loadEvenements();
         }.bind(this));
     };
 
     this.eleves.loadEvenements = function(){
-        http().getJson('/'+gsPrefixVieScolaire+'/'+gsPrefixAbsences+'/evenement/classe/'+cours.fk_classe_id+'/cours/'+cours.cours_id).done(function(data){
-            this.each(function(eleve){
-               eleve.evenements.load(_.where(data, {fk_eleve_id : eleve.eleve_id}));
-            });
-            this.loadAbscPrev();
-        }.bind(this));
+        /**
+         * On recupere tous les évènements de l'élève de la journée, quelque soit le cours puis on la disperse en 2 listes :
+         * - evenementsJours qui nous permettera d'afficher l'historique.
+         * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
+         */
+        http().getJson('/'+gsPrefixVieScolaire+'/'+gsPrefixAbsences+'/evenement/classe/'+cours.fk_classe_id+'/periode/'+moment(cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(cours.cours_timestamp_dt).format('YYYY-MM-DD'))
+            .done(function(data){
+                this.each(function(eleve){
+                    eleve.evenementsJour.load(_.where(data, {fk_eleve_id : eleve.eleve_id}));
+                    eleve.evenements.load(eleve.evenementsJour.where({cours_id : cours.cours_id}));
+                });
+                this.loadAbscPrev();
+            }.bind(this));
     };
 
     this.eleves.loadAbscPrev = function(){
@@ -239,13 +191,32 @@ function Cours(){
             this.each(function(eleve){
                 eleve.absencePrevs.load(_.where(data, {fk_eleve_id : eleve.eleve_id}));
             });
-            this.trigger("appelSynchronized");
+            this.loadAbscLastCours();
+
         }.bind(this));
     }
 
     this.eleves.loadAbscLastCours = function(){
-        http().getJson('/');
-    }
+        http().getJson('/'+gsPrefixVieScolaire+'/'+gsPrefixAbsences+'/precedentes/classe/'+this.model.fk_classe_id+'/cours/'+this.model.cours_id).done(function(data){
+            var that = this;
+            _.each(data, function(absc){
+                var eleve = that.findWhere({eleve_id : absc.fk_eleve_id});
+                if(eleve !== undefined){
+                    eleve.absc_precedent_cours = true;
+                }
+            });
+            this.loadCoursClasse();
+        }.bind(this));
+    };
+
+    this.eleves.loadCoursClasse = function(){
+        http().getJson('/'+gsPrefixVieScolaire+'/'+cours.fk_classe_id+'/cours/'+moment(cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(cours.cours_timestamp_fn).format('YYYY-MM-DD')).done(function(data){
+            this.each(function(eleve){
+                eleve.courss.load(data);
+            });
+            this.trigger("appelSynchronized");
+        }.bind(this));
+    };
 }
 
 
@@ -363,6 +334,7 @@ model.build = function(){
                 }
             }
         }
+
         this.load(oListeCreneauxJson);
     };
 };

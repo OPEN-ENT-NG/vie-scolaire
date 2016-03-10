@@ -99,6 +99,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEleve l'objet élève
      */
 	$scope.ajouterEvenementAbsence = function(poEleve) {
+        $scope.currentEleve = poEleve;
 		var evenementAbsence = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementAbsence);
 
 		// creation absence
@@ -114,7 +115,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				evenementAbsence.evenement_id = piEvenementId;
 				poEleve.isAbsent = true;
 				poEleve.evenements.push(evenementAbsence);
-
+                $scope.addEvtPlage(evenementAbsence);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});
@@ -123,7 +124,6 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			evenementAbsence.delete(function() {
 				poEleve.isAbsent = false;
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
-
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
 			});

@@ -123,6 +123,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		} else {
 			evenementAbsence.delete(function() {
 				poEleve.isAbsent = false;
+                poEleve.evenements.remove(evenementAbsence);
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);

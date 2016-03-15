@@ -49,8 +49,8 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
 	 * Définition des périodes
      */
 	$scope.periode = {
-		debut : new Date(2016, 01, 10),
-		fin : new Date(2016, 01, 10)
+		debut : new Date(),
+		fin : new Date()
 	};
 
 	$rootScope.$on('$routeChangeSuccess', function($currentRoute, $previousRoute, $location){
@@ -95,8 +95,7 @@ function AbsencesController($scope, $location, $rootScope, model, template, rout
     };
 
 	$scope.safeApply = function(fn) {
-		var p
-		e = this.$root.$$phase;
+		var phase = this.$root.$$phase;
 		if(phase == '$apply' || phase == '$digest') {
 			if(fn && (typeof(fn) === 'function')) {
 				fn();

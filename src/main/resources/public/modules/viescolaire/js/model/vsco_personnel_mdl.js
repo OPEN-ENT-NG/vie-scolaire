@@ -13,7 +13,7 @@ function WAbsSansMotifs(){
 }
 WAbsSansMotifs.prototype = {
     sync : function(){
-        http().getJson("/viescolaire/absences/sansmotifs/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD'))
+        http().getJson("/viescolaire/absences/sansmotifs/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
             .done(function(data){
                 this.evenements.load(data);
             }.bind(this));
@@ -24,7 +24,7 @@ function WAppelsOublies(){
 }
 WAppelsOublies.prototype = {
     sync : function(){
-        http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
+        http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
             .done(function(data){
                 this.appels.load(data);
             }.bind(this));
@@ -35,7 +35,7 @@ function WObservations(){
 }
 WObservations.prototype = {
     sync : function(){
-        http().getJson('/viescolaire/absences/observations/'+moment(new Date(2016, 01, 10)).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
+        http().getJson('/viescolaire/absences/observations/'+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
             .done(function(data){
                 this.observations.load(data);
             }.bind(this));

@@ -32,9 +32,16 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
         }
     };
 
-    $scope.getJourDate = function(date){
-        return moment(date).format('DD/MM/YYYY');
+    $scope.getJourDate = function(evt){
+        return moment(evt.cours_timestamp_dt).format('DD/MM/YYYY')+' '+moment(evt.cours_timestamp_dt).format('HH:mm')+' - '+moment(evt.cours_timestamp_fn).format('HH:mm');
+      //  return moment(date).format('DD/MM/YYYY');
     };
+
+    $scope.getEnseignantNom = function(evt){
+        var e = model.enseignants.findWhere({personnel_id : evt.personnel_id});
+        if(e !== undefined) return (e.personnel_nom+' '+ e.personnel_prenom) ;
+    };
+
     $scope.updateEvtMotif = function(evt){
         evt.update();
     };

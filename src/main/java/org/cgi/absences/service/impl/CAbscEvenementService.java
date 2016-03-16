@@ -165,13 +165,15 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
                 "SELECT appel.appel_id " +
                 "FROM viesco.cours, viesco.personnel, viesco.rel_personnel_cours, abs.appel " +
                 "WHERE personnel.fk4j_user_id = ?::uuid " +
+                "AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id " +
+                "AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
                 "AND cours.fk_classe_id = ? " +
                 "AND appel.fk_cours_id = cours.cours_id " +
                 "AND cours.cours_id != ? " +
                 "AND cours.cours_timestamp_dt < (SELECT cours.cours_timestamp_dt FROM viesco.cours WHERE cours.cours_id = ?) " +
                 "ORDER BY cours.cours_timestamp_dt DESC " +
                 "LIMIT 1) " +
-                "AND evenement.fk_type_evt_id = 1");
+                "AND evenement.fk_type_evt_id = 1 ");
 
         values.addString(psUserId).addNumber(psClasseId).addNumber(psCoursId).addNumber(psCoursId);
 

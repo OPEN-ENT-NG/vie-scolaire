@@ -113,11 +113,12 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 			evenementAbsence.create(function(piEvenementId) {
 				evenementAbsence.evenement_id = piEvenementId;
-				poEleve.isAbsent = true;
+				poEleve.isAbsent = !poEleve.isAbsent;
 				poEleve.evenements.push(evenementAbsence);
                 $scope.addEvtPlage(evenementAbsence);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
+				$scope.calculerNbElevesPresents();
 			});
 		// suppression absence
 		} else {
@@ -127,9 +128,9 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
+				$scope.calculerNbElevesPresents();
 			});
 		}
-		$scope.calculerNbElevesPresents();
 	};
 
 	/**
@@ -221,20 +222,6 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEvenement l'évenement.
      */
 	$scope.updateEvenement = function(poEvenement, poUpdatedField) {
-        //if(poUpdatedField === 'evenement_commentaire'){
-        //    if(poEvenement[poUpdatedField] === '' && poEvenement.evenement_id !== undefined){
-        //        poEvenement.delete(function() {
-        //            $scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
-        //            $scope.setIdToValue(poEvenement, undefined);
-        //            // l'état de l'appel repasse en cours
-        //            $scope.changerEtatAppel(giIdEtatAppelEnCours);
-        //        });
-        //        return;
-        //    }else{
-        //        return;
-        //    }
-        //}else
-        // {
         if(poUpdatedField !== 'evenement_commentaire'){
             var oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
             $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
@@ -290,7 +277,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
         var otCours = $scope.currentEleve.courss.findWhere({cours_id : $scope.currentCours.cours_id});
         var otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
 
-        otPlage.evenements.remove(poEvenement);
+		otPlage.evenements.remove(otPlage.evenements.findWhere({evenement_id : poEvenement.evenement_id}))
         $scope.safeApply();
 	};
 

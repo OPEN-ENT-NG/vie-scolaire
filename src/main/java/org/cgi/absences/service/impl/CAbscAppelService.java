@@ -36,7 +36,8 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
                 "AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
                 "AND rel_personnel_cours.fk_personnel_id = personnel.personnel_id " +
-                "AND cours.fk_classe_id = classe.classe_id");
+                "AND cours.fk_classe_id = classe.classe_id "+
+                "ORDER BY cours.cours_timestamp_dt DESC");
 
         value.addString(psIdEtablissement).addString(psDateDebut).addString(psDateFin);
 

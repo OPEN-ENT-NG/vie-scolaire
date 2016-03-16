@@ -23,11 +23,11 @@
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>
                         <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div class="cell cell-indent two" ng-click="pOSortParameters.sortType = 'cours_matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.matiere</i18n>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.matiere</i18n>
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
                         <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div class="cell cell-indent one" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="fa fa-exclamation-circle"></i>
+                    <div class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="fa fa-exclamation-circle"></i>
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && !pOSortParameters.sortReverse"></i>
                         <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && pOSortParameters.sortReverse"></i>
                     </div>
@@ -43,8 +43,8 @@
                         <div class="cell cell-indent two">[[appel.personnel_nom]] [[appel.personnel_prenom]]</div>
                         <div class="cell cell-indent two">[[appel.classe_libelle]]</div>
                         <div class="cell cell-indent three">[[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]</div>
-                        <div class="cell cell-indent two">[[appel.cours_matiere]]</div>
-                        <div class="cell cell-indent one">
+                        <div class="cell cell-indent three">[[appel.cours_matiere]]</div>
+                        <div class="cell cell-indent one" style="display: none">
                             <i class="fa fa-exclamation-circle" ng-if="appel.fk_etat_appel_id === null"></i>
                         </div>
                     </div>

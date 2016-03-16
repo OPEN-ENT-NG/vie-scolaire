@@ -11,13 +11,13 @@
  *  8. Motif : Contient les différents motifs d'absences relatif à l'établissement.
  */
 
-function Responsable(){};
-function Justificatif(){};
-function Evenement(){};
+function Responsable(){}
+function Justificatif(){}
+function Evenement(){}
 Evenement.prototype = {
-    update : function(){
-        http().putJson('/viescolaire/absences/evenement/'+this.evenement_id+'/updatemotif', { evenement : this }).done(function(resp){
-           console.log(resp);
+    update : function(cb){
+        http().putJson('/viescolaire/absences/evenement/'+this.evenement_id+'/updatemotif', { evenement : this }).done(function(res){
+           cb(res);
         });
     }
 };
@@ -27,12 +27,12 @@ function Eleve(){
 };
 function Classe(){
     this.collection(Eleve);
-};
-function Enseignant(){};
-function Matiere(){};
-function Appel(){};
+}
+function Enseignant(){}
+function Matiere(){}
+function Appel(){}
 
-function Motif(){};
+function Motif(){}
 
 model.build = function(){
     this.makeModels([Responsable, Evenement, Eleve, Classe, Enseignant, Matiere, Appel, Motif, Justificatif]);

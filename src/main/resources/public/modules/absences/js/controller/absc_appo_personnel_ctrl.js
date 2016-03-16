@@ -17,7 +17,7 @@ function VscoAppoPersonnelController($scope, $rootScope, model, template, route,
 
 
     $scope.formatDate = function(pODateDebut, pODateFin){
-        return (moment(pODateDebut).format('DD/MM/YYYY')+" "+moment(pODateDebut).format('HH:MM')+"-"+moment(pODateFin).format('HH:MM'))
+        return (moment(pODateDebut).format('DD/MM/YYYY')+" "+moment(pODateDebut).format('HH:mm')+"-"+moment(pODateFin).format('HH:mm'))
     };
 
     $scope.appelFilterFunction = function(appel){

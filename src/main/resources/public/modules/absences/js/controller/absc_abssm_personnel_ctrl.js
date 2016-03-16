@@ -43,7 +43,11 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
     };
 
     $scope.updateEvtMotif = function(evt){
-        evt.update();
+        evt.update(function(res){
+            if(res !== undefined){
+                evt.fk_motif_id = res[0].fk_motif_id;
+            }
+        });
     };
 
     var initAllEvenement = function(){

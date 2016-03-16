@@ -29,7 +29,7 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("UPDATE abs.evenement SET fk_motif_id = ? WHERE abs.evenement.evenement_id = ?");
+        query.append("UPDATE abs.evenement SET fk_motif_id = ? WHERE abs.evenement.evenement_id = ? RETURNING *");
         values.addNumber(pOEvenement.getObject("motif").getInteger("motif_id")).addNumber(Integer.parseInt(pIIdEvenement));
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

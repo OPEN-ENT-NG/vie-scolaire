@@ -54,6 +54,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.lightbox = {
 		show : false
 	};
+	$scope.oEvtTime = {
+		depart : '--:--',
+		retard : '--:--'
+	}
 
 	$scope.safeApply = function(fn) {
 		var phase = this.$root.$$phase;
@@ -66,6 +70,9 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		}
 	};
 
+	$scope.formatDate = function(h){
+		return "00:00";
+	};
 	/**
 	 * Message pour les fonctionnalié pas encore développées
 	 */
@@ -89,10 +96,6 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	$scope.getHeure = function (timestampDate) {
 		return moment(new Date(timestampDate)).format("HH:mm");
 	};
-
-    $scope.formatEvtTime = function(poEvt, piTypeEvt){
-        console.log(arguments);
-    };
 
 	/**
 	 * Ajout un evenement de type absence pour l'élève passé en paramètre
@@ -162,8 +165,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			// initalisation des heures selon l'heure courante et la date du cours
 			if(poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementDepart) {
 				poEvenement.evenement_heure_depart = sHeureAujourDhui;
+				$scope.oEvtTime.depart = sHeureAujourDhui;
 			} else if(poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementRetard) {
 				poEvenement.evenement_heure_arrivee = sHeureAujourDhui;
+				$scope.oEvtTime.retard = sHeureAujourDhui;
 			}
 
 			$scope.mapToTimestamp(poEvenement, oMomentDebutCours);
@@ -179,6 +184,11 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			});
 		}else {
 			poEvenement.delete(function() {
+				if(poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementDepart) {
+					$scope.oEvtTime.depart = "--:--";
+				} else if(poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementRetard) {
+					$scope.oEvtTime.retard = "--:--";
+				}
 				$scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
                 //poEvenement.evenement_id = undefined;
                 $scope.setIdToValue(poEvenement, undefined);
@@ -227,6 +237,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
             $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
         }else{
             if(poEvenement[poUpdatedField] === '' || poEvenement[poUpdatedField] === null ||poEvenement[poUpdatedField] === undefined){
+				console.log($scope.oEvtTime);
                 if(poEvenement.evenement_id !== undefined){
                     poEvenement.delete(function() {
                         $scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
@@ -341,6 +352,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
      */
 	$scope.detailEleveAppel = function(poEleve) {
         template.close('rightSide_absc_eleve_appel_detail');
+		$scope.initEvtTime();
 		$scope.detailEleveOpen = $scope.currentEleve === undefined ||
 				($scope.currentEleve !==undefined && $scope.currentEleve.eleve_id !== poEleve.eleve_id);
 
@@ -360,6 +372,8 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			oEvenementRetard.fk_appel_id = $scope.currentCours.appel.appel_id;
 			oEvenementRetard.fk_type_evt_id = $scope.oEvtType.giIdEvenementRetard;
 			oEvenementRetard.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+		}else{
+			$scope.oEvtTime.retard = moment(oEvenementRetard.evenement_timestamp_arrive).format('HH:mm');
 		}
 
 		var oEvenementDepart = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementDepart);
@@ -371,6 +385,8 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			oEvenementDepart.fk_appel_id = $scope.currentCours.appel.appel_id;
 			oEvenementDepart.fk_type_evt_id = $scope.oEvtType.giIdEvenementDepart;
 			oEvenementDepart.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+		}else{
+			$scope.oEvtTime.depart = moment(oEvenementDepart.evenement_timestamp_depart).format('HH:mm');
 		}
 
 		var oEvenementIncident = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementIncident);
@@ -408,6 +424,13 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.currentEleve = undefined;
 		// booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
 		$scope.detailEleveOpen = false;
+	};
+
+	$scope.initEvtTime = function(){
+		$scope.oEvtTime = {
+			depart : '--:--',
+			retard : '--:--'
+		}
 	};
 
 	/**

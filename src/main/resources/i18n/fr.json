@@ -52,7 +52,7 @@
 	"viescolaire.viescolaire.appels.oublies"			: "Appels oubliés",
 	"viescolaire.viescolaire.absences.sans.motif"		: "Absences sans motif",
 	"viescolaire.viescolaire.saisir.absence"			: "Saisir une absence",
-	"viescolaire.viescolaire.observations"				: "observations",
+	"viescolaire.viescolaire.observations"				: "Observations",
 	"viescolaire.viescolaire.observation"				: "Observation",
 	"viescolaire.viescolaire.nb.absences.semaine"		: "Nombre d'absences de la semaine",
 
@@ -73,7 +73,7 @@
 
 	"viescolaire.absences.title"						: "Absences",
 	"viescolaire.absences.historique"					: "Historique de la journée",
-	"viescolaire.absences.eleves"						: "Eleves",
+	"viescolaire.absences.eleves"						: "Elèves",
 	"viescolaire.absences.observations"					: "Observations",
 	"viescolaire.absences.commentaire"					: "Commentaire",
 	"viescolaire.absences.punition"						: "Punition",
@@ -81,7 +81,7 @@
 	"viescolaire.absences.depart"						: "Départ",
 	"viescolaire.absences.incident"						: "Incident",
 	"viescolaire.absences.appel.crenau.vide"			: "CRENEAU VIDE",
-	"viescolaire.absences.student" : "Eleve",
+	"viescolaire.absences.student" : "Elève",
 
 	"viescolaire.absences.nb.presents"					: "Nb. présents",
 	"viescolaire.absences.ariane.AppelsOublies" 		: "Appels oubliés",

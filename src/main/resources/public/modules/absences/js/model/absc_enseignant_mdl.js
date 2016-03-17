@@ -223,6 +223,7 @@ function Cours(){
 ///////////////////////
 ///   MODEL.BUILD   ///
 model.build = function(){
+    absc_enseignant_directives.addDirective();
     this.makeModels([Appel, Eleve, Cours, Evenement, AbsencePrev, Creneau, Plage]);
 
     this.collection(Cours);

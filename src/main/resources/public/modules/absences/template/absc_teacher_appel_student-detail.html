@@ -21,7 +21,8 @@
       <textarea ng-model="currentEleve.evenementObservation.evenement_commentaire"
                 ng-required="false"
                 ng-blur="updateEvenement(currentEleve.evenementObservation, 'evenement_commentaire');"
-                placeholder="Observations">
+                placeholder="Observations"
+                rows="3">
       </textarea>
     </section>
     <section>
@@ -31,15 +32,16 @@
       <label for="hasRetard">
         <i18n>viescolaire.absences.retard</i18n>
       </label>
-
-      <input type="time" ng-model="currentEleve.evenementRetard.evenement_heure_arrivee" placeholder="Heure d'arrivée"
-             ng-blur="updateEvenement(currentEleve.evenementRetard);" ng-value="getHeure(currentEleve.evenementRetard.evenement_heure_arrivee)">
+      <input type="time" ng-model="oEvtTime.retard" placeholder="Heure d'arrivée"
+             ng-blur="updateEvenement(currentEleve.evenementRetard);" ng-value="getHeure(currentEleve.evenementRetard.evenement_heure_arrivee)"
+             ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe || !currentEleve.evenementRetard.evenement_id">
 
       <textarea ng-model="currentEleve.evenementRetard.evenement_commentaire"
                 ng-required="false"
                 ng-blur="updateEvenement(currentEleve.evenementRetard, 'evenement_commentaire');"
                 ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe || !currentEleve.evenementRetard.evenement_id"
-                placeholder="Motif">
+                placeholder="Motif"
+                rows="3">
       </textarea>
     </section>
 
@@ -52,14 +54,16 @@
         <i18n>viescolaire.absences.depart</i18n>
       </label>
 
-      <input type="time" ng-model="currentEleve.evenementDepart.evenement_heure_depart" placeholder="Heure de départ"
-             ng-blur="updateEvenement(currentEleve.evenementDepart);">
+      <input type="time" ng-model="oEvtTime.depart" placeholder="Heure de départ"
+             ng-blur="updateEvenement(currentEleve.evenementDepart);"
+             ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe || !currentEleve.evenementDepart.evenement_id">
 
       <textarea ng-model="currentEleve.evenementDepart.evenement_commentaire"
                 ng-required="false"
                 ng-blur="updateEvenement(currentEleve.evenementDepart, 'evenement_commentaire');"
                 ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe || !currentEleve.evenementDepart.evenement_id"
-                placeholder="Commentaire">
+                placeholder="Commentaire"
+                rows="3">
       </textarea>
     </section>
     <section>
@@ -76,7 +80,8 @@
       <textarea ng-model="currentEleve.evenementIncident.evenement_commentaire"
                 ng-required="false"
                 ng-disabled="currentEleve.evenementIncident.evenement_saisie_cpe"
-                placeholder="Commentaire">
+                placeholder="Commentaire"
+                rows="3">
       </textarea>
     </section>
   </div>

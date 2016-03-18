@@ -118,7 +118,7 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
                 "AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id " +
                 "AND evenement.fk_type_evt_id = 1 " +
-                "AND evenement.fk_motif_id = 8 " +
+                "AND (evenement.fk_motif_id = 8 OR evenement.fk_motif_id = 2)" +
                 "AND rel_eleve_classe.fk_classe_id = classe.classe_id " +
                 "AND classe.fk4j_etab_id = ?::uuid " +
                 "AND cours.fk_classe_id = classe.classe_id AND rel_personnel_cours.fk_cours_id = cours.cours_id " +

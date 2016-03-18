@@ -74,7 +74,7 @@ function AbscAbssmPersonnelController($scope, $rootScope, model, template, route
 
     $scope.absencesFilterFunction = function(event){
         if($scope.pOFilterAbsences.sansmotifs){
-            return (event.fk_type_evt_id === 1 && event.fk_motif_id === 8);
+            return (event.fk_type_evt_id === 1 && (event.fk_motif_id === 8 || event.fk_motif_id === 2));
         }else{
             return true;
         }

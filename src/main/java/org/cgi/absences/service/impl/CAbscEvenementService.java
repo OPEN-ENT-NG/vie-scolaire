@@ -127,6 +127,7 @@ public class CAbscEvenementService extends SqlCrudService implements IAbscEvenem
                 "WHERE evenement.evenement_commentaire IS NOT NULL " +
                 "AND evenement.fk_appel_id = appel.appel_id " +
                 "AND appel.fk_cours_id = cours.cours_id " +
+                "AND evenement.fk_type_evt_id = 5 " +
                 "AND cours.cours_timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.cours_timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
                 "AND cours.fk4j_etab_id = ?::uuid " +

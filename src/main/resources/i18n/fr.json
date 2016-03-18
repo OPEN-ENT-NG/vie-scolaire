@@ -50,7 +50,7 @@
 	"viescolaire.viescolaire.title"						: "Vie scolaire",
 	"viescolaire.viescolaire.saisir.appel"				: "Saisir un appel",
 	"viescolaire.viescolaire.appels.oublies"			: "Appels oubliés",
-	"viescolaire.viescolaire.absences.sans.motif"		: "Absences sans motif",
+	"viescolaire.viescolaire.absences.sans.motif"		: "Absences non justifiées",
 	"viescolaire.viescolaire.saisir.absence"			: "Saisir une absence",
 	"viescolaire.viescolaire.observations"				: "Observations",
 	"viescolaire.viescolaire.observation"				: "Observation",
@@ -96,7 +96,7 @@
 	"viescolaire.utils.date": "date",
 	"viescolaire.utils.reason":"motif",
 	"viescolaire.utils.justad":"just. ad.",
-	"viescolaire.absences.sansmotifs" : "Sans motifs",
+	"viescolaire.absences.sansmotifs" : "Non justifiées",
 	"viescolaire.utils.enseignant" : "enseignant",
 	"viescolaire.utils.classe" : "classe",
 	"viescolaire.utils.heure" : "heure",
@@ -113,7 +113,7 @@
 	"viescolaire.utils.absence.previsionnelle" : "Absence prévisionnelle",
 	"viescolaire.utils.absences.dernier.cours" : "Eleve absent au dernier cours.",
 
-	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Sans motifs",
+	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Non justifiées",
 	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",
 	"viescolaire.absences.ariane.AppelsOublies" : "Appels non effectués"
 }

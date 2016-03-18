@@ -122,7 +122,8 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
                 "AND rel_eleve_classe.fk_classe_id = classe.classe_id " +
                 "AND classe.fk4j_etab_id = ?::uuid " +
                 "AND cours.fk_classe_id = classe.classe_id AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
-                "AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id");
+                "AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id " +
+                "ORDER BY cours.cours_timestamp_dt DESC");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 

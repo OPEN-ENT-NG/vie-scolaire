@@ -10,7 +10,7 @@
             <button ng-click="switchAll(enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant" ng-click="enseignant.selected = !enseignant.selected"
+            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant | orderBy : 'personnel_nom'" ng-click="enseignant.selected = !enseignant.selected"
                 ng-class="{selected : enseignant.selected}">[[enseignant.personnel_nom]] [[enseignant.personnel_prenom]]</li>
         </ul>
     </div>
@@ -25,7 +25,7 @@
             <button ng-click="switchAll(classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="classe in classes.all | filter:{classe_libelle:pORecherche.pSNomClasse}" ng-click="classe.selected = !classe.selected"
+            <li ng-repeat="classe in classes.all | filter:{classe_libelle:pORecherche.pSNomClasse} | orderBy : 'classe_libelle'" ng-click="classe.selected = !classe.selected"
                 ng-class="{selected : classe.selected}">[[classe.classe_libelle]]</li>
         </ul>
     </div>

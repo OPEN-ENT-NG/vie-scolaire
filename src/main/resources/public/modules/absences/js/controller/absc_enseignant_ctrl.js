@@ -118,6 +118,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 				evenementAbsence.evenement_id = piEvenementId;
 				poEleve.isAbsent = !poEleve.isAbsent;
 				poEleve.evenements.push(evenementAbsence);
+				$scope.removeEvtNAbsc(poEleve);
                 $scope.addEvtPlage(evenementAbsence);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
@@ -137,6 +138,44 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	};
 
 	/**
+	 *  Supprime les  évènements Retard, Départ et Incident si l'élève est déclaré absent.
+	 * @param poEleve Objet Eleve référencé
+	 */
+	$scope.removeEvtNAbsc = function(poEleve){
+		var tEvenementDepart = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementDepart});
+		var tEvenementRetard = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementRetard});
+		var tEvenementIncident = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementIncident});
+		if(tEvenementDepart !== undefined){
+			poEleve.evenements.remove(tEvenementDepart);
+			tEvenementDepart.delete();
+			$scope.supprimerEvenementEleve(poEleve, tEvenementDepart);
+			if(poEleve.evenementDepart !== undefined){
+				poEleve.evenementDepart.evenement_id = undefined;
+				poEleve.hasDepart = false;
+			}
+		}
+		if(tEvenementRetard !== undefined){
+			poEleve.evenements.remove(tEvenementRetard);
+			tEvenementRetard.delete();
+			$scope.supprimerEvenementEleve(poEleve, tEvenementRetard);
+			if(poEleve.evenementRetard !== undefined){
+				poEleve.evenementRetard.evenement_id = undefined;
+				poEleve.hasRetard = false;
+			}
+		}
+		if(tEvenementIncident !== undefined){
+			poEleve.evenements.remove(tEvenementIncident);
+			tEvenementIncident.delete();
+			$scope.supprimerEvenementEleve(poEleve, tEvenementIncident);
+			if(poEleve.evenementIncident !== undefined){
+				poEleve.evenementIncident.evenement_id = undefined;
+				poEleve.hasIncident = false;
+			}
+		}
+		$scope.safeApply();
+	};
+
+	/**
 	 * Retourne l'évenement (absence/retard/depart/incident) d'un élève
 	 * selon le type passé en parametre.
 	 *
@@ -145,8 +184,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @returns l'évenement ouo undefined si aucun évenement trouvé.
      */
 	$scope.getEvenementEleve = function(poEleve, piTypeEvenement) {
-		var evenementEleve = poEleve.evenements.findWhere({fk_type_evt_id : parseInt(piTypeEvenement)});
-		return evenementEleve;
+		return  poEleve.evenements.findWhere({fk_type_evt_id : parseInt(piTypeEvenement)});
 	};
 
 
@@ -159,6 +197,10 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 */
 	$scope.checkEvenement = function (pbIsChecked, poEvenement) {
 		if(pbIsChecked) {
+			var evenementAbsence = $scope.getEvenementEleve($scope.currentEleve, $scope.oEvtType.giIdEvenementAbsence);
+			if(evenementAbsence !== undefined){
+				$scope.ajouterEvenementAbsence($scope.currentEleve);
+			}
 			var oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
 			var sHeureAujourDhui = moment().format("HH:mm");
 
@@ -288,7 +330,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
         var otCours = $scope.currentEleve.courss.findWhere({cours_id : $scope.currentCours.cours_id});
         var otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
 
-		otPlage.evenements.remove(otPlage.evenements.findWhere({evenement_id : poEvenement.evenement_id}))
+		otPlage.evenements.remove(otPlage.evenements.findWhere({evenement_id : poEvenement.evenement_id}));
         $scope.safeApply();
 	};
 

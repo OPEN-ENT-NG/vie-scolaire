@@ -36,7 +36,9 @@ Evenement.prototype = {
     },
     delete : function(callback){
         http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + this.evenement_id).done(function(data){
-            callback();
+            if(callback && (typeof(callback) === 'function')) {
+                callback();
+            }
         });
     }
 };
@@ -126,9 +128,7 @@ Appel.prototype = {
     },
     //maj en bdd un appel
     update : function() {
-        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel', this).done(function(data){
-            console.log("Appel mis à jour. Etat : " + data.fk_etat_appel_id);
-        });
+        http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel', this);
     },
     save : function() {
         // si l'appel a deja un identifiant alors il s'agit d'un  maj

@@ -17,13 +17,16 @@ function Evenement(){}
 Evenement.prototype = {
     update : function(cb){
         http().putJson('/viescolaire/absences/evenement/'+this.evenement_id+'/updatemotif', { evenement : this }).done(function(res){
-           cb(res);
+            if(cb && (typeof(cb) === 'function')) {
+                cb(res);
+            }
         });
     }
 };
 
 function Eleve(){
     this.collection(Responsable);
+    this.collection(Evenement);
 };
 function Classe(){
     this.collection(Eleve);
@@ -55,7 +58,29 @@ model.build = function(){
     this.evenements.sync = function(psDateDebut, psDateFin){
         if(psDateDebut !== undefined && psDateDebut !== undefined){
             http().getJson('/viescolaire/absences/eleves/evenements/'+moment(psDateDebut).format('YYYY-MM-DD')+'/'+moment(psDateFin).format('YYYY-MM-DD')).done(function(data){
-                this.load(data);
+                var aLoadedData = [];
+                _.map(data, function(e){
+                   e.cours_date = moment(e.cours_timestamp_dt).format('YYYY-MM-DD');
+                    return e;
+                });
+                var aDates = _.groupBy(data, 'cours_date');
+                for (var k in aDates){
+                    var aEleves = _.groupBy(aDates[k], 'fk_eleve_id');
+                    for(var e in aEleves){
+                        var t = aEleves[e];
+                        var tempEleve = {
+                            eleve_id : t[0].fk_eleve_id,
+                            eleve_nom : t[0].eleve_nom,
+                            eleve_prenom : t[0].eleve_prenom,
+                            cours_date : t[0].cours_date,
+                            displayed : false,
+                            evenements : t
+                        };
+                        aLoadedData.push(tempEleve);
+                    }
+                }
+                this.load(aLoadedData);
+                // this.load(data);
             }.bind(this));
         }
     };

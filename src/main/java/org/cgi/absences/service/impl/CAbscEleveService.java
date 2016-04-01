@@ -97,7 +97,8 @@ public class CAbscEleveService extends SqlCrudService implements IAbscEleveServi
                 .append("AND classe.fk4j_etab_id = ?::uuid ")
                 .append("AND cours.fk_classe_id = classe.classe_id ")
                 .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
-                .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id");
+                .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id ")
+                .append("AND evenement.fk_type_evt_id = 1");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 

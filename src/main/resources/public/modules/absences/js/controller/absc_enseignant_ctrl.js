@@ -77,7 +77,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * Message pour les fonctionnalié pas encore développées
 	 */
 	$scope.alertNonImplementee = function() {
-		alert("Fonctionnalité non implémentée actuellement.")
+		alert("Fonctionnalité actuellement non implémentée.")
 	};
 
 	/**

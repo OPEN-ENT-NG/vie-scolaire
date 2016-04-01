@@ -38,6 +38,7 @@ function Appel(){}
 function Motif(){}
 
 model.build = function(){
+    absc_enseignant_directives.addDirective();
     this.makeModels([Responsable, Evenement, Eleve, Classe, Enseignant, Matiere, Appel, Motif, Justificatif]);
     this.collection(Classe, {
         sync : "/viescolaire/classes/etablissement"

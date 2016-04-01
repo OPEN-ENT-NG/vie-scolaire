@@ -9,7 +9,7 @@
         </ul>
         <div class="list-view-cgi">
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
-                <div class="abscSM-content--SM-list--header">
+                <div sticky offset="65" class="abscSM-content--SM-list--header">
                     <div class="cell cell-indent one"></div>
                     <div class="cell cell-indent two" ng-click="pOSortParameters.sortType = 'personnel_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.enseignant</i18n>
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'personnel_nom' && !pOSortParameters.sortReverse"></i>
@@ -27,7 +27,7 @@
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
                         <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="fa fa-exclamation-circle"></i>
+                    <div style="display: none !important" class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="fa fa-exclamation-circle"></i>
                         <i class="fa fa-caret-down" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && !pOSortParameters.sortReverse"></i>
                         <i class="fa fa-caret-up" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && pOSortParameters.sortReverse"></i>
                     </div>

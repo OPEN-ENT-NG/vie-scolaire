@@ -3,6 +3,7 @@
  */
 var absc_enseignant_directives = {
     addDirective : function(){
+        // Copyright (c) 2015 David Oliveros
         module.directive('sticky', ['$window', '$timeout', function ($window, $timeout) {
                 return {
                     restrict: 'A', // this directive can only be used as an attribute.
@@ -568,6 +569,30 @@ var absc_enseignant_directives = {
                     }]
                 };
             }]
-        );
+        ).directive('mobilePanel', function(){
+                return{
+                    restrict: 'E',
+                    transclude: true,
+                    scope : {
+                        displayed : "="
+                    },
+                    template: '<div class="mobile-panel [[side]]" ng-class="{displayed : displayed}">'+
+                                        '<div class="close-mobile-panel"><i class="close"></i></div>'+
+                                        '<div class="content" ng-transclude></div>'+
+                                    '</div>',
+                    link: function($scope, $elem, $attrs){
+                        $elem.children('.mobile-panel').children('.close-mobile-panel').on('click', function(e){
+                            setTimeout(function(){
+                                $scope.displayed = false;
+                                $scope.$apply();
+                            }, 0);
+                        });
+
+                        $scope.$watch(function(){return $scope.$eval($attrs.side);}, function(){
+                            $scope.side = $attrs.side;
+                        });
+                    }
+                };
+            });
     }
 };

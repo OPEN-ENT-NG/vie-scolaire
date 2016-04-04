@@ -47,7 +47,9 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 	template.open('absc_teacher_appel_eleves_container', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_eleves');
 
-	$scope.detailEleveOpen = false;
+	$scope.detailEleveOpen = {
+		displayed : false
+	};
 	$scope.appel = {
 		date	: {}
 	};
@@ -351,7 +353,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 		// réinitialsiation des valeurs pour ne pas afficher le panel detail eleve lorsque l'on change d'appel.
 		$scope.currentEleve = undefined;
-		$scope.detailEleveOpen = false;
+		$scope.detailEleveOpen.displayed = false;
 
 		// Recuperation de l'appel associé (création en mode Init s'il n'existe pas)
 		$scope.currentCours.appel.sync();
@@ -393,12 +395,12 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 	 * @param poEleve l'objet eleve sélectionné
      */
 	$scope.detailEleveAppel = function(poEleve) {
-        template.close('rightSide_absc_eleve_appel_detail');
+        // template.close('rightSide_absc_eleve_appel_detail');
 		$scope.initEvtTime();
-		$scope.detailEleveOpen = $scope.currentEleve === undefined ||
+		$scope.detailEleveOpen.displayed = $scope.currentEleve === undefined ||
 				($scope.currentEleve !==undefined && $scope.currentEleve.eleve_id !== poEleve.eleve_id);
 
-		if($scope.detailEleveOpen) {
+		if($scope.detailEleveOpen.displayed) {
 			$scope.currentEleve = poEleve;
 		} else {
 			$scope.currentEleve = undefined;
@@ -458,14 +460,14 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.currentEleve.evenementRetard = oEvenementRetard;
 		$scope.currentEleve.evenementIncident = oEvenementIncident;
 
-
-		template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_student-detail');
+		$scope.detailEleveOpen.displayed = true;
+		// template.open('rightSide_absc_eleve_appel_detail', '../modules/' + gsPrefixAbsences + '/template/absc_teacher_appel_student-detail');
 	};
 
 	$scope.fermerDetailEleve = function() {
 		$scope.currentEleve = undefined;
 		// booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
-		$scope.detailEleveOpen = false;
+		$scope.detailEleveOpen.displayed = false;
 	};
 
 	$scope.initEvtTime = function(){
@@ -491,7 +493,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.appel.sDateFin = sDateFin;
 
 		// booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
-		$scope.detailEleveOpen = false;
+		$scope.detailEleveOpen.displayed = false;
 
 		// chargement des cours de la journée de l'enseignant
 		model.courss.sync(model.me.userId, $scope.appel.sDateDebut, $scope.appel.sDateFin);

@@ -6,7 +6,7 @@
 
         <div ng-if="showSuccess" class="info appel__info">[[messageSuccess]]</div>
 
-        <a ng-disabled="currentCours !== undefined && currentCours.appel.fk_etat_appel_id === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></a>
+        <button ng-disabled="currentCours !== undefined && currentCours.appel.fk_etat_appel_id === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></button>
     </div>
 
     <!--  Menu de gauche  -->
@@ -33,7 +33,8 @@
 
     <div ng-show="currentCours !== undefined">
         <!--  Liste eleves (zone centrale)  -->
-        <div class="cell" ng-class="{ten : !detailEleveOpen, seven: detailEleveOpen}">
+        <!--ng-class="{ten : !detailEleveOpen, seven: detailEleveOpen}"-->
+        <div class="cell ten">
             <div ng-include="template.containers.absc_teacher_appel_eleves_container"></div>
         </div>
 

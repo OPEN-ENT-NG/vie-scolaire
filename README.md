@@ -2,4 +2,4 @@
 * Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt)
 * Développeur : CGI
 * Financeur : Département de Seine et Marne et Région Picardie
-* Description : Service de vie scolaire notes et absences.
+* Description : Service de vie scolaire

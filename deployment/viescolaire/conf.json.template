@@ -3,6 +3,7 @@
       "config": {
         "main" : "org.cgi.Viescolaire",
         "port" : 8128,
+        "sql" : true,
         "app-name" : "Viescolaire",
     	"app-address" : "/viescolaire",
     	"app-icon" : "Viescolaire-large",

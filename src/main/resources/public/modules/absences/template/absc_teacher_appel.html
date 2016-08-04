@@ -1,0 +1,47 @@
+<div class="row twelve cell">
+
+    <!-- Header -->
+    <div class="header-nav__fil-ariane-appel">
+        <a href="/viescolaire"><i18n>viescolaire.viescolaire.title</i18n></a> > <a href="/viescolaire/absences"><i18n>viescolaire.absences.title</i18n></a> > <span translate content="[['viescolaire.absences.ariane.'+routes.current.$$route.action]]"></span>
+
+        <div ng-if="showSuccess" class="info appel__info">[[messageSuccess]]</div>
+
+        <button ng-disabled="currentCours !== undefined && currentCours.appel.fk_etat_appel_id === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></button>
+    </div>
+
+    <!--  Menu de gauche  -->
+    <nav class="two cell">
+        <div class="pannel-in-cell">
+            <label class="fa fa-calendar fa-2x pointer appel__calendar">
+                <date-picker class="pointer" ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
+            </label>
+            <div class="appel__journee-calendar" ng-if="creneaus.all.length > 0">
+                <div ng-repeat="creneau in creneaus.all"
+                     ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.cours_id === creneau.cours.cours_id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
+                     ng-style="creneau.style"
+                >
+                    <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.heureDebut]]</div>
+                    <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined" ng-click="selectCours(creneau.cours)">[[creneau.cours.libelle_classe]]</div>
+                    <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours === undefined">
+                        <!--<i18n>viescolaire.absences.appel.crenau.vide</i18n>-->
+                    </div>
+                    <div class="twelve cell appel__journee-calendar-creneau-footer">[[creneau.heureFin]]</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div ng-show="currentCours !== undefined">
+        <!--  Liste eleves (zone centrale)  -->
+        <!--ng-class="{ten : !detailEleveOpen, seven: detailEleveOpen}"-->
+        <div class="cell ten">
+            <div ng-include="template.containers.absc_teacher_appel_eleves_container"></div>
+        </div>
+
+        <!--  Detail eleve (zone de droite)  -->
+        <aside class="three cell" ng-if="detailEleveOpen">
+            <container class="" template="rightSide_absc_eleve_appel_detail"></container>
+        </aside>
+    </div>
+
+</div>

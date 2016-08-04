@@ -1,0 +1,47 @@
+<div ng-controller="AbscFiltresPersonnelController">
+    <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
+        <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">Enseignants
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.enseignants"></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.enseignants"></span>
+        </h4>
+        <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
+        <div class="filtre__toolbar">
+            <button ng-click="switchAll(enseignants, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
+        </div>
+        <ul class="selectable-list">
+            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant | orderBy : 'personnel_nom'" ng-click="enseignant.selected = !enseignant.selected"
+                ng-class="{selected : enseignant.selected}">[[enseignant.personnel_nom]] [[enseignant.personnel_prenom]]</li>
+        </ul>
+    </div>
+    <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
+        <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">Classes
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.classes" ></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.classes"></span>
+        </h4>
+        <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
+        <div class="filtre__toolbar">
+            <button ng-click="switchAll(classes, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
+        </div>
+        <ul class="selectable-list">
+            <li ng-repeat="classe in classes.all | filter:{classe_libelle:pORecherche.pSNomClasse} | orderBy : 'classe_libelle'" ng-click="classe.selected = !classe.selected"
+                ng-class="{selected : classe.selected}">[[classe.classe_libelle]]</li>
+        </ul>
+    </div>
+    <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">
+        <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables">Informations responsables
+            <span class="fa fa-caret-down" ng-if="pOFilterCtrl.responsables" ></span>
+            <span class="fa fa-caret-left" ng-if="!pOFilterCtrl.responsables"></span></h4>
+        <fieldset>
+            <legend>DUPONT Martin</legend>
+            <p><i class="fa fa-phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="fa fa-home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
+        <fieldset>
+            <legend>DUPONT Annick</legend>
+            <p><i class="fa fa-phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="fa fa-home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
+    </div>
+</div>

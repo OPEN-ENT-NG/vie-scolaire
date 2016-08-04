@@ -1,19 +1,19 @@
 {
-	"viescolaire.title"					: "Viescolaire",
+	"viescolaire.title"									: "Viescolaire",
 
-	"viescolaire.notify.saved"				: "La donnée a été sauvegardée",
-	"viescolaire.notify.modified"			: "La donnée a été modifiée",
-	"viescolaire.notify.deleted"			: "La donnée a été supprimée",
-	"viescolaire.notify.shared"			: "La donnée a été partagée",
-	"viescolaire.notify.trashed"			: "La donnée a été mise à la corbeille",
+	"viescolaire.notify.saved"							: "La donnée a été sauvegardée",
+	"viescolaire.notify.modified"						: "La donnée a été modifiée",
+	"viescolaire.notify.deleted"						: "La donnée a été supprimée",
+	"viescolaire.notify.shared"							: "La donnée a été partagée",
+	"viescolaire.notify.trashed"						: "La donnée a été mise à la corbeille",
 
-	"viescolaire.mine"						: "Mes viescolaire",
-	"viescolaire.shared"					: "Viescolaire partagés avec moi",
-	"viescolaire.trash"					: "Corbeille",
+	"viescolaire.mine"									: "Mes viescolaire",
+	"viescolaire.shared"								: "Viescolaire partagés avec moi",
+	"viescolaire.trash"									: "Corbeille",
 
-	"viescolaire.manager"					: "Gestion",
-	"viescolaire.contrib"					: "Contribution",
-	"viescolaire.read"						: "Lecture",
+	"viescolaire.manager"								: "Gestion",
+	"viescolaire.contrib"								: "Contribution",
+	"viescolaire.read"									: "Lecture",
 
 	"unsetImage"										: "Supprimer l'image",
 
@@ -48,7 +48,13 @@
 
 
 	"viescolaire.viescolaire.title"						: "Vie scolaire",
-
+	"viescolaire.viescolaire.saisir.appel"				: "Saisir un appel",
+	"viescolaire.viescolaire.appels.oublies"			: "Appels oubliés",
+	"viescolaire.viescolaire.absences.sans.motif"		: "Absences non justifiées",
+	"viescolaire.viescolaire.saisir.absence"			: "Saisir une absence",
+	"viescolaire.viescolaire.observations"				: "Observations",
+	"viescolaire.viescolaire.observation"				: "Observation",
+	"viescolaire.viescolaire.nb.absences.semaine"		: "Nombre d'absences de la semaine",
 
 
 
@@ -65,9 +71,49 @@
 
 
 
-	"viescolaire.absences.title"							: "Absences"
+	"viescolaire.absences.title"						: "Absences",
+	"viescolaire.absences.historique"					: "Historique de la journée",
+	"viescolaire.absences.eleves"						: "Elèves",
+	"viescolaire.absences.observations"					: "Observations",
+	"viescolaire.absences.commentaire"					: "Commentaire",
+	"viescolaire.absences.punition"						: "Punition",
+	"viescolaire.absences.retard"						: "Retard",
+	"viescolaire.absences.depart"						: "Départ",
+	"viescolaire.absences.incident"						: "Incident",
+	"viescolaire.absences.appel.crenau.vide"			: "CRENEAU VIDE",
+	"viescolaire.absences.student" : "Elève",
 
+	"viescolaire.absences.nb.presents"					: "Nb. présents",
+	"viescolaire.absences.ariane.AppelsOublies" 		: "Appels oubliés",
+	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",
+	"viescolaire.absences.appel.button.enregistrer"		: "Terminer l'appel",
 
+	"viescolaire.utils.selectAll" : "Tout sélectionner",
+	"viescolaire.utils.deselectAll" : "Tout désélectionner",
+	"viescolaire.utils.from" : "Du",
+	"viescolaire.utils.to" : "au",
+	"viescolaire.utils.student" : "elève",
+	"viescolaire.utils.date": "date",
+	"viescolaire.utils.reason":"motif",
+	"viescolaire.utils.justad":"just. ad.",
+	"viescolaire.absences.sansmotifs" : "Non justifiées",
+	"viescolaire.utils.enseignant" : "enseignant",
+	"viescolaire.utils.classe" : "classe",
+	"viescolaire.utils.heure" : "heure",
+	"viescolaire.utils.matiere" : "matiere",
+	"viescolaire.utils.groupe" : "groupe",
+	"viescolaire.utils.justifiant" : "Motifs justifiés",
+	"viescolaire.utils.nonjustifiant" : "Motifs non justifiés",
+	"viescolaire.utils.encours" : "en cours",
+	"viescolaire.utils.initialise" : "initialisé",
+	"viescolaire.utils.etatappel" : "état de l'appel",
+	"viescolaire.utils.help" : "aide",
+	"viescolaire.utils.colours" : "couleurs",
+	"viescolaire.utils.iconography" : "Iconographie",
+	"viescolaire.utils.absence.previsionnelle" : "Absence prévisionnelle",
+	"viescolaire.utils.absences.dernier.cours" : "Eleve absent au dernier cours.",
 
-
+	"viescolaire.absences.ariane.AbsencesSansMotifs" : "Non justifiées",
+	"viescolaire.absences.ariane.appel" 				: "Saisie d'un appel",
+	"viescolaire.absences.ariane.AppelsOublies" : "Appels non effectués"
 }

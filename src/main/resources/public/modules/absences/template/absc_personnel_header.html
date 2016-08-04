@@ -1,0 +1,28 @@
+<header>
+    <div class="header-nav">
+        <div class="header-nav__fil-ariane">
+            <div ng-class="{opened : menu.opened}" class="burger-icon" ng-click="menu.opened = !menu.opened">
+                <span class="burger-icon-bar"></span>
+                <span></span>
+                <span class="burger-icon-bar"></span>
+            </div>
+            <div>
+                <a href="/viescolaire"><i18n>viescolaire.viescolaire.title</i18n></a> > <i18n>viescolaire.absences.title</i18n> > <span translate content="[['viescolaire.absences.ariane.'+routes.current.$$route.action]]"></span>
+            </div>
+        </div>
+        <div class="header-nav__date-pickers right-magnet">
+            <label><i18n>viescolaire.utils.from</i18n></label>
+                <label class="fa fa-calendar-o">
+                    <date-picker ng-model="periode.debut" ng-change="showDate = true; loadData()"></date-picker>
+                </label>
+            <label><i18n>viescolaire.utils.to</i18n></label>
+                <label class="fa fa-calendar-o">
+                    <date-picker ng-model="periode.fin" ng-change="showDate = true; loadData()"></date-picker>
+                </label>
+        </div>
+    </div>
+    <!--<div class="header-button">-->
+        <!--<button ng-click="goToPage('/viescolaire#/viescolaire/accueil')">Tableau de bord</button>-->
+    <!--</div>-->
+
+</header>

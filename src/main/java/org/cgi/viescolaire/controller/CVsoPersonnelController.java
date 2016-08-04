@@ -1,0 +1,44 @@
+package org.cgi.viescolaire.controller;
+
+import fr.wseduc.rs.ApiDoc;
+import fr.wseduc.rs.Get;
+import fr.wseduc.security.ActionType;
+import fr.wseduc.security.SecuredAction;
+import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.BaseController;
+import org.cgi.Viescolaire;
+import org.cgi.viescolaire.service.IVscoPersonnelService;
+import org.cgi.viescolaire.service.impl.CVscoPersonnelService;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonArray;
+
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+
+/**
+ * Created by ledunoiss on 19/02/2016.
+ */
+public class CVsoPersonnelController extends BaseController {
+
+    private final IVscoPersonnelService mIVscoPersonnelService;
+
+    public CVsoPersonnelController() {
+        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
+        mIVscoPersonnelService = new CVscoPersonnelService();
+    }
+
+    @Get("/enseignants/etablissement")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Recupere tous les enseignant d'un établissement.")
+    public void getEnseignantEtablissement(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                mIVscoPersonnelService.getEnseignantEtablissement(user.getStructures().get(0), handler);
+            }
+        });
+    }
+}

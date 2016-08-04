@@ -1,0 +1,163 @@
+<div class="cell list-view-cgi pannel-in-cell">
+    <div class="row list-view-cgi__header">
+        <div class="one cell">
+            &nbsp;
+        </div>
+        <div class="four cell">
+            <i18n>viescolaire.absences.eleves</i18n>
+        </div>
+        <div class="two cell">
+            <i class="help" ng-click="lightboxAppel()"></i>
+        </div>
+        <div class="five cell">
+            <i18n>viescolaire.absences.historique</i18n>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="twelve cell">
+            <div class="one cell cell-indent">
+                &nbsp;
+            </div>
+            <div class="six cell cell-indent">
+                <div class="appel_eleves-presents"><i18n>viescolaire.absences.nb.presents</i18n> : [[currentCours.nbPresents]] / [[currentCours.nbEleves]]</div>
+            </div>
+            <div class="five cell cell-indent">
+                <div ng-repeat="plage in plages.all"
+                     ng-style="plage.style"
+                     class="appel__historiques-creneau-plage"
+                >
+                    [[plage.heure]]
+                </div>
+            </div>
+        </div>
+
+        <div class="list-view-cgi__grille">
+            <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
+                <div class="one cell cell-indent appel__container-icon">
+                    <span class="appel__absence-icon appel__absence-icon--cpe"
+                            ng-if="saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
+
+                    </span>
+                    <span class="appel__absence-icon"
+                          ng-class="{'absence-color' : eleve.isAbsent}"
+                          ng-click="ajouterEvenementAbsence(eleve)"
+                          ng-if="!saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
+
+                    </span>
+                </div>
+                <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)" ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
+                    [[eleve.eleve_nom]] [[eleve.eleve_prenom]]
+                </div>
+                <div class="two cell cell-indent">
+                    <span tooltip="Retard" class="fa fa-clock-o appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                    </span>
+                    <span tooltip="Départ" class="fa fa-clock-o appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                    </span>
+                    <span tooltip="Incident" class="fa fa-exclamation appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                    </span>
+                    <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
+                </div>
+                <div class="five cell">
+                    <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
+                        <div ng-repeat="evt in plage.evenements.all track by $index"
+                             ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
+                            ng-class="{'absence-color' : evt.fk_type_evt_id === 1, 'retard-color' : evt.fk_type_evt_id === 2, 'depart-color' : evt.fk_type_evt_id === 3, 'absence-prev-color' : evt.fk_type_evt_id === 'abs-prev','incident-color' : evt.fk_type_evt_id === 4, 'commentaire-color' : evt.fk_type_evt_id === 5}"
+                            class="appel__historiques-creneau-eleve"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<mobile-panel side="right" displayed="detailEleveOpen.displayed">
+    <div class="cell">
+        <div class="six cell">
+            <h2 class="appel__detail-eleve_nom">[[currentEleve.eleve_nom]] [[currentEleve.eleve_prenom]]</h2>
+        </div>
+        <div class="six cell">
+            <div class="two cell">
+                <a href="#" ng-click="alertNonImplementee();" class="fa fa-envelope fa-2x appel__detail-eleve-icon-mail"
+                   tooltip="Contacter la personne"></a>
+                <a href="#" ng-click="alertNonImplementee();"
+                   class="fa fa-line-chart fa-2x appel__detail-eleve-icon-stats" tooltip="Statistiques"></a>
+            </div>
+            <div class="ten cell">
+                <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.fk4j_user_id]]" alt=""/>
+            </div>
+        </div>
+
+        <div class="twelve cell">
+            <section>
+      <textarea ng-model="currentEleve.evenementObservation.evenement_commentaire"
+                ng-required="false"
+                ng-blur="updateEvenement(currentEleve.evenementObservation, 'evenement_commentaire');"
+                placeholder="Observations"
+                rows="3">
+      </textarea>
+            </section>
+            <section>
+                <input id="hasRetard" type="checkbox" ng-model="currentEleve.hasRetard"
+                       ng-click="checkEvenement(currentEleve.hasRetard,currentEleve.evenementRetard);"
+                       ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe">
+                <label for="hasRetard">
+                    <i18n>viescolaire.absences.retard</i18n>
+                </label>
+                <input type="time" ng-model="oEvtTime.retard" placeholder="Heure d'arrivée"
+                       ng-blur="updateEvenement(currentEleve.evenementRetard);"
+                       ng-value="getHeure(currentEleve.evenementRetard.evenement_heure_arrivee)"
+                       ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe || !currentEleve.evenementRetard.evenement_id">
+
+      <textarea ng-model="currentEleve.evenementRetard.evenement_commentaire"
+                ng-required="false"
+                ng-blur="updateEvenement(currentEleve.evenementRetard, 'evenement_commentaire');"
+                ng-disabled="currentEleve.evenementRetard.evenement_saisie_cpe || !currentEleve.evenementRetard.evenement_id"
+                placeholder="Motif"
+                rows="3">
+      </textarea>
+            </section>
+
+
+            <section>
+                <input id="hasDepart" type="checkbox" ng-model="currentEleve.hasDepart"
+                       ng-click="checkEvenement(currentEleve.hasDepart,currentEleve.evenementDepart);"
+                       ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe">
+                <label for="hasDepart">
+                    <i18n>viescolaire.absences.depart</i18n>
+                </label>
+
+                <input type="time" ng-model="oEvtTime.depart" placeholder="Heure de départ"
+                       ng-blur="updateEvenement(currentEleve.evenementDepart);"
+                       ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe || !currentEleve.evenementDepart.evenement_id">
+
+      <textarea ng-model="currentEleve.evenementDepart.evenement_commentaire"
+                ng-required="false"
+                ng-blur="updateEvenement(currentEleve.evenementDepart, 'evenement_commentaire');"
+                ng-disabled="currentEleve.evenementDepart.evenement_saisie_cpe || !currentEleve.evenementDepart.evenement_id"
+                placeholder="Commentaire"
+                rows="3">
+      </textarea>
+            </section>
+            <section>
+                <input id="hasIncident" type="checkbox" ng-model="currentEleve.hasIncident" ng-click=""
+                       ng-disabled="currentEleve.evenementIncident.evenement_saisie_cpe">
+                <label for="hasIncident">
+                    <i18n>viescolaire.absences.incident</i18n>
+                </label>
+
+                <select>
+                    <option value="1" selected="selected">Punition</option>
+                </select>
+
+      <textarea ng-model="currentEleve.evenementIncident.evenement_commentaire"
+                ng-required="false"
+                ng-disabled="currentEleve.evenementIncident.evenement_saisie_cpe"
+                placeholder="Commentaire"
+                rows="3">
+      </textarea>
+            </section>
+        </div>
+    </div>
+</mobile-panel>

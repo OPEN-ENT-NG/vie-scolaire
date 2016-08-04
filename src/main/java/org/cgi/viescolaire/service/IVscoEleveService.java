@@ -1,0 +1,29 @@
+package org.cgi.viescolaire.service;
+
+import fr.wseduc.webutils.Either;
+import org.entcore.common.service.CrudService;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.json.JsonArray;
+
+/**
+ * Created by ledunoiss on 10/02/2016.
+ */
+public interface IVscoEleveService extends CrudService {
+
+    /**
+     * Récupération des élèves d'une classes en fonction de son identifiant
+     * @param pSIdClasse Identifiant de la classe
+     * @param handler Handler de retour
+     */
+    public void getEleveClasse(String pSIdClasse, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupération des évenements (absence/retard) d'un élève pour une période donnée
+     * @param psIdEleve identifiant de l'élève
+     * @param psDateDebut date de debut
+     * @param psDateFin date de fin
+     * @param handler Handler de retour
+     */
+    public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin,
+                              Handler<Either<String, JsonArray>> handler);
+}

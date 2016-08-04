@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>{{#i18n}}viescolaire.absences.title{{/i18n}}</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="{{#infra}}js/loader.js{{/infra}}" type="text/javascript" id="context"></script>
+		<link rel="stylesheet" href="/viescolaire/public/css/fontawesome/css/font-awesome.css">
+		<script src="/viescolaire/public/modules/absences/js/model/absc_personnel_mdl.js" type="text/javascript"></script>
+		<script src="/viescolaire/public/modules/absences/js/controller/absc_personnel_ctrl.js" type="text/javascript"></script>
+		<script src="/viescolaire/public/modules/absences/js/controller/absc_abssm_personnel_ctrl.js" type="text/javascript"></script>
+		<script src="/viescolaire/public/modules/absences/js/controller/absc_appo_personnel_ctrl.js" type="text/javascript"></script>
+		<script src="/viescolaire/public/modules/absences/js/controller/absc_filt_personnel_ctrl.js" type="text/javascript"></script>
+		<script src="/viescolaire/public/modules/absences/js/directive/absc_enseignant.js" type="text/javascript"></script>
+		<script type="text/ng-template" id="empty"></script>
+	</head>
+
+	<body ng-controller="AbsencesController">
+		<portal>
+			<div class="row">
+				<container template="header"></container>
+				<container ng-class="{two : menu.opened, 'menu-zero' : !menu.opened}" class="cell" template="menu"></container>
+				<container ng-class="{ten : menu.opened, twelve : !menu.opened}" class="cell" template="main"></container>
+			</div>
+		</portal>
+	</body>
+
+</html>

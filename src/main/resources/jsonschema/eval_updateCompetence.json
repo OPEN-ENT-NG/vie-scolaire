@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "nom": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "idparent": {
+      "type": "integer"
+    },
+    "idtype": {
+      "type": "integer"
+    },
+    "idenseignement": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "nom",
+    "idparent",
+    "idtype",
+    "idenseignement"
+  ]
+}

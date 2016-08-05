@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "ideleve": {
+      "type": "string"
+    },
+    "iddevoir": {
+      "type": "integer"
+    },
+    "valeur": {
+      "type": "number"
+    },
+    "appreciation" : {
+      "type" : ["string", "null"]
+    }
+  },
+  "required": [
+    "ideleve",
+    "iddevoir",
+    "valeur"
+  ]
+}

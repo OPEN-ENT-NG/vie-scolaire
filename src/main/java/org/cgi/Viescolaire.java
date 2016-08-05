@@ -1,19 +1,24 @@
 package org.cgi;
 
+import fr.wseduc.webutils.email.EmailSender;
+import fr.wseduc.webutils.email.NotificationHelper;
 import org.cgi.absences.controller.CAbscAppelController;
 import org.cgi.absences.controller.CAbscEleveController;
 import org.cgi.absences.controller.CAbscEvenementController;
 import org.cgi.absences.controller.CAbscMotifController;
+import org.cgi.evaluations.controller.*;
 import org.cgi.viescolaire.controller.CVscoClasseController;
 import org.cgi.viescolaire.controller.CVscoCoursController;
 import org.cgi.viescolaire.controller.CVscoEleveController;
 import org.cgi.viescolaire.controller.CVsoPersonnelController;
+import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
+import org.vertx.java.core.eventbus.EventBus;
 
 public class Viescolaire extends BaseServer {
 
 	public final static String VSCO_SCHEMA = "viesco";
-	public final static String NOTE_SCHEMA = "notes";
+	public final static String EVALUATIONS_SCHEMA = "notes";
 	public final static String ABSC_SCHEMA = "abs";
 
 	public final static String VSCO_COURS_TABLE = "cours";
@@ -27,10 +32,16 @@ public class Viescolaire extends BaseServer {
 
 	public final static String VSCO_PATHPREFIX = "/viescolaire";
 	public final static String ABSC_PATHPREFIX = "/viescolaire/absences";
+	public final static String EVAL_PATHPREFIX = "/viescolaire/evaluations";
 
 	@Override
 	public void start() {
 		super.start();
+
+		final EventBus eb = getEventBus(vertx);
+
+		EmailFactory emailFactory = new EmailFactory(vertx, container, container.config());
+		EmailSender notification = emailFactory.getSender();
 
 		/*
 			DISPLAY CONTROLLER
@@ -56,6 +67,12 @@ public class Viescolaire extends BaseServer {
 		/*
 			CONTROLEURS NOTES
 		 */
+		addController(new CEvalCompetenceController());
+		addController(new CEvalDevoirController());
+		addController(new CEvalEnseignementController());
+		addController(new CEvalExportPDFController(eb, notification));
+		addController(new CEvalNoteController());
+		addController(new CEvalUtilsController());
 	}
 
 }

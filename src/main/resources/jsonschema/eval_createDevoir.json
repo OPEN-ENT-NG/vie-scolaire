@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string"
+    },
+    "modified": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string"
+    },
+    "number": {
+      "type": "integer"
+    },
+    "libelle": {
+      "type": "string"
+    },
+    "idclasse": {
+      "type": "string"
+    },
+    "idsousmatiere": {
+      "type": ["integer","null"]
+    },
+    "idperiode": {
+      "type": "integer"
+    },
+    "idtype" : {
+      "type" : "integer"
+    },
+    "idetablissement" : {
+      "type" : "string"
+    },
+    "idmatiere" : {
+      "type" : "string"
+    },
+    "idetat" : {
+      "type" : "integer"
+    },
+    "datepublication" : {
+      "type" : "string"
+    },
+    "diviseur" : {
+      "type" : "integer"
+    },
+    "ramenersur" : {
+      "type" : "boolean"
+    }
+  },
+  "required": [
+    "name",
+    "idclasse",
+    "idperiode",
+    "idtype",
+    "idetablissement",
+    "idmatiere",
+    "idetat",
+    "diviseur",
+    "ramenersur"
+  ]
+}

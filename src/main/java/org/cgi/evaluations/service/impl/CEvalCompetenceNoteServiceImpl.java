@@ -1,3 +1,4 @@
+
 package org.cgi.evaluations.service.impl;
 
 import fr.wseduc.webutils.Either;
@@ -5,8 +6,10 @@ import org.cgi.evaluations.service.IEvalCompetenceNoteService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -14,6 +17,21 @@ import org.vertx.java.core.json.JsonArray;
 public class CEvalCompetenceNoteServiceImpl extends SqlCrudService implements IEvalCompetenceNoteService {
     public CEvalCompetenceNoteServiceImpl(String table) {
         super(table);
+    }
+
+    @Override
+    public void createCompetenceNote(JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+        super.create(competenceNote, user, handler);
+    }
+
+    @Override
+    public void updateCompetenceNote(String id, JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+        super.update(id, competenceNote, user, handler);
+    }
+
+    @Override
+    public void deleteCompetenceNote(String id, Handler<Either<String, JsonObject>> handler) {
+        super.delete(id, handler);
     }
 
     @Override

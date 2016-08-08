@@ -5,11 +5,30 @@ import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 05/08/2016.
  */
 public interface IEvalDevoirService extends CrudService {
+
+    /**
+     * Créer un devoir
+     * @param devoir devoir à créer
+     * @param user utilisateur
+     * @param handler handler portant le résultat de la requête
+     */
+    public void createDevoir(JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Met à jour un devoir
+     * @param id Identifian du devoir
+     * @param devoir Devoir à mettre à jour
+     * @param user Utilisateur
+     * @param handler
+     */
+    public void updateDevoir(String id, JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler);
+
     /**
      * Liste des devoirs de l'utilisateur
      * @param user utilisateur

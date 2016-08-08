@@ -69,7 +69,7 @@ public class CEvalNoteController extends ControllerHelper{
      * Recupère la note d'un élève pour un devoir donné
      * @param request
      */
-    @Get("/devoir/:idDevoir/note/:idEleve")
+    @Get("/devoir/:idDevoir/note")
     @ApiDoc("Récupère la note d'un élève pour un devoir donné")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void noteDevoir (final HttpServerRequest request){
@@ -93,7 +93,7 @@ public class CEvalNoteController extends ControllerHelper{
      * Créer une note avec les données passées en POST
      * @param request
      */
-    @Post("/devoir/:idDevoir/note")
+    @Post("/note")
     @ApiDoc("Créer une note")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void create(final HttpServerRequest request){
@@ -104,7 +104,8 @@ public class CEvalNoteController extends ControllerHelper{
                     RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_NOTES_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-                            crudService.create(resource, user, notEmptyResponseHandler(request));
+//                            crudService.create(resource, user, notEmptyResponseHandler(request));
+                            notesService.createNote(resource, user, notEmptyResponseHandler(request));
                         }
                     });
                 }else {
@@ -115,12 +116,11 @@ public class CEvalNoteController extends ControllerHelper{
         });
     }
 
-    // TODO MODIFIER LA ROUTE POUR UTILISER LE FRAMEWORK SQL
     /**
      * Modifie une note avec les données passées en PUT
      * @param request
      */
-    @Put("/devoir/note")
+    @Put("/note")
     @ApiDoc("Modifie une note")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void update(final HttpServerRequest request){
@@ -131,7 +131,7 @@ public class CEvalNoteController extends ControllerHelper{
                     RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_NOTES_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-                            notesService.updateNote(resource, defaultResponseHandler(request));
+                            notesService.updateNote(resource, user, defaultResponseHandler(request));
                         }
                     });
                 }else {
@@ -141,13 +141,11 @@ public class CEvalNoteController extends ControllerHelper{
             }
         });
     }
-    // TODO MODIFIER LA ROUTE POUR UTILISER LE FRAMEWORK SQL
-    // TODO MODIFIER LA ROUTE POUR PASSER L'ID DE LA NOTE EN PARAMETRE => ?idnote=<id>
     /**
      * Supprime la note passé en paramètre
      * @param request
      */
-    @Delete("/devoir/note/:idNote")
+    @Delete("/note")
     @ApiDoc("Supprimer une note donnée")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void deleteNoteDevoir(final HttpServerRequest request){
@@ -155,7 +153,7 @@ public class CEvalNoteController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    notesService.deleteNote(Integer.parseInt(request.params().get("idNote")), defaultResponseHandler(request));
+                    notesService.deleteNote(Integer.parseInt(request.params().get("idNote")), user, defaultResponseHandler(request));
                 }else{
                     unauthorized(request);
                 }
@@ -167,7 +165,7 @@ public class CEvalNoteController extends ControllerHelper{
      * Récupère les notes pour le widget
      * @param request
      */
-    @Get("/widget/:userId")
+    @Get("/widget")
     @ApiDoc("Récupère les notes pour le widget")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getWidgetNotes(final HttpServerRequest request){
@@ -186,7 +184,8 @@ public class CEvalNoteController extends ControllerHelper{
      * Récupère les notes pour le relevé de notes
      * @param request
      */
-    @Get("/releve/:idEleve/:idEtablissement/:idClasse/:idMatiere/:idPeriode")
+//    /:idEleve/:idEtablissement/:idClasse/:idMatiere/:idPeriode
+    @Get("/releve")
     @ApiDoc("Récupère les notes pour le relevé de notes")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getNoteElevePeriode(final HttpServerRequest request){

@@ -3,6 +3,7 @@ package org.cgi.evaluations.controller;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
+import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -23,6 +24,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
+import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
 /**
  * Created by ledunoiss on 04/08/2016.
@@ -67,6 +69,7 @@ public class CEvalDevoirController extends ControllerHelper {
         });
     }
 
+    // TODO MODIFIER LA ROUTE POUR PASSER LES PARAMETRES EN PARAMETRE REQUETE : Ex : idetablissement=<id>
     /**
      * Liste des devoirs pour un établissement, une classe, une matière et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
@@ -110,11 +113,11 @@ public class CEvalDevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, pathPrefix + "/" + SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             resource.removeField("competences");
-                            crudService.create(resource, user,
+                            devoirsService.createDevoir(resource, user,
                                     new Handler<Either<String, JsonObject>>() {
                                         @Override
                                         public void handle(final Either<String, JsonObject> event) {
@@ -128,10 +131,7 @@ public class CEvalDevoirController extends ControllerHelper {
                                                         if(competences.size() != 0) {
                                                             competencesService.setDevoirCompetences(createdDevoir.getInteger("id"), competences, new Handler<Either<String, JsonObject>>() {
                                                                 public void handle(Either<String, JsonObject> event) {
-
-
                                                                     if (event.isRight()) {
-                                                                        log.info("Les competences du devoir ont bien ete inseree");
                                                                         JsonObject o = new JsonObject();
                                                                         o.putNumber("id", devoirId[0]);
                                                                         request.response().putHeader("content-type", "application/json; charset=utf-8").end(o.toString());
@@ -139,8 +139,6 @@ public class CEvalDevoirController extends ControllerHelper {
                                                                         leftToResponse(request, event.left());
                                                                     }
                                                                 }
-
-
                                                             });
                                                         }else{
                                                             if(event.isRight()){
@@ -171,6 +169,7 @@ public class CEvalDevoirController extends ControllerHelper {
      * @param request
      */
     @Get("/devoirseleves/:idEtablissement/:idPeriode/:idUser")
+    @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void listDevoirsPeriode (final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -184,6 +183,32 @@ public class CEvalDevoirController extends ControllerHelper {
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     devoirsService.listDevoirs(idEtablissement, idPeriode, idUser, handler);
                 }else{
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
+    /**
+     * Met à jour un devoir
+     * @param request
+     */
+    @Put("/devoir")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Met à jour un devoir")
+    public void updateDevoir (final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    RequestUtils.bodyToJson(request, pathPrefix + "/" + SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(JsonObject devoir) {
+                            devoirsService.updateDevoir(request.params().get("devoirid"), devoir, user, notEmptyResponseHandler(request));
+                        }
+                    });
+
+                } else {
                     unauthorized(request);
                 }
             }

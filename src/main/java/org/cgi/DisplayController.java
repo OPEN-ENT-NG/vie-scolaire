@@ -51,7 +51,7 @@ public class DisplayController extends ControllerHelper {
 
     @Get("/evaluations")
     @ApiDoc("Get Evaluation HTML view")
-    @SecuredAction(value = "Viescolaire.evaluations.view")
+    @SecuredAction(value = "Viescolaire.evaluation.view")
     public void viewEvaluations(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 

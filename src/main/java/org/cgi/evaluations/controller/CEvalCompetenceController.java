@@ -130,7 +130,7 @@ public class CEvalCompetenceController extends ControllerHelper{
      * Recupère la liste des compétences pour un devoir donné
      * @param request
      */
-    @Get("/competences/devoir/:id")
+    @Get("/competences")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesDevoir(final HttpServerRequest request){
@@ -206,19 +206,18 @@ public class CEvalCompetenceController extends ControllerHelper{
      * Récupère la liste des compétences notes pour un devoir et un élève donné
      * @param request
      */
-    @Get("/competencenote/:iddevoir/:ideleve")
+    @Get("/competences")
     @ApiDoc("Récupère la liste des compétences notes pour un devoir et un élève donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesNotes(final HttpServerRequest request){
        competencesNotesService.getCompetencesNotes(Integer.parseInt(request.params().get("iddevoir")), request.params().get("ideleve"), arrayResponseHandler(request));
     }
 
-    // TODO MODIFIER LA ROUTE EN /COMPETENCE/NOTE
     /**
      * Créé une note correspondante à une compétence pour un utilisateur donné
      * @param request
      */
-    @Post("/competencenote/create")
+    @Post("/competence/note")
     @ApiDoc("Créé une note correspondante à une compétence pour un utilisateur donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void create(final HttpServerRequest request){
@@ -240,12 +239,11 @@ public class CEvalCompetenceController extends ControllerHelper{
         });
     }
 
-    // TODO MODIFIER LA ROUTE EN /COMPETENCE/NOTE
     /**
      * Met à jour une note relative à une compétence
      * @param request
      */
-    @Put("/competencenote/update")
+    @Put("/competence/note")
     @ApiDoc("Met à jour une note relative à une compétence")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void update(final HttpServerRequest request){
@@ -268,13 +266,11 @@ public class CEvalCompetenceController extends ControllerHelper{
         });
     }
 
-    // TODO MODIFIER LA ROUTE EN /COMPETENCE/NOTE
-    // TODO MODIFIER LA ROUTE POUR PASSER L'ID DE LA NOTE EN PARAMETRE => ?id=<id>
     /**
      * Supprime une note relative à une compétence
      * @param request
      */
-    @Delete("/competencenote/delete/:id")
+    @Delete("/competence/note")
     @ApiDoc("Supprime une note relative à une compétence")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void delete (final HttpServerRequest request){
@@ -283,7 +279,6 @@ public class CEvalCompetenceController extends ControllerHelper{
             public void handle(final UserInfos user) {
                 if(user != null){
                     String id = request.params().get("id");
-                    log.debug("Delete de la CompetenceNote id="+id);
                     competencesNotesService.delete(id, defaultResponseHandler(request));
                 }else {
                     log.debug("User not found in session.");

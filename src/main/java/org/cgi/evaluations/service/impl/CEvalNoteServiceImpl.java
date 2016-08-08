@@ -4,6 +4,7 @@ import fr.wseduc.webutils.Either;
 import org.cgi.evaluations.service.IEvalNoteService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -17,6 +18,11 @@ import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteService{
     public CEvalNoteServiceImpl(String table) {
         super(table);
+    }
+
+    @Override
+    public void createNote(JsonObject note, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+        super.create(note, user, handler);
     }
 
     @Override
@@ -48,38 +54,38 @@ public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteSer
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
-    // TODO UTILISER LE CRUD POUR CE SERVICE
     @Override
-    public void updateNote(JsonObject data, Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("UPDATE notes.notes ")
-                .append("SET ")
-                .append("ideleve = ? ,")
-                .append("iddevoir = ? ,")
-                .append("valeur = ? ,")
-                .append("appreciation = ?")
-                .append("WHERE ")
-                .append("notes.id = ?");
-        values.add(data.getValue("ideleve"));
-        values.add((Integer) data.getValue("iddevoir"));
-        values.add((Number) data.getValue("valeur"));
-        values.addString(data.getString("appreciation"));
-        values.add((Integer) data.getValue("id"));
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+    public void updateNote(JsonObject data, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+//        StringBuilder query = new StringBuilder();
+//        JsonArray values = new JsonArray();
+//
+//        query.append("UPDATE notes.notes ")
+//                .append("SET ")
+//                .append("ideleve = ? ,")
+//                .append("iddevoir = ? ,")
+//                .append("valeur = ? ,")
+//                .append("appreciation = ?")
+//                .append("WHERE ")
+//                .append("notes.id = ?");
+//        values.add(data.getValue("ideleve"));
+//        values.add((Integer) data.getValue("iddevoir"));
+//        values.add((Number) data.getValue("valeur"));
+//        values.addString(data.getString("appreciation"));
+//        values.add((Integer) data.getValue("id"));
+//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+        super.update(data.getValue("id").toString(), data, user, handler);
     }
 
-    // TODO UTILISER LE CRUF POUR CE SERVICE
     @Override
-    public void deleteNote(Integer idNote, Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("DELETE FROM notes.notes ")
-                .append("WHERE notes.id = ?");
-        values.addNumber(idNote);
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+    public void deleteNote(Integer idNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+//        StringBuilder query = new StringBuilder();
+//        JsonArray values = new JsonArray();
+//
+//        query.append("DELETE FROM notes.notes ")
+//                .append("WHERE notes.id = ?");
+//        values.addNumber(idNote);
+//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+        super.delete(idNote.toString(), user, handler);
     }
 
     @Override

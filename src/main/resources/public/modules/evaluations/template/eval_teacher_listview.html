@@ -1,0 +1,116 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="list-view">
+    <div class="row devoirs-header" sticky devoirs-filtres="devoirsFiltres" offset="150">
+        <div class="one cell display-check">
+            <label class="checkbox">
+                <input type="checkbox" ng-model="selected.allDevoir" ng-change="selectAllDevoir()">
+                <span></span>
+            </label>
+        </div>
+        <div class="two cell cell-indent">
+            <i18n>date</i18n>
+        </div>
+        <div class="one cell cell-indent">
+            <i18n>class</i18n>
+        </div>
+        <div class="three cell cell-indent">
+            <i18n>name</i18n>
+        </div>
+        <div class="one cell cell-indent last">
+            <i18n>coefficient</i18n>
+        </div>
+        <div class="two cell cell-indent last">
+            <i18n>skills.nb</i18n>
+        </div>
+        <div class="one cell cell-indent">
+            <i18n>test.percent</i18n>
+        </div>
+        <div class="one cell display-check">
+            &nbsp;
+        </div>
+    </div>
+
+
+    <div class="expandable-liste">
+        <div class="expandable cell twelve"
+             ng-repeat="devoir in devoirsFiltres | customSearchFilters:search | filter:search.name"
+             ng-class="{'opened shadow': openedDevoir === $index}" >
+            <div class="row">
+                <div class="one cell cell-check expandable-content">
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="devoir.selected" ng-change="selectDevoir(devoir)">
+                        <span></span>
+                    </label>
+                </div>
+                <a ng-href="#/devoir/[[devoir.id]]">
+                    <div class="two cell cell-indent expandable-content">
+                        [[getDateFormated(devoir.date)]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content">
+                        [[getLibelleClasse(devoir.idclasse)]]
+                    </div>
+                    <div class="three cell cell-indent expandable-content">
+                        [[devoir.name]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content">
+                        [[devoir.coefficient]]
+                    </div>
+                    <div class="two cell cell-indent expandable-content">
+                        [[devoir.nbcompetences]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content" ng-init="rand(devoir)">
+                        [[devoir.percent]]%
+                    </div>
+                </a>
+                <div class="one cell cell-check expandable-content">
+                    <span class="plus-input" ng-click="expand($index, true)"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="six cell cell-indent expandable-content">
+                    <i18n>subject</i18n>
+                    : <span class="italic">[[getLibelleMatiere(devoir.idmatiere)]] <span
+                        ng-if="devoir.idsousmatiere !== null">([[getLibelleSousMatiere(devoir.idmatiere, devoir.idsousmatiere)]])</span></span>
+                </div>
+                <div class="six cell cell-indent expandable-content">
+                    <i18n>test.ramenersur</i18n>
+                    : <span class="italic">
+                            <span ng-if="devoir.ramenersur === true">
+                                <i18n>test.ramenersur.true</i18n>
+                            </span>
+							<span ng-if="devoir.ramenersur === false">
+                                <i18n>test.ramenersur.false</i18n>
+                            </span>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="six cell cell-indent expandable-content">
+                    <i18n>test.date.mark.publication</i18n>
+                    : <span class="italic">[[getDateFormated(devoir.datepublication)]]</span>
+                </div>
+                <div class="six cell cell-indent expandable-content">
+                    <i18n>utils.test.type</i18n>
+                    : <span class="italic">[[getLibelleTypedevoir(devoir.idtype)]]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

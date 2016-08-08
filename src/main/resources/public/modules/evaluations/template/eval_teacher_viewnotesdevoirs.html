@@ -1,0 +1,153 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="row">
+    <div class="twelve cell">
+        <header class="headerStyle header-fixed header-releve header-notes">
+            <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
+                <c-skills-color-page competences="currentDevoir.competences.all" eleves="listStudentNoteCurrentDevoirModel" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
+            </h2>
+        </header>
+        <aside class="two cell menuLeft left">
+            <div class="menuLeftStyle detail-devoir" ng-class="{opened : openedDetails === true}">
+                <header>
+                    <span class="plus-input" ng-click="openedDetails = !openedDetails"></span>
+                    <h2 ng-click="openedDetails = !openedDetails"><i18n>homework.details</i18n></h2>
+                </header>
+                <div>
+                    <section>
+                        <label><i18n class="bold">description</i18n> : [[currentDevoir.libelle]]</label>
+                    </section>
+                    <section><span class="bold"><i18n>class</i18n></span> : [[getLibelleClasse(currentDevoir.idclasse)]]</section>
+
+                    <section>
+                        <label><i18n class="bold">subject</i18n> : [[getLibelleMatiere(currentDevoir.idmatiere)]]</label>
+                    </section>
+                    <section ng-show="currentDevoir._sousmatiere_libelle !== null && currentDevoir._sousmatiere_libelle !== undefined && currentDevoir._sousmatiere_libelle !== ''">
+                        <label><i18n class="bold">undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
+                    </section>
+                    <section>
+                        <label><i18n class="bold">periode</i18n> : [[currentDevoir._periode_libelle]]</label>
+                    </section>
+                    <section>
+                        <label><i18n class="bold">coefficient</i18n> : [[currentDevoir.coefficient]]</label>
+                    </section>
+                    <section>
+                        <label><span class="bold"><i18n>test.grade.on</i18n></span> : [[currentDevoir.diviseur]]</label>
+                    </section>
+                </div>
+            </div>
+            <div class="menuLeftStyle statistiques-devoir" ng-class="{opened : openedStatistiques === true}">
+                <header>
+                    <span class="plus-input" ng-click="openedStatistiques = !openedStatistiques"></span>
+                    <h2 ng-click="openedStatistiques = !openedStatistiques"><i18n>stats</i18n></h2>
+                </header>
+                <div>
+                    <section><i18n class="bold">notes.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.moyenne | number:2]]</span></section>
+                    <section><i18n class="bold">notes.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.noteMin | number:2]]</span></section>
+                    <section><i18n class="bold">notes.max</i18n> : <span style="color: #48C593;font-weight: bold;">[[currentDevoir.noteMax | number:2]]</span></section>
+                </div>
+                <div>
+                    <progress-bar max="100" filled="currentDevoir.percentDone" unit="%"></progress-bar>
+                </div>
+            </div>
+            <div class="marginFive">
+                <container class="left tailleMax" template="leftSide-userInfo"></container>
+            </div>
+        </aside>
+        <section class="ten cell right">
+            <div class="marginFive header-outter-fixed">
+                <content>
+                    <div class="row devoirs-header"  current-devoir="currentDevoir" sticky offset="159">
+                        <div class="two cell cell-indent">
+                            <i18n>student</i18n>
+                        </div>
+                        <div class="two cell cell-indent">
+                            <i18n>notes.grade</i18n>
+                        </div>
+                        <div class="four cell cell-indent competence-text-overflow" ng-if="currentDevoir.nbcompetences > 0">
+                            <i18n>notes.skills</i18n>
+                            <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
+                            <span id="competence-detail" tooltip=""></span>
+                        </div>
+                        <div class="cell cell-indent" ng-class="{four : currentDevoir.nbcompetences > 0, eight : currentDevoir.nbcompetences == 0}">
+                            <i18n>notes.appreciation</i18n>
+                        </div>
+                    </div>
+                    <div class="expandable-liste notes-devoir-liste" c-navigable>
+
+                        <div class="row" style="background: white;"  ng-if="currentDevoir.competences.all.length > 0">
+                            <div class="four cell">
+                                <p></p>
+                            </div>
+                            <div class="four cell cell-indent" style="padding: 10px 0px 5px 10px;">
+                                <c-skills-color-column competences="currentDevoir.competences.all" eleves="listStudentNoteCurrentDevoirModel"></c-skills-color-column>
+                            </div>
+                            <div class="cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
+                            </div>
+                        </div>
+
+
+                        <div class="expandable navigable-row cell twelve" ng-repeat="studentNoteDevoir in listStudentNoteCurrentDevoirModel track by $index">
+
+                            <div class="row navigable-inputs-row">
+                                <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(studentNoteDevoir.id);expandNote($index, false)">
+                                    [[studentNoteDevoir.lastName]] [[studentNoteDevoir.firstName]]
+                                </div>
+                                <div class="two cell navigable-cell cell-input">
+                                    <input ng-focus="focusMe($event);getEleveInfo(studentNoteDevoir.id);expandNote($index, false);" class="input-note six" type="text" ng-model="studentNoteDevoir.studentNote.valeur"
+                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-class="{error : studentNoteDevoir.studentNote.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
+                                </div>
+                                <div class="four cell cell-indent expandable-content" ng-click="getEleveInfo(studentNoteDevoir.id);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
+                                    <ul class="skills-eleve-list">
+                                        <li ng-repeat="competence in studentNoteDevoir.competencesNotesEleve">
+                                            <c-skill-note-devoir current-devoir="currentDevoir" nb-eleve="listStudentNoteCurrentDevoirModel.length" nb-competences-devoir="currentDevoir.competences.all.length" competence="competence"></c-skill-note-devoir>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="cell cell-input navigable-cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
+                                    <input type="text" class="eleven" name="appreciation" ng-model="studentNoteDevoir.studentNote.appreciation" ng-blur="saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-focus="focusMe($event);getEleveInfo(studentNoteDevoir.id);expandNote($index, false)" value="">
+                                </div>
+                            </div>
+                            <!--<div class="row" ng-if="currentDevoir.competences.all.length > 0">-->
+                            <!--<div class="twelve cell expandable-content">-->
+                            <!--<c-color-skills-list current-devoir="currentDevoir" student="studentNoteDevoir" competences="studentNoteDevoir.competencesNotesEleve"></c-color-skills-list>-->
+                            <!--</div>-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+                </content>
+            </div>
+        </section>
+    </div>
+</div>
+<section class="toggle-buttons">
+    <div class="toggle">
+        <div class="row">
+            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
+                <i18n><span class="no-style">test.edit</span></i18n>
+            </button>
+            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
+                <i18n><span class="no-style">test.duplicate</span></i18n>
+            </button>
+            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
+                <i18n><span class="no-style">test.delete</span></i18n>
+            </button>
+        </div>
+    </div>
+</section>

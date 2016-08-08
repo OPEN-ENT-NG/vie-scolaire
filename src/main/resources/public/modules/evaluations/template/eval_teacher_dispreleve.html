@@ -1,0 +1,166 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="row">
+    <div class="releve-header-content header-fixed">
+        <header class="headerStyle header-releve header-fixed">
+            <div class="headerReleve">
+                <h1 style="width :calc(16.66% - 30px) !important;float: left;">Relevé de notes</h1>
+                <nav class="right">
+                    <a class="button noMarginLeft" ng-click="newDevoir(); showNoteLightBox = true"><i18n>test.new</i18n></a>
+                    <a class="button" href="#/devoirs/list"><i18n>test.list</i18n></a>
+                </nav>
+            </div>
+        </header>
+    </div>
+
+    <div class="twelve cell">
+        <aside class="two cell menuLeft left">
+            <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" class="criteres"  ng-class="{opened : openedCriteres === true}">
+                <span class="plus-input" ng-click="openedCriteres = !openedCriteres"></span>
+                <header ng-click="openedCriteres = !openedCriteres">
+                    <h2 style="color: grey;">Vos critères</h2>
+                </header>
+                <content>
+                    <label class="select">
+                        <select ng-model="searchReleve.idclasse" ng-change="submitFilterReleveDeNotes(); filterClassesMatieres()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                            <option value="*" class="header-opt">Classe</option>
+                            <option ng-repeat="classe in classes" ng-selected="searchReleve.idclasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                        </select>
+                    </label>
+                    <label class="select">
+                        <select ng-model="searchReleve.idmatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="submitFilterReleveDeNotes()">
+                            <option value="*" class="header-opt">Matière</option>
+                            <option ng-repeat="matiere in releveListeMatiere | unique:'name'" ng-selected="searchReleve.idmatiere === matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                        </select>
+                    </label>
+                    <label class="select">
+                        <select ng-model="searchReleve.idperiode" ng-change="submitFilterReleveDeNotes()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                            <option value="*" class="header-opt">Période</option>
+                            <option ng-repeat="periode in periodes" ng-selected="periode.id === searchReleve.idperiode" value="[[periode.id]]">[[periode.libelle]]</option>
+                        </select>
+                    </label>
+                </content>
+            </div>
+            <div class="marginFive">
+                <container class="left tailleMax" template="leftSide-devoirInfo"></container>
+                <container class="left tailleMax" template="leftSide-userInfo"></container>
+            </div>
+        </aside>
+        <section class="ten cell right">
+            <div class="header-outter-fixed">
+                <content ng-show="releveNote.devoirs.all.length > 0">
+                    <table class="list-view tableReleve tableRelevePadding marginTopFive" c-naviga-table>
+                        <thead>
+                        <tr>
+                            <th class="col1">Eleve</th>
+                            <th ng-class="{'devoir-with-comp' : devoir.competences.all.length > 0 }" class="colDevoir competence-text-overflow"
+                                ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir.id)"
+                                ng-dblclick="goTo('/devoir/'+devoir.id)" tooltip="[[devoir.name]]">
+                                [[getShortDateFormated(devoir.date)]]<br>
+                                [[devoir.name]]
+                            </th>
+                            <th class="colMoyenne">Moyenne</th>
+                            <th class="colRang">Rang</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="eleve in releveNote.eleves.all">
+                            <td class="col1 text-overflow" ng-click="getEleveInfo(eleve.id)">[[eleve.lastName]] [[eleve.firstName]]</td>
+                            <td class="colDevoir" ng-repeat="note in eleve.notes.all">
+                                <input ng-focus="focusMe($event); getEleveInfo(eleve.id); getDevoirInfo(note.iddevoir)"
+                                       class="input-note"
+                                       type="text"
+                                       style="width: 5em;margin: 0 auto;"
+                                       ng-model="note.valeur"
+                                       ng-blur="saveNoteDevoirEleve(note, $event);calculerMoyenneEleve(eleve); calculerStatsDevoirReleve(note.iddevoir)"
+                                       ng-init="initNoteReleve(note)"
+                                       max="20" min="0" step="0.01">
+                            </td>
+                            <td class="colMoyenne">
+                                <div class="input-note input-moyenne"  ng-init="calculerMoyenneEleve(eleve)" ng-focus="getEleveInfo(eleve.id)">
+                                    [[eleve.moyenne]]
+                                </div>
+                            </td>
+                            <td class="colRang">
+                                <input class="input-note"
+                                       type="text"
+                                       style="width: 2em;"
+                                       ng-model="studentNoteDevoir.rang"
+                                       ng-readonly="true">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="statClasse tableRelevePadding tailleMax">
+                        <thead>
+                        <tr>
+                            <th class="col1 text-overflow"></th>
+                            <th class="colDevoir competence-text-overflow" ng-repeat="devoir in releveNote.devoirs.all">
+                                [[getShortDateFormated(devoir.date)]]<br>
+                                [[devoir.name]]
+                            </th>
+                            <th class="colMoyenne"></th>
+                            <th class="colRang"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="moyenneClasse">
+                            <td class="col1 text-overflow">Moyenne de la classe</td>
+                            <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                                <div class="input-note">
+                                    [[devoir.moyenne]]
+                                </div>
+                            </td>
+                            <td class="colMoyenne"></td>
+                            <td class="colRang"></td>
+                        </tr>
+                        <tr class="minClasse">
+                            <td class="col1 text-overflow">Note min</td>
+                            <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                                <div class="input-note">
+                                    [[devoir.min]]
+                                </div>
+                            </td>
+                            <td class="colMoyenne"></td>
+                            <td class="colRang"></td>
+                        </tr>
+                        <tr class="maxClasse">
+                            <td class="col1 text-overflow">Note max</td>
+                            <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                                <div class="input-note">
+                                    [[devoir.max]]
+                                </div>
+                            </td>
+                            <td class="colMoyenne"></td>
+                            <td class="colRang"></td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+
+                </content>
+                <content ng-show="releveNote.devoirs.all.length === 0">
+                    <h1 style="color: grey;">Aucun relevé trouvé pour vos critères.</h1>
+                </content>
+            </div>
+
+        </section>
+
+    </div>
+</div>

@@ -77,9 +77,9 @@ public class DisplayController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if(user.getType().equals("Teacher")) {
-                    renderView(request);
+                    renderView(request, null, "evaluations/eval_teacher.html", null);
                 }else if(user.getType().equals("Student") || user.getType().equals("Relative")){
-                    renderView(request, null, "notes-parents.html", null);
+                    renderView(request, null,  "evaluations/eval_parent.html", null);
                 }
             }
         });

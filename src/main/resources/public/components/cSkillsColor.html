@@ -1,0 +1,40 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<span id="competence-[[competence.idcompetence]]-student-[[student.id]]" class="competence-parent-[[competence.idparent]]-student-[[student.id]] competence-color" ng-class="{opened : competence.showChildren, grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}" ng-init="competence.opened = false; competence.showChildren = false;initCompetence()">
+  <span ng-if="competence.parent !== undefined" ng-click="selectCompetencesFilles(competence.idcompetence)" class="competence-eye fa fa-eye"></span>
+
+  <span ng-if="competence.parent === undefined && competence.isParent === true" ng-click="selectCompetencesFilles(competence.idcompetence)" class="skills-text-overflow skills-teach bold"></span>
+
+  <span class="competence-vignette competence-text-overflow" ng-click="openSelector()">
+    <span class="competence-text-overflow competence-nom">
+      <!--[[getLibelleCompetence(competence.idcompetence)]]-->[[competence.nom]]
+    </span>
+  </span>
+  <div class="competence-color-popup" id="popup" ng-class="{ opened : competence.opened }">
+    <div class="color-list">
+      <ul>
+        <li ng-click="selectColor(3)"><span class="tooltip-overlay" tooltip="Très bonne maîtrise" ></span><span class="rounded green"><span class="rounded green"></span></span></li>
+        <li ng-click="selectColor(2)"><span class="tooltip-overlay" tooltip="Maîtrise satisfaisante" ></span><span class="rounded yellow"><span class="rounded yellow"></span></span></li>
+        <li ng-click="selectColor(1)"><span class="tooltip-overlay" tooltip="Maîtrise fragile" ></span><span class="rounded orange"><span class="rounded orange"></span></span></li>
+        <li ng-click="selectColor(0)"><span class="tooltip-overlay" tooltip="Maîtrise insuffisante" ></span><span class="rounded red"><span class="rounded red"></span></span></li>
+      </ul>
+    </div>
+    <span class="competence-color-popup-close fa fa-close" ng-click="openSelector()"></span>
+ </div>
+</span>

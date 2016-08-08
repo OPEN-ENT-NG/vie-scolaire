@@ -1,18 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "additionalProperties": true,
   "properties": {
     "name": {
-      "type": "string"
-    },
-    "owner": {
-      "type": "string"
-    },
-    "created": {
-      "type": "string"
-    },
-    "modified": {
       "type": "string"
     },
     "visibility": {

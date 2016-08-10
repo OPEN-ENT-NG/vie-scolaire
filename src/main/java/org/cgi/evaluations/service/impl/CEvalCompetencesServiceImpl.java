@@ -32,8 +32,8 @@ import org.vertx.java.core.json.JsonObject;
  * Created by ledunoiss on 05/08/2016.
  */
 public class CEvalCompetencesServiceImpl extends SqlCrudService implements IEvalCompetencesService {
-    public CEvalCompetencesServiceImpl(String table) {
-        super(table);
+    public CEvalCompetencesServiceImpl(String schema, String table) {
+        super(schema, table);
     }
 
     @Override

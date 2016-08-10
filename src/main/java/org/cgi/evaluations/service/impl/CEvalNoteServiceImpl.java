@@ -35,8 +35,8 @@ import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
  * Created by ledunoiss on 05/08/2016.
  */
 public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteService{
-    public CEvalNoteServiceImpl(String table) {
-        super(table);
+    public CEvalNoteServiceImpl(String schema, String table) {
+        super(schema, table);
     }
 
     @Override

@@ -19,10 +19,10 @@
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
-            <i class="show-list" ng-class="{ selected: template.contains('test', 'list') }"
-               ng-click="template.open('test', 'list')"></i>
-            <i class="show-icons" ng-class="{ selected: template.contains('test', 'icons') }"
-               ng-click="template.open('test', 'icons')"></i>
+            <i class="show-list" ng-class="{ selected: template.contains('test', '../modules/evaluations/template/eval_teacher_listview') }"
+               ng-click="template.open('test', '../modules/evaluations/template/eval_teacher_listview')"></i>
+            <i class="show-icons" ng-class="{ selected: template.contains('test', '../modules/evaluations/template/eval_teacher_iconview') }"
+               ng-click="template.open('test', '../modules/evaluations/template/eval_teacher_iconview')"></i>
         </div>
         <button class="marginFive" ng-click="newDevoir(); showNoteLightBox = true">Nouveau devoir </button>
     </nav>
@@ -31,7 +31,7 @@
         <div class="two cell criterion-fixed">
             <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" >
                 <header>
-                    <h2 style="color: grey;"><i18n>utils.criterion</i18n></h2>
+                    <h2 style="color: grey;"><i18n>viescolaire.utils.criterion</i18n></h2>
                 </header>
 
                 <section>
@@ -83,7 +83,7 @@
 
                 <section>
                     <p>
-                        <b><i18n>test.date</i18n> :</b>
+                        <b><i18n>evaluations.test.date</i18n> :</b>
                         <section><i18n>from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                         <section><i18n>to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                     </p>
@@ -92,8 +92,8 @@
                 <section>
                     <p>
                         <b><i18n>test.date.publication</i18n> :</b>
-                        <section><i18n>from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
-                        <section><i18n>to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                     </p>
                 </section>
             </div>
@@ -107,7 +107,7 @@
             <div class="marginFive">
                 <header class="headerStyle">
 
-                    <h2><i18n>test.owner.list</i18n></h2>
+                    <h2><i18n>evaluations.test.owner.list</i18n></h2>
                     <input type="text" ng-model="search.name" placeholder="Filtrer sur le nom..." style="width: 99%;font-size: 1em;font-style: italic;">
 
                 </header>
@@ -123,13 +123,13 @@
     <div class="toggle">
         <div class="row">
             <button ng-show="selectedDevoirs.length === 1" class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.edit</span></i18n>
+                <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.duplicate</span></i18n>
+                <i18n><span class="no-style">evaluations.test.duplicate</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.delete</span></i18n>
+                <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
         </div>
     </div>

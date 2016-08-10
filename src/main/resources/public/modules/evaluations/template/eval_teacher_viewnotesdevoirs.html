@@ -31,36 +31,36 @@
                 </header>
                 <div>
                     <section>
-                        <label><i18n class="bold">description</i18n> : [[currentDevoir.libelle]]</label>
+                        <label><i18n class="bold">viescolaire.utils.description</i18n> : [[currentDevoir.libelle]]</label>
                     </section>
-                    <section><span class="bold"><i18n>class</i18n></span> : [[getLibelleClasse(currentDevoir.idclasse)]]</section>
+                    <section><span class="bold"><i18n>viescolaire.utils.class</i18n></span> : [[getLibelleClasse(currentDevoir.idclasse)]]</section>
 
                     <section>
-                        <label><i18n class="bold">subject</i18n> : [[getLibelleMatiere(currentDevoir.idmatiere)]]</label>
+                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[getLibelleMatiere(currentDevoir.idmatiere)]]</label>
                     </section>
                     <section ng-show="currentDevoir._sousmatiere_libelle !== null && currentDevoir._sousmatiere_libelle !== undefined && currentDevoir._sousmatiere_libelle !== ''">
-                        <label><i18n class="bold">undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
+                        <label><i18n class="bold">viescolaire.utils.undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
                     </section>
                     <section>
-                        <label><i18n class="bold">periode</i18n> : [[currentDevoir._periode_libelle]]</label>
+                        <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>
                     </section>
                     <section>
-                        <label><i18n class="bold">coefficient</i18n> : [[currentDevoir.coefficient]]</label>
+                        <label><i18n class="bold">viescolaire.utils.coefficient</i18n> : [[currentDevoir.coefficient]]</label>
                     </section>
                     <section>
-                        <label><span class="bold"><i18n>test.grade.on</i18n></span> : [[currentDevoir.diviseur]]</label>
+                        <label><span class="bold"><i18n>evaluations.test.grade.on</i18n></span> : [[currentDevoir.diviseur]]</label>
                     </section>
                 </div>
             </div>
             <div class="menuLeftStyle statistiques-devoir" ng-class="{opened : openedStatistiques === true}">
                 <header>
                     <span class="plus-input" ng-click="openedStatistiques = !openedStatistiques"></span>
-                    <h2 ng-click="openedStatistiques = !openedStatistiques"><i18n>stats</i18n></h2>
+                    <h2 ng-click="openedStatistiques = !openedStatistiques"><i18n>viescolaire.utils.stats</i18n></h2>
                 </header>
                 <div>
-                    <section><i18n class="bold">notes.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.moyenne | number:2]]</span></section>
-                    <section><i18n class="bold">notes.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.noteMin | number:2]]</span></section>
-                    <section><i18n class="bold">notes.max</i18n> : <span style="color: #48C593;font-weight: bold;">[[currentDevoir.noteMax | number:2]]</span></section>
+                    <section><i18n class="bold">evaluations.grade.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.moyenne | number:2]]</span></section>
+                    <section><i18n class="bold">evaluations.grade.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.noteMin | number:2]]</span></section>
+                    <section><i18n class="bold">evaluations.grade.max</i18n> : <span style="color: #48C593;font-weight: bold;">[[currentDevoir.noteMax | number:2]]</span></section>
                 </div>
                 <div>
                     <progress-bar max="100" filled="currentDevoir.percentDone" unit="%"></progress-bar>
@@ -75,18 +75,18 @@
                 <content>
                     <div class="row devoirs-header"  current-devoir="currentDevoir" sticky offset="159">
                         <div class="two cell cell-indent">
-                            <i18n>student</i18n>
+                            <i18n>viescolaire.utils.student</i18n>
                         </div>
                         <div class="two cell cell-indent">
-                            <i18n>notes.grade</i18n>
+                            <i18n>evaluations.grade</i18n>
                         </div>
                         <div class="four cell cell-indent competence-text-overflow" ng-if="currentDevoir.nbcompetences > 0">
-                            <i18n>notes.skills</i18n>
+                            <i18n>evaluations.grade.skills</i18n>
                             <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                             <span id="competence-detail" tooltip=""></span>
                         </div>
                         <div class="cell cell-indent" ng-class="{four : currentDevoir.nbcompetences > 0, eight : currentDevoir.nbcompetences == 0}">
-                            <i18n>notes.appreciation</i18n>
+                            <i18n>viescolaire.utils.appreciation</i18n>
                         </div>
                     </div>
                     <div class="expandable-liste notes-devoir-liste" c-navigable>
@@ -140,13 +140,13 @@
     <div class="toggle">
         <div class="row">
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.edit</span></i18n>
+                <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.duplicate</span></i18n>
+                <i18n><span class="no-style">evaluations.test.duplicate</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">test.delete</span></i18n>
+                <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
         </div>
     </div>

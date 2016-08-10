@@ -22,16 +22,16 @@
             <i18n>notes.legend</i18n>
         </h4>
         <ul>
-            <li><span class="rounded green"></span>Très bonne maîtrise.</li>
-            <li><span class="rounded yellow"></span>Maîtrise satisfaisante.</li>
-            <li><span class="rounded orange"></span>Maîtrise fragile.</li>
-            <li><span class="rounded red"></span>Maîtrise insuffisante.</li>
-            <li><span class="rounded grey"></span>Compétence non évaluée.</li>
+            <li><span class="rounded green"></span><i18n>evaluations.competences.proficiency</i18n>.</li>
+            <li><span class="rounded yellow"></span><i18n>evaluations.competences.satisfying</i18n>.</li>
+            <li><span class="rounded orange"></span><i18n>evaluations.competences.fragile</i18n>.</li>
+            <li><span class="rounded red"></span><i18n>evaluations.competences.poor</i18n>.</li>
+            <li><span class="rounded grey"></span><i18n>evaluations.competences.unevaluated</i18n>.</li>
         </ul>
     </div>
     <div class="cell eleven">
         <h4>
-            <i18n>notes.overview</i18n>
+            <i18n>evaluations.competences.overview</i18n>
         </h4>
         <ol>
             <li ng-repeat="competence in currentDevoir.competences.all">[[competence.nom]]</li>

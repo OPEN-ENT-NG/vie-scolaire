@@ -25,6 +25,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
+import org.cgi.Viescolaire;
 import org.cgi.evaluations.service.IEvalCompetenceNoteService;
 import org.cgi.evaluations.service.IEvalCompetencesService;
 import org.cgi.evaluations.service.impl.CEvalCompetenceNoteServiceImpl;
@@ -52,17 +53,10 @@ public class CEvalCompetenceController extends ControllerHelper{
     private final IEvalCompetencesService competencesService;
     private final IEvalCompetenceNoteService competencesNotesService;
 
-    /**
-     * Création des constantes liées au framework SQL
-     */
-    private final String COMPETENCES_TABLE = "competences";
-    private final String COMPETENCES_NOTES_TABLE = "competences_notes";
-    private static final String SCHEMA_CREATE_COMPETENCE_NOTE = "eval_createCompetenceNote";
-    private static final String SCHEMA_UPDATE_COMPETENCE_NOTE = "eval_updateCompetenceNote";
-
     public CEvalCompetenceController () {
-        competencesService = new CEvalCompetencesServiceImpl(COMPETENCES_TABLE);
-        competencesNotesService = new CEvalCompetenceNoteServiceImpl(COMPETENCES_NOTES_TABLE);
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        competencesService = new CEvalCompetencesServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        competencesNotesService = new CEvalCompetenceNoteServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     /**
@@ -149,12 +143,12 @@ public class CEvalCompetenceController extends ControllerHelper{
      * Recupère la liste des compétences pour un devoir donné
      * @param request
      */
-    @Get("/competences")
+    @Get("/competences/devoir/:idDevoir")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesDevoir(final HttpServerRequest request){
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        competencesService.getDevoirCompetences(Integer.parseInt(request.params().get("id")), new Handler<Either<String, JsonArray>>() {
+        competencesService.getDevoirCompetences(Integer.parseInt(request.params().get("idDevoir")), new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
@@ -225,11 +219,12 @@ public class CEvalCompetenceController extends ControllerHelper{
      * Récupère la liste des compétences notes pour un devoir et un élève donné
      * @param request
      */
-    @Get("/competences")
+    @Get("/competences/note")
     @ApiDoc("Récupère la liste des compétences notes pour un devoir et un élève donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesNotes(final HttpServerRequest request){
-       competencesNotesService.getCompetencesNotes(Integer.parseInt(request.params().get("iddevoir")), request.params().get("ideleve"), arrayResponseHandler(request));
+       competencesNotesService.getCompetencesNotes(Integer.parseInt(request.params().get("iddevoir")),
+               request.params().get("ideleve"), arrayResponseHandler(request));
     }
 
     /**
@@ -244,7 +239,7 @@ public class CEvalCompetenceController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_CREATE_COMPETENCE_NOTE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_COMPETENCE_NOTE_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             competencesNotesService.create(resource, user, notEmptyResponseHandler(request));
@@ -270,7 +265,7 @@ public class CEvalCompetenceController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_UPDATE_COMPETENCE_NOTE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_COMPETENCE_NOTE_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             Integer id = resource.getInteger("id");
@@ -297,7 +292,7 @@ public class CEvalCompetenceController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    String id = request.params().get("id");
+                    String id = request.params().get("idNote");
                     competencesNotesService.delete(id, defaultResponseHandler(request));
                 }else {
                     log.debug("User not found in session.");

@@ -233,6 +233,6 @@ public class CEvalUtilsServiceImpl implements IEvalUtilsService {
     @Override
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler) {
         String query = "match (s:`Structure`) where s.id = {id} return s";
-        neo4j.execute(query, new JsonObject().putString("id", id), validUniqueResultHandler(handler));
+        neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
     }
 }

@@ -48,9 +48,8 @@ public class CEvalNoteController extends ControllerHelper{
     /**
      * Création des constantes liés au framework SQL
      */
-    private static final String SCHEMA_NOTES_CREATE = "eval_createNote";
-    private static final String SCHEMA_NOTES_UPDATE = "eval_updateNote";
-    private static final String NOTES_TABLE = "notes";
+
+
 
     /**
      * Déclaration des services
@@ -59,7 +58,7 @@ public class CEvalNoteController extends ControllerHelper{
 
     public CEvalNoteController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        notesService = new CEvalNoteServiceImpl(NOTES_TABLE);
+        notesService = new CEvalNoteServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
     }
 
     /**
@@ -119,7 +118,7 @@ public class CEvalNoteController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_NOTES_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_NOTES_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
 //                            crudService.create(resource, user, notEmptyResponseHandler(request));
@@ -146,7 +145,7 @@ public class CEvalNoteController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + SCHEMA_NOTES_UPDATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_NOTES_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             notesService.updateNote(resource, user, defaultResponseHandler(request));
@@ -197,7 +196,6 @@ public class CEvalNoteController extends ControllerHelper{
         });
     }
 
-    // TODO MODIFIER LA ROUTE POUR PASSER L'ID DE LA NOTE EN PARAMETRE => ?idnote=<id>
     /**
      * Récupère les notes pour le relevé de notes
      * @param request

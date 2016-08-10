@@ -29,8 +29,8 @@ import org.vertx.java.core.json.JsonArray;
  * Created by ledunoiss on 05/08/2016.
  */
 public class CEvalEnseignementServiceImpl extends SqlCrudService implements IEvalEnseignementService {
-    public CEvalEnseignementServiceImpl(String table) {
-        super(table);
+    public CEvalEnseignementServiceImpl(String schema, String table) {
+        super(schema, table);
     }
 
     @Override

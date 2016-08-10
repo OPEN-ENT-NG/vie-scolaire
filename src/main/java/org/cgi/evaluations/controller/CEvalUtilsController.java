@@ -26,6 +26,7 @@ import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
+import org.cgi.Viescolaire;
 import org.cgi.evaluations.bean.CEvalNoteDevoir;
 import org.cgi.evaluations.service.IEvalUtilsService;
 import org.cgi.evaluations.service.impl.CEvalUtilsServiceImpl;
@@ -53,16 +54,15 @@ public class CEvalUtilsController extends ControllerHelper {
     private final IEvalUtilsService utilsService;
 
     public CEvalUtilsController () {
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         utilsService = new CEvalUtilsServiceImpl();
     }
-
-    // TODO MODIFIER LA ROUTE POUR PASSER EN PARAMETRE L'ID DE L'ETABLISSEMENT EX : ?etabid=<id>
 
     /**
      * Retourne tous les types de devoir par etablissement
      * @param request
      */
-    @Get("/devoirs/types/:id")
+    @Get("/types")
     @ApiDoc("Retourne tous les types de devoir par etablissement")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void view(final HttpServerRequest request){
@@ -71,7 +71,7 @@ public class CEvalUtilsController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    utilsService.listTypesDevoirsParEtablissement(request.params().get("id"), handler);
+                    utilsService.listTypesDevoirsParEtablissement(request.params().get("idEtablissement"), handler);
                 }else{
                     unauthorized(request);
                 }
@@ -79,12 +79,11 @@ public class CEvalUtilsController extends ControllerHelper {
         });
     }
 
-    // TODO MODIFIER LA ROUTE POUR LA RENDRE CORRECTE
     /**
-     * Retourne les periodes pour un devoir donné
+     * Retourne les periodes pour un etablissement donné
      * @param request
      */
-    @Get("/devoirs/periodes/:id")
+    @Get("/periodes")
     @ApiDoc("Retourne les periodes pour un devoir donné")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void viewPeriodes(final HttpServerRequest request){
@@ -93,7 +92,7 @@ public class CEvalUtilsController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    utilsService.listPeriodesParEtablissement(request.params().get("id"), handler);
+                    utilsService.listPeriodesParEtablissement(request.params().get("idEtablissement"), handler);
                 }else{
                     unauthorized(request);
                 }
@@ -252,7 +251,7 @@ public class CEvalUtilsController extends ControllerHelper {
      * Retourne les matières enseignées par un enseignant donné
      * @param request
      */
-    @Get("/matieres/:idEns")
+    @Get("/matieres")
     @ApiDoc("Retourne les matières enseignées par un enseignant donné")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void viewMatiere(final HttpServerRequest request){
@@ -260,7 +259,7 @@ public class CEvalUtilsController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    utilsService.listMatieres(request.params().get("idEns"), new Handler<Either<String, JsonArray>>() {
+                    utilsService.listMatieres(request.params().get("idEnseignant"), new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if(event.isRight()){
@@ -335,7 +334,7 @@ public class CEvalUtilsController extends ControllerHelper {
      * Retourne les matières
      * @param request
      */
-    @Get("/widget/notes/matieres")
+    @Get("/widget/matieres")
     @ApiDoc("Retourne les matières")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void getMatiere(final HttpServerRequest request){
@@ -378,7 +377,7 @@ public class CEvalUtilsController extends ControllerHelper {
      * Retourne la liste des enfants pour un utilisateur donné
      * @param request
      */
-    @Get("/enfants/:userId")
+    @Get("/enfants")
     @ApiDoc("Retourne la liste des enfants pour un utilisateur donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEnfants(final HttpServerRequest request){

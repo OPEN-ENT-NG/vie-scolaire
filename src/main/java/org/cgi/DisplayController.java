@@ -79,7 +79,7 @@ public class DisplayController extends ControllerHelper {
                 if(user.getType().equals("Teacher")) {
                     renderView(request, null, "evaluations/eval_teacher.html", null);
                 }else if(user.getType().equals("Student") || user.getType().equals("Relative")){
-                    renderView(request, null,  "evaluations/eval_parent.html", null);
+                    renderView(request, null,  "evaluations/eval_parents.html", null);
                 }
             }
         });

@@ -16,7 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<h1><i18n>test.add</i18n> : <span class="italic" ng-bind="devoir.name"></span></h1>
+<h1><i18n>evaluations.test.add</i18n> : <span class="italic" ng-bind="devoir.name"></span></h1>
 <tabs>
     <pane title="Informations du devoir">
         <div class="row">
@@ -24,28 +24,28 @@
                 <form name="addDevoirForm" novalidate>
                     <table class="twelve addDevoirTable">
                         <tr>
-                            <td colspan="2"><i18n>title</i18n></td>
+                            <td colspan="2"><i18n>evaluations.test.title</i18n></td>
                             <td colspan="2"><input type="text" class="eleven" ng-model="devoir.name"></td>
                         </tr>
                         <tr>
-                            <td colspan="2"><i18n>description</i18n></td>
+                            <td colspan="2"><i18n>viescolaire.utils.description</i18n></td>
                             <td colspan="2"><input type="text" class="eleven" ng-model="devoir.libelle"></td>
                         </tr>
                         <tr>
-                            <td><i18n>coefficient</i18n></td>
+                            <td><i18n>viescolaire.utils.coefficient</i18n></td>
                             <td><input type="number" class="eleven" ng-model="devoir.coefficient" min="0"></td>
-                            <td><i18n>test.grade.on</i18n></td>
+                            <td><i18n>evaluations.test.grade.on</i18n></td>
                             <td><input type="number" class="eleven" ng-change="setRamenerSur()" ng-model="devoir.diviseur" min="0"></td>
                         </tr>
                         <tr>
-                            <td colspan="3"><i18n>test.grade.report.average</i18n></td>
+                            <td colspan="3"><i18n>evaluations.test.grade.report.average</i18n></td>
                             <td><label class="checkbox">
                                 <input type="checkbox" ng-model="devoir.ramenerSur" ng-disabled="devoir.diviseur === 20" > <!-- ng-checked="devoir.diviseur !== 20" -->
                                 <span></span>
                             </label></td>
                         </tr>
                         <tr>
-                            <td colspan="2"><i18n>school</i18n></td>
+                            <td colspan="2"><i18n>viescolaire.utils.school</i18n></td>
                             <td colspan="2">
                                 <label class="select">
                                     <select ng-model="devoir.idEtablissement" class="eleven" ng-change="updateEtabInfo()">
@@ -55,7 +55,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"><i18n>class</i18n></td>
+                            <td colspan="2"><i18n>viescolaire.utils.class</i18n></td>
                             <td colspan="2">
                                 <label class="select">
                                     <select ng-model="devoir.idClasse" class="eleven" ng-change="setClasseMatieres()">
@@ -65,7 +65,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="three"><i18n>subject</i18n></td>
+                            <td class="three"><i18n>viescolaire.utils.subject</i18n></td>
                             <td class="three">
                                 <label class="select">
                                     <select ng-model="devoir.idMatiere" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="addDevoirGetSousMatiere()">
@@ -73,7 +73,7 @@
                                     </select>
                                 </label>
                             </td>
-                            <td class="three" ng-hide="etabSousMatiereDevoir === [] || etabSousMatiereDevoir === undefined || etabSousMatiereDevoir.length === 0"><i18n>undersubject</i18n></td>
+                            <td class="three" ng-hide="etabSousMatiereDevoir === [] || etabSousMatiereDevoir === undefined || etabSousMatiereDevoir.length === 0"><i18n>viescolaire.utils.undersubject</i18n></td>
                             <td class="three"  ng-hide="etabSousMatiereDevoir === [] || etabSousMatiereDevoir === undefined || etabSousMatiereDevoir.length === 0">
                                 <label class="select">
                                     <select ng-model="devoir.idSousMatiere"  ng-disabled="devoir.idMatiere === undefined" class="eleven">
@@ -83,7 +83,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="three"><i18n>periode</i18n></td>
+                            <td class="three"><i18n>viescolaire.utils.periode</i18n></td>
                             <td class="three">
                                 <label class="select">
                                     <select class="eleven" ng-model="devoir.periode" >
@@ -91,7 +91,7 @@
                                     </select>
                                 </label>
                             </td>
-                            <td class="three"><i18n>type</i18n></td>
+                            <td class="three"><i18n>viescolaire.utils.type</i18n></td>
                             <td class="three">
                                 <label class="select">
                                     <select class="eleven" ng-model="devoir.type">
@@ -101,9 +101,9 @@
                             </td>
                         </tr>
                         <tr>
-                            <td ><i18n>test.date</i18n></td>
+                            <td ><i18n>evaluations.test.date</i18n></td>
                             <td><date-picker ng-model="devoir.dateDevoir" class="eleven" ng-change="showDate = true; controleDate()" style="z-index:10002;"></date-picker></td>
-                            <td><i18n>test.grade.publication.date</i18n></td>
+                            <td><i18n>evaluations.test.grade.publication.date</i18n></td>
                             <td><date-picker ng-model="devoir.datePublication" class="eleven" ng-change="showDate = true; controleDate()" style="z-index:10002;"></date-picker></td>
                         </tr>
                     </table>
@@ -112,8 +112,8 @@
         </div>
     </pane>
     <pane title="Compétences">
-        <h3>Compétences liées au devoir : </h3>
+        <h3><i18n>evaluations.test.competences</i18n> : </h3>
         <c-skills-list devoir="devoir" data="devoir.enseignements"></c-skills-list>
     </pane>
 </tabs>
-<input type="button" ng-click="createDevoir()" ng-disabled="controlledDate" i18n-value="save">
+<input type="button" ng-click="createDevoir()" ng-disabled="controlledDate" i18n-value="viescolaire.utils.save">

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="row">
+    <div class="twelve cell">
+
+        <header style="padding: 8px;margin-bottom: 20px;background: white;border-radius: 5px;">
+            <h2><i18n>transcript</h2>
+
+            <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row">
+                <label class="select cell two">
+                    <select ng-model="searchReleve.eleve" ng-change="getPeriodes(); getMatieres()"
+                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
+                            ng-options="eleve.displayName for eleve in eleves.all">
+                        <option value="" class="header-opt">Eleves</option>
+                    </select>
+                </label>
+
+                <label class="select cell two" ng-hide="searchReleve.eleve===null" style="margin-left:8px">
+                    <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
+                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
+                            ng-options="periode.libelle for periode in searchReleve.eleve.periodes.all">
+                        <option value="" class="header-opt">Périodes</option>
+                    </select>
+                </label>
+                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">
+                    &nbsp; Imprimer
+                </a>
+            </section>
+            <section style="margin-top:8px;" ng-if="me.type === 'ELEVE'" class="row">
+                <label class="select cell two" style="margin-left:8px">
+                    <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
+                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
+                            ng-options="periode.libelle for periode in periodes.all">
+                        <option value="" class="header-opt">Périodes</option>
+                    </select>
+                </label>
+                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">
+                    &nbsp; Imprimer
+                </a>
+            </section>
+        </header>
+
+        <content ng-show="dataReleve.devoirs.all.length > 0">
+
+            <table class="list-view tableReleve tableRelevePadding" navigable>
+                <thead>
+                <tr>
+                    <th class="fontLarge col1ReleveEleve"><i18n>subject</i18n></th>
+                    <th class="fontLarge center"><i18n>transcript.grades</i18n></th>
+                    <th class="fontLarge colMoyenneReleveEleve center"><i18n>transcript.average</i18n></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="ligneReleve"
+                    ng-repeat="matiere in matieres.all | uniqueMatieres:matieres:'id':dataReleve.devoirs" >
+                    <td class="col1ReleveEleve">
+                        <span class="alignMatiere">[[matiere.name]]</span>
+                        <span class="nomEnseignant">[[matiere.firstNameInitialeEnseignant]]. [[matiere.surnameEnseignant | lowercase]]</span></td>
+                    <td class="notesDevoir">
+                        <div class="noteDevoir alignCenterVertically" ng-repeat="devoirReleveNotes in dataReleve.devoirs.all | filter:matiere.id">
+                            <div>
+                                <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span><span> / [[devoirReleveNotes.diviseur]]</span>
+                                <span class="releve-coef" ng-show='devoirReleveNotes.coefficient != null && devoirReleveNotes.coefficient != 1'>
+                                    (Coef. [[devoirReleveNotes.coefficient]])
+                                </span>
+                            </div>
+                            <div class="gradetooltip" ng-if="me.type === 'PERSRELELEVE'" tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>
+                            <div class="gradetooltip" ng-if="me.type === 'ELEVE'" tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<br>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</div>"></div>
+                        </div>
+                    </td>
+                    <td class="colMoyenneReleveEleve">
+                        <div class="noteMoyenne alignCenterVertically">
+                            <div class="bold fontXLarge">[[calculMoyenne(matiere.id)]]</div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
+        </content>
+        <content ng-show="dataReleve.devoirs.all.length === 0">
+            <h1 style="color: grey;"><i18n>transcript.none</i18n></h1>
+        </content>
+
+    </div>
+</div>

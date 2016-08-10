@@ -23,6 +23,7 @@ import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
+import org.cgi.Viescolaire;
 import org.cgi.evaluations.service.IEvalEnseignementService;
 import org.cgi.evaluations.service.impl.CEvalEnseignementServiceImpl;
 import org.entcore.common.controller.ControllerHelper;
@@ -36,10 +37,6 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
  */
 public class CEvalEnseignementController extends ControllerHelper {
 
-    /**
-     * Création des constantes liés au framework SQL
-     */
-    private final String ENSEIGNEMENTS_TABLE = "enseignements";
 
     /**
      * Déclaration des services
@@ -47,7 +44,8 @@ public class CEvalEnseignementController extends ControllerHelper {
     private final IEvalEnseignementService enseignementService;
 
     public CEvalEnseignementController() {
-        enseignementService = new CEvalEnseignementServiceImpl(ENSEIGNEMENTS_TABLE);
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        enseignementService = new CEvalEnseignementServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_ENSEIGNEMENTS_TABLE);
     }
 
     /**

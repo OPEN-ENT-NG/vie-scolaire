@@ -3,6 +3,9 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
+    "id" : {
+      "type":"integer"
+    },
     "ideleve": {
       "type": "string"
     },
@@ -10,7 +13,7 @@
       "type": "integer"
     },
     "valeur": {
-      "type": "number"
+      "type": ["number", "integer"]
     },
     "appreciation" : {
       "type" : ["string", "null"]
@@ -19,6 +22,7 @@
   "required": [
     "ideleve",
     "iddevoir",
-    "valeur"
+    "valeur",
+    "id"
   ]
 }

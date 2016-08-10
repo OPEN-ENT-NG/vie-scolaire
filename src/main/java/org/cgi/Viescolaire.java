@@ -36,10 +36,16 @@ import org.vertx.java.core.eventbus.EventBus;
 
 public class Viescolaire extends BaseServer {
 
+	/**
+	 * Déclaration des schémas
+	 */
 	public final static String VSCO_SCHEMA = "viesco";
 	public final static String EVALUATIONS_SCHEMA = "notes";
 	public final static String ABSC_SCHEMA = "abs";
 
+	/**
+	 * Déclaration des tables
+	 */
 	public final static String VSCO_COURS_TABLE = "cours";
 	public final static String VSCO_ELEVE_TABLE = "eleve";
 	public final static String VSCO_PERSONNEL_TABLE = "personnel";
@@ -49,9 +55,30 @@ public class Viescolaire extends BaseServer {
 	public final static String ABSC_MOTIF_TABLE = "motif";
 	public final static String ABSC_EVENEMENT_TABLE = "evenement";
 
+	public static final String EVAL_NOTES_TABLE = "notes";
+	public static final String EVAL_DEVOIR_TABLE = "devoirs";
+	public static final String EVAL_COMPETENCES_TABLE = "competences";
+	public static final String EVAL_COMPETENCES_NOTES_TABLE = "competences_notes";
+    public static final String EVAL_ENSEIGNEMENTS_TABLE = "enseignements";
+
+	/**
+	 * Déclaration des router préfixs
+	 */
 	public final static String VSCO_PATHPREFIX = "/viescolaire";
 	public final static String ABSC_PATHPREFIX = "/viescolaire/absences";
 	public final static String EVAL_PATHPREFIX = "/viescolaire/evaluations";
+
+	/**
+	 * Déclaration des JSON Schéma validator
+	 */
+	public static final String SCHEMA_NOTES_CREATE = "eval_createNote";
+	public static final String SCHEMA_NOTES_UPDATE = "eval_updateNote";
+	public static final String SCHEMA_DEVOIRS_CREATE = "eval_createDevoir";
+	public static final String SCHEMA_COMPETENCES_DEVOIR = "eval_createCompetence";
+	public static final String SCHEMA_DEVOIRS_UPDATE = "eval_updateDevoir";
+    public static final String SCHEMA_COMPETENCE_NOTE_CREATE = "eval_createCompetenceNote";
+    public static final String SCHEMA_COMPETENCE_NOTE_UPDATE = "eval_updateCompetenceNote";
+
 
 	@Override
 	public void start() {

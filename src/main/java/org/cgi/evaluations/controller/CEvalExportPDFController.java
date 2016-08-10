@@ -25,6 +25,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.email.EmailSender;
 import fr.wseduc.webutils.http.Renders;
+import org.cgi.Viescolaire;
 import org.cgi.evaluations.bean.CEvalNoteDevoir;
 import org.cgi.evaluations.service.IEvalDevoirService;
 import org.cgi.evaluations.service.IEvalUtilsService;
@@ -72,7 +73,8 @@ public class CEvalExportPDFController extends ControllerHelper {
     private IEvalUtilsService utilsService;
 
     public CEvalExportPDFController(EventBus eb, EmailSender notification) {
-        devoirService = new CEvalDevoirServiceImpl(CEvalDevoirController.DEVOIR_TABLE);
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        devoirService = new CEvalDevoirServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
         utilsService = new CEvalUtilsServiceImpl();
         userService = new DefaultUserService(notification, eb);
     }
@@ -210,7 +212,7 @@ public class CEvalExportPDFController extends ControllerHelper {
      * Genere le releve d'un eleve sous forme de PDF
      *
      */
-    @Get("/releve/:idEtablissement/:idPeriode/:idUser")
+    @Get("/releve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getReleveEleve(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -334,7 +336,7 @@ public class CEvalExportPDFController extends ControllerHelper {
         this.assetsPath = (String) vertx.sharedData().getMap("server").get("assetPath");
         this.skins = vertx.sharedData().getMap("skins");
         final String assetsPath = this.assetsPath + "/assets/themes/" + this.skins.get(Renders.getHost(request));
-        final String templatePath = assetsPath + "/template/notes/";
+        final String templatePath = assetsPath + "/template/viescolaire/";
         final String baseUrl = getScheme(request) + "://" + Renders.getHost(request) + "/assets/themes/" + this.skins.get(Renders.getHost(request)) + "/img/";
 
         node = (String) vertx.sharedData().getMap("server").get("node");

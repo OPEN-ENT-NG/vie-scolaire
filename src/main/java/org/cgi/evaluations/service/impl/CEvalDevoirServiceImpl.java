@@ -36,8 +36,8 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  */
 public class CEvalDevoirServiceImpl extends SqlCrudService implements IEvalDevoirService {
 
-    public CEvalDevoirServiceImpl(String table) {
-        super(table);
+    public CEvalDevoirServiceImpl(String schema, String table) {
+        super(schema, table);
     }
 
     @Override

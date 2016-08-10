@@ -56,19 +56,10 @@ public class CEvalDevoirController extends ControllerHelper {
     private final CEvalDevoirServiceImpl devoirsService;
     private final CEvalCompetencesServiceImpl competencesService;
 
-    /**
-     * Création des constantes liées au framework SQL
-     */
-    private static final String COMPETENCES_TABLE = "competences";
-    public static final String DEVOIR_TABLE = "devoirs";
-    private static final String SCHEMA_DEVOIRS_CREATE = "eval_createDevoir";
-    private static final String SCHEMA_COMPETENCES_DEVOIR = "eval_createCompetence";
-    private static final String SCHEMA_DEVOIRS_UPDATE = "eval_updateDevoir";
-
     public CEvalDevoirController () {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        devoirsService = new CEvalDevoirServiceImpl(DEVOIR_TABLE);
-        competencesService = new CEvalCompetencesServiceImpl(COMPETENCES_TABLE);
+        devoirsService = new CEvalDevoirServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
+        competencesService = new CEvalCompetencesServiceImpl(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
     }
 
     @Get("/devoirs")
@@ -88,14 +79,14 @@ public class CEvalDevoirController extends ControllerHelper {
         });
     }
 
-    // TODO MODIFIER LA ROUTE POUR PASSER LES PARAMETRES EN PARAMETRE REQUETE : Ex : idetablissement=<id>
     /**
      * Liste des devoirs pour un établissement, une classe, une matière et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
      *
      * @param request
      */
-    @Get("/devoir/:idEtablissement/:idClasse/:idMatiere/:idPeriode")
+//    /:idEtablissement/:idClasse/:idMatiere/:idPeriode
+    @Get("/devoir")
     @ApiDoc("Récupère la liste des devoirs pour un établissement, une classe," +
             "une matière et une période donnée.")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
@@ -132,7 +123,7 @@ public class CEvalDevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, pathPrefix + "/" + SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             resource.removeField("competences");
@@ -187,7 +178,8 @@ public class CEvalDevoirController extends ControllerHelper {
      *
      * @param request
      */
-    @Get("/devoirseleves/:idEtablissement/:idPeriode/:idUser")
+//    /:idEtablissement/:idPeriode/:idUser
+    @Get("/devoirs/periode/:idPeriode")
     @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void listDevoirsPeriode (final HttpServerRequest request){
@@ -220,7 +212,7 @@ public class CEvalDevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if (user != null) {
-                    RequestUtils.bodyToJson(request, pathPrefix + "/" + SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject devoir) {
                             devoirsService.updateDevoir(request.params().get("devoirid"), devoir, user, notEmptyResponseHandler(request));

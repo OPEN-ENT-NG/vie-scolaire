@@ -34,12 +34,10 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -247,6 +245,7 @@ public class CEvalUtilsController extends ControllerHelper {
         });
     }
 
+    // TODO A REFAIRE APRES LES BERNCHS DE PERF
     /**
      * Retourne les matières enseignées par un enseignant donné
      * @param request
@@ -295,7 +294,8 @@ public class CEvalUtilsController extends ControllerHelper {
                                         JsonObject n = new JsonObject();
                                         JsonObject nInter = new JsonObject();
 
-                                        JsonArray reponse = new JsonArray();
+                                        final JsonArray reponse = new JsonArray();
+                                        String[] ids = new String[r.size()];
                                         for(int i = 0 ; i < r.size(); i ++){
                                             n = r.get(i);
                                             nInter = n.getObject("n");
@@ -314,8 +314,33 @@ public class CEvalUtilsController extends ControllerHelper {
                                             o.putString("libelleClasse", correspondanceClasse.get(i));
                                             o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
                                             reponse.add(o);
+                                            ids[i]=o.getString("id");
                                         }
-                                        request.response().putHeader("content-type", "application/json; charset=utf-8").end(reponse.toString());
+                                        utilsService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
+                                            @Override
+                                            public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                                if (event_ssmatiere.right().isRight()) {
+                                                    JsonArray finalresponse = new JsonArray();
+                                                    JsonArray res = event_ssmatiere.right().getValue();
+                                                    for (int i = 0; i < reponse.size(); i++) {
+                                                        JsonObject matiere = reponse.get(i);
+                                                        String id = matiere.getString("id");
+                                                        JsonArray ssms = new JsonArray();
+                                                        for (int j = 0; j < res.size(); j++) {
+                                                            JsonObject ssm = res.get(j);
+                                                            if (ssm.getString("id_matiere").equals(id)) {
+                                                                ssms.addObject(ssm);
+                                                            }
+                                                        }
+                                                        matiere.putArray("sous_matieres", ssms);
+                                                        finalresponse.addObject(matiere);
+                                                    }
+                                                    request.response().putHeader("content-type", "application/json; charset=utf-8").end(finalresponse.toString());
+                                                } else {
+                                                    leftToResponse(request, event_ssmatiere.left());
+                                                }
+                                            }
+                                        });
                                     }
                                 });
                             }else{
@@ -352,28 +377,6 @@ public class CEvalUtilsController extends ControllerHelper {
     }
 
     /**
-     * Retourne les informations relatives à un utilisateur
-     * @param request
-     */
-    @Get("/informations/:userId")
-    @ApiDoc("Retourne les informations relatives à un utilisateur")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void getInformationsEleve(final  HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if(user != null){
-                    Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
-                    utilsService.getInfoEleve(request.params().get("userId"), handler);
-                }else{
-                    unauthorized(request);
-                }
-            }
-        });
-    }
-
-    // TODO MODIFIER LA ROUTE ET PASSER EN PARAMETRE EX : ?userid=<id>
-    /**
      * Retourne la liste des enfants pour un utilisateur donné
      * @param request
      */
@@ -402,16 +405,58 @@ public class CEvalUtilsController extends ControllerHelper {
             public void handle(JsonObject resource) {
                 List<CEvalNoteDevoir> notes = new ArrayList<CEvalNoteDevoir>();
                 JsonArray l = resource.getArray("notes");
-                Double moyenne = new Double(0);
                 JsonObject r = new JsonObject();
+                Boolean statistiques;
+                if (request.params().get("stats") == "undefined") {
+                    statistiques = false;
+                } else {
+                    statistiques = Boolean.parseBoolean(request.params().get("stats"));
+                }
                 for(int i = 0; i < l.size(); i++){
                     JsonObject o = l.get(i);
-                    CEvalNoteDevoir n = new CEvalNoteDevoir(Double.parseDouble(o.getNumber("valeur").toString()), o.getBoolean("ramenerSur"), Double.parseDouble(o.getString("coefficient")));
-                    notes.add(n);
+                    notes.add(new CEvalNoteDevoir(Double.parseDouble(o.getNumber("valeur").toString()),
+                            o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
                 }
-                moyenne = utilsService.calculMoyenne(notes, 20);
-                r.putString("moyenne", new DecimalFormat("##.##").format(moyenne));
-                request.response().putHeader("content-type", "application/json; charset=utf-8").end(r.toString());
+                JsonObject moyenne = new JsonObject();
+                if (notes.size() > 0) {
+                    moyenne = utilsService.calculMoyenne(notes, statistiques, 20);
+                }
+                request.response().putHeader("content-type", "application/json; charset=utf-8").end(moyenne.toString());
+            }
+        });
+    }
+
+    @Post("/moyennes")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getReleveMoyennes(final HttpServerRequest request) {
+        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+            @Override
+            public void handle(JsonObject resource) {
+                JsonArray returns = new JsonArray();
+                JsonArray eleves = resource.getArray("data");
+                Boolean statistiques;
+                if (request.params().get("stats") == "undefined") {
+                    statistiques = false;
+                } else {
+                    statistiques = Boolean.parseBoolean(request.params().get("stats"));
+                }
+                for (int i = 0; i < eleves.size(); i++) {
+                    List<CEvalNoteDevoir> notes = new ArrayList<CEvalNoteDevoir>();
+                    JsonObject stats = new JsonObject();
+                    JsonObject _t = eleves.get(i);
+                    JsonArray a = _t.getArray("evaluations");
+                    if (a.size() > 0) {
+                        for (int j = 0; j < a.size(); j++) {
+                            JsonObject o = a.get(j);
+                            notes.add(new CEvalNoteDevoir(Double.parseDouble(o.getNumber("valeur").toString()),
+                                    o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
+                        }
+                        stats = utilsService.calculMoyenne(notes, statistiques, 20);
+                        stats.putString("id", _t.getString("id"));
+                        returns.add(stats);
+                    }
+                }
+                request.response().putHeader("content-type", "application/json; charset=utf-8").end(returns.toString());
             }
         });
     }

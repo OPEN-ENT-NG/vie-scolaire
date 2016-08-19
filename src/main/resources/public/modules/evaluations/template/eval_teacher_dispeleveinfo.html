@@ -18,13 +18,12 @@
   -->
 <div class="fiche student-info" ng-class="{opened : openedStudentInfo === true}">
     <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
-    <h2 tooltip="[[currentUserInfo.u.data.lastName]] [[currentUserInfo.u.data.firstName]]" class="head text-overflow" ng-click="openedStudentInfo = !openedStudentInfo">[[currentUserInfo.u.data.lastName]] [[currentUserInfo.u.data.firstName]]</h2>
-    <img src="/notes/public/img/loader.gif" ng-show="currentUserInfo === undefined" style="width: 20% !important; margin: 0px auto; display: block;" />
-    <div ng-show="currentUserInfo !== undefined">
+    <h2 tooltip="[[informations.eleve.lastName]] [[informations.eleve.firstName]]" class="head text-overflow" ng-click="openedStudentInfo = !openedStudentInfo">[[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
+    <!--<img src="/notes/public/img/loader.gif" ng-show="currentUserInfo === undefined" style="width: 20% !important; margin: 0px auto; display: block;" />-->
+    <div ng-show="informations.eleve !== undefined">
         <div class="imgEleve">
-            <img src="[[currentUserInfo.n.data.picture]]" alt="" ng-if="currentUserInfo.n !== null" />
-            <img src="/directory/public/img/no-avatar.jpg?thumbnail=48x48" alt="" ng-if="currentUserInfo.n === null" /></li>
+            <img src="/userbook/avatar/[[informations.eleve.id]]" alt="" ng-if="informations.eleve !== null" />
         </div>
-        <p><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(currentUserInfo.u.data.birthDate)]]</span></p>
+        <p><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
     </div>
 </div>

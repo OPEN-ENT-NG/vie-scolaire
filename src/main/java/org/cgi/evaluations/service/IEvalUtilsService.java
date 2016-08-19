@@ -26,6 +26,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public interface IEvalUtilsService {
      * @param diviseurM : diviseur de la moyenne. Par défaut, cette valeur est égale à 20 (optionnel).
      * @return Double : moyenne calculée
      **/
-    public Double calculMoyenne(List<CEvalNoteDevoir> listeNoteDevoirs, Integer diviseurM);
+    public JsonObject calculMoyenne(List<CEvalNoteDevoir> listeNoteDevoirs, Boolean statistiques, Integer diviseurM);
     /**
      * Recupere un periode sous sa representation en BDD
      * @param idPeriode identifiant de la periode
@@ -121,4 +122,11 @@ public interface IEvalUtilsService {
      * @param handler handler comportant le resultat
      */
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Recupère les sous matières en fonction d'un tableau d'id de matière
+     * @param ids tableau d'identifiants de matières
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler);
 }

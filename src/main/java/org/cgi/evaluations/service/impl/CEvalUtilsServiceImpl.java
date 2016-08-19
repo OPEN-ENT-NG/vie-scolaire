@@ -31,6 +31,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,24 +176,21 @@ public class CEvalUtilsServiceImpl implements IEvalUtilsService {
      * @param diviseurM : diviseur de la moyenne. Par défaut, cette valeur est égale à 20 (optionnel).
      **/
     @Override
-    public Double calculMoyenne(List<CEvalNoteDevoir> listeNoteDevoirs, Integer diviseurM) {
+    public JsonObject calculMoyenne(List<CEvalNoteDevoir> listeNoteDevoirs, Boolean statistiques, Integer diviseurM) {
         if(diviseurM == null){
             diviseurM = 20;
         }
+        Double noteMin = new Double(0);
+        Double noteMax = new Double(diviseurM);
         Double notes = new Double(0);
         Double diviseur = new Double(0);
-
         for (CEvalNoteDevoir noteDevoir : listeNoteDevoirs) {
-
             Double currNote = noteDevoir.getNote();
             Double currCoefficient = noteDevoir.getCoefficient();
             Integer currDiviseur = noteDevoir.getDiviseur();
-
             if(noteDevoir.getRamenerSur()){
-
                 if(currNote != null){
                     notes = notes + ((currNote * currCoefficient) * (new Double(diviseurM)/new Double(currDiviseur)));
-
                 }
                 diviseur = diviseur + (diviseurM*currCoefficient);
             }else{
@@ -201,10 +199,23 @@ public class CEvalUtilsServiceImpl implements IEvalUtilsService {
                 }
                 diviseur = diviseur + (currDiviseur * currCoefficient);
             }
+            if (statistiques) {
+                if (currNote > noteMin) {
+                    noteMin = currNote;
+                }
+                if (currNote < noteMax) {
+                    noteMax = currNote;
+                }
+            }
         }
         Double moyenne = (notes/diviseur)*diviseurM;
-
-        return moyenne;
+        DecimalFormat df = new DecimalFormat("##.##");
+        moyenne = Double.parseDouble(df.format(moyenne).replace(",", "."));
+        JsonObject r = new JsonObject().putNumber("moyenne", moyenne);
+        if (statistiques) {
+            r.putNumber("noteMin", noteMin).putNumber("noteMax", noteMax);
+        }
+        return r;
     }
 
     /**
@@ -234,5 +245,19 @@ public class CEvalUtilsServiceImpl implements IEvalUtilsService {
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler) {
         String query = "match (s:`Structure`) where s.id = {id} return s";
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+        query.append("SELECT * FROM notes.sousmatiere INNER JOIN notes.typesousmatiere on sousmatiere.id_typesousmatiere = typesousmatiere.id" +
+                " WHERE sousmatiere.id_matiere IN ")
+                .append(Sql.listPrepared(ids))
+                .append(";");
+        for (int i = 0; i < ids.length; i++) {
+            params.add(ids[i]);
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 }

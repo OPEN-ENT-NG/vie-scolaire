@@ -202,9 +202,9 @@ public class CEvalExportPDFController extends ControllerHelper {
 
         if(hasDevoirs) {
             // calcul de la moyenne de l'eleve pour la matiere
-            Double moyenneMatiere = utilsService.calculMoyenne(listeNoteDevoirs, 20);// TODO recuper le diviseur de la matiere
+            JsonObject moyenneMatiere = utilsService.calculMoyenne(listeNoteDevoirs, false, 20);// TODO recuper le diviseur de la matiere
             // ajout sur l'objet json
-            matiereInter.putString("moyenne", new DecimalFormat("##.##").format(moyenneMatiere).replace(",", "."));
+            matiereInter.putString("moyenne", moyenneMatiere.getNumber("moyenne").toString());
         }
     }
 
@@ -212,7 +212,7 @@ public class CEvalExportPDFController extends ControllerHelper {
      * Genere le releve d'un eleve sous forme de PDF
      *
      */
-    @Get("/releve")
+    @Get("/releve/pdf")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getReleveEleve(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {

@@ -71,38 +71,21 @@ public class CEvalDevoirController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    devoirsService.listDevoirs(user, handler);
-                }else{
-                    unauthorized(request);
-                }
-            }
-        });
-    }
+                    if (request.params().size() == 1) {
+                        devoirsService.listDevoirs(user, handler);
+                    } else {
+                        String idEtablissement = request.params().get("idEtablissement");
+                        String idClasse = request.params().get("idClasse");
+                        String idMatiere = request.params().get("idMatiere");
+                        Integer idPeriode = Integer.parseInt(request.params().get("idPeriode"));
 
-    /**
-     * Liste des devoirs pour un établissement, une classe, une matière et une période donnée.
-     * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
-     *
-     * @param request
-     */
-//    /:idEtablissement/:idClasse/:idMatiere/:idPeriode
-    @Get("/devoir")
-    @ApiDoc("Récupère la liste des devoirs pour un établissement, une classe," +
-            "une matière et une période donnée.")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void listDevoirs (final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if(user != null){
-                    MultiMap params = request.params();
-                    String idEtablissement = params.get("idEtablissement");
-                    String idClasse = params.get("idClasse");
-                    String idMatiere = params.get("idMatiere");
-                    Integer idPeriode = Integer.parseInt(params.get("idPeriode"));
-
-                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                        if (idEtablissement != "undefined" && idClasse != "undefined"
+                                && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
+                            devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                        } else {
+                            request.response().setStatusCode(400).end("Paramètres invalides");
+                        }
+                    }
                 }else{
                     unauthorized(request);
                 }
@@ -225,4 +208,42 @@ public class CEvalDevoirController extends ControllerHelper {
             }
         });
     }
+
+    @Post("/devoirs/done")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Calcul le pourcentage réalisé pour chaque devoir")
+    public void getPercentDone (final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject devoirs) {
+                        final JsonObject classes = devoirs.getObject("datas");
+                        devoirsService.getNbNotesDevoirs(user.getUserId(), new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                if (event.isRight()) {
+                                    JsonObject returns = new JsonObject();
+                                    JsonArray values = event.right().getValue();
+                                    for (int i = 0; i < values.size(); i++) {
+                                        Double percent = new Double(0);
+                                        JsonObject devoir = values.get(i);
+                                        String idClasse = devoir.getString("idclasse");
+                                        Integer idDevoir = devoir.getInteger("id");
+                                        percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes")*100/classes.getInteger(idClasse))));
+                                        returns.putNumber(idDevoir.toString(), percent);
+                                    }
+                                    request.response().putHeader("content-type", "application/json; charset=utf-8").end(returns.toString());
+                                } else {
+                                    leftToResponse(request,event.left());
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
 }

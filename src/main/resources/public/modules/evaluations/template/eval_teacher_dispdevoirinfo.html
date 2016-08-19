@@ -18,25 +18,25 @@
   -->
 <div class="fiche devoir-info" ng-class="{opened : openedDevoirInfo === true}">
     <span class="plus-input" ng-click="openedDevoirInfo = !openedDevoirInfo"></span>
-    <h2 tooltip="[[currentDevoirInfo.name]]" class="head text-overflow" ng-click="openedDevoirInfo = !openedDevoirInfo">[[currentDevoirInfo.name]]</h2>
-    <div ng-show="currentDevoirInfo !== undefined">
+    <h2 tooltip="[[informations.devoir.name]]" class="head text-overflow" ng-click="openedDevoirInfo = !openedDevoirInfo">[[informations.devoir.name]]</h2>
+    <div ng-show="informations.devoir !== undefined">
         <ul>
-            <li><span class="bold"><i18n>viescolaire.utils.description</i18n></span> : [[currentDevoirInfo.libelle]]</li>
-            <li><span class="bold"><i18n>viescolaire.utilstype</i18n></span> : [[currentDevoirInfo._type_libelle]]</li>
-            <li><span class="bold"><i18n>evaluations.test.coefficient</i18n></span> : [[currentDevoirInfo.coefficient]]</li>
-            <li><span class="bold"><i18n>evaluations.test.grade.on</i18n></span> : [[currentDevoirInfo.diviseur]]</li>
-            <li><span class="bold"><i18n>evaluations.test.date</i18n></span>: [[getDateFormated(currentDevoirInfo.date)]]</li>
-            <li><span class="bold"><i18n>evaluations.test.date.publication</i18n></span>: [[getDateFormated(currentDevoirInfo.datepublication)]]</li>
+            <li><span class="bold"><i18n>viescolaire.utils.description</i18n></span> : [[informations.devoir.libelle]]</li>
+            <li><span class="bold"><i18n>viescolaire.utils.type</i18n></span> : [[informations.devoir._type_libelle]]</li>
+            <li><span class="bold"><i18n>evaluations.test.coefficient</i18n></span> : [[informations.devoir.coefficient]]</li>
+            <li><span class="bold"><i18n>evaluations.test.grade.on</i18n></span> : [[informations.devoir.diviseur]]</li>
+            <li><span class="bold"><i18n>evaluations.test.date</i18n></span>: [[getDateFormated(informations.devoir.date)]]</li>
+            <li><span class="bold"><i18n>evaluations.test.date.publication</i18n></span>: [[getDateFormated(informations.devoir.datepublication)]]</li>
         </ul>
     </div>
-    <h2  ng-show="currentDevoirInfo !== undefined" class="head" ng-click="openedStatistiques = !openedStatistiques"><i18n>viescolaire.utils.stats</i18n></h2>
-    <div  ng-show="currentDevoirInfo !== undefined">
+    <h2  ng-show="informations.devoir !== undefined" class="head" ng-click="openedStatistiques = !openedStatistiques"><i18n>viescolaire.utils.stats</i18n></h2>
+    <div  ng-show="informations.devoir !== undefined">
         <ul>
-            <li><span class="bold"><i18n>evaluation.classe.average</i18n></span>: <span style="color: #1785E6;font-weight: bold;">[[currentDevoirInfo.moyenne]]</span></li>
-            <li><span class="bold"><i18n>evaluations.grade.min</i18n></span>: <span style="color: #E61758;font-weight: bold;">[[currentDevoirInfo.min]]</span></li>
-            <li><span class="bold"><i18n>evaluations.grade.max</i18n></span>: <span style="color: #48C593;font-weight: bold;">[[currentDevoirInfo.max]]</span></li>
+            <li><span class="bold"><i18n>evaluation.classe.average</i18n></span>: <span style="color: #1785E6;font-weight: bold;">[[informations.devoir.statistiques.moyenne]]</span></li>
+            <li><span class="bold"><i18n>evaluations.grade.min</i18n></span>: <span style="color: #E61758;font-weight: bold;">[[informations.devoir.statistiques.noteMin]]</span></li>
+            <li><span class="bold"><i18n>evaluations.grade.max</i18n></span>: <span style="color: #48C593;font-weight: bold;">[[informations.devoir.statistiques.noteMax]]</span></li>
             <li>
-                <p><progress-bar max="100" filled="currentDevoirInfo.percentDone" unit="%"></progress-bar></p>
+                <p><progress-bar max="100" filled="informations.devoir.statistiques.percentDone" unit="%"></progress-bar></p>
             </li>
         </ul>
     </div>

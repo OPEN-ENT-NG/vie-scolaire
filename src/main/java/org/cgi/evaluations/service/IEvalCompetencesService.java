@@ -71,4 +71,11 @@ public interface IEvalCompetencesService extends CrudService {
      * @param handler Handler portant le résultat de la requête
      */
     public void getCompetencesEnseignement(Integer teachingId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Getter : Récupération des compétences suivant le niveau spécifié en paramètre
+     * @param filter filtre
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getCompetencesByLevel(String filter, Handler<Either<String, JsonArray>> handler);
 }

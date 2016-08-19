@@ -80,7 +80,7 @@ public interface IEvalNoteService extends CrudService {
     public void getWidgetNotes(String userId, Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Récupération des toutes les notes par devoir des élèves
+     * Récupération de toutes les notes par devoir des élèves
      * @param userId identifiant de l'utilisateur
      * @param etablissementId identifiant de l'établissement
      * @param classeId identifiant de la classe
@@ -89,4 +89,13 @@ public interface IEvalNoteService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getNoteElevePeriode(String userId, String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupération des toutes les notes de tous les élèves pour un relevé de notes
+     * @param etablissementId identifiant de l'établissement
+     * @param matiereId identifiant de la matière
+     * @param periodeId identifiant de la période
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler);
 }

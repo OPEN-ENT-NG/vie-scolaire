@@ -19,15 +19,14 @@
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
-            <i class="show-list" ng-class="{ selected: template.contains('test', '../modules/evaluations/template/eval_teacher_listview') }"
-               ng-click="template.open('test', '../modules/evaluations/template/eval_teacher_listview')"></i>
-            <i class="show-icons" ng-class="{ selected: template.contains('test', '../modules/evaluations/template/eval_teacher_iconview') }"
-               ng-click="template.open('test', '../modules/evaluations/template/eval_teacher_iconview')"></i>
+            <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../modules/evaluations/template/eval_teacher_listview') }"
+               ng-click="template.open('evaluations', '../modules/evaluations/template/eval_teacher_listview')"></i>
+            <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../modules/evaluations/template/eval_teacher_iconview') }"
+               ng-click="template.open('evaluations', '../modules/evaluations/template/eval_teacher_iconview')"></i>
         </div>
-        <button class="marginFive" ng-click="newDevoir(); showNoteLightBox = true">Nouveau devoir </button>
+        <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true">Nouveau devoir </button>
     </nav>
     <div class="twelve cell list-devoirs">
-
         <div class="two cell criterion-fixed">
             <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" >
                 <header>
@@ -36,47 +35,47 @@
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idclasse" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="setMatieresFilter()">
+                        <select ng-model="search.idClasse" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="setMatieresFilter()">
                             <option class="header-opt" value="*">Classes</option>
-                            <option ng-repeat="classe in classes track by $index" value="[[classe.id]]">[[classe.name]]</option>
+                            <option ng-repeat="classe in classes.all track by $index" ng-selected="search.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section >
                     <label class="select">
-                        <select ng-model="search.idmatiere" ng-change="getSousMatieres()"
+                        <select ng-model="search.idMatiere" ng-change="getSousMatieres()"
                                 style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Matières</option>
-                            <option ng-repeat="matiere in listeDevoirMatieres | unique:'name'" value="[[matiere.id]]">[[matiere.name]]</option>
+                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes " ng-selected="search.idMatiere === matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section>
-                    <label class="select" ng-hide="sousMatieres.length === 0 || sousMatieres === undefined || search.idmatiere === '*'">
-                        <select ng-model="search.idsousmatiere"
+                    <label class="select" ng-hide="selected.matiere.sousMatieres.all.length === 0 || search.idMatiere === '*' || selected.matiere === undefined">
+                        <select ng-model="search.idSousMatiere"
                                 style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Sous matières</option>
-                            <option ng-repeat="sousMatiere in sousMatieres" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
+                            <option ng-repeat="sousMatiere in selected.matiere.sousMatieres.all" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idtype" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                        <select ng-model="search.idType" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Types de devoirs</option>
-                            <option ng-repeat="type in etabTypeDevoir" ng-selected="search.idtype === type.id" value="[[type.id]]">[[type.nom]]</option>
+                            <option ng-repeat="type in types.all" ng-selected="search.idType === type.id" value="[[type.id]]">[[type.nom]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idperiode" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                        <select ng-model="search.idPeriode" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Périodes</option>
-                            <option ng-repeat="periode in periodes" ng-selected="periode.id === search.idperiode" value="[[periode.id]]">[[periode.libelle]]</option>
+                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
                         </select>
                     </label>
                 </section>
@@ -84,14 +83,14 @@
                 <section>
                     <p>
                         <b><i18n>evaluations.test.date</i18n> :</b>
-                        <section><i18n>from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
-                        <section><i18n>to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                     </p>
                 </section>
 
                 <section>
                     <p>
-                        <b><i18n>test.date.publication</i18n> :</b>
+                        <b><i18n>evaluations.test.date.publication</i18n> :</b>
                         <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                         <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
                     </p>
@@ -101,7 +100,7 @@
         </div>
 
         <div class="ten cell " style="margin-top: -50px;">
-            <button class="marginFive" ng-click="newDevoir(); showNoteLightBox = true">Nouveau devoir </button>
+            <button class="marginFive" ng-click="createDevoir(); showNoteLightBox = true">Nouveau devoir </button>
         </div>
         <div class="ten cell fixed-container">
             <div class="marginFive">
@@ -112,17 +111,17 @@
 
                 </header>
 
-                <div ng-include="template.containers.test" class="twelve cell toggle-buttons-spacer"></div>
+                <container template="evaluations" class="twelve cell toggle-buttons-spacer"></container>
 
             </div>
         </div>
 
     </div>
 </div>
-<section class="toggle-buttons" ng-class="{ hide: selectedDevoirs.length == 0 }">
+<section class="toggle-buttons" ng-class="{ hide: selected.devoirs.length == 0 }">
     <div class="toggle">
         <div class="row">
-            <button ng-show="selectedDevoirs.length === 1" class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
+            <button ng-show="selected.devoirs.length === 1" class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">

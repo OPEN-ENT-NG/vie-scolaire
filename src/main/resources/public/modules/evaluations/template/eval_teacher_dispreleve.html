@@ -22,7 +22,7 @@
             <div class="headerReleve">
                 <h1 style="width :calc(16.66% - 30px) !important;float: left;">Relevé de notes</h1>
                 <nav class="right">
-                    <a class="button noMarginLeft" ng-click="newDevoir(); showNoteLightBox = true"><i18n>evaluations.test.new</i18n></a>
+                    <a class="button noMarginLeft" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></a>
                     <a class="button" href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a>
                 </nav>
             </div>
@@ -31,28 +31,28 @@
 
     <div class="twelve cell">
         <aside class="two cell menuLeft left">
-            <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" class="criteres"  ng-class="{opened : openedCriteres === true}">
-                <span class="plus-input" ng-click="openedCriteres = !openedCriteres"></span>
-                <header ng-click="openedCriteres = !openedCriteres">
+            <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" class="criteres"  ng-class="{opened : opened.criteres === true}">
+                <span class="plus-input" ng-click="opened.criteres = !opened.criteres"></span>
+                <header ng-click="opened.criteres = !opened.criteres">
                     <h2 style="color: grey;">Vos critères</h2>
                 </header>
                 <content>
                     <label class="select">
-                        <select ng-model="searchReleve.idclasse" ng-change="submitFilterReleveDeNotes(); filterClassesMatieres()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                        <select ng-model="search.idClasse" ng-change="getReleve();" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option value="*" class="header-opt">Classe</option>
-                            <option ng-repeat="classe in classes" ng-selected="searchReleve.idclasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                            <option ng-repeat="classe in classes.all" ng-selected="search.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
                         </select>
                     </label>
                     <label class="select">
-                        <select ng-model="searchReleve.idmatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="submitFilterReleveDeNotes()">
+                        <select ng-model="search.idMatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="getReleve()">
                             <option value="*" class="header-opt">Matière</option>
-                            <option ng-repeat="matiere in releveListeMatiere | unique:'name'" ng-selected="searchReleve.idmatiere === matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search " ng-selected="search.idMatiere === matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
                         </select>
                     </label>
                     <label class="select">
-                        <select ng-model="searchReleve.idperiode" ng-change="submitFilterReleveDeNotes()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
+                        <select ng-model="search.idPeriode" ng-change="getReleve()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option value="*" class="header-opt">Période</option>
-                            <option ng-repeat="periode in periodes" ng-selected="periode.id === searchReleve.idperiode" value="[[periode.id]]">[[periode.libelle]]</option>
+                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
                         </select>
                     </label>
                 </content>
@@ -70,7 +70,7 @@
                         <tr>
                             <th class="col1">Eleve</th>
                             <th ng-class="{'devoir-with-comp' : devoir.competences.all.length > 0 }" class="colDevoir competence-text-overflow"
-                                ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir.id)"
+                                ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir)"
                                 ng-dblclick="goTo('/devoir/'+devoir.id)" tooltip="[[devoir.name]]">
                                 [[getShortDateFormated(devoir.date)]]<br>
                                 [[devoir.name]]
@@ -80,20 +80,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="eleve in releveNote.eleves.all">
-                            <td class="col1 text-overflow" ng-click="getEleveInfo(eleve.id)">[[eleve.lastName]] [[eleve.firstName]]</td>
-                            <td class="colDevoir" ng-repeat="note in eleve.notes.all">
-                                <input ng-focus="focusMe($event); getEleveInfo(eleve.id); getDevoirInfo(note.iddevoir)"
+                        <tr ng-repeat="eleve in releveNote.classe.eleves.all">
+                            <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
+                            <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all">
+                                <input ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
                                        style="width: 5em;margin: 0 auto;"
-                                       ng-model="note.valeur"
-                                       ng-blur="saveNoteDevoirEleve(note, $event);calculerMoyenneEleve(eleve); calculerStatsDevoirReleve(note.iddevoir)"
-                                       ng-init="initNoteReleve(note)"
+                                       ng-model="evaluation.valeur"
+                                       ng-blur="saveNoteDevoirEleve(evaluation, $event);calculerMoyenneEleve(eleve); calculStatsDevoirReleve(evaluation.iddevoir)"
                                        max="20" min="0" step="0.01">
                             </td>
+                            <!--ng-init="initNoteReleve(evaluation)"-->
                             <td class="colMoyenne">
-                                <div class="input-note input-moyenne"  ng-init="calculerMoyenneEleve(eleve)" ng-focus="getEleveInfo(eleve.id)">
+                                <div class="input-note input-moyenne" ng-focus="getEleveInfo(eleve.id)">
                                     [[eleve.moyenne]]
                                 </div>
                             </td>
@@ -124,7 +124,7 @@
                             <td class="col1 text-overflow">Moyenne de la classe</td>
                             <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
                                 <div class="input-note">
-                                    [[devoir.moyenne]]
+                                    [[devoir.statistiques.moyenne]]
                                 </div>
                             </td>
                             <td class="colMoyenne"></td>
@@ -134,7 +134,7 @@
                             <td class="col1 text-overflow">Note min</td>
                             <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
                                 <div class="input-note">
-                                    [[devoir.min]]
+                                    [[devoir.statistiques.noteMin]]
                                 </div>
                             </td>
                             <td class="colMoyenne"></td>
@@ -144,7 +144,7 @@
                             <td class="col1 text-overflow">Note max</td>
                             <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
                                 <div class="input-note">
-                                    [[devoir.max]]
+                                    [[devoir.statistiques.noteMax]]
                                 </div>
                             </td>
                             <td class="colMoyenne"></td>

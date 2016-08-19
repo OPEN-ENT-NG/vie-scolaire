@@ -41,43 +41,44 @@ var angularFilters = {
             return function(devoirs, searchParams){
                 var output = devoirs;
                 var tempTable = [];
-                if(searchParams.idclasse !== '*'){
-                    output = _.where(devoirs, {idclasse : searchParams.idclasse});
-                }
-                if(searchParams.idmatiere !== '*'){
-                    tempTable = _.where(output, {idmatiere : searchParams.idmatiere});
+                if(searchParams.idClasse !== '*'){
+                    tempTable = _.where(output, {idclasse : searchParams.idClasse});
                     output = tempTable;
                 }
-                if(searchParams.idsousmatiere !== '*'){
-                    tempTable = _.where(output, {idsousmatiere : parseInt(searchParams.idsousmatiere)});
+                if(searchParams.idMatiere !== '*'){
+                    tempTable = _.where(output, {idmatiere : searchParams.idMatiere});
                     output = tempTable;
                 }
-                if(searchParams.idtype !== '*'){
-                    tempTable = _.where(output, {idtype : parseInt(searchParams.idtype)});
+                if(searchParams.idSousMatiere !== '*'){
+                    tempTable = _.where(output, {idsousmatiere : parseInt(searchParams.idSousMatiere)});
                     output = tempTable;
                 }
-                if(searchParams.idperiode !== '*'){
-                    tempTable = _.where(output, {idperiode : parseInt(searchParams.idperiode)});
+                if(searchParams.idType !== '*'){
+                    tempTable = _.where(output, {idtype : parseInt(searchParams.idType)});
+                    output = tempTable;
+                }
+                if(searchParams.idPeriode !== '*'){
+                    tempTable = _.where(output, {idperiode : parseInt(searchParams.idPeriode)});
                     output = tempTable;
                 }
                 if(searchParams.name !== ""){
                     tempTable = _.filter(output, function(devoir){
-                        var  reg = new RegExp(searchParams.name);
-                        return devoir.name.match(reg) !== null;
+                        var  reg = new RegExp(searchParams.name.toUpperCase());
+                        return devoir.name.toUpperCase().match(reg) !== null;
                     });
                     output = tempTable;
                 }
                 return output;
             };
         });
-        module.filter('getMatiereParClasse', function(){
-            return function(matieres, idClasse, classes){
-                if(idClasse !== undefined){
-                    var libelleClasse = _.findWhere(classes, {id : idClasse});
-                    return _.where(matieres, {libelleClasse : libelleClasse.name});
-                }
-            };
-        });
+        // module.filter('getMatiereParClasse', function(){
+        //     return function(matieres, idClasse, classes){
+        //         if(idClasse !== undefined){
+        //             var libelleClasse = _.findWhere(classes, {id : idClasse});
+        //             return _.where(matieres, {libelleClasse : libelleClasse.name});
+        //         }
+        //     };
+        // });
         module.filter('uniqueMatieres', function() {
             return function(input, collection, keyname, devoirs) {
                 var output = [],
@@ -95,6 +96,17 @@ var angularFilters = {
                 });
                 return t;
             };
+        });
+        module.filter('getMatiereClasse', function () {
+            return function (matieres, idClasse, classes, search) {
+                if (idClasse === '*') return matieres;
+                if (classes.all.length > 0) {
+                    var libelleClasse = _.findWhere(model.structures.all[0].classes, {id : idClasse}).name;
+                    if (libelleClasse !== undefined) {
+                        return model.matieres.where({libelleClasse: libelleClasse});
+                    }
+                }
+            }
         });
     }
 };

@@ -112,30 +112,33 @@ public class CEvalDevoirServiceImpl extends SqlCrudService implements IEvalDevoi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.*,notes.valeur as note, notes.appreciation, ")
-                .append("typesousmatiere.libelle as _sousmatiere_libelle,")
-                .append("sousmatiere.id as _sousmatiere_id ")
-                .append("FROM ")
-                .append("notes.devoirs ")
-                .append("INNER JOIN notes.notes ON devoirs.id = notes.iddevoir ")
-                .append("LEFT JOIN notes.sousmatiere ON devoirs.idsousmatiere = sousmatiere.id ")
-                .append("LEFT JOIN notes.typesousmatiere ON sousmatiere.id_typesousmatiere = typesousmatiere.id ")
-                .append("WHERE devoirs.idetablissement = ? ")
-                .append("AND devoirs.idperiode = ? ")
-                .append("AND notes.ideleve = ? ")
-                .append("AND devoirs.datepublication <= current_date ")
-                .append("ORDER BY devoirs.date ASC");
+        query.append("SELECT devoirs.*,typesousmatiere.libelle as _sousmatiere_libelle,sousmatiere.id as _sousmatiere_id " +
+                "FROM notes.devoirs " +
+                "LEFT JOIN notes.sousmatiere ON devoirs.idsousmatiere = sousmatiere.id " +
+                "LEFT JOIN notes.typesousmatiere ON sousmatiere.id_typesousmatiere = typesousmatiere.id " +
+                "WHERE devoirs.idetablissement = ?" +
+                "AND devoirs.idperiode = ? " +
+                "AND devoirs.owner = ? " +
+                "AND devoirs.datepublication <= current_date " +
+                "ORDER BY devoirs.date ASC;");
 
         values.addString(idEtablissement);
         values.addNumber(idPeriode);
         values.addString(idUser);
 
-        // date du jour
-        // DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        //String datePublication = df.format(new Date());
-
-        // values.addString(datePublication);
-
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.idclasse " +
+                "FROM notes.notes, notes.devoirs " +
+                "WHERE notes.iddevoir = devoirs.id " +
+                "AND devoirs.owner = ? " +
+                "GROUP by devoirs.id");
+
+        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));
     }
 }

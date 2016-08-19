@@ -77,4 +77,11 @@ public interface IEvalDevoirService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     void listDevoirs(String idEtablissement, Integer idPeriode, String idUser,Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
+     * @param userId identifiant de l'utilisateur
+     * @param handler handler portant le résultat de la requête
+     */
+    void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler);
 }

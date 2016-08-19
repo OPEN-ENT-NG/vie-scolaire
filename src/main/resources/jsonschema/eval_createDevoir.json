@@ -5,12 +5,6 @@
     "name": {
       "type": "string"
     },
-    "visibility": {
-      "type": "string"
-    },
-    "number": {
-      "type": "integer"
-    },
     "libelle": {
       "type": "string"
     },

@@ -20,6 +20,9 @@
 /**
  * Created by ledunoiss on 08/08/2016.
  */
+
+function Structure () {}
+
 function Devoir(){
     this.collection(Competence,{
         sync : '/viescolaire/evaluations/competences/devoir/'+this.id
@@ -31,7 +34,7 @@ function Devoir(){
 }
 
 Devoir.prototype = {
-    toJSON : function(){
+    toJSON : function () {
         return {
             name            : this.name,
             owner           : this.owner,
@@ -51,26 +54,34 @@ Devoir.prototype = {
             competences     : this.competences
         };
     },
-    create : function(callback){
+    create : function (callback) {
         http().postJson('/viescolaire/evaluations/devoir', this.toJSON()).done(function(data){
             callback(data);
         });
     },
-    update : function(){
+    update : function () {
         http().putJson('/viescolaire/evaluations/devoir', this).done(function(data){
             model.devoirs.sync();
         });
     },
-    save : function(){
+    save : function () {
         if(!this.id){
             this.create();
         }else{
             this.update();
         }
     },
-    remove : function(){
+    remove : function () {
         http().delete('/viescolaire/evaluations/devoir?idDevoir='+this._id).done(function(){
             model.devoirs.sync();
+        });
+    },
+    // TODO A REVOIR POUR SUREMENT FAIRE UNE ROUTE EN GET QUI CALCULE AVEC LES DONNEES EN BDD
+    // TODO MODIFIER LA ROUTE ET EN FAIRE UNE ROUTE QUI CALCULE LES STATISTIQUES DU DEVOIR (MOYENNE, MIN, MAX)
+    calculMoyenne : function (listeNotes, callback) {
+        http().postJson('/viescolaire/evaluations/moyenne', {'notes' : listeNotes}).done(function (res) {
+            this.moyenne = String(res.moyenne).replace(',', '.');
+            callback();
         });
     }
 };
@@ -233,12 +244,11 @@ function ReleveNote(){
             }.bind(this));
         }
     });
-    this.devoirs.sync(this.idEtablissement, this.idClasse, this.idPeriode, this.idMatiere);
-    this.eleves.sync(this.idClasse);
     this.sync = function(){
         this.devoirs.sync(this.idEtablissement, this.idClasse, this.idPeriode, this.idMatiere);
         this.eleves.sync(this.idClasse);
     };
+    this.sync();
 }
 
 
@@ -283,11 +293,18 @@ CompetenceNote.prototype = {
     }
 };
 
+function Periode () {}
+function Classe () {
+    this.collection(Eleve, {
+       sync : '/directory/class/'+this.id+'/users?type=Student'
+    });
+    this.eleves.sync();
+}
 
 model.build = function(){
     angularDirectives.addDirectives();
     angularFilters.addFilters();
-    this.makeModels([Devoir, Note, CompetenceNote, Competence, Enseignement, Matiere, SousMatiere, ReleveNote, Eleve]);
+    this.makeModels([Devoir, Note, CompetenceNote, Competence, Enseignement, Matiere, SousMatiere, ReleveNote, Eleve, Periode, Structure, Classe]);
     this.collection(Devoir,{
         sync : "/viescolaire/evaluations/devoirs"
     });
@@ -295,8 +312,29 @@ model.build = function(){
         sync : "/viescolaire/evaluations/enseignements"
     });
     this.collection(Matiere, {
-        sync : "/viescolaire/evaluations/matieres?idEnseignant="+model.me.userId
+        sync : "/viescolaire/evaluations/matieres?idEnseignant=" +model.me.userId
     });
+    this.collection(Periode, {
+        sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]
+    })
     this.collection(ReleveNote);
+    this.collection(Structure, {
+        sync : function () {
+            var nb = 0;
+            _.each(model.me.structures, function (structureId) {
+                http().getJson('/userbook/structure/' + structureId).done(function (structure) {
+                    model.structures.push(structure);
+                    nb++;
+                    if (nb === model.me.structures.length) model.structures.trigger('synchronized')
+                });
+            });
+        }
+    });
+    this.collection(Classe);
+    this.structures.on('synchronized', function () {
+        _.each(model.me.classes, function (classe) {
+            model.classes.push(_.findWhere(model.structures.all[0].classes, {id : classe}));
+        });
+    });
 };
 

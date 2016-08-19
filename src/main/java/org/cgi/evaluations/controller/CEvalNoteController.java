@@ -121,7 +121,6 @@ public class CEvalNoteController extends ControllerHelper{
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_NOTES_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-//                            crudService.create(resource, user, notEmptyResponseHandler(request));
                             notesService.createNote(resource, user, notEmptyResponseHandler(request));
                         }
                     });
@@ -205,17 +204,30 @@ public class CEvalNoteController extends ControllerHelper{
     @ApiDoc("Récupère les notes pour le relevé de notes")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getNoteElevePeriode(final HttpServerRequest request){
-        if(request.params().get("idEleve") != "undefined"
-                && request.params().get("idEtablissement") != "undefined"
-                && request.params().get("idClasse") != "undefined"
-                && request.params().get("idMatiere") != "undefined"
-                && request.params().get("idPeriode") != "undefined"){
-            notesService.getNoteElevePeriode(request.params().get("idEleve"),
-                    request.params().get("idEtablissement"),
-                    request.params().get("idClasse"),
-                    request.params().get("idMatiere"),
-                    Integer.parseInt(request.params().get("idPeriode")),
-                    arrayResponseHandler(request));
+        if(request.params().size() == 6) {
+            if(request.params().get("idEleve") != "undefined"
+                    && request.params().get("idEtablissement") != "undefined"
+                    && request.params().get("idClasse") != "undefined"
+                    && request.params().get("idMatiere") != "undefined"
+                    && request.params().get("idPeriode") != "undefined"){
+                notesService.getNoteElevePeriode(request.params().get("idEleve"),
+                        request.params().get("idEtablissement"),
+                        request.params().get("idClasse"),
+                        request.params().get("idMatiere"),
+                        Integer.parseInt(request.params().get("idPeriode")),
+                        arrayResponseHandler(request));
+            }
+        } else if (request.params().size() == 5) {
+            if(request.params().get("idEtablissement") != "undefined"
+                    && request.params().get("idClasse") != "undefined"
+                    && request.params().get("idMatiere") != "undefined"
+                    && request.params().get("idPeriode") != "undefined"){
+                notesService.getNotesReleve(request.params().get("idEtablissement"),
+                        request.params().get("idClasse"),
+                        request.params().get("idMatiere"),
+                        Integer.parseInt(request.params().get("idPeriode")),
+                        arrayResponseHandler(request));
+            }
         }
     }
 }

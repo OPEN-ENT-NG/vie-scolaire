@@ -17,10 +17,10 @@
   ~
   -->
 <div class="list-view">
-    <div class="row devoirs-header" sticky devoirs-filtres="devoirsFiltres" offset="150">
+    <div class="row devoirs-header" sticky offset="150">
         <div class="one cell display-check">
             <label class="checkbox">
-                <input type="checkbox" ng-model="selected.allDevoir" ng-change="selectAllDevoir()">
+                <input type="checkbox" ng-model="selected.allDevoir" ng-change="selectAllDevoirs()">
                 <span></span>
             </label>
         </div>
@@ -50,7 +50,7 @@
 
     <div class="expandable-liste">
         <div class="expandable cell twelve"
-             ng-repeat="devoir in devoirsFiltres | customSearchFilters:search | filter:search.name"
+             ng-repeat="devoir in devoirs.all | customSearchFilters:search"
              ng-class="{'opened shadow': openedDevoir === $index}" >
             <div class="row">
                 <div class="one cell cell-check expandable-content">
@@ -75,8 +75,8 @@
                     <div class="two cell cell-indent expandable-content">
                         [[devoir.nbcompetences]]
                     </div>
-                    <div class="one cell cell-indent expandable-content" ng-init="rand(devoir)">
-                        [[devoir.percent]]%
+                    <div class="one cell cell-indent expandable-content">
+                        [[devoir.percent = (devoir.percent !== undefined) ? devoir.percent : 0]]%
                     </div>
                 </a>
                 <div class="one cell cell-check expandable-content">
@@ -86,8 +86,8 @@
             <div class="row">
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.subject</i18n>
-                    : <span class="italic">[[getLibelleMatiere(devoir.idmatiere)]] <span
-                        ng-if="devoir.idsousmatiere !== null">([[getLibelleSousMatiere(devoir.idmatiere, devoir.idsousmatiere)]])</span></span>
+                    : <span class="italic">[[devoir.matiere.name]] <span
+                        ng-if="devoir.idsousmatiere !== null">([[devoir._sousmatiere_libelle]])</span></span>
                 </div>
                 <div class="six cell cell-indent expandable-content">
                     <i18n>evaluations.test.ramenersur</i18n>
@@ -108,7 +108,7 @@
                 </div>
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.type</i18n>
-                    : <span class="italic">[[getLibelleTypedevoir(devoir.idtype)]]</span>
+                    : <span class="italic">[[devoir.type.nom]]</span>
                 </div>
             </div>
         </div>

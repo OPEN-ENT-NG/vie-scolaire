@@ -112,4 +112,14 @@ public class CEvalCompetencesServiceImpl extends SqlCrudService implements IEval
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(teachingId), SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getCompetencesByLevel(String filter, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT competences.id, competences.nom, competences.idparent, competences.idtype, competences.idenseignement" +
+                " FROM notes.competences" +
+                " WHERE competences." + filter + ";");
+        Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
+    }
 }

@@ -16,104 +16,106 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<h1><i18n>evaluations.test.add</i18n> : <span class="italic" ng-bind="devoir.name"></span></h1>
-<tabs>
-    <pane title="Informations du devoir">
-        <div class="row">
-            <section class="twelves cell">
-                <form name="addDevoirForm" novalidate>
-                    <table class="twelve addDevoirTable">
-                        <tr>
-                            <td colspan="2"><i18n>evaluations.test.title</i18n></td>
-                            <td colspan="2"><input type="text" class="eleven" ng-model="devoir.name"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><i18n>viescolaire.utils.description</i18n></td>
-                            <td colspan="2"><input type="text" class="eleven" ng-model="devoir.libelle"></td>
-                        </tr>
-                        <tr>
-                            <td><i18n>viescolaire.utils.coefficient</i18n></td>
-                            <td><input type="number" class="eleven" ng-model="devoir.coefficient" min="0"></td>
-                            <td><i18n>evaluations.test.grade.on</i18n></td>
-                            <td><input type="number" class="eleven" ng-change="setRamenerSur()" ng-model="devoir.diviseur" min="0"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3"><i18n>evaluations.test.grade.report.average</i18n></td>
-                            <td><label class="checkbox">
-                                <input type="checkbox" ng-model="devoir.ramenerSur" ng-disabled="devoir.diviseur === 20" > <!-- ng-checked="devoir.diviseur !== 20" -->
-                                <span></span>
-                            </label></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><i18n>viescolaire.utils.school</i18n></td>
-                            <td colspan="2">
-                                <label class="select">
-                                    <select ng-model="devoir.idEtablissement" class="eleven" ng-change="updateEtabInfo()">
-                                        <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><i18n>viescolaire.utils.class</i18n></td>
-                            <td colspan="2">
-                                <label class="select">
-                                    <select ng-model="devoir.idClasse" class="eleven" ng-change="setClasseMatieres()">
-                                        <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="three"><i18n>viescolaire.utils.subject</i18n></td>
-                            <td class="three">
-                                <label class="select">
-                                    <select ng-model="devoir.idMatiere" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="addDevoirGetSousMatiere()">
-                                        <option ng-repeat="matiere in listeMatieres | unique:'name'" ng-selected="matiere.id === devoir.idMatiere" value="[[matiere.id]]">[[matiere.name]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                            <td class="three" ng-hide="etabSousMatiereDevoir === [] || etabSousMatiereDevoir === undefined || etabSousMatiereDevoir.length === 0"><i18n>viescolaire.utils.undersubject</i18n></td>
-                            <td class="three"  ng-hide="etabSousMatiereDevoir === [] || etabSousMatiereDevoir === undefined || etabSousMatiereDevoir.length === 0">
-                                <label class="select">
-                                    <select ng-model="devoir.idSousMatiere"  ng-disabled="devoir.idMatiere === undefined" class="eleven">
-                                        <option ng-repeat="sousMatieres in etabSousMatiereDevoir" value="[[sousMatieres.id]]">[[sousMatieres.libelle]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="three"><i18n>viescolaire.utils.periode</i18n></td>
-                            <td class="three">
-                                <label class="select">
-                                    <select class="eleven" ng-model="devoir.periode" >
-                                        <option ng-repeat="periode in etabPeriodeDevoir" ng-selected="periode.id === devoir.periode" value="[[periode.id]]">[[periode.libelle]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                            <td class="three"><i18n>viescolaire.utils.type</i18n></td>
-                            <td class="three">
-                                <label class="select">
-                                    <select class="eleven" ng-model="devoir.type">
-                                        <option ng-repeat="type in etabTypeDevoir" ng-selected="isDefaultType(type)" value="[[type.id]]">[[type.nom]]</option>
-                                    </select>
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td ><i18n>evaluations.test.date</i18n></td>
-                            <td><date-picker ng-model="devoir.dateDevoir" class="eleven" ng-change="showDate = true; controleDate()" style="z-index:10002;"></date-picker></td>
-                            <td><i18n>evaluations.test.grade.publication.date</i18n></td>
-                            <td><date-picker ng-model="devoir.datePublication" class="eleven" ng-change="showDate = true; controleDate()" style="z-index:10002;"></date-picker></td>
-                        </tr>
-                    </table>
-                </form>
-            </section>
-        </div>
-    </pane>
-    <pane title="Compétences">
-        <h3><i18n>evaluations.test.competences</i18n> : </h3>
-        <c-skills-list devoir="devoir" data="devoir.enseignements"></c-skills-list>
-    </pane>
-</tabs>
-<input type="button" ng-click="createDevoir()" ng-disabled="controlledDate" i18n-value="viescolaire.utils.save">
+<div class="addDevoir">
+    <h1><i18n>evaluations.test.add</i18n> : <span class="italic" ng-bind="devoir.name"></span></h1>
+    <tabs>
+        <pane title="Informations du devoir">
+            <div class="row">
+                <section class="twelves cell">
+                    <form name="addDevoirForm" novalidate>
+                        <table class="twelve addDevoirTable">
+                            <tr>
+                                <td colspan="2"><i18n>evaluations.test.title</i18n></td>
+                                <td colspan="2"><input type="text" class="eleven" ng-model="devoir.name"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><i18n>viescolaire.utils.description</i18n></td>
+                                <td colspan="2"><input type="text" class="eleven" ng-model="devoir.libelle"></td>
+                            </tr>
+                            <tr>
+                                <td><i18n>viescolaire.utils.coefficient</i18n></td>
+                                <td><input type="number" class="eleven" ng-model="devoir.coefficient" min="0"></td>
+                                <td><i18n>evaluations.test.grade.on</i18n></td>
+                                <td><input type="number" class="eleven" ng-change="setRamenerSur()" ng-model="devoir.diviseur" min="0"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><i18n>evaluations.test.grade.report.average</i18n></td>
+                                <td><label class="checkbox">
+                                    <input type="checkbox" ng-model="devoir.ramenerSur" ng-disabled="devoir.diviseur === 20" > <!-- ng-checked="devoir.diviseur !== 20" -->
+                                    <span></span>
+                                </label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><i18n>viescolaire.utils.school</i18n></td>
+                                <td colspan="2">
+                                    <label class="select">
+                                        <select ng-model="devoir.idEtablissement" class="eleven" ng-change="updateEtabInfo()">
+                                            <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><i18n>viescolaire.utils.class</i18n></td>
+                                <td colspan="2">
+                                    <label class="select" ng-class="{disabled : devoir.idEtablissement === undefined}">
+                                        <select ng-model="devoir.idClasse" class="eleven" ng-change="setClasseMatieres()">
+                                            <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="three"><i18n>viescolaire.utils.subject</i18n></td>
+                                <td class="three">
+                                    <label class="select" ng-class="{disabled : devoir.matieresByClasse.length == 0}">
+                                        <select ng-model="devoir.idMatiere" ng-disabled="devoir.matieresByClasse.length == 0" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
+                                            <option ng-repeat="matiere in devoir.matieresByClasse | unique:'name'" ng-selected="matiere.id === devoir.idMatiere" value="[[matiere.id]]">[[matiere.name]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td class="three" ><i18n>viescolaire.utils.undersubject</i18n></td>
+                                <td class="three" >
+                                    <label class="select" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
+                                        <select ng-model="devoir.idSousMatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0" class="eleven">
+                                            <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.idSousMatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="three"><i18n>viescolaire.utils.periode</i18n></td>
+                                <td class="three">
+                                    <label class="select">
+                                        <select class="eleven" ng-model="devoir.idPeriode" >
+                                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === devoir.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td class="three"><i18n>viescolaire.utils.type</i18n></td>
+                                <td class="three">
+                                    <label class="select">
+                                        <select class="eleven" ng-model="devoir.idType">
+                                            <option ng-repeat="type in types.all" ng-selected="type.default === true" value="[[type.id]]">[[type.nom]]</option>
+                                        </select>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td ><i18n>evaluations.test.date</i18n></td>
+                                <td><date-picker ng-model="devoir.dateDevoir" class="eleven" ng-change="showDate = true; controleDate()" ></date-picker></td>
+                                <td><i18n>evaluations.test.grade.publication.date</i18n></td>
+                                <td><date-picker ng-model="devoir.datePublication" class="eleven" ng-change="showDate = true; controleDate()" ></date-picker></td>
+                            </tr>
+                        </table>
+                    </form>
+                </section>
+            </div>
+        </pane>
+        <pane title="Compétences">
+            <h3><i18n>evaluations.test.competences</i18n> : </h3>
+            <c-skills-list devoir="devoir" data="devoir.enseignements"></c-skills-list>
+        </pane>
+    </tabs>
+    <input type="button" ng-click="saveNewDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+</div>

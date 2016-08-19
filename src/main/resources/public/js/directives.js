@@ -798,12 +798,13 @@ var angularDirectives = {
             }).directive('sticky', ['$window', '$timeout', function ($window, $timeout) {
                 return {
                     restrict: 'A', // this directive can only be used as an attribute.
-                    scope: {
-                        disabled: '=disabledSticky',
-                        devoirs : '=devoirsFiltres',
-                        listeDevoir : '=',
-                        currentDevoir : '='
-                    },
+                    // scope: {
+                    //     disabled: '=disabledSticky',
+                    //     devoirs : '=devoirsFiltres',
+                    //     listeDevoir : '=',
+                    //     currentDevoir : '='
+                    // },
+                    scope : true,
                     link: function linkFn($scope, $elem, $attrs) {
                         // Setting scope
                         var scrollableNodeTagName = "sticky-scroll"; // convention used in the markup for annotating scrollable container of these stickies

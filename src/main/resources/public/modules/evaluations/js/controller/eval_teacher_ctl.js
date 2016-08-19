@@ -29,7 +29,6 @@ routes.define(function($routeProvider){
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
         .otherwise({
-            //redirectTo : '/devoirs/list'
             redirectTo : '/releve'
         });
 });
@@ -146,7 +145,8 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         $scope.$broadcast('changeHeaderColumn', competence);
     });
     $scope.matiereParClasse = function(matiere){
-        return $scope.devoir.idClasse !== undefined && _.findWhere($scope.matieres, {libelleClasse : _.findWhere($scope.classes, {id : $scope.devoir.idClasse }).name, id: matiere.id	}) !== undefined;
+        return $scope.devoir.idClasse !== undefined
+            && _.findWhere($scope.matieres, {libelleClasse : _.findWhere($scope.classes, {id : $scope.devoir.idClasse }).name, id: matiere.id	}) !== undefined;
     };
 
     $scope.setClasseMatieres = function(){
@@ -695,7 +695,6 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
             }
         });
         listeNotes = _.filter(listeNotes, function(note){ return note.valeur !== "" && note.valeur !== null && !isNaN(note.valeur); });
-        console.log(listeNotes);
         devoir.percentDone = 0;
         if(listeNotes.length !== 0){
             http().postJson('/viescolaire/evaluations/moyenne', { 'notes' :  listeNotes }).done(function(res){
@@ -803,7 +802,7 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         // 						var currDevoir = $scope.devoirsReleveNotes[i];
         // 						$scope.getNoteDevoirEleve(j, i, currDevoir.id, student.id);
         // 					}
-        // 				}
+        // 				}²
         // 			}
         //
         // 			$scope.searchReleve = {

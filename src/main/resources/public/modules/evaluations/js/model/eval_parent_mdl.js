@@ -50,7 +50,7 @@ function Periode(){
 
 Periode.prototype = {
     getReleve : function(idPeriode, idUser) {
-        location.replace('/viescolaire/evaluations/releve?idEtablissement='+model.me.structures[0]+'&idPeriode='+idPeriode+'&idUser='+idUser);
+        location.replace('/viescolaire/evaluations/releve/pdf?idEtablissement='+model.me.structures[0]+'&idPeriode='+idPeriode+'&idUser='+idUser);
     }
 };
 

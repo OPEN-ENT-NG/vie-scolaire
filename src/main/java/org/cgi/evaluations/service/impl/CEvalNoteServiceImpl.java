@@ -75,35 +75,11 @@ public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteSer
 
     @Override
     public void updateNote(JsonObject data, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-//        StringBuilder query = new StringBuilder();
-//        JsonArray values = new JsonArray();
-//
-//        query.append("UPDATE notes.notes ")
-//                .append("SET ")
-//                .append("ideleve = ? ,")
-//                .append("iddevoir = ? ,")
-//                .append("valeur = ? ,")
-//                .append("appreciation = ?")
-//                .append("WHERE ")
-//                .append("notes.id = ?");
-//        values.add(data.getValue("ideleve"));
-//        values.add((Integer) data.getValue("iddevoir"));
-//        values.add((Number) data.getValue("valeur"));
-//        values.addString(data.getString("appreciation"));
-//        values.add((Integer) data.getValue("id"));
-//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
         super.update(data.getValue("id").toString(), data, user, handler);
     }
 
     @Override
     public void deleteNote(Integer idNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-//        StringBuilder query = new StringBuilder();
-//        JsonArray values = new JsonArray();
-//
-//        query.append("DELETE FROM notes.notes ")
-//                .append("WHERE notes.id = ?");
-//        values.addNumber(idNote);
-//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
         super.delete(idNote.toString(), user, handler);
     }
 
@@ -140,6 +116,22 @@ public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteSer
 
         values.addString(userId).addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
 
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT devoirs.id as iddevoir, devoirs.date, devoirs.coefficient, devoirs.ramenersur,notes.valeur, notes.id, notes.ideleve " +
+                "FROM notes.devoirs " +
+                "left join notes.notes on devoirs.id = notes.iddevoir " +
+                "WHERE devoirs.idetablissement = ? " +
+                "AND devoirs.idclasse = ? " +
+                "AND devoirs.idmatiere = ? " +
+                "AND devoirs.idperiode = ? ;");
+        values.addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

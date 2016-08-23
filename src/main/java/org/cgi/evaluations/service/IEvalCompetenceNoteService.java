@@ -25,6 +25,9 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.json.impl.Json;
+
+import java.util.List;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -62,4 +65,32 @@ public interface IEvalCompetenceNoteService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getCompetencesNotes(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Retourne toutes les notes des compétences pour un devoir donné
+     * @param idDevoir identifiant du devoir
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Met à jour une liste de compétences notes pour un devoir donné
+     * @param _datas liste des compétences notes à mettre à jour
+     * @param handler handler portant le résultat de la requête
+     */
+    public void updateCompetencesNotesDevoir(JsonArray _datas, Handler<Either< String, JsonArray >> handler);
+
+    /**
+     * Créer une liste de compétences notes pour un devoir donné
+     * @param _datas liste des compétences notes à créer
+     * @param handler handler portant le résultat de la requête
+     */
+    public void createCompetencesNotesDevoir(JsonArray _datas, UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Supprimer une liste de compétences notes
+     * @param ids liste d'identifiant à supprimer
+     * @param handler handler portant le résultat de la requête
+     */
+    public void dropCompetencesNotesDevoir(List<String> ids, Handler<Either<String, JsonArray>> handler);
 }

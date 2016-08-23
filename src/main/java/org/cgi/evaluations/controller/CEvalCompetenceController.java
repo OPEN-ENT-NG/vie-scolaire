@@ -40,6 +40,8 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.w3c.dom.events.Event;
 
+import java.util.List;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
@@ -300,5 +302,52 @@ public class CEvalCompetenceController extends ControllerHelper{
                 }
             }
         });
+    }
+
+    @Get("/competence/notes")
+    @ApiDoc("Retourne les compétences notes d'un devoir donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCompetencesNotesDevoir (final HttpServerRequest request) {
+        String devoirId = request.params().get("devoirId");
+        competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+    }
+
+    @Post("/competence/notes")
+    @ApiDoc("Créer une liste de compétences notes pour un devoir donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void createCompetencesNotesDevoir (final HttpServerRequest request) {
+        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+            @Override
+            public void handle(final JsonObject resource) {
+                UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+                    @Override
+                    public void handle(UserInfos user) {
+                        competencesNotesService.createCompetencesNotesDevoir(resource.getArray("data"), user, arrayResponseHandler(request));
+                    }
+                });
+            }
+        });
+    }
+
+    @Put("/competence/notes")
+    @ApiDoc("Met à jour une liste de compétences notes pour un devoir donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void updateCompetencesNotesDevoir (final HttpServerRequest request) {
+        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+            @Override
+            public void handle(JsonObject resource) {
+                competencesNotesService.updateCompetencesNotesDevoir(resource.getArray("data"), arrayResponseHandler(request));
+            }
+        });
+    }
+
+    @Delete("/competence/notes")
+    @ApiDoc("Supprime une liste de compétences notes pour un devoir donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void deleteCompetencesNotesDevoir (final HttpServerRequest request) {
+        List<String> ids = request.params().getAll("id");
+        if (ids.size() > 0) {
+            competencesNotesService.dropCompetencesNotesDevoir(ids, arrayResponseHandler(request));
+        }
     }
 }

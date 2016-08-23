@@ -82,7 +82,7 @@ public class CEvalUtilsController extends ControllerHelper {
      * @param request
      */
     @Get("/periodes")
-    @ApiDoc("Retourne les periodes pour un devoir donné")
+    @ApiDoc("Retourne les periodes pour un établissement donné")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void viewPeriodes(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -230,6 +230,7 @@ public class CEvalUtilsController extends ControllerHelper {
      * @param request
      */
     @Get("/matieres/:id/sousmatieres")
+    @ApiDoc("Récupère les sous matières pour une matière donnée")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void viewSousMatieres(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -398,6 +399,7 @@ public class CEvalUtilsController extends ControllerHelper {
     }
 
     @Post("/moyenne")
+    @ApiDoc("Calcul la moyenne")
     @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
     public void getMoyenne(final HttpServerRequest request){
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
@@ -427,6 +429,7 @@ public class CEvalUtilsController extends ControllerHelper {
     }
 
     @Post("/moyennes")
+    @ApiDoc("Calcul la moyenne pour l'ensemble des objets donnés. Possibilité de calculer les stats avec stats=true")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getReleveMoyennes(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {

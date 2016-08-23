@@ -49,9 +49,10 @@ public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteSer
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT notes.* ")
-                .append("FROM notes.notes ")
-                .append("WHERE notes.iddevoir = ? ");
+        query.append("SELECT devoirs.id as iddevoir, devoirs.date, devoirs.coefficient, devoirs.ramenersur,notes.valeur, notes.id, notes.ideleve ")
+                .append("FROM notes.notes, notes.devoirs ")
+                .append("WHERE notes.iddevoir = ? " +
+                        "AND notes.iddevoir = devoirs.id");
         values.add(devoirId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -130,7 +131,8 @@ public class CEvalNoteServiceImpl extends SqlCrudService implements IEvalNoteSer
                 "WHERE devoirs.idetablissement = ? " +
                 "AND devoirs.idclasse = ? " +
                 "AND devoirs.idmatiere = ? " +
-                "AND devoirs.idperiode = ? ;");
+                "AND devoirs.idperiode = ?" +
+                "ORDER BY devoirs.date ASC ;");
         values.addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

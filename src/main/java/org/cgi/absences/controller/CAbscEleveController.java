@@ -77,7 +77,7 @@ public class CAbscEleveController extends ControllerHelper {
     }
 
     @Get("/eleve/:idEleve/absencesprev/:dateDebut/:dateFin")
-    @ApiDoc("Recupere tous le absences previsonnelles d'un eleve")
+    @ApiDoc("Recupere tous les absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrevInPeriod (final HttpServerRequest request){
         String sIdEleve = request.params().get("idEleve");

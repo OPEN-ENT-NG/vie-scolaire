@@ -66,7 +66,7 @@ public class CEvalNoteController extends ControllerHelper{
      * @param request
      */
     @Get("/devoir/:idDevoir/notes")
-    @ApiDoc("Récupère les devoirs d'un utilisateurs")
+    @ApiDoc("Recupère les notes pour un devoir donné")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void view(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {

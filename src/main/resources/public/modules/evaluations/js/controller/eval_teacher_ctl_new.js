@@ -41,13 +41,22 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
     $scope.types = model.types;
     $scope.filter = $filter;
     $scope.template = template;
+    $scope.currentDevoir = {};
     $scope.search = {
         idMatiere: '*',
         idPeriode : undefined,
         idClasse : '*',
         idSousMatiere : '*',
         idType : '*',
-        name : ''
+        name : '',
+        dateCreation : {
+            debut : moment(),
+            fin : moment()
+        },
+        datePublication : {
+            debut : moment(),
+            fin : moment()
+        }
     };
     $scope.informations = {};
     $scope.me = model.me;
@@ -59,11 +68,15 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         statistiques : true,
         studentInfo : true,
         devoirInfo : true,
-        createDevoir : false
+        lightbox : false
     };
     $scope.selected = {
-        devoirs : []
+        devoirs : {
+            list : [],
+            all : false
+        }
     };
+    $scope.releveNote = undefined;
 
     model.periodes.on('sync', function () {
         setCurrentPeriode(model.me.structures[0], function (defaultPeriode) {
@@ -92,11 +105,11 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
     };
 
     $scope.selectDevoir = function (devoir) {
-        var index = _.indexOf($scope.selected.devoirs, devoir);
+        var index = _.indexOf($scope.selected.devoirs.list, devoir);
         if(index === -1){
-            $scope.selected.devoirs.push(devoir);
+            $scope.selected.devoirs.list.push(devoir);
         }else{
-            $scope.selected.devoirs = _.difference($scope.selected.devoirs, devoir);
+            $scope.selected.devoirs.list = _.difference($scope.selected.devoirs.list, devoir);
         }
     };
 
@@ -127,12 +140,28 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         } else this.$apply(fn);
     };
 
+    $scope.$on('majHeaderColumn', function(event, competence){
+        $scope.$broadcast('changeHeaderColumn', competence);
+    });
+
     $scope.getEtablissementName = function(etabId){
         return model.me.structureNames[model.me.structures.indexOf(etabId)];
     };
 
+    $scope.selectListDevoir = function (list) {
+        for (var i = 0; i < list.length; i++) {
+            list[i].selected = !list[i].selected;
+        }
+    };
+
     $scope.selectAllDevoirs = function(){
-        console.log($filter('customSearchFilters')($scope.devoirs, $scope.search));
+        if ($scope.selected.devoirs.all !== true) {
+            $scope.selectListDevoir($scope.selected.devoirs.list);
+            $scope.selected.devoirs.list = [];
+            return;
+        }
+        $scope.selected.devoirs.list = $filter('customSearchFilters')($scope.devoirs.all, $scope.search);
+        $scope.selectListDevoir($scope.selected.devoirs.list);
     };
 
     $scope.getSousMatieres = function () {
@@ -141,7 +170,7 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
     };
 
     $scope.createDevoir = function () {
-        $scope.opened.createDevoir = true;
+        $scope.opened.lightbox = true;
         $scope.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") <= 0);
         _.extend($scope.devoir.enseignements, model.enseignements);
         $scope.devoir.getLastSelectedCompetence(function (res)  {
@@ -194,7 +223,7 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
                         $scope.releveNote.devoirs.sync();
                     }
                 }
-                $scope.opened.createDevoir=false;
+                $scope.opened.lightbox=false;
             });
         });
     }
@@ -205,11 +234,11 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         }
     };
 
-    $scope.setMatieresFilter = function () {
-        if ($scope.search.idClasse === "*") {
-
-        }
-    };
+    // $scope.setMatieresFilter = function () {
+    //     if ($scope.search.idClasse === "*") {
+    //
+    //     }
+    // };
 
     $scope.setClasseMatieres = function () {
         getClassesMatieres($scope.devoir.idClasse, function (matieres) {
@@ -218,6 +247,15 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
             $scope.selectedMatiere();
         });
     };
+
+    $scope.filtrerDevoir = function () {
+        var formatStr = "DD/MM/YYYY";
+
+        var dateCreationDebut    = moment(moment($scope.search.dateCreation.debut).format(formatStr), formatStr);
+        var dateCreationFin      = moment(moment($scope.search.dateCreation.fin).format(formatStr), formatStr);
+        var datePublicationDebut = moment(moment($scope.search.datePublication.debut).format(formatStr), formatStr);
+        var datePublicationFin   = moment(moment($scope.search.datePublication.fin).format(formatStr), formatStr);
+    }
 
     model.on('apply', function () {
         $scope.safeApply();
@@ -263,6 +301,16 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         var matiere = model.matieres.findWhere({id : $scope.devoir.idMatiere});
         if (matiere !== undefined) $scope.devoir.matiere = matiere;
     };
+
+    $scope.controleDatePicker = function () {
+        if (moment($scope.search.dateCreation.debut).diff(moment($scope.search.dateCreation.fin)) > 0) {
+            $scope.search.dateCreation.fin = moment();
+        }
+        if (moment($scope.search.datePublication.debut).diff(moment($scope.search.datePublication.fin)) > 0) {
+            $scope.search.datePublication.fin = moment();
+        }
+        $scope.safeApply();
+    }
 
     var getDefaultTypDevoir = function(){
         return (model.types.findWhere({default : true})).id;
@@ -320,6 +368,11 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         });
     }
 
+    $scope.getInfoCompetencesDevoir = function () {
+        $scope.opened.lightbox = true;
+        template.open('lightboxContainer', '../modules/evaluations/template/eval_teacher_dispcompinfo');
+    }
+
     $scope.calculStatsDevoirReleve = function (devoirId) {
         var devoir = $scope.releveNote.devoirs.findWhere({id : devoirId});
         if (devoir !== undefined) {
@@ -374,20 +427,57 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
     $scope.devoir = $scope.initDevoir();
     route({
         listDevoirs : function(params){
+            if(model.devoirs.all.length === 0){
+                $location.path("/releve");
+                $scope.safeApply();
+                $location.replace();
+            }
             template.open('main', '../modules/evaluations/template/eval_teacher_dispdevoirs');
             template.open('evaluations', '../modules/evaluations/template/eval_teacher_listview');
+            $scope.safeApply();
         },
         viewNotesDevoir : function(params){
+            if(model.devoirs.all.length === 0){
+                $location.path("/releve");
+                $scope.safeApply();
+                $location.replace();
+            }
+            if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
+            if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+            $scope.currentDevoir = _.findWhere(model.devoirs.all, {id : parseInt(params.devoirId)});
+            if ($scope.currentDevoir !== undefined) {
+                $scope.currentDevoir.competences.sync();
+                $scope.currentDevoir.eleves.sync(function () {
+                    $scope.$broadcast('initHeaderColumn');
+                    var _evals = [];
+                    for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
+                        if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== null && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined
+                            && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== "") {
+                            _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
+                        }
+                    }
+                    $scope.currentDevoir.calculStats(_evals, function () {
+                        $scope.safeApply();
+                    });
+                });
+            }
 
+            template.open('main', '../modules/evaluations/template/eval_teacher_viewnotesdevoirs');
+            $scope.safeApply();
         },
         displayReleveNotes : function(params){
             if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
             if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+            if ($scope.releveNote !== undefined && ($scope.search.idMatiere !== $scope.releveNote.idMatiere
+                || $scope.search.idClasse !== $scope.releveNote.idClasse || $scope.search.idPeriode !== $scope.releveNote.idPeriode)) {
+                $scope.releveNote = undefined;
+            }
             if ($scope.search.idClasse !== '*' && $scope.search.idMatiere !== '*' && $scope.search.idMatiere !== '*') {
                 $scope.getReleve();
             }
 
             template.open('main', '../modules/evaluations/template/eval_teacher_dispreleve');
+            $scope.safeApply();
         }
     });
 }

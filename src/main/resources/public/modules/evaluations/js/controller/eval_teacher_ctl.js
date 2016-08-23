@@ -683,8 +683,6 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
         template.open('lightboxContainer', '../modules/evaluations/template/eval_teacher_dispcompinfo');
     });
 
-
-
     $scope.calculerStatsDevoirReleve = function(idDevoir) {
         var devoir = $scope.releveNote.devoirs.findWhere({id : idDevoir});
         var listeNotes = [];

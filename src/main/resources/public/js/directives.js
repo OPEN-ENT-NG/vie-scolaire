@@ -586,33 +586,25 @@ var angularDirectives = {
                 return {
                     restrict : 'E',
                     scope : {
-                        eleves : '=',
-                        competences : '='
+                        devoir : '='
                     },
                     templateUrl: "/"+appPrefix+"/public/components/cSkillsColorPage.html",
                     controller : ['$scope', function($scope){
                         $scope.selectColor = function(evaluation){
                             var text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
                             if(confirm(text) === true){
-                                //$scope.$emit('selectAllCompetences', evaluation);
-                                // on colore toutes les competences de tous les eleves de la même couleur que
-                                // l'evaluation globale
-                                _.each($scope.eleves, function (eleve) {
-                                    var competencesNotesEleve = eleve.competencesNotesEleve;
-                                    _.each(competencesNotesEleve, function(competence){
-                                        competence.evaluation = evaluation;
-                                        var competenceToSave = new CompetenceNote(competence);
-                                        competenceToSave.save(function(id){
-                                            competence.id = id;
-                                        });
-                                    });
-                                });
-
-                                // on color également les entêtes (compétences par colonne)
-                                _.each($scope.competences, function (competenceHeader) {
-                                    competenceHeader.evaluation = evaluation;
-                                    competenceHeader.modified = false;
-                                });
+                                var _datas = [];
+                                for (var i = 0; i < $scope.devoir.eleves.all.length; i++) {
+                                    var eval = $scope.devoir.eleves.all[i].evaluation;
+                                    for (var j = 0; j < eval.competenceNotes.all.length; j++) {
+                                        eval.competenceNotes.all[j].evaluation = evaluation;
+                                        _datas.push(eval.competenceNotes.all[j]);
+                                    }
+                                }
+                                $scope.devoir.saveCompetencesNotes(_datas);
+                                for (var g = 0; g < $scope.devoir.competences.all.length; g++) {
+                                    $scope.devoir.competences.all[g].evaluation = evaluation;
+                                }
                             }
                         };
                     }]
@@ -622,23 +614,11 @@ var angularDirectives = {
                 return {
                     restrict : 'E',
                     scope : {
-                        eleves : '=',
-                        competences : '='
+                        devoir : '='
                     },
                     templateUrl: "/"+appPrefix+"/public/components/cSkillsColorColumn.html",
                     controller : ['$scope', function($scope){
                         $scope.compteur = 0;
-
-                        $scope.safeApply = function(fn) {
-                            var phase = this.$root.$$phase;
-                            if(phase == '$apply' || phase == '$digest') {
-                                if(fn && (typeof(fn) === 'function')) {
-                                    fn();
-                                }
-                            } else {
-                                this.$apply(fn);
-                            }
-                        };
 
                         $scope.selectCompetences = function(competenceHeader){
                             _.each($scope.eleves, function (eleve) {
@@ -649,76 +629,56 @@ var angularDirectives = {
                             $scope.safeApply();
                         };
 
+                        $scope.safeApply = function (fn) {
+                            var phase = this.$root.$$phase;
+                            if(phase === '$apply' || phase === '$digest') {
+                                if(fn && (typeof(fn) === 'function')) fn();
+                            } else this.$apply(fn);
+                        };
+
                         $scope.saveCompetences = function(competenceHeader){
                             if(competenceHeader.modified) {
-                                _.each($scope.eleves, function (eleve) {
-                                    var competencesNotesEleve = eleve.competencesNotesEleve;
-                                    var competenceEleve = _.findWhere(competencesNotesEleve, {idcompetence: competenceHeader.idcompetence});
-                                    var competenceToSave = new CompetenceNote(competenceEleve);
-                                    competenceToSave.save(function (id) {
-                                        competenceEleve.id = id;
-                                    });
-                                });
-                                competenceHeader.modified = true;
+                                var _data = [];
+                                for (var i = 0; i < $scope.devoir.eleves.all.length; i++) {
+                                    var competence = $scope.devoir.eleves.all[i].evaluation.competenceNotes.findWhere({idcompetence: competenceHeader.idcompetence});
+                                    if (competence !== undefined) {
+                                        competence.evaluation = competenceHeader.evaluation;
+                                        _data.push(competence);
+                                    }
+                                }
+                                $scope.devoir.saveCompetencesNotes(_data);
                             }
                         };
 
                         $scope.init = function(competenceHeader){
-                            competenceHeader.evaluation = -1;
-                            setTimeout(function() {
+                            $scope.$on('initHeaderColumn', function () {
+                                competenceHeader.evaluation = -1;
                                 competenceHeader.modified = false;
                                 $scope.majHeaderColor(competenceHeader);
-                            }, 600);
+                            })
                         };
 
                         $scope.switchColor = function(competenceHeader){
-                            //var text = "Cette action va évaluer la compétence suivante pour tous les élèves : \n\n \"" +competenceHeader.nom +"\"\n";
-                            //if(confirm(text) === true) {
                             if(competenceHeader.evaluation === -1){
                                 competenceHeader.evaluation = 3;
                             }else{
                                 competenceHeader.evaluation = competenceHeader.evaluation -1;
                             }
                             competenceHeader.modified = true;
-
                             $scope.selectCompetences(competenceHeader);
-                            competenceHeader.modified = true;
-                            //}
                         };
 
                         $scope.$on('changeHeaderColumn', function(event, competence){
-                            var competenceHeader = _.findWhere($scope.competences, {idcompetence : competence.idcompetence});
+                            var competenceHeader = $scope.devoir.competences.findWhere({idcompetence : competence.idcompetence});
                             $scope.majHeaderColor(competenceHeader);
                         });
-
-                        //$scope.$on('allCompetences', function($event, evaluation){
-                        //  // on colore toutes les competences de tous les eleves de la même couleur que
-                        //  // l'evaluation globale
-                        //  _.each($scope.eleves, function (eleve) {
-                        //    var competencesNotesEleve = eleve.competencesNotesEleve;
-                        //    _.each(competencesNotesEleve, function(competence){
-                        //      competence.evaluation = evaluation;
-                        //      var competenceToSave = new CompetenceNote(competence);
-                        //      competenceToSave.save(function(id){
-                        //        competence.id = id;
-                        //      });
-                        //    });
-                        //  });
-                        //
-                        //  // on color également les entêtes (compétences par colonne)
-                        //  _.each($scope.competences, function (competenceHeader) {
-                        //    competenceHeader.evaluation = evaluation;
-                        //    competenceHeader.modified = false;
-                        //  });
-                        //});
 
                         $scope.majHeaderColor = function(competenceHeader) {
                             // recuperation de la competence pour chaque eleve
                             var allCompetencesElevesColumn = [];
-                            _.each($scope.eleves, function (eleve) {
-                                var competencesNotesEleve = eleve.competencesNotesEleve;
-                                if (competencesNotesEleve !== undefined) {
-                                    var competenceEleve = _.findWhere(competencesNotesEleve, {idcompetence: competenceHeader.idcompetence});
+                            _.each($scope.devoir.eleves.all, function (eleve) {
+                                if (eleve.evaluation.competenceNotes !== undefined && eleve.evaluation.competenceNotes.all.length > 0) {
+                                    var competenceEleve = eleve.evaluation.competenceNotes.findWhere({idcompetence: competenceHeader.idcompetence});
                                     allCompetencesElevesColumn.push(competenceEleve);
                                 }
                             });
@@ -748,19 +708,17 @@ var angularDirectives = {
                         nbCompetencesDevoir : '=',
                         currentDevoir   : '='
                     },
-                    // tooltip="[[competence.nom.length > 50 ? (competence.nom | limitTo : 47)+\'...\' : competence.nom]]"
                     template : '<span ng-click="switchColor()" ng-mouseover="detailCompetence(competence.nom)"  ng-mouseleave="saveCompetence()" ng-init="init()"  class="rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
                     controller : ['$scope', function($scope){
                         $scope.color = -1;
                         $scope.modified = false;
                         $scope.compteur = 0;
                         $scope.switchColor = function(){
-                            if($scope.color === -1){
-                                $scope.color = 3;
+                            if($scope.competence.evaluation === -1){
+                                $scope.competence.evaluation = 3;
                             }else{
-                                $scope.color = $scope.color -1;
+                                $scope.competence.evaluation = $scope.competence.evaluation -1;
                             }
-                            $scope.competence.evaluation = $scope.color;
                             $scope.$emit('majHeaderColumn', $scope.competence);
                             $scope.modified = true;
                         };
@@ -771,23 +729,10 @@ var angularDirectives = {
                             $compile(e.contents())($scope);
                         };
 
-                        $scope.init = function(){
-                            //if($scope.currentDevoir.compteur === undefined) {
-                            //    $scope.currentDevoir.compteur = 0;
-                            //}
-                            //$scope.currentDevoir.compteur++;
-                            //if($scope.currentDevoir.compteur === (parseInt($scope.nbEleve)*parseInt($scope.nbCompetencesDevoir))){
-                            //    console.log('HEADER COLUMN');
-                            //    _.each($scope.currentDevoir.competences.all, function(competenceHeader){
-                            //        $scope.$emit('majHeaderColumn', competenceHeader);
-                            //    });
-                            //}
-                        };
-
                         $scope.saveCompetence = function(){
                             if($scope.modified === true){
-                                var competenceToSave = new CompetenceNote($scope.competence);
-                                competenceToSave.save(function(id){
+                                // var competenceToSave = new CompetenceNote($scope.competence);
+                                $scope.competence.save(function(id){
                                     $scope.competence.id = id;
                                 });
                                 $scope.modified = false;
@@ -864,9 +809,9 @@ var angularDirectives = {
                             $scope.$on('$destroy', onDestroy);
                         };
 
-                        $scope.getInfoCompetencesDevoir = function(){
-                            $scope.$emit('getInfoCompetencesDevoir');
-                        };
+                        // $scope.getInfoCompetencesDevoir = function(){
+                        //     $scope.$emit('getInfoCompetencesDevoir');
+                        // };
 
                         /**
                          * need to recall sticky's DOM attributes ( make sure layout has occured)

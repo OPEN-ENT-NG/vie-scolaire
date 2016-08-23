@@ -35,7 +35,7 @@
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idClasse" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="setMatieresFilter()">
+                        <select ng-model="search.idClasse" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Classes</option>
                             <option ng-repeat="classe in classes.all track by $index" ng-selected="search.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
                         </select>
@@ -57,7 +57,7 @@
                         <select ng-model="search.idSousMatiere"
                                 style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Sous matières</option>
-                            <option ng-repeat="sousMatiere in selected.matiere.sousMatieres.all" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
+                            <option ng-repeat="sousMatiere in selected.matiere.sousMatieres.all" ng-selected="sousMatiere.id === search.idSousMatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
                         </select>
                     </label>
                 </section>
@@ -83,16 +83,16 @@
                 <section>
                     <p>
                         <b><i18n>evaluations.test.date</i18n> :</b>
-                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
-                        <section><i18n>viescolaire.utils.to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.creation.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
                     </p>
                 </section>
 
                 <section>
                     <p>
                         <b><i18n>evaluations.test.date.publication</i18n> :</b>
-                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.debut" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
-                        <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="date.publication.fin" ng-change="showDate = true;filtrerDevoir();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                        <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
                     </p>
                 </section>
             </div>
@@ -118,10 +118,10 @@
 
     </div>
 </div>
-<section class="toggle-buttons" ng-class="{ hide: selected.devoirs.length == 0 }">
+<section class="toggle-buttons" ng-class="{ hide: selected.devoirs.list.length == 0 }">
     <div class="toggle">
         <div class="row">
-            <button ng-show="selected.devoirs.length === 1" class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
+            <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">

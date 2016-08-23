@@ -17,7 +17,7 @@
   ~
   -->
 <ul class="skills-color-column">
-    <li ng-repeat="competenceHeader in competences">
+    <li ng-repeat="competenceHeader in devoir.competences.all">
     <span ng-click="switchColor(competenceHeader)"
           ng-mouseleave="saveCompetences(competenceHeader)"
           ng-init="init(competenceHeader);"

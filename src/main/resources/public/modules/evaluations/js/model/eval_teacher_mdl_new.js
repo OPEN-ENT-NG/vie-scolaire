@@ -127,7 +127,7 @@ ReleveNote.prototype = {
             });
         }
     },
-    calculStatsDevoirs : function () {
+    calculStatsDevoirs : function (callback) {
         var that = this;
         var _datas = [];
         that.devoirs.each(function (devoir) {
@@ -151,6 +151,9 @@ ReleveNote.prototype = {
                         d.statistiques = devoir;
                         if (nbN !== undefined) {
                             d.statistiques.percentDone = Math.round((nbN.evaluations.length/nbEleves)*100);
+                            if(callback && typeof(callback) === 'function'){
+                                callback();
+                            }
                         }
                     }
                 });
@@ -162,7 +165,9 @@ ReleveNote.prototype = {
 function Classe () {
     this.collection(Eleve, {sync : '/directory/class/'+this.id+'/users?type=Student'});
 }
-function Eleve () { this.collection(Evaluation) }
+function Eleve () {
+    this.collection(Evaluation);
+}
 Eleve.prototype = {
     getMoyenne : function (callback) {
         if (this.evaluations.all.length > 0) {
@@ -183,7 +188,9 @@ Eleve.prototype = {
         }
     }
 }
-function Evaluation () {}
+function Evaluation () {
+    this.collection(CompetenceNote);
+}
 Evaluation.prototype = {
     toJSON : function () {
         var o = {};
@@ -228,7 +235,34 @@ Evaluation.prototype = {
     }
 }
 function Devoir () {
+    var that = this;
     this.collection(Enseignement);
+    this.collection(Competence, {
+        sync : '/viescolaire/evaluations/competences/devoir/' + this.id
+    });
+    this.collection(Eleve, {
+        sync : function (callback) {
+            var _classe = model.classes.findWhere({id : that.idclasse});
+            that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
+            http().getJson('/viescolaire/evaluations/devoir/' + that.id + '/notes').done(function (res) {
+                for (var i = 0; i < res.length; i++) {
+                    var _e = that.eleves.findWhere({id : res[i].ideleve});
+                    if (_e !== undefined) {
+                        _e.evaluation = new Evaluation(res[i]);
+                        delete _e.evaluations;
+                    }
+                }
+                _t = that.eleves.filter(function (eleve) {
+                    delete eleve.evaluations;
+                    return (!_.has(eleve, "evaluation"));
+                });
+                for (var j = 0; j < _t.length; j++) {
+                    _t[j].evaluation = new Evaluation({valeur:"", iddevoir : that.id, ideleve : _t[j].id, ramenersur : that.ramenersur, coefficient : that.coefficient});
+                }
+                that.syncCompetencesNotes(callback);
+            });
+        }
+    });
 }
 Devoir.prototype = {
     getLastSelectedCompetence : function (callback) {
@@ -287,10 +321,92 @@ Devoir.prototype = {
             if (_datas.length > 0) {
                 http().postJson('/viescolaire/evaluations/moyenne?stats=true', {"notes" : _datas}).done(function (res) {
                     this.statistiques = res;
+                    this.statistiques.percentDone = Math.round((_datas.length/this.eleves.all.length)*100);
                     if(callback && typeof(callback) === 'function'){
                         callback();
                     }
                 }.bind(this));
+            }
+        }
+    },
+    syncCompetencesNotes : function (callback) {
+        var that = this;
+        http().getJson('/viescolaire/evaluations/competence/notes?devoirId=' + this.id).done(function (res) {
+            for (var i = 0; i < that.eleves.all.length; i++) {
+                var _comps = _.where(res, {ideleve : that.eleves.all[i].id});
+                if (_comps.length > 0) {
+                    var _results = [];
+                    for (var j = 0; j < that.competences.all.length; j++) {
+                        var _c = that.competences.all[j];
+                        var _t = _.findWhere(_comps, {idcompetence : _c.idcompetence});
+                        if (_t === undefined) {
+                            _results.push(new CompetenceNote({idcompetence : _c.idcompetence, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                        } else {
+                            _results.push(_t);
+                        }
+                    }
+                    that.eleves.all[i].evaluation.competenceNotes.load(_results);
+                } else {
+                    var _results = [];
+                    for (var j = 0; j < that.competences.all.length; j++) {
+                        _results.push(new CompetenceNote({idcompetence : that.competences.all[j].idcompetence, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                    }
+                    that.eleves.all[i].evaluation.competenceNotes.load(_results);
+                }
+            }
+            if(callback && (typeof(callback) === 'function')) {
+                callback();
+            }
+        });
+    },
+    saveCompetencesNotes : function (_data) {
+        var that = this;
+        if (_data[0].evaluation !== -1){
+            var _post = _.filter(_data, function (competence) {
+                return competence.id === undefined;
+            });
+            if (_post.length > 0) {
+                http().postJson('/viescolaire/evaluations/competence/notes', {data : _post}).done(function (res) {
+                    if (_post.length === _data.length) {
+                        that.syncCompetencesNotes(function () {
+                            model.trigger('apply');
+                        })
+                    } else {
+                        var _put = _.filter(_data, function (competence) {
+                            return competence.id !== undefined;
+                        });
+                        if (_put.length > 0) {
+                            http().putJson('/viescolaire/evaluations/competence/notes', {data : _put}).done(function (res) {
+                                that.syncCompetencesNotes(function () {
+                                    model.trigger('apply');
+                                });
+                            });
+                        }
+                    }
+                });
+            } else {
+                var _put = _.filter(_data, function (competence) {
+                    return competence.id !== undefined;
+                });
+                if (_put.length > 0) {
+                    http().putJson('/viescolaire/evaluations/competence/notes', {data : _put}).done(function (res) {
+                        that.syncCompetencesNotes(function () {
+                            model.trigger('apply');
+                        });
+                    });
+                }
+            }
+        } else {
+            var _delete = [];
+            for (var i = 0; i < _data.length; i++) {
+                if (_data[i].id !== undefined)_delete.push(_data[i].id);
+            }
+            if (_delete.length > 0) {
+                http().delete('/viescolaire/evaluations/competence/notes', {id : _delete}).done(function (res) {
+                    that.syncCompetencesNotes(function () {
+                        model.trigger('apply');
+                    });
+                });
             }
         }
     }
@@ -330,6 +446,42 @@ function Matiere () {
     this.collection(SousMatiere);
 }
 function SousMatiere () {}
+function CompetenceNote() {}
+CompetenceNote.prototype = {
+    toJSON : function(){
+        return {
+            id       : this.id,
+            iddevoir  : this.iddevoir,
+            idcompetence : this.idcompetence,
+            evaluation   : this.evaluation,
+            ideleve       : this.ideleve
+        };
+    },
+    create : function(callback){
+        http().postJson("/viescolaire/evaluations/competence/note", this.toJSON()).done(function(data) {
+                callback(data.id); // set de l'id sur la CompetenceNote
+            }
+        );
+    },
+    update : function(callback){
+        http().putJson("/viescolaire/evaluations/competence/note", this.toJSON()).done(function(data) {
+                console.log(data);
+            }
+        );
+    },
+    save : function(callback){
+        if(!this.id){
+            this.create(callback);
+        }else{
+            this.update();
+        }
+    },
+    delete : function(idCompetenceNote){
+        http().delete("/viescolaire/evaluations/competence/note?idNote="+idCompetenceNote).done(function(data){
+            console.log(data);
+        });
+    }
+}
 
 model.build = function () {
     this.synchronized = {
@@ -340,7 +492,7 @@ model.build = function () {
     }
     angularDirectives.addDirectives();
     angularFilters.addFilters();
-    this.makeModels([Structure, ReleveNote, Classe, Eleve, Evaluation, Devoir, Type, Periode, Enseignement, Competence, Matiere, SousMatiere]);
+    this.makeModels([Structure, ReleveNote, Classe, Eleve, Evaluation, Devoir, Type, Periode, Enseignement, Competence, CompetenceNote, Matiere, SousMatiere]);
 
     this.collection(Type, {
         // sync : '/viescolaire/evaluations/types?idEtablissement='+model.me.structures[0]

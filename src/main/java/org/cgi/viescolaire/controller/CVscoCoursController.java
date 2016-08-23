@@ -45,6 +45,7 @@ public class CVscoCoursController extends ControllerHelper{
     }
 
     // TODO : Ajouter le filtre
+    // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
     @Get("/:idClasse/cours/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)
@@ -58,6 +59,7 @@ public class CVscoCoursController extends ControllerHelper{
         iVscoCoursService.getClasseCours(dateDebut, dateFin, idClasse, handler);
     }
 
+    // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
     @Get("/enseignant/:userId/cours/:dateDebut/:dateFin")
     @ApiDoc("Récupère tous les cours d'un utilisateur dans une période donnée.")
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)

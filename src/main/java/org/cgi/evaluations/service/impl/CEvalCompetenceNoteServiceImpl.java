@@ -29,6 +29,9 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.json.impl.Json;
+
+import java.util.List;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -68,5 +71,52 @@ public class CEvalCompetenceNoteServiceImpl extends SqlCrudService implements IE
         params.addString(idEleve);
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT competences.nom, competences_notes.id, competences_notes.iddevoir, competences_notes.ideleve, competences_notes.idcompetence, competences_notes.evaluation " +
+                "FROM notes.competences_notes, notes.competences " +
+                "WHERE competences_notes.iddevoir = ? " +
+                "AND competences.id = competences_notes.idcompetence");
+
+        Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(idDevoir), SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void updateCompetencesNotesDevoir(JsonArray _datas, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        for (int i = 0; i < _datas.size(); i++) {
+            JsonObject o = _datas.get(i);
+            query.append("UPDATE notes.competences_notes SET evaluation = ?, modified = now() WHERE id = ?;");
+            values.addNumber(o.getNumber("evaluation")).addNumber(o.getNumber("id"));
+        }
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void createCompetencesNotesDevoir(JsonArray _datas, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        for (int i = 0; i < _datas.size(); i++) {
+            JsonObject o = _datas.get(i);
+            query.append("INSERT INTO notes.competences_notes (iddevoir, idcompetence, evaluation, owner, ideleve, created) VALUES (?, ?, ?, ?, ?, now());");
+            values.add(o.getInteger("iddevoir")).add(o.getInteger("idcompetence")).add(o.getInteger("evaluation"))
+                    .add(user.getUserId()).add(o.getString("ideleve"));
+        }
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void dropCompetencesNotesDevoir(List<String> ids, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        for (int i = 0; i < ids.size(); i++) {
+            values.addNumber(Integer.parseInt(ids.get(i)));
+        }
+        query.append("DELETE FROM notes.competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 }

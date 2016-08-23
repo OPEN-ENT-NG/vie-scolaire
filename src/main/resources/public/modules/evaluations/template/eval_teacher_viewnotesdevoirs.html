@@ -20,23 +20,23 @@
     <div class="twelve cell">
         <header class="headerStyle header-fixed header-releve header-notes">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
-                <c-skills-color-page competences="currentDevoir.competences.all" eleves="listStudentNoteCurrentDevoirModel" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
+                <c-skills-color-page devoir="currentDevoir" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
             </h2>
         </header>
         <aside class="two cell menuLeft left">
             <div class="menuLeftStyle detail-devoir" ng-class="{opened : openedDetails === true}">
                 <header>
                     <span class="plus-input" ng-click="openedDetails = !openedDetails"></span>
-                    <h2 ng-click="openedDetails = !openedDetails"><i18n>homework.details</i18n></h2>
+                    <h2 ng-click="openedDetails = !openedDetails"><i18n>evaluations.homework.details</i18n></h2>
                 </header>
                 <div>
-                    <section>
+                    <section ng-if="currentDevoir.libelle !== null">
                         <label><i18n class="bold">viescolaire.utils.description</i18n> : [[currentDevoir.libelle]]</label>
                     </section>
                     <section><span class="bold"><i18n>viescolaire.utils.class</i18n></span> : [[getLibelleClasse(currentDevoir.idclasse)]]</section>
 
                     <section>
-                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[getLibelleMatiere(currentDevoir.idmatiere)]]</label>
+                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[currentDevoir.matiere.name]]</label>
                     </section>
                     <section ng-show="currentDevoir._sousmatiere_libelle !== null && currentDevoir._sousmatiere_libelle !== undefined && currentDevoir._sousmatiere_libelle !== ''">
                         <label><i18n class="bold">viescolaire.utils.undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
@@ -58,12 +58,12 @@
                     <h2 ng-click="openedStatistiques = !openedStatistiques"><i18n>viescolaire.utils.stats</i18n></h2>
                 </header>
                 <div>
-                    <section><i18n class="bold">evaluations.grade.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.moyenne | number:2]]</span></section>
-                    <section><i18n class="bold">evaluations.grade.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.noteMin | number:2]]</span></section>
-                    <section><i18n class="bold">evaluations.grade.max</i18n> : <span style="color: #48C593;font-weight: bold;">[[currentDevoir.noteMax | number:2]]</span></section>
+                    <section><i18n class="bold">evaluation.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.statistiques.moyenne | number:2]]</span></section>
+                    <section><i18n class="bold">evaluations.grade.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.statistiques.noteMin | number:2]]</span></section>
+                    <section><i18n class="bold">evaluations.grade.max</i18n> : <span style="color: #48C593;font-weight: bold;">[[currentDevoir.statistiques.noteMax | number:2]]</span></section>
                 </div>
                 <div>
-                    <progress-bar max="100" filled="currentDevoir.percentDone" unit="%"></progress-bar>
+                    <progress-bar max="100" filled="currentDevoir.statistiques.percentDone" unit="%"></progress-bar>
                 </div>
             </div>
             <div class="marginFive">
@@ -81,7 +81,7 @@
                             <i18n>evaluations.grade</i18n>
                         </div>
                         <div class="four cell cell-indent competence-text-overflow" ng-if="currentDevoir.nbcompetences > 0">
-                            <i18n>evaluations.grade.skills</i18n>
+                            <i18n>evaluations.test.competences</i18n>
                             <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                             <span id="competence-detail" tooltip=""></span>
                         </div>
@@ -96,32 +96,32 @@
                                 <p></p>
                             </div>
                             <div class="four cell cell-indent" style="padding: 10px 0px 5px 10px;">
-                                <c-skills-color-column competences="currentDevoir.competences.all" eleves="listStudentNoteCurrentDevoirModel"></c-skills-color-column>
+                                <c-skills-color-column devoir="currentDevoir"></c-skills-color-column>
                             </div>
                             <div class="cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
                             </div>
                         </div>
 
 
-                        <div class="expandable navigable-row cell twelve" ng-repeat="studentNoteDevoir in listStudentNoteCurrentDevoirModel track by $index">
+                        <div class="expandable navigable-row cell twelve" ng-repeat="eleve in currentDevoir.eleves.all track by $index">
 
                             <div class="row navigable-inputs-row">
-                                <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(studentNoteDevoir.id);expandNote($index, false)">
-                                    [[studentNoteDevoir.lastName]] [[studentNoteDevoir.firstName]]
+                                <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(eleve);expandNote($index, false)">
+                                    [[eleve.lastName]] [[eleve.firstName]]
                                 </div>
                                 <div class="two cell navigable-cell cell-input">
-                                    <input ng-focus="focusMe($event);getEleveInfo(studentNoteDevoir.id);expandNote($index, false);" class="input-note six" type="text" ng-model="studentNoteDevoir.studentNote.valeur"
-                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-class="{error : studentNoteDevoir.studentNote.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
+                                    <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
+                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
                                 </div>
-                                <div class="four cell cell-indent expandable-content" ng-click="getEleveInfo(studentNoteDevoir.id);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
+                                <div class="four cell cell-indent expandable-content" ng-click="getEleveInfo(eleve);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
                                     <ul class="skills-eleve-list">
-                                        <li ng-repeat="competence in studentNoteDevoir.competencesNotesEleve">
-                                            <c-skill-note-devoir current-devoir="currentDevoir" nb-eleve="listStudentNoteCurrentDevoirModel.length" nb-competences-devoir="currentDevoir.competences.all.length" competence="competence"></c-skill-note-devoir>
+                                        <li ng-repeat="competence in eleve.evaluation.competenceNotes.all">
+                                            <c-skill-note-devoir current-devoir="currentDevoir" nb-eleve="currentDevoir.eleves.all.length" nb-competences-devoir="currentDevoir.competences.all.length" competence="competence"></c-skill-note-devoir>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="cell cell-input navigable-cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
-                                    <input type="text" class="eleven" name="appreciation" ng-model="studentNoteDevoir.studentNote.appreciation" ng-blur="saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-focus="focusMe($event);getEleveInfo(studentNoteDevoir.id);expandNote($index, false)" value="">
+                                    <input type="text" class="eleven" name="appreciation" ng-model="studentNoteDevoir.studentNote.appreciation" ng-blur="saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)" value="">
                                 </div>
                             </div>
                             <!--<div class="row" ng-if="currentDevoir.competences.all.length > 0">-->

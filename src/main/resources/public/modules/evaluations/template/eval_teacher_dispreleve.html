@@ -40,19 +40,19 @@
                     <label class="select">
                         <select ng-model="search.idClasse" ng-change="getReleve();" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option value="*" class="header-opt">Classe</option>
-                            <option ng-repeat="classe in classes.all" ng-selected="search.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                            <option ng-repeat="classe in classes.all" ng-selected="search.idClasse == classe.id" value="[[classe.id]]">[[classe.name]]</option>
                         </select>
                     </label>
                     <label class="select">
                         <select ng-model="search.idMatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="getReleve()">
                             <option value="*" class="header-opt">Matière</option>
-                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search " ng-selected="search.idMatiere === matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search " ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
                         </select>
                     </label>
                     <label class="select">
                         <select ng-model="search.idPeriode" ng-change="getReleve()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option value="*" class="header-opt">Période</option>
-                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
+                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id == search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
                         </select>
                     </label>
                 </content>

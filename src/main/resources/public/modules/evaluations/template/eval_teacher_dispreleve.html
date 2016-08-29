@@ -69,7 +69,7 @@
                         <thead>
                         <tr>
                             <th class="col1">Eleve</th>
-                            <th ng-class="{'devoir-with-comp' : devoir.competences.all.length > 0 }" class="colDevoir competence-text-overflow"
+                            <th ng-class="{'devoir-with-comp' : devoir.nbcompetences > 0 }" class="colDevoir competence-text-overflow"
                                 ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir)"
                                 ng-dblclick="goTo('/devoir/'+devoir.id)" tooltip="[[devoir.name]]">
                                 [[getShortDateFormated(devoir.date)]]<br>

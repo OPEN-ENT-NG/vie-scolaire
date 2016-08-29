@@ -78,6 +78,11 @@ function EvaluationsController($scope, $rootScope, $location, model, template, r
     };
     $scope.releveNote = undefined;
 
+    $scope.goTo = function(path){
+        $location.path(path);
+        $location.replace();
+    };
+
     model.periodes.on('sync', function () {
         setCurrentPeriode(model.me.structures[0], function (defaultPeriode) {
             $scope.search.idPeriode = (defaultPeriode !== -1) ? defaultPeriode : '*';

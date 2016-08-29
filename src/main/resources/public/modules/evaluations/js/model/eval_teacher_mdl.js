@@ -340,7 +340,7 @@ Devoir.prototype = {
                         var _c = that.competences.all[j];
                         var _t = _.findWhere(_comps, {idcompetence : _c.idcompetence});
                         if (_t === undefined) {
-                            _results.push(new CompetenceNote({idcompetence : _c.idcompetence, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                            _results.push(new CompetenceNote({idcompetence : _c.idcompetence, nom : _c.nom, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
                         } else {
                             _results.push(_t);
                         }
@@ -349,7 +349,7 @@ Devoir.prototype = {
                 } else {
                     var _results = [];
                     for (var j = 0; j < that.competences.all.length; j++) {
-                        _results.push(new CompetenceNote({idcompetence : that.competences.all[j].idcompetence, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                        _results.push(new CompetenceNote({idcompetence : that.competences.all[j].idcompetence, nom : that.competences.all[j].nom, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
                     }
                     that.eleves.all[i].evaluation.competenceNotes.load(_results);
                 }

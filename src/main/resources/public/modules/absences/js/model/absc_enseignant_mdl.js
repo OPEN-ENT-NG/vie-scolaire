@@ -17,17 +17,17 @@ function Evenement() {
 Evenement.prototype = {
     create : function(callback){
         http().postJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
-            callback(data.evenement_id, true);
+            callback(data.id, true);
         });
     },
     update : function(callback){
         http().putJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement', this).done(function(data){
-            callback(data.evenement_id, false);
+            callback(data.id, false);
         });
     },
     save : function(callback) {
         // si l'evenement a deja un identifiant alors il s'agit d'une maj
-        if(this.evenement_id){
+        if(this.id){
             this.update(callback);
             // sinon d'une création
         }else{
@@ -35,7 +35,7 @@ Evenement.prototype = {
         }
     },
     delete : function(callback){
-        http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement/' + this.evenement_id).done(function(data){
+        http().delete('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/evenement?evenementId=' + this.id).done(function(data){
             if(callback && (typeof(callback) === 'function')) {
                 callback();
             }
@@ -132,7 +132,7 @@ Appel.prototype = {
     },
     save : function() {
         // si l'appel a deja un identifiant alors il s'agit d'un  maj
-        if(this.appel_id){
+        if(this._id){
             this.update();
         // sinon d'un création
         }else{
@@ -148,12 +148,12 @@ function Cours(){
         http().getJson('/' + gsPrefixVieScolaire + '/' + gsPrefixAbsences + '/appel/cours/' + cours.cours_id).done(function(data){
             this.updateData(data[0]);
             // creation en bdd s'i l'appel n'existe pas encore
-            if(this.appel_id === undefined) {
+            if(this.id === undefined) {
                 this.fk_personnel_id = cours.fk_personnel_id;
                 this.fk_cours_id = cours.cours_id;
                 this.fk_etat_appel_id = 1;
                 this.create(function(appel) {
-                    cours.appel.appel_id = appel.appel_id;
+                    cours.appel.id = appel.id;
                 });
             }
         }.bind(this));

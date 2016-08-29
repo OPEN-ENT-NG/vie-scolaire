@@ -16,7 +16,7 @@ function Justificatif(){}
 function Evenement(){}
 Evenement.prototype = {
     update : function(cb){
-        http().putJson('/viescolaire/absences/evenement/'+this.evenement_id+'/updatemotif', { evenement : this }).done(function(res){
+        http().putJson('/viescolaire/absences/evenement/'+this.id+'/updatemotif', { evenement : this }).done(function(res){
             if(cb && (typeof(cb) === 'function')) {
                 cb(res);
             }

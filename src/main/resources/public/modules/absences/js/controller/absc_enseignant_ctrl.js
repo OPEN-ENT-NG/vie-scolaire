@@ -112,12 +112,12 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			evenementAbsence = new Evenement();
 			evenementAbsence.evenement_saisie_cpe = false;
 			evenementAbsence.fk_eleve_id = poEleve.eleve_id;
-			evenementAbsence.fk_appel_id = $scope.currentCours.appel.appel_id;
+			evenementAbsence.fk_appel_id = $scope.currentCours.appel.id;
 			evenementAbsence.fk_type_evt_id = $scope.oEvtType.giIdEvenementAbsence;
 			evenementAbsence.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 
 			evenementAbsence.create(function(piEvenementId) {
-				evenementAbsence.evenement_id = piEvenementId;
+				evenementAbsence.id = piEvenementId;
 				poEleve.isAbsent = !poEleve.isAbsent;
 				poEleve.evenements.push(evenementAbsence);
 				$scope.removeEvtNAbsc(poEleve);
@@ -130,6 +130,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		} else {
 			evenementAbsence.delete(function() {
 				poEleve.isAbsent = false;
+				evenementAbsence.id = undefined;
                 poEleve.evenements.remove(evenementAbsence);
 				$scope.supprimerEvenementEleve(poEleve, evenementAbsence);
 				// l'état de l'appel repasse en cours
@@ -219,7 +220,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 
 			poEvenement.save(function(pnEvenementId) {
                 $scope.setIdToValue(poEvenement, pnEvenementId);
-                //poEvenement.evenement_id = pnEvenementId;
+                poEvenement.id = pnEvenementId;
                 $scope.addEvtPlage(poEvenement);
                 $scope.currentEleve.evenements.push(poEvenement);
                 $scope.currentEleve.evenementsJour.push(poEvenement);
@@ -234,7 +235,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 					$scope.oEvtTime.retard = "--:--";
 				}
 				$scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
-                //poEvenement.evenement_id = undefined;
+                poEvenement.id = undefined;
                 $scope.setIdToValue(poEvenement, undefined);
 				// l'état de l'appel repasse en cours
 				$scope.changerEtatAppel(giIdEtatAppelEnCours);
@@ -363,11 +364,11 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 		$scope.currentCours.eleves.on("appelSynchronized", function(){
 			$scope.currentCours.nbPresents = 0;
 			$scope.currentCours.eleves.each(function (oEleve) {
-				oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-				oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-				oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-				oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementRetard, fk_appel_id : $scope.currentCours.appel.appel_id}) !== undefined;
-				oEleve.plages.sync($scope.currentCours.appel.appel_id, function(){
+				oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+				oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+				oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+				oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementRetard, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
+				oEleve.plages.sync($scope.currentCours.appel.id, function(){
                     $scope.safeApply();
                 });
 			});
@@ -413,7 +414,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			oEvenementRetard.evenement_saisie_cpe = false;
             oEvenementRetard.cours_id = $scope.currentCours.cours_id;
 			oEvenementRetard.fk_eleve_id = poEleve.eleve_id;
-			oEvenementRetard.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementRetard.fk_appel_id = $scope.currentCours.appel.id;
 			oEvenementRetard.fk_type_evt_id = $scope.oEvtType.giIdEvenementRetard;
 			oEvenementRetard.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 		}else{
@@ -426,7 +427,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			oEvenementDepart.evenement_saisie_cpe = false;
             oEvenementDepart.cours_id = $scope.currentCours.cours_id;
 			oEvenementDepart.fk_eleve_id = poEleve.eleve_id;
-			oEvenementDepart.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementDepart.fk_appel_id = $scope.currentCours.appel.id;
 			oEvenementDepart.fk_type_evt_id = $scope.oEvtType.giIdEvenementDepart;
 			oEvenementDepart.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 		}else{
@@ -439,7 +440,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
 			oEvenementIncident.evenement_saisie_cpe = false;
             oEvenementIncident.cours_id = $scope.currentCours.cours_id;
 			oEvenementIncident.fk_eleve_id = poEleve.eleve_id;
-			oEvenementIncident.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementIncident.fk_appel_id = $scope.currentCours.appel.id;
 			oEvenementIncident.fk_type_evt_id = $scope.oEvtType.giIdEvenementIncident;
 			oEvenementIncident.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 		}
@@ -450,7 +451,7 @@ function AbsencesController($scope, $rootScope, $route, model, template, route, 
             oEvenementObservation.cours_id = $scope.currentCours.cours_id;
 			oEvenementObservation.evenement_saisie_cpe = false;
 			oEvenementObservation.fk_eleve_id = poEleve.eleve_id;
-			oEvenementObservation.fk_appel_id = $scope.currentCours.appel.appel_id;
+			oEvenementObservation.fk_appel_id = $scope.currentCours.appel.id;
 			oEvenementObservation.fk_type_evt_id = $scope.oEvtType.giIdEvenementObservation;
 			oEvenementObservation.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 		}

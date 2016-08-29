@@ -21,6 +21,7 @@ package org.cgi.absences.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -53,26 +54,17 @@ public interface IAbscAppelService extends CrudService {
 
     /**
      * Créé un appel.
-     * @param poPersonnelId identifiant de l'enseignant/CPE.
-     * @param poCourId identifiant du cours.
-     * @param poEtatAppelId identifiant de l'état de l'appel souhaité.
-     * @param poJustificatifAppelId identifiant du justificatif (null si pas de justificatif)
+     * @param data Json Object contenant les données.
      * @param handler handler portant le résultat de la requête.
      */
-    public void createAppel(Integer poPersonnelId, Integer poCourId, Integer poEtatAppelId,
-                            Integer poJustificatifAppelId, Handler<Either<String, JsonObject>> handler);
+    public void createAppel(JsonObject data, UserInfos user, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Met à jour un appel.
-     * @param poAppelId identifiant de l'appel.
-     * @param poPersonnelId identifiant de l'enseignant/CPE.
-     * @param poCourId identifiant du cours.
-     * @param poEtatAppelId identifiant de l'état de l'appel souhaité.
-     * @param poJustificatifAppelId identifiant du justificatif (null si pas de justificatif)
+     * @param data Json object contenant les données
      * @param handler handler portant le résultat de la requête.
      */
-    public void updateAppel(Integer poAppelId, Integer poPersonnelId, Integer poCourId,
-                            Integer poEtatAppelId, Integer poJustificatifAppelId, Handler<Either<String, JsonObject>> handler);
+    public void updateAppel(JsonObject data, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Recupere un appel grâce à l'identifiant d'un cours.

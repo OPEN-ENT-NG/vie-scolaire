@@ -79,6 +79,10 @@ public class Viescolaire extends BaseServer {
     public static final String SCHEMA_COMPETENCE_NOTE_CREATE = "eval_createCompetenceNote";
     public static final String SCHEMA_COMPETENCE_NOTE_UPDATE = "eval_updateCompetenceNote";
 
+	public static final String SCHEMA_APPEL_CREATE = "absc_createAppel";
+	public static final String SCHEMA_APPEL_UPDATE = "absc_updateAppel";
+	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
+	public static final String SCHEMA_EVENEMENt_UPDATE = "absc_updateEvenement";
 
 	@Override
 	public void start() {

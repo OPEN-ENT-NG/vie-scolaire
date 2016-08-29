@@ -71,10 +71,13 @@ public class CAbscEvenementController  extends ControllerHelper {
     @ApiDoc("Met à jours l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateEvenement(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENt_UPDATE, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject poEvenement) {
                 Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
+                poEvenement.removeField("cours_id");
+                poEvenement.removeField("evenement_heure_arrivee");
+                poEvenement.removeField("evenement_heure_depart");
                 miAbscEvenementService.updateEvenement(poEvenement,
                         handler);
             }
@@ -85,16 +88,23 @@ public class CAbscEvenementController  extends ControllerHelper {
     @ApiDoc("Création d'un évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createEvenement(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(JsonObject poEvenement) {
-                Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
-                miAbscEvenementService.createEvenement(poEvenement, handler);
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENT_CREATE, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject poEvenement) {
+                        poEvenement.removeField("cours_id");
+                        poEvenement.removeField("evenement_heure_arrivee");
+                        poEvenement.removeField("evenement_heure_depart");
+                        miAbscEvenementService.createEvenement(poEvenement, user, defaultResponseHandler(request));
+                    }
+                });
             }
         });
     }
 
-    @Delete("/evenement/:evenementId")
+    @Delete("/evenement")
     @ApiDoc("Supprime l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteEvenement(final HttpServerRequest request){

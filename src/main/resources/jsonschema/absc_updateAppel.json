@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "fk_personnel_id": {
+      "type": "integer"
+    },
+    "fk_cours_id": {
+      "type": "integer"
+    },
+    "fk_etat_appel_id": {
+      "type": "integer"
+    },
+    "fk_justificatif_appel_id": {
+      "type": ["integer", "null"]
+    }
+  },
+  "required": [
+    "fk_personnel_id",
+    "fk_cours_id",
+    "fk_etat_appel_id",
+    "fk_justificatif_appel_id"
+  ]
+}

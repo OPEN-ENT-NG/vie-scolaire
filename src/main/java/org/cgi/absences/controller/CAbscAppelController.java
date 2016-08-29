@@ -105,14 +105,15 @@ public class CAbscAppelController extends ControllerHelper {
     @ApiDoc("Créé un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createAppel(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(JsonObject poAppel) {
-                miAbscAppelService.createAppel(poAppel.getInteger("fk_personnel_id"),
-                        poAppel.getInteger("fk_cours_id"),
-                        poAppel.getInteger("fk_etat_appel_id"),
-                        poAppel.getInteger("fk_justificatif_appel_id"),
-                        defaultResponseHandler(request));
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPEL_CREATE, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject poAppel) {
+                        miAbscAppelService.createAppel(poAppel, user, defaultResponseHandler(request));
+                    }
+                });
             }
         });
     }
@@ -121,15 +122,10 @@ public class CAbscAppelController extends ControllerHelper {
     @ApiDoc("Met à jour un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateAppel(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPEL_UPDATE, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject poAppel) {
-                miAbscAppelService.updateAppel(poAppel.getInteger("appel_id"),
-                        poAppel.getInteger("fk_personnel_id"),
-                        poAppel.getInteger("fk_cours_id"),
-                        poAppel.getInteger("fk_etat_appel_id"),
-                        poAppel.getInteger("fk_justificatif_appel_id"),
-                        defaultResponseHandler(request));
+                miAbscAppelService.updateAppel(poAppel, defaultResponseHandler(request));
             }
         });
     }

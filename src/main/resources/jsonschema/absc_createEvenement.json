@@ -3,31 +3,31 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "evenement_timestamp_arrivee": {
-      "type": "timestamp"
+    "evenement_timestamp_arrive": {
+      "type": ["string", "null"]
     },
     "evenement_timestamp_depart": {
-      "type": "timestamp"
+      "type": ["string", "null"]
     },
     "evenement_commentaire": {
-      "type" : ["string", "null"]
+      "type": "string"
     },
-    "evenement_saisie_cpe" : {
-      "type" : "boolean"
+    "evenement_saisie_cpe": {
+      "type": "boolean"
     },
-    "fk_eleve_id": {
+    "fk_eleve_id" : {
       "type" : "integer"
     },
-    "fk_appel_id": {
+    "fk_appel_id" : {
       "type" : "integer"
     },
-    "fk_type_evt": {
+    "fk_type_evt_id" : {
       "type" : "integer"
     },
-    "fk_pj_pj": {
-      "type" : "integer"
+    "fk_pj_pj" : {
+      "type" : ["integer", "null"]
     },
-    "fk_motif_id": {
+    "fk_motif_id" : {
       "type" : "integer"
     }
   },
@@ -35,6 +35,7 @@
     "evenement_saisie_cpe",
     "fk_eleve_id",
     "fk_appel_id",
-    "fk_type_evt"
+    "fk_type_evt_id",
+    "fk_motif_id"
   ]
 }

@@ -22,15 +22,16 @@ package org.cgi.absences.service.impl;
 import fr.wseduc.webutils.Either;
 import org.cgi.Viescolaire;
 import org.cgi.absences.service.IAbscAppelService;
-import org.cgi.absences.service.IAbscEleveService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+
+import java.security.Timestamp;
+import java.util.Date;
 
 import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
@@ -47,7 +48,7 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
         StringBuilder query = new StringBuilder();
         JsonArray value = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.appel_id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
+        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
                 "FROM viesco.personnel, viesco.classe, viesco.rel_personnel_cours, viesco.cours " +
                 "LEFT OUTER JOIN abs.appel on (cours.cours_id = appel.fk_cours_id) " +
                 "WHERE cours.fk4j_etab_id = ?::uuid " +
@@ -68,7 +69,7 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.appel_id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
+        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
                 "FROM viesco.personnel, viesco.classe, viesco.rel_personnel_cours, viesco.cours " +
                 "LEFT OUTER JOIN abs.appel on (cours.cours_id = appel.fk_cours_id) " +
                 "WHERE cours.fk4j_etab_id = ?::uuid " +
@@ -86,38 +87,26 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
     }
 
     @Override
-    public void createAppel(Integer poPersonnelId, Integer poCourId, Integer poEtatAppelId, Integer poJustificatifAppelId,
-                            Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("INSERT INTO abs.appel (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
-                .append("VALUES (?,?,?,?) RETURNING *");
-
-        values.addNumber(poPersonnelId);
-        values.addNumber(poCourId);
-        values.addNumber(poEtatAppelId);
-        values.addNumber(poJustificatifAppelId);
-
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+    public void createAppel(JsonObject data, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+        super.create(data, user, handler);
     }
 
     @Override
-    public void updateAppel(Integer poAppelId, Integer poPersonnelId, Integer poCourId, Integer poEtatAppelId,
-                            Integer poJustificatifAppelId, Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+    public void updateAppel(JsonObject data, Handler<Either<String, JsonObject>> handler) {
+//        StringBuilder query = new StringBuilder();
+//        JsonArray values = new JsonArray();
+//
+//        query.append("UPDATE abs.appel SET (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
+//                .append("= (?,?,?,?) WHERE id = ? RETURNING *");
+//
+//        values.addNumber(poPersonnelId);
+//        values.addNumber(poCourId);
+//        values.addNumber(poEtatAppelId);
+//        values.addNumber(poJustificatifAppelId);
+//        values.addNumber(poAppelId);
 
-        query.append("UPDATE abs.appel SET (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
-                .append("= (?,?,?,?) WHERE appel_id = ? RETURNING *");
-
-        values.addNumber(poPersonnelId);
-        values.addNumber(poCourId);
-        values.addNumber(poEtatAppelId);
-        values.addNumber(poJustificatifAppelId);
-        values.addNumber(poAppelId);
-
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
+        super.update(data.getInteger("id").toString(), data, handler);
     }
 
     @Override
@@ -125,8 +114,9 @@ public class CAbscAppelService extends SqlCrudService implements IAbscAppelServi
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT * FROM abs.appel ")
-            .append("WHERE appel.fk_cours_id = ?");
+        query.append("SELECT appel.id, appel.fk_personnel_id, appel.fk_cours_id, appel.fk_etat_appel_id, appel.fk_justificatif_appel_id " +
+                "FROM abs.appel ")
+                .append("WHERE appel.fk_cours_id = ?");
 
         values.addNumber(poCoursId);
 

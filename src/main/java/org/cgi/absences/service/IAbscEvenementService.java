@@ -21,6 +21,7 @@ package org.cgi.absences.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
@@ -44,7 +45,7 @@ public interface IAbscEvenementService extends CrudService {
      * @param poEvenement l'objet JSON représentant l'évenement
      * @param handler handler portant le résultat de la requête.
      */
-    public void createEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler);
+    public void createEvenement(JsonObject poEvenement, UserInfos user, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Met à jour un évenement.

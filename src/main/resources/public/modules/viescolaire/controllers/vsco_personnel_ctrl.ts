@@ -1,7 +1,8 @@
 import {notify, idiom as lang, template, routes, model, ng } from '../../entcore/entcore';
+import {Evenement, Appel, Observation, vieScolaire, WAbsSansMotifs, WAppelsOublies, Widget, WObservations} from '../models/vsco_personnel_mdl';
 
 let moment = require('moment');
-let _ = require('underscore');
+declare let _:any;
 
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model',

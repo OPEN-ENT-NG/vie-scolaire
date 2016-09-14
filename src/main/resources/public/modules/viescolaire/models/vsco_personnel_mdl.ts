@@ -1,6 +1,8 @@
 import { model, notify, http, IModel, Model, Collection, BaseModel } from '../../entcore/entcore';
-declare let _:any;
+
 let moment = require('moment');
+
+declare let _:any;
 
 /**
  * MODELE DE DONNEES PERSONNEL :
@@ -26,7 +28,7 @@ export class WAbsSansMotifs extends Model {
 
     sync () {
         http().getJson("/viescolaire/absences/sansmotifs/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done(function(data){
+        .done((data) => {
             this.evenements.load(data);
         });
     }
@@ -42,7 +44,7 @@ export class WAppelsOublies extends Model {
 
     sync () {
         http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done(function(data){
+        .done((data) => {
             this.appels.load(data);
         });
     }
@@ -58,16 +60,16 @@ export class WObservations extends Model {
 
     sync ()  {
         http().getJson('/viescolaire/absences/observations/'+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done(function(data){
+        .done((data) => {
             this.observations.load(data);
         });
     }
 }
 
 export class Widget extends Model {
-    wAbsSansMotifs : WAbsSansMotifs;
-    wAppelsOublies : WAppelsOublies;
-    wObservations : WObservations;
+    WAbsSansMotifs : WAbsSansMotifs;
+    WAppelsOublies : WAppelsOublies;
+    WObservations : WObservations;
 }
 
 export class VieScolaire extends Model {
@@ -76,20 +78,21 @@ export class VieScolaire extends Model {
     constructor () {
         super();
         this.widget = new Widget();
-        this.widget.wAbsSansMotifs = new WAbsSansMotifs();
-        this.widget.wAppelsOublies = new WAppelsOublies();
-        this.widget.wObservations = new WObservations();
+        this.widget.WAbsSansMotifs = new WAbsSansMotifs();
+        this.widget.WAppelsOublies = new WAppelsOublies();
+        this.widget.WObservations = new WObservations();
     }
 
     sync () {
-        this.widget.wAbsSansMotifs.sync();
-        this.widget.wAppelsOublies.sync();
-        this.widget.wObservations.sync();
+        this.widget.WAbsSansMotifs.sync();
+        this.widget.WAppelsOublies.sync();
+        this.widget.WObservations.sync();
     }
 }
 
 export let vieScolaire = new VieScolaire();
 
 model.build = function () {
+    (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();
 }

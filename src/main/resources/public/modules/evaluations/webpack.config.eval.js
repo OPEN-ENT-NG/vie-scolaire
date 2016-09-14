@@ -36,7 +36,7 @@ module.exports = {
         path: '/src/main/resources/public/dist/evaluations'
     },
     externals: {
-        "./entcore/entcore": "entcore",
+        "../../entcore/entcore": "entcore",
         "moment": "entcore",
         "underscore": "_"
     },

@@ -10,3 +10,9 @@
 *.iml
 workspace.xml
 /.idea/workspace.xml
+/node_modules
+/bower_components
+/src/main/resources/public/ts/entcore
+/src/main/resources/public/temp
+/src/main/resources/public/modules/entcore
+/src/main/resources/public/templates/entcore

@@ -1,0 +1,21 @@
+{
+  "name": "rack",
+  "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
+  "authors": [
+    "CGI <simon.ledunois@cgi.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "AGPL 3.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "entcore": "git://github.com/entcore/infra-front#dev"
+  }
+}

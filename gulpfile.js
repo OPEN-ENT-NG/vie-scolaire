@@ -139,7 +139,15 @@ gulp.task('ts-local', ['copy-local-libs'], function () {
 });
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
 
-gulp.task('ts', ['update-libs'], function () { return compileTs() });
+gulp.task('ts', ['update-libs'], function () {
+    gulp.src('./src/main/resources/public/dist')
+        .pipe(clean());
+    gulp.src('./src/main/resources/public/temp')
+        .pipe(clean());
+    gulp.src('./src/main/resources/view')
+        .pipe(clean());
+    return compileTs()
+});
 gulp.task('webpack', ['ts'], function(){ return startWebpack() });
 
 gulp.task('build', ['webpack'], function () {

@@ -46,7 +46,7 @@ function compileTs(){
 }
 
 function startWebpack(isLocal) {
-    gulp.src("./rev-manifest.json").pipe(clean());
+    gulp.src("./manifests/*").pipe(clean());
     var absc = gulp.src('./src/main/resources/public/modules/absences/')
         .pipe(webpack(require('./src/main/resources/public/modules/absences/webpack.config.absc.js')))
         .pipe(gulp.dest('./src/main/resources/public/dist/absences'))
@@ -54,7 +54,7 @@ function startWebpack(isLocal) {
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/dist/absences'))
-        .pipe(rev.manifest({ merge: true }))
+        .pipe(rev.manifest({path : './manifests/absc.json' }))
         .pipe(gulp.dest('./'));
 
     var eval = gulp.src('./src/main/resources/public/modules/evaluations/')
@@ -64,7 +64,7 @@ function startWebpack(isLocal) {
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/dist/evaluations'))
-        .pipe(rev.manifest({ merge: true }))
+        .pipe(rev.manifest({path : './manifests/eval.json' }))
         .pipe(gulp.dest('./'));
 
     var vsco = gulp.src('./src/main/resources/public/modules/viescolaire/')
@@ -74,7 +74,7 @@ function startWebpack(isLocal) {
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/dist/viescolaire'))
-        .pipe(rev.manifest({ merge: true }))
+        .pipe(rev.manifest({path : './manifests/vsco.json' }))
         .pipe(gulp.dest('./'));
 
     var entcore = gulp.src('./src/main/resources/public/modules/entcore')
@@ -84,7 +84,7 @@ function startWebpack(isLocal) {
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(rev.manifest({ merge: true }))
+        .pipe(rev.manifest({ path : './manifests/entcore.json' }))
         .pipe(gulp.dest('./'));
 
     return merge([entcore, absc, eval, vsco]);
@@ -92,13 +92,13 @@ function startWebpack(isLocal) {
 
 function updateRefs() {
     var absc = gulp.src(glob.sync("./src/main/resources/view-src/absences/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./rev-manifest.json") }))
+        .pipe(revReplace({manifest: gulp.src("./manifests/absc.json") }))
         .pipe(gulp.dest("./src/main/resources/view/absences"));
     var eval = gulp.src(glob.sync("./src/main/resources/view-src/evaluations/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./rev-manifest.json") }))
+        .pipe(revReplace({manifest: gulp.src("./manifests/eval.json") }))
         .pipe(gulp.dest("./src/main/resources/view/evaluations"));
     var vsco =  gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./rev-manifest.json") }))
+        .pipe(revReplace({manifest: gulp.src("./manifests/vscos.json") }))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
     return merge([absc, eval, vsco]);
 }
@@ -128,7 +128,15 @@ gulp.task('update-libs', ['bower'], function(){
     return merge([html, ts]);
 });
 
-gulp.task('ts-local', ['copy-local-libs'], function () { return compileTs() });
+gulp.task('ts-local', ['copy-local-libs'], function () {
+    gulp.src('./src/main/resources/public/dist')
+        .pipe(clean());
+    gulp.src('./src/main/resources/public/temp')
+        .pipe(clean());
+    gulp.src('./src/main/resources/view')
+        .pipe(clean());
+    return compileTs()
+});
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
 
 gulp.task('ts', ['update-libs'], function () { return compileTs() });

@@ -107,8 +107,8 @@ export let absencesController = ng.controller('AbsencesController', [
 				evenementAbsence.fk_type_evt_id = $scope.oEvtType.giIdEvenementAbsence;
 				evenementAbsence.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
 
-				evenementAbsence.create().then((piEvenementId) => {
-					evenementAbsence.id = piEvenementId;
+				evenementAbsence.create().then((piEvenement) => {
+					evenementAbsence.id = piEvenement.id;
 					poEleve.isAbsent = !poEleve.isAbsent;
 					poEleve.evenements.push(evenementAbsence);
 					$scope.removeEvtNAbsc(poEleve);
@@ -119,7 +119,7 @@ export let absencesController = ng.controller('AbsencesController', [
 				});
 				// suppression absence
 			} else {
-				evenementAbsence.delete.then(() => {
+				evenementAbsence.delete().then(() => {
 					poEleve.isAbsent = false;
 					evenementAbsence.id = undefined;
 					poEleve.evenements.remove(evenementAbsence);

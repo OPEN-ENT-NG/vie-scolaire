@@ -21,7 +21,7 @@ export class Creneau extends Model {
     style : any;
 }
 export class Evenement extends Model implements IModel{
-    _id : number;
+    id : number;
 
     get api () {
         return {
@@ -49,7 +49,7 @@ export class Evenement extends Model implements IModel{
 
     save () : Promise<any> {
         return new Promise((resolve, reject) => {
-            if(this._id){
+            if(this.id){
                 this.update().then((data) => {
                     resolve(data);
                 });
@@ -63,7 +63,7 @@ export class Evenement extends Model implements IModel{
 
     delete () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete + this._id).done(() => {
+            http().delete(this.api.delete + this.id).done(() => {
                 resolve();
             });
         });
@@ -297,6 +297,7 @@ export class Cours extends Model {
     cours_timestamp_dt : string;
     cours_id : number;
     cours_timestamp_fn : string;
+    fk_personnel_id : string;
 
     get api () {
         return {
@@ -309,17 +310,18 @@ export class Cours extends Model {
         this.cours = this;
         this.appel = new Appel();
         this.appel.sync = () => {
-            http().getJson(this.api.getAppel + this.cours.cours_id).done((data) => {
+            var that = this;
+            http().getJson(this.api.getAppel + this.cours.cours_id).done(function (data) {
                 this.updateData(data[0]);
                 if(this.id === undefined) {
-                    this.appel.fk_personnel_id = this.cours.fk_personnel_id;
-                    this.appel.fk_cours_id = this.cours.cours_id;
-                    this.appel.fk_etat_appel_id = 1;
-                    this.appel.create().then((data) => {
-                        this.cours.appel.id = data.id;
+                    this.fk_personnel_id = that.fk_personnel_id;
+                    this.fk_cours_id = that.cours_id;
+                    this.fk_etat_appel_id = 1;
+                    this.create().then((data) => {
+                        this.id = data.id;
                     });
                 }
-            })
+            }.bind(this.appel));
         };
 
         this.collection(Eleve, new AppelElevesCollection());

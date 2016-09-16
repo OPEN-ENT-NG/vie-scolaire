@@ -19,7 +19,6 @@
   "required": [
     "fk_personnel_id",
     "fk_cours_id",
-    "fk_etat_appel_id",
-    "fk_justificatif_appel_id"
+    "fk_etat_appel_id"
   ]
 }

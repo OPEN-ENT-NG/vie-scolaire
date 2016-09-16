@@ -36,7 +36,7 @@ module.exports = {
         path: '/src/main/resources/public/dist/viescolaire'
     },
     externals: {
-        "../../entcore/entcore": "entcore",
+        "entcore/entcore": "entcore",
         "underscore": "_"
     },
     resolve: {

@@ -2,7 +2,7 @@
  * Created by ledunoiss on 12/09/2016.
  */
 
-import { notify, idiom as lang, template, ui, http, routes, ng } from '../../entcore/entcore';
+import { notify, idiom as lang, template, ui, http, routes, ng } from 'entcore/entcore';
 import {Evenement, Appel, Observation, vieScolaire, WAbsSansMotifs, WAppelsOublies, Widget, WObservations} from '../models/vsco_personnel_mdl';
 
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';

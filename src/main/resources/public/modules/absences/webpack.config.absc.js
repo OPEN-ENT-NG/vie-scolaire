@@ -36,7 +36,9 @@ module.exports = {
         path: '/src/main/resources/public/dist/absences'
     },
     externals: {
-        "../../entcore/entcore": "entcore",
+        // "../../entcore/entcore": "entcore",
+        // "../../../entcore/entcore": "entcore",
+        "entcore/entcore": "entcore",
         "underscore": "_"
     },
     resolve: {

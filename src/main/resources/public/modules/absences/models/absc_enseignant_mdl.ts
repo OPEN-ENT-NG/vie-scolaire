@@ -1,7 +1,7 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel } from '../../entcore/entcore';
+import { model, notify, http, IModel, Model, Collection, BaseModel } from 'entcore/entcore';
 
-declare let _:any;
 let moment = require('moment');
+declare let _:any;
 
 let gsFormatHeuresMinutes = "HH:mm";
 let giHeureDebutPlage = 8;
@@ -75,11 +75,10 @@ export class AbsencePrev extends Model {}
 export class Eleve extends Model implements IModel {
     evenements : Collection<Evenement>;
     courss : Collection<Cours>;
-    evenementsJours : any;
+    evenementsJours : Collection<Evenement>;
     absencePrevs : Collection<AbsencePrev>;
     plages : Collection<Plage>;
     composer : any;
-    evenementsJour : any;
     eleve_id : number;
     absc_precedent_cours : boolean;
 
@@ -99,25 +98,27 @@ export class Eleve extends Model implements IModel {
             }
         });
         this.collection(Cours);
-        this.evenementsJours = new Collection(Evenement);
+        this.evenementsJours =  new Collection<Evenement>(Evenement);
+        this.evenementsJours.model = this;
         this.collection(Plage, {
             sync : (piIdAppel) => {
                 // Evenements du jours
-                let otEvt = this.composer.evenementsJour;
+                let otEvt = this.evenementsJours;
                 // Liste des cours
-                let otCours = this.composer.courss;
+                let otCours = this.courss;
                 let that = this.plages;
                 // On copie les plages dans un tableau
-                that.load(JSON.parse(JSON.stringify(this.plages)));
+                that.load(JSON.parse(JSON.stringify(vieScolaire.plages)));
                 for (let i = 0; i < that.all.length; i++) {
                     that.all[i].evenements = new Collection<Evenement>(Evenement);
+                    that.all[i].evenements.model = that.all[i];
                     that.all[i].evenements.composer = that.all[i].evenements.model = this;
                 }
                 /**
                  * Pour chaque plage, on récupere le cours correspondant, puis pour la plage, on ajoute au tableau evenements
                  * la liste des evenements relatifs à la plage horaire.
                  */
-                otEvt.each((evenement) => {
+                _.each(otEvt.all, (evenement) => {
                     let otCurrentCours = otCours.findWhere({cours_id : evenement.cours_id});
                     let otCurrentPlage = that.filter((plage) => {
                         let dt = parseInt(moment(otCurrentCours.cours_timestamp_dt).format('HH'));
@@ -128,8 +129,8 @@ export class Eleve extends Model implements IModel {
                 /**
                  * Si il y a des absences previsionnelles, on les rajoutes dans le tableau d'évènements
                  */
-                if(this.composer.absencePrevs.all.length > 0){
-                    this.composer.absencePrevs.each((abs) => {
+                if(this.absencePrevs.all.length > 0){
+                    _.each(this.absencePrevs, (abs) => {
                         abs.fk_type_evt_id = 'abs-prev';
                         let dt = parseInt(moment(abs.absence_prev_timestamp_dt).format('HH'));
                         let fn = parseInt(moment(abs.absence_prev_timestamp_fn).format('HH'));
@@ -161,6 +162,9 @@ export class Eleve extends Model implements IModel {
 
 export class Appel extends Model implements IModel{
     id : number;
+    fk_personnel_id : number;
+    fk_cours_id : number;
+    fk_etat_appel_id : number;
 
     get api () {
         return {
@@ -219,13 +223,14 @@ class AppelElevesCollection {
     composer: any;
 
     constructor () {
-        this.sync = () => {
+        this.sync = function () {
+            let that = this;
             http().getJson('/viescolaire/classe/' + this.composer.fk_classe_id + '/eleves').done((data) => {
                 _.map(data, function(eleve){
-                    eleve.cours = this.cours;
+                    eleve.cours = that.cours;
                 });
-                this.load(data);
-                this.loadEvenements();
+                that.load(data);
+                that.loadEvenements();
             });
         };
     }
@@ -238,18 +243,18 @@ class AppelElevesCollection {
          * - evenementsJours qui nous permettera d'afficher l'historique.
          * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
          */
-        http().getJson('/viescolaire/absences/evenement/classe/'+this.cours.fk_classe_id+'/periode/'+moment(this.cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.cours.cours_timestamp_dt).format('YYYY-MM-DD'))
+        http().getJson('/viescolaire/absences/evenement/classe/'+this.composer.fk_classe_id+'/periode/'+moment(this.composer.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.composer.cours_timestamp_dt).format('YYYY-MM-DD'))
             .done((data) => {
                 for (let i = 0; i < this.all.length; i++) {
-                    this.all[i].evenementsJour.load(_.where(data, {fk_eleve_id : this.all[i].eleve_id}));
-                    this.all[i].evenements.load(this.all[i].evenementsJour.where({cours_id : this.cours.cours_id}));
+                    this.all[i].evenementsJours.load(_.where(data, {fk_eleve_id : this.all[i].eleve_id}));
+                    this.all[i].evenements.load(this.all[i].evenementsJours.where({cours_id : this.composer.cours_id}));
                 }
                 this.loadAbscPrev();
             });
     }
 
     loadAbscPrev () {
-        http().getJson('/viescolaire/absences/absencesprev/classe/'+this.cours.fk_classe_id+'/'+moment(this.cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.cours.cours_timestamp_dt).format('YYYY-MM-DD'))
+        http().getJson('/viescolaire/absences/absencesprev/classe/'+this.composer.fk_classe_id+'/'+moment(this.composer.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.composer.cours_timestamp_dt).format('YYYY-MM-DD'))
             .done((data) => {
                 for (let i = 0; i < this.all.length; i++) {
                     this.all[i].absencePrevs.load(_.where(data, {fk_eleve_id: this.all[i].eleve_id}));
@@ -259,7 +264,7 @@ class AppelElevesCollection {
     }
 
     loadAbscLastCours () {
-        http().getJson('/viescolaire/absences/precedentes/classe/'+ this.cours.fk_classe_id+'/cours/'+ this.cours.cours_id)
+        http().getJson('/viescolaire/absences/precedentes/classe/'+ this.composer.fk_classe_id+'/cours/'+ this.composer.cours_id)
             .done((data) => {
                 _.each(data, function(absc){
                     let eleve = this.findWhere({eleve_id : absc.fk_eleve_id});
@@ -272,9 +277,9 @@ class AppelElevesCollection {
     }
 
     loadCoursClasse () {
-        http().getJson('/viescolaire/'+ this.cours.fk_classe_id+'/cours/'+moment(this.cours.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.cours.cours_timestamp_fn).format('YYYY-MM-DD'))
+        http().getJson('/viescolaire/'+ this.composer.fk_classe_id+'/cours/'+moment(this.composer.cours_timestamp_dt).format('YYYY-MM-DD')+'/'+moment(this.composer.cours_timestamp_fn).format('YYYY-MM-DD'))
             .done((data) => {
-                _.each(data, function(eleve){
+                _.each(this.all, function(eleve){
                     eleve.courss.load(data);
                 });
                 this.trigger("appelSynchronized");
@@ -288,9 +293,6 @@ export class Cours extends Model {
     eleves : Eleves;
 
     id : number;
-    fk_personnel_id : number;
-    fk_cours_id : number;
-    fk_etat_appel_id : number;
     fk_classe_id : number;
     cours_timestamp_dt : string;
     cours_id : number;
@@ -310,9 +312,9 @@ export class Cours extends Model {
             http().getJson(this.api.getAppel + this.cours.cours_id).done((data) => {
                 this.updateData(data[0]);
                 if(this.id === undefined) {
-                    this.fk_personnel_id = this.cours.fk_personnel_id;
-                    this.fk_cours_id = this.cours.cours_id;
-                    this.fk_etat_appel_id = 1;
+                    this.appel.fk_personnel_id = this.cours.fk_personnel_id;
+                    this.appel.fk_cours_id = this.cours.cours_id;
+                    this.appel.fk_etat_appel_id = 1;
                     this.appel.create().then((data) => {
                         this.cours.appel.id = data.id;
                     });

@@ -1,4 +1,4 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel } from '../../entcore/entcore';
+import { model, notify, http, IModel, Model, Collection, BaseModel } from 'entcore/entcore';
 
 let moment = require('moment');
 

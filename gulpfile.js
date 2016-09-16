@@ -77,7 +77,7 @@ function startWebpack(isLocal) {
         .pipe(rev.manifest({path : './manifests/vsco.json' }))
         .pipe(gulp.dest('./'));
 
-    var entcore = gulp.src('./src/main/resources/public/modules/entcore')
+    var entcore = gulp.src('./node_modules/entcore')
         .pipe(webpack(require('./webpack-entcore.config.js')))
         .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
         .pipe(sourcemaps.init({ loadMaps: true }))
@@ -121,11 +121,13 @@ gulp.task('bower', ['drop-cache'], function(){
 });
 
 gulp.task('update-libs', ['bower'], function(){
-    var ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
-        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
+    // var ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
+    //     .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
     var html = gulp.src(jsInfraPath + '/src/template/**/*.html')
         .pipe(gulp.dest('./src/main/resources/public/templates/entcore'));
-    return merge([html, ts]);
+    var node_ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
+        .pipe(gulp.dest('./node_modules/entcore'));
+    return merge([html, node_ts]);
 });
 
 gulp.task('ts-local', ['copy-local-libs'], function () {

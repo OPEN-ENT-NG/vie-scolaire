@@ -92,13 +92,13 @@ function startWebpack(isLocal) {
 
 function updateRefs() {
     var absc = gulp.src(glob.sync("./src/main/resources/view-src/absences/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./manifests/absc.json") }))
+        .pipe(revReplace({manifest: gulp.src(["./manifests/absc.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/absences"));
     var eval = gulp.src(glob.sync("./src/main/resources/view-src/evaluations/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./manifests/eval.json") }))
+        .pipe(revReplace({manifest: gulp.src(["./manifests/eval.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/evaluations"));
     var vsco =  gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
-        .pipe(revReplace({manifest: gulp.src("./manifests/vscos.json") }))
+        .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
     return merge([absc, eval, vsco]);
 }

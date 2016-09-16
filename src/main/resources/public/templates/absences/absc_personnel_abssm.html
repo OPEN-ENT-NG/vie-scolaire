@@ -1,6 +1,6 @@
 <div class="row" ng-controller="AbscAbssmPersonnelController">
-    <container template="AbscFiltres" class="cell" ng-class="{two : !menu.opened, three : menu.opened}"></container>
-    <div ng-class="{nine : menu.opened, ten : !menu.opened}" class="cell abscSM-content">
+    <container template="AbscFiltres" class="cell" ng-class="{two : !display.menu, three : display.menu}"></container>
+    <div ng-class="{nine : display.menu, ten : !display.menu}" class="cell abscSM-content">
         <div class="abscSM-content--student-search-input ten cell">
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un élève">
         </div>
@@ -13,41 +13,6 @@
         <div class="list-view-cgi" bottom-scroll="pOFilterAbsences.limitTo = pOFilterAbsences.limitTo + 10">
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
                 <div sticky offset="65" class="abscSM-content--SM-list--header">
-                    <!--<div class="cell cell-indent two"-->
-                         <!--ng-click="pOSortParameters.sortType = 'eleve_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">-->
-                        <!--<i18n>viescolaire.utils.student</i18n>-->
-                        <!--<i class="fa fa-caret-down"-->
-                           <!--ng-show="pOSortParameters.sortType == 'eleve_nom' && !pOSortParameters.sortReverse"></i>-->
-                        <!--<i class="fa fa-caret-up"-->
-                           <!--ng-show="pOSortParameters.sortType == 'eleve_nom' && pOSortParameters.sortReverse"></i>-->
-                    <!--</div>-->
-                    <!--<div class="cell cell-indent two"-->
-                         <!--ng-click="pOSortParameters.sortType = 'cours_timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">-->
-                        <!--<i18n>viescolaire.utils.date</i18n>-->
-                        <!--<i class="fa fa-caret-down"-->
-                           <!--ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>-->
-                        <!--<i class="fa fa-caret-up"-->
-                           <!--ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>-->
-                    <!--</div>-->
-                    <!--<div class="cell cell-indent two"-->
-                         <!--ng-click="pOSortParameters.sortType = 'personnel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">-->
-                        <!--<i18n>viescolaire.utils.enseignant</i18n>-->
-                        <!--<i class="fa fa-caret-down"-->
-                           <!--ng-show="pOSortParameters.sortType == 'personnel_id' && !pOSortParameters.sortReverse"></i>-->
-                        <!--<i class="fa fa-caret-up"-->
-                           <!--ng-show="pOSortParameters.sortType == 'personnel_id' && pOSortParameters.sortReverse"></i>-->
-                    <!--</div>-->
-                    <!--<div class="cell cell-indent two"-->
-                         <!--ng-click="pOSortParameters.sortType = 'cours_matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">-->
-                        <!--<i18n>viescolaire.utils.matiere</i18n>-->
-                        <!--<i class="fa fa-caret-down"-->
-                           <!--ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>-->
-                        <!--<i class="fa fa-caret-up"-->
-                           <!--ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>-->
-                    <!--</div>-->
-                    <!--<div class="cell cell-indent three">-->
-                        <!--<i18n>viescolaire.utils.reason</i18n>-->
-                    <!--</div>-->
                     <div class="cell cell-indent three"
                          ng-click="pOSortParameters.sortType = 'eleve_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
                         <i18n>viescolaire.utils.student</i18n>
@@ -69,21 +34,9 @@
                     </div>
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
-                    <!--<div class="abscSM-content&#45;&#45;SM-list&#45;&#45;item cell-indent" ng-repeat="evenement in absences | filter:personnelFilter | filter:poRecherche.nom | filter:absencesFilter | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse">-->
-                    <!--<div class="cell two ellipsis">[[evenement.eleve_nom]] [[evenement.eleve_prenom]]</div>-->
-                    <!--<div class="cell two ellipsis">[[getJourDate(evenement)]]</div>-->
-                    <!--<div class="cell two ellipsis">[[getEnseignantNom(evenement)]]</div>-->
-                    <!--<div class="cell two ellipsis">[[evenement.cours_matiere]]</div>-->
-                    <!--<div class="cell three">-->
-                    <!--<label class="select-input">-->
-                    <!--<select ng-change="updateEvtMotif(evenement)" ng-model="evenement.motif" class="twelve" ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>-->
-                    <!--</label>-->
-                    <!--</div>-->
-                    <!--</div>-->
                     <div class="abscSM-content--SM-list--item cell-indent"
                          ng-repeat="eleve in absences.all| filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
                         <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}">
-                            <!--ng-repeat="eleve in absences.all | filter:personnelFilter | filter:poRecherche.nom | filter:absencesFilter | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse"-->
                             <div class="three cell ellipsis">[[eleve.eleve_nom]] [[eleve.eleve_prenom]]</div>
                             <div class="three cell ellipsis">[[eleve.cours_date]]</div>
                             <div class="four cell">
@@ -107,7 +60,6 @@
                                         <select ng-model="evt.motif" class="twelve" ng-init="initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"
                                                 ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
                                     </label>
-                                    <!--ng-change="updateEvtMotif(evenement)"-->
                                 </div>
                             </div>
                         </div>

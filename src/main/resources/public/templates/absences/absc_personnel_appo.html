@@ -1,6 +1,6 @@
 <div class="row" ng-controller="VscoAppoPersonnelController">
-    <container template="AbscFiltres" class="two cell" ng-class="{two : !menu.opened, three : menu.opened}"></container>
-    <div ng-class="{nine : menu.opened, ten : !menu.opened}" class="cell abscSM-content">
+    <container template="AbscFiltres" class="two cell" ng-class="{two : !display.menu, three : display.menu}"></container>
+    <div ng-class="{nine : display.menu, ten : !display.menu}" class="cell abscSM-content">
         <div class="abscSM-content--student-search-input ten cell">
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un enseignant">
         </div>

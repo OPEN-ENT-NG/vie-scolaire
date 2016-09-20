@@ -26,6 +26,11 @@ export class Evenement extends Model implements IModel {
         }
     }
 
+    constructor (e) {
+        super();
+        this.updateData(e);
+    }
+
     update () : Promise<any> {
         return new Promise((resolve, reject) => {
            http().putJson(http().parseUrl(this.api.update)).done((data) => {
@@ -122,7 +127,6 @@ export class VieScolaire extends Model {
                             }
                         }
                         this.load(aLoadedData);
-                        // this.load(data);
                     }.bind(this));
                 }
             }

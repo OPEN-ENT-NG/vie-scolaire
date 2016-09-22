@@ -31,6 +31,8 @@ var revReplace = require("gulp-rev-replace");
 var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 var glob = require('glob');
+var exec = require('child_process').exec;
+var colors = require('colors');
 
 var jsInfraPath = './bower_components/entcore';
 
@@ -173,4 +175,15 @@ gulp.task('removeTemp', function () {
 
 gulp.task('updateRefs', function () {
     updateRefs();
+});
+
+gulp.task('build-mod', function () {
+    console.log('STARTING BUILD-LOCAL'.cyan.bold);
+    return exec('gulp build-local', function (err, stdout, stderr) {
+        console.log('FIN BUILD-LOCAL'.green.bold);
+        console.log('STARTING INSTALL'.cyan.bold);
+       exec('gradle install', function (err, stdout, stderr) {
+           console.log('FIN INSTALL'.green.bold);
+       });
+    });
 });

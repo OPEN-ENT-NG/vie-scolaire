@@ -37,14 +37,16 @@ module.exports = {
     },
     externals: {
         "entcore/entcore": "entcore",
-        "underscore": "_"
+        "underscore": "_",
+        "jquery": "$"
     },
     resolve: {
         modulesDirectories: ['bower_components'],
         root: path.resolve(__dirname),
         alias: {
             'underscore': path.resolve('./bower_components/underscore/underscore-min.js'),
-            'moment': path.resolve('./bower_components/moment/min/moment-with-locales.min.js')
+            'moment': path.resolve('./bower_components/moment/min/moment-with-locales.min.js'),
+            'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js'),
         },
         extensions: ['', '.js']
     },

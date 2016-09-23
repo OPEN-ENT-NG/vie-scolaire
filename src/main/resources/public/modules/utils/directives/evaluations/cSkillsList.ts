@@ -1,0 +1,66 @@
+/**
+ * Created by ledunoiss on 21/09/2016.
+ */
+import {ng, appPrefix} from 'entcore/entcore';
+
+export let cSkillsList = ng.directive("cSkillsList", function(){
+    return {
+        restrict : 'E',
+        scope : {
+            data : '=',
+            devoir : '='
+        },
+        templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
+        controller : ['$scope', function($scope){
+
+            $scope.initCheckBox = function(item, parentItem){
+
+                var bLastCompetence = (_.findWhere($scope.devoir.competencesLastDevoirList, {idcompetence : item.id}) !== undefined);
+
+                if(bLastCompetence) {
+                    item.open = true;
+
+                    var parent = item.composer;
+                    while(parent !== undefined) {
+                        parent.open = true;
+                        parent = parent.composer;
+                    }
+                    $scope.safeApply();
+                }
+                return (item.selected = parentItem.enseignement && parentItem.enseignement.selected || item.selected || false);
+            };
+
+            $scope.initHeader = function(item){
+                return (item.open = false);
+            };
+
+            $scope.safeApply = function(fn) {
+                var phase = this.$root.$$phase;
+                if(phase == '$apply' || phase == '$digest') {
+                    if(fn && (typeof(fn) === 'function')) {
+                        fn();
+                    }
+                } else {
+                    this.$apply(fn);
+                }
+            };
+
+            $scope.toggleCheckbox = function(item, parentItem){
+                if(item.competences !== undefined && item.competences.all.length > 0){
+                    $scope.$emit('checkConnaissances', item);
+                }else{
+                    $scope.$emit('checkParent', parentItem);
+                }
+            };
+
+            $scope.$on('checkConnaissances', function(event, parentItem){
+                return (parentItem.competences.each(function(e){e.selected = parentItem.selected;}));
+            });
+
+            $scope.$on('checkParent', function(event, parentItem){
+                return (parentItem.selected = parentItem.competences.every(function(e){ return e.selected === true; }));
+            });
+
+        }]
+    };
+})

@@ -46,7 +46,7 @@
                     <label class="select">
                         <select ng-model="search.idMatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="getReleve()">
                             <option value="*" class="header-opt">Matière</option>
-                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search " ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search:matieres " ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
                         </select>
                     </label>
                     <label class="select">
@@ -88,7 +88,7 @@
                                        type="text"
                                        style="width: 5em;margin: 0 auto;"
                                        ng-model="evaluation.valeur"
-                                       ng-blur="saveNoteDevoirEleve(evaluation, $event);calculerMoyenneEleve(eleve); calculStatsDevoirReleve(evaluation.iddevoir)"
+                                       ng-blur="saveNoteDevoirEleve(evaluation, $event, eleve)"
                                        max="20" min="0" step="0.01">
                             </td>
                             <!--ng-init="initNoteReleve(evaluation)"-->

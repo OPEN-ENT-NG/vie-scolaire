@@ -57,6 +57,8 @@ export class Periode extends Model {
     devoirs : Collection<Devoir>;
     id : any;
     moyenne : number;
+    datedebut : any;
+    datefin : any;
 
     get api () {
         return {

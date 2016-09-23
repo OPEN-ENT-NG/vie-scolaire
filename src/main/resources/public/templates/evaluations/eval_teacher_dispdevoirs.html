@@ -47,7 +47,7 @@
                         <select ng-model="search.idMatiere" ng-change="getSousMatieres()"
                                 style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
                             <option class="header-opt" value="*">Matières</option>
-                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes " ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search:matieres" ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
                         </select>
                     </label>
                 </section>

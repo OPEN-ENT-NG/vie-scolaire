@@ -1,4 +1,4 @@
-import { ng } from 'entcore/entcore';
+import { ng } from '../../../entcore/entcore';
 
 export let mobilePanel = ng.directive('mobilePanel', function(){
     return{

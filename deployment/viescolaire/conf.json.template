@@ -1,5 +1,5 @@
     {
-      "name": "org.cgi~viescolaire~0.1-SNAPSHOT",
+      "name": "org.cgi~viescolaire~0.2-SNAPSHOT",
       "config": {
         "main" : "org.cgi.Viescolaire",
         "port" : 8128,

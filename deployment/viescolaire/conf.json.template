@@ -7,6 +7,7 @@
         "app-name" : "Viescolaire",
     	"app-address" : "/viescolaire",
     	"app-icon" : "Viescolaire-large",
+    	"db-schema" : "viesco",
         "host": "${host}",
         "ssl" : $ssl,
         "auto-redeploy": false,

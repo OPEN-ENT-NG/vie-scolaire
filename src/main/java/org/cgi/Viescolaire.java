@@ -26,12 +26,14 @@ import org.cgi.absences.controller.CAbscEleveController;
 import org.cgi.absences.controller.CAbscEvenementController;
 import org.cgi.absences.controller.CAbscMotifController;
 import org.cgi.evaluations.controller.*;
+import org.cgi.evaluations.service.impl.InitDataServiceImpl;
 import org.cgi.viescolaire.controller.CVscoClasseController;
 import org.cgi.viescolaire.controller.CVscoCoursController;
 import org.cgi.viescolaire.controller.CVscoEleveController;
 import org.cgi.viescolaire.controller.CVsoPersonnelController;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.EventBus;
 
 public class Viescolaire extends BaseServer {
@@ -123,6 +125,16 @@ public class Viescolaire extends BaseServer {
 		addController(new CEvalExportPDFController(eb, notification));
 		addController(new CEvalNoteController());
 		addController(new CEvalUtilsController());
+
+		//TODO awaiting an admin console
+		//waiting for automatic script, launch after one mitute
+		vertx.setTimer(60000, new Handler<Long>() {
+			@Override
+			public void handle(Long aLong) {
+				//init datas linked with a structure id.
+				new InitDataServiceImpl().initData();
+			}
+		});
 	}
 
 }

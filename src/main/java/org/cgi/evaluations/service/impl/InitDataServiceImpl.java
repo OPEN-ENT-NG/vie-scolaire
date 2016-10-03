@@ -34,15 +34,15 @@ public class InitDataServiceImpl {
 	public void initData() {
 		if (LIBELLE_P.length == S_DATE_P.length && S_DATE_P.length == E_DATE_P.length &&
 				NAME_T.length == DEFAULT_T.length) {
-			//init data for whole struct
-			neo4j.execute("MATCH (n:Structure) RETURN n.id", new JsonObject(), Neo4jResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
+			//init data for whole struct in relation to user
+			neo4j.execute("MATCH (n:Structure)<-[r:ADMINISTRATIVE_ATTACHMENT]-(u:User) RETURN distinct n.id as id", new JsonObject(), Neo4jResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
 				@Override
 				public void handle(Either<String, JsonArray> event) {
 					if (event.isRight()) {
 						final JsonArray ja = event.right().getValue();
 						if (ja.size() > 0) {
 							for (int i = 0; i < ja.size(); i++) {
-								final String structId = ((JsonObject) ja.get(i)).getString("n.id");
+								final String structId = ((JsonObject) ja.get(i)).getString("id");
 
 								final SqlStatementsBuilder s = new SqlStatementsBuilder();
 

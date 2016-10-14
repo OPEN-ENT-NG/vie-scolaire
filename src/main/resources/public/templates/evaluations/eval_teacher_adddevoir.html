@@ -68,9 +68,9 @@
                             <tr>
                                 <td class="three"><i18n>viescolaire.utils.subject</i18n></td>
                                 <td class="three">
-                                    <label class="select" ng-class="{disabled : devoir.matieresByClasse.length == 0}">
-                                        <select ng-model="devoir.idMatiere" ng-disabled="devoir.matieresByClasse.length == 0" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
-                                            <option ng-repeat="matiere in devoir.matieresByClasse | unique:'name'" ng-selected="matiere.id === devoir.idMatiere" value="[[matiere.id]]">[[matiere.name]]</option>
+                                    <label class="select" ng-class="{disabled : matieresFiltered.length == 0}">
+                                        <select ng-model="devoir.idMatiere" ng-disabled="matieresFiltered.length == 0" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
+                                            <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.idClasse:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.idMatiere" value="[[matiere.id]]">[[matiere.name]]</option>
                                         </select>
                                     </label>
                                 </td>

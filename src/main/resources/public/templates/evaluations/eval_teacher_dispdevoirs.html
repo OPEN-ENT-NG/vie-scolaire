@@ -19,10 +19,10 @@
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
-            <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../modules/evaluations/template/eval_teacher_listview') }"
-               ng-click="template.open('evaluations', '../modules/evaluations/template/eval_teacher_listview')"></i>
-            <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../modules/evaluations/template/eval_teacher_iconview') }"
-               ng-click="template.open('evaluations', '../modules/evaluations/template/eval_teacher_iconview')"></i>
+            <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/eval_teacher_listview') }"
+               ng-click="template.open('evaluations', '../templates/evaluations/eval_teacher_listview')"></i>
+            <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/eval_teacher_iconview') }"
+               ng-click="template.open('evaluations', '../templates/evaluations/eval_teacher_iconview')"></i>
         </div>
         <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true">Nouveau devoir </button>
     </nav>

@@ -178,7 +178,7 @@ gulp.task('updateRefs', function () {
 });
 
 gulp.task('build-mod', function () {
-    console.log('STARTING BUILD-LOCAL'.cyan.bold);
+    console.log('STARTING BUILD-LOCAL'.cyan.bold); 
     return exec('gulp build-local', function (err, stdout, stderr) {
         console.log('FIN BUILD-LOCAL'.green.bold);
         console.log('STARTING INSTALL'.cyan.bold);

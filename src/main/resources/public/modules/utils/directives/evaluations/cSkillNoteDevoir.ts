@@ -46,4 +46,4 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             };
         }]
     }
-})
+});

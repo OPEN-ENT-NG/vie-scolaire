@@ -37,8 +37,7 @@ module.exports = {
     },
     externals: {
         "entcore/entcore": "entcore",
-        "underscore": "_",
-        "jquery": "$"
+        "underscore": "_"
     },
     resolve: {
         modulesDirectories: ['bower_components'],

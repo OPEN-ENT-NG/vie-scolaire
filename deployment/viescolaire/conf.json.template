@@ -1,5 +1,5 @@
     {
-      "name": "org.cgi~viescolaire~0.1-SNAPSHOT",
+      "name": "org.cgi~viescolaire~0.2-SNAPSHOT",
       "config": {
         "main" : "org.cgi.Viescolaire",
         "port" : 8128,
@@ -7,6 +7,7 @@
         "app-name" : "Viescolaire",
     	"app-address" : "/viescolaire",
     	"app-icon" : "Viescolaire-large",
+    	"db-schema" : "viesco",
         "host": "${host}",
         "ssl" : $ssl,
         "auto-redeploy": false,

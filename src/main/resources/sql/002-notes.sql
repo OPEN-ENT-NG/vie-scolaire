@@ -5,14 +5,14 @@ CREATE TABLE notes.users
 (
   id character varying(36) NOT NULL,
   username character varying(255),
-  CONSTRAINT users_pkey PRIMARY KEY (id)
+  CONSTRAINT users_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.groups
 (
   id character varying(36) NOT NULL,
   name character varying(255),
-  CONSTRAINT groups_pkey PRIMARY KEY (id)
+  CONSTRAINT groups_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.members
@@ -20,63 +20,63 @@ CREATE TABLE notes.members
   id character varying(36) NOT NULL,
   user_id character varying(36),
   group_id character varying(36),
-  CONSTRAINT members_pkey PRIMARY KEY (id),
-  CONSTRAINT group_fk FOREIGN KEY (group_id)
+  CONSTRAINT members_pk PRIMARY KEY (id),
+  CONSTRAINT fk_group_id FOREIGN KEY (group_id)
       REFERENCES notes.groups (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT user_fk FOREIGN KEY (user_id)
+  CONSTRAINT fk_users_id FOREIGN KEY (user_id)
       REFERENCES notes.users (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notes.matiere
 (
-  id bigserial NOT NULL,
+  id bigint NOT NULL,
   evaluable boolean,
   matiere character varying(255) NOT NULL,
-  idetablissement character varying(255),
-  idprofesseur character varying(255),
-  CONSTRAINT matiere_pkey PRIMARY KEY (id)
+  id_etablissement character varying(255),
+  id_professeur character varying(255),
+  CONSTRAINT matiere_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.dispense
 (
-  id bigserial NOT NULL,
+  id bigint NOT NULL,
   libelle character varying(255),
   description text,
-  CONSTRAINT dispense_pkey PRIMARY KEY (id)
+  CONSTRAINT dispense_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.periode
 (
-  id bigserial NOT NULL,
+  id bigint NOT NULL,
   libelle character varying(255),
-  datedebut date,
-  datefin date,
-  idetablissement character varying(255),
-  CONSTRAINT periode_pkey PRIMARY KEY (id)
+  date_debut date,
+  date_fin date,
+  id_etablissement character varying(255),
+  CONSTRAINT periode_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.enseignements
 (
   id bigserial NOT NULL,
   nom character varying(255),
-  CONSTRAINT "PK enseignements" PRIMARY KEY (id)
+  CONSTRAINT enseignements_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.competences
 (
-  id bigserial NOT NULL,
+  id bigint NOT NULL,
   nom text NOT NULL,
   description text,
-  idparent bigint,
-  idtype bigint NOT NULL,
-  idenseignement bigint,
+  id_parent integer,
+  id_type integer NOT NULL,
+  id_enseignement integer,
   owner character varying(36),
   created timestamp without time zone,
   modified timestamp without time zone,
-  CONSTRAINT "PK competence" PRIMARY KEY (id),
-  CONSTRAINT "FK enseignements" FOREIGN KEY (idenseignement)
+  CONSTRAINT competences_pk PRIMARY KEY (id),
+  CONSTRAINT fk_enseignements_id FOREIGN KEY (id_enseignement)
       REFERENCES notes.enseignements (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -85,30 +85,30 @@ CREATE TABLE notes.etat
 (
   id bigserial NOT NULL,
   libelle character varying(255),
-  CONSTRAINT pketat PRIMARY KEY (id)
+  CONSTRAINT etat_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.typesousmatiere
 (
   id bigserial NOT NULL,
   libelle character varying(255),
-  CONSTRAINT "PK" PRIMARY KEY (id)
+  CONSTRAINT typesousmatiere_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.typecompetences
 (
   id bigserial NOT NULL,
   nom character varying(255),
-  CONSTRAINT typecompetences_pkey PRIMARY KEY (id)
+  CONSTRAINT typecompetences_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.type
 (
   id bigserial NOT NULL,
   nom character varying(255),
-  idetablissement character varying(255),
-  "default" boolean,
-  CONSTRAINT "PKTYPE" PRIMARY KEY (id)
+  id_etablissement character varying(255),
+  default_type boolean,
+  CONSTRAINT type_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.sousmatiere
@@ -116,43 +116,43 @@ CREATE TABLE notes.sousmatiere
   id bigserial NOT NULL,
   id_typesousmatiere bigint NOT NULL,
   id_matiere character varying(255) NOT NULL,
-  CONSTRAINT sousmatiere_pkey PRIMARY KEY (id),
-  CONSTRAINT sousmatiere_id_typesousmatiere_fkey FOREIGN KEY (id_typesousmatiere)
+  CONSTRAINT sousmatiere_pk PRIMARY KEY (id),
+  CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
       REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.devoirs
 (
-  id bigserial NOT NULL,
+  id bigint NOT NULL,
   name character varying(255),
   owner character varying(36) NOT NULL,
-  created timestamp without time zone NOT NULL DEFAULT now(),
-  modified timestamp without time zone NOT NULL DEFAULT now(),
+  created timestamp without time zone DEFAULT now() NOT NULL,
+  modified timestamp without time zone DEFAULT now() NOT NULL,
   coefficient numeric,
   libelle character varying(255),
-  idclasse character varying(255) NOT NULL,
-  idsousmatiere bigint,
-  idperiode bigint NOT NULL,
-  idtype bigint NOT NULL,
-  idetablissement character varying(255) NOT NULL,
-  idetat bigint NOT NULL,
+  id_classe character varying(255) NOT NULL,
+  id_sousmatiere bigint,
+  id_periode bigint NOT NULL,
+  id_type bigint NOT NULL,
+  id_etablissement character varying(255) NOT NULL,
+  id_etat bigint NOT NULL,
   diviseur integer NOT NULL,
-  idmatiere character varying(255),
+  id_matiere character varying(255),
   ramenersur boolean,
   datepublication date,
   date date,
-  CONSTRAINT devoirs_pkey PRIMARY KEY (id),
-  CONSTRAINT "FK type" FOREIGN KEY (idtype)
+  CONSTRAINT devoirs_pk PRIMARY KEY (id),
+  CONSTRAINT fk_types_id FOREIGN KEY (id_type)
       REFERENCES notes.type (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fkPeriode" FOREIGN KEY (idperiode)
+  CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
       REFERENCES notes.periode (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "foreignEtat" FOREIGN KEY (idetat)
+  CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
       REFERENCES notes.etat (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "foreignSousMatiere" FOREIGN KEY (idsousmatiere)
+  CONSTRAINT fk_sousmatiere_id FOREIGN KEY (id_sousmatiere)
       REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT owner_fk FOREIGN KEY (owner)
@@ -166,66 +166,66 @@ CREATE TABLE notes.shares
   resource_id bigint NOT NULL,
   action character varying(255) NOT NULL,
   CONSTRAINT share PRIMARY KEY (member_id, resource_id, action),
-  CONSTRAINT member_fk FOREIGN KEY (member_id)
+  CONSTRAINT fk_member_id FOREIGN KEY (member_id)
       REFERENCES notes.members (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT resource_fk FOREIGN KEY (resource_id)
+  CONSTRAINT fk_resource_id FOREIGN KEY (resource_id)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notes.notes
 (
-  id bigserial NOT NULL,
-  ideleve character varying(255) NOT NULL,
-  iddevoir bigint NOT NULL,
+  id bigint NOT NULL,
+  id_eleve character varying(255) NOT NULL,
+  id_devoir bigint NOT NULL,
   valeur numeric NOT NULL,
-  iddispense bigint,
+  id_dispense bigint,
   owner character varying(255),
   modified timestamp without time zone,
   created timestamp without time zone,
   appreciation text,
-  CONSTRAINT notes_pkey PRIMARY KEY (id),
-  CONSTRAINT "foreignDevoir" FOREIGN KEY (iddevoir)
+  CONSTRAINT notes_pk PRIMARY KEY (id),
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "foreignDispense" FOREIGN KEY (iddispense)
+  CONSTRAINT fk_dispense_id FOREIGN KEY (id_dispense)
       REFERENCES notes.dispense (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.competences_notes
 (
-  id bigserial NOT NULL,
-  iddevoir bigint,
-  idcompetence bigint,
+  id bigint NOT NULL,
+  id_devoir integer,
+  id_competence integer,
   evaluation integer,
   owner character varying(36),
   ideleve character(36),
   created timestamp without time zone,
   modified timestamp without time zone,
-  CONSTRAINT "PK competences notes" PRIMARY KEY (id),
-  CONSTRAINT "FK competence" FOREIGN KEY (idcompetence)
+  CONSTRAINT competences_notes_pk PRIMARY KEY (id),
+  CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
       REFERENCES notes.competences (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "FK devoir" FOREIGN KEY (iddevoir)
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.competences_devoirs
 (
-  id bigserial NOT NULL,
-  iddevoir bigint,
-  idcompetence bigint,
+  id bigint NOT NULL,
+  id_devoir integer,
+  id_competence integer,
   owner character varying(36),
   created timestamp without time zone,
   modified timestamp without time zone,
-  CONSTRAINT "PK devoirs competences" PRIMARY KEY (id),
-  CONSTRAINT "FK competence" FOREIGN KEY (idcompetence)
+  CONSTRAINT competences_devoirs_pk PRIMARY KEY (id),
+  CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
       REFERENCES notes.competences (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "FK devoirs" FOREIGN KEY (iddevoir)
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );

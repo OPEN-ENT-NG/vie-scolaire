@@ -1,6 +1,6 @@
 -- SCHEMA viesco : Attention à l'internationalisation
-INSERT INTO viesco.type_classe (type_classe_id, type_classe_libelle) VALUES (1, 'classe');
-INSERT INTO viesco.type_classe (type_classe_id, type_classe_libelle) VALUES (2, 'groupe');
+INSERT INTO viesco.type_classe (id, libelle) VALUES (1, 'classe');
+INSERT INTO viesco.type_classe (id, libelle) VALUES (2, 'groupe');
 SELECT setval('viesco.type_classe_type_classe_id_seq', 2, true);
 
 -- SCHEMA notes : Attention à l'internationalisation

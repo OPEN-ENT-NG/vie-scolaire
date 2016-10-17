@@ -105,8 +105,8 @@ public class InitDataService {
 
 	private void initType(String structId, SqlStatementsBuilder s) {
 		final String query =
-				"INSERT INTO notes.type (nom, id_etablissement, \"default\") SELECT ?, ?, ? WHERE NOT EXISTS " +
-						"(SELECT * FROM notes.type WHERE nom = ? AND id_etablissement = ? AND \"default\" = ?);";
+				"INSERT INTO notes.type (nom, id_etablissement, \"default_type\") SELECT ?, ?, ? WHERE NOT EXISTS " +
+						"(SELECT * FROM notes.type WHERE nom = ? AND id_etablissement = ? AND \"default_type\" = ?);";
 		for (int j = 0; j < NAME_T.length; j++) {
 			JsonArray ar = new JsonArray()
 					.add(NAME_T[j]).add(structId).add(DEFAULT_T[j])

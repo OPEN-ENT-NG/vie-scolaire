@@ -8,46 +8,46 @@
     "libelle": {
       "type": "string"
     },
-    "idclasse": {
+    "id_classe": {
       "type": "string"
     },
-    "idsousmatiere": {
+    "id_sousmatiere": {
       "type": ["integer","null"]
     },
-    "idperiode": {
+    "id_periode": {
       "type": "integer"
     },
-    "idtype" : {
+    "id_type" : {
       "type" : "integer"
     },
-    "idetablissement" : {
+    "id_etablissement" : {
       "type" : "string"
     },
-    "idmatiere" : {
+    "id_matiere" : {
       "type" : "string"
     },
-    "idetat" : {
+    "id_etat" : {
       "type" : "integer"
     },
-    "datepublication" : {
+    "date_publication" : {
       "type" : "string"
     },
     "diviseur" : {
       "type" : "integer"
     },
-    "ramenersur" : {
+    "ramener_sur" : {
       "type" : "boolean"
     }
   },
   "required": [
     "name",
-    "idclasse",
-    "idperiode",
-    "idtype",
-    "idetablissement",
-    "idmatiere",
-    "idetat",
+    "id_classe",
+    "id_periode",
+    "id_type",
+    "id_etablissement",
+    "id_matiere",
+    "id_etat",
     "diviseur",
-    "ramenersur"
+    "ramener_sur"
   ]
 }

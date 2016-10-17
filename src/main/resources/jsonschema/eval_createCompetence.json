@@ -9,20 +9,20 @@
     "description": {
       "type": "string"
     },
-    "idparent": {
+    "id_parent": {
       "type": "integer"
     },
-    "idtype": {
+    "id_type": {
       "type": "integer"
     },
-    "idenseignement": {
+    "id_enseignement": {
       "type": "integer"
     }
   },
   "required": [
     "nom",
-    "idparent",
-    "idtype",
-    "idenseignement"
+    "id_parent",
+    "id_type",
+    "id_enseignement"
   ]
 }

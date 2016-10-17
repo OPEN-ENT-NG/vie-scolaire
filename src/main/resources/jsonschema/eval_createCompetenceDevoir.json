@@ -3,15 +3,15 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "iddevoir": {
+    "id_devoir": {
       "type": "integer"
     },
-    "idcompetence": {
+    "id_competence": {
       "type": "integer"
     }
   },
   "required": [
-    "iddevoir",
-    "idcompetence"
+    "id_devoir",
+    "id_competence"
   ]
 }

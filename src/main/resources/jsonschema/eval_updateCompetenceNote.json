@@ -3,13 +3,13 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "iddevoir": {
+    "id_devoir": {
       "type": "integer"
     },
-    "ideleve": {
+    "id_eleve": {
       "type": "string"
     },
-    "idcompetence": {
+    "id_competence": {
       "type": "integer"
     },
     "evaluation": {
@@ -17,9 +17,9 @@
     }
   },
   "required": [
-    "iddevoir",
-    "ideleve",
-    "idcompetence",
+    "id_devoir",
+    "id_eleve",
+    "id_competence",
     "evaluation"
   ]
 }

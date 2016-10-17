@@ -3,16 +3,16 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "evenement_timestamp_arrive": {
+    "timestamp_arrive": {
       "type": ["string", "null"]
     },
-    "evenement_timestamp_depart": {
+    "timestamp_depart": {
       "type": ["string", "null"]
     },
-    "evenement_commentaire": {
+    "commentaire": {
       "type": "string"
     },
-    "evenement_saisie_cpe": {
+    "saisie_cpe": {
       "type": "boolean"
     },
     "fk_eleve_id" : {

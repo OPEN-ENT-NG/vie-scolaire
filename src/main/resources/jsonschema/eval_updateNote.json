@@ -6,10 +6,10 @@
     "id" : {
       "type":"integer"
     },
-    "ideleve": {
+    "id_eleve": {
       "type": "string"
     },
-    "iddevoir": {
+    "id_devoir": {
       "type": "integer"
     },
     "valeur": {
@@ -20,8 +20,8 @@
     }
   },
   "required": [
-    "ideleve",
-    "iddevoir",
+    "id_eleve",
+    "id_devoir",
     "valeur",
     "id"
   ]

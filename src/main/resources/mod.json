@@ -1,5 +1,5 @@
 {
-	"main" : "org.cgi.Viescolaire",
+	"main" : "fr.openent.Viescolaire",
 	"port" : 8128,
 	"app-name" : "Viescolaire",
 	"app-address" : "/viescolaire",

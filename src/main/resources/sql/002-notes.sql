@@ -201,7 +201,7 @@ CREATE TABLE notes.competences_notes
   id_competence integer,
   evaluation integer,
   owner character varying(36),
-  ideleve character(36),
+  id_eleve character(36),
   created timestamp without time zone,
   modified timestamp without time zone,
   CONSTRAINT competences_notes_pk PRIMARY KEY (id),

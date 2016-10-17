@@ -49,10 +49,10 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as iddevoir, devoirs.date, devoirs.coefficient, devoirs.ramenersur,notes.valeur, notes.id, notes.ideleve ")
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve ")
                 .append("FROM notes.notes, notes.devoirs ")
-                .append("WHERE notes.iddevoir = ? " +
-                        "AND notes.iddevoir = devoirs.id");
+                .append("WHERE notes.id_devoir = ? " +
+                        "AND notes.id_devoir = devoirs.id");
         values.add(devoirId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -65,8 +65,8 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
 
         query.append("SELECT notes.* ")
                 .append("FROM notes.notes ")
-                .append("WHERE notes.iddevoir = ? ")
-                .append("AND notes.ideleve = ? ");
+                .append("WHERE notes.id_devoir = ? ")
+                .append("AND notes.id_eleve = ? ");
 
         values.addNumber(idDevoir);
         values.addString(idEleve);
@@ -89,11 +89,11 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT notes.valeur, devoirs.id, devoirs.date, devoirs.idmatiere, devoirs.diviseur, devoirs.libelle, devoirs.name ")
+        query.append("SELECT notes.valeur, devoirs.id, devoirs.date, devoirs.id_matiere, devoirs.diviseur, devoirs.libelle, devoirs.name ")
                 .append("FROM notes.notes, notes.devoirs ")
-                .append("WHERE notes.ideleve = ? ")
-                .append("AND notes.iddevoir = devoirs.id ")
-                .append("AND devoirs.datepublication <= current_date ")
+                .append("WHERE notes.id_eleve = ? ")
+                .append("AND notes.id_devoir = devoirs.id ")
+                .append("AND devoirs.date_publication <= current_date ")
                 .append("ORDER BY notes.id DESC ")
                 .append("LIMIT 5;");
         values.addString(userId);
@@ -105,14 +105,14 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as iddevoir, devoirs.date, devoirs.coefficient, devoirs.ramenersur, ")
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append(" notes.valeur, notes.id ")
                 .append("FROM notes.devoirs ")
-                .append("left join notes.notes on devoirs.id = notes.iddevoir and notes.ideleve = ?")
-                .append("WHERE devoirs.idetablissement = ? ")
-                .append("AND devoirs.idclasse = ? ")
-                .append("AND devoirs.idmatiere = ? ")
-                .append("AND devoirs.idperiode = ? ")
+                .append("left join notes.notes on devoirs.id = notes.id_devoir and notes.id_eleve = ?")
+                .append("WHERE devoirs.id_etablissement = ? ")
+                .append("AND devoirs.id_classe = ? ")
+                .append("AND devoirs.id_matiere = ? ")
+                .append("AND devoirs.id_periode = ? ")
                 .append("ORDER BY devoirs.date ASC, devoirs.id ASC;");
 
         values.addString(userId).addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
@@ -125,13 +125,13 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as iddevoir, devoirs.date, devoirs.coefficient, devoirs.ramenersur,notes.valeur, notes.id, notes.ideleve " +
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve " +
                 "FROM notes.devoirs " +
-                "left join notes.notes on devoirs.id = notes.iddevoir " +
-                "WHERE devoirs.idetablissement = ? " +
-                "AND devoirs.idclasse = ? " +
-                "AND devoirs.idmatiere = ? " +
-                "AND devoirs.idperiode = ?" +
+                "left join notes.notes on devoirs.id = notes.id_devoir " +
+                "WHERE devoirs.id_etablissement = ? " +
+                "AND devoirs.id_classe = ? " +
+                "AND devoirs.id_matiere = ? " +
+                "AND devoirs.id_periode = ?" +
                 "ORDER BY devoirs.date ASC ;");
         values.addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));

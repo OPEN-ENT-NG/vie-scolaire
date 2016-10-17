@@ -39,9 +39,9 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     @Override
     public void getCompetences(Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT competences.id, competences.nom, competences.description, competences.idtype, competences.idparent, typecompetences.nom as type ")
+        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, typecompetences.nom as type ")
                 .append("FROM notes.competences, notes.typecompetences ")
-                .append("WHERE competences.idtype = typecompetences.id ")
+                .append("WHERE competences.id_type = typecompetences.id ")
                 .append("ORDER BY competences.id ASC");
         Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
     }
@@ -50,7 +50,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     public void setDevoirCompetences(Integer devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray data = new JsonArray();
-        query.append("INSERT INTO notes.competences_devoirs (iddevoir, idcompetence) VALUES ");
+        query.append("INSERT INTO notes.competences_devoirs (id_devoir, id_competence) VALUES ");
         for(int i = 0; i < values.size(); i++){
             query.append("(?, ?)");
             data.addNumber(devoirId);
@@ -69,10 +69,10 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     public void getDevoirCompetences(Integer devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT notes.competences_devoirs.*, notes.competences.nom as nom, notes.competences.idtype as idtype, notes.competences.idparent as idparent ")
+        query.append("SELECT notes.competences_devoirs.*, notes.competences.nom as nom, notes.competences.id_type as id_type, notes.competences.id_parent as id_parent ")
                 .append("FROM notes.competences_devoirs, notes.competences ")
-                .append("WHERE notes.competences_devoirs.idcompetence = notes.competences.id ")
-                .append("AND competences_devoirs.iddevoir = ? ")
+                .append("WHERE notes.competences_devoirs.id_competence = notes.competences.id ")
+                .append("AND competences_devoirs.id_devoir = ? ")
                 .append("ORDER BY notes.competences_devoirs.id ASC;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
@@ -83,7 +83,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT * FROM notes.competences_devoirs  ")
-                .append("WHERE iddevoir IN ( ")
+                .append("WHERE id_devoir IN ( ")
                 .append("SELECT id FROM notes.devoirs WHERE notes.devoirs.owner = ? ORDER BY notes.devoirs.created DESC LIMIT 1 ")
                 .append(");");
 
@@ -96,7 +96,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
 
         query.append("SELECT * ")
                 .append("FROM notes.competences ")
-                .append("WHERE competences.idparent = ?;");
+                .append("WHERE competences.id_parent = ?;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(skillId), SqlResult.validResultHandler(handler));
     }
@@ -107,8 +107,8 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
 
         query.append("SELECT * ")
                 .append("FROM notes.competences ")
-                .append("WHERE competences.idenseignement = ? ")
-                .append("AND competences.idparent = 0 ;");
+                .append("WHERE competences.id_enseignement = ? ")
+                .append("AND competences.id_parent = 0 ;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(teachingId), SqlResult.validResultHandler(handler));
     }
@@ -117,7 +117,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     public void getCompetencesByLevel(String filter, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT competences.id, competences.nom, competences.idparent, competences.idtype, competences.idenseignement" +
+        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, competences.id_enseignement" +
                 " FROM notes.competences" +
                 " WHERE competences." + filter + ";");
         Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));

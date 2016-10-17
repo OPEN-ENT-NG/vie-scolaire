@@ -55,21 +55,21 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.idclasse, ")
-                .append("devoirs.idsousmatiere,devoirs.idperiode, devoirs.idtype, devoirs.idetablissement, devoirs.diviseur, ")
-                .append("devoirs.idetat, devoirs.datepublication, devoirs.idmatiere, devoirs.coefficient, devoirs.ramenersur, ")
-                .append("typesousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
+        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, ")
+                .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
+                .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
+                .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
                 .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences ")
                 .append("FROM notes.devoirs ")
-                .append("inner join notes.type on devoirs.idtype = type.id ")
-                .append("inner join notes.periode on devoirs.idperiode = periode.id ")
-                .append("left join notes.competences_devoirs on devoirs.id = competences_devoirs.iddevoir ")
-                .append("left join notes.sousmatiere  on devoirs.idsousmatiere = sousmatiere.id ")
-                .append("left join notes.typesousmatiere on sousmatiere.id_typesousmatiere = typesousmatiere.id ")
+                .append("inner join notes.type on devoirs.id_type = type.id ")
+                .append("inner join notes.periode on devoirs.id_periode = periode.id ")
+                .append("left join notes.competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
+                .append("left join notes.sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
+                .append("left join notes.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("WHERE devoirs.owner = ? ")
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.idclasse, ")
-                .append("devoirs.idsousmatiere,devoirs.idperiode, devoirs.idtype, devoirs.idetablissement, devoirs.diviseur, ")
-                .append("devoirs.idetat, devoirs.datepublication, devoirs.idmatiere, devoirs.coefficient, devoirs.ramenersur, typesousmatiere.libelle, periode.libelle, type.nom ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, ")
+                .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
+                .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
         values.add(user.getUserId());
 
@@ -87,16 +87,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("type.nom as _type_libelle, periode.libelle as _periode_libelle ")
                 .append("FROM ")
                 .append("notes.devoirs ")
-                .append("inner join notes.periode on devoirs.idperiode = periode.id ")
-                .append("inner join notes.type on devoirs.idtype = type.id ")
+                .append("inner join notes.periode on devoirs.id_periode = periode.id ")
+                .append("inner join notes.type on devoirs.id_type = type.id ")
                 .append("WHERE ")
-                .append("devoirs.idetablissement = ? ")
+                .append("devoirs.id_etablissement = ? ")
                 .append("AND ")
-                .append("devoirs.idclasse = ? ")
+                .append("devoirs.id_classe = ? ")
                 .append("AND ")
-                .append("devoirs.idmatiere = ? ")
+                .append("devoirs.id_matiere = ? ")
                 .append("AND ")
-                .append("devoirs.idperiode = ? ")
+                .append("devoirs.id_periode = ? ")
                 .append("ORDER BY devoirs.date ASC, devoirs.id ASC");
 
         values.addString(idEtablissement);
@@ -112,14 +112,14 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.*,typesousmatiere.libelle as _sousmatiere_libelle,sousmatiere.id as _sousmatiere_id " +
+        query.append("SELECT devoirs.*,type_sousmatiere.libelle as _sousmatiere_libelle,sousmatiere.id as _sousmatiere_id " +
                 "FROM notes.devoirs " +
-                "LEFT JOIN notes.sousmatiere ON devoirs.idsousmatiere = sousmatiere.id " +
-                "LEFT JOIN notes.typesousmatiere ON sousmatiere.id_typesousmatiere = typesousmatiere.id " +
-                "WHERE devoirs.idetablissement = ?" +
-                "AND devoirs.idperiode = ? " +
+                "LEFT JOIN notes.sousmatiere ON devoirs.id_sousmatiere = sousmatiere.id " +
+                "LEFT JOIN notes.type_sousmatiere ON sousmatiere.id_type_sousmatiere = type_sousmatiere.id " +
+                "WHERE devoirs.id_etablissement = ?" +
+                "AND devoirs.id_periode = ? " +
                 "AND devoirs.owner = ? " +
-                "AND devoirs.datepublication <= current_date " +
+                "AND devoirs.date_publication <= current_date " +
                 "ORDER BY devoirs.date ASC;");
 
         values.addString(idEtablissement);
@@ -133,9 +133,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.idclasse " +
+        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe " +
                 "FROM notes.notes, notes.devoirs " +
-                "WHERE notes.iddevoir = devoirs.id " +
+                "WHERE notes.id_devoir = devoirs.id " +
                 "AND devoirs.owner = ? " +
                 "GROUP by devoirs.id");
 

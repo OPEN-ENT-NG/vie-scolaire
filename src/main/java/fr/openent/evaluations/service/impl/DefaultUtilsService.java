@@ -50,7 +50,7 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
 
         query.append("SELECT type.* ")
                 .append("FROM notes.type ")
-                .append("WHERE type.idetablissement = ? ");
+                .append("WHERE type.id_etablissement = ? ");
         values.add(idEtablissement);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -63,8 +63,8 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
 
         query.append("SELECT periode.* ")
                 .append("FROM notes.periode ")
-                .append("WHERE periode.idetablissement = ? ")
-                .append("ORDER BY periode.dateDebut ASC");
+                .append("WHERE periode.id_etablissement = ? ")
+                .append("ORDER BY periode.date_debut ASC");
         values.add(idEtablissement);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -86,9 +86,9 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT sousmatiere.id ,typesousmatiere.libelle ")
-                .append("FROM notes.sousmatiere, notes.typesousmatiere ")
-                .append("WHERE sousmatiere.id_typesousmatiere = typesousmatiere.id ")
+        query.append("SELECT sousmatiere.id ,type_sousmatiere.libelle ")
+                .append("FROM notes.sousmatiere, notes.type_sousmatiere ")
+                .append("WHERE sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("AND sousmatiere.id_matiere = ? ");
 
         values.add(id);
@@ -250,7 +250,7 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
     public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
-        query.append("SELECT * FROM notes.sousmatiere INNER JOIN notes.typesousmatiere on sousmatiere.id_typesousmatiere = typesousmatiere.id" +
+        query.append("SELECT * FROM notes.sousmatiere INNER JOIN notes.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
                 " WHERE sousmatiere.id_matiere IN ")
                 .append(Sql.listPrepared(ids))
                 .append(";");

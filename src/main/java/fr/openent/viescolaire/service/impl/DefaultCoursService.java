@@ -46,13 +46,13 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.cours_id, cours.fk4j_etab_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_salle, cours.cours_matiere, cours.fk_classe_id ")
+        query.append("SELECT cours.id, cours.fk4j_etab_id, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.matiere, cours.fk_classe_id ")
         .append("FROM viesco.cours, viesco.classe ")
-        .append("WHERE cours.fk_classe_id = classe.classe_id ")
+        .append("WHERE cours.fk_classe_id = classe.id ")
         .append("AND cours.fk_classe_id = ? ")
-        .append("AND cours.cours_timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-        .append("AND cours.cours_timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-        .append("ORDER BY cours.cours_timestamp_fn ASC");
+        .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+        .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+        .append("ORDER BY cours.timestamp_fn ASC");
 
         values.addNumber(Integer.parseInt(pSIdClasse)).addString(pSDateDebut).addString(pSDateFin);
 
@@ -64,16 +64,16 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT viesco.cours.*, to_char(viesco.cours.cours_timestamp_dt, 'HH24:MI') as heure_debut, viesco.classe.classe_libelle as libelle_classe, rel_personnel_cours.fk_personnel_id ")
+        query.append("SELECT viesco.cours.*, to_char(viesco.cours.timestamp_dt, 'HH24:MI') as heure_debut, viesco.classe.libelle as libelle_classe, rel_personnel_cours.fk_personnel_id ")
                 .append("FROM viesco.cours, viesco.classe, viesco.rel_personnel_cours, viesco.personnel ")
                 .append("WHERE personnel.fk4j_user_id::varchar = ? ")
-                .append("AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
-                .append("AND to_date(?, 'DD-MM-YYYY') < cours.cours_timestamp_dt ")
-                .append("AND cours.cours_timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
-                .append("AND cours.fk_classe_id = classe.classe_id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.cours_id ")
-                .append("ORDER BY cours.cours_timestamp_dt ASC");
+                .append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
+                .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
+                .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_dt ")
+                .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
+                .append("AND cours.fk_classe_id = classe.id ")
+                .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
+                .append("ORDER BY cours.timestamp_dt ASC");
 
         values.addString(psUserId);
         values.addString(pSDateDebut);

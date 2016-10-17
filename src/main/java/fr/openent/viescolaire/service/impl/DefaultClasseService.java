@@ -41,7 +41,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT classe.classe_id, classe.fk4j_classe_id, classe.classe_libelle ")
+        query.append("SELECT classe.id, classe.fk4j_classe_id, classe.libelle ")
                 .append("FROM viesco.classe ")
                 .append("WHERE classe.fk4j_etab_id = ?::uuid");
 

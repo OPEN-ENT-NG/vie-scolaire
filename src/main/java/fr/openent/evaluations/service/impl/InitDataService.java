@@ -93,8 +93,8 @@ public class InitDataService {
 
 	private void initPeriod(String structId, SqlStatementsBuilder s) {
 		final String query =
-				"INSERT INTO notes.periode (libelle, datedebut, datefin, idetablissement) SELECT ?, to_date(?,'YYYY-MM-DD'), to_date(?,'YYYY-MM-DD'), ? WHERE NOT EXISTS " +
-						"(SELECT * FROM notes.periode WHERE libelle = ? AND datedebut = to_date(?,'YYYY-MM-DD') AND datefin = to_date(?,'YYYY-MM-DD') AND idetablissement = ?);";
+				"INSERT INTO notes.periode (libelle, date_debut, date_fin, id_etablissement) SELECT ?, to_date(?,'YYYY-MM-DD'), to_date(?,'YYYY-MM-DD'), ? WHERE NOT EXISTS " +
+						"(SELECT * FROM notes.periode WHERE libelle = ? AND date_debut = to_date(?,'YYYY-MM-DD') AND date_fin = to_date(?,'YYYY-MM-DD') AND id_etablissement = ?);";
 		for (int j = 0; j < LIBELLE_P.length; j++) {
 			JsonArray ar = new JsonArray()
 					.add(LIBELLE_P[j]).add(S_DATE_P[j]).add(E_DATE_P[j]).add(structId)
@@ -105,8 +105,8 @@ public class InitDataService {
 
 	private void initType(String structId, SqlStatementsBuilder s) {
 		final String query =
-				"INSERT INTO notes.type (nom, idetablissement, \"default\") SELECT ?, ?, ? WHERE NOT EXISTS " +
-						"(SELECT * FROM notes.type WHERE nom = ? AND idetablissement = ? AND \"default\" = ?);";
+				"INSERT INTO notes.type (nom, id_etablissement, \"default\") SELECT ?, ?, ? WHERE NOT EXISTS " +
+						"(SELECT * FROM notes.type WHERE nom = ? AND id_etablissement = ? AND \"default\" = ?);";
 		for (int j = 0; j < NAME_T.length; j++) {
 			JsonArray ar = new JsonArray()
 					.add(NAME_T[j]).add(structId).add(DEFAULT_T[j])

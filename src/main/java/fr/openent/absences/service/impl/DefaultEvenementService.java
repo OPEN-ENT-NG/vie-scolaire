@@ -74,16 +74,16 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT evenement.id, evenement.evenement_commentaire, cours.cours_timestamp_dt, cours.cours_timestamp_fn " +
+        query.append("SELECT evenement.id, evenement.commentaire, cours.timestamp_dt, cours.timestamp_fn " +
                 "FROM abs.evenement, viesco.cours, abs.appel " +
-                "WHERE evenement.evenement_commentaire IS NOT NULL " +
+                "WHERE evenement.commentaire IS NOT NULL " +
                 "AND evenement.fk_appel_id = appel.id " +
-                "AND appel.fk_cours_id = cours.cours_id " +
+                "AND appel.fk_cours_id = cours.id " +
                 "AND evenement.fk_type_evt_id = 5 " +
-                "AND cours.cours_timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.cours_timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
+                "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
                 "AND cours.fk4j_etab_id = ?::uuid " +
-                "ORDER BY cours.cours_timestamp_dt DESC");
+                "ORDER BY cours.timestamp_dt DESC");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psEtablissementId);
 
@@ -95,13 +95,13 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT evenement.id, evenement.evenement_timestamp_arrive, evenement.evenement_timestamp_depart, evenement.evenement_commentaire, " +
+        query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
                 "evenement.evenement_saisie_cpe, evenement.fk_eleve_id, evenement.fk_appel_id, evenement.fk_type_evt_id," +
                 " evenement.fk_pj_pj, evenement.fk_motif_id," +
-                " eleve.eleve_id, eleve.fk4j_user_id, appel.fk_cours_id " +
+                " eleve.id, eleve.fk4j_user_id, appel.fk_cours_id " +
                 "FROM abs.evenement, viesco.eleve, viesco.rel_eleve_classe, abs.appel " +
-                "WHERE evenement.fk_eleve_id = eleve.eleve_id " +
-                "AND eleve.eleve_id = rel_eleve_classe.fk_eleve_id " +
+                "WHERE evenement.fk_eleve_id = eleve.id " +
+                "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +
                 "AND evenement.fk_appel_id = appel.id " +
                 "AND appel.fk_cours_id = ?");
@@ -122,13 +122,13 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "SELECT appel.id " +
                 "FROM viesco.cours, viesco.personnel, viesco.rel_personnel_cours, abs.appel " +
                 "WHERE personnel.fk4j_user_id = ?::uuid " +
-                "AND personnel.personnel_id = rel_personnel_cours.fk_personnel_id " +
-                "AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
+                "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
+                "AND rel_personnel_cours.fk_cours_id = cours.id " +
                 "AND cours.fk_classe_id = ? " +
-                "AND appel.fk_cours_id = cours.cours_id " +
-                "AND cours.cours_id != ? " +
-                "AND cours.cours_timestamp_dt < (SELECT cours.cours_timestamp_dt FROM viesco.cours WHERE cours.cours_id = ?) " +
-                "ORDER BY cours.cours_timestamp_dt DESC " +
+                "AND appel.fk_cours_id = cours.id " +
+                "AND cours.id != ? " +
+                "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM viesco.cours WHERE cours.id = ?) " +
+                "ORDER BY cours.timestamp_dt DESC " +
                 "LIMIT 1) " +
                 "AND evenement.fk_type_evt_id = 1 ");
 
@@ -142,15 +142,15 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT evenement.id, evenement.evenement_timestamp_arrive, evenement.evenement_timestamp_depart, evenement.evenement_commentaire, " +
-                "evenement.evenement_saisie_cpe, evenement.fk_eleve_id, evenement.fk_appel_id, evenement.fk_type_evt_id," +
-                " evenement.fk_pj_pj, evenement.fk_motif_id, cours.cours_id " +
+        query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
+                "evenement.saisie_cpe, evenement.fk_eleve_id, evenement.fk_appel_id, evenement.fk_type_evt_id," +
+                " evenement.fk_pj_pj, evenement.fk_motif_id, cours.id " +
                 "FROM abs.evenement, abs.appel, viesco.cours " +
                 "WHERE cours.fk_classe_id = ? " +
                 "AND evenement.fk_appel_id = appel.id " +
-                "AND appel.fk_cours_id = cours.cours_id " +
-                "AND cours.cours_timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.cours_timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
+                "AND appel.fk_cours_id = cours.id " +
+                "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
 
         values.addNumber(piClasseId).addString(psDateDebut).addString(psDateFin);
 

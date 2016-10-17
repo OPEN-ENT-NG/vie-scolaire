@@ -45,16 +45,16 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray value = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
+        query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.matiere, cours.salle, appel.id, personnel.prenom, personnel.nom, appel.fk_etat_appel_id, classe.libelle, classe.id, personnel.id " +
                 "FROM viesco.personnel, viesco.classe, viesco.rel_personnel_cours, viesco.cours " +
-                "LEFT OUTER JOIN abs.appel on (cours.cours_id = appel.fk_cours_id) " +
+                "LEFT OUTER JOIN abs.appel on (cours.id = appel.fk_cours_id) " +
                 "WHERE cours.fk4j_etab_id = ?::uuid " +
-                "AND cours.cours_timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
-                "AND rel_personnel_cours.fk_personnel_id = personnel.personnel_id " +
-                "AND cours.fk_classe_id = classe.classe_id "+
-                "ORDER BY cours.cours_timestamp_dt DESC");
+                "AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND rel_personnel_cours.fk_cours_id = cours.id " +
+                "AND rel_personnel_cours.fk_personnel_id = personnel.id " +
+                "AND cours.fk_classe_id = classe.id "+
+                "ORDER BY cours.timestamp_dt DESC");
 
         value.addString(psIdEtablissement).addString(psDateDebut).addString(psDateFin);
 
@@ -66,17 +66,17 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.cours_id, cours.cours_timestamp_dt, cours.cours_timestamp_fn, cours.cours_matiere, cours.cours_salle, appel.id, personnel.personnel_prenom, personnel_nom, appel.fk_etat_appel_id, classe.classe_libelle, classe.classe_id, personnel.personnel_id " +
+        query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.matiere, cours.salle, appel.id, personnel.prenom, personnel.nom, appel.fk_etat_appel_id, classe.libelle, classe.id, personnel.id " +
                 "FROM viesco.personnel, viesco.classe, viesco.rel_personnel_cours, viesco.cours " +
-                "LEFT OUTER JOIN abs.appel on (cours.cours_id = appel.fk_cours_id) " +
+                "LEFT OUTER JOIN abs.appel on (cours.id = appel.fk_cours_id) " +
                 "WHERE cours.fk4j_etab_id = ?::uuid " +
-                "AND cours.cours_timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.cours_timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND rel_personnel_cours.fk_cours_id = cours.cours_id " +
-                "AND rel_personnel_cours.fk_personnel_id = personnel.personnel_id " +
-                "AND cours.fk_classe_id = classe.classe_id " +
+                "AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "AND rel_personnel_cours.fk_cours_id = cours.id " +
+                "AND rel_personnel_cours.fk_personnel_id = personnel.id " +
+                "AND cours.fk_classe_id = classe.id " +
                 "AND (appel.fk_etat_appel_id != 3 OR appel.fk_etat_appel_id IS NULL) " +
-                "ORDER BY cours.cours_timestamp_dt DESC");
+                "ORDER BY cours.timestamp_dt DESC");
 
         values.addString(psIdEtablissement).addString(psDateDebut).addString(psDateFin);
 
@@ -90,19 +90,6 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
 
     @Override
     public void updateAppel(JsonObject data, Handler<Either<String, JsonObject>> handler) {
-//        StringBuilder query = new StringBuilder();
-//        JsonArray values = new JsonArray();
-//
-//        query.append("UPDATE abs.appel SET (fk_personnel_id, fk_cours_id, fk_etat_appel_id, fk_justificatif_appel_id) ")
-//                .append("= (?,?,?,?) WHERE id = ? RETURNING *");
-//
-//        values.addNumber(poPersonnelId);
-//        values.addNumber(poCourId);
-//        values.addNumber(poEtatAppelId);
-//        values.addNumber(poJustificatifAppelId);
-//        values.addNumber(poAppelId);
-
-//        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
         super.update(data.getInteger("id").toString(), data, handler);
     }
 

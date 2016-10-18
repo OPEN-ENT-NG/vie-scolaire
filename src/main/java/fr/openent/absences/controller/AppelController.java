@@ -20,6 +20,7 @@
 package fr.openent.absences.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.absences.service.AppelService;
 import fr.openent.absences.service.impl.DefaultAppelService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -48,7 +49,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyRe
  * Created by ledunoiss on 22/02/2016.
  */
 public class AppelController extends ControllerHelper {
-    private final fr.openent.absences.service.AppelService miAbscAppelService;
+    private final AppelService miAbscAppelService;
 
     public AppelController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;

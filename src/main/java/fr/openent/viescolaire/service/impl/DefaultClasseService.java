@@ -43,7 +43,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         query.append("SELECT classe.id, classe.fk4j_classe_id, classe.libelle ")
                 .append("FROM viesco.classe ")
-                .append("WHERE classe.fk4j_etab_id = ?::uuid");
+                .append("WHERE classe.id_etablissement = ?::uuid");
 
         params.addString(idEtablissement);
 

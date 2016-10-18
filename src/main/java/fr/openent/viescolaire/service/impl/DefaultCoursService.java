@@ -46,7 +46,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.id, cours.fk4j_etab_id, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.matiere, cours.fk_classe_id ")
+        query.append("SELECT cours.id, cours.id_etablissement, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.matiere, cours.fk_classe_id ")
         .append("FROM viesco.cours, viesco.classe ")
         .append("WHERE cours.fk_classe_id = classe.id ")
         .append("AND cours.fk_classe_id = ? ")

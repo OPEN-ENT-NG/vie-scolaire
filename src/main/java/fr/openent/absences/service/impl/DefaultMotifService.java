@@ -43,7 +43,7 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
 
         query.append("SELECT * ")
             .append("FROM abs.motif ")
-            .append("WHERE fk4j_etab_id=?::uuid");
+            .append("WHERE id_etablissement=?::uuid");
 
         values.addString(psIdEtablissement);
 
@@ -57,7 +57,7 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
 
         query.append("SELECT * ")
                 .append("FROM abs.justificatif_appel ")
-                .append("WHERE justificatif_appel.fk4j_etab_id = ?::uuid");
+                .append("WHERE justificatif_appel.id_etablissement = ?::uuid");
 
         values.addString(psIdEtablissement);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

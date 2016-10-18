@@ -20,6 +20,8 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.CompetencesService;
+import fr.openent.evaluations.service.EnseignementService;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -44,8 +46,8 @@ public class EnseignementController extends ControllerHelper {
     /**
      * Déclaration des services
      */
-    private final fr.openent.evaluations.service.EnseignementService enseignementService;
-    private final fr.openent.evaluations.service.CompetencesService competencesService;
+    private final EnseignementService enseignementService;
+    private final CompetencesService competencesService;
 
     public EnseignementController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;

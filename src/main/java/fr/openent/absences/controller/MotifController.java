@@ -19,6 +19,7 @@
 
 package fr.openent.absences.controller;
 
+import fr.openent.absences.service.MotifService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -40,7 +41,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
  */
 public class MotifController extends ControllerHelper {
 
-    private final fr.openent.absences.service.MotifService miAbscMotifService;
+    private final MotifService miAbscMotifService;
 
     public MotifController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;

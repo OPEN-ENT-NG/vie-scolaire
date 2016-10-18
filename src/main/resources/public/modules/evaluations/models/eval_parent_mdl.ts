@@ -57,8 +57,8 @@ export class Periode extends Model {
     devoirs : Collection<Devoir>;
     id : any;
     moyenne : number;
-    date_debut : any;
-    date_fin : any;
+    timestamp_dt: any;
+    timestamp_fn: any;
 
     get api () {
         return {
@@ -128,7 +128,7 @@ export class Evaluations extends Model{
             this.makeModels([Devoir,Periode, Matiere]);
             this.collection(Periode, {
                 sync : function(){
-                    http().getJson('/viescolaire/evaluations/periodes?idEtablissement='+model.me.structures[0]).done(function(periodes){
+                    http().getJson('/viescolaire/periodes?idEtablissement='+model.me.structures[0]).done(function(periodes){
                         this.load(periodes);
                     }.bind(this));
                 }
@@ -138,7 +138,7 @@ export class Evaluations extends Model{
         this.collection(Matiere);
         this.matieres.sync = function(idEleve){
             if(idEleve !== undefined){
-                http().getJson('/viescolaire/evaluations/matieres/eleve/'+idEleve).done(function(matieres){
+                http().getJson('/viescolaire/matieres/eleve/'+idEleve).done(function(matieres){
                     this.load(JSON.parse(matieres));
                 }.bind(this));
             }

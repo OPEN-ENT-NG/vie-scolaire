@@ -17,14 +17,44 @@ CREATE TABLE viesco.personnel
   prenom character varying(42),
   profil character varying(42),
   enseigne boolean,
-  fk4j_etab_id uuid,
+  id_etablissement uuid,
   CONSTRAINT personnel_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE notes.matiere
+(
+  id bigint NOT NULL,
+  evaluable boolean,
+  matiere character varying(255) NOT NULL,
+  id_etablissement character varying(255),
+  id_professeur character varying(255),
+  CONSTRAINT matiere_pk PRIMARY KEY (id)
+);
+
+
+CREATE TABLE notes.sousmatiere
+(
+  id bigserial NOT NULL,
+  id_typesousmatiere bigint NOT NULL,
+  id_matiere character varying(255) NOT NULL,
+  CONSTRAINT sousmatiere_pk PRIMARY KEY (id),
+  CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
+  REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+CREATE TABLE notes.typesousmatiere
+(
+  id bigserial NOT NULL,
+  libelle character varying(255),
+  CONSTRAINT typesousmatiere_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE viesco.periode
 (
   id bigserial NOT NULL,
-  fk4j_etab_id uuid,
+  id_etablissement uuid,
   libelle character varying(42),
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
@@ -52,7 +82,7 @@ CREATE TABLE viesco.classe
 (
   id bigint NOT NULL,
   fk4j_classe_id uuid,
-  fk4j_etab_id uuid,
+  id_etablissement uuid,
   externalid character varying(42),
   libelle character varying(42),
   fk_type_classe_id bigint,
@@ -65,7 +95,7 @@ CREATE TABLE viesco.classe
 CREATE TABLE viesco.cours
 (
   id bigint NOT NULL,
-  fk4j_etab_id uuid,
+  id_etablissement uuid,
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
   salle character varying(42),
@@ -108,3 +138,5 @@ CREATE TABLE viesco.rel_personnel_cours
       REFERENCES viesco.personnel (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+CREATE INDEX sousmatiere_id_typesousmatiere_idx ON viesco.sousmatiere USING btree(id_typesousmatiere, id_matiere);

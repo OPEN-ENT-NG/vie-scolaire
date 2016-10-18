@@ -490,8 +490,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 var momentCurrDate = moment(moment().format(formatStr), formatStr);
                 $scope.currentPeriodeId = -1;
                 for (var i = 0; i < evaluations.periodes.all.length; i++) {
-                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].datedebut).format(formatStr), formatStr);
-                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].datefin).format(formatStr), formatStr);
+                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
+                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
                     if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         $scope.currentPeriodeId = evaluations.periodes.all[i].id;
                         if (resolve && typeof (resolve) === 'function') {

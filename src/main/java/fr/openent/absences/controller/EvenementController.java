@@ -20,6 +20,7 @@
 package fr.openent.absences.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.absences.service.EvenementService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -46,7 +47,7 @@ public class EvenementController extends ControllerHelper {
 
     private final String ABSC_EVENEMENT_SCHEMA = "";
 
-    private final fr.openent.absences.service.EvenementService miAbscEvenementService;
+    private final EvenementService miAbscEvenementService;
     public EvenementController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscEvenementService = new DefaultEvenementService();

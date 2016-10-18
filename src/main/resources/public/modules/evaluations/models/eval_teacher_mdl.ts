@@ -692,8 +692,8 @@ export interface Devoirs extends Collection<Devoir>, DevoirsCollection {}
 
 export class Periode extends Model {
     id : number;
-    datedebut : any;
-    datefin : any;
+    timestamp_dt : any;
+    timestamp_fn : any;
 }
 
 export class Enseignement extends Model {
@@ -885,7 +885,7 @@ export class Evaluations extends Model {
         this.enseignements.sync();
         this.collection(Matiere, {
             sync : function () {
-                http().getJson('/viescolaire/evaluations/matieres?idEnseignant=' + model.me.userId).done(function (res) {
+                http().getJson('/viescolaire/matieres?idEnseignant=' + model.me.userId).done(function (res) {
                     this.load(res);
                     this.each(function (matiere) {
                         matiere.sousMatieres.load(matiere.sous_matieres);

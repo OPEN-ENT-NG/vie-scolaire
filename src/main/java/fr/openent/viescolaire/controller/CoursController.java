@@ -19,6 +19,7 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.service.CoursService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -37,7 +38,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  * Created by ledunoiss on 10/02/2016.
  */
 public class CoursController extends ControllerHelper{
-    private final fr.openent.viescolaire.service.CoursService coursService;
+    private final CoursService coursService;
     public CoursController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         coursService = new DefaultCoursService();

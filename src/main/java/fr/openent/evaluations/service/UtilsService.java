@@ -33,98 +33,47 @@ import java.util.List;
  */
 public interface UtilsService {
     // TODO REDECOUPER LA STRUCTURE UNE FOIS L'ARCHITECTURE DEFINIE
+
     /**
      * Liste les types de devoirs pour un etablissement donné
+     *
      * @param idEtablissement identifiant de l'établissement
-     * @param handler handler portant le resultat de la requête
+     * @param handler         handler portant le resultat de la requête
      */
     public void listTypesDevoirsParEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Liste les période pour un établissement donné
-     * @param idEtablissement identifiant de l'établissement
-     * @param handler handler portant le résultat de la requête
-     */
-    public void listPeriodesParEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
-
-    /**
-     * Liste les matières pour un élève donné
-     * @param userId identifiant de l'élève
-     * @param handler handler portant le résultat de la requête
-     */
-    public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
-
-    /**
-     * Liste les sous matière d'une matière donnée
-     * @param id identifiant de la matière
-     * @param handler handler portant la résultat de la requête
-     */
-    public void listSousMatieres(String id, Handler<Either<String, JsonArray>> handler);
-
-    //TODO A SUPPRIMER
-    public void listMatieres(String id, Handler<Either<String, JsonArray>> result);
-
-    /**
-     *
-     * @param codeMatieres
-     * @param codeEtablissement
-     * @param result
-     */
-    public void getCorrespondanceMatieres(JsonArray codeMatieres, JsonArray codeEtablissement, Handler<Either<String, JsonArray>> result);
-
-    /**
-     * Recupère les matières en fonction d'une liste d'identifiants donnée
-     * @param ids identifiants
-     * @param result handler portant le resultat de la requête
-     */
-    public void getMatiere(List<String> ids, Handler<Either<String, JsonArray>> result);
-
-    /**
      * Recupère les informations de l'élève
-     * @param id identifiant de l'élève
+     *
+     * @param id     identifiant de l'élève
      * @param result handler portant le résultat de la requête
      */
     public void getInfoEleve(String id, Handler<Either<String, JsonObject>> result);
 
     /**
-     * Récupère les enseignants en fonction d'une liste de matières données
-     * @param classesFieldOfStudy Liste de matières
-     * @param result handler portant le résulat de la requête
-     */
-    public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
-
-    /**
      * Récupère les enfants d'une parent donné
-     * @param id identifiant du parent
+     *
+     * @param id      identifiant du parent
      * @param handler handler portant la résultat de la requête
      */
     public void getEnfants(String id, Handler<Either<String, JsonArray>> handler);
+
     /**
      * Fonction de calcul générique de la moyenne
+     *
      * @param listeNoteDevoirs : contient une liste de NoteDevoir.
-     * Dans le cas ou les objets seraient des moyennes, toutes les propriétés ramener sur devront
-     * être à false.
-     * @param diviseurM : diviseur de la moyenne. Par défaut, cette valeur est égale à 20 (optionnel).
+     *                         Dans le cas ou les objets seraient des moyennes, toutes les propriétés ramener sur devront
+     *                         être à false.
+     * @param diviseurM        : diviseur de la moyenne. Par défaut, cette valeur est égale à 20 (optionnel).
      * @return Double : moyenne calculée
      **/
     public JsonObject calculMoyenne(List<NoteDevoir> listeNoteDevoirs, Boolean statistiques, Integer diviseurM);
-    /**
-     * Recupere un periode sous sa representation en BDD
-     * @param idPeriode identifiant de la periode
-     * @param handler handler comportant le resultat
-     */
-    public void getPeriode(Integer idPeriode, Handler<Either<String, JsonObject>> handler);
+
     /**
      * Recupere un établissemnt sous sa representation en BDD
-     * @param id identifiant de l'etablissement
+     *
+     * @param id      identifiant de l'etablissement
      * @param handler handler comportant le resultat
      */
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler);
-
-    /**
-     * Recupère les sous matières en fonction d'un tableau d'id de matière
-     * @param ids tableau d'identifiants de matières
-     * @param handler handler portant le résultat de la requête
-     */
-    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler);
 }

@@ -20,6 +20,7 @@
 package fr.openent.absences.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.absences.service.EleveService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -40,7 +41,7 @@ public class EleveController extends ControllerHelper {
     /**
      * Service relatif a des opérations concernant les élèves
      */
-    private final fr.openent.absences.service.EleveService miAbscEleveService;
+    private final EleveService miAbscEleveService;
 
 
     public EleveController(){

@@ -160,7 +160,6 @@ public class DevoirController extends ControllerHelper {
      *
      * @param request
      */
-//    /:idEtablissement/:idPeriode/:idUser
     @Get("/devoirs/periode/:idPeriode")
     @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)

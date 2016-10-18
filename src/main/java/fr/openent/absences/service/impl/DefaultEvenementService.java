@@ -82,7 +82,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "AND evenement.fk_type_evt_id = 5 " +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
-                "AND cours.fk4j_etab_id = ?::uuid " +
+                "AND cours.id_etablissement = ?::uuid " +
                 "ORDER BY cours.timestamp_dt DESC");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psEtablissementId);

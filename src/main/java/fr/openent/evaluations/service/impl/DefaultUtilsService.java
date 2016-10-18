@@ -57,77 +57,6 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
     }
 
     @Override
-    public void listPeriodesParEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("SELECT periode.* ")
-                .append("FROM notes.periode ")
-                .append("WHERE periode.id_etablissement = ? ")
-                .append("ORDER BY periode.date_debut ASC");
-        values.add(idEtablissement);
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }
-
-    @Override
-    public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonObject values = new JsonObject();
-
-        query.append("MATCH (u:`User` {id:{userId}}),(f:`FieldOfStudy`) WHERE f.externalId in u.fieldOfStudy return f");
-        values.putString("userId", userId);
-
-        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
-    }
-
-    @Override
-    public void listSousMatieres(String id, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("SELECT sousmatiere.id ,type_sousmatiere.libelle ")
-                .append("FROM notes.sousmatiere, notes.type_sousmatiere ")
-                .append("WHERE sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
-                .append("AND sousmatiere.id_matiere = ? ");
-
-        values.add(id);
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }
-
-    @Override
-    public void listMatieres(String id, Handler<Either<String, JsonArray>> result) {
-        String query = "MATCH (u:User {id:{id}}) return u.classesFieldOfStudy";
-        neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validResultHandler(result));
-    }
-
-    @Override
-    public void getCorrespondanceMatieres(JsonArray codeMatieres, JsonArray codeEtablissement, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-        params.putArray("listeMatieres", codeMatieres);
-        params.putArray("listeEtablissements", codeEtablissement);
-        query.append("MATCH (n:`FieldOfStudy`) WHERE n.externalId in {listeMatieres} RETURN n")
-                .append(" UNION ")
-                .append("MATCH (n:`Structure`) WHERE n.externalId in {listeEtablissements} RETURN n");
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
-    }
-
-    @Override
-    public void getMatiere(List<String> ids, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-        JsonArray matieresListe = new JsonArray();
-        for(int i = 0 ; i < ids.size(); i++){
-            matieresListe.addString(ids.get(i).toString());
-        }
-        params.putArray("ids", matieresListe);
-        query.append("MATCH (n:`FieldOfStudy`) WHERE n.id in {ids} RETURN n");
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
-    }
-
-    @Override
     public void getInfoEleve(String id, Handler<Either<String, JsonObject>> result) {
         StringBuilder query = new StringBuilder();
 
@@ -137,26 +66,6 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
                 .append("OPTIONAL MATCH (c:`Class`) WHERE c.externalId in u.classes ")
                 .append("RETURN u,n,c");
         neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(result));
-    }
-
-    @Override
-    public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-
-        query.append("MATCH (n:`User`) WHERE ");
-        for(int i = 0; i < classesFieldOfStudy.size(); i++){
-            query.append("{id")
-                    .append(i)
-                    .append("} in n.classesFieldOfStudy ");
-            params.putString("id"+i, classesFieldOfStudy.get(i));
-            if(i != classesFieldOfStudy.size()-1){
-                query.append("OR ");
-            }
-        }
-        query.append("RETURN n");
-        query.toString();
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
     @Override
@@ -218,24 +127,6 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
     }
 
     /**
-     * Recupere un periode sous sa representation en BDD
-     * @param idPeriode identifiant de la periode
-     * @param handler handler comportant le resultat
-     */
-    @Override
-    public void getPeriode(Integer idPeriode, Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("SELECT periode.* ")
-                .append("FROM notes.periode ")
-                .append("WHERE periode.id = ? ");
-        values.add(idPeriode);
-
-        Sql.getInstance().prepared(query.toString(), values, validUniqueResultHandler(handler));
-    }
-
-    /**
      * Recupere un établissemnt sous sa representation en BDD
      * @param id identifiant de l'etablissement
      * @param handler handler comportant le resultat
@@ -246,17 +137,4 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
     }
 
-    @Override
-    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
-        query.append("SELECT * FROM notes.sousmatiere INNER JOIN notes.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
-                " WHERE sousmatiere.id_matiere IN ")
-                .append(Sql.listPrepared(ids))
-                .append(";");
-        for (int i = 0; i < ids.length; i++) {
-            params.add(ids[i]);
-        }
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
-    }
 }

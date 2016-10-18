@@ -20,14 +20,14 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.service.PersonnelService;
-import fr.openent.viescolaire.service.impl.DefaultPersonnelService;
+import fr.openent.viescolaire.service.SousMatiereService;
+import fr.openent.viescolaire.service.impl.DefaultSousMatiereService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.http.BaseController;
+import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -37,26 +37,34 @@ import org.vertx.java.core.json.JsonArray;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 /**
- * Created by ledunoiss on 19/02/2016.
+ * Created by ledunoiss on 18/10/2016.
  */
-public class PersonnelController extends BaseController {
+public class SousMatiereController extends ControllerHelper {
 
-    private final PersonnelService personnelService;
+    private final SousMatiereService sousMatiereService;
 
-    public PersonnelController() {
-        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
-        personnelService = new DefaultPersonnelService();
+    public SousMatiereController () {
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        sousMatiereService = new DefaultSousMatiereService();
     }
 
-    @Get("/enseignants/etablissement")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Recupere tous les enseignant d'un établissement.")
-    public void getEnseignantEtablissement(final HttpServerRequest request){
+    /**
+     * Recupère les sous matières pour une matière donnée
+     * @param request
+     */
+    @Get("/matieres/:id/sousmatieres")
+    @ApiDoc("Récupère les sous matières pour une matière donnée")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void viewSousMatieres(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                personnelService.getEnseignantEtablissement(user.getStructures().get(0), handler);
+                if(user != null){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    sousMatiereService.listSousMatieres(request.params().get("id"), handler);
+                }else{
+                    unauthorized(request);
+                }
             }
         });
     }

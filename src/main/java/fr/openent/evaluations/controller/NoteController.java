@@ -20,6 +20,7 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.NoteService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -52,7 +53,7 @@ public class NoteController extends ControllerHelper{
     /**
      * Déclaration des services
      */
-    private final fr.openent.evaluations.service.NoteService notesService;
+    private final NoteService notesService;
 
     public NoteController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;

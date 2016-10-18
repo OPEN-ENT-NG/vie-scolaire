@@ -21,8 +21,14 @@ package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.bean.NoteDevoir;
+import fr.openent.evaluations.service.DevoirService;
+import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.MatiereService;
+import fr.openent.viescolaire.service.PeriodeService;
+import fr.openent.viescolaire.service.impl.DefaultMatiereService;
+import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -65,14 +71,18 @@ public class ExportPDFController extends ControllerHelper {
     /**
      * Déclaration des services
      */
-    private fr.openent.evaluations.service.DevoirService devoirService;
+    private DevoirService devoirService;
     private UserService userService;
-    private fr.openent.evaluations.service.UtilsService utilsService;
+    private UtilsService utilsService;
+    private MatiereService matiereService;
+    private PeriodeService periodeService;
 
     public ExportPDFController(EventBus eb, EmailSender notification) {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         devoirService = new DefaultDevoirService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
         utilsService = new DefaultUtilsService();
+        matiereService = new DefaultMatiereService();
+        periodeService = new DefaultPeriodeService();
         userService = new DefaultUserService(notification, eb);
     }
 
@@ -95,7 +105,7 @@ public class ExportPDFController extends ControllerHelper {
                                        final String classe, ArrayList<String> classesFieldOfStudy, final JsonArray devoirsJson,
                                        final JsonObject periodeJson, final JsonObject userJson, final JsonObject etabJson) {
 
-        utilsService.getEnseignantsMatieres(classesFieldOfStudy, new Handler<Either<String, JsonArray>>() {
+        matiereService.getEnseignantsMatieres(classesFieldOfStudy, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> eventEnseignantsMatieres) {
 
@@ -247,7 +257,7 @@ public class ExportPDFController extends ControllerHelper {
                                             final JsonArray devoirsJSON = eventListDevoirs.right().getValue();
 
                                             // récupération de l'ensemble des matières de l'élève
-                                            utilsService.listMatieresEleve(request.params().get("idUser"), new Handler<Either<String, JsonArray>>() {
+                                            matiereService.listMatieresEleve(request.params().get("idUser"), new Handler<Either<String, JsonArray>>() {
                                                 @Override
                                                 public void handle(Either<String, JsonArray> eventListMatieresEleve) {
                                                     if(eventListMatieresEleve.isRight()){
@@ -268,7 +278,7 @@ public class ExportPDFController extends ControllerHelper {
                                                         }
 
                                                         // récupération de la période
-                                                        utilsService.getPeriode(idPeriode, new Handler<Either<String,JsonObject>>() {
+                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String,JsonObject>>() {
 
                                                             @Override
                                                             public void handle(Either<String, JsonObject> eventPeriode) {

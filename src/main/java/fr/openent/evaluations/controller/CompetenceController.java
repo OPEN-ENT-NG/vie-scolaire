@@ -20,6 +20,8 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.CompetencesService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -48,8 +50,8 @@ public class CompetenceController extends ControllerHelper{
     /**
      * Déclaration des services
      */
-    private final fr.openent.evaluations.service.CompetencesService competencesService;
-    private final fr.openent.evaluations.service.CompetenceNoteService competencesNotesService;
+    private final CompetencesService competencesService;
+    private final CompetenceNoteService competencesNotesService;
 
     public CompetenceController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;

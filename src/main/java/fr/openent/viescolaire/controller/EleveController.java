@@ -20,6 +20,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.service.EleveService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -39,7 +40,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  */
 public class EleveController extends ControllerHelper {
 
-    private final fr.openent.viescolaire.service.EleveService eleveService;
+    private final EleveService eleveService;
     public EleveController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         eleveService = new DefaultEleveService();

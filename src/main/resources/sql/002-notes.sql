@@ -29,32 +29,12 @@ CREATE TABLE notes.members
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE notes.matiere
-(
-  id bigint NOT NULL,
-  evaluable boolean,
-  matiere character varying(255) NOT NULL,
-  id_etablissement character varying(255),
-  id_professeur character varying(255),
-  CONSTRAINT matiere_pk PRIMARY KEY (id)
-);
-
 CREATE TABLE notes.dispense
 (
   id bigint NOT NULL,
   libelle character varying(255),
   description text,
   CONSTRAINT dispense_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE notes.periode
-(
-  id bigint NOT NULL,
-  libelle character varying(255),
-  date_debut date,
-  date_fin date,
-  id_etablissement character varying(255),
-  CONSTRAINT periode_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE notes.enseignements
@@ -88,12 +68,6 @@ CREATE TABLE notes.etat
   CONSTRAINT etat_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE notes.typesousmatiere
-(
-  id bigserial NOT NULL,
-  libelle character varying(255),
-  CONSTRAINT typesousmatiere_pk PRIMARY KEY (id)
-);
 
 CREATE TABLE notes.typecompetences
 (
@@ -109,17 +83,6 @@ CREATE TABLE notes.type
   id_etablissement character varying(255),
   default_type boolean,
   CONSTRAINT type_pk PRIMARY KEY (id)
-);
-
-CREATE TABLE notes.sousmatiere
-(
-  id bigserial NOT NULL,
-  id_typesousmatiere bigint NOT NULL,
-  id_matiere character varying(255) NOT NULL,
-  CONSTRAINT sousmatiere_pk PRIMARY KEY (id),
-  CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
-      REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.devoirs
@@ -147,13 +110,13 @@ CREATE TABLE notes.devoirs
       REFERENCES notes.type (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
-      REFERENCES notes.periode (id) MATCH SIMPLE
+      REFERENCES viesco.periode (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
       REFERENCES notes.etat (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_sousmatiere_id FOREIGN KEY (id_sousmatiere)
-      REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
+      REFERENCES notes.type_sousmatiere (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT owner_fk FOREIGN KEY (owner)
       REFERENCES notes.users (id) MATCH SIMPLE
@@ -295,5 +258,3 @@ CREATE INDEX "fki_foreignEtat" ON notes.devoirs USING btree(idetat);
 CREATE INDEX "fki_foreignPeriode" ON notes.devoirs USING btree(idperiode);
 
 CREATE INDEX "fki_foreignDispense" ON notes.notes USING btree(iddispense);
-
-CREATE INDEX sousmatiere_id_typesousmatiere_idx ON notes.sousmatiere USING btree(id_typesousmatiere, id_matiere);

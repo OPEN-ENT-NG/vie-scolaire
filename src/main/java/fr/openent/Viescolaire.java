@@ -21,14 +21,11 @@ package fr.openent;
 
 import fr.openent.absences.controller.MotifController;
 import fr.openent.evaluations.controller.*;
-import fr.openent.viescolaire.controller.CoursController;
+import fr.openent.viescolaire.controller.*;
 import fr.wseduc.webutils.email.EmailSender;
 import fr.openent.absences.controller.AppelController;
 import fr.openent.absences.controller.EvenementController;
 import fr.openent.evaluations.service.impl.InitDataService;
-import fr.openent.viescolaire.controller.ClasseController;
-import fr.openent.viescolaire.controller.EleveController;
-import fr.openent.viescolaire.controller.PersonnelController;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
 import org.vertx.java.core.Handler;
@@ -50,6 +47,9 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_ELEVE_TABLE = "eleve";
 	public final static String VSCO_PERSONNEL_TABLE = "personnel";
 	public final static String VSCO_CLASSE_TABLE = "classe";
+	public final static String VSCO_PERIODE_TABLE = "periode";
+	public final static String VSCO_MATIERE_TABLE = "matiere";
+	public final static String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
 
 	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
@@ -105,11 +105,14 @@ public class Viescolaire extends BaseServer {
 		addController(new EleveController());
 		addController(new PersonnelController());
 		addController(new ClasseController());
+		addController(new PeriodeController());
+		addController(new MatiereController());
+		addController(new SousMatiereController());
 
 		/*
 			CONTROLEURS ABSENCES
 		 */
-		addController(new fr.openent.absences.controller.EleveController());
+		addController(new EleveController());
 		addController(new MotifController());
 		addController(new AppelController());
 		addController(new EvenementController());

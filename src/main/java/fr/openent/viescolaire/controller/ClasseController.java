@@ -20,6 +20,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.service.ClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -40,7 +41,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
  */
 public class ClasseController extends BaseController {
 
-    fr.openent.viescolaire.service.ClasseService classeService;
+    ClasseService classeService;
 
     public ClasseController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;

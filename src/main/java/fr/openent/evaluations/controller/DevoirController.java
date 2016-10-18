@@ -228,7 +228,7 @@ public class DevoirController extends ControllerHelper {
                                     for (int i = 0; i < values.size(); i++) {
                                         Double percent = new Double(0);
                                         JsonObject devoir = values.get(i);
-                                        String idClasse = devoir.getString("idclasse");
+                                        String idClasse = devoir.getString("id_classe");
                                         Integer idDevoir = devoir.getInteger("id");
                                         percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes")*100/classes.getInteger(idClasse))));
                                         returns.putNumber(idDevoir.toString(), percent);

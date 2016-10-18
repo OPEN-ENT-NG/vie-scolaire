@@ -41,7 +41,7 @@
                             <tr>
                                 <td colspan="3"><i18n>evaluations.test.grade.report.average</i18n></td>
                                 <td><label class="checkbox">
-                                    <input type="checkbox" ng-model="devoir.ramenerSur" ng-disabled="devoir.diviseur === 20" > <!-- ng-checked="devoir.diviseur !== 20" -->
+                                    <input type="checkbox" ng-model="devoir.ramener_sur" ng-disabled="devoir.diviseur === 20" > <!-- ng-checked="devoir.diviseur !== 20" -->
                                     <span></span>
                                 </label></td>
                             </tr>
@@ -49,7 +49,7 @@
                                 <td colspan="2"><i18n>viescolaire.utils.school</i18n></td>
                                 <td colspan="2">
                                     <label class="select">
-                                        <select ng-model="devoir.idEtablissement" class="eleven" ng-change="updateEtabInfo()">
+                                        <select ng-model="devoir.id_etablissement" class="eleven" ng-change="updateEtabInfo()">
                                             <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
                                         </select>
                                     </label>
@@ -58,9 +58,9 @@
                             <tr>
                                 <td colspan="2"><i18n>viescolaire.utils.class</i18n></td>
                                 <td colspan="2">
-                                    <label class="select" ng-class="{disabled : devoir.idEtablissement === undefined}">
-                                        <select ng-model="devoir.idClasse" class="eleven" ng-change="setClasseMatieres()">
-                                            <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.idClasse === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                                    <label class="select" ng-class="{disabled : devoir.id_etablissement === undefined}">
+                                        <select ng-model="devoir.id_classe" class="eleven" ng-change="setClasseMatieres()">
+                                            <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.id_classe === classe.id" value="[[classe.id]]">[[classe.name]]</option>
                                         </select>
                                     </label>
                                 </td>
@@ -69,16 +69,16 @@
                                 <td class="three"><i18n>viescolaire.utils.subject</i18n></td>
                                 <td class="three">
                                     <label class="select" ng-class="{disabled : matieresFiltered.length == 0}">
-                                        <select ng-model="devoir.idMatiere" ng-disabled="matieresFiltered.length == 0" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
-                                            <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.idClasse:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.idMatiere" value="[[matiere.id]]">[[matiere.name]]</option>
+                                        <select ng-model="devoir.id_matiere" ng-disabled="matieresFiltered.length == 0" class="eleven" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
+                                            <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.id_classe:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.id_matiere" value="[[matiere.id]]">[[matiere.name]]</option>
                                         </select>
                                     </label>
                                 </td>
                                 <td class="three" ><i18n>viescolaire.utils.undersubject</i18n></td>
                                 <td class="three" >
                                     <label class="select" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
-                                        <select ng-model="devoir.idSousMatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0" class="eleven">
-                                            <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.idSousMatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
+                                        <select ng-model="devoir.id_sousmatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0" class="eleven">
+                                            <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.id_sousmatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
                                         </select>
                                     </label>
                                 </td>
@@ -87,16 +87,16 @@
                                 <td class="three"><i18n>viescolaire.utils.periode</i18n></td>
                                 <td class="three">
                                     <label class="select">
-                                        <select class="eleven" ng-model="devoir.idPeriode" >
-                                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === devoir.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
+                                        <select class="eleven" ng-model="devoir.id_periode" >
+                                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id === devoir.id_periode" value="[[periode.id]]">[[periode.libelle]]</option>
                                         </select>
                                     </label>
                                 </td>
                                 <td class="three"><i18n>viescolaire.utils.type</i18n></td>
                                 <td class="three">
                                     <label class="select">
-                                        <select class="eleven" ng-model="devoir.idType">
-                                            <option ng-repeat="type in types.all" ng-selected="type.default === true" value="[[type.id]]">[[type.nom]]</option>
+                                        <select class="eleven" ng-model="devoir.id_type">
+                                            <option ng-repeat="type in types.all" ng-selected="type.default_type === true" value="[[type.id]]">[[type.nom]]</option>
                                         </select>
                                     </label>
                                 </td>

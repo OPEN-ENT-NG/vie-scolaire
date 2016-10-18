@@ -11,23 +11,23 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
         var output = devoirs;
         var tempTable = [];
         if (searchParams.idClasse !== '*') {
-            tempTable = _.where(output, {idclasse : searchParams.idClasse});
+            tempTable = _.where(output, {id_classe : searchParams.idClasse});
             output = tempTable;
         }
         if (searchParams.idMatiere !== '*') {
-            tempTable = _.where(output, {idmatiere : searchParams.idMatiere});
+            tempTable = _.where(output, {id_matiere : searchParams.idMatiere});
             output = tempTable;
         }
         if (searchParams.idSousMatiere !== '*') {
-            tempTable = _.where(output, {idsousmatiere : parseInt(searchParams.idSousMatiere)});
+            tempTable = _.where(output, {id_sousmatiere : parseInt(searchParams.idSousMatiere)});
             output = tempTable;
         }
         if (searchParams.idType !== '*') {
-            tempTable = _.where(output, {idtype : parseInt(searchParams.idType)});
+            tempTable = _.where(output, {id_type : parseInt(searchParams.idType)});
             output = tempTable;
         }
         if (searchParams.idPeriode !== '*') {
-            tempTable = _.where(output, {idperiode : parseInt(searchParams.idPeriode)});
+            tempTable = _.where(output, {id_periode : parseInt(searchParams.idPeriode)});
             output = tempTable;
         }
         if (searchParams.name !== "") {
@@ -45,7 +45,7 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
         }
         if (moment(searchParams.datePublication.debut).diff(moment(searchParams.datePublication.fin)) < 0) {
             tempTable = _.filter(output, function (devoir) {
-                return (moment(devoir.datepublication).diff(moment(searchParams.datePublication.debut)) >= 0) && (moment(devoir.datepublication).diff(moment(searchParams.datePublication.fin)) <= 0);
+                return (moment(devoir.date_publication).diff(moment(searchParams.datePublication.debut)) >= 0) && (moment(devoir.datepublication).diff(moment(searchParams.datePublication.fin)) <= 0);
             });
             output = tempTable;
         }

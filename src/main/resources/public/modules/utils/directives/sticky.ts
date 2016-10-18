@@ -1,4 +1,4 @@
-import { ng } from '../../../entcore/entcore';
+import { ng } from 'entcore/entcore';
 
 export let sitcky = ng.directive('sticky', ['$window', function ($window) {
     return {

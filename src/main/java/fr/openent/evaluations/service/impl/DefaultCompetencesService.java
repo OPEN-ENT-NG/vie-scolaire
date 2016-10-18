@@ -39,9 +39,9 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     @Override
     public void getCompetences(Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, typecompetences.nom as type ")
-                .append("FROM notes.competences, notes.typecompetences ")
-                .append("WHERE competences.id_type = typecompetences.id ")
+        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type ")
+                .append("FROM notes.competences, notes.type_competences ")
+                .append("WHERE competences.id_type = type_competences.id ")
                 .append("ORDER BY competences.id ASC");
         Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
     }

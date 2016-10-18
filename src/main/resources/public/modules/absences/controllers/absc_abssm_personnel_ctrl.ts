@@ -42,16 +42,16 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.getJourDate = function(evt){
-            return moment(evt.cours_timestamp_dt).format('DD/MM/YYYY')+' '+moment(evt.cours_timestamp_dt).format('HH:mm')+' - '+moment(evt.cours_timestamp_fn).format('HH:mm');
+            return moment(evt.timestamp_dt).format('DD/MM/YYYY')+' '+moment(evt.timestamp_dt).format('HH:mm')+' - '+moment(evt.timestamp_fn).format('HH:mm');
         };
 
         $scope.getPeriodeCours = function(evt){
-            return moment(evt.cours_timestamp_dt)  .format('HH:mm')+' - '+moment(evt.cours_timestamp_fn).format('HH:mm');
+            return moment(evt.timestamp_dt).format('HH:mm')+' - '+moment(evt.timestamp_fn).format('HH:mm');
         };
 
         $scope.getEnseignantNom = function(evt){
-            var e = vieScolaire.enseignants.findWhere({personnel_id : evt.personnel_id});
-            if(e !== undefined) return (e.personnel_nom+' '+ e.personnel_prenom) ;
+            var e = vieScolaire.enseignants.findWhere({id : evt.personnel_id});
+            if(e !== undefined) return (e.nom+' '+ e.prenom) ;
         };
 
         $scope.updateEvtMotif = function(evt){
@@ -76,7 +76,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.initEvenement = function(event){
             if(event.fk_motif_id !== null){
-                event.motif = vieScolaire.motifs.findWhere({motif_id : event.fk_motif_id});
+                event.motif = vieScolaire.motifs.findWhere({id : event.fk_motif_id});
             }else{
                 event.motif = $scope.defaultMotif;
             }
@@ -105,7 +105,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.initList =function(eleve){
             $scope.$on('closeList', function(event, args){
-                if(args.eleve_id !== eleve.eleve_id){
+                if(args.id !== eleve.id){
                     eleve.displayed = false;
                     $scope.safeApply();
                 }

@@ -68,8 +68,8 @@ export class Classe extends Model {
 
 export class Enseignant extends Model {
     selected : boolean;
-    personnel_nom : string;
-    personnel_prenom : string;
+    nom : string;
+    prenom : string;
 }
 export class Matiere extends Model {}
 export class Appel extends Model {}
@@ -107,7 +107,7 @@ export class VieScolaire extends Model {
                     http().getJson('/viescolaire/absences/eleves/evenements/'+moment(psDateDebut).format('YYYY-MM-DD')+'/'+moment(psDateFin).format('YYYY-MM-DD')).done(function(data){
                         var aLoadedData = [];
                         _.map(data, function(e){
-                            e.cours_date = moment(e.cours_timestamp_dt).format('YYYY-MM-DD');
+                            e.date = moment(e.timestamp_dt).format('YYYY-MM-DD');
                             return e;
                         });
                         var aDates = _.groupBy(data, 'cours_date');
@@ -116,10 +116,10 @@ export class VieScolaire extends Model {
                             for(var e in aEleves){
                                 var t = aEleves[e];
                                 var tempEleve = {
-                                    eleve_id : t[0].fk_eleve_id,
-                                    eleve_nom : t[0].eleve_nom,
-                                    eleve_prenom : t[0].eleve_prenom,
-                                    cours_date : t[0].cours_date,
+                                    id : t[0].fk_eleve_id,
+                                    nom : t[0].nom,
+                                    prenom : t[0].prenom,
+                                    date : t[0].date,
                                     displayed : false,
                                     evenements : t
                                 };
@@ -136,7 +136,7 @@ export class VieScolaire extends Model {
                 http().getJson('/viescolaire/absences/motifs').done(function (motifs) {
                     this.load(motifs);
                     this.map(function (motif) {
-                        motif.motif_justifiant_libelle = motif.motif_justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
+                        motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
                         return motif;
                     });
                 }.bind(this));

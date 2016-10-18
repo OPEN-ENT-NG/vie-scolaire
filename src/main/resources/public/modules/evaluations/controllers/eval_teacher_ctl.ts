@@ -137,13 +137,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.initDevoir = function () {
             return new Devoir({
-                datePublication  : new Date(),
-                dateDevoir       : new Date(),
+                date_publication  : new Date(),
+                date       : new Date(),
                 diviseur         : 20,
                 coefficient      : 1,
-                idEtablissement  : model.me.structures[0],
-                ramenerSur       : false,
-                idEtat           : 1,
+                id_etablissement  : model.me.structures[0],
+                ramener_sur       : false,
+                id_etat           : 1,
                 owner            : model.me.userId,
                 matieresByClasse : [],
                 controlledDate   : true
@@ -151,7 +151,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.controleDate = function () {
-            $scope.devoir.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
+            $scope.devoir.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") >= 0);
         };
 
         $scope.selectDevoir = function (devoir) {
@@ -166,19 +166,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.controleNewDevoirForm = function () {
             return !(
                 $scope.devoir.controlledDate
-                && $scope.devoir.idEtablissement !== undefined
-                && $scope.devoir.idClasse !== undefined
-                && $scope.devoir.idMatiere !== undefined
+                && $scope.devoir.id_etablissement !== undefined
+                && $scope.devoir.id_classe !== undefined
+                && $scope.devoir.id_matiere !== undefined
                 && $scope.devoir.name !== undefined
                 && $scope.devoir.libelle !== undefined
-                && $scope.devoir.idPeriode !== undefined
+                && $scope.devoir.id_periode !== undefined
                 && $scope.devoir.coefficient !== undefined
                 && $scope.devoir.coefficient > 0
                 && $scope.devoir.diviseur !== undefined
                 && $scope.devoir.diviseur > 0
-                && $scope.devoir.idType !== undefined
-                && $scope.devoir.ramenerSur !== undefined
-                && $scope.devoir.idEtat !== undefined
+                && $scope.devoir.id_type !== undefined
+                && $scope.devoir.ramener_sur !== undefined
+                && $scope.devoir.id_etat !== undefined
             );
         };
 
@@ -214,25 +214,25 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.createDevoir = function () {
             $scope.devoir = $scope.initDevoir();
             $scope.opened.lightbox = true;
-            $scope.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") <= 0);
+            $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             _.extend($scope.devoir.enseignements, evaluations.enseignements);
             $scope.devoir.getLastSelectedCompetence(function (res)  {
                 $scope.devoir.competencesLastDevoirList = res;
             });
             setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
-                $scope.devoir.idPeriode = defaultPeriode;
+                $scope.devoir.id_periode = defaultPeriode;
                 utils.safeApply($scope, null);
             });
-            $scope.devoir.idType = getDefaultTypDevoir();
+            $scope.devoir.id_type = getDefaultTypDevoir();
             if ($scope.search.idClasse !== '*' && $scope.search.idMatiere !== '*') {
-                $scope.devoir.idClasse = $scope.search.idClasse;
-                $scope.devoir.idMatiere = $scope.search.idMatiere;
+                $scope.devoir.id_classe = $scope.search.idClasse;
+                $scope.devoir.id_matiere = $scope.search.idMatiere;
                 $scope.setClasseMatieres();
                 $scope.selectedMatiere();
             }
             if ($location.path() === "/devoirs/list"){
-                $scope.devoir.idType = $scope.search.idType;
-                $scope.devoir.idSousMatiere = $scope.search.idSousMatiere;
+                $scope.devoir.id_type = $scope.search.idType;
+                $scope.devoir.id_sousmatiere = $scope.search.idSousMatiere;
             }
             template.open('lightboxContainer', '../templates/evaluations/eval_teacher_adddevoir');
             utils.safeApply($scope, null);
@@ -253,9 +253,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
-                            $scope.search.idClasse = $scope.devoir.idClasse;
-                            $scope.search.idMatiere = $scope.devoir.idMatiere;
-                            $scope.search.idPeriode = $scope.devoir.idPeriode;
+                            $scope.search.idClasse = $scope.devoir.id_classe;
+                            $scope.search.idMatiere = $scope.devoir.id_matiere;
+                            $scope.search.idPeriode = $scope.devoir.id_periode;
                             $scope.getReleve();
                         } else {
                             $scope.releveNote.devoirs.sync();
@@ -274,8 +274,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.setClasseMatieres = function () {
-            getClassesMatieres($scope.devoir.idClasse, function (matieres) {
-                if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.idMatiere = $scope.devoir.matieresByClasse[0].id;
+            getClassesMatieres($scope.devoir.id_classe, function (matieres) {
+                if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.id_matiere = $scope.devoir.matieresByClasse[0].id;
                 $scope.selectedMatiere();
             });
         };
@@ -303,14 +303,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     idPeriode : parseInt($scope.search.idPeriode),
                     idMatiere : $scope.search.idMatiere
                 };
-                var rn = evaluations.releveNotes.findWhere(p)
+                var rn = evaluations.releveNotes.findWhere(p);
                 if (rn === undefined) {
                     if(evaluations.synchronized.classes !== 0) {
                         evaluations.classes.on('classes-sync', function () {
                             var releve = new ReleveNote(p);
                             evaluations.releveNotes.push(releve);
                             $scope.releveNote = releve;
-                            $scope.releveNote.sync(function () {
+                            $scope.releveNote.sync().then(() => {
+                                $scope.releveNote.synchronized.releve = true;
+                                $scope.releveNote.calculStatsDevoirs().then(() => {
+                                    utils.safeApply($scope, null);
+                                });
+                                $scope.releveNote.calculMoyennesEleves().then(() => {
+                                    utils.safeApply($scope, null);
+                                });
                                 utils.safeApply($scope, null);
                             });
                         });
@@ -336,7 +343,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.selectedMatiere = function () {
-            var matiere = evaluations.matieres.findWhere({id : $scope.devoir.idMatiere});
+            var matiere = evaluations.matieres.findWhere({id : $scope.devoir.id_matiere});
             if (matiere !== undefined) $scope.devoir.matiere = matiere;
         };
 
@@ -351,7 +358,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         var getDefaultTypDevoir = function(){
-            return (evaluations.types.findWhere({default : true})).id;
+            return (evaluations.types.findWhere({default_type : true})).id;
         };
 
         $scope.getDateFormated = function (date) {
@@ -367,14 +374,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
             if (evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur) {
                 if (evaluation.valeur !== "" &&  evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
-                    var devoir = evaluations.devoirs.findWhere({id : evaluation.iddevoir});
+                    var devoir = evaluations.devoirs.findWhere({id : evaluation.id_devoir});
                     if (devoir !== undefined) {
                         if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
                             evaluation.save().then(() => {
                                 evaluation.oldValeur = evaluation.valeur;
                                 if ($location.$$path === '/releve') {
                                     $scope.calculerMoyenneEleve(eleve);
-                                    $scope.calculStatsDevoirReleve(evaluation.iddevoir);
+                                    $scope.calculStatsDevoirReleve(evaluation.id_devoir);
                                 } else {
                                     $scope.calculStatsDevoir();
                                 }
@@ -391,7 +398,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (evaluation.id !== undefined && evaluation.valeur === "") {
                         evaluation.delete().then(() => {
                             $scope.calculerMoyenneEleve(eleve);
-                            $scope.calculStatsDevoirReleve(evaluation.iddevoir);
+                            $scope.calculStatsDevoirReleve(evaluation.id_devoir);
                             utils.safeApply($scope, null);
                         });
                     } else {
@@ -416,7 +423,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.calculerMoyenneEleve = function(eleve) {
-            eleve.getMoyenne(function () {
+            eleve.getMoyenne().then(() => {
                 utils.safeApply($scope, null);
             });
         };
@@ -433,7 +440,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined &&
                     $scope.currentDevoir.eleves.all[i].evaluation.valeur !== null) {
                     evals.push($scope.currentDevoir.eleves.all[i].evaluation);
-                    evals[i].ramenersur = $scope.currentDevoir.ramenersur;
+                    evals[i].ramener_sur = $scope.currentDevoir.ramener_sur;
                 }
             }
             $scope.currentDevoir.calculStats(evals).then(() => {
@@ -448,7 +455,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 for (var i = 0; i < $scope.releveNote.classe.eleves.all.length; i++) {
                     for (var j = 0; j < $scope.releveNote.classe.eleves.all[i].evaluations.all.length; j++) {
                         if ($scope.releveNote.classe.eleves.all[i].evaluations.all[j].valeur !== ""
-                            && $scope.releveNote.classe.eleves.all[i].evaluations.all[j].iddevoir === devoirId) {
+                            && $scope.releveNote.classe.eleves.all[i].evaluations.all[j].id_devoir === devoirId) {
                             evals.push($scope.releveNote.classe.eleves.all[i].evaluations.all[j]);
                         }
                     }
@@ -467,7 +474,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (template.isEmpty('leftSide-devoirInfo')) template.open('leftSide-devoirInfo', '../templates/evaluations/eval_teacher_dispdevoirinfo');
             if (obj instanceof Devoir) $scope.informations.devoir = obj;
             else if (obj instanceof Evaluation) {
-                var devoir = $scope.releveNote.devoirs.findWhere({id : obj.iddevoir});
+                var devoir = $scope.releveNote.devoirs.findWhere({id : obj.id_devoir});
                 if (devoir !== undefined) $scope.informations.devoir = devoir;
             }
         };

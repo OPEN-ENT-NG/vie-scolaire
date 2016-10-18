@@ -16,7 +16,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
             $scope.selectCompetences = function(competenceHeader){
                 _.each($scope.eleves, function (eleve) {
                     var competencesNotesEleve = eleve.competencesNotesEleve;
-                    var competenceEleve = _.findWhere(competencesNotesEleve, {idcompetence: competenceHeader.idcompetence});
+                    var competenceEleve = _.findWhere(competencesNotesEleve, {id_competence: competenceHeader.id_competence});
                     competenceEleve.evaluation = competenceHeader.evaluation;
                 });
                 $scope.safeApply();
@@ -33,7 +33,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
                 if(competenceHeader.modified) {
                     var _data = [];
                     for (var i = 0; i < $scope.devoir.eleves.all.length; i++) {
-                        var competence = $scope.devoir.eleves.all[i].evaluation.competenceNotes.findWhere({idcompetence: competenceHeader.idcompetence});
+                        var competence = $scope.devoir.eleves.all[i].evaluation.competenceNotes.findWhere({id_competence: competenceHeader.id_competence});
                         if (competence !== undefined) {
                             competence.evaluation = competenceHeader.evaluation;
                             _data.push(competence);
@@ -62,7 +62,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
             };
 
             $scope.$on('changeHeaderColumn', function(event, competence){
-                var competenceHeader = $scope.devoir.competences.findWhere({idcompetence : competence.idcompetence});
+                var competenceHeader = $scope.devoir.competences.findWhere({id_competence : competence.id_competence});
                 $scope.majHeaderColor(competenceHeader);
             });
 
@@ -71,7 +71,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
                 var allCompetencesElevesColumn = [];
                 _.each($scope.devoir.eleves.all, function (eleve) {
                     if (eleve.evaluation.competenceNotes !== undefined && eleve.evaluation.competenceNotes.all.length > 0) {
-                        var competenceEleve = eleve.evaluation.competenceNotes.findWhere({idcompetence: competenceHeader.idcompetence});
+                        var competenceEleve = eleve.evaluation.competenceNotes.findWhere({id_competence: competenceHeader.id_competence});
                         allCompetencesElevesColumn.push(competenceEleve);
                     }
                 });

@@ -67,12 +67,12 @@ public class EnseignementController extends ControllerHelper {
             public void handle(Either<String, JsonArray> event) {
                 if (event.right().isRight()) {
                     _datas.putArray("enseignements", event.right().getValue());
-                    competencesService.getCompetencesByLevel("idtype = 1", new Handler<Either<String, JsonArray>>() {
+                    competencesService.getCompetencesByLevel("id_type = 1", new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> eventCompetences_1) {
                             if (eventCompetences_1.right().isRight()) {
                                 _datas.putArray("_competences_1", eventCompetences_1.right().getValue());
-                                competencesService.getCompetencesByLevel("idtype = 2", new Handler<Either<String, JsonArray>>() {
+                                competencesService.getCompetencesByLevel("id_type = 2", new Handler<Either<String, JsonArray>>() {
                                     @Override
                                     public void handle(Either<String, JsonArray> eventCompetences_2) {
                                         if (eventCompetences_2.right().isRight()) {
@@ -90,14 +90,14 @@ public class EnseignementController extends ControllerHelper {
                                                 for (int j = 0; j < _competences_1.size(); j++) {
                                                     JsonObject _competence_1 = _competences_1.get(j);
                                                     // Si la compétence est dans l'enseignement
-                                                    if (_competence_1.getInteger("idenseignement") == id) {
+                                                    if (_competence_1.getInteger("id_enseignement") == id) {
                                                         Integer _competence_1_id = _competence_1.getInteger("id");
                                                         JsonArray _competence_1_competences_l2 = new JsonArray();
                                                         // Je boucle dans les competences de niveau 2
                                                         for (int g = 0; g < _competences_2.size(); g++) {
                                                             JsonObject _competence_2 = _competences_2.get(g);
                                                             // Si la competence de niveau 2 est dans la competence de niveau 1
-                                                            if (_competence_2.getInteger("idparent") == _competence_1_id) {
+                                                            if (_competence_2.getInteger("id_parent") == _competence_1_id) {
                                                                 // J'ajoute la compétence de niveau 2 dans la liste de compétences de la compétence de niveau 1
                                                                 _competence_1_competences_l2.addObject(_competence_2);
                                                             }

@@ -31,9 +31,9 @@ export class ReleveNote extends  Model implements IModel{
     }
 
     constructor (o? : any) {
-        var that = this;
         super();
         if (o && o !== undefined) this.updateData(o);
+        var that = this;
         this.synchronized = {
             classe : false,
             devoirs : false,
@@ -53,7 +53,7 @@ export class ReleveNote extends  Model implements IModel{
                         console.log(this);
                     });
                 } else {
-                    var _devoirs = evaluations.devoirs.where({idperiode : this.composer.idPeriode, idclasse : this.composer.idClasse, idmatiere : this.composer.idMatiere, idetablissement: this.composer.idEtablissement});
+                    var _devoirs = evaluations.devoirs.where({id_periode : this.composer.idPeriode, id_classe : this.composer.idClasse, id_matiere : this.composer.idMatiere, id_etablissement: this.composer.idEtablissement});
                     if (_devoirs.length > 0) {
                         this.load(_devoirs);
                         that.trigger('format');
@@ -94,19 +94,19 @@ export class ReleveNote extends  Model implements IModel{
             this.on('format', function () {
                 _.each(that.classe.eleves.all, function (eleve) {
                     var _evals = [];
-                    if(that._tmp && that._tmp.length !== 0) var _t = _.where(that._tmp, {ideleve : eleve.id});
+                    if(that._tmp && that._tmp.length !== 0) var _t = _.where(that._tmp, {id_eleve : eleve.id});
                     _.each(that.devoirs.all, function (devoir) {
                         if (_t && _t.length !== 0) {
-                            var _e = _.findWhere(_t, {iddevoir : devoir.id});
+                            var _e = _.findWhere(_t, {id_devoir : devoir.id});
                             if (_e) {
                                 _e.oldValeur = _e.valeur;
                                 _evals.push(_e);
                             }
                             else {
-                                _evals.push(new Evaluation({valeur:"", oldValeur : "", iddevoir : devoir.id, ideleve : eleve.id, ramenersur : devoir.ramenersur, coefficient : devoir.coefficient}));
+                                _evals.push(new Evaluation({valeur:"", oldValeur : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
                             }
                         } else {
-                            _evals.push(new Evaluation({valeur:"", oldValeur : "", iddevoir : devoir.id, ideleve : eleve.id, ramenersur : devoir.ramenersur, coefficient : devoir.coefficient}));
+                            _evals.push(new Evaluation({valeur:"", oldValeur : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
                         }
                     });
                     eleve.evaluations.load(_evals);
@@ -126,7 +126,7 @@ export class ReleveNote extends  Model implements IModel{
                     evaluations : []
                 };
                 _.each(that.classe.eleves.all, function (eleve) {
-                    var _e = eleve.evaluations.findWhere({iddevoir : devoir.id});
+                    var _e = eleve.evaluations.findWhere({id_devoir : devoir.id});
                     if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
                 });
                 if(_o.evaluations.length > 0) _datas.push(_o);
@@ -252,12 +252,12 @@ export class Eleve extends Model {
 
 export class Evaluation extends Model implements IModel{
     id : number;
-    ideleve : string;
-    iddevoir : number;
+    id_eleve : string;
+    id_devoir : number;
     valeur : any;
     appreciation : any;
     coefficient : number;
-    ramenersur : boolean;
+    ramener_sur : boolean;
     competenceNotes : Collection<CompetenceNote>;
     oldValeur : any;
 
@@ -278,8 +278,8 @@ export class Evaluation extends Model implements IModel{
     toJSON () {
         var o = new Evaluation();
         if(this.id !== null) o.id = this.id;
-        o.ideleve  = this.ideleve;
-        o.iddevoir = parseInt(this.iddevoir);
+        o.id_eleve  = this.id_eleve;
+        o.id_devoir = parseInt(this.id_devoir);
         o.valeur   = parseFloat(this.valeur);
         if (this.appreciation) o.appreciation = this.appreciation;
         delete o.competenceNotes;
@@ -334,7 +334,7 @@ export class Evaluation extends Model implements IModel{
         return {
             valeur : parseFloat(this.valeur),
             coefficient : this.coefficient,
-            ramenersur : this.ramenersur
+            ramenersur : this.ramener_sur
         }
     }
 
@@ -350,25 +350,21 @@ export class Devoir extends Model implements IModel{
 
     // DATABASE FIELDS
     id : number;
-    idclasse : string;
-    ramenersur : boolean;
+    id_classe : string;
+    ramener_sur : boolean;
     coefficient : number;
     name : string ;
     owner : string;
     libelle : string;
-    idClasse : string;
-    idSousMatiere : number;
-    idPeriode : number;
-    idType : number;
-    idMatiere : string;
-    idEtat : number;
-    datePublication : any;
-    idEtablissement : string;
+    id_sousmatiere : number;
+    id_periode : number;
+    id_type : number;
+    id_matiere : string;
+    id_etat : number;
+    date_publication : any;
+    id_etablissement : string;
     diviseur : number;
-    dateDevoir : any;
-    ramenerSur : boolean;
-    idmatiere : any;
-    idtype : number;
+    date : any;
     that: any;
 
 
@@ -407,7 +403,7 @@ export class Devoir extends Model implements IModel{
         this.collection(Eleve, {
             sync : function () : Promise<any> {
                 return new Promise((resolve, reject) => {
-                    var _classe = evaluations.classes.findWhere({id : that.idclasse});
+                    var _classe = evaluations.classes.findWhere({id : that.id_classe});
                     that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
                     http().getJson(that.api.getNotesDevoir).done(function (res) {
                         for (var i = 0; i < res.length; i++) {
@@ -423,7 +419,7 @@ export class Devoir extends Model implements IModel{
                             return (!_.has(eleve, "evaluation"));
                         });
                         for (var j = 0; j < _t.length; j++) {
-                            _t[j].evaluation = new Evaluation({valeur:"", oldValeur : "", iddevoir : that.id, ideleve : _t[j].id, ramenersur : that.ramenersur, coefficient : that.coefficient});
+                            _t[j].evaluation = new Evaluation({valeur:"", oldValeur : "", id_devoir : that.id, id_eleve : _t[j].id, ramener_sur : that.ramener_sur, coefficient : that.coefficient});
                         }
                         that.syncCompetencesNotes().then(() => {
                             if(resolve && (typeof(resolve) === 'function')) {
@@ -452,18 +448,18 @@ export class Devoir extends Model implements IModel{
             name            : this.name,
             owner           : this.owner,
             libelle         : this.libelle,
-            idclasse        : this.idClasse,
-            idsousmatiere   : parseInt(this.idSousMatiere),
-            idperiode       : parseInt(this.idPeriode),
-            idtype          : parseInt(this.idType),
-            idmatiere       : this.idMatiere,
-            idetat          : parseInt(this.idEtat),
-            datepublication : this.datePublication,
-            idetablissement : this.idEtablissement,
+            id_classe        : this.id_classe,
+            id_sousmatiere   : parseInt(this.id_sousmatiere),
+            id_periode       : parseInt(this.id_periode),
+            id_type          : parseInt(this.id_type),
+            id_matiere       : this.id_matiere,
+            id_etat          : parseInt(this.id_etat),
+            date_publication : this.date_publication,
+            id_etablissement : this.id_etablissement,
             diviseur        : this.diviseur,
             coefficient     : this.coefficient,
-            date            : this.dateDevoir,
-            ramenersur      : this.ramenerSur,
+            date            : this.date,
+            ramener_sur      : this.ramener_sur,
             competences     : this.competences
         };
     }
@@ -543,14 +539,14 @@ export class Devoir extends Model implements IModel{
             var that = this;
             http().getJson(that.api.getCompetencesNotes + that.id).done(function (res) {
                 for (var i = 0; i < that.eleves.all.length; i++) {
-                    var _comps = _.where(res, {ideleve : that.eleves.all[i].id});
+                    var _comps = _.where(res, {id_eleve : that.eleves.all[i].id});
                     if (_comps.length > 0) {
                         var _results = [];
                         for (var j = 0; j < that.competences.all.length; j++) {
                             var _c = that.competences.all[j];
-                            var _t = _.findWhere(_comps, {idcompetence : _c.idcompetence});
+                            var _t = _.findWhere(_comps, {id_competence : _c.id_competence});
                             if (_t === undefined) {
-                                _results.push(new CompetenceNote({idcompetence : _c.idcompetence, nom : _c.nom, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                                _results.push(new CompetenceNote({id_competence : _c.id_competence, nom : _c.nom, id_devoir : that.id, id_eleve : that.eleves.all[i].id, evaluation : -1}));
                             } else {
                                 _results.push(_t);
                             }
@@ -559,7 +555,7 @@ export class Devoir extends Model implements IModel{
                     } else {
                         var _results = [];
                         for (var j = 0; j < that.competences.all.length; j++) {
-                            _results.push(new CompetenceNote({idcompetence : that.competences.all[j].idcompetence, nom : that.competences.all[j].nom, iddevoir : that.id, ideleve : that.eleves.all[i].id, evaluation : -1}));
+                            _results.push(new CompetenceNote({id_competence : that.competences.all[j].id_competence, nom : that.competences.all[j].nom, id_devoir : that.id, id_eleve : that.eleves.all[i].id, evaluation : -1}));
                         }
                         that.eleves.all[i].evaluation.competenceNotes.load(_results);
                     }
@@ -658,14 +654,14 @@ export class DevoirsCollection {
 
     synchronizeDevoirMatiere () {
         for (var i = 0; i < evaluations.devoirs.all.length; i++) {
-            var matiere = evaluations.matieres.findWhere({id : evaluations.devoirs.all[i].idmatiere});
+            var matiere = evaluations.matieres.findWhere({id : evaluations.devoirs.all[i].id_matiere});
             if (matiere) evaluations.devoirs.all[i].matiere = matiere;
         }
     }
 
     synchronizedDevoirType () {
         for (var i = 0 ; i < evaluations.devoirs.all.length; i++) {
-            var type = evaluations.types.findWhere({id : evaluations.devoirs.all[i].idtype});
+            var type = evaluations.types.findWhere({id : evaluations.devoirs.all[i].id_type});
             if (type) evaluations.devoirs.all[i].type = type;
         }
     }
@@ -711,7 +707,7 @@ export class Competence extends Model {
     competences : Collection<Competence>;
     selected : boolean;
     id : number;
-    idcompetence : number;
+    id_competence : number;
     nom : string;
 
     constructor () {
@@ -760,10 +756,10 @@ export class Matiere extends Model {
 export class SousMatiere extends Model {}
 export class CompetenceNote extends Model implements IModel {
     id: number;
-    iddevoir: number;
-    idcompetence: number;
+    id_devoir: number;
+    id_competence: number;
     evaluation: number;
-    ideleve: string;
+    id_eleve: string;
 
     get api() {
         return {
@@ -781,10 +777,10 @@ export class CompetenceNote extends Model implements IModel {
     toJSON() {
         return {
             id: this.id,
-            iddevoir: this.iddevoir,
-            idcompetence: this.idcompetence,
+            id_devoir: this.id_devoir,
+            id_competence: this.id_competence,
             evaluation: this.evaluation,
-            ideleve: this.ideleve
+            id_eleve: this.id_eleve
         }
     }
 

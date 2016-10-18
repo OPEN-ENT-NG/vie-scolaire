@@ -5,7 +5,7 @@ import {ng} from 'entcore/entcore';
 
 export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
     return function (matieres, idClasse, classes, search, listeMatiere) {
-        if (idClasse === '*') return matieres;
+        if (idClasse === '*' || idClasse === undefined) return matieres;
         if (classes.all.length > 0) {
             var libelleClasse = _.findWhere(classes.all, {id : idClasse}).name;
             if (libelleClasse !== undefined) {

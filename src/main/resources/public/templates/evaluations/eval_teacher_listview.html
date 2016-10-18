@@ -64,7 +64,7 @@
                         [[getDateFormated(devoir.date)]]
                     </div>
                     <div class="one cell cell-indent expandable-content">
-                        [[getLibelleClasse(devoir.idclasse)]]
+                        [[getLibelleClasse(devoir.id_classe)]]
                     </div>
                     <div class="three cell cell-indent expandable-content">
                         [[devoir.name]]
@@ -87,15 +87,15 @@
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.subject</i18n>
                     : <span class="italic">[[devoir.matiere.name]] <span
-                        ng-if="devoir.idsousmatiere !== null">([[devoir._sousmatiere_libelle]])</span></span>
+                        ng-if="devoir.id_sousmatiere !== null">([[devoir._sousmatiere_libelle]])</span></span>
                 </div>
                 <div class="six cell cell-indent expandable-content">
                     <i18n>evaluations.test.ramenersur</i18n>
                     : <span class="italic">
-                            <span ng-if="devoir.ramenersur === true">
+                            <span ng-if="devoir.ramener_sur === true">
                                 <i18n>evaluations.test.ramenersur.true</i18n>
                             </span>
-							<span ng-if="devoir.ramenersur === false">
+							<span ng-if="devoir.ramener_sur === false">
                                 <i18n>evaluations.test.ramenersur.false</i18n>
                             </span>
                     </span>
@@ -104,7 +104,7 @@
             <div class="row">
                 <div class="six cell cell-indent expandable-content">
                     <i18n>evaluations.test.date.mark.publication</i18n>
-                    : <span class="italic">[[getDateFormated(devoir.datepublication)]]</span>
+                    : <span class="italic">[[getDateFormated(devoir.date_publication)]]</span>
                 </div>
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.type</i18n>

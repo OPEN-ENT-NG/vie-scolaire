@@ -73,7 +73,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.noteMatiereEleve = function(idMatiere){
-            return $scope.dataReleve.devoirs.findWhere({ idmatiere : idMatiere });
+            return $scope.dataReleve.devoirs.findWhere({ id_matiere : idMatiere });
         };
 
         $scope.chooseChild = function(idEleve){
@@ -84,7 +84,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.calculMoyenne = function(idMatiere){
-            var notes = $scope.dataReleve.devoirs.where({idmatiere : idMatiere});
+            var notes = $scope.dataReleve.devoirs.where({id_matiere : idMatiere});
             if(notes !== undefined){
                 $scope.searchReleve.periode.calculMoyenne().then((moyenne) => {
                     return moyenne;
@@ -138,8 +138,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.currentPeriodeId = -1;
 
                 for(var i=0; i<periodes.all.length; i++) {
-                    var momentCurrPeriodeDebut = moment(moment(periodes.all[i].datedebut).format(formatStr), formatStr);
-                    var momentCurrPeriodeFin = moment(moment(periodes.all[i].datefin).format(formatStr), formatStr);
+                    var momentCurrPeriodeDebut = moment(moment(periodes.all[i].date_debut).format(formatStr), formatStr);
+                    var momentCurrPeriodeFin = moment(moment(periodes.all[i].date_fin).format(formatStr), formatStr);
                     if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         $scope.searchReleve.periode = periodes.findWhere({id : periodes.all[i].id});
                         $scope.safeApply();

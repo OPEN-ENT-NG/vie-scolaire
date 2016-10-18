@@ -68,7 +68,7 @@ public class CompetenceController extends ControllerHelper{
         JsonObject o = new JsonObject();
         for(int i = 0 ; i < values.size(); i++){
             o = values.get(i);
-            if(o.getInteger("idparent") == id){
+            if(o.getInteger("id_parent") == id){
                 return true;
             }
         }
@@ -87,7 +87,7 @@ public class CompetenceController extends ControllerHelper{
         JsonObject o = new JsonObject();
         for(int i = 0; i < values.size(); i++){
             o = values.get(i);
-            if(o.getInteger("idparent") == id){
+            if(o.getInteger("id_parent") == id){
                 children.addObject(o);
             }
         }
@@ -108,7 +108,7 @@ public class CompetenceController extends ControllerHelper{
             if(isParent(o, values)){
                 o.putArray("children", findChildren(o, values));
             }
-            if(o.getInteger("idparent") == 0){
+            if(o.getInteger("id_parent") == 0){
                 resultat.addObject(o);
             }
         }

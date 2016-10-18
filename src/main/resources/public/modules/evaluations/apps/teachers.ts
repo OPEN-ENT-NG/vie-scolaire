@@ -19,15 +19,15 @@ ng.filters.push(customSearchFilter);
 ng.filters.push(getMatiereClasseFilter);
 
 //DIRECTIVES
-import {cFilAriane} from '../../utils/directives/globals/cFilAriane';
-import {navigable} from '../../utils/directives/globals/navigable';
-import {navigatable} from '../../utils/directives/globals/navigatable';
-import {tabs} from '../../utils/directives/globals/tabs';
-import {pane} from '../../utils/directives/globals/pane';
-import {cSkillNoteDevoir} from '../../utils/directives/evaluations/cSkillNoteDevoir';
-import {cSkillsColorColumn} from '../../utils/directives/evaluations/cSkillsColorColumn';
-import {cSkillsColorPage} from '../../utils/directives/evaluations/cSkillsColorPage';
-import {cSkillsList} from '../../utils/directives/evaluations/cSkillsList';
+import {cFilAriane} from '../../utils/directives/cFilAriane';
+import {navigable} from '../../utils/directives/navigable';
+import {navigatable} from '../../utils/directives/navigatable';
+import {tabs} from '../../utils/directives/tabs';
+import {pane} from '../../utils/directives/pane';
+import {cSkillNoteDevoir} from '../directives/cSkillNoteDevoir';
+import {cSkillsColorColumn} from '../directives/cSkillsColorColumn';
+import {cSkillsColorPage} from '../directives/cSkillsColorPage';
+import {cSkillsList} from '../directives/cSkillsList';
 
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);

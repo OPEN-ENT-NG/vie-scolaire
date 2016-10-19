@@ -21,7 +21,7 @@ CREATE TABLE viesco.personnel
   CONSTRAINT personnel_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE notes.matiere
+CREATE TABLE viesco.matiere
 (
   id bigint NOT NULL,
   evaluable boolean,
@@ -32,19 +32,16 @@ CREATE TABLE notes.matiere
 );
 
 
-CREATE TABLE notes.sousmatiere
+CREATE TABLE viesco.sousmatiere
 (
   id bigserial NOT NULL,
   id_typesousmatiere bigint NOT NULL,
   id_matiere character varying(255) NOT NULL,
-  CONSTRAINT sousmatiere_pk PRIMARY KEY (id),
-  CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
-  REFERENCES notes.typesousmatiere (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT sousmatiere_pk PRIMARY KEY (id)
 );
 
 
-CREATE TABLE notes.typesousmatiere
+CREATE TABLE viesco.type_sousmatiere
 (
   id bigserial NOT NULL,
   libelle character varying(255),
@@ -73,9 +70,9 @@ CREATE TABLE viesco.eleve
 
 CREATE TABLE viesco.type_classe
 (
-  type_classe_id bigserial NOT NULL,
-  type_classe_libelle character varying(42),
-  CONSTRAINT type_classe_pk PRIMARY KEY (type_classe_id)
+  id bigserial NOT NULL,
+  libelle character varying(42),
+  CONSTRAINT type_classe_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE viesco.classe

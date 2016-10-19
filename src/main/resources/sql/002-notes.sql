@@ -69,7 +69,7 @@ CREATE TABLE notes.etat
 );
 
 
-CREATE TABLE notes.typecompetences
+CREATE TABLE notes.type_competences
 (
   id bigserial NOT NULL,
   nom character varying(255),
@@ -106,21 +106,21 @@ CREATE TABLE notes.devoirs
   datepublication date,
   date date,
   CONSTRAINT devoirs_pk PRIMARY KEY (id),
-  CONSTRAINT fk_types_id FOREIGN KEY (id_type)
-      REFERENCES notes.type (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
-      REFERENCES viesco.periode (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
-      REFERENCES notes.etat (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES notes_save.etat (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
+  REFERENCES viesco_save.periode (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_sousmatiere_id FOREIGN KEY (id_sousmatiere)
-      REFERENCES notes.type_sousmatiere (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES notes_save.type_sousmatiere (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_type_id FOREIGN KEY (id_type)
+  REFERENCES notes_save.type (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT owner_fk FOREIGN KEY (owner)
-      REFERENCES notes.users (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+  REFERENCES notes_save.users (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notes.shares
@@ -248,13 +248,16 @@ END;
 $$
 LANGUAGE plpgsql;
 
+ALTER TABLE viesco.sousmatiere ADD CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
+  REFERENCES viesco.type_sousmatiere (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 -- index
-CREATE INDEX idx_compretences_idparent ON notes.competences USING btree(idparent);
-CREATE INDEX competences_notes_id_devoir_id_eleve_idx ON notes.competences_notes USING btree(iddevoir, ideleve);
+CREATE INDEX idx_compretences_idparent ON notes.competences USING btree(id_parent);
+CREATE INDEX competences_notes_id_devoir_id_eleve_idx ON notes.competences_notes USING btree(id_devoir, id_eleve);
 
-CREATE INDEX "fki_FK type" ON notes.devoirs USING btree(idtype);
-CREATE INDEX "fki_foreignEtat" ON notes.devoirs USING btree(idetat);
-CREATE INDEX "fki_foreignPeriode" ON notes.devoirs USING btree(idperiode);
+CREATE INDEX "fki_FK type" ON notes.devoirs USING btree(id_type);
+CREATE INDEX "fki_foreignEtat" ON notes.devoirs USING btree(id_etat);
+CREATE INDEX "fki_foreignPeriode" ON notes.devoirs USING btree(id_periode);
 
-CREATE INDEX "fki_foreignDispense" ON notes.notes USING btree(iddispense);
+CREATE INDEX "fki_foreignDispense" ON notes.notes USING btree(id_dispense);

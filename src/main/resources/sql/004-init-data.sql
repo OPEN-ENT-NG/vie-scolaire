@@ -1,12 +1,12 @@
 -- SCHEMA viesco : Attention à l'internationalisation
 INSERT INTO viesco.type_classe (id, libelle) VALUES (1, 'classe');
 INSERT INTO viesco.type_classe (id, libelle) VALUES (2, 'groupe');
-SELECT setval('viesco.type_classe_type_classe_id_seq', 2, true);
+SELECT setval('viesco.type_classe_id_seq', 2, true);
 
 -- SCHEMA notes : Attention à l'internationalisation
-INSERT INTO notes.typecompetences (id, nom) VALUES (1, 'Compétence');
-INSERT INTO notes.typecompetences (id, nom) VALUES (2, 'Connaissances');
-SELECT setval('notes.typecompetences_id_seq', 2, true);
+INSERT INTO notes.type_competences (id, nom) VALUES (1, 'Compétence');
+INSERT INTO notes.type_competences (id, nom) VALUES (2, 'Connaissances');
+SELECT setval('notes.type_competences_id_seq', 2, true);
 
 INSERT INTO notes.etat(id, libelle) VALUES (1,'Créé');
 SELECT setval('notes.etat_id_seq', 1, true);
@@ -17,7 +17,7 @@ SELECT setval('notes.etat_id_seq', 1, true);
 INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (1, 'Ecrit');
 INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (2, 'Oral');
 INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (3, 'TP');
-SELECT setval('notes.type_sousmatiere_id_seq', 3, true);
+SELECT setval('viesco.type_sousmatiere_id_seq', 3, true);
 
 INSERT INTO notes.enseignements (id, nom) VALUES (1, 'Mathématiques');
 INSERT INTO notes.enseignements (id, nom) VALUES (2, 'Education Physique et Sportive');
@@ -193,4 +193,3 @@ INSERT INTO notes.competences (id, nom, description, id_parent, id_type, id_ense
 INSERT INTO notes.competences (id, nom, description, id_parent, id_type, id_enseignement) VALUES (159, 'Comprendre les principes et les valeurs de la République française et des sociétés démocratiques.', NULL, 157, 2, 9);
 INSERT INTO notes.competences (id, nom, description, id_parent, id_type, id_enseignement) VALUES (160, 'Le jugement : penser par soi-même et avec les autres', NULL, 0, 1, 9);
 INSERT INTO notes.competences (id, nom, description, id_parent, id_type, id_enseignement) VALUES (161, 'L''engagement : agir individuellement et collectivement', NULL, 0, 1, 9);
-SELECT setval('notes.competences_id_seq', 161, true);

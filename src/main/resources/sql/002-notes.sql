@@ -107,19 +107,19 @@ CREATE TABLE notes.devoirs
   date date,
   CONSTRAINT devoirs_pk PRIMARY KEY (id),
   CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
-  REFERENCES notes_save.etat (id) MATCH SIMPLE
+  REFERENCES notes.etat (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
-  REFERENCES viesco_save.periode (id) MATCH SIMPLE
+  REFERENCES viesco.periode (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_sousmatiere_id FOREIGN KEY (id_sousmatiere)
-  REFERENCES notes_save.type_sousmatiere (id) MATCH SIMPLE
+  REFERENCES notes.type_sousmatiere (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_type_id FOREIGN KEY (id_type)
-  REFERENCES notes_save.type (id) MATCH SIMPLE
+  REFERENCES notes.type (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT owner_fk FOREIGN KEY (owner)
-  REFERENCES notes_save.users (id) MATCH SIMPLE
+  REFERENCES notes.users (id) MATCH SIMPLE
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 

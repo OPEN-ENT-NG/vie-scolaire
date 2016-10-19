@@ -85,7 +85,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
 
         query.append("SELECT * FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs  ")
                 .append("WHERE id_devoir IN ")
-                .append("(SELECT id FROM devoirs WHERE devoirs.owner = ? ORDER BY devoirs.created DESC LIMIT 1);");
+                .append("(SELECT id FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs WHERE devoirs.owner = ? ORDER BY devoirs.created DESC LIMIT 1);");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));
     }

@@ -31,7 +31,7 @@ CREATE TABLE notes.members
 
 CREATE TABLE notes.dispense
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   libelle character varying(255),
   description text,
   CONSTRAINT dispense_pk PRIMARY KEY (id)
@@ -46,7 +46,7 @@ CREATE TABLE notes.enseignements
 
 CREATE TABLE notes.competences
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   nom text NOT NULL,
   description text,
   id_parent integer,
@@ -87,7 +87,7 @@ CREATE TABLE notes.type
 
 CREATE TABLE notes.devoirs
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   name character varying(255),
   owner character varying(36) NOT NULL,
   created timestamp without time zone DEFAULT now() NOT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE notes.shares
 
 CREATE TABLE notes.notes
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_eleve character varying(255) NOT NULL,
   id_devoir bigint NOT NULL,
   valeur numeric NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE notes.notes
 
 CREATE TABLE notes.competences_notes
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_devoir integer,
   id_competence integer,
   evaluation integer,
@@ -178,7 +178,7 @@ CREATE TABLE notes.competences_notes
 
 CREATE TABLE notes.competences_devoirs
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_devoir integer,
   id_competence integer,
   owner character varying(36),

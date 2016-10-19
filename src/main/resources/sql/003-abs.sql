@@ -3,7 +3,7 @@ CREATE SCHEMA abs;
 -- tables
 CREATE TABLE abs.creneaux
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
@@ -12,7 +12,7 @@ CREATE TABLE abs.creneaux
 
 CREATE TABLE abs.etat_appel
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   libelle character varying(42),
   CONSTRAINT etat_appel_pk PRIMARY KEY (id)
@@ -20,7 +20,7 @@ CREATE TABLE abs.etat_appel
 
 CREATE TABLE abs.justificatif_appel
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   libelle character varying(42),
   CONSTRAINT justificatif_appel_pk PRIMARY KEY (id)
@@ -35,7 +35,7 @@ CREATE TABLE abs.users
 
 CREATE TABLE abs.type_evt
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   libelle character varying(42),
   CONSTRAINT type_evt_pk PRIMARY KEY (id)
@@ -43,14 +43,14 @@ CREATE TABLE abs.type_evt
 
 CREATE TABLE abs.pj
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   doc character varying(250),
   CONSTRAINT pj_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE abs.motif
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   libelle character varying(150),
   justifiant boolean,
@@ -61,7 +61,7 @@ CREATE TABLE abs.motif
 
 CREATE TABLE abs.appel
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   fk_personnel_id bigint,
   fk_cours_id bigint,
   fk_etat_appel_id bigint,
@@ -86,7 +86,7 @@ CREATE TABLE abs.appel
 
 CREATE TABLE abs.absence_prev
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   restriction_matiere character varying(42),
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
@@ -103,12 +103,12 @@ CREATE TABLE abs.absence_prev
 
 CREATE TABLE abs.evenement
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   timestamp_arrive timestamp without time zone,
   timestamp_depart timestamp without time zone,
   commentaire character varying(250),
   saisie_cpe boolean,
-  fk_eleve_id bigint,
+  fk_eleve_id bigserial,
   fk_appel_id bigint,
   fk_type_evt_id bigint,
   fk_pj_id bigint,
@@ -136,7 +136,7 @@ CREATE TABLE abs.evenement
 
 CREATE TABLE abs.evenement_hist
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   fk_personnel_id bigint,
   fk_evenement_id bigint,
   description character varying(42),

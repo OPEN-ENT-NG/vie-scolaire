@@ -10,7 +10,7 @@ CREATE TABLE viesco.scripts
 
 CREATE TABLE viesco.personnel
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   fk4j_user_id uuid,
   externalid bigint,
   nom character varying(42),
@@ -23,7 +23,7 @@ CREATE TABLE viesco.personnel
 
 CREATE TABLE viesco.matiere
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   evaluable boolean,
   matiere character varying(255) NOT NULL,
   id_etablissement character varying(255),
@@ -77,7 +77,7 @@ CREATE TABLE viesco.type_classe
 
 CREATE TABLE viesco.classe
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   fk4j_classe_id uuid,
   id_etablissement uuid,
   externalid character varying(42),
@@ -91,7 +91,7 @@ CREATE TABLE viesco.classe
 
 CREATE TABLE viesco.cours
 (
-  id bigint NOT NULL,
+  id bigserial NOT NULL,
   id_etablissement uuid,
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,

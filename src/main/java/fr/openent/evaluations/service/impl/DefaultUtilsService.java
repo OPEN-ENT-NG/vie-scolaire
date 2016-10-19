@@ -19,6 +19,7 @@
 
 package fr.openent.evaluations.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.service.UtilsService;
@@ -49,7 +50,7 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
         JsonArray values = new JsonArray();
 
         query.append("SELECT type.* ")
-                .append("FROM notes.type ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".type ")
                 .append("WHERE type.id_etablissement = ? ");
         values.add(idEtablissement);
 

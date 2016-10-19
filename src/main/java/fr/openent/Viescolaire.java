@@ -37,7 +37,7 @@ public class Viescolaire extends BaseServer {
 	 * Déclaration des schémas
 	 */
 	public final static String VSCO_SCHEMA = "viesco";
-	public final static String EVALUATIONS_SCHEMA = "notes";
+	public final static String EVAL_SCHEMA = "notes";
 	public final static String ABSC_SCHEMA = "abs";
 
 	/**

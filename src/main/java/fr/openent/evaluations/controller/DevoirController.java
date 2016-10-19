@@ -57,8 +57,8 @@ public class DevoirController extends ControllerHelper {
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        devoirsService = new DefaultDevoirService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
-        defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        devoirsService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
+        defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
     }
 
     @Get("/devoirs")

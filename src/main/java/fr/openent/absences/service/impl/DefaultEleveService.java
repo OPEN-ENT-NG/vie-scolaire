@@ -40,8 +40,9 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT abs.evenement.*, to_char(abs.evenement.timestamp_arrive, 'hh24:mi') as evenement_heure_arrivee, to_char(abs.evenement.timestamp_depart, 'hh24:mi') as evenement_heure_depart ")
-                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.appel ")
+        query.append("SELECT "+ Viescolaire.ABSC_SCHEMA +".evenement.*, to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_arrive, 'hh24:mi') as evenement_heure_arrivee, " +
+                "to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_depart, 'hh24:mi') as evenement_heure_depart ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE eleve.id = ? ")
                 .append("AND eleve.id = evenement.fk_eleve_id ")
                 .append("AND evenement.fk_appel_id = appel.id ")
@@ -61,8 +62,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT abs.absence_prev.* ")
-                .append("FROM abs.absence_prev ")
+        query.append("SELECT "+ Viescolaire.ABSC_SCHEMA +".absence_prev.* ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".absence_prev ")
                 .append("WHERE absence_prev.fk_eleve_id = ? ");
 
         values.addNumber(new Integer(psIdEleve));
@@ -77,8 +78,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
         // récupération de toutes les absences prévisionnelles dont la date de début ou la date de fin
         // est comprise entre la date de début et de fin passée en paramètre (exemple date début et date fin d'un cours)
-        query.append("SELECT abs.absence_prev.* ")
-                .append("FROM abs.absence_prev ")
+        query.append("SELECT "+ Viescolaire.ABSC_SCHEMA +".absence_prev.* ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".absence_prev ")
                 .append("WHERE absence_prev.fk_eleve_id = ? ")
                 .append("AND ( ")
                 .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_date(?, 'DD-MM-YYYY')) ")
@@ -104,7 +105,10 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
         query.append("SELECT DISTINCT(evenement.id), cours.matiere, evenement.commentaire, evenement.saisie_cpe," +
                 " eleve.nom, eleve.prenom, evenement.fk_eleve_id, evenement.fk_motif_id, cours.timestamp_dt, cours.timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id, classe.id, personnel.id ")
-                .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement LEFT OUTER JOIN abs.motif on (evenement.fk_motif_id = motif.id) ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe, " +
+                        ""+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, " +
+                        ""+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.ABSC_SCHEMA +".evenement " +
+                        "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.fk_motif_id = motif.id) ")
                 .append("WHERE evenement.fk_eleve_id = eleve.id ")
                 .append("AND evenement.fk_appel_id = appel.id ")
                 .append("AND appel.fk_cours_id = cours.id ")
@@ -130,8 +134,10 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
         query.append("SELECT DISTINCT(evenement.id), evenement.commentaire, evenement.saisie_cpe, eleve.nom, eleve.prenom, evenement.fk_eleve_id, evenement.fk_motif_id, cours.timestamp_dt, cours.timestamp_fn, evenement.fk_appel_id, evenement.fk_type_evt_id," +
                 " classe.id, personnel.id, motif.id, motif.libelle, motif.justifiant " +
-                "FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe, abs.appel, viesco.cours, viesco.rel_personnel_cours, viesco.personnel, abs.evenement " +
-                "LEFT OUTER JOIN abs.motif on (evenement.fk_motif_id = motif.id) " +
+                "FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe, " +
+                ""+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours," +
+                " "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.ABSC_SCHEMA +".evenement " +
+                "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.fk_motif_id = motif.id) " +
                 "WHERE evenement.fk_eleve_id = eleve.id AND evenement.fk_appel_id = appel.id " +
                 "AND appel.fk_cours_id = cours.id " +
                 "AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
@@ -156,7 +162,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT absence_prev.* " +
-                "FROM abs.absence_prev, viesco.eleve, viesco.rel_eleve_classe " +
+                "FROM "+ Viescolaire.ABSC_SCHEMA +".absence_prev, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe " +
                 "WHERE absence_prev.fk_eleve_id = eleve.id " +
                 "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +

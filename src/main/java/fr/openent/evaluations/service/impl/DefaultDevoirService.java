@@ -19,6 +19,7 @@
 
 package fr.openent.evaluations.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.service.DevoirService;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -60,12 +61,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
                 .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences ")
-                .append("FROM notes.devoirs ")
-                .append("inner join notes.type on devoirs.id_type = type.id ")
-                .append("inner join viesco.periode on devoirs.id_periode = periode.id ")
-                .append("left join notes.competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
-                .append("left join notes.sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
-                .append("left join notes.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
+                .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("WHERE devoirs.owner = ? ")
                 .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
@@ -86,9 +87,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         query.append("SELECT devoirs.*, ")
                 .append("type.nom as _type_libelle, periode.libelle as _periode_libelle ")
                 .append("FROM ")
-                .append("notes.devoirs ")
-                .append("inner join viesco.periode on devoirs.id_periode = periode.id ")
-                .append("inner join notes.type on devoirs.id_type = type.id ")
+                .append(Viescolaire.EVAL_SCHEMA +".devoirs ")
+                .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
                 .append("WHERE ")
                 .append("devoirs.id_etablissement = ? ")
                 .append("AND ")
@@ -113,9 +114,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         JsonArray values = new JsonArray();
 
         query.append("SELECT devoirs.*,type_sousmatiere.libelle as _sousmatiere_libelle,sousmatiere.id as _sousmatiere_id " +
-                "FROM notes.devoirs " +
-                "LEFT JOIN notes.sousmatiere ON devoirs.id_sousmatiere = sousmatiere.id " +
-                "LEFT JOIN notes.type_sousmatiere ON sousmatiere.id_type_sousmatiere = type_sousmatiere.id " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
+                "LEFT JOIN "+ Viescolaire.VSCO_SCHEMA +".sousmatiere ON devoirs.id_sousmatiere = sousmatiere.id " +
+                "LEFT JOIN "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ON sousmatiere.id_type_sousmatiere = type_sousmatiere.id " +
                 "WHERE devoirs.id_etablissement = ?" +
                 "AND devoirs.id_periode = ? " +
                 "AND devoirs.owner = ? " +
@@ -134,7 +135,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe " +
-                "FROM notes.notes, notes.devoirs " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "WHERE notes.id_devoir = devoirs.id " +
                 "AND devoirs.owner = ? " +
                 "GROUP by devoirs.id");

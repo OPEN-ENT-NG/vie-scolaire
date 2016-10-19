@@ -55,8 +55,8 @@ public class CompetenceController extends ControllerHelper{
 
     public CompetenceController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        competencesService = new DefaultCompetencesService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
-        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     /**

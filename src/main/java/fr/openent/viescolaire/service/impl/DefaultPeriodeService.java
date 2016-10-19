@@ -46,7 +46,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         JsonArray values = new JsonArray();
 
         query.append("SELECT periode.id, periode.id_etablissement as id_etablissement, periode.libelle, periode.timestamp_dt, periode.timestamp_fn ")
-                .append("FROM viesco.periode ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".periode ")
                 .append("WHERE periode.id_etablissement = ?::uuid ")
                 .append("ORDER BY periode.timestamp_dt ASC");
         values.add(idEtablissement);
@@ -65,7 +65,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         JsonArray values = new JsonArray();
 
         query.append("SELECT periode.* ")
-                .append("FROM viesco.periode ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".periode ")
                 .append("WHERE periode.id = ? ");
         values.add(idPeriode);
 

@@ -47,7 +47,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         JsonArray values = new JsonArray();
 
         query.append("SELECT cours.id, cours.id_etablissement, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.matiere, cours.fk_classe_id ")
-        .append("FROM viesco.cours, viesco.classe ")
+        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".classe ")
         .append("WHERE cours.fk_classe_id = classe.id ")
         .append("AND cours.fk_classe_id = ? ")
         .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
@@ -64,8 +64,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT viesco.cours.*, to_char(viesco.cours.timestamp_dt, 'HH24:MI') as heure_debut, viesco.classe.libelle as libelle_classe, rel_personnel_cours.fk_personnel_id ")
-                .append("FROM viesco.cours, viesco.classe, viesco.rel_personnel_cours, viesco.personnel ")
+        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, classe.libelle as libelle_classe, rel_personnel_cours.fk_personnel_id ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".classe, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.VSCO_SCHEMA +".personnel ")
                 .append("WHERE personnel.fk4j_user_id::varchar = ? ")
                 .append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
                 .append("AND rel_personnel_cours.fk_cours_id = cours.id ")

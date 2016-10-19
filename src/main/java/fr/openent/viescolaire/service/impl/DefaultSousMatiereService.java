@@ -45,7 +45,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
         JsonArray values = new JsonArray();
 
         query.append("SELECT sousmatiere.id ,type_sousmatiere.libelle ")
-                .append("FROM notes.sousmatiere, notes.type_sousmatiere ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".sousmatiere, "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ")
                 .append("WHERE sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("AND sousmatiere.id_matiere = ? ");
 
@@ -58,7 +58,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
-        query.append("SELECT * FROM notes.sousmatiere INNER JOIN notes.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
+        query.append("SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".sousmatiere INNER JOIN "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
                 " WHERE sousmatiere.id_matiere IN ")
                 .append(Sql.listPrepared(ids))
                 .append(";");

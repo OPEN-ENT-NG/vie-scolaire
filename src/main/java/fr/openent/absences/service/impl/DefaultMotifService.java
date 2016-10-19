@@ -42,7 +42,7 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT * ")
-            .append("FROM abs.motif ")
+            .append("FROM "+ Viescolaire.ABSC_SCHEMA +".motif ")
             .append("WHERE id_etablissement=?::uuid");
 
         values.addString(psIdEtablissement);
@@ -56,7 +56,7 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT * ")
-                .append("FROM abs.justificatif_appel ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".justificatif_appel ")
                 .append("WHERE justificatif_appel.id_etablissement = ?::uuid");
 
         values.addString(psIdEtablissement);

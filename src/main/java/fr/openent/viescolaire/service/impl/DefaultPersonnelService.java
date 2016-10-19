@@ -42,7 +42,7 @@ public class DefaultPersonnelService extends SqlCrudService implements Personnel
         JsonArray params = new JsonArray();
 
         query.append("SELECT personnel.id, personnel.fk4j_user_id, personnel.nom, personnel.prenom, personnel.enseigne ")
-        .append("FROM viesco.personnel WHERE personnel.id_etablissement = ?::uuid ")
+        .append("FROM "+ Viescolaire.ABSC_SCHEMA +".personnel WHERE personnel.id_etablissement = ?::uuid ")
         .append("AND personnel.profil = 'Teacher'");
 
         params.addString(idEtablissement);

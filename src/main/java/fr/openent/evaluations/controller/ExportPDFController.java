@@ -79,7 +79,7 @@ public class ExportPDFController extends ControllerHelper {
 
     public ExportPDFController(EventBus eb, EmailSender notification) {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        devoirService = new DefaultDevoirService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
+        devoirService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
         utilsService = new DefaultUtilsService();
         matiereService = new DefaultMatiereService();
         periodeService = new DefaultPeriodeService();

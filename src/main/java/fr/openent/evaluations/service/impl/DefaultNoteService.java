@@ -19,6 +19,7 @@
 
 package fr.openent.evaluations.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.service.NoteService;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -50,7 +51,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve ")
-                .append("FROM notes.notes, notes.devoirs ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("WHERE notes.id_devoir = ? " +
                         "AND notes.id_devoir = devoirs.id");
         values.add(devoirId);
@@ -64,7 +65,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
         query.append("SELECT notes.* ")
-                .append("FROM notes.notes ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes ")
                 .append("WHERE notes.id_devoir = ? ")
                 .append("AND notes.id_eleve = ? ");
 
@@ -90,7 +91,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
         query.append("SELECT notes.valeur, devoirs.id, devoirs.date, devoirs.id_matiere, devoirs.diviseur, devoirs.libelle, devoirs.name ")
-                .append("FROM notes.notes, notes.devoirs ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("WHERE notes.id_eleve = ? ")
                 .append("AND notes.id_devoir = devoirs.id ")
                 .append("AND devoirs.date_publication <= current_date ")
@@ -107,8 +108,8 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
 
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append(" notes.valeur, notes.id ")
-                .append("FROM notes.devoirs ")
-                .append("left join notes.notes on devoirs.id = notes.id_devoir and notes.id_eleve = ?")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir and notes.id_eleve = ?")
                 .append("WHERE devoirs.id_etablissement = ? ")
                 .append("AND devoirs.id_classe = ? ")
                 .append("AND devoirs.id_matiere = ? ")
@@ -126,8 +127,8 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve " +
-                "FROM notes.devoirs " +
-                "left join notes.notes on devoirs.id = notes.id_devoir " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
+                "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
                 "WHERE devoirs.id_etablissement = ? " +
                 "AND devoirs.id_classe = ? " +
                 "AND devoirs.id_matiere = ? " +

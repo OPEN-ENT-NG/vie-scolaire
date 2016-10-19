@@ -44,7 +44,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values = new JsonArray();
 
         query.append("SELECT eleve.* ")
-        .append("FROM viesco.eleve, viesco.rel_eleve_classe, viesco.classe ")
+        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe ")
         .append("WHERE classe.id = ? ")
         .append("AND classe.id = rel_eleve_classe.fk_classe_id ")
         .append("AND eleve.id = rel_eleve_classe.fk_eleve_id ")
@@ -60,8 +60,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT abs.evenement.* ")
-                .append("FROM abs.evenement, viesco.eleve, viesco.cours, abs.appel ")
+        query.append("SELECT evenement.* ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE eleve.id = ? ")
                 .append("AND eleve.id = evenement.fk_eleve_id ")
                 .append("AND evenement.fk_appel_id = appel.id ")

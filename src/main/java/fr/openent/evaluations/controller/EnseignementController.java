@@ -51,8 +51,8 @@ public class EnseignementController extends ControllerHelper {
 
     public EnseignementController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        enseignementService = new DefaultEnseignementService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_ENSEIGNEMENTS_TABLE);
-        competencesService = new DefaultCompetencesService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        enseignementService = new DefaultEnseignementService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_ENSEIGNEMENTS_TABLE);
+        competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
     }
 
     /**

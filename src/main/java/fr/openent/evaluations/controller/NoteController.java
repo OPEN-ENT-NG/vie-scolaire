@@ -57,7 +57,7 @@ public class NoteController extends ControllerHelper{
 
     public NoteController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        notesService = new DefaultNoteService(Viescolaire.EVALUATIONS_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
+        notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
     }
 
     /**

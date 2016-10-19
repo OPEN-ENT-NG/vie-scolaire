@@ -20,7 +20,7 @@
 
 package fr.openent.evaluations.service.impl;
 
-import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
@@ -59,11 +59,11 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     public void getCompetencesNotes(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT notes.competences_notes.*,notes.competences.nom as nom, notes.competences.id_type as id_type, notes.competences.id_parent as id_parent ")
-                .append("FROM notes.competences_notes, notes.competences ")
-                .append("WHERE notes.competences_notes.id_competence = notes.competences.id ")
+        query.append("SELECT competences_notes.*,competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +"competences_notes, "+ Viescolaire.EVAL_SCHEMA +"competences ")
+                .append("WHERE competences_notes.id_competence = competences.id ")
                 .append("AND competences_notes.id_devoir = ? AND competences_notes.id_eleve = ? ")
-                .append("ORDER BY notes.competences_notes.id ASC;");
+                .append("ORDER BY competences_notes.id ASC;");
 
         JsonArray params = new JsonArray();
         params.addNumber(idDevoir);
@@ -76,7 +76,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT competences.nom, competences_notes.id, competences_notes.id_devoir, competences_notes.id_eleve, competences_notes.id_competence, competences_notes.evaluation " +
-                "FROM notes.competences_notes, notes.competences " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes, "+ Viescolaire.EVAL_SCHEMA +".competences " +
                 "WHERE competences_notes.id_devoir = ? " +
                 "AND competences.id = competences_notes.id_competence");
 
@@ -89,7 +89,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray();
         for (int i = 0; i < _datas.size(); i++) {
             JsonObject o = _datas.get(i);
-            query.append("UPDATE notes.competences_notes SET evaluation = ?, modified = now() WHERE id = ?;");
+            query.append("UPDATE "+ Viescolaire.EVAL_SCHEMA +".competences_notes SET evaluation = ?, modified = now() WHERE id = ?;");
             values.addNumber(o.getNumber("evaluation")).addNumber(o.getNumber("id"));
         }
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
@@ -101,7 +101,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray();
         for (int i = 0; i < _datas.size(); i++) {
             JsonObject o = _datas.get(i);
-            query.append("INSERT INTO notes.competences_notes (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
+            query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
             values.add(o.getInteger("id_devoir")).add(o.getInteger("id_competence")).add(o.getInteger("evaluation"))
                     .add(user.getUserId()).add(o.getString("id_eleve"));
         }
@@ -115,7 +115,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         for (int i = 0; i < ids.size(); i++) {
             values.addNumber(Integer.parseInt(ids.get(i)));
         }
-        query.append("DELETE FROM notes.competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
+        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 }

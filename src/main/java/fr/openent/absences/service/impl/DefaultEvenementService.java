@@ -48,7 +48,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("UPDATE abs.evenement SET fk_motif_id = ? WHERE abs.evenement.id = ? RETURNING *");
+        query.append("UPDATE "+ Viescolaire.ABSC_SCHEMA +".evenement SET fk_motif_id = ? WHERE "+ Viescolaire.ABSC_SCHEMA +".evenement.id = ? RETURNING *");
         values.addNumber(pOEvenement.getObject("motif").getInteger("motif_id")).addNumber(Integer.parseInt(pIIdEvenement));
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
@@ -75,7 +75,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id, evenement.commentaire, cours.timestamp_dt, cours.timestamp_fn " +
-                "FROM abs.evenement, viesco.cours, abs.appel " +
+                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
                 "WHERE evenement.commentaire IS NOT NULL " +
                 "AND evenement.fk_appel_id = appel.id " +
                 "AND appel.fk_cours_id = cours.id " +
@@ -99,7 +99,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "evenement.evenement_saisie_cpe, evenement.fk_eleve_id, evenement.fk_appel_id, evenement.fk_type_evt_id," +
                 " evenement.fk_pj_pj, evenement.fk_motif_id," +
                 " eleve.id, eleve.fk4j_user_id, appel.fk_cours_id " +
-                "FROM abs.evenement, viesco.eleve, viesco.rel_eleve_classe, abs.appel " +
+                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +".appel " +
                 "WHERE evenement.fk_eleve_id = eleve.id " +
                 "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +
@@ -117,17 +117,17 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.fk_eleve_id " +
-                "FROM abs.evenement " +
+                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement " +
                 "WHERE evenement.fk_appel_id = ( " +
                 "SELECT appel.id " +
-                "FROM viesco.cours, viesco.personnel, viesco.rel_personnel_cours, abs.appel " +
+                "FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
                 "WHERE personnel.fk4j_user_id = ?::uuid " +
                 "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
                 "AND rel_personnel_cours.fk_cours_id = cours.id " +
                 "AND cours.fk_classe_id = ? " +
                 "AND appel.fk_cours_id = cours.id " +
                 "AND cours.id != ? " +
-                "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM viesco.cours WHERE cours.id = ?) " +
+                "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM "+ Viescolaire.VSCO_SCHEMA +".cours WHERE cours.id = ?) " +
                 "ORDER BY cours.timestamp_dt DESC " +
                 "LIMIT 1) " +
                 "AND evenement.fk_type_evt_id = 1 ");
@@ -145,7 +145,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
                 "evenement.saisie_cpe, evenement.fk_eleve_id, evenement.fk_appel_id, evenement.fk_type_evt_id," +
                 " evenement.fk_pj_pj, evenement.fk_motif_id, cours.id " +
-                "FROM abs.evenement, abs.appel, viesco.cours " +
+                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "WHERE cours.fk_classe_id = ? " +
                 "AND evenement.fk_appel_id = appel.id " +
                 "AND appel.fk_cours_id = cours.id " +

@@ -129,15 +129,13 @@ public class Viescolaire extends BaseServer {
 
 		//TODO awaiting an admin console
 		//waiting for automatic script, launch after one mitute
-		if(System.getenv("ENV").equals("INTEGRATION")) {
-			vertx.setTimer(60000, new Handler<Long>() {
-				@Override
-				public void handle(Long aLong) {
-					//init datas linked with a structure id.
-					new InitDataService().initData();
-				}
-			});
+		vertx.setTimer(60000, new Handler<Long>() {
+			@Override
+			public void handle(Long aLong) {
+				//init datas linked with a structure id.
+				new InitDataService().initData();
 		}
+		});
 	}
 
 }

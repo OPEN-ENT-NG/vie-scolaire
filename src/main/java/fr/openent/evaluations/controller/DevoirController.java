@@ -20,6 +20,8 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessEvaluationFilter;
+import fr.openent.evaluations.security.AccessPeriodeFilter;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.wseduc.rs.ApiDoc;
@@ -32,6 +34,7 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -98,7 +101,7 @@ public class DevoirController extends ControllerHelper {
      */
     @Post("/devoir")
     @ApiDoc("Créer un devoir")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction("viescolaire.evaluations.createEvaluation")
     public void create(final HttpServerRequest request){
         final Integer[] devoirId = {0};
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -162,7 +165,8 @@ public class DevoirController extends ControllerHelper {
      */
     @Get("/devoirs/periode/:idPeriode")
     @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessPeriodeFilter.class)
     public void listDevoirsPeriode (final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -186,7 +190,8 @@ public class DevoirController extends ControllerHelper {
      * @param request
      */
     @Put("/devoir")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
     @ApiDoc("Met à jour un devoir")
     public void updateDevoir (final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -196,7 +201,7 @@ public class DevoirController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject devoir) {
-                            devoirsService.updateDevoir(request.params().get("devoirid"), devoir, user, notEmptyResponseHandler(request));
+                            devoirsService.updateDevoir(request.params().get("idDevoir"), devoir, user, notEmptyResponseHandler(request));
                         }
                     });
 

@@ -1,7 +1,7 @@
     {
-      "name": "org.cgi~viescolaire~0.2-SNAPSHOT",
+      "name": "fr.openent~viescolaire~0.2-SNAPSHOT",
       "config": {
-        "main" : "org.cgi.Viescolaire",
+        "main" : "fr.openent.Viescolaire",
         "port" : 8128,
         "sql" : true,
         "app-name" : "Viescolaire",

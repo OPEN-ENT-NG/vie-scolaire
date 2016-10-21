@@ -20,6 +20,9 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessEvaluationFilter;
+import fr.openent.evaluations.security.AccessNoteFilter;
+import fr.openent.evaluations.security.AccessReleveFilter;
 import fr.openent.evaluations.service.NoteService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
@@ -29,6 +32,7 @@ import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import fr.openent.evaluations.service.impl.DefaultNoteService;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -66,7 +70,8 @@ public class NoteController extends ControllerHelper{
      */
     @Get("/devoir/:idDevoir/notes")
     @ApiDoc("Recupère les notes pour un devoir donné")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
     public void view(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -87,7 +92,8 @@ public class NoteController extends ControllerHelper{
      */
     @Get("/devoir/:idDevoir/note")
     @ApiDoc("Récupère la note d'un élève pour un devoir donné")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
     public void noteDevoir (final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -111,7 +117,7 @@ public class NoteController extends ControllerHelper{
      */
     @Post("/note")
     @ApiDoc("Créer une note")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction("viescolaire.evaluations.createEvaluation")
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -137,7 +143,8 @@ public class NoteController extends ControllerHelper{
      */
     @Put("/note")
     @ApiDoc("Modifie une note")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessNoteFilter.class)
     public void update(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -162,7 +169,8 @@ public class NoteController extends ControllerHelper{
      */
     @Delete("/note")
     @ApiDoc("Supprimer une note donnée")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessNoteFilter.class)
     public void deleteNoteDevoir(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -201,7 +209,8 @@ public class NoteController extends ControllerHelper{
 //    /:idEleve/:idEtablissement/:idClasse/:idMatiere/:idPeriode
     @Get("/releve")
     @ApiDoc("Récupère les notes pour le relevé de notes")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessReleveFilter.class)
     public void getNoteElevePeriode(final HttpServerRequest request){
         if(request.params().size() == 6) {
             if(request.params().get("idEleve") != "undefined"

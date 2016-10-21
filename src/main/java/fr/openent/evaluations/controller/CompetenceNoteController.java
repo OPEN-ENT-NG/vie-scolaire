@@ -20,6 +20,7 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.wseduc.rs.*;
@@ -28,6 +29,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -70,7 +72,7 @@ public class CompetenceNoteController extends ControllerHelper {
      */
     @Post("/competence/note")
     @ApiDoc("Créé une note correspondante à une compétence pour un utilisateur donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction("viescolaire.evaluations.createEvaluation")
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -96,7 +98,8 @@ public class CompetenceNoteController extends ControllerHelper {
      */
     @Put("/competence/note")
     @ApiDoc("Met à jour une note relative à une compétence")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessCompetenceNoteFilter.class)
     public void update(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -123,7 +126,8 @@ public class CompetenceNoteController extends ControllerHelper {
      */
     @Delete("/competence/note")
     @ApiDoc("Supprime une note relative à une compétence")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessCompetenceNoteFilter.class)
     public void delete (final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -149,7 +153,7 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Post("/competence/notes")
     @ApiDoc("Créer une liste de compétences notes pour un devoir donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction("viescolaire.evaluations.createEvaluation")
     public void createCompetencesNotesDevoir (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
@@ -166,7 +170,8 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Put("/competence/notes")
     @ApiDoc("Met à jour une liste de compétences notes pour un devoir donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessCompetenceNoteFilter.class)
     public void updateCompetencesNotesDevoir (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
@@ -178,7 +183,8 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Delete("/competence/notes")
     @ApiDoc("Supprime une liste de compétences notes pour un devoir donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessCompetenceNoteFilter.class)
     public void deleteCompetencesNotesDevoir (final HttpServerRequest request) {
         List<String> ids = request.params().getAll("id");
         if (ids.size() > 0) {

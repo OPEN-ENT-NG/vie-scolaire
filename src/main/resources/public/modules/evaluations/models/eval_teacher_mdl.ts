@@ -264,7 +264,7 @@ export class Evaluation extends Model implements IModel{
     get api () {
         return {
             create : '/viescolaire/evaluations/note',
-            update : '/viescolaire/evaluations/note',
+            update : '/viescolaire/evaluations/note?idNote=' + this.id,
             delete : '/viescolaire/evaluations/note?idNote=' + this.id
         }
     }
@@ -764,7 +764,7 @@ export class CompetenceNote extends Model implements IModel {
     get api() {
         return {
             create: '/viescolaire/evaluations/competence/note',
-            update: '/viescolaire/evaluations/competence/note',
+            update: '/viescolaire/evaluations/competence/note?idNote=' + this.id,
             delete: '/viescolaire/evaluations/competence/note?idNote=' + this.id
         }
     }
@@ -796,7 +796,7 @@ export class CompetenceNote extends Model implements IModel {
 
     update(): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().putJson("/viescolaire/evaluations/competence/note", this.toJSON()).done(function (data) {
+            http().putJson(this.api.update, this.toJSON()).done(function (data) {
                 if (resolve && (typeof (resolve) === 'undefined')) {
                     resolve();
                 }
@@ -806,7 +806,7 @@ export class CompetenceNote extends Model implements IModel {
 
     delete(): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete("/viescolaire/evaluations/competence/note?idNote=" + this.id).done(function (data) {
+            http().delete(this.api.delete).done(function (data) {
                 if (resolve && (typeof (resolve) === 'undefined')) {
                     resolve();
                 }

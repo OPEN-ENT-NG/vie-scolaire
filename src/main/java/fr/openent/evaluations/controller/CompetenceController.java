@@ -20,17 +20,18 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.CompetencesService;
-import fr.wseduc.rs.*;
+import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
+import fr.openent.evaluations.service.impl.DefaultCompetencesService;
+import fr.wseduc.rs.ApiDoc;
+import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.http.Renders;
-import fr.wseduc.webutils.request.RequestUtils;
-import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
-import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -38,9 +39,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.List;
-
-import static org.entcore.common.http.response.DefaultResponseHandler.*;
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -145,7 +145,8 @@ public class CompetenceController extends ControllerHelper{
      */
     @Get("/competences/devoir/:idDevoir")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void getCompetencesDevoir(final HttpServerRequest request){
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         competencesService.getDevoirCompetences(Integer.parseInt(request.params().get("idDevoir")), new Handler<Either<String, JsonArray>>() {

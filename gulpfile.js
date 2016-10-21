@@ -105,12 +105,20 @@ function updateRefs() {
     return merge([absc, eval, vsco]);
 }
 
-gulp.task('copy-local-libs', function(){
+function copyLocalLibs () {
     var ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
         .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
     var html = gulp.src(jsInfraPath + '/src/template/**/*.html')
         .pipe(gulp.dest('./src/main/resources/public/templates/entcore'));
-    return merge([html, ts]);
+    return merge([ts, html]);
+}
+
+gulp.task('copy-local-libs', function(){
+    copyLocalLibs();
+});
+
+gulp.task('copy-libs', ['update-libs'], function () {
+    return copyLocalLibs();
 });
 
 gulp.task('drop-cache', function(){
@@ -123,8 +131,6 @@ gulp.task('bower', ['drop-cache'], function(){
 });
 
 gulp.task('update-libs', ['bower'], function(){
-    // var ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
-    //     .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
     var html = gulp.src(jsInfraPath + '/src/template/**/*.html')
         .pipe(gulp.dest('./src/main/resources/public/templates/entcore'));
     var node_ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
@@ -133,39 +139,42 @@ gulp.task('update-libs', ['bower'], function(){
 });
 
 gulp.task('ts-local', ['copy-local-libs'], function () {
-    gulp.src('./src/main/resources/public/dist')
+    var dist = gulp.src('./src/main/resources/public/dist')
         .pipe(clean());
-    gulp.src('./src/main/resources/public/temp')
+    var temp = gulp.src('./src/main/resources/public/temp')
         .pipe(clean());
-    gulp.src('./src/main/resources/view')
+    var view = gulp.src('./src/main/resources/view')
         .pipe(clean());
-    return compileTs()
+    return merge([dist, temp, view, compileTs()]);
 });
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
 
-gulp.task('ts', ['update-libs'], function () {
-    gulp.src('./src/main/resources/public/dist')
+gulp.task('ts', ['copy-libs'], function () {
+    var dist =gulp.src('./src/main/resources/public/dist')
         .pipe(clean());
-    gulp.src('./src/main/resources/public/temp')
+    var temp = gulp.src('./src/main/resources/public/temp')
         .pipe(clean());
-    gulp.src('./src/main/resources/view')
+    var view = gulp.src('./src/main/resources/view')
         .pipe(clean());
-    return compileTs()
+    return merge([dist, temp, view, compileTs()]);
 });
-gulp.task('webpack', ['ts'], function(){ return startWebpack() });
+gulp.task('webpack', ['ts'], function(){
+    setTimeout(function () {
+        return startWebpack() });
+    }, 30000);
 
 gulp.task('build', ['webpack'], function () {
     var refs = updateRefs();
     var copyBehaviours = gulp.src('./src/main/resources/public/temp/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
-    return merge[refs, copyBehaviours];
+    return merge([refs, copyBehaviours]);
 });
 
 gulp.task('build-local', ['webpack-local'], function () {
     var refs = updateRefs();
     var copyBehaviours = gulp.src('./src/main/resources/public/temp/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
-    return merge[refs, copyBehaviours];
+    return merge([refs, copyBehaviours]);
 });
 
 gulp.task('removeTemp', function () {

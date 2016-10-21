@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="two cell navigable-cell cell-input">
                                     <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
-                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
+                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
                                 </div>
                                 <div class="four cell cell-indent expandable-content" ng-click="getEleveInfo(eleve);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
                                     <ul class="skills-eleve-list">

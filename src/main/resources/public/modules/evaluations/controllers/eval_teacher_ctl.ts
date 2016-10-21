@@ -397,8 +397,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 } else {
                     if (evaluation.id !== undefined && evaluation.valeur === "") {
                         evaluation.delete().then(() => {
-                            $scope.calculerMoyenneEleve(eleve);
-                            $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                            if ($location.$$path === '/releve') {
+                                $scope.calculerMoyenneEleve(eleve);
+                                $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                            } else {
+                                $scope.calculStatsDevoir();
+                            }
                             utils.safeApply($scope, null);
                         });
                     } else {

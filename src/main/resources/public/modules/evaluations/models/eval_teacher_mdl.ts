@@ -371,8 +371,8 @@ export class Devoir extends Model implements IModel{
     get api () {
         return {
             create : '/viescolaire/evaluations/devoir',
-            update : '/viescolaire/evaluations/devoir',
-            delete : '/viescolaire/evaluations/devoir',
+            update : '/viescolaire/evaluations/devoir?idDevoir=',
+            delete : '/viescolaire/evaluations/devoir?idDevoir=',
             getCompetencesDevoir : '/viescolaire/evaluations/competences/devoir/',
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
@@ -407,7 +407,7 @@ export class Devoir extends Model implements IModel{
                     that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
                     http().getJson(that.api.getNotesDevoir).done(function (res) {
                         for (var i = 0; i < res.length; i++) {
-                            var _e = that.eleves.findWhere({id : res[i].ideleve});
+                            var _e = that.eleves.findWhere({id : res[i].id_eleve});
                             if (_e !== undefined) {
                                 _e.evaluation = new Evaluation(res[i]);
                                 _e.evaluation.oldValeur = _e.evaluation.valeur;
@@ -476,7 +476,7 @@ export class Devoir extends Model implements IModel{
 
     update () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().putJson(this.api.update, this.toJSON()).done(function(data){
+            http().putJson(this.api.update + this.id, this.toJSON()).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
@@ -487,7 +487,7 @@ export class Devoir extends Model implements IModel{
 
     remove () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete, this.toJSON()).done(function(data){
+            http().delete(this.api.delete + this.id, this.toJSON()).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);

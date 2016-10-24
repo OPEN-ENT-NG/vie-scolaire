@@ -37,7 +37,7 @@ public class FilterPeriodeUtils {
                 .append("SELECT count(periode.*) " +
                         "FROM " + Viescolaire.VSCO_SCHEMA + ".periode " +
                         "WHERE periode.id = ? " +
-                        "AND periode.id_etablissement = ?::uuid");
+                        "AND periode.id_etablissement = ?");
 
         JsonArray params = new JsonArray().addNumber(idPeriode).addString(idEtablissement);
 

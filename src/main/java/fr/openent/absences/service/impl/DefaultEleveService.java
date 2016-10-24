@@ -116,7 +116,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND eleve.id = rel_eleve_classe.fk_eleve_id ")
                 .append("AND rel_eleve_classe.fk_classe_id = classe.id ")
-                .append("AND classe.id_etablissement = ?::uuid ")
+                .append("AND classe.id_etablissement = ? ")
                 .append("AND cours.fk_classe_id = classe.id ")
                 .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
                 .append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
@@ -146,7 +146,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 "AND evenement.fk_type_evt_id = 1 " +
                 "AND (evenement.fk_motif_id = 8 OR evenement.fk_motif_id = 2)" +
                 "AND rel_eleve_classe.fk_classe_id = classe.id " +
-                "AND classe.id_etablissement = ?::uuid " +
+                "AND classe.id_etablissement = ? " +
                 "AND cours.fk_classe_id = classe.id AND rel_personnel_cours.fk_cours_id = cours.id " +
                 "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
                 "ORDER BY cours.cours_timestamp_dt DESC");

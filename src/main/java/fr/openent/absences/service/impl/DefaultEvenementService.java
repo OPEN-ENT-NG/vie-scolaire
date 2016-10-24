@@ -82,7 +82,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "AND evenement.fk_type_evt_id = 5 " +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
-                "AND cours.id_etablissement = ?::uuid " +
+                "AND cours.id_etablissement = ? " +
                 "ORDER BY cours.timestamp_dt DESC");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psEtablissementId);
@@ -121,7 +121,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "WHERE evenement.fk_appel_id = ( " +
                 "SELECT appel.id " +
                 "FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
-                "WHERE personnel.fk4j_user_id = ?::uuid " +
+                "WHERE personnel.fk4j_user_id = ? " +
                 "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
                 "AND rel_personnel_cours.fk_cours_id = cours.id " +
                 "AND cours.fk_classe_id = ? " +

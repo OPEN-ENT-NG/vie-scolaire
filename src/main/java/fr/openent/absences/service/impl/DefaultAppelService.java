@@ -48,7 +48,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.matiere, cours.salle, appel.id, personnel.prenom, personnel.nom, appel.fk_etat_appel_id, classe.libelle, classe.id, personnel.id " +
                 "FROM "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".classe, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel on (cours.id = appel.fk_cours_id) " +
-                "WHERE cours.id_etablissement = ?::uuid " +
+                "WHERE cours.id_etablissement = ? " +
                 "AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND rel_personnel_cours.fk_cours_id = cours.id " +
@@ -69,7 +69,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.matiere, cours.salle, appel.id, personnel.prenom, personnel.nom, appel.fk_etat_appel_id, classe.libelle, classe.id, personnel.id " +
                 "FROM "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".classe, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel on (cours.id = appel.fk_cours_id) " +
-                "WHERE cours.id_etablissement = ?::uuid " +
+                "WHERE cours.id_etablissement = ? " +
                 "AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "AND rel_personnel_cours.fk_cours_id = cours.id " +

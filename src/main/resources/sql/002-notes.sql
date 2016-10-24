@@ -80,7 +80,7 @@ CREATE TABLE notes.type
 (
   id bigserial NOT NULL,
   nom character varying(255),
-  id_etablissement character varying(255),
+  id_etablissement character varying(36),
   default_type boolean,
   CONSTRAINT type_pk PRIMARY KEY (id)
 );
@@ -98,12 +98,12 @@ CREATE TABLE notes.devoirs
   id_sousmatiere bigint,
   id_periode bigint NOT NULL,
   id_type bigint NOT NULL,
-  id_etablissement character varying(255) NOT NULL,
+  id_etablissement character varying(36) NOT NULL,
   id_etat bigint NOT NULL,
   diviseur integer NOT NULL,
   id_matiere character varying(255),
-  ramenersur boolean,
-  datepublication date,
+  ramene_rsur boolean,
+  date_publication date,
   date date,
   CONSTRAINT devoirs_pk PRIMARY KEY (id),
   CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
@@ -113,7 +113,7 @@ CREATE TABLE notes.devoirs
   REFERENCES viesco.periode (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_sousmatiere_id FOREIGN KEY (id_sousmatiere)
-  REFERENCES notes.type_sousmatiere (id) MATCH SIMPLE
+  REFERENCES viesco.type_sousmatiere (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_type_id FOREIGN KEY (id_type)
   REFERENCES notes.type (id) MATCH SIMPLE
@@ -247,10 +247,6 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
-
-ALTER TABLE viesco.sousmatiere ADD CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_typesousmatiere)
-  REFERENCES viesco.type_sousmatiere (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 -- index
 CREATE INDEX idx_compretences_idparent ON notes.competences USING btree(id_parent);

@@ -4,7 +4,7 @@ CREATE SCHEMA abs;
 CREATE TABLE abs.creneaux
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
   CONSTRAINT creneaux_pk PRIMARY KEY (id)
@@ -13,7 +13,7 @@ CREATE TABLE abs.creneaux
 CREATE TABLE abs.etat_appel
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   libelle character varying(42),
   CONSTRAINT etat_appel_pk PRIMARY KEY (id)
 );
@@ -21,7 +21,7 @@ CREATE TABLE abs.etat_appel
 CREATE TABLE abs.justificatif_appel
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   libelle character varying(42),
   CONSTRAINT justificatif_appel_pk PRIMARY KEY (id)
 );
@@ -36,7 +36,7 @@ CREATE TABLE abs.users
 CREATE TABLE abs.type_evt
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   libelle character varying(42),
   CONSTRAINT type_evt_pk PRIMARY KEY (id)
 );
@@ -51,7 +51,7 @@ CREATE TABLE abs.pj
 CREATE TABLE abs.motif
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   libelle character varying(150),
   justifiant boolean,
   commentaire character varying(250),

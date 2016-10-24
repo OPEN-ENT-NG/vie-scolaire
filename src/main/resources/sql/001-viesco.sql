@@ -17,7 +17,7 @@ CREATE TABLE viesco.personnel
   prenom character varying(42),
   profil character varying(42),
   enseigne boolean,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   CONSTRAINT personnel_pk PRIMARY KEY (id)
 );
 
@@ -26,20 +26,10 @@ CREATE TABLE viesco.matiere
   id bigserial NOT NULL,
   evaluable boolean,
   matiere character varying(255) NOT NULL,
-  id_etablissement character varying(255),
-  id_professeur character varying(255),
+  id_etablissement character varying(36),
+  id_professeur character varying(36),
   CONSTRAINT matiere_pk PRIMARY KEY (id)
 );
-
-
-CREATE TABLE viesco.sousmatiere
-(
-  id bigserial NOT NULL,
-  id_typesousmatiere bigint NOT NULL,
-  id_matiere character varying(255) NOT NULL,
-  CONSTRAINT sousmatiere_pk PRIMARY KEY (id)
-);
-
 
 CREATE TABLE viesco.type_sousmatiere
 (
@@ -48,10 +38,20 @@ CREATE TABLE viesco.type_sousmatiere
   CONSTRAINT typesousmatiere_pk PRIMARY KEY (id)
 );
 
+CREATE TABLE viesco.sousmatiere
+(
+  id bigserial NOT NULL,
+  id_type_sousmatiere bigint NOT NULL,
+  id_matiere character varying(255) NOT NULL,
+  CONSTRAINT sousmatiere_pk PRIMARY KEY (id),
+  CONSTRAINT fk_typesousmatiere_id FOREIGN KEY (id_type_sousmatiere) REFERENCES viesco.type_sousmatiere (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
 CREATE TABLE viesco.periode
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   libelle character varying(42),
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
@@ -78,8 +78,8 @@ CREATE TABLE viesco.type_classe
 CREATE TABLE viesco.classe
 (
   id bigserial NOT NULL,
-  fk4j_classe_id uuid,
-  id_etablissement uuid,
+  id_classe uuid,
+  id_etablissement character varying(36),
   externalid character varying(42),
   libelle character varying(42),
   fk_type_classe_id bigint,
@@ -92,17 +92,17 @@ CREATE TABLE viesco.classe
 CREATE TABLE viesco.cours
 (
   id bigserial NOT NULL,
-  id_etablissement uuid,
+  id_etablissement character varying(36),
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
   salle character varying(42),
   matiere character varying(42),
-  fk_edt_classe character varying(42),
-  fk_edt_date character varying(42),
-  fk_edt_salle character varying(42),
-  fk_edt_matiere character varying(42),
-  fk_edt_id_cours character varying(42),
-  fk_classe_id bigint,
+  edt_classe character varying(42),
+  edt_date character varying(42),
+  edt_salle character varying(42),
+  edt_matiere character varying(42),
+  edt_id_cours character varying(42),
+  id_classe bigint,
   CONSTRAINT cours_pk PRIMARY KEY (id),
   CONSTRAINT fk_classe_id FOREIGN KEY (fk_classe_id)
       REFERENCES viesco.classe (id) MATCH SIMPLE
@@ -112,8 +112,8 @@ CREATE TABLE viesco.cours
 
 CREATE TABLE viesco.rel_eleve_classe
 (
-  fk_classe_id bigint NOT NULL,
-  fk_eleve_id bigint NOT NULL,
+  id_classe bigint NOT NULL,
+  id_eleve bigint NOT NULL,
   CONSTRAINT rel_eleve_classe_pk PRIMARY KEY (fk_classe_id, fk_eleve_id),
   CONSTRAINT fk_classe_id FOREIGN KEY (fk_classe_id)
       REFERENCES viesco.classe (id) MATCH SIMPLE
@@ -125,8 +125,8 @@ CREATE TABLE viesco.rel_eleve_classe
 
 CREATE TABLE viesco.rel_personnel_cours
 (
-  fk_personnel_id bigint NOT NULL,
-  fk_cours_id bigint NOT NULL,
+  id_personnel bigint NOT NULL,
+  id_cours bigint NOT NULL,
   CONSTRAINT rel_personnel_cours_pk PRIMARY KEY (fk_personnel_id, fk_cours_id),
   CONSTRAINT fk_cours_id FOREIGN KEY (fk_cours_id)
       REFERENCES viesco.cours (id) MATCH SIMPLE

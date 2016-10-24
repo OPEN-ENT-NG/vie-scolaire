@@ -47,7 +47,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
 
         query.append("SELECT periode.id, periode.id_etablissement as id_etablissement, periode.libelle, periode.timestamp_dt, periode.timestamp_fn ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".periode ")
-                .append("WHERE periode.id_etablissement = ?::uuid ")
+                .append("WHERE periode.id_etablissement = ? ")
                 .append("ORDER BY periode.timestamp_dt ASC");
         values.add(idEtablissement);
 

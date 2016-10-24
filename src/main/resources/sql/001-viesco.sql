@@ -82,7 +82,7 @@ CREATE TABLE viesco.classe
   id_etablissement character varying(36),
   externalid character varying(42),
   libelle character varying(42),
-  fk_type_classe_id bigint,
+  id_type_classe bigint,
   CONSTRAINT classe_pk PRIMARY KEY (id),
   CONSTRAINT fk_type_classe_id FOREIGN KEY (fk_type_classe_id)
       REFERENCES viesco.type_classe (id) MATCH SIMPLE

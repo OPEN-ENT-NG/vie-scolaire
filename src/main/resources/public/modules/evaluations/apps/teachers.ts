@@ -21,6 +21,7 @@ ng.filters.push(getMatiereClasseFilter);
 //DIRECTIVES
 import {cFilAriane} from '../../utils/directives/cFilAriane';
 import {navigable} from '../../utils/directives/navigable';
+import {navigableCompetences} from '../directives/cNavigableCompetences';
 import {navigatable} from '../../utils/directives/navigatable';
 import {tabs} from '../../utils/directives/tabs';
 import {pane} from '../../utils/directives/pane';
@@ -32,6 +33,7 @@ import {cSkillsList} from '../directives/cSkillsList';
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);
 ng.directives.push(navigatable);
+ng.directives.push(navigableCompetences);
 ng.directives.push(tabs);
 ng.directives.push(pane);
 ng.directives.push(cSkillNoteDevoir);

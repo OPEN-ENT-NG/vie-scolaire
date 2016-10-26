@@ -89,7 +89,7 @@
                             <i18n>viescolaire.utils.appreciation</i18n>
                         </div>
                     </div>
-                    <div class="expandable-liste notes-devoir-liste" c-navigable>
+                    <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
 
                         <div class="row" style="background: white;"  ng-if="currentDevoir.competences.all.length > 0">
                             <div class="four cell">
@@ -111,11 +111,13 @@
                                 </div>
                                 <div class="two cell navigable-cell cell-input">
                                     <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
-                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
+                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0">
+                                    <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
+                                           ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
                                 </div>
                                 <div class="four cell cell-indent expandable-content" ng-click="getEleveInfo(eleve);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
                                     <ul class="skills-eleve-list">
-                                        <li ng-repeat="competence in eleve.evaluation.competenceNotes.all">
+                                        <li class="navigable-cell competences-cell" ng-repeat="competence in eleve.evaluation.competenceNotes.all">
                                             <c-skill-note-devoir current-devoir="currentDevoir" nb-eleve="currentDevoir.eleves.all.length" nb-competences-devoir="currentDevoir.competences.all.length" competence="competence"></c-skill-note-devoir>
                                         </li>
                                     </ul>

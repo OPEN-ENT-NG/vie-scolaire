@@ -29,6 +29,7 @@ import {cSkillNoteDevoir} from '../directives/cSkillNoteDevoir';
 import {cSkillsColorColumn} from '../directives/cSkillsColorColumn';
 import {cSkillsColorPage} from '../directives/cSkillsColorPage';
 import {cSkillsList} from '../directives/cSkillsList';
+import {autofocus} from '../../utils/directives/autofocus';
 
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);
@@ -40,12 +41,14 @@ ng.directives.push(cSkillNoteDevoir);
 ng.directives.push(cSkillsColorColumn);
 ng.directives.push(cSkillsColorPage);
 ng.directives.push(cSkillsList);
+ng.directives.push(autofocus);
 
 routes.define(function($routeProvider){
     $routeProvider
         .when('/devoirs/list',{action:'listDevoirs'})
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
+        .when('/competences/eleve', {action : 'displaySuiviCompetencesEleve'})
         .otherwise({
             redirectTo : '/releve'
         });

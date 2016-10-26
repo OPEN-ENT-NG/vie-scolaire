@@ -16,8 +16,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     utils.safeApply($scope, null);
                     $location.replace();
                 }
-                template.open('main', '../templates/evaluations/eval_teacher_dispdevoirs');
-                template.open('evaluations', '../templates/evaluations/eval_teacher_listview');
+                template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
+                template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                 evaluations.devoirs.getPercentDone();
                 utils.safeApply($scope, null);
             },
@@ -50,10 +50,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     });
                 }
 
-                template.open('main', '../templates/evaluations/eval_teacher_viewnotesdevoirs');
+                template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
                 utils.safeApply($scope, null);
             },
-            displayReleveNotes : function(params){
+            displayReleveNotes : function(params) {
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 if ($scope.releveNote !== undefined && ($scope.search.idMatiere !== $scope.releveNote.idMatiere
@@ -64,8 +64,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.getReleve();
                 }
 
-                template.open('main', '../templates/evaluations/eval_teacher_dispreleve');
+                template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope, null);
+            },
+            displaySuiviCompetencesEleve : function (params) {
+                template.open('main', '../templates/layouts/3_9_layout');
             }
         });
 
@@ -234,7 +237,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.id_type = $scope.search.idType;
                 $scope.devoir.id_sousmatiere = $scope.search.idSousMatiere;
             }
-            template.open('lightboxContainer', '../templates/evaluations/eval_teacher_adddevoir');
+            template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             utils.safeApply($scope, null);
         };
 
@@ -434,7 +437,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.getInfoCompetencesDevoir = function () {
             $scope.opened.lightbox = true;
-            template.open('lightboxContainer', '../templates/evaluations/eval_teacher_dispcompinfo');
+            template.open('lightboxContainer', '../templates/evaluations/enseignants/informations/display_competences');
         };
 
         $scope.calculStatsDevoir = function () {
@@ -475,7 +478,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.getDevoirInfo = function (obj) {
-            if (template.isEmpty('leftSide-devoirInfo')) template.open('leftSide-devoirInfo', '../templates/evaluations/eval_teacher_dispdevoirinfo');
+            if (template.isEmpty('leftSide-devoirInfo')) template.open('leftSide-devoirInfo', '../templates/evaluations/enseignants/informations/display_devoir');
             if (obj instanceof Devoir) $scope.informations.devoir = obj;
             else if (obj instanceof Evaluation) {
                 var devoir = $scope.releveNote.devoirs.findWhere({id : obj.id_devoir});
@@ -484,7 +487,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.getEleveInfo = function (eleve) {
-            if (template.isEmpty('leftSide-userInfo')) template.open('leftSide-userInfo', '../templates/evaluations/eval_teacher_dispeleveinfo');
+            if (template.isEmpty('leftSide-userInfo')) template.open('leftSide-userInfo', '../templates/evaluations/enseignants/informations/display_eleve');
             $scope.informations.eleve = eleve;
         };
 

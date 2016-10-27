@@ -87,9 +87,7 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             $scope.saveCompetence = function(){
                 if (!$scope.disabled) {
                     if ($scope.modified === true) {
-                        $scope.competence.save(function (id) {
-                            $scope.competence.id = id;
-                        });
+                        $scope.competence.save();
                         $scope.modified = false;
                     }
                 }

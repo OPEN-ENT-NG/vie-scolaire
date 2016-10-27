@@ -1,6 +1,6 @@
 import { ng } from 'entcore/entcore';
 
-export let sitcky = ng.directive('sticky', ['$window', function ($window) {
+export let sticky = ng.directive('sticky', ['$window', function ($window) {
     return {
         restrict: 'A', // this directive can only be used as an attribute.
         link: function linkFn($scope, $elem, $attrs) {

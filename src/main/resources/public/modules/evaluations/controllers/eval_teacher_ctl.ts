@@ -56,11 +56,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             displayReleveNotes : function(params) {
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                if ($scope.releveNote !== undefined && ($scope.search.idMatiere !== $scope.releveNote.idMatiere
-                    || $scope.search.idClasse !== $scope.releveNote.idClasse || $scope.search.idPeriode !== $scope.releveNote.idPeriode)) {
+                if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
+                    || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
                     $scope.releveNote = undefined;
                 }
-                if ($scope.search.idClasse !== '*' && $scope.search.idMatiere !== '*' && $scope.search.idMatiere !== '*') {
+                if ($scope.search.classe !== '*' && $scope.search.matiere.id !== '*' && $scope.search.periode !== '*') {
                     $scope.getReleve();
                 }
 
@@ -68,7 +68,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope, null);
             },
             displaySuiviCompetencesEleve : function (params) {
-                template.open('main', '../templates/layouts/3_9_layout');
+                template.open('main', '../templates/layouts/2_10_layout');
+                template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
             }
         });
 
@@ -87,11 +88,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.template = template;
         $scope.currentDevoir = {};
         $scope.search = {
-            idMatiere: '*',
-            idPeriode : undefined,
-            idClasse : '*',
-            idSousMatiere : '*',
-            idType : '*',
+            matiere: '*',
+            periode : undefined,
+            classe : '*',
+            sousmatiere : '*',
+            type : '*',
+            idEleve : '*',
             name : '',
             dateCreation : {
                 debut : moment(),
@@ -133,7 +135,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         evaluations.periodes.on('sync', function () {
             setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
-                $scope.search.idPeriode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
                 utils.safeApply($scope, null);
             });
         });
@@ -153,6 +155,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
         };
 
+        
         $scope.controleDate = function () {
             $scope.devoir.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") >= 0);
         };
@@ -185,6 +188,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             );
         };
 
+        $scope.translate = function (key) {
+          return utils.translate(key);
+        };
+
         $scope.$on('majHeaderColumn', function(event, competence){
             $scope.$broadcast('changeHeaderColumn', competence);
         });
@@ -210,7 +217,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.getSousMatieres = function () {
-            var matiere = evaluations.matieres.findWhere({id : $scope.search.idMatiere});
+            var matiere = evaluations.matieres.findWhere({id : $scope.search.matiere.id});
             if (matiere) $scope.selected.matiere = matiere;
         };
 
@@ -223,19 +230,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.competencesLastDevoirList = res;
             });
             setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
-                $scope.devoir.id_periode = defaultPeriode;
+                $scope.devoir.id_periode = defaultPeriode.id;
                 utils.safeApply($scope, null);
             });
             $scope.devoir.id_type = getDefaultTypDevoir();
-            if ($scope.search.idClasse !== '*' && $scope.search.idMatiere !== '*') {
-                $scope.devoir.id_classe = $scope.search.idClasse;
-                $scope.devoir.id_matiere = $scope.search.idMatiere;
+            if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                $scope.devoir.id_classe = $scope.search.classe.id;
+                $scope.devoir.id_matiere = $scope.search.matiere.id;
                 $scope.setClasseMatieres();
                 $scope.selectedMatiere();
             }
             if ($location.path() === "/devoirs/list"){
-                $scope.devoir.id_type = $scope.search.idType;
-                $scope.devoir.id_sousmatiere = $scope.search.idSousMatiere;
+                $scope.devoir.id_type = $scope.search.type.id;
+                $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
             }
             template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             utils.safeApply($scope, null);
@@ -256,9 +263,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
-                            $scope.search.idClasse = $scope.devoir.id_classe;
-                            $scope.search.idMatiere = $scope.devoir.id_matiere;
-                            $scope.search.idPeriode = $scope.devoir.id_periode;
+                            $scope.search.classe.id = $scope.devoir.id_classe;
+                            $scope.search.matiere.id = $scope.devoir.id_matiere;
+                            $scope.search.periode.id = $scope.devoir.id_periode;
                             $scope.getReleve();
                         } else {
                             $scope.releveNote.devoirs.sync();
@@ -297,14 +304,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         });
 
         $scope.getReleve = function () {
-            if($scope.search.idClasse !== undefined && $scope.search.idMatiere !== undefined
-                && $scope.search.idPeriode !== undefined && $scope.search.idClasse !== '*'
-                && $scope.search.idMatiere !== '*' && $scope.search.idPeriode !== '*') {
+            if($scope.search.classe.id !== undefined && $scope.search.matiere.id !== undefined
+                && $scope.search.periode !== undefined && $scope.search.classe.id !== '*'
+                && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
                 var p = {
                     idEtablissement : model.me.structures[0],
-                    idClasse : $scope.search.idClasse,
-                    idPeriode : parseInt($scope.search.idPeriode),
-                    idMatiere : $scope.search.idMatiere
+                    idClasse : $scope.search.classe.id,
+                    idPeriode : parseInt($scope.search.periode.id),
+                    idMatiere : $scope.search.matiere.id
                 };
                 var rn = evaluations.releveNotes.findWhere(p);
                 if (rn === undefined) {
@@ -502,7 +509,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         $scope.currentPeriodeId = evaluations.periodes.all[i].id;
                         if (resolve && typeof (resolve) === 'function') {
-                            resolve(evaluations.periodes.all[i].id);
+                            resolve(evaluations.periodes.all[i]);
                         }
                     }
                 }

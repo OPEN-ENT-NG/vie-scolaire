@@ -18,17 +18,12 @@
   -->
 <div class="row">
     <div class="twelve cell">
-        <header class="headerStyle header-fixed header-releve header-notes">
-            <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
-                <c-skills-color-page devoir="currentDevoir" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
-            </h2>
-        </header>
         <aside class="two cell menuLeft left">
-            <div class="menuLeftStyle detail-devoir" ng-class="{opened : openedDetails === true}">
-                <header>
+            <div class="menuLeftStyle detail-devoir criterion" ng-class="{opened : openedDetails === true}">
+                <div class="header">
                     <span class="plus-input" ng-click="openedDetails = !openedDetails"></span>
                     <h2 ng-click="openedDetails = !openedDetails"><i18n>evaluations.homework.details</i18n></h2>
-                </header>
+                </div>
                 <div>
                     <section ng-if="currentDevoir.libelle !== null">
                         <label><i18n class="bold">viescolaire.utils.description</i18n> : [[currentDevoir.libelle]]</label>
@@ -52,11 +47,11 @@
                     </section>
                 </div>
             </div>
-            <div class="menuLeftStyle statistiques-devoir" ng-class="{opened : openedStatistiques === true}">
-                <header>
+            <div class="menuLeftStyle statistiques-devoir criterion" ng-class="{opened : openedStatistiques === true}">
+                <div class="header">
                     <span class="plus-input" ng-click="openedStatistiques = !openedStatistiques"></span>
                     <h2 ng-click="openedStatistiques = !openedStatistiques"><i18n>viescolaire.utils.stats</i18n></h2>
-                </header>
+                </div>
                 <div>
                     <section><i18n class="bold">evaluation.classe.average</i18n> : <span style="color: #1785E6;font-weight: bold;">[[currentDevoir.statistiques.moyenne | number:2]]</span></section>
                     <section><i18n class="bold">evaluations.grade.min</i18n> : <span style="color: #E61758;font-weight: bold;">[[currentDevoir.statistiques.noteMin | number:2]]</span></section>
@@ -71,7 +66,12 @@
             </div>
         </aside>
         <section class="ten cell right">
-            <div class="marginFive header-outter-fixed">
+            <header class="header-releve header-notes">
+                <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
+                    <c-skills-color-page devoir="currentDevoir" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
+                </h2>
+            </header>
+            <div class="marginFive">
                 <content>
                     <div class="row devoirs-header"  current-devoir="currentDevoir" sticky offset="159">
                         <div class="two cell cell-indent">

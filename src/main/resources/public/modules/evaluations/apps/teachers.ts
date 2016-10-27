@@ -30,6 +30,7 @@ import {cSkillsColorColumn} from '../directives/cSkillsColorColumn';
 import {cSkillsColorPage} from '../directives/cSkillsColorPage';
 import {cSkillsList} from '../directives/cSkillsList';
 import {autofocus} from '../../utils/directives/autofocus';
+import {sticky} from '../../utils/directives/sticky';
 
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);
@@ -42,6 +43,7 @@ ng.directives.push(cSkillsColorColumn);
 ng.directives.push(cSkillsColorPage);
 ng.directives.push(cSkillsList);
 ng.directives.push(autofocus);
+ng.directives.push(sticky);
 
 routes.define(function($routeProvider){
     $routeProvider

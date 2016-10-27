@@ -17,45 +17,41 @@
   ~
   -->
 <div class="row">
-    <div class="releve-header-content header-fixed">
-        <header class="headerStyle header-releve header-fixed">
-            <div class="headerReleve">
-                <h1 style="width :calc(16.66% - 30px) !important;float: left;">Relevé de notes</h1>
-                <nav class="right">
-                    <a class="button noMarginLeft" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></a>
-                    <a class="button" href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a>
-                </nav>
-            </div>
-        </header>
-    </div>
+    <header>
+        <h1 style="float: left;">Relevé de notes</h1>
+        <nav class="right">
+            <a class="button noMarginLeft" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></a>
+            <a class="button" href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a>
+        </nav>
+    </header>
 
     <div class="twelve cell">
         <aside class="two cell menuLeft left">
-            <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" class="criteres"  ng-class="{opened : opened.criteres === true}">
+            <div class="criteres criterion"  ng-class="{opened : opened.criteres === true}">
                 <span class="plus-input" ng-click="opened.criteres = !opened.criteres"></span>
-                <header ng-click="opened.criteres = !opened.criteres">
-                    <h2 style="color: grey;">Vos critères</h2>
-                </header>
-                <content>
+                <div class="header" ng-click="opened.criteres = !opened.criteres">
+                    <h2><i18n>viescolaire.utils.criterion</i18n></h2>
+                </div>
+                <section>
                     <label class="select">
-                        <select ng-model="search.idClasse" ng-change="getReleve();" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option value="*" class="header-opt">Classe</option>
-                            <option ng-repeat="classe in classes.all" ng-selected="search.idClasse == classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                        <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe.name for classe in classes.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.class')]]</option>
                         </select>
                     </label>
+                </section>
                     <label class="select">
-                        <select ng-model="search.idMatiere" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;" ng-change="getReleve()">
-                            <option value="*" class="header-opt">Matière</option>
-                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search:matieres " ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                        <select ng-model="search.matiere" ng-change="getReleve()" ng-options="matiere.name for matiere in matieres.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
                         </select>
                     </label>
+                </section>
+                <section>
                     <label class="select">
-                        <select ng-model="search.idPeriode" ng-change="getReleve()" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option value="*" class="header-opt">Période</option>
-                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id == search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
+                        <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                         </select>
                     </label>
-                </content>
+                </section>
             </div>
             <div class="marginFive">
                 <container class="left tailleMax" template="leftSide-devoirInfo"></container>
@@ -63,7 +59,6 @@
             </div>
         </aside>
         <section class="ten cell right">
-            <div class="header-outter-fixed">
                 <content ng-show="releveNote.devoirs.all.length > 0">
                     <table class="list-view tableReleve tableRelevePadding marginTopFive" c-naviga-table>
                         <thead>
@@ -158,8 +153,6 @@
                 <content ng-show="releveNote.devoirs.all.length === 0">
                     <h1 style="color: grey;">Aucun relevé trouvé pour vos critères.</h1>
                 </content>
-            </div>
-
         </section>
 
     </div>

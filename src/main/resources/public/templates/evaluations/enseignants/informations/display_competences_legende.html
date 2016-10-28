@@ -16,12 +16,10 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="header">
-    <h2 tooltip="[[informations.eleve.lastName]] [[informations.eleve.firstName]]" class="head text-overflow" ng-click="openedStudentInfo = !openedStudentInfo">[[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
-</div>
-<div ng-show="informations.eleve !== undefined">
-    <div class="imgEleve">
-        <img src="/userbook/avatar/[[informations.eleve.id]]" alt="" ng-if="informations.eleve !== null" />
-    </div>
-    <p><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
-</div>
+<ul class="padding-five">
+    <li><span class="rounded green"></span><i18n>evaluations.competences.proficiency</i18n>.</li>
+    <li><span class="rounded yellow"></span><i18n>evaluations.competences.satisfying</i18n>.</li>
+    <li><span class="rounded orange"></span><i18n>evaluations.competences.fragile</i18n>.</li>
+    <li><span class="rounded red"></span><i18n>evaluations.competences.poor</i18n>.</li>
+    <li><span class="rounded grey"></span><i18n>evaluations.competence.unevaluated</i18n>.</li>
+</ul>

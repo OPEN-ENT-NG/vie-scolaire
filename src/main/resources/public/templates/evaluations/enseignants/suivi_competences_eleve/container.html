@@ -16,12 +16,6 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="header">
-    <h2 tooltip="[[informations.eleve.lastName]] [[informations.eleve.firstName]]" class="head text-overflow" ng-click="openedStudentInfo = !openedStudentInfo">[[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
-</div>
-<div ng-show="informations.eleve !== undefined">
-    <div class="imgEleve">
-        <img src="/userbook/avatar/[[informations.eleve.id]]" alt="" ng-if="informations.eleve !== null" />
-    </div>
-    <p><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
+<div class="suivi_container" ng-controller="EvalSuiviCompetenceEleveCtl">
+    <container template="container"></container>
 </div>

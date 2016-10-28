@@ -62,7 +62,10 @@
                 </div>
             </div>
             <div class="marginFive">
-                <container class="left tailleMax" template="leftSide-userInfo"></container>
+                <div class="fiche student-info" ng-class="{opened : openedStudentInfo === true}">
+                    <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
+                    <container class="left tailleMax" template="leftSide-userInfo"></container>
+                </div>
             </div>
         </aside>
         <section class="ten cell right">

@@ -68,8 +68,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope, null);
             },
             displaySuiviCompetencesEleve : function (params) {
-                template.open('main', '../templates/layouts/2_10_layout');
-                template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
+                template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
+                $scope.informations.eleve = null;
             }
         });
 

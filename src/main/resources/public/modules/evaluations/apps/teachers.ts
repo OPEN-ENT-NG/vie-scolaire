@@ -6,8 +6,10 @@ import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluat
 
 //CONTROLLERS
 import {evaluationsController} from '../controllers/eval_teacher_ctl';
+import {evalSuiviCompetenceEleveCtl} from '../controllers/eval_suivi_competences_eleve_ctl';
 
 ng.controllers.push(evaluationsController);
+ng.controllers.push(evalSuiviCompetenceEleveCtl);
 
 //FILTERS
 import {uniqueFilter} from '../../utils/filters/unique';

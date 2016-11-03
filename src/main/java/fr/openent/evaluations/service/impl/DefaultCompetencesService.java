@@ -40,8 +40,8 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     @Override
     public void getCompetences(Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences, "+ Viescolaire.EVAL_SCHEMA +".type_competences ")
+        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type, rel_competences_cycle.id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences, INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) "+ Viescolaire.EVAL_SCHEMA +".type_competences ")
                 .append("WHERE competences.id_type = type_competences.id ")
                 .append("ORDER BY competences.id ASC");
         Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
@@ -114,12 +114,18 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getCompetencesByLevel(String filter, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesByLevel(String filter, String idCycle, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
 
-        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, competences.id_enseignement" +
-                " FROM "+ Viescolaire.EVAL_SCHEMA +".competences" +
-                " WHERE competences." + filter + ";");
-        Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
+        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, competences.id_enseignement, rel_competences_cycle.id_cycle " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences " +
+                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
+                "WHERE competences."+ filter);
+        if (idCycle != null) {
+            query.append("AND rel_competences_cycle.id_cycle = ?");
+            params.addNumber(Integer.parseInt(idCycle));
+        }
+        Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }
 }

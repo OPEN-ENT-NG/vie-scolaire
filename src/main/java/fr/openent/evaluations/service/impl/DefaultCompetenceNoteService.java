@@ -118,4 +118,25 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getCompetencesNotesEleve(String idEleve, String idPeriode, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray().addString(idEleve);
+        StringBuilder query = new StringBuilder()
+                .append("SELECT competences.id as id_competence, competences.id_parent, competences.id_type, competences.id_enseignement, rel_competences_cycle.id_cycle, " +
+                        "competences_notes.id as id_competences_notes, competences_notes.evaluation, devoirs.owner " +
+                        "FROM notes.competences INNER JOIN notes.rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
+                        "INNER JOIN notes.competences_notes ON (competences_notes.id_competence = competences.id) " +
+                        "INNER JOIN notes.devoirs ON (competences_notes.id_devoir = devoirs.id) " +
+                        "WHERE competences_notes.id_eleve = ? ");
+        if (idPeriode != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(Integer.parseInt(idPeriode));
+        }
+        query.append("ORDER BY competences.id ");
+
+
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

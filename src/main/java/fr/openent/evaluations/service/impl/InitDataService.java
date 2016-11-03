@@ -39,7 +39,7 @@ public class InitDataService {
 	private final Neo4j neo4j = Neo4j.getInstance();
 	private static final Logger log = LoggerFactory.getLogger(InitDataService.class);
 	//Period plug
-	private static final String[] LIBELLE_P = new String[]{"1er Trimestre", "2eme Trimestre", "3eme Trimestre", "Fin d''année"};
+	private static final String[] LIBELLE_P = new String[]{"1er Trimestre", "2eme Trimestre", "3eme Trimestre", "Fin d''annee"};
 	private static final String[] S_DATE_P = new String[]{"2015-09-01", "2015-11-30", "2016-03-21", "2016-09-01"};
 	private static final String[] E_DATE_P = new String[]{"2015-11-27", "2016-03-18", "2016-07-01", "2016-12-18"};
 	//Type plug

@@ -84,6 +84,9 @@ public class ReferentielController extends ControllerHelper {
             public void handle(Either<String, JsonArray> event) {
                 if (event.isRight()) {
                     JsonArray classes = event.right().getValue();
+                    if (classes.size() == 0) {
+                        unauthorized(request);
+                    }
                     JsonArray listeClasse = new JsonArray();
                     for (int i = 0; i < classes.size(); i++) {
                         JsonObject o = classes.get(i);
@@ -346,6 +349,7 @@ public class ReferentielController extends ControllerHelper {
                                                                     if (b) {
                                                                         request.response().putHeader("content-type", "application/json; charset=utf-8").end(
                                                                                 new JsonObject().putNumber("status", 200)
+                                                                                        .putString("externalId", structure.getString("externalid"))
                                                                                         .putString("time", String.valueOf(new Date().getTime() - startTime.getTime()))
                                                                                         .toString()
                                                                         );

@@ -81,7 +81,7 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                     enter : 13,
                     arrow : {left: 37, up: 38, right: 39, down: 40}
                 };
-                var key = event.which;
+                var key = event.which | event.keyCode;
 
                 if ($.inArray(key, [keys.arrow.left, keys.arrow.up, keys.arrow.right, keys.arrow.down, keys.enter]) < 0) { return; }
                 var input = event.target;

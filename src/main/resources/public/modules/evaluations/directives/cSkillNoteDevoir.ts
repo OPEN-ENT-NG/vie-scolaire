@@ -44,7 +44,7 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
 
             $scope.keyColor = function ($event) {
                 if (!$scope.disabled) {
-                    var key = $event.keyCode;
+                    var key = $event.keyCode | $event.which;
 
                     switch (key) {
                         case $scope.keys.numbers.zero :

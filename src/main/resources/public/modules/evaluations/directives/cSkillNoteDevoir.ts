@@ -15,7 +15,7 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             currentDevoir   : '=',
             disabled : '=?'
         },
-        template : '<span ng-click="switchColor()" tabindex="0" ng-mouseover="detailCompetence(competence.nom)" ng-keypress="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
+        template : '<span ng-click="switchColor()" tabindex="0" ng-focus="detailCompetence(competence.nom)" ng-mouseover="detailCompetence(competence.nom)" ng-keypress="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
         controller : ['$scope', function($scope){
             $scope.color = -1;
             $scope.modified = false;

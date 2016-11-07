@@ -128,6 +128,8 @@ public class Viescolaire extends BaseServer {
 		addController(new NoteController());
 		addController(new UtilsController());
 
+		addController(new ReferentielController());
+
 		//TODO awaiting an admin console
 		//waiting for automatic script, launch after one mitute
 		vertx.setTimer(60000, new Handler<Long>() {

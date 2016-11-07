@@ -16,14 +16,10 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="fiche student-info" ng-class="{opened : openedStudentInfo === true}">
-    <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
-    <h2 tooltip="[[informations.eleve.lastName]] [[informations.eleve.firstName]]" class="head text-overflow" ng-click="openedStudentInfo = !openedStudentInfo">[[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
-    <!--<img src="/notes/public/img/loader.gif" ng-show="currentUserInfo === undefined" style="width: 20% !important; margin: 0px auto; display: block;" />-->
-    <div ng-show="informations.eleve !== undefined">
-        <div class="imgEleve">
-            <img src="/userbook/avatar/[[informations.eleve.id]]" alt="" ng-if="informations.eleve !== null" />
-        </div>
-        <p><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
-    </div>
-</div>
+<ul class="padding-five">
+    <li><span class="rounded green"></span><i18n>evaluations.competences.proficiency</i18n>.</li>
+    <li><span class="rounded yellow"></span><i18n>evaluations.competences.satisfying</i18n>.</li>
+    <li><span class="rounded orange"></span><i18n>evaluations.competences.fragile</i18n>.</li>
+    <li><span class="rounded red"></span><i18n>evaluations.competences.poor</i18n>.</li>
+    <li><span class="rounded grey"></span><i18n>evaluations.competence.unevaluated</i18n>.</li>
+</ul>

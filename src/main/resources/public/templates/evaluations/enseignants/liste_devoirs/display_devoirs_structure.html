@@ -16,66 +16,60 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
-            <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/eval_teacher_listview') }"
-               ng-click="template.open('evaluations', '../templates/evaluations/eval_teacher_listview')"></i>
-            <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/eval_teacher_iconview') }"
-               ng-click="template.open('evaluations', '../templates/evaluations/eval_teacher_iconview')"></i>
+            <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view') }"
+               ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view')"></i>
+            <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view') }"
+               ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
         <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true">Nouveau devoir </button>
     </nav>
     <div class="twelve cell list-devoirs">
-        <div class="two cell criterion-fixed">
-            <div style="background: white;padding: 8px;border-radius: 5px;margin: 5px" >
-                <header>
-                    <h2 style="color: grey;"><i18n>viescolaire.utils.criterion</i18n></h2>
-                </header>
+        <div class="two cell">
+            <div class="criterion" >
+                <div  class="header">
+                    <h2><i18n>viescolaire.utils.criterion</i18n></h2>
+                </div>
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idClasse" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option class="header-opt" value="*">Classes</option>
-                            <option ng-repeat="classe in classes.all track by $index" ng-selected="search.idClasse == classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                        <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe.name for classe in classes.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.class')]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section >
                     <label class="select">
-                        <select ng-model="search.idMatiere" ng-change="getSousMatieres()"
-                                style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option class="header-opt" value="*">Matières</option>
-                            <option ng-repeat="matiere in matieres.all | unique:'name' | getMatiereClasse:search.idClasse:classes:search:matieres" ng-selected="search.idMatiere == matiere.id" value="[[matiere.id]]">[[matiere.name]]</option>
+                        <select ng-model="search.matiere" ng-change="getReleve()" ng-options="matiere.name for matiere in matieres.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section>
-                    <label class="select" ng-hide="selected.matiere.sousMatieres.all.length === 0 || search.idMatiere === '*' || selected.matiere === undefined">
-                        <select ng-model="search.idSousMatiere"
-                                style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option class="header-opt" value="*">Sous matières</option>
-                            <option ng-repeat="sousMatiere in selected.matiere.sousMatieres.all" ng-selected="sousMatiere.id == search.idSousMatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section>
-                    <label class="select">
-                        <select ng-model="search.idType" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option class="header-opt" value="*">Types de devoirs</option>
-                            <option ng-repeat="type in types.all" ng-selected="search.idType ==type.id" value="[[type.id]]">[[type.nom]]</option>
+                    <label class="select" ng-hide="selected.matiere.sousMatieres.all.length === 0 || search.matiere === '*' || selected.matiere === undefined">
+                        <select ng-model="search.sousmatiere" ng-options="sousmatiere.libelle for sousmatiere in search.sousmatieres.all">
+                            <option class="header-opt" value="">[[translate('viescolaire.utils.undersubject')]]</option>
                         </select>
                     </label>
                 </section>
 
                 <section>
                     <label class="select">
-                        <select ng-model="search.idPeriode" style="width: 100%;border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;">
-                            <option class="header-opt" value="*">Périodes</option>
-                            <option ng-repeat="periode in periodes.all" ng-selected="periode.id == search.idPeriode" value="[[periode.id]]">[[periode.libelle]]</option>
+                        <select ng-model="search.type" ng-options="type.nom for type in types.all">
+                            <option class="header-opt" value="">[[translate('viescolaire.utils.type')]]</option>
+                        </select>
+                    </label>
+                </section>
+
+                <section>
+                    <label class="select">
+                        <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                         </select>
                     </label>
                 </section>
@@ -99,20 +93,16 @@
 
         </div>
 
-        <div class="ten cell " style="margin-top: -50px;">
-            <button class="marginFive" ng-click="createDevoir(); showNoteLightBox = true">Nouveau devoir </button>
-        </div>
-        <div class="ten cell fixed-container">
+        <!--<div class="ten cell " style="margin-top: -50px;">-->
+            <!--<button class="marginFive" ng-click="createDevoir(); showNoteLightBox = true">Nouveau devoir </button>-->
+        <!--</div>-->
+        <div class="ten cell">
             <div class="marginFive">
                 <header class="headerStyle">
-
                     <h2><i18n>evaluations.test.owner.list</i18n></h2>
                     <input type="text" ng-model="search.name" placeholder="Filtrer sur le nom..." style="width: 99%;font-size: 1em;font-style: italic;">
-
                 </header>
-
                 <container template="evaluations" class="twelve cell toggle-buttons-spacer"></container>
-
             </div>
         </div>
 

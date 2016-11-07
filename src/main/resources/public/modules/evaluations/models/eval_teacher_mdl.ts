@@ -787,6 +787,7 @@ export class CompetenceNote extends Model implements IModel {
     create(): Promise<number> {
         return new Promise((resolve, reject) => {
             http().postJson(this.api.create, this.toJSON()).done((data) => {
+                this.id = data.id;
                 if (resolve && (typeof (resolve) === 'undefined')) {
                     resolve(data.id);
                 }

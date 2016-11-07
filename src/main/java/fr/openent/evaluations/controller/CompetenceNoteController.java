@@ -21,6 +21,7 @@ package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
+import fr.openent.evaluations.security.AccessSuiviCompetenceFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.wseduc.rs.*;
@@ -145,10 +146,24 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Get("/competence/notes")
     @ApiDoc("Retourne les compétences notes d'un devoir donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetencesNotesDevoir (final HttpServerRequest request) {
-        String devoirId = request.params().get("devoirId");
-        competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+        if (request.params().contains("devoirId")) {
+            String devoirId = request.params().get("devoirId");
+            competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+        } else if (request.params().contains("idEleve")) {
+            String idEleve = request.params().get("idEleve");
+            String idPeriode;
+            if (request.params().contains("idPeriode")) {
+                 idPeriode = request.params().get("idPeriode");
+            } else {
+                idPeriode = null;
+            }
+            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
+        } else {
+            Renders.unauthorized(request);
+        }
     }
 
     @Post("/competence/notes")
@@ -190,5 +205,13 @@ public class CompetenceNoteController extends ControllerHelper {
         if (ids.size() > 0) {
             competencesNotesService.dropCompetencesNotesDevoir(ids, arrayResponseHandler(request));
         }
+    }
+
+    @Get("/competence/notes/eleve")
+    @ApiDoc("Récupère la liste des compétences notes pour une periode (optionnelle), un élève et un cycle")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetencesNotesEleve(final HttpServerRequest request) {
+
     }
 }

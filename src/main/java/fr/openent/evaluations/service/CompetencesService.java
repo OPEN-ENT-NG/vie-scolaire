@@ -77,5 +77,5 @@ public interface CompetencesService extends CrudService {
      * @param filter filtre
      * @param handler handler portant le résultat de la requête
      */
-    public void getCompetencesByLevel(String filter, Handler<Either<String, JsonArray>> handler);
+    public void getCompetencesByLevel(String filter, String idCycle, Handler<Either<String, JsonArray>> handler);
 }

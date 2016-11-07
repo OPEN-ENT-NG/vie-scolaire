@@ -10,24 +10,24 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
     return function(devoirs, searchParams){
         var output = devoirs;
         var tempTable = [];
-        if (searchParams.idClasse !== '*') {
-            tempTable = _.where(output, {id_classe : searchParams.idClasse});
+        if (searchParams.classe !== '*') {
+            tempTable = _.where(output, {id_classe : searchParams.classe.id});
             output = tempTable;
         }
-        if (searchParams.idMatiere !== '*') {
-            tempTable = _.where(output, {id_matiere : searchParams.idMatiere});
+        if (searchParams.matiere !== '*') {
+            tempTable = _.where(output, {id_matiere : searchParams.matiere.id});
             output = tempTable;
         }
-        if (searchParams.idSousMatiere !== '*') {
-            tempTable = _.where(output, {id_sousmatiere : parseInt(searchParams.idSousMatiere)});
+        if (searchParams.sousmatiere !== '*') {
+            tempTable = _.where(output, {id_sousmatiere : parseInt(searchParams.sousmatiere.id)});
             output = tempTable;
         }
-        if (searchParams.idType !== '*') {
-            tempTable = _.where(output, {id_type : parseInt(searchParams.idType)});
+        if (searchParams.type !== '*') {
+            tempTable = _.where(output, {id_type : parseInt(searchParams.type.id)});
             output = tempTable;
         }
-        if (searchParams.idPeriode !== '*') {
-            tempTable = _.where(output, {id_periode : parseInt(searchParams.idPeriode)});
+        if (searchParams.periode !== '*') {
+            tempTable = _.where(output, {id_periode : parseInt(searchParams.periode.id  )});
             output = tempTable;
         }
         if (searchParams.name !== "") {

@@ -10,6 +10,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter',
     function ($scope, route, $rootScope, $location, $filter) {
         route({
+            accueil : function(params){
+                template.open('main', '../templates/evaluations/eval_acu_teacher');
+            },
+
             listDevoirs : function(params){
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");

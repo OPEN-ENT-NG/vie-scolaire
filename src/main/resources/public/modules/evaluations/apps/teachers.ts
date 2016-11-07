@@ -6,8 +6,10 @@ import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluat
 
 //CONTROLLERS
 import {evaluationsController} from '../controllers/eval_teacher_ctl';
+import {evalAcuTeacherController} from '../controllers/eval_acu_teacher_ctl';
 
 ng.controllers.push(evaluationsController);
+ng.controllers.push(evalAcuTeacherController);
 
 //FILTERS
 import {uniqueFilter} from '../../utils/filters/unique';
@@ -44,7 +46,8 @@ routes.define(function($routeProvider){
         .when('/devoirs/list',{action:'listDevoirs'})
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
+        .when('/',{action:'accueil'})
         .otherwise({
-            redirectTo : '/releve'
+            redirectTo : '/'
         });
 });

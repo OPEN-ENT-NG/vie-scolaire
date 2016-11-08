@@ -21,9 +21,9 @@ package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
-import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.CompetenceEvaluationService;
 import fr.openent.evaluations.service.CompetencesService;
-import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
+import fr.openent.evaluations.service.impl.DefaultCompetenceEvaluationService;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -51,12 +51,12 @@ public class CompetenceController extends ControllerHelper{
      * Déclaration des services
      */
     private final CompetencesService competencesService;
-    private final CompetenceNoteService competencesNotesService;
+    private final CompetenceEvaluationService competencesNotesService;
 
     public CompetenceController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
-        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        competencesNotesService = new DefaultCompetenceEvaluationService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     /**

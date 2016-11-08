@@ -20,10 +20,10 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
+import fr.openent.evaluations.security.AccessCompetenceEvaluationFilter;
 import fr.openent.evaluations.security.AccessSuiviCompetenceFilter;
-import fr.openent.evaluations.service.CompetenceNoteService;
-import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
+import fr.openent.evaluations.service.CompetenceEvaluationService;
+import fr.openent.evaluations.service.impl.DefaultCompetenceEvaluationService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -46,13 +46,13 @@ import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyRe
 /**
  * Created by ledunoiss on 19/10/2016.
  */
-public class CompetenceNoteController extends ControllerHelper {
+public class CompetenceEvaluationController extends ControllerHelper {
 
-    private final CompetenceNoteService competencesNotesService;
+    private final CompetenceEvaluationService competencesNotesService;
 
-    public CompetenceNoteController() {
+    public CompetenceEvaluationController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        competencesNotesService = new DefaultCompetenceEvaluationService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     /**
@@ -100,7 +100,7 @@ public class CompetenceNoteController extends ControllerHelper {
     @Put("/competence/note")
     @ApiDoc("Met à jour une note relative à une compétence")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessCompetenceNoteFilter.class)
+    @ResourceFilter(AccessCompetenceEvaluationFilter.class)
     public void update(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -128,7 +128,7 @@ public class CompetenceNoteController extends ControllerHelper {
     @Delete("/competence/note")
     @ApiDoc("Supprime une note relative à une compétence")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessCompetenceNoteFilter.class)
+    @ResourceFilter(AccessCompetenceEvaluationFilter.class)
     public void delete (final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -186,7 +186,7 @@ public class CompetenceNoteController extends ControllerHelper {
     @Put("/competence/notes")
     @ApiDoc("Met à jour une liste de compétences notes pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessCompetenceNoteFilter.class)
+    @ResourceFilter(AccessCompetenceEvaluationFilter.class)
     public void updateCompetencesNotesDevoir (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
@@ -199,7 +199,7 @@ public class CompetenceNoteController extends ControllerHelper {
     @Delete("/competence/notes")
     @ApiDoc("Supprime une liste de compétences notes pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessCompetenceNoteFilter.class)
+    @ResourceFilter(AccessCompetenceEvaluationFilter.class)
     public void deleteCompetencesNotesDevoir (final HttpServerRequest request) {
         List<String> ids = request.params().getAll("id");
         if (ids.size() > 0) {

@@ -21,6 +21,7 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.CompetenceEvaluationService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
@@ -35,8 +36,8 @@ import java.util.List;
 /**
  * Created by ledunoiss on 05/08/2016.
  */
-public class DefaultCompetenceNoteService extends SqlCrudService implements fr.openent.evaluations.service.CompetenceNoteService {
-    public DefaultCompetenceNoteService(String schema, String table) {
+public class DefaultCompetenceEvaluationService extends SqlCrudService implements CompetenceEvaluationService {
+    public DefaultCompetenceEvaluationService(String schema, String table) {
         super(schema, table);
     }
 
@@ -60,10 +61,10 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT competences_notes.*,competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +"competences_notes, "+ Viescolaire.EVAL_SCHEMA +"competences ")
-                .append("WHERE competences_notes.id_competence = competences.id ")
-                .append("AND competences_notes.id_devoir = ? AND competences_notes.id_eleve = ? ")
-                .append("ORDER BY competences_notes.id ASC;");
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations, "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("WHERE competence_evaluations.id_competence = competences.id ")
+                .append("AND competence_evaluations.id_devoir = ? AND competence_evaluations.id_eleve = ? ")
+                .append("ORDER BY competence_evaluations.id ASC;");
 
         JsonArray params = new JsonArray();
         params.addNumber(idDevoir);
@@ -75,10 +76,10 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     @Override
     public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT competences.nom, competences_notes.id, competences_notes.id_devoir, competences_notes.id_eleve, competences_notes.id_competence, competences_notes.evaluation " +
-                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes, "+ Viescolaire.EVAL_SCHEMA +".competences " +
-                "WHERE competences_notes.id_devoir = ? " +
-                "AND competences.id = competences_notes.id_competence");
+        query.append("SELECT competences.nom, competence_evaluations.id, competence_evaluations.id_devoir, competence_evaluations.id_eleve, competence_evaluations.id_competence, competence_evaluations.evaluation " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations, "+ Viescolaire.EVAL_SCHEMA +".competences " +
+                "WHERE competence_evaluations.id_devoir = ? " +
+                "AND competences.id = competence_evaluations.id_competence");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(idDevoir), SqlResult.validResultHandler(handler));
     }
@@ -89,7 +90,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray();
         for (int i = 0; i < _datas.size(); i++) {
             JsonObject o = _datas.get(i);
-            query.append("UPDATE "+ Viescolaire.EVAL_SCHEMA +".competences_notes SET evaluation = ?, modified = now() WHERE id = ?;");
+            query.append("UPDATE "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations SET evaluation = ?, modified = now() WHERE id = ?;");
             values.addNumber(o.getNumber("evaluation")).addNumber(o.getNumber("id"));
         }
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
@@ -101,7 +102,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray();
         for (int i = 0; i < _datas.size(); i++) {
             JsonObject o = _datas.get(i);
-            query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
+            query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
             values.add(o.getInteger("id_devoir")).add(o.getInteger("id_competence")).add(o.getInteger("evaluation"))
                     .add(user.getUserId()).add(o.getString("id_eleve"));
         }
@@ -115,7 +116,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         for (int i = 0; i < ids.size(); i++) {
             values.addNumber(Integer.parseInt(ids.get(i)));
         }
-        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
+        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
@@ -124,11 +125,11 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray().addString(idEleve);
         StringBuilder query = new StringBuilder()
                 .append("SELECT competences.id as id_competence, competences.id_parent, competences.id_type, competences.id_enseignement, rel_competences_cycle.id_cycle, " +
-                        "competences_notes.id as id_competences_notes, competences_notes.evaluation, devoirs.owner " +
-                        "FROM notes.competences INNER JOIN notes.rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
-                        "INNER JOIN notes.competences_notes ON (competences_notes.id_competence = competences.id) " +
-                        "INNER JOIN notes.devoirs ON (competences_notes.id_devoir = devoirs.id) " +
-                        "WHERE competences_notes.id_eleve = ? ");
+                        "competence_evaluations.id as id_competence_evaluations, competence_evaluations.evaluation, devoirs.owner " +
+                        "FROM "+ Viescolaire.EVAL_SCHEMA +".competences INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
+                        "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competence_evaluations ON (competence_evaluations.id_competence = competences.id) " +
+                        "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competence_evaluations.id_devoir = devoirs.id) " +
+                        "WHERE competence_evaluations.id_eleve = ? ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(Integer.parseInt(idPeriode));

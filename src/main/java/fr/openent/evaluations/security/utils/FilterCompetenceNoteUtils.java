@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Created by ledunoiss on 21/10/2016.
  */
-public class FilterCompetenceEvaluationUtils {
+public class FilterCompetenceNoteUtils {
 
     public void validateCompetenceNoteOwner(Integer idNote, String owner,
                                             final Handler<Boolean> handler) {

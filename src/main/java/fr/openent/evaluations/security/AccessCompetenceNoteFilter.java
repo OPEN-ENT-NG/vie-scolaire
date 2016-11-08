@@ -19,7 +19,7 @@
 
 package fr.openent.evaluations.security;
 
-import fr.openent.evaluations.security.utils.FilterCompetenceEvaluationUtils;
+import fr.openent.evaluations.security.utils.FilterCompetenceNoteUtils;
 import fr.wseduc.webutils.http.Binding;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.http.filter.ResourcesProvider;
@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Created by ledunoiss on 20/10/2016.
  */
-public class AccessCompetenceEvaluationFilter implements ResourcesProvider {
+public class AccessCompetenceNoteFilter implements ResourcesProvider {
 
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
@@ -43,7 +43,7 @@ public class AccessCompetenceEvaluationFilter implements ResourcesProvider {
             case "Teacher" : {
                 if (resourceRequest.params().contains("idNote")) {
                     resourceRequest.pause();
-                    new FilterCompetenceEvaluationUtils()
+                    new FilterCompetenceNoteUtils()
                             .validateCompetenceNoteOwner(Integer.parseInt(resourceRequest.params().get("idNote")),
                                     user.getUserId(), new Handler<Boolean>() {
                                         @Override
@@ -61,7 +61,7 @@ public class AccessCompetenceEvaluationFilter implements ResourcesProvider {
                                 JsonObject _o = data.get(i);
                                 idsList.add(_o.getInteger("id"));
                             }
-                            new FilterCompetenceEvaluationUtils().validateCompetencesNotesOwner(idsList, user.getUserId(), new Handler<Boolean>() {
+                            new FilterCompetenceNoteUtils().validateCompetencesNotesOwner(idsList, user.getUserId(), new Handler<Boolean>() {
                                 @Override
                                 public void handle(Boolean isValid) {
                                     handler.handle(isValid);

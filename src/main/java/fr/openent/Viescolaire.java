@@ -121,7 +121,7 @@ public class Viescolaire extends BaseServer {
 			CONTROLEURS NOTES
 		 */
 		addController(new CompetenceController());
-		addController(new CompetenceEvaluationController());
+		addController(new CompetenceNoteController());
 		addController(new DevoirController());
 		addController(new EnseignementController());
 		addController(new ExportPDFController(eb, notification));

@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Created by ledunoiss on 05/08/2016.
  */
-public interface CompetenceEvaluationService extends CrudService {
+public interface CompetenceNoteService extends CrudService {
 
     /**
      * Créer une compétenceNote

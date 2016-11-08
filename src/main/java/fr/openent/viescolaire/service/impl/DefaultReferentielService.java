@@ -62,8 +62,8 @@ public class DefaultReferentielService implements ReferentielService {
     public void createStructure(JsonObject structure, Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder()
                 .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".structure " +
-                        "(uai, ville, telephone, siret, externalid, type, adresse, fk4j_structure_id) " +
-                        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *");
+                        "(uai, ville, telephone, siret, externalid, type, adresse, fk4j_structure_id, nom) " +
+                        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *");
 
         JsonArray params = new JsonArray().addString(structure.getString("UAI"))
                 .addString(structure.getString("city"))
@@ -72,7 +72,8 @@ public class DefaultReferentielService implements ReferentielService {
                 .addString(structure.getString("externalId"))
                 .addString(structure.getString("type"))
                 .addString(structure.getString("address"))
-                .addString(structure.getString("id"));
+                .addString(structure.getString("id"))
+                .addString(structure.getString("name"));
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validUniqueResultHandler(handler));
     }

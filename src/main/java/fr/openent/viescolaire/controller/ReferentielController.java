@@ -32,8 +32,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.Date;
 
@@ -47,7 +45,6 @@ public class ReferentielController extends ControllerHelper {
     public ReferentielController () {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         referentielService = new DefaultReferentielService();
-        Logger log = LoggerFactory.getLogger(ReferentielController.class);
     }
 
     private void syncStructure(final HttpServerRequest request, final Handler<JsonObject> handler) {
@@ -188,58 +185,151 @@ public class ReferentielController extends ControllerHelper {
         });
     }
 
+//    private void syncPersonnels(final HttpServerRequest request, final JsonObject structure, final Handler<JsonArray> handler) {
+//        referentielService.syncPersonnels(structure.getString("externalid"), new Handler<Either<String, JsonArray>>() {
+//            @Override
+//            public void handle(Either<String, JsonArray> event) {
+//                if (event.isRight()) {
+//                    JsonArray values = event.right().getValue();
+//                    JsonArray personnels = new JsonArray();
+//                    for (int i = 0; i < values.size(); i++) {
+//                        JsonObject personnel = values.get(i);
+//                        personnel = personnel.getObject("n");
+//                        personnels.addObject(personnel.getObject("data"));
+//                    }
+//                    referentielService.createPersonnels(personnels, structure.getString("externalid"), new Handler<Either<String, JsonObject>>() {
+//                        @Override
+//                        public void handle(Either<String, JsonObject> event) {
+//                            if (event.isRight()) {
+//                                referentielService.syncTeachers(structure.getString("externalid"), new Handler<Either<String, JsonArray>>() {
+//                                    @Override
+//                                    public void handle(Either<String, JsonArray> event) {
+//                                        if (event.isRight()) {
+//                                            JsonArray values = event.right().getValue();
+//                                            final JsonArray teachers = new JsonArray();
+//                                            for (int i = 0; i < values.size(); i++) {
+//                                                JsonObject teacher = values.get(i);
+//                                                teacher = teacher.getObject("n");
+//                                                teachers.addObject(teacher.getObject("data"));
+//                                            }
+//                                            referentielService.createTeachers(teachers, structure.getString("externalid"), new Handler<Either<String, JsonObject>>() {
+//                                                @Override
+//                                                public void handle(Either<String, JsonObject> event) {
+//                                                    if (event.isRight()) {
+//                                                        handler.handle(teachers);
+//                                                    } else {
+//                                                        unauthorized(request);
+//                                                    }
+//                                                }
+//                                            });
+//                                        } else {
+//                                            unauthorized(request);
+//                                        }
+//                                    }
+//                                });
+//                            } else {
+//                                unauthorized(request);
+//                            }
+//                        }
+//                    });
+//                } else {
+//                    unauthorized(request);
+//                }
+//            }
+//        });
+//    }
+
     private void syncPersonnels(final HttpServerRequest request, final JsonObject structure, final Handler<JsonArray> handler) {
+        final Integer[] nbPersonnels = {0};
+        final Integer[] counter = {0};
         referentielService.syncPersonnels(structure.getString("externalid"), new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if (event.isRight()) {
                     JsonArray values = event.right().getValue();
-                    JsonArray personnels = new JsonArray();
+                    nbPersonnels[0] += values.size();
                     for (int i = 0; i < values.size(); i++) {
                         JsonObject personnel = values.get(i);
                         personnel = personnel.getObject("n");
-                        personnels.addObject(personnel.getObject("data"));
-                    }
-                    referentielService.createPersonnels(personnels, structure.getString("externalid"), new Handler<Either<String, JsonObject>>() {
-                        @Override
-                        public void handle(Either<String, JsonObject> event) {
-                            if (event.isRight()) {
-                                referentielService.syncTeachers(structure.getString("externalid"), new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> event) {
-                                        if (event.isRight()) {
-                                            JsonArray values = event.right().getValue();
-                                            final JsonArray teachers = new JsonArray();
-                                            for (int i = 0; i < values.size(); i++) {
-                                                JsonObject teacher = values.get(i);
-                                                teacher = teacher.getObject("n");
-                                                teachers.addObject(teacher.getObject("data"));
-                                            }
-                                            referentielService.createTeachers(teachers, structure.getString("externalid"), new Handler<Either<String, JsonObject>>() {
-                                                @Override
-                                                public void handle(Either<String, JsonObject> event) {
-                                                    if (event.isRight()) {
-                                                        handler.handle(teachers);
-                                                    } else {
-                                                        unauthorized(request);
-                                                    }
-                                                }
-                                            });
-                                        } else {
-                                            unauthorized(request);
-                                        }
-                                    }
-                                });
-                            } else {
-                                unauthorized(request);
+                        personnel = personnel.getObject("data");
+                        referentielService.createPersonnel(structure.getInteger("id"), personnel, new Handler<Boolean>() {
+                            @Override
+                            public void handle(Boolean event) {
+                                if(!event) {
+                                    unauthorized(request);
+                                } else {
+                                    counter[0]++;
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 } else {
                     unauthorized(request);
                 }
             }
         });
+        referentielService.syncTeachers(structure.getString("externalid"), new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if (event.isRight()) {
+                    JsonArray values = event.right().getValue();
+                    final JsonArray teachers = new JsonArray();
+                    nbPersonnels[0] += values.size();
+                    for (int i = 0; i < values.size(); i++) {
+                        JsonObject teacher = values.get(i);
+                        teacher = teacher.getObject("n");
+                        teacher = teacher.getObject("data");
+                        teachers.addObject(teacher);
+                        referentielService.createPersonnel(structure.getInteger("id"), teacher, new Handler<Boolean>() {
+                            @Override
+                            public void handle(Boolean event) {
+                                if(!event) {
+                                    unauthorized(request);
+                                } else {
+                                    counter[0]++;
+                                    if (counter[0] == nbPersonnels[0]) {
+                                        handler.handle(teachers);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
+    private void linkTeachersClasses(final HttpServerRequest request, final JsonArray teachers, final Handler<Boolean> handler) {
+        final Integer[] counter = {0};
+        for (int i = 0; i < teachers.size(); i++) {
+            final JsonObject teacher = teachers.get(i);
+            if (teacher.containsField("classes")) {
+                JsonArray classes = teacher.getArray("classes");
+                JsonArray classesLibelle = new JsonArray();
+                for (int y = 0; y < classes.size(); y++) {
+                    String classe = classes.get(y);
+                    classesLibelle.addString(classe.split("\\$")[1]);
+                }
+                referentielService.linkPersonnelClasses(teacher.getString("id"), classesLibelle, new Handler<Either<String, JsonObject>>() {
+                    @Override
+                    public void handle(Either<String, JsonObject> event) {
+                        if (event.isRight()) {
+                            counter[0]++;
+                            if (counter[0] == teacher.size()) {
+                                handler.handle(true);
+                            }
+                        }
+                    }
+                });
+            } else {
+                counter[0]++;
+                if (counter[0] == teacher.size()) {
+                    handler.handle(true);
+                }
+            }
+        }
     }
 
     private void syncMatieres (final HttpServerRequest request, final JsonArray teachers, final JsonObject structure, final Handler<Boolean> handler) {
@@ -342,18 +432,23 @@ public class ReferentielController extends ControllerHelper {
                                                 if (b) {
                                                     syncPersonnels(request, structure, new Handler<JsonArray>() {
                                                         @Override
-                                                        public void handle(JsonArray teachers) {
-                                                            syncMatieres(request, teachers, structure, new Handler<Boolean>() {
+                                                        public void handle(final JsonArray teachers) {
+                                                            linkTeachersClasses(request, teachers, new Handler<Boolean>() {
                                                                 @Override
-                                                                public void handle(Boolean b) {
-                                                                    if (b) {
-                                                                        request.response().putHeader("content-type", "application/json; charset=utf-8").end(
-                                                                                new JsonObject().putNumber("status", 200)
-                                                                                        .putString("externalId", structure.getString("externalid"))
-                                                                                        .putString("time", String.valueOf(new Date().getTime() - startTime.getTime()))
-                                                                                        .toString()
-                                                                        );
-                                                                    }
+                                                                public void handle(Boolean event) {
+                                                                    syncMatieres(request, teachers, structure, new Handler<Boolean>() {
+                                                                        @Override
+                                                                        public void handle(Boolean b) {
+                                                                            if (b) {
+                                                                                request.response().putHeader("content-type", "application/json; charset=utf-8").end(
+                                                                                        new JsonObject().putNumber("status", 200)
+                                                                                                .putString("externalId", structure.getString("externalid"))
+                                                                                                .putString("time", String.valueOf(new Date().getTime() - startTime.getTime()))
+                                                                                                .toString()
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                    });
                                                                 }
                                                             });
                                                         }

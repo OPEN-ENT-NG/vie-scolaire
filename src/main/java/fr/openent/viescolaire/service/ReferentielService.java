@@ -58,9 +58,19 @@ public interface ReferentielService {
 
     public void createPersonnels(JsonArray personnels, String externalId, Handler<Either<String, JsonObject>> handler);
 
+    public void createPersonnel(Integer structureId, JsonObject teacher, Handler<Boolean> handler);
+
     public void syncTeachers(String externalId, Handler<Either<String, JsonArray>> handler);
 
     public void createTeachers(JsonArray teachers, String externalId, Handler<Either<String, JsonObject>> handler);
+
+    public void createPersonnelDB(JsonObject personnel, Boolean enseigne, Handler<Either<String, JsonObject>> handler);
+
+    public void findPersonnel(String userId, Handler<Either<String, JsonObject>> handler);
+
+    public void linkPersonnelStructure(Integer structureId, Integer userId, Handler<Either<String, JsonObject>> handler);
+
+    public void linkPersonnelClasses(String userId, JsonArray classes, Handler<Either<String, JsonObject>> handler);
 
     //MATIERES
     public void syncMatieres(JsonArray matieres, Handler<Either<String, JsonArray>> handler);

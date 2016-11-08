@@ -215,6 +215,59 @@ public class DefaultReferentielService implements ReferentielService {
     }
 
     @Override
+    public void createPersonnel(final Integer structureId, final JsonObject personnel, final Handler<Boolean> handler) {
+//        JsonArray params = new JsonArray();
+//        StringBuilder query = new StringBuilder()
+//                .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnel " +
+//                        "(fk4j_user_id, externalid, nom, prenom, profil, enseigne, id_etablissement) VALUES " +
+//                        "(?, ?, ?, ?, ?, false)");
+//        params.addString(teacher.getString("id")).addString(teacher.getString("externalId"))
+//                .addString(teacher.getString("lastName")).addString(teacher.getString("firstName"))
+//                .addString(teacher.getArray("profiles").get(0).toString());
+//
+//        Sql.getInstance().prepared(query.toString(), params, SqlResult.validRowsResultHandler(handler));
+        this.findPersonnel(personnel.getString("userId"), new Handler<Either<String, JsonObject>>() {
+            @Override
+            public void handle(Either<String, JsonObject> p) {
+                if (p.isRight()) {
+                    JsonObject _d = p.right().getValue();
+                    if (!_d.containsField("id")) {
+                        Boolean enseigne = false;
+                        if (personnel.getBoolean("teaches") == true) {
+                            enseigne = true;
+                        }
+                        createPersonnelDB(personnel, enseigne, new Handler<Either<String, JsonObject>>() {
+                            @Override
+                            public void handle(Either<String, JsonObject> event) {
+                                if (event.isRight()) {
+                                    JsonObject _p = event.right().getValue();
+                                    linkPersonnelStructure(structureId, _p.getInteger("id"), new Handler<Either<String, JsonObject>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonObject> event) {
+                                            handler.handle(true);
+                                        }
+                                    });
+                                } else {
+                                    handler.handle(false);
+                                }
+                            }
+                        });
+                    } else {
+                        linkPersonnelStructure(structureId, _d.getInteger("id"), new Handler<Either<String, JsonObject>>() {
+                            @Override
+                            public void handle(Either<String, JsonObject> event) {
+                                handler.handle(true);
+                            }
+                        });
+                    }
+                } else {
+                    handler.handle(false);
+                }
+            }
+        });
+    }
+
+    @Override
     public void syncTeachers(String externalId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder()
                 .append("MATCH (n:`User` {profiles : ['Teacher']})-[ADMINISTRATIVE_ATTACHMENT]-(r:Structure {externalId : {externalid}}) RETURN n ");
@@ -270,6 +323,59 @@ public class DefaultReferentielService implements ReferentielService {
                     .addString(teacher.getString("lastName")).addString(teacher.getString("firstName"))
                     .addString(teacher.getArray("profiles").get(0).toString()).addString(externalId);
             if (i < teachers.size() - 1) {
+                query.append(",");
+            }
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validRowsResultHandler(handler));
+    }
+
+    @Override
+    public void createPersonnelDB(JsonObject personnel, Boolean enseigne, Handler<Either<String, JsonObject>> handler) {
+        JsonArray params = new JsonArray();
+        StringBuilder query = new StringBuilder()
+                .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnel " +
+                        "(fk4j_user_id, externalid, nom, prenom, profil, enseigne) VALUES " +
+                        "(?, ?, ?, ?, ?, ?) RETURNING *");
+        params.addString(personnel.getString("id")).addString(personnel.getString("externalId"))
+                .addString(personnel.getString("lastName")).addString(personnel.getString("firstName"))
+                .addString(personnel.getArray("profiles").get(0).toString()).addBoolean(enseigne);
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void findPersonnel(String userId, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder()
+                .append("SELECT id " +
+                        "FROM " + Viescolaire.VSCO_SCHEMA + ".personnel " +
+                        "WHERE personnel.fk4j_user_id = ?");
+
+        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validUniqueResultHandler(handler));
+    }
+
+
+    @Override
+    public void linkPersonnelStructure(Integer structureId, Integer userId, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder()
+                .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_personnel_structure " +
+                        "(id_etablissement, id_personnel) VALUES (?,?);");
+        JsonArray params = new JsonArray().addNumber(structureId).addNumber(userId);
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validRowsResultHandler(handler));
+    }
+
+    @Override
+    public void linkPersonnelClasses(String userId, JsonArray classes, Handler<Either<String, JsonObject>> handler) {
+        JsonArray params = new JsonArray();
+        StringBuilder query = new StringBuilder()
+                .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_personnel_classe " +
+                        "(id_classe, id_personnel) VALUES ");
+
+        for (int i = 0; i < classes.size(); i++) {
+            query.append("((SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".classe WHERE classe.libelle = ?)," +
+                    "(SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".personnel WHERE personnel.fk4j_user_id = ?))");
+            String classe = classes.get(i);
+            params.addString(classe).addString(userId);
+            if (i < classes.size() -1) {
                 query.append(",");
             }
         }

@@ -85,12 +85,10 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: log4j:log4j:1.2.16">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/log4j/log4j/1.2.16/bundle/7999a63bfccbc7c247a9aea10d83d4272bd492c6/log4j-1.2.16.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/log4j/log4j/1.2.16/log4j-1.2.16.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/log4j/log4j/1.2.16/source/bf945d1dc995be7fe64923625f842fbb6bf443be/log4j-1.2.16-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
@@ -105,24 +103,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="Gradle: org.entcore:common:1.15-SNAPSHOT">
+      <library name="Gradle: org.entcore:common:1.20-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.15-SNAPSHOT/jar/7e82a08c1a1ff676eec0e2bf04ac26bc9388002/common-1.15-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.20-SNAPSHOT/jar/2ed985684529b25edf364299e3657ccdfd40ef40/common-1.20-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.15-SNAPSHOT/source/4363312dcdba67144cc1e710fd8c98599aade92a/common-1.15-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/common/1.20-SNAPSHOT/source/9297957d0bfbcfc8d3f8298a51f15e0cda1ba56b/common-1.20-SNAPSHOT-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="Gradle: org.entcore:directory:1.15-SNAPSHOT">
+      <library name="Gradle: org.entcore:directory:1.20-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/directory/1.15-SNAPSHOT/jar/41d748d8f574bd169480f0a9abd09ad963dd3741/directory-1.15-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/directory/1.20-SNAPSHOT/jar/22c312fdbcd93237a09e8ad0cf18af57a01827ea/directory-1.20-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/directory/1.15-SNAPSHOT/source/eba28d7a5f2146b3de35892b110a774b753e2492/directory-1.15-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/directory/1.20-SNAPSHOT/source/ab7ec830672d9d9fe7efbffb24ab0cf27bf0a3ec/directory-1.20-SNAPSHOT-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -149,13 +147,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="Gradle: fr.wseduc:web-utils:1.12-SNAPSHOT">
+      <library name="Gradle: fr.wseduc:web-utils:1.14-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.12-SNAPSHOT/jar/765c98697538b8f900291b7d35a433762aa3c106/web-utils-1.12-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.14-SNAPSHOT/jar/724f5a397574e0172966a5faf6e58b4294a9eef6/web-utils-1.14-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.12-SNAPSHOT/source/5eb272cede79923dced7fbe3cbb9d79e13e98e59/web-utils-1.12-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/web-utils/1.14-SNAPSHOT/source/79223ce1c9dc3d3f9014e33c53621a26391d14cb/web-utils-1.14-SNAPSHOT-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -193,13 +191,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="Gradle: fr.wseduc:vertx-swift-client:0.1.1">
+      <library name="Gradle: fr.wseduc:vertx-swift-client:0.1.2">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/vertx-swift-client/0.1.1/jar/cdb6026355f9bb7f5876bb606595fad5da7cfa86/vertx-swift-client-0.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/vertx-swift-client/0.1.2/jar/9f7e213e6244b458de077617a3ee5be2b1193eb9/vertx-swift-client-0.1.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/vertx-swift-client/0.1.1/source/3e67146973762d0c0b7921693f365cab08c5f5d/vertx-swift-client-0.1.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/fr.wseduc/vertx-swift-client/0.1.2/source/43d1df5d1b66faa129c837563208b78b6f547a89/vertx-swift-client-0.1.2-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -215,13 +213,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
-      <library name="Gradle: org.entcore:tests:1.15-SNAPSHOT">
+      <library name="Gradle: org.entcore:tests:1.20-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/tests/1.15-SNAPSHOT/jar/b4136dd0221d46fa2e90645c4771e5ac8fddf35e/tests-1.15-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/tests/1.20-SNAPSHOT/jar/f559fc2816ddb042c8188b00adaefd453eec0a21/tests-1.20-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/tests/1.15-SNAPSHOT/source/401f5c1a68cdd5c66b86c636a60c34a58d31244a/tests-1.15-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.entcore/tests/1.20-SNAPSHOT/source/64948c7187f080f44ff7127f751ddd81fb5417ad/tests-1.20-SNAPSHOT-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -239,12 +237,10 @@
     <orderEntry type="module-library" scope="TEST">
       <library name="Gradle: junit:junit:4.11">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/junit/junit/4.11/jar/4e031bb61df09069aeb2bffb4019e7a5034a4ee0/junit-4.11.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.11/junit-4.11.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/junit/junit/4.11/source/28e0ad201304e4a4abf999ca0570b7cffc352c3c/junit-4.11-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
@@ -294,23 +290,19 @@
     <orderEntry type="module-library" scope="TEST">
       <library name="Gradle: org.hamcrest:hamcrest-core:1.3">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.hamcrest/hamcrest-core/1.3/jar/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.hamcrest/hamcrest-core/1.3/source/1dc37250fbc78e23a65a67fbbaf71d2e9cbc3c0b/hamcrest-core-1.3-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="Gradle: org.scala-lang:scala-library:2.10.4">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.scala-lang/scala-library/2.10.4/jar/9aae4cb1802537d604e03688cab744ff47b31a7d/scala-library-2.10.4.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.4/scala-library-2.10.4.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-24/filestore/org.scala-lang/scala-library/2.10.4/source/59908ab93978c1f546d3db5e05b42994b63ad515/scala-library-2.10.4-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
@@ -762,5 +754,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="VieScolaire node_modules" level="project" />
   </component>
 </module>

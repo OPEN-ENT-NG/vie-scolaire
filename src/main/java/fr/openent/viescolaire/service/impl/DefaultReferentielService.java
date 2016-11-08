@@ -144,6 +144,30 @@ public class DefaultReferentielService implements ReferentielService {
                     .addString(eleve.getString("lastName")).addString(eleve.getString("firstName"))
                     .addString(eleve.getString("login"));
 
+            if (eleve.containsField("classes")) {
+                JsonArray classes = eleve.getArray("classes");
+                for (int y = 0; y < classes.size(); y++) {
+                    String libelleClasse = classes.get(0);
+                    libelleClasse = libelleClasse.split("\\$")[1];
+                    query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_eleve_classe (id_eleve, id_classe) VALUES (" +
+                            "(SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".eleve WHERE eleve.fk4j_user_id = ?)," +
+                            "(SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".classe WHERE classe.libelle = ?));");
+                    params.addString(eleve.getString("id")).addString(libelleClasse);
+                }
+            }
+
+            if (eleve.containsField("groups")) {
+                JsonArray groups = eleve.getArray("groups");
+                for (int j = 0; j < groups.size(); j++) {
+                    String libelleGroup = groups.get(j);
+                    libelleGroup = libelleGroup.split("\\$")[1];
+                    query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_eleve_classe (id_eleve, id_classe) VALUES (" +
+                            "(SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".eleve WHERE eleve.fk4j_user_id = ?)," +
+                            "(SELECT id FROM " + Viescolaire.VSCO_SCHEMA + ".classe WHERE classe.libelle = ?));");
+                    params.addString(eleve.getString("id")).addString(libelleGroup);
+                }
+            }
+
             if (eleve.containsField("parents")) {
                 JsonArray parents = eleve.getArray("parents");
                 for (int y = 0; y < parents.size(); y++) {
@@ -216,16 +240,6 @@ public class DefaultReferentielService implements ReferentielService {
 
     @Override
     public void createPersonnel(final Integer structureId, final JsonObject personnel, final Handler<Boolean> handler) {
-//        JsonArray params = new JsonArray();
-//        StringBuilder query = new StringBuilder()
-//                .append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnel " +
-//                        "(fk4j_user_id, externalid, nom, prenom, profil, enseigne, id_etablissement) VALUES " +
-//                        "(?, ?, ?, ?, ?, false)");
-//        params.addString(teacher.getString("id")).addString(teacher.getString("externalId"))
-//                .addString(teacher.getString("lastName")).addString(teacher.getString("firstName"))
-//                .addString(teacher.getArray("profiles").get(0).toString());
-//
-//        Sql.getInstance().prepared(query.toString(), params, SqlResult.validRowsResultHandler(handler));
         this.findPersonnel(personnel.getString("userId"), new Handler<Either<String, JsonObject>>() {
             @Override
             public void handle(Either<String, JsonObject> p) {

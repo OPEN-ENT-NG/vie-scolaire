@@ -1,4 +1,4 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel, idiom as lang } from 'entcore/entcore';
+import { model, http, IModel, Model, Collection} from 'entcore/entcore';
 
 let moment = require('moment');
 declare let _:any;
@@ -217,40 +217,49 @@ export class Classe extends Model {
     }
 }
 
-export class Eleve extends Model {
+export class Eleve extends Model implements IModel{
     moyenne: number;
     evaluations : Collection<Evaluation>;
     evaluation : Evaluation;
     id : string;
+    suiviCompetences : Collection<SuiviCompetence>;
+
+    get api() {
+        return {
+            getMoyenne : '/viescolaire/evaluations/moyenne'
+        }
+    }
 
     constructor () {
         super();
+        var that = this;
         this.collection(Evaluation);
+        this.collection(SuiviCompetence);
     }
 
-    getMoyenne () : Promise<any> {
-        return new Promise((resolve, reject) => {
-            if (this.evaluations.all.length > 0) {
-                var _datas = [];
-                for (var i = 0; i < this.evaluations.all.length; i++) {
-                    if (this.evaluations.all[i].valeur !== "") _datas.push(this.evaluations.all[i].formatMoyenne());
-                }
-                if (_datas.length > 0) {
-                    http().postJson('/viescolaire/evaluations/moyenne', {notes : _datas}).done(function (res) {
-                        if (_.has(res, "moyenne")) {
-                            this.moyenne = res.moyenne;
-                            if(resolve && typeof(resolve) === 'function'){
-                                resolve();
+        getMoyenne () : Promise<any> {
+            return new Promise((resolve, reject) => {
+                if (this.evaluations.all.length > 0) {
+                    var _datas = [];
+                    for (var i = 0; i < this.evaluations.all.length; i++) {
+                        if (this.evaluations.all[i].valeur !== "") _datas.push(this.evaluations.all[i].formatMoyenne());
+                    }
+                    if (_datas.length > 0) {
+                        http().postJson( this.api.getMoyenne, {notes : _datas}).done(function (res) {
+                            if (_.has(res, "moyenne")) {
+                                this.moyenne = res.moyenne;
+                                if(resolve && typeof(resolve) === 'function'){
+                                    resolve();
+                                }
                             }
-                        }
-                    }.bind(this));
+                        }.bind(this));
+                    }
                 }
-            }
-        });
+            });
     }
-}
+    }
 
-export class Evaluation extends Model implements IModel{
+    export class Evaluation extends Model implements IModel{
     id : number;
     id_eleve : string;
     id_devoir : number;
@@ -697,6 +706,8 @@ export class Periode extends Model {
 }
 
 export class Enseignement extends Model {
+    competences : Collection<Competence>;
+
     constructor () {
         super();
         this.collection(Competence);
@@ -867,8 +878,12 @@ export class Evaluations extends Model {
         this.devoirs.sync();
         this.collection(Enseignement, {
             // sync : '/viescolaire/evaluations/enseignements'
-            sync : function  () {
-                http().getJson('/viescolaire/evaluations/enseignements').done(function (res) {
+            sync : function  (idCycle?:any) {
+                var uri = '/viescolaire/evaluations/enseignements';
+                if (idCycle !== undefined) {
+                    uri += '?idCycle='+idCycle;
+                }
+                http().getJson(uri).done(function (res) {
                     this.load(res);
                     this.each(function (enseignement) {
                         enseignement.competences.load(enseignement['competences_1']);
@@ -934,6 +949,68 @@ export class Evaluations extends Model {
         });
     }
 
+}
+
+export class SuiviCompetence extends Model implements IModel{
+    enseignements : Collection<Enseignement>;
+    competenceNotes : Collection<CompetenceNote>;
+    periode : Periode;
+
+    get api() {
+        return {
+            getCompetencesNotes : '/viescolaire/evaluations/competence/notes?idEleve='
+        }
+    }
+
+    constructor (e : Collection<Enseignement>, eleve : Eleve, periode : Periode) {
+        super();
+        this.periode = periode;
+        var that = this;
+        this.collection(Enseignement, {
+            sync: function () {
+                return new Promise((resolve, reject) => {
+                    var url = that.api.getCompetencesNotes + eleve.id;
+                    if (periode !== null && periode !== undefined) {
+                        url += "&idPeriode="+periode.id;
+                    }
+                    http().getJson(url).done((res) => {
+                        that.enseignements.load(e.all);
+                        for (var i = 0; i < that.enseignements.all.length; i++) {
+                            that.enseignements.all[i].competences.load(e.all[i].competences.all);
+                            for (var y = 0; y < that.enseignements.all[i].competences.all.length; y++) {
+                                that.enseignements.all[i].competences.all[y].competences
+                                    .load(e.all[i].competences.all[y].competences.all);
+                                _.map(that.enseignements.all[i].competences.all[y].competences.all, function (competence) {
+                                    var _tc = _.where(res, {id_competence : competence.id});
+                                    if (_tc.length > 0) {
+                                        competence.competencesEvaluations = _tc;
+                                    } else {
+                                        competence.competencesEvaluations = [];
+                                        competence.competencesEvaluations.push(new CompetenceNote({
+                                            evaluation : -1,
+                                            id_competence : competence.id,
+                                            id_eleve : eleve.id
+                                        }));
+                                    }
+                                });
+                            }
+                        }
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve();
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    sync () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.enseignements.sync().then(() => {
+               resolve();
+            });
+        });
+    }
 }
 
 export let evaluations = new Evaluations();

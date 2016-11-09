@@ -15,7 +15,14 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
 
             $scope.initCheckBox = function(item, parentItem){
 
-                var bLastCompetence = (_.findWhere($scope.devoir.competencesLastDevoirList, {idcompetence : item.id}) !== undefined);
+                // on regarde sur l'objet competencesLastDevoirList pour detecter quand il est charge
+                // et pouvoir deplier l'arbre des competences selectionnees lors du dernier devoir
+                $scope.$watch('devoir.competencesLastDevoirList', function (newValue, oldValue) {
+                    if (newValue !== oldValue) {
+                        $scope.initCheckBox(item, parentItem);
+                    }
+                }, true);
+                var bLastCompetence = (_.findWhere($scope.devoir.competencesLastDevoirList, {id_competence : item.id}) !== undefined);
 
                 if(bLastCompetence) {
                     item.open = true;

@@ -720,6 +720,7 @@ export class Competence extends Model {
     id : number;
     id_competence : number;
     nom : string;
+    composer : any;
 
     constructor () {
         super();
@@ -885,11 +886,18 @@ export class Evaluations extends Model {
                 }
                 http().getJson(uri).done(function (res) {
                     this.load(res);
+                    var that = this;
                     this.each(function (enseignement) {
                         enseignement.competences.load(enseignement['competences_1']);
+                        _.map(enseignement.competences.all, function(competence) {
+                            return competence.composer = enseignement;
+                        });
                         enseignement.competences.each(function (competence) {
                             if (competence['competences_2'].length > 0) {
                                 competence.competences.load(competence['competences_2']);
+                                _.map(competence.competences.all, function (sousCompetence) {
+                                    return sousCompetence.composer = competence;
+                                });
                             }
                             delete competence['competences_2'];
                         });

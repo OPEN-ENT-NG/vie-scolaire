@@ -233,9 +233,25 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.devoir = $scope.initDevoir();
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
+            // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
+            evaluations.enseignements.sync();
             _.extend($scope.devoir.enseignements, evaluations.enseignements);
-            $scope.devoir.getLastSelectedCompetence(function (res)  {
+
+
+            evaluations.competencesDevoir = [];
+
+            $scope.devoir.getLastSelectedCompetence().then(function (res)  {
                 $scope.devoir.competencesLastDevoirList = res;
+
+                /*
+                // Ajout des competences precedements selectionnees lors du dernier devoir dans le recapitulatif
+                if($scope.devoir.competencesLastDevoirList != undefined) {
+                    for (var i = 0; i < $scope.devoir.competencesLastDevoirList.length; i++) {
+                        evaluations.competencesDevoir.push($scope.devoir.competencesLastDevoirList[i])
+                    }
+                }
+                utils.safeApply($scope, null);
+                */
             });
             setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
                 $scope.devoir.id_periode = defaultPeriode.id;
@@ -252,8 +268,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.id_type = $scope.search.type.id;
                 $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
             }
-
-            evaluations.competencesDevoir = [];
 
             //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');

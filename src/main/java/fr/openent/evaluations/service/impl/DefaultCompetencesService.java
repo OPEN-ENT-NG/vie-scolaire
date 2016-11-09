@@ -83,8 +83,10 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     public void getLastCompetencesDevoir(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT * FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs  ")
-                .append("WHERE id_devoir IN ")
+        query.append("SELECT competences_devoirs.*, competences.nom as nom ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs, "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("WHERE competences_devoirs.id_competence = competences.id ")
+                .append("AND id_devoir IN ")
                 .append("(SELECT id FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs WHERE devoirs.owner = ? ORDER BY devoirs.created DESC LIMIT 1);");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));

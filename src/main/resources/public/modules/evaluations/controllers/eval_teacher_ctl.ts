@@ -14,6 +14,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/eval_acu_teacher');
             },
 
+            createDevoir : function(params){
+                $scope.createDevoir();
+            },
+
             listDevoirs : function(params){
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
@@ -227,7 +231,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.createDevoir = function () {
             $scope.devoir = $scope.initDevoir();
-            $scope.opened.lightbox = true;
+            //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             _.extend($scope.devoir.enseignements, evaluations.enseignements);
             $scope.devoir.getLastSelectedCompetence(function (res)  {
@@ -248,22 +252,65 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.id_type = $scope.search.type.id;
                 $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
             }
-            template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+
+            evaluations.competencesDevoir = [];
+
+            //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+            template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             utils.safeApply($scope, null);
         };
 
+
+        // on ecoute sur l'evenement checkConnaissances
+        // ie on doit ajouter/supprimer toutes les sous competences dans le recap
+        $scope.$on('checkConnaissances', function(event, parentItem){
+            parentItem.competences.each(function(e){
+                if(parentItem.selected === true) {
+                    // check si on a pas deja ajoute pour eviter les doublons
+                    if(!_.contains(evaluations.competencesDevoir, e)) {
+                        evaluations.competencesDevoir.push(e);
+                    }
+                } else {
+                    evaluations.competencesDevoir = _.reject(evaluations.competencesDevoir, function(comp){ return comp.id === e.id; });
+                }
+            });
+        });
+
+        // on ecoute sur l'evenement checkParent
+        // ie on doit ajouter la sous competence selectionnee dans le recap
+        $scope.$on('checkParent', function(event, parentItem, item){
+            if(item.selected === true) {
+                // check si on a pas deja ajoute pour eviter les doublons
+                if(!_.contains(evaluations.competencesDevoir, item)) {
+                    evaluations.competencesDevoir.push(item);
+                }
+            } else {
+                evaluations.competencesDevoir = _.reject(evaluations.competencesDevoir, function(comp){ return comp.id === item.id; });
+            }
+        });
+
         $scope.saveNewDevoir = function () {
-            evaluations.competencesDevoir = [];
+            /*evaluations.competencesDevoir = [];
             for (var i = 0; i < $scope.devoir.enseignements.all.length; i++) {
                 for (var j = 0; j < $scope.devoir.enseignements.all[i].competences.all.length; j++) {
                     $scope.devoir.enseignements.all[i].competences.all[j].findSelectedChildren();
                 }
             }
+
             $scope.devoir.competences = evaluations.competencesDevoir;
+             */
+
+
+            // Pour la sauvegarde on ne recupere que les id des competences
+            $scope.devoir.competences = [];
+            for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                $scope.devoir.competences.push(evaluations.competencesDevoir[i].id);
+            }
+
             $scope.devoir.create().then((res) => {
                 evaluations.devoirs.sync();
                 evaluations.devoirs.on('sync', function () {
-                    if($location.path() === "/devoirs/list"){
+                    if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
                         $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
@@ -380,9 +427,31 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.getLibelleClasse = function(idClasse) {
+            if (idClasse == null || idClasse === "") return "";
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
             return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
         };
+
+        $scope.getLibellePeriode = function(idPeriode) {
+            if (idPeriode == null || idPeriode === "") return "";
+            return _.findWhere($scope.periodes.all, {id : parseInt(idPeriode)}).libelle;
+        };
+
+        $scope.getLibelleType = function(idType) {
+            if (idType == null || idType === "") return "";
+            return _.findWhere($scope.types.all, {id : parseInt(idType)}).nom;
+        };
+
+        $scope.getLibelleMatiere = function(idMatiere) {
+            if (idMatiere == null || idMatiere === "") return "";
+            return _.findWhere($scope.matieres.all, { id: idMatiere }).name;
+        };
+
+        $scope.getLibelleSousMatiere = function(idSousMatiere) {
+            if (idSousMatiere == null || idSousMatiere === "") return "";
+            return _.findWhere($scope.devoir.matiere.sousMatieres.all, {id : parseInt(idSousMatiere)}).libelle;
+        };
+
 
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;

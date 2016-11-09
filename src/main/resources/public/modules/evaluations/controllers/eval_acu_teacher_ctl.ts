@@ -8,6 +8,16 @@ declare let _:any;
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
     '$scope', 'route', 'model',
     function ($scope, route, model) {
+
         // TODO chercher ses evaluations non terminees
+        $scope.evaluations = evaluations;
+        $scope.devoirs = evaluations.devoirs;
+
+
+
+        $scope.getDateFormated = function (date) {
+            return utils.getFormatedDate(date, "DD/MM/YYYY");
+        };
+
     }
 ]);

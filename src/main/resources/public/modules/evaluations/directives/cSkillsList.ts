@@ -49,7 +49,7 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
                 if(item.competences !== undefined && item.competences.all.length > 0){
                     $scope.$emit('checkConnaissances', item);
                 }else{
-                    $scope.$emit('checkParent', parentItem);
+                    $scope.$emit('checkParent', parentItem, item);
                 }
             };
 
@@ -57,7 +57,8 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
                 return (parentItem.competences.each(function(e){e.selected = parentItem.selected;}));
             });
 
-            $scope.$on('checkParent', function(event, parentItem){
+            // item pas utilise ici mais utilise dans la creation d'un devoir
+            $scope.$on('checkParent', function(event, parentItem, item){
                 return (parentItem.selected = parentItem.competences.every(function(e){ return e.selected === true; }));
             });
 

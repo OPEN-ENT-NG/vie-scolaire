@@ -76,7 +76,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT competences.nom, competences_notes.id, competences_notes.id_devoir, competences_notes.id_eleve, competences_notes.id_competence, competences_notes.evaluation " +
-                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes, "+ Viescolaire.EVAL_SCHEMA +".competences " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes , "+ Viescolaire.EVAL_SCHEMA +".competences " +
                 "WHERE competences_notes.id_devoir = ? " +
                 "AND competences.id = competences_notes.id_competence");
 

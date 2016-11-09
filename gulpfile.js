@@ -189,9 +189,19 @@ gulp.task('updateRefs', function () {
 gulp.task('build-mod', function () {
     console.log('STARTING BUILD-LOCAL'.cyan.bold); 
     return exec('gulp build-local', function (err, stdout, stderr) {
+        if (stderr) {
+            console.log(stderr);
+            return;
+        }
+        console.log(stdout);
         console.log('FIN BUILD-LOCAL'.green.bold);
         console.log('STARTING INSTALL'.cyan.bold);
        exec('gradle install', function (err, stdout, stderr) {
+           if (stderr) {
+               console.log(stderr);
+               return;
+           }
+           console.log(stdout);
            console.log('FIN INSTALL'.green.bold);
        });
     });

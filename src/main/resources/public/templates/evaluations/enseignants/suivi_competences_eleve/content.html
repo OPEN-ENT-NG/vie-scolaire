@@ -16,6 +16,33 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div>
-    <h1>[[suiviFilter.mine]]</h1>
+<div class="content-suivi-eleve ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
+    <div>
+        <h2><i18n>evaluations.suivi.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
+        <div ng-repeat="enseignement in suiviCompetence.enseignements.all">
+            <div >
+                <h4>[[enseignement.nom]]</h4>
+            </div>
+            <div ng-repeat="competence in enseignement.competences.all">
+                <div >
+                    <h5>[[competence.nom]]</h5>
+                </div>
+                <div class="suivi-eleve-item" ng-repeat="sousCompetence in competence.competences.all">
+                    <div class="six inline-block ellipsis">
+                        [[sousCompetence.nom]]
+                    </div>
+                    <div class="two inline-block align-center ">
+                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations"
+                              ng-show="isMaxEvaluation(evaluation, sousCompetence.competencesEvaluations)"
+                              tabindex="0" class="competence-eval rounded"
+                              ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
+                        <span tabindex="0" class="competence-eval rounded grey" ng-if="sousCompetence.competencesEvaluations.length < 1 || notEvalutationOwner(sousCompetence.competencesEvaluations)"></span>
+                    </div>
+                    <div class="three inline-block align-center ">
+                        <proportion-suivi-competence evaluations="sousCompetence.competencesEvaluations" filter="suiviFilter" user="me"></proportion-suivi-competence>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

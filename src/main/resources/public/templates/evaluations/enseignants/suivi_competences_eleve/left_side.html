@@ -29,7 +29,7 @@
     </section>
     <section>
         <label class="select">
-            <select ng-model="search.periode" ng-options="periode.libelle for periode in periodes.all">
+            <select ng-model="search.periode" ng-change="selectEleve()" ng-options="periode.libelle for periode in periodes.all">
                 <option class="header-opt" value="">[[translate('viescolaire.utils.periode')]]</option>
             </select>
         </label>
@@ -62,7 +62,7 @@
         </div>
     </section>
 </div>
-<div class="cell card twelve criterion" ng-if="informations.eleve !== null">
+<div class="cell card twelve criterion" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
     <div ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_eleve.html'"></div>
 </div>
 <div class="cell card twelve criterion notes-help">

@@ -229,13 +229,54 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (matiere) $scope.selected.matiere = matiere;
         };
 
+        $scope.initFilter = function () {
+            $scope.enseignementsFilter = {};
+            for (var i = 0; i < $scope.enseignements.all.length; i++) {
+                $scope.enseignementsFilter[$scope.enseignements.all[i].id] = true;
+            }
+        };
+
+        $scope.enseignementsFilterFunction = function (enseignement) {
+            return $scope.enseignementsFilter[enseignement.id];
+        };
+
+
+        // TODO a completer / tester / faire l'appel
+        $scope.enseignementsSearchFunction = function (enseignement, motClef) {
+
+            if(enseignement.nom.match("/"+motClef+"/i")) {
+                enseignement.opened = true;
+            }
+
+            $scope.enseignementsSearchFunctionRec(enseignement, motClef);
+
+            return enseignement;
+        };
+
+        // TODO a completer / tester /
+        $scope.enseignementsSearchFunctionRec = function (item, motClef) {
+            if (item.competences != undefined) {
+                for (var i = 0; i < item.competences.all.length; i++) {
+                    var sousCompetence = item.competences.all[i];
+                    if (sousCompetence.nom.match("/" + motClef + "/i")) {
+                        sousCompetence.opened = true;
+                        item.opened = true;
+                    }
+                    $scope.enseignementsSearchFunctionRec(sousCompetence, motClef)
+                }
+            }
+        };
+
+
         $scope.createDevoir = function () {
             $scope.devoir = $scope.initDevoir();
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
             evaluations.enseignements.sync();
-            _.extend($scope.devoir.enseignements, evaluations.enseignements);
+            utils.safeApply(this, null);
+            $scope.initFilter();
+            _.extend($scope.devoir.enseignements, $scope.enseignements);
 
 
             evaluations.competencesDevoir = [];

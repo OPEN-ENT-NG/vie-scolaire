@@ -16,10 +16,12 @@ ng.controllers.push(evalSuiviCompetenceEleveCtl);
 //FILTERS
 import {uniqueFilter} from '../../utils/filters/unique';
 import {customSearchFilter} from '../filters/customSearch';
+import {customSearchCompetencesFilter} from '../filters/customSearchCompetences';
 import {getMatiereClasseFilter} from '../../utils/filters/getMatiereClasse';
 
 ng.filters.push(uniqueFilter);
 ng.filters.push(customSearchFilter);
+ng.filters.push(customSearchCompetencesFilter);
 ng.filters.push(getMatiereClasseFilter);
 
 //DIRECTIVES

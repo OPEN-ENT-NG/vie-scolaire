@@ -8,7 +8,8 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
         restrict : 'E',
         scope : {
             data : '=',
-            devoir : '='
+            devoir : '=',
+            functionFilter : '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
         controller : ['$scope', function($scope){

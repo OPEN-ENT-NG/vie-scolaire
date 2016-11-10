@@ -27,7 +27,7 @@
 
     <div class="twelve cell">
         <aside class="two cell menuLeft left">
-            <div class="criteres criterion"  ng-class="{opened : opened.criteres === true}">
+            <div class="criteres card criterion"  ng-class="{opened : opened.criteres === true}">
                 <span class="plus-input" ng-click="opened.criteres = !opened.criteres"></span>
                 <div class="header" ng-click="opened.criteres = !opened.criteres">
                     <h2><i18n>viescolaire.utils.criterion</i18n></h2>
@@ -54,9 +54,9 @@
                 </section>
             </div>
             <div class="marginFive">
-                <container class="left tailleMax" template="leftSide-devoirInfo"></container>
+                <container class="left card tailleMax" template="leftSide-devoirInfo"></container>
 
-                <div ng-if="!template.isEmpty('leftSide-userInfo')" class="fiche student-info left tailleMax" ng-class="{opened : openedStudentInfo === true}">
+                <div ng-if="!template.isEmpty('leftSide-userInfo')" class="fiche student-info card left tailleMax" ng-class="{opened : openedStudentInfo === true}">
                     <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
                     <container template="leftSide-userInfo"></container>
                 </div>

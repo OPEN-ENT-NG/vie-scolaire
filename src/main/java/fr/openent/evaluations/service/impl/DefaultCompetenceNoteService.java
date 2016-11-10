@@ -124,7 +124,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         JsonArray values = new JsonArray().addString(idEleve);
         StringBuilder query = new StringBuilder()
                 .append("SELECT competences.id as id_competence, competences.id_parent, competences.id_type, competences.id_enseignement, rel_competences_cycle.id_cycle, " +
-                        "competences_notes.id as id_competences_notes, competences_notes.evaluation, devoirs.owner " +
+                        "competences_notes.id as id_competences_notes, competences_notes.evaluation, competences_notes.owner, competences_notes.created " +
                         "FROM notes.competences INNER JOIN notes.rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
                         "INNER JOIN notes.competences_notes ON (competences_notes.id_competence = competences.id) " +
                         "INNER JOIN notes.devoirs ON (competences_notes.id_devoir = devoirs.id) " +

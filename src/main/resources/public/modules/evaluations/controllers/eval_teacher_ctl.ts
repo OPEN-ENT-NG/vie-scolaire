@@ -368,6 +368,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope, null);
         });
 
+        $scope.formatDate = function (date) {
+            return utils.getFormatedDate(date, "DD/MM/YYYY");
+        };
+
         $scope.getReleve = function () {
             if($scope.search.classe.id !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined && $scope.search.classe.id !== '*'

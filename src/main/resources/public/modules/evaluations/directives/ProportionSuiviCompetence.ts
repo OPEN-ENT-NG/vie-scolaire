@@ -2,7 +2,7 @@
  * Created by ledunoiss on 09/11/2016.
  */
 
-import {ng, appPrefix} from 'entcore/entcore';
+import {ng} from 'entcore/entcore';
 
 export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence', function () {
     return {
@@ -14,7 +14,8 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
         },
         template : '<div class="inline-block suivi-proportion" ng-repeat="prop in proportion" ' +
         'ng-class="{green : prop.eval === 3, yellow : prop.eval === 2, orange: prop.eval === 1, red : prop.eval === 0, grey : prop.eval === -1}" ' +
-        'ng-style="{\'width\': prop.percent + \'%\'}"></div>',
+        'ng-style="{\'width\': prop.percent + \'%\'}" ' +
+        'tooltip="[[prop.percent|number:2]]%"></div>',
         controller : ['$scope', function ($scope) {
             $scope.$watch('filter', function (newValue, oldValue) {
                 if (newValue !== oldValue) {

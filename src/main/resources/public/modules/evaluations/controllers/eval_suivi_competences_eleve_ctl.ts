@@ -41,22 +41,23 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
         };
 
-        $scope.isMaxEvaluation = function (evaluation, listeEvaluations) {
-            var _t = listeEvaluations;
-            if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
-                _t = _.filter(listeEvaluations, function (competence) {
-                    return competence.owner === undefined || competence.owner === $scope.me.userId;
+        $scope.isMaxEvaluation = function (listeEvaluations) {
+            return function (evaluation) {
+                var _t = listeEvaluations;
+                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
+                    _t = _.filter(listeEvaluations, function (competence) {
+                        return competence.owner === undefined || competence.owner === $scope.me.userId;
+                    });
+                }
+                var max = _.max(_t, function (competence) {
+                    return competence.evaluation;
                 });
-            }
-            var max = _.max(_t, function (competence) {
-                return competence.evaluation;
-            });
-            if (max !== 'Object') {
-                return _.isEqual(evaluation, max)
-            } else {
-                return false;
-            }
-
+                if (typeof max === 'object') {
+                    return evaluation.id_competences_notes === max.id_competences_notes;
+                } else {
+                    return false;
+                }
+            };
         };
 
         $scope.notEvalutationOwner = function (listeEvaluations) {

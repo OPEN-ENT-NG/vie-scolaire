@@ -32,10 +32,8 @@
                         [[sousCompetence.nom]]
                     </div>
                     <div class="two inline-block align-center ">
-                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations"
-                              ng-show="isMaxEvaluation(evaluation, sousCompetence.competencesEvaluations)"
+                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations|filter:isMaxEvaluation(sousCompetence.competencesEvaluations)"
                               tabindex="0" class="competence-eval rounded"
-                              tooltip="[[formatDate(evaluation.created)]]"
                               ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
                         <span tabindex="0" class="competence-eval rounded grey" ng-if="sousCompetence.competencesEvaluations.length < 1 || notEvalutationOwner(sousCompetence.competencesEvaluations)"></span>
                     </div>

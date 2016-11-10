@@ -1,0 +1,60 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="detail graph-view">
+    <table>
+        <tr>
+            <td><i18n>evaluations.competences.proficiency</i18n></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="competence-eval rounded green" ng-if="evaluation.evaluation === 3" tooltip="[[evaluation.evaluation_libelle]]"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><i18n>evaluations.competences.satisfying</i18n></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="competence-eval rounded yellow" ng-if="evaluation.evaluation === 2" tooltip="[[evaluation.evaluation_libelle]]"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><i18n>evaluations.competences.fragile</i18n></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="competence-eval rounded orange" ng-if="evaluation.evaluation === 1" tooltip="[[evaluation.evaluation_libelle]]"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><i18n>evaluations.competences.poor</i18n></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="competence-eval rounded red" ng-if="evaluation.evaluation === 0" tooltip="[[evaluation.evaluation_libelle]]"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><i18n>evaluations.competence.unevaluated</i18n></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="competence-eval rounded grey" ng-if="evaluation.evaluation === -1" tooltip="[[evaluation.evaluation_libelle]]"></span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <span class="reversed">
+                [[formatDate(evaluation.created)]]
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>

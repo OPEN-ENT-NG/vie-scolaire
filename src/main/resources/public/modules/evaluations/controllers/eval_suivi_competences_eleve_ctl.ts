@@ -16,13 +16,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
         $scope.search.eleve = "";
         delete $scope.informations.eleve;
+        $scope.opened.detailCompetenceSuivi = false;
         $scope.suiviCompetence = {};
 
         $scope.suiviFilter = {
             mine : 'true'
         };
 
-        $scope.suivi = {};
 
         $scope.selectEleve = function () {
             $scope.informations.eleve = $scope.search.eleve;
@@ -69,5 +69,29 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             });
             return _t.length === 0;
         };
+
+        template.watch("suivi-competence-detail", function () {
+            if (!$scope.opened.detailCompetenceSuivi) {
+                $scope.opened.detailCompetenceSuivi = true;
+            }
+        });
+
+        $scope.openDetailCompetence = function (competence) {
+            $scope.detailCompetence = competence;
+            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau");
+        };
+
+        $scope.backToSuivi = function () {
+            template.close("suivi-competence-detail");
+            $scope.opened.detailCompetenceSuivi = false;
+            $scope.detailCompetence = null;
+        };
+
+        $scope.filterOwnerSuivi = function (evaluation) {
+            if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
+                return true;
+            }
+            return evaluation.owner === $scope.me.userId;
+        }
     }
 ]);

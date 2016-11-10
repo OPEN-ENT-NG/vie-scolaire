@@ -17,7 +17,7 @@
   ~
   -->
 <ul class="skills-list">
-    <li class="skills-header skill-30 eleven skills-section" ng-class="{opened : enseignement.open}" ng-repeat="enseignement in data.all" ng-init="initHeader(enseignement)">
+    <li class="skills-header skill-30 eleven skills-section" ng-class="{opened : enseignement.open}" ng-repeat="enseignement in data.all | filter:functionFilter" ng-init="initHeader(enseignement)">
         <span class="skills-text-overflow skills-teach eleven bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open">[[enseignement.nom]]</span>
         <ul>
             <li class="twelve skills-header skill-40 underline" ng-repeat="competence in enseignement.competences.all" ng-init="initHeader(competence); initCheckBox(competence, $parent.enseignement)" ng-class="{opened: competence.open}">

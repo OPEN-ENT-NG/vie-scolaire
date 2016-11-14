@@ -17,7 +17,7 @@
   ~
   -->
 <div class="content-suivi-eleve ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
-    <div>
+    <div class="suivi-eleve inline-block twelve" ng-class="{slide : opened.detailCompetenceSuivi}">
         <h2><i18n>evaluations.suivi.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
         <div ng-repeat="enseignement in suiviCompetence.enseignements.all">
             <div >
@@ -32,17 +32,34 @@
                         [[sousCompetence.nom]]
                     </div>
                     <div class="two inline-block align-center ">
-                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations"
-                              ng-show="isMaxEvaluation(evaluation, sousCompetence.competencesEvaluations)"
+                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations|filter:isMaxEvaluation(sousCompetence.competencesEvaluations)"
                               tabindex="0" class="competence-eval rounded"
+                              ng-click="openDetailCompetence(sousCompetence)"
                               ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
-                        <span tabindex="0" class="competence-eval rounded grey" ng-if="sousCompetence.competencesEvaluations.length < 1 || notEvalutationOwner(sousCompetence.competencesEvaluations)"></span>
+                        <span class="competence-eval rounded grey" ng-if="sousCompetence.competencesEvaluations.length < 1 || notEvalutationOwner(sousCompetence.competencesEvaluations)"></span>
                     </div>
-                    <div class="three inline-block align-center ">
+                    <div class="three inline-block align-center">
                         <proportion-suivi-competence evaluations="sousCompetence.competencesEvaluations" filter="suiviFilter" user="me"></proportion-suivi-competence>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="detail-competence inline-block twelve">
+        <div class="twelve">
+            <a ng-click="backToSuivi()">
+                <i class="icon-back"></i>
+            </a>
+            <div class="right-magnet">
+                <i class="show-list" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau') }"
+                   ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau')"></i>
+                <i class="show-chart" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph') }"
+                   ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph')"></i>
+            </div>
+        </div>
+        <h2 class="ellipsis ten">
+            [[detailCompetence.nom]]
+        </h2>
+        <container template="suivi-competence-detail"></container>
     </div>
 </div>

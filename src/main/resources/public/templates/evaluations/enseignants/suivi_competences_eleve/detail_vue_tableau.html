@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="detail table-view">
+    <table class="ten responsive-table">
+        <thead>
+        <tr>
+            <th><i18n>evaluations.title</i18n></th>
+            <th><i18n>date</i18n></th>
+            <th><i18n>level</i18n></th>
+        </th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
+                <td>[[evaluation.evaluation_libelle]]</td>
+                <td>[[formatDate(evaluation.created)]]</td>
+                <td>
+                    <span class="competence-eval rounded"
+                          ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0,
+                          orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2,
+                          green : evaluation.evaluation == 3}">
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

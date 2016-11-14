@@ -16,13 +16,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
         $scope.search.eleve = "";
         delete $scope.informations.eleve;
+        $scope.opened.detailCompetenceSuivi = false;
         $scope.suiviCompetence = {};
 
         $scope.suiviFilter = {
             mine : 'true'
         };
 
-        $scope.suivi = {};
 
         $scope.selectEleve = function () {
             $scope.informations.eleve = $scope.search.eleve;
@@ -41,22 +41,23 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
         };
 
-        $scope.isMaxEvaluation = function (evaluation, listeEvaluations) {
-            var _t = listeEvaluations;
-            if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
-                _t = _.filter(listeEvaluations, function (competence) {
-                    return competence.owner === undefined || competence.owner === $scope.me.userId;
+        $scope.isMaxEvaluation = function (listeEvaluations) {
+            return function (evaluation) {
+                var _t = listeEvaluations;
+                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
+                    _t = _.filter(listeEvaluations, function (competence) {
+                        return competence.owner === undefined || competence.owner === $scope.me.userId;
+                    });
+                }
+                var max = _.max(_t, function (competence) {
+                    return competence.evaluation;
                 });
-            }
-            var max = _.max(_t, function (competence) {
-                return competence.evaluation;
-            });
-            if (max !== 'Object') {
-                return _.isEqual(evaluation, max)
-            } else {
-                return false;
-            }
-
+                if (typeof max === 'object') {
+                    return evaluation.id_competences_notes === max.id_competences_notes;
+                } else {
+                    return false;
+                }
+            };
         };
 
         $scope.notEvalutationOwner = function (listeEvaluations) {
@@ -68,5 +69,29 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             });
             return _t.length === 0;
         };
+
+        template.watch("suivi-competence-detail", function () {
+            if (!$scope.opened.detailCompetenceSuivi) {
+                $scope.opened.detailCompetenceSuivi = true;
+            }
+        });
+
+        $scope.openDetailCompetence = function (competence) {
+            $scope.detailCompetence = competence;
+            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau");
+        };
+
+        $scope.backToSuivi = function () {
+            template.close("suivi-competence-detail");
+            $scope.opened.detailCompetenceSuivi = false;
+            $scope.detailCompetence = null;
+        };
+
+        $scope.filterOwnerSuivi = function (evaluation) {
+            if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
+                return true;
+            }
+            return evaluation.owner === $scope.me.userId;
+        }
     }
 ]);

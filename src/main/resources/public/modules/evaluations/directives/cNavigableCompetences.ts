@@ -76,14 +76,18 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                 return $(cell).find('.competence-eval')[0];
             };
 
-            element.bind('keydown', function(event){
+            element.bind('keyup', function(event){
                 var keys = {
                     enter : 13,
-                    arrow : {left: 37, up: 38, right: 39, down: 40}
+                    arrow : {left: 37, up: 38, right: 39, down: 40},
+                    numbers : {zero : 96, one : 97, two : 98, three : 99, four : 100},
+                    shiftNumbers : {zero : 48, one : 49, two : 50, three : 51, four : 52}
                 };
                 var key = event.which | event.keyCode;
 
-                if ($.inArray(key, [keys.arrow.left, keys.arrow.up, keys.arrow.right, keys.arrow.down, keys.enter]) < 0) { return; }
+                if ($.inArray(key, [keys.arrow.left, keys.arrow.up, keys.arrow.right, keys.arrow.down, keys.enter,
+                        keys.numbers.zero, keys.numbers.one, keys.numbers.two, keys.numbers.three, keys.numbers.four,
+                        keys.shiftNumbers.zero, keys.shiftNumbers.one, keys.shiftNumbers.two, keys.shiftNumbers.three, keys.shiftNumbers.four]) < 0) { return; }
                 var input = event.target;
                 var td = scope.findAncestor(event.target, 'navigable-cell');
                 var row = scope.findAncestor(td, 'navigable-inputs-row');
@@ -105,6 +109,16 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                         }
                         break;
                     }
+                    case keys.numbers.zero:
+                    case keys.numbers.one:
+                    case keys.numbers.two:
+                    case keys.numbers.three:
+                    case keys.numbers.four:
+                    case keys.shiftNumbers.zero:
+                    case keys.shiftNumbers.one:
+                    case keys.shiftNumbers.two:
+                    case keys.shiftNumbers.three:
+                    case keys.shiftNumbers.four:
                     case keys.arrow.right:{
                         if (!scope.isCompetence(input)) {
                             if (input.selectionEnd == input.value.length) {

@@ -17,28 +17,30 @@
   ~
   -->
 <ul class="skills-list">
-    <li class="skills-header skill-30 eleven skills-section" ng-class="{opened : enseignement.open}" ng-repeat="enseignement in data.all | filter:functionFilter" ng-init="initHeader(enseignement)">
-        <span class="skills-text-overflow skills-teach eleven bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open">[[enseignement.nom]]</span>
+    <li class="skills-header skill-30 skills-section" ng-class="{opened : enseignement.open}"
+            ng-repeat="enseignement in data.all | filter:functionSearch(search.keyword) | filter:functionFilter"
+            ng-init="initHeader(enseignement)">
+        <span class="skills-text-overflow skills-teach bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open; doNotApplySearchFilter();">[[enseignement.nom]]</span>
         <ul>
             <li class="twelve skills-header skill-40 underline" ng-repeat="competence in enseignement.competences.all" ng-init="initHeader(competence); initCheckBox(competence, $parent.enseignement)" ng-class="{opened: competence.open}">
-        <span ng-click="competence.open = !competence.open" title="Compétence" class="skills-text-overflow eleven">
-          [[competence.nom]]
-        </span>
                 <label class="one checkbox skills-checkbox skills-headers-checkbox" >
-                    <input type="checkbox" ng-model="competence.selected" ng-click="toggleCheckbox(competence, $parent.enseignement)">
+                    <input type="checkbox" ng-model="competence.selected" ng-click="toggleCheckbox(competence, $parent.enseignement); doNotApplySearchFilter();">
                     <span></span>
                 </label>
+                <span ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Compétence" class="skills-text-overflow">
+                  [[competence.nom]]
+                </span>
                 <ul class="twelve">
                     <li ng-repeat="sousCompetence in competence.competences.all" ng-init="initCheckBox(sousCompetence, $parent.$parent)" class="skills-connaissance">
                         <label class="skills-label">
-                            <span class="skill-connaissance-eye fa fa-eye"></span>
-                            <span class="ten skills-list-connaissance skills-text-overflow italic" title="Connaissance">
-	                [[sousCompetence.nom]]
-	              </span>
                             <label class="one checkbox skills-checkbox">
-                                <input type="checkbox" ng-model="sousCompetence.selected" ng-click="toggleCheckbox(sousCompetence, $parent.competence)">
+                                <input type="checkbox" ng-model="sousCompetence.selected" ng-click="toggleCheckbox(sousCompetence, $parent.competence); doNotApplySearchFilter();">
                                 <span></span>
                             </label>
+                            <span class="skill-connaissance-eye fa fa-eye"></span>
+                            <span class="ten skills-list-connaissance skills-text-overflow italic" title="Connaissance">
+                                [[sousCompetence.nom]]
+                            </span>
                         </label>
                     </li>
                 </ul>

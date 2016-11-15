@@ -38,6 +38,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
+                $scope.openedDetails = true;
+                $scope.openedStatistiques = true;
+                $scope.openedStudentInfo = true;
                 if ($scope.currentDevoir !== undefined) {
                     $scope.currentDevoir.competences.sync().then(() => {
                         utils.safeApply($scope, null);
@@ -82,6 +85,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         });
 
         $scope.evaluations = evaluations;
+
+        $scope.competencesSearchKeyWord = "";
 
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
@@ -184,7 +189,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_classe !== undefined
                 && $scope.devoir.id_matiere !== undefined
                 && $scope.devoir.name !== undefined
-                && $scope.devoir.libelle !== undefined
+                /* && $scope.devoir.libelle !== undefined description passee en facultatif */
                 && $scope.devoir.id_periode !== undefined
                 && $scope.devoir.coefficient !== undefined
                 && $scope.devoir.coefficient > 0
@@ -229,40 +234,99 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (matiere) $scope.selected.matiere = matiere;
         };
 
-        $scope.initFilter = function () {
+
+
+        // Initialise tous les enseignements dans l'écran de filtre des compétences
+        // lors de la création d'un devoir
+        $scope.initFilter = function (pbInitSelected) {
             $scope.enseignementsFilter = {};
             for (var i = 0; i < $scope.enseignements.all.length; i++) {
-                $scope.enseignementsFilter[$scope.enseignements.all[i].id] = true;
+                $scope.enseignementsFilter[$scope.enseignements.all[i].id] = pbInitSelected;
             }
         };
 
+
+        // Methode qui determine si un enseignement doit être affiché ou non
+        // (pour chaque enseignement on rentre dans cette fonction et on check le booleen stocké
+        // dans le tableau  $scope.enseignementsFilter[])
         $scope.enseignementsFilterFunction = function (enseignement) {
             return $scope.enseignementsFilter[enseignement.id];
         };
 
 
-        // TODO a completer / tester / faire l'appel
-        $scope.enseignementsSearchFunction = function (enseignement, motClef) {
-
-            if(enseignement.nom.match("/"+motClef+"/i")) {
-                enseignement.opened = true;
-            }
-
-            $scope.enseignementsSearchFunctionRec(enseignement, motClef);
-
-            return enseignement;
+        // Sélectionne tous les enseignements dans l'écran de filtre des compétences
+        // lors de la création d'un devoir
+        $scope.selectAllEnseignements = function(){
+            $scope.initFilter(true);
         };
 
-        // TODO a completer / tester /
-        $scope.enseignementsSearchFunctionRec = function (item, motClef) {
+        // Désélectionne tous les enseignements dans l'écran de filtre des compétences
+        // lors de la création d'un devoir
+        $scope.deselectAllEnseignements = function(){
+            $scope.initFilter(false);
+        };
+
+
+        // Methode qui determine si un enseignement doit être affiché ou non (selon le mot clef saisi)
+        //
+        // En realité on retourne toujours l'enseignement, il s'agit ici de savoir si on doit le déplier
+        // en cas de match de mot clef ou si on le replie
+        $scope.enseignementsSearchFunction = function (psKeyword) {
+
+            return function(enseignement) {
+
+                if(!$scope.search.haschange) {
+                    return enseignement;
+                }
+
+                // on check ici si l'enseignement  match le mot clef recherché pour éviter de rechecker
+                // systématiquement dans la émthode récursive
+                enseignement.open = utils.containsIgnoreCase(enseignement.nom, psKeyword);
+
+                // Appel de la méthode récursive pour chercher dans les enseignements et compétences / sous compétences /
+                // sous sous compétences / ...
+                $scope.enseignementsSearchFunctionRec(enseignement, psKeyword);
+
+                // dans tous les cas, à la fin, on retourne l'enseignement "racine"
+                return true;
+            }
+        };
+
+
+        /**
+         * Methode qui determine si un enseignement / une compétence / une sous compétence / une sous sous compétence ...
+         * match le mot clef recherché et doit être dépliée dans les résultats de recherche
+         *
+         * @param item un enseignement / une compétence / une sous compétence / une sous sous compétence / ...
+         */
+        $scope.enseignementsSearchFunctionRec = function (item, psKeyword) {
+
+
+            // Condition d'arret de l'appel récursif : pas de sous compétences (on est sur une feuille de l'arbre)
             if (item.competences != undefined) {
+
+                // Parcours de chaque compétences / sous compétences
                 for (var i = 0; i < item.competences.all.length; i++) {
                     var sousCompetence = item.competences.all[i];
-                    if (sousCompetence.nom.match("/" + motClef + "/i")) {
-                        sousCompetence.opened = true;
-                        item.opened = true;
+
+                    // check si la compétence / sous compétence match le mot clef
+                    // on la déplie / replie en conséquence
+                    sousCompetence.open = utils.containsIgnoreCase(sousCompetence.nom, psKeyword);
+
+                    // si elle match le mot clef on déplie également les parents
+                    if(sousCompetence.open) {
+                        item.open = true;
+                        var parent = item.composer;
+
+                        while(parent !== undefined) {
+                            parent.open = true;
+                            parent = parent.composer;
+                        }
                     }
-                    $scope.enseignementsSearchFunctionRec(sousCompetence, motClef)
+
+
+                    // et on check sur les compétences de l'item en cours de parcours
+                    $scope.enseignementsSearchFunctionRec(sousCompetence, psKeyword)
                 }
             }
         };
@@ -275,7 +339,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
             evaluations.enseignements.sync();
             utils.safeApply(this, null);
-            $scope.initFilter();
+            $scope.initFilter(true);
+            $scope.search.keyword = "";
+            // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
+            // evenement (depliement/repliement d'un compétence par exemple)
+            // on ne réaplique pas le filtre dans ce cas car on veut déplier l'élément sur lequel on a cliqué
+            $scope.$watch('search.keyword', function (newValue, oldValue) {
+                $scope.search.haschange = (newValue !== oldValue);
+            }, true);
             _.extend($scope.devoir.enseignements, $scope.enseignements);
 
 

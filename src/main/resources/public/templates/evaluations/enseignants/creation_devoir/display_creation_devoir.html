@@ -121,11 +121,19 @@
 
                     <!-- Recherche de competences -->
                     <div class="twelve cell">
-                        <input type="text" ng-model="search.name" placeholder="rechercher une compétence" style="width: 99%;font-size: 1em;font-style: italic;">
+                        <input type="text" ng-model="search.keyword" placeholder="rechercher une compétence" style="width: 99%;font-size: 1em;font-style: italic;">
                     </div>
 
                     <!-- Filtre sur les enseignements -->
                     <div class="three cell">
+
+                        <div class="row angle-container">
+                            <!--<span style="font-size: 18px; font-weight: bold;">[[lang.translate("directory.classes")]]</span>-->
+                            <button ng-click="deselectAllEnseignements()" style="height: 25px" class="instantButtons deselect right-magnet" tooltip="viescolaire.utils.deselectAll"></button>
+                            <button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>
+                        </div>
+
+
                         <ul class="selectable-list">
                             <li ng-repeat="enseignement in enseignements.all"
                                 ng-class="{selected : enseignementsFilter[enseignement.id]}"
@@ -137,7 +145,7 @@
 
                     <!-- Competences filtrees / recherchees -->
                     <div class="nine cell">
-                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction" data="devoir.enseignements"></c-skills-list>
+                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction" function-search="enseignementsSearchFunction" data="devoir.enseignements" search="search"></c-skills-list>
                     </div>
 
                 </pane>

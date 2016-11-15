@@ -9,7 +9,9 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
         scope : {
             data : '=',
             devoir : '=',
-            functionFilter : '='
+            functionFilter : '=',
+            functionSearch : '=',
+            search: '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
         controller : ['$scope', function($scope){
@@ -51,6 +53,10 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
                 } else {
                     this.$apply(fn);
                 }
+            };
+
+            $scope.doNotApplySearchFilter = function(){
+                $scope.search.haschange=false;
             };
 
             $scope.toggleCheckbox = function(item, parentItem){

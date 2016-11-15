@@ -75,20 +75,20 @@
                 </h2>
             </header>
             <div class="marginFive">
-                <content>
-                    <div class="row devoirs-header"  current-devoir="currentDevoir" sticky offset="159">
-                        <div class="two cell cell-indent">
+                <content class="block">
+                    <div class="devoirs-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
+                        <div class="two inline-block cell-indent">
                             <i18n>viescolaire.utils.student</i18n>
                         </div>
-                        <div class="two cell cell-indent">
+                        <div class="two inline-block cell-indent">
                             <i18n>evaluations.grade</i18n>
                         </div>
-                        <div class="four cell cell-indent competence-text-overflow" ng-if="currentDevoir.nbcompetences > 0">
+                        <div class="four inline-block cell-indent competence-text-overflow" ng-if="$parent.currentDevoir.competences.all.length > 0">
                             <i18n>evaluations.test.competences</i18n>
                             <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                             <span id="competence-detail" tooltip=""></span>
                         </div>
-                        <div class="cell cell-indent" ng-class="{four : currentDevoir.nbcompetences > 0, eight : currentDevoir.nbcompetences == 0}">
+                        <div class="inline-block cell-indent" ng-class="{four : currentDevoir.nbcompetences > 0, eight : currentDevoir.nbcompetences == 0}">
                             <i18n>viescolaire.utils.appreciation</i18n>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                         </div>
 
 
-                        <div class="expandable navigable-row cell twelve" ng-repeat="eleve in currentDevoir.eleves.all track by $index">
+                        <div class="expandable navigable-row twelve" ng-repeat="eleve in currentDevoir.eleves.all track by $index">
 
                             <div class="row navigable-inputs-row">
                                 <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(eleve);expandNote($index, false)">
@@ -129,11 +129,6 @@
                                     <input type="text" class="eleven" name="appreciation" ng-model="studentNoteDevoir.studentNote.appreciation" ng-blur="saveNoteDevoirEleve(studentNoteDevoir.studentNote, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)" value="">
                                 </div>
                             </div>
-                            <!--<div class="row" ng-if="currentDevoir.competences.all.length > 0">-->
-                            <!--<div class="twelve cell expandable-content">-->
-                            <!--<c-color-skills-list current-devoir="currentDevoir" student="studentNoteDevoir" competences="studentNoteDevoir.competencesNotesEleve"></c-color-skills-list>-->
-                            <!--</div>-->
-                            <!--</div>-->
                         </div>
                     </div>
                 </content>

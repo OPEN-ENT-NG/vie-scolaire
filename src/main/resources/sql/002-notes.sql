@@ -22,11 +22,11 @@ CREATE TABLE notes.members
   group_id character varying(36),
   CONSTRAINT members_pk PRIMARY KEY (id),
   CONSTRAINT fk_group_id FOREIGN KEY (group_id)
-      REFERENCES notes.groups (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE,
+  REFERENCES notes.groups (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_users_id FOREIGN KEY (user_id)
-      REFERENCES notes.users (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+  REFERENCES notes.users (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notes.dispense
@@ -57,8 +57,8 @@ CREATE TABLE notes.competences
   modified timestamp without time zone,
   CONSTRAINT competences_pk PRIMARY KEY (id),
   CONSTRAINT fk_enseignements_id FOREIGN KEY (id_enseignement)
-      REFERENCES notes.enseignements (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES notes.enseignements (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.etat
@@ -130,11 +130,11 @@ CREATE TABLE notes.shares
   action character varying(255) NOT NULL,
   CONSTRAINT share PRIMARY KEY (member_id, resource_id, action),
   CONSTRAINT fk_member_id FOREIGN KEY (member_id)
-      REFERENCES notes.members (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE,
+  REFERENCES notes.members (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_resource_id FOREIGN KEY (resource_id)
-      REFERENCES notes.devoirs (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+  REFERENCES notes.devoirs (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notes.notes
@@ -150,11 +150,11 @@ CREATE TABLE notes.notes
   appreciation text,
   CONSTRAINT notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
-      REFERENCES notes.devoirs (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES notes.devoirs (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_dispense_id FOREIGN KEY (id_dispense)
-      REFERENCES notes.dispense (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES notes.dispense (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.competences_notes
@@ -169,11 +169,11 @@ CREATE TABLE notes.competences_notes
   modified timestamp without time zone,
   CONSTRAINT competences_notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
-      REFERENCES notes.competences (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES notes.competences (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
-      REFERENCES notes.devoirs (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES notes.devoirs (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE notes.competences_devoirs
@@ -186,64 +186,64 @@ CREATE TABLE notes.competences_devoirs
   modified timestamp without time zone,
   CONSTRAINT competences_devoirs_pk PRIMARY KEY (id),
   CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
-      REFERENCES notes.competences (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES notes.competences (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
-      REFERENCES notes.devoirs (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES notes.devoirs (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 -- functions and triggers
 CREATE OR REPLACE FUNCTION notes.insert_users_members() RETURNS trigger AS
 $$
-   BEGIN
-     IF (TG_OP = 'INSERT') THEN
-           INSERT INTO notes.members (id, user_id) VALUES (NEW.id, NEW.id);
-           RETURN NEW;
-       END IF;
-       RETURN NULL;
-   END;
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    INSERT INTO notes.members (id, user_id) VALUES (NEW.id, NEW.id);
+    RETURN NEW;
+  END IF;
+  RETURN NULL;
+END;
 $$
 LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION notes.insert_groups_members() RETURNS trigger AS
 $$
-   BEGIN
-     IF (TG_OP = 'INSERT') THEN
-           INSERT INTO notes.members (id, group_id) VALUES (NEW.id, NEW.id);
-           RETURN NEW;
-       END IF;
-       RETURN NULL;
-   END;
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    INSERT INTO notes.members (id, group_id) VALUES (NEW.id, NEW.id);
+    RETURN NEW;
+  END IF;
+  RETURN NULL;
+END;
 $$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER users_trigger
-  AFTER INSERT
+AFTER INSERT
   ON notes.users
-  FOR EACH ROW
-  EXECUTE PROCEDURE notes.insert_users_members();
+FOR EACH ROW
+EXECUTE PROCEDURE notes.insert_users_members();
 
 CREATE TRIGGER groups_trigger
-  AFTER INSERT
+AFTER INSERT
   ON notes.groups
-  FOR EACH ROW
-  EXECUTE PROCEDURE notes.insert_groups_members();
+FOR EACH ROW
+EXECUTE PROCEDURE notes.insert_groups_members();
 
 CREATE OR REPLACE FUNCTION notes.merge_users(key character varying, data character varying) RETURNS void AS
 $$
 BEGIN
-   LOOP
-       UPDATE notes.users SET username = data WHERE id = key;
-       IF found THEN
-           RETURN;
-       END IF;
-       BEGIN
-           INSERT INTO notes.users(id,username) VALUES (key, data);
-           RETURN;
-       EXCEPTION WHEN unique_violation THEN
-       END;
-   END LOOP;
+  LOOP
+    UPDATE notes.users SET username = data WHERE id = key;
+    IF found THEN
+      RETURN;
+    END IF;
+    BEGIN
+      INSERT INTO notes.users(id,username) VALUES (key, data);
+      RETURN;
+      EXCEPTION WHEN unique_violation THEN
+    END;
+  END LOOP;
 END;
 $$
 LANGUAGE plpgsql;

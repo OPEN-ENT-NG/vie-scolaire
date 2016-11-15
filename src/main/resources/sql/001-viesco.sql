@@ -85,8 +85,8 @@ CREATE TABLE viesco.classe
   id_type_classe bigint,
   CONSTRAINT classe_pk PRIMARY KEY (id),
   CONSTRAINT fk_type_classe_id FOREIGN KEY (fk_type_classe_id)
-      REFERENCES viesco.type_classe (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.type_classe (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE viesco.cours
@@ -105,8 +105,8 @@ CREATE TABLE viesco.cours
   id_classe bigint,
   CONSTRAINT cours_pk PRIMARY KEY (id),
   CONSTRAINT fk_classe_id FOREIGN KEY (fk_classe_id)
-      REFERENCES viesco.classe (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.classe (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 
@@ -116,11 +116,11 @@ CREATE TABLE viesco.rel_eleve_classe
   id_eleve bigint NOT NULL,
   CONSTRAINT rel_eleve_classe_pk PRIMARY KEY (fk_classe_id, fk_eleve_id),
   CONSTRAINT fk_classe_id FOREIGN KEY (fk_classe_id)
-      REFERENCES viesco.classe (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES viesco.classe (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_eleve_id FOREIGN KEY (fk_eleve_id)
-      REFERENCES viesco.eleve (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.eleve (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE viesco.rel_personnel_cours
@@ -129,11 +129,11 @@ CREATE TABLE viesco.rel_personnel_cours
   id_cours bigint NOT NULL,
   CONSTRAINT rel_personnel_cours_pk PRIMARY KEY (fk_personnel_id, fk_cours_id),
   CONSTRAINT fk_cours_id FOREIGN KEY (fk_cours_id)
-      REFERENCES viesco.cours (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES viesco.cours (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_personnel_id FOREIGN KEY (fk_personnel_id)
-      REFERENCES viesco.personnel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.personnel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE INDEX sousmatiere_id_typesousmatiere_idx ON viesco.sousmatiere USING btree(id_typesousmatiere, id_matiere);

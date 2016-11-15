@@ -71,17 +71,17 @@ CREATE TABLE abs.appel
   modified timestamp without time zone,
   CONSTRAINT appel_pk PRIMARY KEY (id),
   CONSTRAINT fk_cours_id FOREIGN KEY (id_cours)
-      REFERENCES viesco.cours (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES viesco.cours (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_etat_appel_id FOREIGN KEY (id_etat_appel)
-      REFERENCES abs.etat_appel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.etat_appel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_justificatif_appel_id FOREIGN KEY (id_justificatif_appel)
-      REFERENCES abs.justificatif_appel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.justificatif_appel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_personnel_id FOREIGN KEY (id_personnel)
-      REFERENCES viesco.personnel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.personnel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE abs.absence_prev
@@ -94,11 +94,11 @@ CREATE TABLE abs.absence_prev
   id_motif bigint,
   CONSTRAINT absence_prev_pk PRIMARY KEY (id),
   CONSTRAINT fk_eleve_id FOREIGN KEY (id_eleve)
-      REFERENCES viesco.eleve (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES viesco.eleve (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_motif_id FOREIGN KEY (id_motif)
-      REFERENCES abs.motif (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES abs.motif (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE abs.evenement
@@ -118,20 +118,20 @@ CREATE TABLE abs.evenement
   modified timestamp without time zone,
   CONSTRAINT evenement_pk PRIMARY KEY (id),
   CONSTRAINT fk_appel_id FOREIGN KEY (id_appel)
-      REFERENCES abs.appel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.appel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_eleve_id FOREIGN KEY (id_eleve)
-      REFERENCES viesco.eleve (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES viesco.eleve (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_motif_id FOREIGN KEY (id_motif)
-      REFERENCES abs.motif (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.motif (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_pj_id FOREIGN KEY (id_pj)
-      REFERENCES abs.pj (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.pj (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_type_evt_id FOREIGN KEY (id_type_evt)
-      REFERENCES abs.type_evt (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES abs.type_evt (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE abs.evenement_hist
@@ -144,11 +144,11 @@ CREATE TABLE abs.evenement_hist
   timestamp_mod timestamp without time zone,
   CONSTRAINT evenement_hist_pk PRIMARY KEY (id),
   CONSTRAINT fk_evenement_id FOREIGN KEY (id_evenement)
-      REFERENCES abs.evenement (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.evenement (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_personnel_id FOREIGN KEY (id_personnel)
-      REFERENCES viesco.personnel (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES viesco.personnel (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE abs.se_produit_sur
@@ -157,28 +157,28 @@ CREATE TABLE abs.se_produit_sur
   id_creneaux bigint NOT NULL,
   CONSTRAINT se_produit_sur_pk PRIMARY KEY (id_creneaux, id_evenement),
   CONSTRAINT fk_creneaux_id FOREIGN KEY (id_creneaux)
-      REFERENCES abs.creneaux (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  REFERENCES abs.creneaux (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_evenement_id FOREIGN KEY (id_evenement)
-      REFERENCES abs.evenement (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  REFERENCES abs.evenement (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 -- functions
 CREATE OR REPLACE FUNCTION abs.merge_users(key character varying, data character varying) RETURNS void AS
 $$
 BEGIN
-   LOOP
-       UPDATE notes.users SET username = data WHERE id = key;
-       IF found THEN
-           RETURN;
-       END IF;
-       BEGIN
-           INSERT INTO notes.users(id,username) VALUES (key, data);
-           RETURN;
-       EXCEPTION WHEN unique_violation THEN
-       END;
-   END LOOP;
+  LOOP
+    UPDATE notes.users SET username = data WHERE id = key;
+    IF found THEN
+      RETURN;
+    END IF;
+    BEGIN
+      INSERT INTO notes.users(id,username) VALUES (key, data);
+      RETURN;
+      EXCEPTION WHEN unique_violation THEN
+    END;
+  END LOOP;
 END;
 $$
 LANGUAGE plpgsql;

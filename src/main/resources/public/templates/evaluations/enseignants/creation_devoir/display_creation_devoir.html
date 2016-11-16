@@ -136,8 +136,8 @@
 
                         <ul class="selectable-list">
                             <li ng-repeat="enseignement in enseignements.all"
-                                ng-class="{selected : enseignementsFilter[enseignement.id]}"
-                                ng-click="enseignementsFilter[enseignement.id] = !enseignementsFilter[enseignement.id]">
+                                ng-class="{selected : enseignementsFilter[enseignement.id].isSelected}"
+                                ng-click="enseignementsFilter[enseignement.id].isSelected = !enseignementsFilter[enseignement.id].isSelected">
                                 [[enseignement.nom]]
                             </li>
                         </ul>
@@ -145,7 +145,14 @@
 
                     <!-- Competences filtrees / recherchees -->
                     <div class="nine cell">
-                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction" function-search="enseignementsSearchFunction" data="devoir.enseignements" search="search"></c-skills-list>
+                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
+                                                        function-search="enseignementsSearchFunction"
+                                                        data="devoir.enseignements"
+                                                        enseignements-filter="enseignementsFilter"
+                                                        competences-filter="competencesFilter"
+                                                        search="search">
+
+                        </c-skills-list>
                     </div>
 
                 </pane>

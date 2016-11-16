@@ -11,12 +11,16 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             devoir : '=',
             functionFilter : '=',
             functionSearch : '=',
+            enseignementsFilter :'=',
+            competencesFilter: '=',
             search: '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
-        controller : ['$scope', function($scope){
+        controller : ['$scope', '$sce', function($scope, $sce){
 
             $scope.initCheckBox = function(item, parentItem){
+
+                //item.nomHtml = item.nom;
 
                 // on regarde sur l'objet competencesLastDevoirList pour detecter quand il est charge
                 // et pouvoir deplier l'arbre des competences selectionnees lors du dernier devoir
@@ -28,11 +32,20 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
                 var bLastCompetence = (_.findWhere($scope.devoir.competencesLastDevoirList, {id_competence : item.id}) !== undefined);
 
                 if(bLastCompetence) {
-                    item.open = true;
+                    $scope.competencesFilter[item.id].open = true;
 
                     var parent = item.composer;
                     while(parent !== undefined) {
+
+                        // si pas de composer c'est qu'on est sur un enseignement
+                        /*if(parent.composer === undefined) {
+                            $scope.enseignementsFilter[parent.id].open = true;
+                        } else {
+                            //sinon un competence
+                            $scope.competencesFilter[parent.id].open = true;
+                        }*/
                         parent.open = true;
+
                         parent = parent.composer;
                     }
                     $scope.safeApply();
@@ -78,4 +91,4 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
 
         }]
     };
-})
+});

@@ -20,15 +20,14 @@
     <li class="skills-header skill-30 skills-section" ng-class="{opened : enseignement.open}"
             ng-repeat="enseignement in data.all | filter:functionSearch(search.keyword) | filter:functionFilter"
             ng-init="initHeader(enseignement)">
-        <span class="skills-text-overflow skills-teach bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open; doNotApplySearchFilter();">[[enseignement.nom]]</span>
+        <span class="skills-text-overflow skills-teach bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open; doNotApplySearchFilter();" ng-bind-html="enseignementsFilter[enseignement.id].nomHtml"></span>
         <ul>
             <li class="twelve skills-header skill-40 underline" ng-repeat="competence in enseignement.competences.all" ng-init="initHeader(competence); initCheckBox(competence, $parent.enseignement)" ng-class="{opened: competence.open}">
                 <label class="one checkbox skills-checkbox skills-headers-checkbox" >
                     <input type="checkbox" ng-model="competence.selected" ng-click="toggleCheckbox(competence, $parent.enseignement); doNotApplySearchFilter();">
                     <span></span>
                 </label>
-                <span ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Compétence" class="skills-text-overflow">
-                  [[competence.nom]]
+                <span ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Compétence" class="skills-text-overflow" ng-bind-html="competencesFilter[competence.id].nomHtml">
                 </span>
                 <ul class="twelve">
                     <li ng-repeat="sousCompetence in competence.competences.all" ng-init="initCheckBox(sousCompetence, $parent.$parent)" class="skills-connaissance">
@@ -38,8 +37,7 @@
                                 <span></span>
                             </label>
                             <span class="skill-connaissance-eye fa fa-eye"></span>
-                            <span class="ten skills-list-connaissance skills-text-overflow italic" title="Connaissance">
-                                [[sousCompetence.nom]]
+                            <span class="ten skills-list-connaissance skills-text-overflow italic" title="Connaissance" ng-bind-html="competencesFilter[sousCompetence.id].nomHtml">
                             </span>
                         </label>
                     </li>

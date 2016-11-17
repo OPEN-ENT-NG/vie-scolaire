@@ -29,6 +29,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -118,7 +119,7 @@ public class EnseignementController extends ControllerHelper {
                                                 enseignement.putArray("competences_1", enseignement_competences_l1);
                                                 result.addObject(enseignement);
                                             }
-                                            request.response().putHeader("content-type", "application/json; charset=utf-8").end(result.toString());
+                                            Renders.renderJson(request, result);
                                         } else {
                                             leftToResponse(request, eventCompetences_2.left());
                                         }

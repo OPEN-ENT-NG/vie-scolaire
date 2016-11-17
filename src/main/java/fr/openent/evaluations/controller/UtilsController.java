@@ -29,6 +29,7 @@ import fr.wseduc.rs.Post;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
@@ -123,7 +124,7 @@ public class UtilsController extends ControllerHelper {
                 if (notes.size() > 0) {
                     moyenne = utilsService.calculMoyenne(notes, statistiques, 20);
                 }
-                request.response().putHeader("content-type", "application/json; charset=utf-8").end(moyenne.toString());
+                Renders.renderJson(request, moyenne);
             }
         });
     }
@@ -159,7 +160,7 @@ public class UtilsController extends ControllerHelper {
                         returns.add(stats);
                     }
                 }
-                request.response().putHeader("content-type", "application/json; charset=utf-8").end(returns.toString());
+                Renders.renderJson(request, returns);
             }
         });
     }

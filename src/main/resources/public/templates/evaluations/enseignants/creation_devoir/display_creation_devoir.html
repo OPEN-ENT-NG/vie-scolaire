@@ -136,16 +136,34 @@
 
                         <ul class="selectable-list">
                             <li ng-repeat="enseignement in enseignements.all"
-                                ng-class="{selected : enseignementsFilter[enseignement.id]}"
-                                ng-click="enseignementsFilter[enseignement.id] = !enseignementsFilter[enseignement.id]">
+                                ng-class="{selected : enseignementsFilter[enseignement.id].isSelected}"
+                                ng-click="enseignementsFilter[enseignement.id].isSelected = !enseignementsFilter[enseignement.id].isSelected">
                                 [[enseignement.nom]]
                             </li>
                         </ul>
                     </div>
 
                     <!-- Competences filtrees / recherchees -->
+
                     <div class="nine cell">
-                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction" function-search="enseignementsSearchFunction" data="devoir.enseignements" search="search"></c-skills-list>
+
+                        <!--
+                            function-filter : méthode qui va checker si l'enseignement parcouru doit être affiché ou non
+                            function-search : méthode qui va déplier les enseignements/compétences qui matche le mot clef recherché. Cette méthode surligne
+                            également les mots recherchés
+                            data : les enseignements parcourus
+                            enseignements-filter : objet où l'on stocke si un enseignement est sélectionné ou non
+                            competences-filter : objet où l'on stocke les noms au format html des compétences (pour le surlignement lors d'une recherche)
+                            search : objet concernant la recherche
+                        -->
+                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
+                                                        function-search="enseignementsSearchFunction"
+                                                        data="devoir.enseignements"
+                                                        enseignements-filter="enseignementsFilter"
+                                                        competences-filter="competencesFilter"
+                                                        search="search">
+
+                        </c-skills-list>
                     </div>
 
                 </pane>

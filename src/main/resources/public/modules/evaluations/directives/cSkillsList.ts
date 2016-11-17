@@ -11,12 +11,16 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             devoir : '=',
             functionFilter : '=',
             functionSearch : '=',
+            enseignementsFilter :'=',
+            competencesFilter: '=',
             search: '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
-        controller : ['$scope', function($scope){
+        controller : ['$scope', '$sce', function($scope, $sce){
 
             $scope.initCheckBox = function(item, parentItem){
+
+                //item.nomHtml = item.nom;
 
                 // on regarde sur l'objet competencesLastDevoirList pour detecter quand il est charge
                 // et pouvoir deplier l'arbre des competences selectionnees lors du dernier devoir
@@ -78,4 +82,4 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
 
         }]
     };
-})
+});

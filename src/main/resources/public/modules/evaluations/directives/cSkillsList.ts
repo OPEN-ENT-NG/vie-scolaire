@@ -32,20 +32,11 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
                 var bLastCompetence = (_.findWhere($scope.devoir.competencesLastDevoirList, {id_competence : item.id}) !== undefined);
 
                 if(bLastCompetence) {
-                    $scope.competencesFilter[item.id].open = true;
+                    item.open = true;
 
                     var parent = item.composer;
                     while(parent !== undefined) {
-
-                        // si pas de composer c'est qu'on est sur un enseignement
-                        /*if(parent.composer === undefined) {
-                            $scope.enseignementsFilter[parent.id].open = true;
-                        } else {
-                            //sinon un competence
-                            $scope.competencesFilter[parent.id].open = true;
-                        }*/
                         parent.open = true;
-
                         parent = parent.composer;
                     }
                     $scope.safeApply();

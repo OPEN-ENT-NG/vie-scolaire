@@ -235,9 +235,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
 
-
-        // Initialise tous les enseignements dans l'écran de filtre des compétences
-        // lors de la création d'un devoir
+        /**
+         *
+         * Initialise tous les enseignements dans l'écran de filtre des compétences
+         * lors de la création d'un devoir.
+         *
+         * @param pbInitSelected booleen indiuant si l'enseignement doit être sélectionnée ou non.
+         */
         $scope.initFilter = function (pbInitSelected) {
             $scope.enseignementsFilter = {};
             $scope.competencesFilter = {};
@@ -254,6 +258,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        /**
+         * Initialise le nom html des compétences (pour gérer le surlignement lors des recherches)
+         *
+         * @param poCompetences la liste des compétences
+         */
         $scope.initFilterRec = function (poCompetences, pbInitSelected) {
             if(poCompetences !== undefined) {
                 for (var i = 0; i < poCompetences.all.length; i++) {
@@ -268,16 +277,31 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
-        // Methode qui determine si un enseignement doit être affiché ou non
-        // (pour chaque enseignement on rentre dans cette fonction et on check le booleen stocké
-        // dans le tableau  $scope.enseignementsFilter[])
+
+
+
+
+        /**
+         * Methode qui determine si un enseignement doit être affiché ou non
+         * (pour chaque enseignement on rentre dans cette fonction et on check le booleen stocké
+         * dans le tableau  $scope.enseignementsFilter[])
+         *
+         * @param enseignement l'enseignement à tester
+         * @returns {true si l'enseignement est sélectionné, false sinon.}
+         */
         $scope.enseignementsFilterFunction = function (enseignement) {
-            return $scope.enseignementsFilter[enseignement.id].isSelected;
+            // si valeur est rensiegnée on la retourne sinon on considère qu'elle est sélectionné (gestion du CTRL-F5)
+            return ($scope.enseignementsFilter[enseignement.id] &&$scope.enseignementsFilter[enseignement.id].isSelected)
+                || true;
         };
 
 
-        // Sélectionne/désélectionne tous les enseignements dans l'écran de filtre des compétences
-        // lors de la création d'un devoir
+        /**
+         * Sélectionne/désélectionne tous les enseignements dans l'écran de filtre des compétences
+         * lors de la création d'un devoir.
+         *
+         * @param pbIsSelected booleen pour sélectionner ou désélectionner les enseignements.
+         */
         $scope.selectEnseignements = function(pbIsSelected){
             for (var i = 0; i < $scope.enseignements.all.length; i++) {
                 var currEnseignement = $scope.enseignements.all[i];
@@ -285,22 +309,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
-        // Sélectionne tous les enseignements dans l'écran de filtre des compétences
-        // lors de la création d'un devoir
+        /**
+         * Sélectionne tous les enseignements dans l'écran de filtre des compétences
+         * lors de la création d'un devoir.
+         *
+         */
         $scope.selectAllEnseignements = function(){
             $scope.selectEnseignements(true);
         };
 
-        // Désélectionne tous les enseignements dans l'écran de filtre des compétences
-        // lors de la création d'un devoir
+
+        /**
+         * Désélectionne tous les enseignements dans l'écran de filtre des compétences
+         * lors de la création d'un devoir.
+         *
+         */
         $scope.deselectAllEnseignements = function(){
             $scope.selectEnseignements(false);
         };
 
-        // Methode qui determine si un enseignement doit être affiché ou non (selon le mot clef saisi)
-        //
-        // En realité on retourne toujours l'enseignement, il s'agit ici de savoir si on doit le déplier
-        // en cas de match de mot clef ou si on le replie
+
+        /**
+         *
+         * Methode qui determine si un enseignement doit être affiché ou non (selon le mot clef saisi)
+         *
+         * En realité on retourne toujours l'enseignement, il s'agit ici de savoir si on doit le déplier
+         * en cas de match de mot clef ou si on le replie.
+         *
+         * @param psKeyword le mot clef recherché
+         * @returns {function(enseignement): (retourne true systématiquement)}
+         */
         $scope.enseignementsSearchFunction = function (psKeyword) {
 
             return function(enseignement) {
@@ -334,10 +372,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
         /**
-         * Methode qui determine si un enseignement / une compétence / une sous compétence / une sous sous compétence ...
+         * Methode récursive qui determine si un enseignement / une compétence / une sous compétence / une sous sous compétence ...
          * match le mot clef recherché et doit être dépliée dans les résultats de recherche
          *
          * @param item un enseignement / une compétence / une sous compétence / une sous sous compétence / ...
+         * @psKeyword le mot clef recherché
          */
         $scope.enseignementsSearchFunctionRec = function (item, psKeyword) {
 
@@ -369,14 +408,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         var parent = item.composer;
 
                         while(parent !== undefined) {
-
-                            // si pas de composer c'est qu'on est sur un enseignement
-                            /*if(parent.composer == undefined) {
-                                $scope.enseignementsFilter[parent.id].open = true;
-                            } else {
-                                //sinon une competence
-                                $scope.competencesFilter[parent.id].open = true;
-                            }*/
                             parent.open = true;
                             parent = parent.composer;
                         }
@@ -390,10 +421,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Retourne une chaine avec toutes les occurences du mot clef trouvées surlignées (encadrement via des blaises html)
+         * Retourne une chaine avec toutes les occurences du mot clef trouvées surlignées (encadrement via des balises html)
          *
-         * @param psText le texte
-         * @param psKeyword le mot clef
+         * @param psText le texte où rechercher
+         * @param psKeyword le mot clef à rechercher
          * @returns le texte avec les occurences trouvées surlignées
          */
         $scope.highlight = function(psText, psKeyword) {

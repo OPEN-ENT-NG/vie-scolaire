@@ -1,6 +1,7 @@
 import { model, http, IModel, Model, Collection} from 'entcore/entcore';
 
 let moment = require('moment');
+let $ = require('jquery');
 declare let _:any;
 
 export class Structure extends Model {
@@ -42,11 +43,11 @@ export class ReleveNote extends  Model implements IModel{
         };
         this.periode = evaluations.periodes.findWhere({id : this.idPeriode});
         this.matiere = evaluations.matieres.findWhere({id : this.idMatiere});
-        this.classe = new Classe(JSON.parse(JSON.stringify(evaluations.classes.findWhere({id : this.idClasse}))));
+        var c = evaluations.classes.findWhere({id : this.idClasse});
+        this.classe = new Classe({id : c.id, name: c.name });
         this.classe.eleves.load(JSON.parse(JSON.stringify(evaluations.classes.findWhere({id : this.idClasse}).eleves.all)));
 
         this.collection(Devoir, {
-            // sync : '/viescolaire/evaluations/devoirs?idPeriode=' + this.idPeriode + '&idMatiere=' + this.idMatiere + '&idEtablissement=' + model.me.structures[0] + '&idClasse=' + this.idClasse
             sync : function () {
                 if (!evaluations.synchronized.devoirs) {
                     evaluations.devoirs.on('sync', function () {
@@ -193,6 +194,7 @@ export class ReleveNote extends  Model implements IModel{
 export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
+    name : string;
 
     get api () {
         return {

@@ -19,19 +19,19 @@
 <div class="content widget-evaluations">
     <h1 class="evaluations widget-title">
         <a href="/viescolaire/evaluations"><span class="view-all-pane pane"></span></a>
-        Evaluations
+        <i18n>evaluations.title</i18n>
         <span class="settings-pane pane"></span>
     </h1>
     <ul class="tab-header" ng-if="widget.myType == 'PERSRELELEVE'">
         <li class="tab-title" ng-repeat="eleve in widget.eleves" ng-class="{active : widget.activeId == eleve.id}" ng-click="widget.activeId = eleve.id">[[eleve.displayName]]</li>
     </ul>
     <div class="widget-panel" ng-repeat="eleve in widget.eleves" ng-class="{active : widget.activeId == eleve.id}">
-        <h3 ng-if="eleve.evaluations.length == 0">Aucune note trouvée pour [[eleve.displayName]]</h3>
+        <h3 ng-if="eleve.evaluations.length == 0"><i18n>evaluations.no.grade</i18n> [[eleve.displayName]]</h3>
         <table ng-if="eleve.evaluations.length > 0" class="widget-note list-view">
             <thead>
-            <td>Date du devoir</td>
-            <td>Matière</td>
-            <td>Note</td>
+            <td><i18n>evaluations.test.date</i18n></td>
+            <td><i18n>viescolaire.utils.subject</i18n></td>
+            <td><i18n>evaluations.grade</i18n></td>
             </thead>
             <tr ng-repeat="evaluation in eleve.evaluations">
                 <td class="date">

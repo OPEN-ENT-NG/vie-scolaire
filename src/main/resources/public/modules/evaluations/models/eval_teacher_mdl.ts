@@ -603,7 +603,12 @@ export class Devoir extends Model implements IModel{
                             return competence.id !== undefined;
                         });
                         if (_put.length > 0) {
-                            http().putJson(that.api.updateCompetencesNotes, {data : _put}).done(function (res) {
+                            var url = that.api.updateCompetencesNotes + "?";
+                            for (var i = 0 ; i < _put.length; i++) {
+                                url += "id="+_put[i].id+"&";
+                            }
+                            url = url.slice(0, -1);
+                            http().putJson(url, {data : _put}).done(function (res) {
                                 that.syncCompetencesNotes().then(() => {
                                     evaluations.trigger('apply');
                                 });
@@ -616,7 +621,12 @@ export class Devoir extends Model implements IModel{
                     return competence.id !== undefined;
                 });
                 if (_put.length > 0) {
-                    http().putJson(this.api.updateCompetencesNotes, {data : _put}).done(function (res) {
+                    var url = that.api.updateCompetencesNotes + "?";
+                    for (var i = 0 ; i < _put.length; i++) {
+                        url += "id="+_put[i].id+"&";
+                    }
+                    url = url.slice(0, -1);
+                    http().putJson(url, {data : _put}).done(function (res) {
                         that.syncCompetencesNotes().then(() => {
                             evaluations.trigger('apply');
                         });
@@ -786,8 +796,8 @@ export class CompetenceNote extends Model implements IModel {
     get api() {
         return {
             create: '/viescolaire/evaluations/competence/note',
-            update: '/viescolaire/evaluations/competence/note?idNote=' + this.id,
-            delete: '/viescolaire/evaluations/competence/note?idNote=' + this.id
+            update: '/viescolaire/evaluations/competence/note?id=' + this.id,
+            delete: '/viescolaire/evaluations/competence/note?id=' + this.id
         }
     }
 

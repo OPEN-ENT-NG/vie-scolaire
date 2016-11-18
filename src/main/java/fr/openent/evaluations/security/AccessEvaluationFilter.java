@@ -22,6 +22,7 @@ package fr.openent.evaluations.security;
 import fr.openent.evaluations.security.utils.FilterDevoirUtils;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Binding;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
@@ -38,17 +39,23 @@ public class AccessEvaluationFilter implements ResourcesProvider {
         switch (user.getType()) {
             case "Teacher" : {
                 resourceRequest.pause();
+
                 if (!resourceRequest.params().contains("idDevoir")) {
                     handler.handle(false);
                 }
-                Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
-                new FilterDevoirUtils().validateOwnerDevoir(idDevoir, user.getUserId(), new Handler<Boolean>() {
-                    @Override
-                    public void handle(Boolean isOwner) {
-                        resourceRequest.resume();
-                        handler.handle(isOwner);
-                    }
-                });
+                try {
+                    Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
+                    new FilterDevoirUtils().validateOwnerDevoir(idDevoir, user.getUserId(), new Handler<Boolean>() {
+                        @Override
+                        public void handle(Boolean isOwner) {
+                            resourceRequest.resume();
+                            handler.handle(isOwner);
+                        }
+                    });
+                } catch (NumberFormatException e) {
+                    resourceRequest.resume();
+                    Renders.badRequest(resourceRequest, "Error : idNote must be a long object");
+                }
             }
             break;
             default : {

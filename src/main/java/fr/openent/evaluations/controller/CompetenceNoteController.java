@@ -40,9 +40,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import java.util.List;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Created by ledunoiss on 19/10/2016.
@@ -145,7 +143,7 @@ public class CompetenceNoteController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    String id = request.params().get("idNote");
+                    String id = request.params().get("id");
                     competencesNotesService.delete(id, defaultResponseHandler(request));
                 }else {
                     log.debug("User not found in session.");
@@ -155,11 +153,11 @@ public class CompetenceNoteController extends ControllerHelper {
         });
     }
 
-    @Get("/competence/notes")
-    @ApiDoc("Retourne les compétences notes d'un devoir donné")
+    @Get("/competence/notes/devoir/:devoirId")
+    @ApiDoc("Retourne les compétences notes pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
-    public void getCompetencesNotesDevoir (final HttpServerRequest request) {
+    public void getCompetenceNotesDevoir (final HttpServerRequest request) {
         if (request.params().contains("devoirId")) {
 
             Long devoirId;
@@ -172,11 +170,21 @@ public class CompetenceNoteController extends ControllerHelper {
             }
 
             competencesNotesService.getCompetencesNotesDevoir(devoirId, arrayResponseHandler(request));
-        } else if (request.params().contains("idEleve")) {
+        } else {
+            Renders.badRequest(request, "Invalid parameters");
+        }
+    }
+
+    @Get("/competence/notes/eleve/:idEleve")
+    @ApiDoc("Retourne les compétences notes pour un élève. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetenceNoteEleve (final HttpServerRequest request) {
+        if (request.params().contains("idEleve")) {
             String idEleve = request.params().get("idEleve");
             String idPeriode;
             if (request.params().contains("idPeriode")) {
-                 idPeriode = request.params().get("idPeriode");
+                idPeriode = request.params().get("idPeriode");
             } else {
                 idPeriode = null;
             }
@@ -192,7 +200,7 @@ public class CompetenceNoteController extends ControllerHelper {
 
             competencesNotesService.getCompetencesNotesEleve(idEleve, lIdPeriode, arrayResponseHandler(request));
         } else {
-            Renders.unauthorized(request);
+            Renders.badRequest(request, "Invalid parameters");
         }
     }
 

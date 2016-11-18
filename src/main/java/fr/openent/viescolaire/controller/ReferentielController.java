@@ -446,6 +446,7 @@ public class ReferentielController extends ControllerHelper {
                                                                                                 .putString("time", String.valueOf(new Date().getTime() - startTime.getTime()))
                                                                                                 .toString()
                                                                                 );
+
                                                                             }
                                                                         }
                                                                     });

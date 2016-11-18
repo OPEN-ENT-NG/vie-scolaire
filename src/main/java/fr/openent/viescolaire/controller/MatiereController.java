@@ -31,6 +31,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -98,7 +99,7 @@ public class MatiereController extends ControllerHelper {
                             }
                         }
                     }
-                    request.response().end(response.toString());
+                    Renders.renderJson(request, response);
 
                 }else{
                     leftToResponse(request, event.left());
@@ -279,7 +280,7 @@ public class MatiereController extends ControllerHelper {
                                                         matiere.putArray("sous_matieres", ssms);
                                                         finalresponse.addObject(matiere);
                                                     }
-                                                    request.response().putHeader("content-type", "application/json; charset=utf-8").end(finalresponse.toString());
+                                                    Renders.renderJson(request, finalresponse);
                                                 } else {
                                                     leftToResponse(request, event_ssmatiere.left());
                                                 }

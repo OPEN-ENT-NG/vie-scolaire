@@ -145,7 +145,6 @@ public class ExportPDFController extends ControllerHelper {
                             }
                         }
                     }
-                    //request.response().end(response.toString());
                     final JsonObject templateProps = new JsonObject();
 
                     templateProps.putArray("matieres", matieresArray);

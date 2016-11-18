@@ -27,6 +27,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -76,7 +77,7 @@ public class UserController extends ControllerHelper {
                                                                 public void handle(Either<String, JsonArray> event) {
                                                                     if (event.isRight()) {
                                                                         values.putArray("matieres", event.right().getValue());
-                                                                        request.response().putHeader("content-type", "application/json; charset=utf-8").end(values.toString());
+                                                                        Renders.renderJson(request, values);
                                                                     } else {
                                                                         unauthorized(request);
                                                                     }

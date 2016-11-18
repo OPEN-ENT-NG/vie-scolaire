@@ -25,7 +25,7 @@
             <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view') }"
                ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
-        <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true">Nouveau devoir </button>
+        <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></button>
     </nav>
     <div class="twelve cell list-devoirs">
         <div class="two cell">
@@ -93,14 +93,11 @@
 
         </div>
 
-        <!--<div class="ten cell " style="margin-top: -50px;">-->
-            <!--<button class="marginFive" ng-click="createDevoir(); showNoteLightBox = true">Nouveau devoir </button>-->
-        <!--</div>-->
         <div class="ten cell">
             <div class="marginFive">
                 <header class="headerStyle">
                     <h2><i18n>evaluations.test.owner.list</i18n></h2>
-                    <input type="text" ng-model="search.name" placeholder="Filtrer sur le nom..." style="width: 99%;font-size: 1em;font-style: italic;">
+                    <input type="text" ng-model="search.name" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">
                 </header>
                 <container template="evaluations" class="twelve cell toggle-buttons-spacer"></container>
             </div>

@@ -28,7 +28,7 @@
                     <select ng-model="searchReleve.eleve" ng-change="getPeriodes(); getMatieres()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="eleve.displayName for eleve in eleves.all">
-                        <option value="" class="header-opt">Eleves</option>
+                        <option value="" class="header-opt"><i18n>viescolaire.utils.students</i18n></option>
                     </select>
                 </label>
 
@@ -36,11 +36,11 @@
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="periode.libelle for periode in searchReleve.eleve.periodes.all">
-                        <option value="" class="header-opt">Périodes</option>
+                        <option value="" class="header-opt"><i18n>viescolaire.utils.periodes</i18n></option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">
-                    &nbsp; Imprimer
+                    &nbsp; <i18n>print</i18n>
                 </a>
             </section>
             <section style="margin-top:8px;" ng-if="me.type === 'ELEVE'" class="row">
@@ -48,11 +48,11 @@
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="periode.libelle for periode in periodes.all">
-                        <option value="" class="header-opt">Périodes</option>
+                        <option value="" class="header-opt"><i18n>viescolaire.utils.periodes</i18n></option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">
-                    &nbsp; Imprimer
+                    &nbsp; <i18n>print</i18n>
                 </a>
             </section>
         </header>
@@ -78,7 +78,7 @@
                             <div>
                                 <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span><span> / [[devoirReleveNotes.diviseur]]</span>
                                 <span class="releve-coef" ng-show='devoirReleveNotes.coefficient != null && devoirReleveNotes.coefficient != 1'>
-                                    (Coef. [[devoirReleveNotes.coefficient]])
+                                    (<i18n>viescolaire.utils.coef</i18n>. [[devoirReleveNotes.coefficient]])
                                 </span>
                             </div>
                             <div class="gradetooltip" ng-if="me.type === 'PERSRELELEVE'" tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>

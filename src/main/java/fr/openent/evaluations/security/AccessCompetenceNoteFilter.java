@@ -21,13 +21,11 @@ package fr.openent.evaluations.security;
 
 import fr.openent.evaluations.security.utils.FilterCompetenceNoteUtils;
 import fr.wseduc.webutils.http.Binding;
-import fr.wseduc.webutils.request.RequestUtils;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -45,44 +43,22 @@ public class AccessCompetenceNoteFilter implements ResourcesProvider {
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
         switch (user.getType()) {
             case "Teacher" : {
-                if (resourceRequest.params().contains("idNote")) {
+                try {
                     resourceRequest.pause();
-
-                    Long idNote;
-                    try {
-                        idNote = Long.parseLong(resourceRequest.params().get("idNote"));
-                    } catch(NumberFormatException e) {
-                        log.error("Error : idNote must be a long object");
-                        return;
-                    }
-
-                    new FilterCompetenceNoteUtils()
-                            .validateCompetenceNoteOwner(idNote,
-                                    user.getUserId(), new Handler<Boolean>() {
-                                        @Override
-                                        public void handle(Boolean isValid) {
-                                            resourceRequest.resume();
-                                            handler.handle(isValid);
-                                        }
-                                    });
-                } else {
-                    RequestUtils.bodyToJson(resourceRequest, new Handler<JsonObject>() {
-                        public void handle(JsonObject body) {
-                            JsonArray data = body.getArray("data");
-                            List<Integer> idsList = new ArrayList<Integer>();
-                            for (int i = 0; i < data.size(); i++) {
-                                JsonObject _o = data.get(i);
-                                idsList.add(_o.getInteger("id"));
-                            }
-                            new FilterCompetenceNoteUtils().validateCompetencesNotesOwner(idsList, user.getUserId(), new Handler<Boolean>() {
-                                @Override
-                                public void handle(Boolean isValid) {
-                                    handler.handle(isValid);
-                                }
-                            });
+                    List<Long> nList = new ArrayList<Long>();
+                    List<String> ids = resourceRequest.params().getAll("id");
+                    for (String s : ids) nList.add(Long.parseLong(s));
+                    new FilterCompetenceNoteUtils().validateCompetencesNotesOwner(nList, user.getUserId(), new Handler<Boolean>() {
+                        @Override
+                        public void handle(Boolean isValid) {
+                            resourceRequest.resume();
+                            handler.handle(isValid);
                         }
                     });
-
+                } catch (NumberFormatException e) {
+                    log.error("Error : idNote must be a long object");
+                    resourceRequest.resume();
+                    Renders.badRequest(resourceRequest, "Error : idNote must be a long object");
                 }
             }
             break;

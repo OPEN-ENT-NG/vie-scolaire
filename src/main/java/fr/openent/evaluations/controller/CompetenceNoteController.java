@@ -37,12 +37,9 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
 
-import javax.annotation.Resource;
 import java.util.List;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Created by ledunoiss on 19/10/2016.
@@ -144,7 +141,7 @@ public class CompetenceNoteController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    String id = request.params().get("idNote");
+                    String id = request.params().get("id");
                     competencesNotesService.delete(id, defaultResponseHandler(request));
                 }else {
                     log.debug("User not found in session.");

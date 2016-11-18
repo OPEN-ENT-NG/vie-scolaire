@@ -56,7 +56,7 @@ public class FilterCompetenceNoteUtils {
 
     }
 
-    public void validateCompetencesNotesOwner(List<Integer> idNotes, String owner, final Handler<Boolean> handler) {
+    public void validateCompetencesNotesOwner(List<Long> idNotes, String owner, final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder().append("SELECT count(DISTINCT devoirs.*) " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes " +
                 "ON (competences_notes.id_devoir = devoirs.id) " +

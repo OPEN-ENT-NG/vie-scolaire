@@ -1,8 +1,6 @@
-import {idiom as lang } from 'entcore/entcore';
-
 /**
  * Recherche true si une chaine de caractère contient un mot clef.
- * La cassse est ignorée et la recherche d'un mot clef vide ou contenant que des espaces
+ * La casse est ignorée et la recherche d'un mot clef vide ou contenant que des espaces
  * retourne false
  * @param psString la chaine de caractère
  * @param psKeyword le mot clef recherché

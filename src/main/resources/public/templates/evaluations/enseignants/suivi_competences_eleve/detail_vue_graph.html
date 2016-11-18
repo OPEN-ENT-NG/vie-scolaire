@@ -52,7 +52,7 @@
             <td></td>
             <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
                 <span class="reversed">
-                [[formatDate(evaluation.created)]]
+                [[getDateFormated(evaluation.created)]]
                 </span>
             </td>
         </tr>

@@ -1,8 +1,10 @@
-/**
- * Created by ledunoiss on 27/10/2016.
- */
 import {idiom as lang } from 'entcore/entcore';
 
+/**
+ * Retourne la valeur de la clé i18n
+ * @param key clé i18n
+ * @returns {SVGMatrix|MSCSSMatrix|any|WebKitCSSMatrix|void} Valeur de la clé i18n
+ */
 export function translate(key){
     return lang.translate(key)
 };

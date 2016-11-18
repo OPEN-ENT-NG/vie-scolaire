@@ -85,7 +85,7 @@ public class DevoirController extends ControllerHelper {
                                 && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
                             devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
                         } else {
-                            request.response().setStatusCode(400).end("Paramètres invalides");
+                            Renders.badRequest(request, "Invalid parameters");
                         }
                     }
                 }else{

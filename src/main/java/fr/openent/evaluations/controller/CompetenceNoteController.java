@@ -37,6 +37,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -144,26 +145,50 @@ public class CompetenceNoteController extends ControllerHelper {
         });
     }
 
-    @Get("/competence/notes")
-    @ApiDoc("Retourne les compétences notes d'un devoir donné")
+//    @Get("/competence/notes")
+//    @ApiDoc("Retourne les compétences notes d'un devoir donné")
+//    @SecuredAction(value = "", type = ActionType.RESOURCE)
+//    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+//    public void getCompetencesNotesDevoir (final HttpServerRequest request) {
+//        if (request.params().contains("devoirId")) {
+//            String devoirId = request.params().get("devoirId");
+//            competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+//        } else if (request.params().contains("idEleve")) {
+//            String idEleve = request.params().get("idEleve");
+//            String idPeriode;
+//            if (request.params().contains("idPeriode")) {
+//                 idPeriode = request.params().get("idPeriode");
+//            } else {
+//                idPeriode = null;
+//            }
+//            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
+//        } else {
+//            Renders.unauthorized(request);
+//        }
+//    }
+
+    @Get("/competence/notes/devoir/:devoirId")
+    @ApiDoc("Retourne les compétences notes pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
-    public void getCompetencesNotesDevoir (final HttpServerRequest request) {
-        if (request.params().contains("devoirId")) {
-            String devoirId = request.params().get("devoirId");
-            competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
-        } else if (request.params().contains("idEleve")) {
-            String idEleve = request.params().get("idEleve");
-            String idPeriode;
-            if (request.params().contains("idPeriode")) {
-                 idPeriode = request.params().get("idPeriode");
-            } else {
-                idPeriode = null;
-            }
-            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
+    public void getCompetenceNotesDevoir (final HttpServerRequest request) {
+        String devoirId = request.params().get("devoirId");
+        competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+    }
+
+    @Get("/competence/notes/eleve/:idEleve")
+    @ApiDoc("Retourne les compétences notes pour un élève. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetenceNoteEleve (final HttpServerRequest request) {
+        String idEleve = request.params().get("idEleve");
+        String idPeriode;
+        if (request.params().contains("idPeriode")) {
+            idPeriode = request.params().get("idPeriode");
         } else {
-            Renders.unauthorized(request);
+            idPeriode = null;
         }
+        competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
     }
 
     @Post("/competence/notes")

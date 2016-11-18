@@ -70,12 +70,23 @@ public class EnseignementController extends ControllerHelper {
             public void handle(Either<String, JsonArray> event) {
                 if (event.right().isRight()) {
                     String idCycle = null;
+                    Long lIdCycle = null;
                     if (request.params().contains("idCycle")) {
                         idCycle = request.params().get("idCycle");
+                        try {
+                            lIdCycle = Long.parseLong(idCycle);
+                        } catch(NumberFormatException e) {
+                            log.error("Error : idCycle must be a long object", e);
+                            badRequest(request, e.getMessage());
+                            return;
+                        }
                     }
+
                     _datas.putArray("enseignements", event.right().getValue());
-                    final String finalIdCycle = idCycle;
-                    competencesService.getCompetencesByLevel("id_type = 1", idCycle, new Handler<Either<String, JsonArray>>() {
+
+                    final Long finalIdCycle = lIdCycle;
+
+                    competencesService.getCompetencesByLevel("id_type = 1", finalIdCycle, new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> eventCompetences_1) {
                             if (eventCompetences_1.right().isRight()) {

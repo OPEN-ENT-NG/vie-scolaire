@@ -88,15 +88,16 @@ public interface CompetenceNoteService extends CrudService {
 
     /**
      * Supprimer une liste de compétences notes
-     * @param ids liste d'identifiant à supprimer
+     * @param oIdsJsonArray liste d'identifiant à supprimer
      * @param handler handler portant le résultat de la requête
      */
-    public void dropCompetencesNotesDevoir(List<String> ids, Handler<Either<String, JsonArray>> handler);
+    public void dropCompetencesNotesDevoir(JsonArray oIdsJsonArray, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère toutes les compétences notes d'un élève
      * @param idEleve identifiant de l'élève
+     * @param idPeriode identifiant de la période
      * @param handler handler portant le résultat de la requête
      */
-    public void getCompetencesNotesEleve(String idEleve, String idPeriode, Handler<Either<String,JsonArray>> handler);
+    public void getCompetencesNotesEleve(String idEleve, Long idPeriode, Handler<Either<String,JsonArray>> handler);
 }

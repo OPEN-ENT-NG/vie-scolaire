@@ -114,27 +114,15 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
-    public void dropCompetencesNotesDevoir(List<String> ids, Handler<Either<String, JsonArray>> handler) {
+    public void dropCompetencesNotesDevoir(JsonArray oIdsJsonArray, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-        for (int i = 0; i < ids.size(); i++) {
 
-            Long id;
-            try {
-                id = Long.parseLong(ids.get(i));
-            } catch(NumberFormatException e) {
-                log.error("Error : id must be a long object");
-                return;
-            }
-
-            values.addNumber(id);
-        }
-        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(oIdsJsonArray.toArray()) + ";");
+        Sql.getInstance().prepared(query.toString(), oIdsJsonArray, SqlResult.validResultHandler(handler));
     }
 
     @Override
-    public void getCompetencesNotesEleve(String idEleve, String idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesNotesEleve(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray().addString(idEleve);
         StringBuilder query = new StringBuilder()
                 .append("SELECT competences.id as id_competence, competences.id_parent, competences.id_type, competences.id_enseignement, rel_competences_cycle.id_cycle, " +
@@ -145,17 +133,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
                         "WHERE competences_notes.id_eleve = ? ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
-
-
-            Long iIdPeriode;
-            try {
-                iIdPeriode = Long.parseLong(idPeriode);
-            } catch(NumberFormatException e) {
-                log.error("Error : idPeriode must be a long object");
-                return;
-            }
-
-            values.addNumber(iIdPeriode);
+            values.addNumber(idPeriode);
         }
         query.append("ORDER BY competences_notes.created ");
 

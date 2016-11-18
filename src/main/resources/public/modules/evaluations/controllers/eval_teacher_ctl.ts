@@ -291,8 +291,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.enseignementsFilterFunction = function (enseignement) {
             // si valeur est rensiegnée on la retourne sinon on considère qu'elle est sélectionné (gestion du CTRL-F5)
-            return ($scope.enseignementsFilter[enseignement.id] &&$scope.enseignementsFilter[enseignement.id].isSelected)
-                || true;
+            return ($scope.enseignementsFilter[enseignement.id] &&$scope.enseignementsFilter[enseignement.id].isSelected);
         };
 
 

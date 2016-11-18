@@ -52,7 +52,8 @@ public class AccessCompetenceNoteFilter implements ResourcesProvider {
                     try {
                         idNote = Long.parseLong(resourceRequest.params().get("idNote"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idNote must be a long object");
+                        log.error("Error : idNote must be a long object", e);
+                        handler.handle(false);
                         return;
                     }
 

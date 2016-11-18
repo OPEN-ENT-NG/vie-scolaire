@@ -32,6 +32,8 @@ import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.List;
 
+import static org.entcore.common.sql.Sql.parseId;
+
 /**
  * Created by ledunoiss on 20/10/2016.
  */
@@ -61,11 +63,13 @@ public class AccessReleveFilter implements ResourcesProvider {
                     handler.handle(false);
                 }
 
+
                 Long idPeriode;
                 try {
                     idPeriode = Long.parseLong(params.get("idPeriode"));
                 } catch(NumberFormatException e) {
-                    log.error("Error : idPeriode must be a long object");
+                    log.error("Error : idPeriode must be a long object", e);
+                    handler.handle(false);
                     return;
                 }
 

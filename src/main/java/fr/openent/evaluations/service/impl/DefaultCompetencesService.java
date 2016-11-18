@@ -121,7 +121,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getCompetencesByLevel(String filter, String idCycle, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesByLevel(String filter, Long idCycle, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
@@ -133,15 +133,9 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
             query.append("AND rel_competences_cycle.id_cycle = ?");
 
 
-            Long iIdCycle;
-            try {
-                iIdCycle = Long.parseLong(idCycle);
-            } catch(NumberFormatException e) {
-                log.error("Error : idCycle must be a long object");
-                return;
-            }
 
-            params.addNumber(iIdCycle);
+
+            params.addNumber(idCycle);
         }
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }

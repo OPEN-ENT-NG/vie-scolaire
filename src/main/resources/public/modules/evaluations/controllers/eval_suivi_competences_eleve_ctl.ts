@@ -28,10 +28,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Créer une suivi de compétence
          */
         $scope.selectEleve = function () {
-            //Sélection de l'élève en cours.
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
-                //On regarde si l'utilisateur a déjà un suivi de compétence. Si oui, on le recupère. Si non, on le génère.
                 var s = $scope.informations.eleve.suiviCompetences.findWhere({periode : $scope.search.periode});
                 if (s === undefined) {
                     $scope.suiviCompetence = new SuiviCompetence($scope.enseignements, $scope.search.eleve, $scope.search.periode);
@@ -115,7 +113,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         /**
-         * Retourne la propriété de l'évaluation
+         * Retourne
          * @param evaluation Evaluation à afficher
          * @returns {boolean} Retourne true si l'utilisateur est le propriétaire de l'évaluation
          */

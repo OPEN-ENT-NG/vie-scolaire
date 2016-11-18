@@ -45,7 +45,10 @@ export class ReleveNote extends  Model implements IModel{
         this.matiere = evaluations.matieres.findWhere({id : this.idMatiere});
         var c = evaluations.classes.findWhere({id : this.idClasse});
         this.classe = new Classe({id : c.id, name: c.name });
-        this.classe.eleves.load(JSON.parse(JSON.stringify(evaluations.classes.findWhere({id : this.idClasse}).eleves.all)));
+        var _e = $.extend(true, {}, evaluations.classes.findWhere({id : this.idClasse}).eleves.all);
+        this.classe.eleves.load($.map(_e, function (el) {
+            return el;
+        }));
 
         this.collection(Devoir, {
             sync : function () {
@@ -388,7 +391,7 @@ export class Devoir extends Model implements IModel{
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
             getStatsDevoir : '/viescolaire/evaluations/moyenne?stats=true',
-            getCompetencesNotes : '/viescolaire/evaluations/competence/notes?devoirId=',
+            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes'
@@ -415,7 +418,12 @@ export class Devoir extends Model implements IModel{
             sync : function () : Promise<any> {
                 return new Promise((resolve, reject) => {
                     var _classe = evaluations.classes.findWhere({id : that.id_classe});
-                    that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
+                    // that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
+                    // that.eleves.load($.extend(true, {}, JSON.stringify(_classe.eleves.all)));
+                    var e = $.map($.extend(true, {}, _classe.eleves.all), function (el) {
+                       return el;
+                    });
+                    that.eleves.load(e);
                     http().getJson(that.api.getNotesDevoir).done(function (res) {
                         for (var i = 0; i < res.length; i++) {
                             var _e = that.eleves.findWhere({id : res[i].id_eleve});
@@ -968,7 +976,7 @@ export class SuiviCompetence extends Model implements IModel{
 
     get api() {
         return {
-            getCompetencesNotes : '/viescolaire/evaluations/competence/notes?idEleve='
+            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/'
         }
     }
 
@@ -981,7 +989,7 @@ export class SuiviCompetence extends Model implements IModel{
                 return new Promise((resolve, reject) => {
                     var url = that.api.getCompetencesNotes + eleve.id;
                     if (periode !== null && periode !== undefined) {
-                        url += "&idPeriode="+periode.id;
+                        url += "?idPeriode="+periode.id;
                     }
                     http().getJson(url).done((res) => {
                         that.enseignements.load(e.all);

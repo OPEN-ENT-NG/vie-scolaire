@@ -79,7 +79,14 @@ public class DevoirController extends ControllerHelper {
                         String idEtablissement = request.params().get("idEtablissement");
                         String idClasse = request.params().get("idClasse");
                         String idMatiere = request.params().get("idMatiere");
-                        Integer idPeriode = Integer.parseInt(request.params().get("idPeriode"));
+
+                        Long idPeriode;
+                        try {
+                            idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                        } catch(NumberFormatException e) {
+                            log.error("Error : idPeriode must be a long object");
+                            return;
+                        }
 
                         if (idEtablissement != "undefined" && idClasse != "undefined"
                                 && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
@@ -124,7 +131,7 @@ public class DevoirController extends ControllerHelper {
                                                         createdDevoir.putNumber("id", devoirId[0]);
                                                         JsonArray competences = createdDevoir.getArray("competences");
                                                         if(competences.size() != 0) {
-                                                            defaultCompetencesService.setDevoirCompetences(createdDevoir.getInteger("id"), competences, new Handler<Either<String, JsonObject>>() {
+                                                            defaultCompetencesService.setDevoirCompetences(createdDevoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
                                                                 public void handle(Either<String, JsonObject> event) {
                                                                     if (event.isRight()) {
                                                                         JsonObject o = new JsonObject();
@@ -173,7 +180,15 @@ public class DevoirController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     MultiMap params = request.params();
-                    Integer idPeriode = Integer.parseInt(params.get("idPeriode"));
+
+                    Long idPeriode;
+                    try {
+                        idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idPeriode must be a long object");
+                        return;
+                    }
+
                     String idEtablissement = params.get("idEtablissement");
                     String idUser = params.get("idUser");
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);

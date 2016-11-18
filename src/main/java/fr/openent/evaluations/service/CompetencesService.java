@@ -41,14 +41,14 @@ public interface CompetencesService extends CrudService {
      * @param values Objet contenant les compétences (JsonObject)
      * @param handler handler portant le résultat de la requête
      */
-    public void setDevoirCompetences(Integer devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler);
+    public void setDevoirCompetences(Long devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Getter : Récupération des compétences pour un devoir donné
      * @param devoirId id du Devoir (Integer)
      * @param handler handler portant le résultat de la requête
      */
-    public void getDevoirCompetences(Integer devoirId, Handler<Either<String, JsonArray>> handler);
+    public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Getter : Récupération des compétences sélectionné sur le dernier devoir créé par
@@ -63,14 +63,14 @@ public interface CompetencesService extends CrudService {
      * @param skillId Id de la compétence (Integer)
      * @param handler Handler portant le résultat de la requête
      */
-    public void getSousCompetences(Integer skillId, Handler<Either<String, JsonArray>> handler);
+    public void getSousCompetences(Long skillId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Getter : Récupération des compétences liées à un module d'enseignement
      * @param teachingId Id de l'enseignement
      * @param handler Handler portant le résultat de la requête
      */
-    public void getCompetencesEnseignement(Integer teachingId, Handler<Either<String, JsonArray>> handler);
+    public void getCompetencesEnseignement(Long teachingId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Getter : Récupération des compétences suivant le niveau spécifié en paramètre

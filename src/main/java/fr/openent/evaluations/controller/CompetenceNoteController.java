@@ -63,7 +63,16 @@ public class CompetenceNoteController extends ControllerHelper {
     @ApiDoc("Récupère la liste des compétences notes pour un devoir et un élève donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesNotes(final HttpServerRequest request){
-        competencesNotesService.getCompetencesNotes(Integer.parseInt(request.params().get("iddevoir")),
+
+        Long idDevoir;
+        try {
+            idDevoir = Long.parseLong(request.params().get("iddevoir"));
+        } catch(NumberFormatException e) {
+            log.error("Error : idDevoir must be a long object");
+            return;
+        }
+
+        competencesNotesService.getCompetencesNotes(idDevoir,
                 request.params().get("ideleve"), arrayResponseHandler(request));
     }
 
@@ -150,8 +159,16 @@ public class CompetenceNoteController extends ControllerHelper {
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetencesNotesDevoir (final HttpServerRequest request) {
         if (request.params().contains("devoirId")) {
-            String devoirId = request.params().get("devoirId");
-            competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+
+            Long devoirId;
+            try {
+                devoirId = Long.parseLong(request.params().get("devoirId"));
+            } catch(NumberFormatException e) {
+                log.error("Error : devoirId must be a long object");
+                return;
+            }
+
+            competencesNotesService.getCompetencesNotesDevoir(devoirId, arrayResponseHandler(request));
         } else if (request.params().contains("idEleve")) {
             String idEleve = request.params().get("idEleve");
             String idPeriode;

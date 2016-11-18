@@ -28,6 +28,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +39,25 @@ import java.util.List;
  */
 public class AccessCompetenceNoteFilter implements ResourcesProvider {
 
+    protected static final Logger log = LoggerFactory.getLogger(AccessCompetenceNoteFilter.class);
+
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
         switch (user.getType()) {
             case "Teacher" : {
                 if (resourceRequest.params().contains("idNote")) {
                     resourceRequest.pause();
+
+                    Long idNote;
+                    try {
+                        idNote = Long.parseLong(resourceRequest.params().get("idNote"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idNote must be a long object");
+                        return;
+                    }
+
                     new FilterCompetenceNoteUtils()
-                            .validateCompetenceNoteOwner(Integer.parseInt(resourceRequest.params().get("idNote")),
+                            .validateCompetenceNoteOwner(idNote,
                                     user.getUserId(), new Handler<Boolean>() {
                                         @Override
                                         public void handle(Boolean isValid) {

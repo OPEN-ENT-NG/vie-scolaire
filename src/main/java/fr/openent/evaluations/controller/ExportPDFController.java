@@ -229,7 +229,15 @@ public class ExportPDFController extends ControllerHelper {
 
                     // parametres de l'url
                     MultiMap params = request.params();
-                    final Integer idPeriode = Integer.parseInt(params.get("idPeriode"));
+
+                    final Long idPeriode;
+                    try {
+                        idPeriode = Long.parseLong(params.get("idPeriode"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idPeriode must be a long object");
+                        return;
+                    }
+
                     final String idEtablissement = params.get("idEtablissement");
                     final String idUser = params.get("idUser");
 

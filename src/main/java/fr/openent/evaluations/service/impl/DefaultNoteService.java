@@ -46,7 +46,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void listNotesParDevoir(Integer devoirId, Handler<Either<String, JsonArray>> handler) {
+    public void listNotesParDevoir(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -60,7 +60,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void getNoteParDevoirEtParEleve(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
+    public void getNoteParDevoirEtParEleve(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -81,7 +81,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void deleteNote(Integer idNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+    public void deleteNote(Long idNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
         super.delete(idNote.toString(), user, handler);
     }
 
@@ -102,7 +102,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void getNoteElevePeriode(String userId, String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler) {
+    public void getNoteElevePeriode(String userId, String etablissementId, String classeId, String matiereId, Long periodeId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -122,7 +122,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler) {
+    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Long periodeId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 

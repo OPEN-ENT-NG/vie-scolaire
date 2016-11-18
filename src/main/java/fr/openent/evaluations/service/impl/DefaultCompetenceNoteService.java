@@ -29,6 +29,8 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.List;
 
@@ -36,6 +38,9 @@ import java.util.List;
  * Created by ledunoiss on 05/08/2016.
  */
 public class DefaultCompetenceNoteService extends SqlCrudService implements fr.openent.evaluations.service.CompetenceNoteService {
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultCompetenceNoteService.class);
+
     public DefaultCompetenceNoteService(String schema, String table) {
         super(schema, table);
     }
@@ -56,7 +61,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
-    public void getCompetencesNotes(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesNotes(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT competences_notes.*,competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
@@ -73,7 +78,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
-    public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesNotesDevoir(Long idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT competences.nom, competences_notes.id, competences_notes.id_devoir, competences_notes.id_eleve, competences_notes.id_competence, competences_notes.evaluation " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes , "+ Viescolaire.EVAL_SCHEMA +".competences " +
@@ -113,7 +118,16 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
         for (int i = 0; i < ids.size(); i++) {
-            values.addNumber(Integer.parseInt(ids.get(i)));
+
+            Long id;
+            try {
+                id = Long.parseLong(ids.get(i));
+            } catch(NumberFormatException e) {
+                log.error("Error : id must be a long object");
+                return;
+            }
+
+            values.addNumber(id);
         }
         query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id IN " + Sql.listPrepared(ids.toArray()) + ";");
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
@@ -131,7 +145,17 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
                         "WHERE competences_notes.id_eleve = ? ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
-            values.addNumber(Integer.parseInt(idPeriode));
+
+
+            Long iIdPeriode;
+            try {
+                iIdPeriode = Long.parseLong(idPeriode);
+            } catch(NumberFormatException e) {
+                log.error("Error : idPeriode must be a long object");
+                return;
+            }
+
+            values.addNumber(iIdPeriode);
         }
         query.append("ORDER BY competences_notes.created ");
 

@@ -80,7 +80,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
 
     @Override
-    public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Integer idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -109,7 +109,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void listDevoirs(String idEtablissement, Integer idPeriode, String idUser, Handler<Either<String, JsonArray>> handler) {
+    public void listDevoirs(String idEtablissement, Long idPeriode, String idUser, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 

@@ -32,7 +32,7 @@ import org.vertx.java.core.json.JsonObject;
  */
 public class FilterPeriodeUtils {
 
-    public void validateStructure (final String idEtablissement, Integer idPeriode, final Handler<Boolean> handler) {
+    public void validateStructure (final String idEtablissement, Long idPeriode, final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(periode.*) " +
                         "FROM " + Viescolaire.VSCO_SCHEMA + ".periode " +

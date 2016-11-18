@@ -63,14 +63,14 @@ public interface CompetenceNoteService extends CrudService {
      * @param idEleve identifiant de l'élève
      * @param handler handler portant le résultat de la requête
      */
-    public void getCompetencesNotes(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler);
+    public void getCompetencesNotes(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Retourne toutes les notes des compétences pour un devoir donné
      * @param idDevoir identifiant du devoir
      * @param handler handler portant le résultat de la requête
      */
-    public void getCompetencesNotesDevoir(Integer idDevoir, Handler<Either<String, JsonArray>> handler);
+    public void getCompetencesNotesDevoir(Long idDevoir, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Met à jour une liste de compétences notes pour un devoir donné

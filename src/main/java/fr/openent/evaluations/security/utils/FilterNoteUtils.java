@@ -33,7 +33,7 @@ import org.vertx.java.core.json.JsonObject;
  */
 public class FilterNoteUtils {
 
-    public void validateNoteOwner (Integer idNote, String owner, final Handler<Boolean> handler) {
+    public void validateNoteOwner (Long idNote, String owner, final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(devoirs.*) " +
                         "FROM notes.devoirs INNER JOIN notes.notes ON (notes.id_devoir = devoirs.id) " +

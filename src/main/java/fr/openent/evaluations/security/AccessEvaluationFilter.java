@@ -41,7 +41,7 @@ public class AccessEvaluationFilter implements ResourcesProvider {
                 if (!resourceRequest.params().contains("idDevoir")) {
                     handler.handle(false);
                 }
-                Integer idDevoir = Integer.parseInt(resourceRequest.params().get("idDevoir"));
+                Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
                 new FilterDevoirUtils().validateOwnerDevoir(idDevoir, user.getUserId(), new Handler<Boolean>() {
                     @Override
                     public void handle(Boolean isOwner) {

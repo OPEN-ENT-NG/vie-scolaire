@@ -26,18 +26,31 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 /**
  * Created by ledunoiss on 20/10/2016.
  */
 public class AccessNoteFilter implements ResourcesProvider {
 
+    protected static final Logger log = LoggerFactory.getLogger(AccessNoteFilter.class);
+
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, UserInfos user, final Handler<Boolean> handler) {
         switch (user.getType()) {
             case "Teacher" : {
                 resourceRequest.pause();
-                new FilterNoteUtils().validateNoteOwner(Integer.parseInt(resourceRequest.params().get("idNote")),
+
+                Long idNote;
+                try {
+                    idNote = Long.parseLong(resourceRequest.params().get("idNote"));
+                } catch(NumberFormatException e) {
+                    log.error("Error : idNote must be a long object");
+                    return;
+                }
+
+                new FilterNoteUtils().validateNoteOwner(idNote,
                         user.getUserId(), new Handler<Boolean>() {
                             @Override
                             public void handle(Boolean isValid) {

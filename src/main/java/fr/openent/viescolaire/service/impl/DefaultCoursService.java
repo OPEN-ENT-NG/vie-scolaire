@@ -27,6 +27,8 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -37,6 +39,9 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  * Created by ledunoiss on 10/02/2016.
  */
 public class DefaultCoursService extends SqlCrudService implements CoursService {
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultCoursService.class);
+
     public DefaultCoursService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_COURS_TABLE);
     }
@@ -54,7 +59,15 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("ORDER BY cours.timestamp_fn ASC");
 
-        values.addNumber(Integer.parseInt(pSIdClasse)).addString(pSDateDebut).addString(pSDateFin);
+        Long idClasse;
+        try {
+            idClasse = Long.parseLong(pSIdClasse);
+        } catch(NumberFormatException e) {
+            log.error("Error : idClasse must be a long object");
+            return;
+        }
+
+        values.addNumber(idClasse).addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

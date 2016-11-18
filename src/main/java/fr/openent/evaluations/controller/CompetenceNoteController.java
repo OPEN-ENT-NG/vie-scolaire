@@ -64,7 +64,16 @@ public class CompetenceNoteController extends ControllerHelper {
     @ApiDoc("Récupère la liste des compétences notes pour un devoir et un élève donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesNotes(final HttpServerRequest request){
-        competencesNotesService.getCompetencesNotes(Integer.parseInt(request.params().get("iddevoir")),
+
+        Long idDevoir;
+        try {
+            idDevoir = Long.parseLong(request.params().get("iddevoir"));
+        } catch(NumberFormatException e) {
+            log.error("Error : idDevoir must be a long object");
+            return;
+        }
+
+        competencesNotesService.getCompetencesNotes(idDevoir,
                 request.params().get("ideleve"), arrayResponseHandler(request));
     }
 
@@ -145,35 +154,25 @@ public class CompetenceNoteController extends ControllerHelper {
         });
     }
 
-//    @Get("/competence/notes")
-//    @ApiDoc("Retourne les compétences notes d'un devoir donné")
-//    @SecuredAction(value = "", type = ActionType.RESOURCE)
-//    @ResourceFilter(AccessSuiviCompetenceFilter.class)
-//    public void getCompetencesNotesDevoir (final HttpServerRequest request) {
-//        if (request.params().contains("devoirId")) {
-//            String devoirId = request.params().get("devoirId");
-//            competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
-//        } else if (request.params().contains("idEleve")) {
-//            String idEleve = request.params().get("idEleve");
-//            String idPeriode;
-//            if (request.params().contains("idPeriode")) {
-//                 idPeriode = request.params().get("idPeriode");
-//            } else {
-//                idPeriode = null;
-//            }
-//            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
-//        } else {
-//            Renders.unauthorized(request);
-//        }
-//    }
-
     @Get("/competence/notes/devoir/:devoirId")
     @ApiDoc("Retourne les compétences notes pour un devoir donné")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetenceNotesDevoir (final HttpServerRequest request) {
-        String devoirId = request.params().get("devoirId");
-        competencesNotesService.getCompetencesNotesDevoir(Integer.parseInt(devoirId), arrayResponseHandler(request));
+        if (request.params().contains("devoirId")) {
+
+            Long devoirId;
+            try {
+                devoirId = Long.parseLong(request.params().get("devoirId"));
+            } catch(NumberFormatException e) {
+                log.error("Error : devoirId must be a long object");
+                return;
+            }
+
+            competencesNotesService.getCompetencesNotesDevoir(devoirId, arrayResponseHandler(request));
+        } else {
+            Renders.badRequest(request, "Invalid parameters");
+        }
     }
 
     @Get("/competence/notes/eleve/:idEleve")
@@ -181,14 +180,18 @@ public class CompetenceNoteController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetenceNoteEleve (final HttpServerRequest request) {
-        String idEleve = request.params().get("idEleve");
-        String idPeriode;
-        if (request.params().contains("idPeriode")) {
-            idPeriode = request.params().get("idPeriode");
+        if (request.params().contains("idEleve")) {
+            String idEleve = request.params().get("idEleve");
+            String idPeriode;
+            if (request.params().contains("idPeriode")) {
+                idPeriode = request.params().get("idPeriode");
+            } else {
+                idPeriode = null;
+            }
+            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
         } else {
-            idPeriode = null;
+            Renders.badRequest(request, "Invalid parameters");
         }
-        competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
     }
 
     @Post("/competence/notes")

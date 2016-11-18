@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class FilterCompetenceNoteUtils {
 
-    public void validateCompetenceNoteOwner(Integer idNote, String owner,
+    public void validateCompetenceNoteOwner(Long idNote, String owner,
                                             final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(devoirs.*) " +

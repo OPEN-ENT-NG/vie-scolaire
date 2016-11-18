@@ -39,6 +39,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -148,7 +149,18 @@ public class CompetenceController extends ControllerHelper{
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void getCompetencesDevoir(final HttpServerRequest request){
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        competencesService.getDevoirCompetences(Integer.parseInt(request.params().get("idDevoir")), new Handler<Either<String, JsonArray>>() {
+
+        Long lIdDevoir;
+
+        try {
+            lIdDevoir = Long.parseLong(request.params().get("idDevoir"));
+
+        } catch(NumberFormatException e) {
+            log.error("Error : idDevoir must be a long object");
+            return;
+        }
+
+        competencesService.getDevoirCompetences(lIdDevoir, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
@@ -197,7 +209,14 @@ public class CompetenceController extends ControllerHelper{
     @ApiDoc("Récupère la liste des sous compétences")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getSousCompetences(final HttpServerRequest request){
-        competencesService.getSousCompetences(Integer.parseInt(request.params().get("id")), arrayResponseHandler(request));
+        Long id;
+        try {
+            id = Long.parseLong(request.params().get("id"));
+        } catch(NumberFormatException e) {
+            log.error("Error : id must be a long object");
+            return;
+        }
+        competencesService.getSousCompetences(id, arrayResponseHandler(request));
     }
 
     /**
@@ -208,6 +227,15 @@ public class CompetenceController extends ControllerHelper{
     @ApiDoc("Récupère la liste des compétences pour un enseignement donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesEnseignement(final HttpServerRequest request){
-        competencesService.getCompetencesEnseignement(Integer.parseInt(request.params().get("id")), arrayResponseHandler(request));
+
+        Long id;
+        try {
+            id = Long.parseLong(request.params().get("id"));
+        } catch(NumberFormatException e) {
+            log.error("Error : id must be a long object");
+            return;
+        }
+
+        competencesService.getCompetencesEnseignement(id, arrayResponseHandler(request));
     }
 }

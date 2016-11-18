@@ -27,6 +27,8 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.List;
 
@@ -34,6 +36,8 @@ import java.util.List;
  * Created by ledunoiss on 20/10/2016.
  */
 public class AccessReleveFilter implements ResourcesProvider {
+
+    protected static final Logger log = LoggerFactory.getLogger(AccessReleveFilter.class);
 
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, UserInfos user, final Handler<Boolean> handler) {
@@ -57,8 +61,16 @@ public class AccessReleveFilter implements ResourcesProvider {
                     handler.handle(false);
                 }
 
+                Long idPeriode;
+                try {
+                    idPeriode = Long.parseLong(params.get("idPeriode"));
+                } catch(NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object");
+                    return;
+                }
+
                 new FilterPeriodeUtils().validateStructure(params.get("idEtablissement"),
-                        Integer.parseInt(params.get("idPeriode")), new Handler<Boolean>() {
+                        idPeriode, new Handler<Boolean>() {
                             @Override
                             public void handle(Boolean isValid) {
                                 resourceRequest.resume();

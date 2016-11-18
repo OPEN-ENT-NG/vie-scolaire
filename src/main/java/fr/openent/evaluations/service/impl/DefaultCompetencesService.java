@@ -28,11 +28,16 @@ import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 /**
  * Created by ledunoiss on 05/08/2016.
  */
 public class DefaultCompetencesService extends SqlCrudService implements fr.openent.evaluations.service.CompetencesService {
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultCompetencesService.class);
+
     public DefaultCompetencesService(String schema, String table) {
         super(schema, table);
     }
@@ -48,7 +53,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void setDevoirCompetences(Integer devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler) {
+    public void setDevoirCompetences(Long devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray data = new JsonArray();
         query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs (id_devoir, id_competence) VALUES ");
@@ -67,7 +72,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getDevoirCompetences(Integer devoirId, Handler<Either<String, JsonArray>> handler) {
+    public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
@@ -93,7 +98,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getSousCompetences(Integer skillId, Handler<Either<String, JsonArray>> handler) {
+    public void getSousCompetences(Long skillId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT * ")
@@ -104,7 +109,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getCompetencesEnseignement(Integer teachingId, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesEnseignement(Long teachingId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT * ")
@@ -126,7 +131,17 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
                 "WHERE competences."+ filter);
         if (idCycle != null) {
             query.append("AND rel_competences_cycle.id_cycle = ?");
-            params.addNumber(Integer.parseInt(idCycle));
+
+
+            Long iIdCycle;
+            try {
+                iIdCycle = Long.parseLong(idCycle);
+            } catch(NumberFormatException e) {
+                log.error("Error : idCycle must be a long object");
+                return;
+            }
+
+            params.addNumber(iIdCycle);
         }
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }

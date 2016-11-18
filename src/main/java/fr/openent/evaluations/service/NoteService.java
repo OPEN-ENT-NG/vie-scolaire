@@ -44,7 +44,7 @@ public interface NoteService extends CrudService {
      * @param devoirId identifiant du devoir
      * @param handler handler portant le resultat de la requête
      */
-    public void listNotesParDevoir(Integer devoirId, Handler<Either<String, JsonArray>> handler);
+    public void listNotesParDevoir(Long devoirId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere la note d'un élève pour un devoir.
@@ -53,7 +53,7 @@ public interface NoteService extends CrudService {
      * @param idEleve l'identifiant de l'élève
      * @param handler handler portant le résultat de la requête
      */
-    public void getNoteParDevoirEtParEleve(Integer idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler);
+    public void getNoteParDevoirEtParEleve(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Mise à jour d'une note
@@ -69,7 +69,7 @@ public interface NoteService extends CrudService {
      * @param user user
      * @param handler handler portant le résultat de la requête
      */
-    public void deleteNote(Integer idNote, UserInfos user, Handler<Either<String, JsonObject>> handler);
+    public void deleteNote(Long idNote, UserInfos user, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Récupération des Notes pour le widget
@@ -87,7 +87,7 @@ public interface NoteService extends CrudService {
      * @param periodeId identifiant de la periode
      * @param handler handler portant le résultat de la requête
      */
-    public void getNoteElevePeriode(String userId, String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler);
+    public void getNoteElevePeriode(String userId, String etablissementId, String classeId, String matiereId, Long periodeId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupération des toutes les notes de tous les élèves pour un relevé de notes
@@ -96,5 +96,5 @@ public interface NoteService extends CrudService {
      * @param periodeId identifiant de la période
      * @param handler handler portant le résultat de la requête
      */
-    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Integer periodeId, Handler<Either<String, JsonArray>> handler);
+    public void getNotesReleve(String etablissementId, String classeId, String matiereId, Long periodeId, Handler<Either<String, JsonArray>> handler);
 }

@@ -42,5 +42,5 @@ public interface PeriodeService extends CrudService {
      * @param idPeriode identifiant de la periode
      * @param handler handler comportant le resultat
      */
-    public void getPeriode(Integer idPeriode, Handler<Either<String, JsonObject>> handler);
+    public void getPeriode(Long idPeriode, Handler<Either<String, JsonObject>> handler);
 }

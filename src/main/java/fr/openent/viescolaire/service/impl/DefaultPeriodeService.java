@@ -60,7 +60,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
      * @param handler handler comportant le resultat
      */
     @Override
-    public void getPeriode(Integer idPeriode, Handler<Either<String, JsonObject>> handler) {
+    public void getPeriode(Long idPeriode, Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 

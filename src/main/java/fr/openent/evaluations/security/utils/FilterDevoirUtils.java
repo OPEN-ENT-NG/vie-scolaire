@@ -33,7 +33,7 @@ import org.vertx.java.core.json.JsonObject;
  */
 public class FilterDevoirUtils {
 
-    public void validateOwnerDevoir(Integer idDevoir, String owner, final Handler<Boolean> handler) {
+    public void validateOwnerDevoir(Long idDevoir, String owner, final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(devoirs.*) " +
                         "FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs " +

@@ -78,7 +78,16 @@ public class NoteController extends ControllerHelper{
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    notesService.listNotesParDevoir(Integer.parseInt(request.params().get("idDevoir")), handler);
+
+                    Long idDevoir;
+                    try {
+                        idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idDevoir must be a long object");
+                        return;
+                    }
+
+                    notesService.listNotesParDevoir(idDevoir, handler);
                 }else{
                     unauthorized(request);
                 }
@@ -101,7 +110,13 @@ public class NoteController extends ControllerHelper{
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     MultiMap params = request.params();
-                    Integer idDevoir = Integer.parseInt(params.get("idDevoir"));
+                    Long idDevoir;
+                    try {
+                        idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idDevoir must be a long object");
+                        return;
+                    }
                     String idEleve = params.get("idEleve");
                     notesService.getNoteParDevoirEtParEleve(idDevoir, idEleve, handler);
                 }else{
@@ -176,7 +191,16 @@ public class NoteController extends ControllerHelper{
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    notesService.deleteNote(Integer.parseInt(request.params().get("idNote")), user, defaultResponseHandler(request));
+
+                    Long idNote;
+                    try {
+                        idNote = Long.parseLong(request.params().get("idNote"));
+                    } catch(NumberFormatException e) {
+                        log.error("Error : idNote must be a long object");
+                        return;
+                    }
+
+                    notesService.deleteNote(idNote, user, defaultResponseHandler(request));
                 }else{
                     unauthorized(request);
                 }
@@ -212,17 +236,30 @@ public class NoteController extends ControllerHelper{
     @SecuredAction(value = "", type= ActionType.RESOURCE)
     @ResourceFilter(AccessReleveFilter.class)
     public void getNoteElevePeriode(final HttpServerRequest request){
+
+
+
         if(request.params().size() == 6) {
             if(request.params().get("idEleve") != "undefined"
                     && request.params().get("idEtablissement") != "undefined"
                     && request.params().get("idClasse") != "undefined"
                     && request.params().get("idMatiere") != "undefined"
                     && request.params().get("idPeriode") != "undefined"){
+
+                Long idPeriode;
+                try {
+                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                } catch(NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object");
+                    return;
+                }
+
+
                 notesService.getNoteElevePeriode(request.params().get("idEleve"),
                         request.params().get("idEtablissement"),
                         request.params().get("idClasse"),
                         request.params().get("idMatiere"),
-                        Integer.parseInt(request.params().get("idPeriode")),
+                        idPeriode,
                         arrayResponseHandler(request));
             }
         } else if (request.params().size() == 5) {
@@ -230,10 +267,19 @@ public class NoteController extends ControllerHelper{
                     && request.params().get("idClasse") != "undefined"
                     && request.params().get("idMatiere") != "undefined"
                     && request.params().get("idPeriode") != "undefined"){
+
+                Long idPeriode;
+                try {
+                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                } catch(NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object");
+                    return;
+                }
+
                 notesService.getNotesReleve(request.params().get("idEtablissement"),
                         request.params().get("idClasse"),
                         request.params().get("idMatiere"),
-                        Integer.parseInt(request.params().get("idPeriode")),
+                        idPeriode,
                         arrayResponseHandler(request));
             }
         }

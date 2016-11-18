@@ -84,7 +84,8 @@ public class DevoirController extends ControllerHelper {
                         try {
                             idPeriode = Long.parseLong(request.params().get("idPeriode"));
                         } catch(NumberFormatException e) {
-                            log.error("Error : idPeriode must be a long object");
+                            log.error("Error : idPeriode must be a long object", e);
+                            badRequest(request, e.getMessage());
                             return;
                         }
 
@@ -185,7 +186,8 @@ public class DevoirController extends ControllerHelper {
                     try {
                         idPeriode = Long.parseLong(request.params().get("idPeriode"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idPeriode must be a long object");
+                        log.error("Error : idPeriode must be a long object", e);
+                        badRequest(request, e.getMessage());
                         return;
                     }
 

@@ -83,7 +83,8 @@ public class NoteController extends ControllerHelper{
                     try {
                         idDevoir = Long.parseLong(request.params().get("idDevoir"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idDevoir must be a long object");
+                        log.error("Error : idDevoir must be a long object", e);
+                        badRequest(request, e.getMessage());
                         return;
                     }
 
@@ -114,7 +115,8 @@ public class NoteController extends ControllerHelper{
                     try {
                         idDevoir = Long.parseLong(request.params().get("idDevoir"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idDevoir must be a long object");
+                        log.error("Error : idDevoir must be a long object", e);
+                        badRequest(request, e.getMessage());
                         return;
                     }
                     String idEleve = params.get("idEleve");
@@ -196,7 +198,8 @@ public class NoteController extends ControllerHelper{
                     try {
                         idNote = Long.parseLong(request.params().get("idNote"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idNote must be a long object");
+                        log.error("Error : idNote must be a long object", e);
+                        badRequest(request, e.getMessage());
                         return;
                     }
 
@@ -250,7 +253,8 @@ public class NoteController extends ControllerHelper{
                 try {
                     idPeriode = Long.parseLong(request.params().get("idPeriode"));
                 } catch(NumberFormatException e) {
-                    log.error("Error : idPeriode must be a long object");
+                    log.error("Error : idPeriode must be a long object", e);
+                    badRequest(request, e.getMessage());
                     return;
                 }
 
@@ -272,7 +276,8 @@ public class NoteController extends ControllerHelper{
                 try {
                     idPeriode = Long.parseLong(request.params().get("idPeriode"));
                 } catch(NumberFormatException e) {
-                    log.error("Error : idPeriode must be a long object");
+                    log.error("Error : idPeriode must be a long object", e);
+                    badRequest(request, e.getMessage());
                     return;
                 }
 

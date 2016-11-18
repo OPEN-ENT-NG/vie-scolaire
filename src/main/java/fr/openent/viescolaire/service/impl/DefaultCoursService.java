@@ -47,7 +47,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     }
 
     @Override
-    public void getClasseCours(String pSDateDebut, String pSDateFin, String pSIdClasse, Handler<Either<String, JsonArray>> handler) {
+    public void getClasseCours(String pSDateDebut, String pSDateFin, Long pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -59,15 +59,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("ORDER BY cours.timestamp_fn ASC");
 
-        Long idClasse;
-        try {
-            idClasse = Long.parseLong(pSIdClasse);
-        } catch(NumberFormatException e) {
-            log.error("Error : idClasse must be a long object");
-            return;
-        }
 
-        values.addNumber(idClasse).addString(pSDateDebut).addString(pSDateFin);
+        values.addNumber(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

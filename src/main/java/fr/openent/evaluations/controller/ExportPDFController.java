@@ -233,7 +233,8 @@ public class ExportPDFController extends ControllerHelper {
                     try {
                         idPeriode = Long.parseLong(params.get("idPeriode"));
                     } catch(NumberFormatException e) {
-                        log.error("Error : idPeriode must be a long object");
+                        log.error("Error : idPeriode must be a long object", e);
+                        badRequest(request, e.getMessage());
                         return;
                     }
 

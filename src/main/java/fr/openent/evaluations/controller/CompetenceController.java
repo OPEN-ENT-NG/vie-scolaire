@@ -156,7 +156,8 @@ public class CompetenceController extends ControllerHelper{
             lIdDevoir = Long.parseLong(request.params().get("idDevoir"));
 
         } catch(NumberFormatException e) {
-            log.error("Error : idDevoir must be a long object");
+            log.error("Error : idDevoir must be a long object", e);
+            badRequest(request, e.getMessage());
             return;
         }
 
@@ -213,7 +214,8 @@ public class CompetenceController extends ControllerHelper{
         try {
             id = Long.parseLong(request.params().get("id"));
         } catch(NumberFormatException e) {
-            log.error("Error : id must be a long object");
+            log.error("Error : id must be a long object", e);
+            badRequest(request, e.getMessage());
             return;
         }
         competencesService.getSousCompetences(id, arrayResponseHandler(request));
@@ -232,7 +234,8 @@ public class CompetenceController extends ControllerHelper{
         try {
             id = Long.parseLong(request.params().get("id"));
         } catch(NumberFormatException e) {
-            log.error("Error : id must be a long object");
+            log.error("Error : id must be a long object", e);
+            badRequest(request, e.getMessage());
             return;
         }
 

@@ -35,6 +35,7 @@ import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.util.List;
@@ -66,7 +67,8 @@ public class CompetenceNoteController extends ControllerHelper {
         try {
             idDevoir = Long.parseLong(request.params().get("iddevoir"));
         } catch(NumberFormatException e) {
-            log.error("Error : idDevoir must be a long object");
+            log.error("Error : idDevoir must be a long object", e);
+            badRequest(request, e.getMessage());
             return;
         }
 
@@ -162,7 +164,8 @@ public class CompetenceNoteController extends ControllerHelper {
             try {
                 devoirId = Long.parseLong(request.params().get("devoirId"));
             } catch(NumberFormatException e) {
-                log.error("Error : devoirId must be a long object");
+                log.error("Error : devoirId must be a long object", e);
+                badRequest(request, e.getMessage());
                 return;
             }
 
@@ -185,7 +188,17 @@ public class CompetenceNoteController extends ControllerHelper {
             } else {
                 idPeriode = null;
             }
-            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
+
+            Long lIdPeriode;
+            try {
+                lIdPeriode = Long.parseLong(idPeriode);
+            } catch(NumberFormatException e) {
+                log.error("Error : idPeriode must be a long object", e);
+                badRequest(request, e.getMessage());
+                return;
+            }
+
+            competencesNotesService.getCompetencesNotesEleve(idEleve, lIdPeriode, arrayResponseHandler(request));
         } else {
             Renders.badRequest(request, "Invalid parameters");
         }
@@ -227,9 +240,24 @@ public class CompetenceNoteController extends ControllerHelper {
     @ResourceFilter(AccessCompetenceNoteFilter.class)
     public void deleteCompetencesNotesDevoir (final HttpServerRequest request) {
         List<String> ids = request.params().getAll("id");
-        if (ids.size() > 0) {
-            competencesNotesService.dropCompetencesNotesDevoir(ids, arrayResponseHandler(request));
+
+        if (ids == null || ids.size() == 0) {
+            log.error("Error : one id must be present");
+            badRequest(request);
+            return;
         }
+
+        JsonArray oIdsJsonArray = new JsonArray();
+        try {
+            for (int i = 0; i < ids.size(); i++) {
+                oIdsJsonArray.addNumber(Long.parseLong(ids.get(i)));
+            }
+        } catch(NumberFormatException e) {
+            log.error("Error : id must be a long object");
+            badRequest(request);
+        }
+
+        competencesNotesService.dropCompetencesNotesDevoir(oIdsJsonArray, arrayResponseHandler(request));
     }
 
     @Get("/competence/notes/eleve")

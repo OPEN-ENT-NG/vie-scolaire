@@ -24,6 +24,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
 
+        /**
+         * Créer une suivi de compétence
+         */
         $scope.selectEleve = function () {
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
@@ -41,6 +44,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
         };
 
+        /**
+         * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"
+         * @param listeEvaluations Tableau d'évaluations de compétences
+         * @returns {(evaluation:any)=>(boolean|boolean)} Retourne true si la compétence courante est la plus haute du tableau listeEvaluations
+         */
         $scope.isMaxEvaluation = function (listeEvaluations) {
             return function (evaluation) {
                 var _t = listeEvaluations;
@@ -60,6 +68,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             };
         };
 
+        /**
+         * Retourne si l'utilisateur n'est pas le propriétaire de compétences
+         * @param listeEvaluations Tableau d'évaluations de compétences
+         * @returns {boolean} Retourne true si l'utilisateur n'est pas le propriétaire
+         */
         $scope.notEvalutationOwner = function (listeEvaluations) {
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return false;
@@ -70,23 +83,40 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             return _t.length === 0;
         };
 
+
+        /*
+            Listener sur le template suivi-competence-detail permettant la transition entre la vue détail
+            et la vue globale
+         */
         template.watch("suivi-competence-detail", function () {
             if (!$scope.opened.detailCompetenceSuivi) {
                 $scope.opened.detailCompetenceSuivi = true;
             }
         });
 
+        /**
+         * Lance la séquence d'ouverture du détail d'une compétence permettant d'accéder à la vue liste ou graph
+         * @param competence Compétence à ouvrir
+         */
         $scope.openDetailCompetence = function (competence) {
             $scope.detailCompetence = competence;
             template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau");
         };
 
+        /**
+         * Lance la séquence de retour à la vue globale du suivi de compétence
+         */
         $scope.backToSuivi = function () {
             template.close("suivi-competence-detail");
             $scope.opened.detailCompetenceSuivi = false;
             $scope.detailCompetence = null;
         };
 
+        /**
+         * Retourne
+         * @param evaluation Evaluation à afficher
+         * @returns {boolean} Retourne true si l'utilisateur est le propriétaire de l'évaluation
+         */
         $scope.filterOwnerSuivi = function (evaluation) {
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return true;

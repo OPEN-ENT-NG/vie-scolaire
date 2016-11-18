@@ -30,6 +30,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
@@ -130,9 +131,7 @@ public class CompetenceController extends ControllerHelper{
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
-                    request.response()
-                            .putHeader("content-type", "application/json; charset=utf-8")
-                            .end(orderCompetences(event.right().getValue()).toString());
+                    Renders.renderJson(request, event.right().getValue());
                 }else{
                     leftToResponse(request, event.left());
                 }
@@ -165,9 +164,7 @@ public class CompetenceController extends ControllerHelper{
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
-                    request.response()
-                            .putHeader("content-type", "application/json; charset=utf-8")
-                            .end(event.right().getValue().toString());
+                    Renders.renderJson(request, event.right().getValue());
                 }else{
                     leftToResponse(request, event.left());
                 }
@@ -191,9 +188,7 @@ public class CompetenceController extends ControllerHelper{
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if(event.isRight()){
-                                request.response()
-                                        .putHeader("content-type", "application/json; charset=utf-8")
-                                        .end(event.right().getValue().toString());
+                                Renders.renderJson(request, event.right().getValue());
                             }else{
                                 leftToResponse(request, event.left());
                             }

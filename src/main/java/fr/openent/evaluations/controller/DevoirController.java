@@ -136,7 +136,7 @@ public class DevoirController extends ControllerHelper {
                                                                     if (event.isRight()) {
                                                                         JsonObject o = new JsonObject();
                                                                         o.putNumber("id", devoirId[0]);
-                                                                        request.response().putHeader("content-type", "application/json; charset=utf-8").end(o.toString());
+                                                                        Renders.renderJson(request, o);
                                                                     } else {
                                                                         leftToResponse(request, event.left());
                                                                     }
@@ -144,7 +144,7 @@ public class DevoirController extends ControllerHelper {
                                                             });
                                                         }else{
                                                             if(event.isRight()){
-                                                                request.response().putHeader("content-type", "application/json; charset=utf-8").end(event.right().getValue().toString());
+                                                                Renders.renderJson(request, event.right().getValue());
                                                             }
                                                         }
                                                     }
@@ -252,7 +252,7 @@ public class DevoirController extends ControllerHelper {
                                         percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes")*100/classes.getInteger(idClasse))));
                                         returns.putNumber(idDevoir.toString(), percent);
                                     }
-                                    request.response().putHeader("content-type", "application/json; charset=utf-8").end(returns.toString());
+                                    Renders.renderJson(request, returns);
                                 } else {
                                     leftToResponse(request,event.left());
                                 }

@@ -3,9 +3,7 @@ import { ng } from 'entcore/entcore';
 export let sticky = ng.directive('sticky', ['$window', '$timeout', function($window, $timeout) {
         return {
             restrict: 'A', // this directive can only be used as an attribute.
-            scope: {
-                disabled: '=disabledSticky'
-            },
+            scope: false,
             link: function linkFn($scope, $elem, $attrs) {
 
                 // Initial scope
@@ -48,6 +46,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                 var usePlaceholder = ($attrs.usePlaceholder !== 'false');
                 var anchor = $attrs.anchor === 'bottom' ? 'bottom' : 'top';
                 var confine = ($attrs.confine === 'true');
+                $scope.disabled = ($attrs.disabled === 'true');
 
                 // flag: can react to recalculating the initial CSS dimensions later
                 // as link executes prematurely. defaults to immediate checking

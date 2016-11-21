@@ -76,7 +76,7 @@
             </header>
             <div class="marginFive">
                 <content class="block row">
-                    <div class="devoirs-header" sticky offset="64" confine="true" sticky-class="card">
+                    <div class="devoirs-header" current-devoir="currentDevoir" sticky offset="64" confine="true" sticky-class="card">
                         <div class="two inline-block cell-indent left">
                             <i18n>viescolaire.utils.student</i18n>
                         </div>
@@ -93,12 +93,12 @@
                         </div>
                     </div>
                     <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
-                        <div class="row twelve"  ng-if="currentDevoir.competences.all.length > 0">
+                        <div class="row"  ng-if="currentDevoir.competences.all.length > 0">
                             <div class="four cell">
                                 &nbsp;
                             </div>
                             <div class="four cell cell-indent" style="padding: 10px 0px 5px 10px;">
-                                <c-skills-color-column devoir="$parent.currentDevoir"></c-skills-color-column>
+                                <c-skills-color-column devoir="currentDevoir"></c-skills-color-column>
                             </div>
                             <div class="cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
                             </div>

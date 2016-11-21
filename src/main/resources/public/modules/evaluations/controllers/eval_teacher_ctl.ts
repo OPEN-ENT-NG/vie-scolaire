@@ -11,7 +11,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     function ($scope, route, $rootScope, $location, $filter, $sce) {
         route({
             accueil : function(params){
-                template.open('main', '../templates/evaluations/eval_acu_teacher');
+                template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
             },
 
             createDevoir : function(params){
@@ -138,9 +138,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.releveNote = undefined;
 
         evaluations.classes.on('classes-sync', function () {
-            utils.safeApply($scope).then(() => {
-                console.log("classes-synced");
-            });
+            utils.safeApply($scope);
         });
 
         $scope.goTo = function(path){

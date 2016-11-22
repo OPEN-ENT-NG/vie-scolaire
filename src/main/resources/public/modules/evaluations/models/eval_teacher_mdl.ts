@@ -441,7 +441,7 @@ export class Devoir extends Model implements IModel{
                             return (!_.has(eleve, "evaluation"));
                         });
                         for (var j = 0; j < _t.length; j++) {
-                            _t[j].evaluation = new Evaluation({valeur:"", oldValeur : "", id_devoir : that.id, id_eleve : _t[j].id, ramener_sur : that.ramener_sur, coefficient : that.coefficient});
+                            _t[j].evaluation = new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : that.id, id_eleve : _t[j].id, ramener_sur : that.ramener_sur, coefficient : that.coefficient});
                         }
                         that.syncCompetencesNotes().then(() => {
                             if(resolve && (typeof(resolve) === 'function')) {

@@ -820,6 +820,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 }
             }
+            $scope.opened.lightbox = false;
         };
 
         /**
@@ -861,11 +862,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.calculStatsDevoir = function () {
             var evals = [];
             for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
-                if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== '' &&
+                if ($scope.currentDevoir.eleves.all[i].evaluation !== undefined &&
+                    $scope.currentDevoir.eleves.all[i].evaluation.valeur !== '' &&
                     $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined &&
                     $scope.currentDevoir.eleves.all[i].evaluation.valeur !== null) {
                     evals.push($scope.currentDevoir.eleves.all[i].evaluation);
-                    evals[i].ramener_sur = $scope.currentDevoir.ramener_sur;
+                    $scope.currentDevoir.eleves.all[i].evaluation.ramener_sur = $scope.currentDevoir.ramener_sur;
                 }
             }
             $scope.currentDevoir.calculStats(evals).then(() => {

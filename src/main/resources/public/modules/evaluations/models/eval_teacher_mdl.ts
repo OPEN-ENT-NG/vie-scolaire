@@ -1012,7 +1012,7 @@ export class SuiviCompetence extends Model implements IModel{
                                 that.enseignements.all[i].competences.all[y].competences
                                     .load(e.all[i].competences.all[y].competences.all);
                                 _.map(that.enseignements.all[i].competences.all[y].competences.all, function (competence) {
-                                    competence.competencesEvaluations = _.where(res, {id_competence : competence.id});
+                                    competence.competencesEvaluations = _.where(res, {id_competence : competence.id, id_enseignement : competence.id_enseignement});
                                 });
                             }
                         }

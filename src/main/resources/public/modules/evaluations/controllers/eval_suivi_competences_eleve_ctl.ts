@@ -35,11 +35,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.suiviCompetence = new SuiviCompetence($scope.enseignements, $scope.search.eleve, $scope.search.periode);
                     $scope.suiviCompetence.sync().then(() => {
                         $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
-                        utils.safeApply($scope, null);
+                        utils.safeApply($scope);
                     });
                 } else {
                     $scope.suiviCompetence = s;
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                 }
             }
         };

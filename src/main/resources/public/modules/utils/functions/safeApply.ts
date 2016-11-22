@@ -1,9 +1,14 @@
 /**
- * Created by ledunoiss on 20/09/2016.
+ * Lance un $scope.$apply() si un $apply ou un $diggest n'est pas déjà en cours. Permet de
+ * supprimer l'erreur de < $scope.$diggest already in progress >
+ * @param that $scope
+ * @returns {Promise<T>} Promesse
  */
-export function  safeApply(that, fn) {
-    var phase = that.$root.$$phase;
-    if(phase === '$apply' || phase === '$digest') {
-        if(fn && (typeof(fn) === 'function')) fn();
-    } else that.$apply(fn);
+export function safeApply(that) {
+    return new Promise((resolve, reject) => {
+        var phase = that.$root.$$phase;
+        if(phase === '$apply' || phase === '$digest') {
+            if(resolve && (typeof(resolve) === 'function')) resolve();
+        } else that.$apply(resolve);
+    });
 }

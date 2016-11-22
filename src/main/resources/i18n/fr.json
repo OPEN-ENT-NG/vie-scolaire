@@ -93,6 +93,7 @@
   "viescolaire.absences.ariane.appel":"Saisie d'un appel",
   "viescolaire.absences.ariane.AppelsOublies":"Appels non effectués",
   "evaluations.title":"Evaluations",
+  "evaluations" : "évaluation(s)",
   "evaluations.test.add":"Ajouter une évaluation",
   "evaluations.test.all" : "Toutes les évaluations",
   "evaluations.evaluation.create":"Créer évaluation",

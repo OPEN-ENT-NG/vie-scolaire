@@ -83,27 +83,26 @@
                         <div class="two inline-block cell-indent left">
                             <i18n>evaluations.grade</i18n>
                         </div>
-                        <div class="four inline-block cell-indent competence-text-overflow left" ng-if="$parent.currentDevoir.competences.all.length > 0">
+                        <div class="four inline-block cell-indent competence-text-overflow left" ng-if="currentDevoir.competences.all.length > 0">
                             <i18n>evaluations.test.competences</i18n>
-                            <i class="help" ng-click="$parent.getInfoCompetencesDevoir()"></i>
+                            <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                             <span id="competence-detail" tooltip=""></span>
                         </div>
                         <div class="inline-block cell-indent left" ng-class="{four : currentDevoir.nbcompetences > 0, eight : currentDevoir.nbcompetences == 0}">
                             <i18n>viescolaire.utils.appreciation</i18n>
                         </div>
-
-                        <div class="row"  ng-if="$parent.currentDevoir.competences.all.length > 0">
+                    </div>
+                    <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
+                        <div class="row"  ng-if="currentDevoir.competences.all.length > 0">
                             <div class="four cell">
                                 &nbsp;
                             </div>
                             <div class="four cell cell-indent" style="padding: 10px 0px 5px 10px;">
-                                <c-skills-color-column devoir="$parent.currentDevoir"></c-skills-color-column>
+                                <c-skills-color-column devoir="currentDevoir"></c-skills-color-column>
                             </div>
-                            <div class="cell" ng-class="{four : $parent.currentDevoir.competences.all.length > 0, eight : $parent.currentDevoir.competences.all.length == 0}">
+                            <div class="cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
                             </div>
                         </div>
-                    </div>
-                    <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
                         <div class="expandable navigable-row twelve" ng-repeat="eleve in currentDevoir.eleves.all track by $index">
 
                             <div class="row navigable-inputs-row">

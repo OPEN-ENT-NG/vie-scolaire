@@ -11,7 +11,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     function ($scope, route, $rootScope, $location, $filter, $sce) {
         route({
             accueil : function(params){
-                template.open('main', '../templates/evaluations/eval_acu_teacher');
+                template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
             },
 
             createDevoir : function(params){
@@ -21,18 +21,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             listDevoirs : function(params){
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                     $location.replace();
                 }
                 template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                 evaluations.devoirs.getPercentDone();
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             },
             viewNotesDevoir : function(params){
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                     $location.replace();
                 }
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
@@ -43,7 +43,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.openedStudentInfo = true;
                 if ($scope.currentDevoir !== undefined) {
                     $scope.currentDevoir.competences.sync().then(() => {
-                        utils.safeApply($scope, null);
+                        utils.safeApply($scope);
                     });
                     $scope.currentDevoir.eleves.sync().then(() => {
                         $scope.$broadcast('initHeaderColumn');
@@ -54,15 +54,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
                             }
                         }
-                        utils.safeApply($scope, null);
+                        utils.safeApply($scope);
                         $scope.currentDevoir.calculStats(_evals).then(() => {
-                            utils.safeApply($scope, null);
+                            utils.safeApply($scope);
                         });
                     });
                 }
 
                 template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             },
             displayReleveNotes : function(params) {
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
@@ -76,7 +76,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
 
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             },
             displaySuiviCompetencesEleve : function (params) {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
@@ -138,7 +138,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.releveNote = undefined;
 
         evaluations.classes.on('classes-sync', function () {
-            utils.safeApply($scope, null);
+            utils.safeApply($scope);
         });
 
         $scope.goTo = function(path){
@@ -147,12 +147,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         evaluations.periodes.on('sync', function () {
-            setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
+            setCurrentPeriode().then((defaultPeriode) => {
                 $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             });
         });
 
+        /**
+         * Initialise un nouveau devoir.
+         */
         $scope.initDevoir = function () {
             return new Devoir({
                 date_publication  : new Date(),
@@ -168,7 +171,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
         };
 
-        
+        /**
+         * Controle que la date de publication du devoir n'est pas inférieur à la date du devoir.
+         */
         $scope.controleDate = function () {
             $scope.devoir.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") >= 0);
         };
@@ -182,6 +187,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        /**
+         * Controle la validité du formulaire de création d'un devoir
+         * @returns {boolean} Validité du formulaire
+         */
         $scope.controleNewDevoirForm = function () {
             return !(
                 $scope.devoir.controlledDate
@@ -189,7 +198,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_classe !== undefined
                 && $scope.devoir.id_matiere !== undefined
                 && $scope.devoir.name !== undefined
-                /* && $scope.devoir.libelle !== undefined description passee en facultatif */
                 && $scope.devoir.id_periode !== undefined
                 && $scope.devoir.coefficient !== undefined
                 && $scope.devoir.coefficient > 0
@@ -201,24 +209,44 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             );
         };
 
+        /**
+         * Retourne la valeur de la clé i18n
+         * @param key Clé i18n
+         * @returns {any} Valeur i18n
+         */
         $scope.translate = function (key) {
           return utils.translate(key);
         };
 
+        /**
+         * Permet de faire la jointure entre les directive de compétences cSkilllsColorColumn et cSkillsNoteDevoir
+         */
         $scope.$on('majHeaderColumn', function(event, competence){
             $scope.$broadcast('changeHeaderColumn', competence);
         });
 
+        /**
+         * Retourne le nom de la structure en fonction de l'id de la structure
+         * @param etabId Identifiant de la structure
+         * @returns {any} Nom de la structure
+         */
         $scope.getEtablissementName = function(etabId){
             return model.me.structureNames[model.me.structures.indexOf(etabId)];
         };
 
+        /**
+         * Sélectionne/Déselectionne chaque objet de la liste
+         * @param list liste d'objet
+         */
         $scope.selectListDevoir = function (list) {
             for (var i = 0; i < list.length; i++) {
                 list[i].selected = !list[i].selected;
             }
         };
 
+        /**
+         * Sélectionne/Déselectionne tous les devoirs de l'utilisateur
+         */
         $scope.selectAllDevoirs = function(){
             if ($scope.selected.devoirs.all !== true) {
                 $scope.selectListDevoir($scope.selected.devoirs.list);
@@ -229,6 +257,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.selectListDevoir($scope.selected.devoirs.list);
         };
 
+        /**
+         * Récupère toutes les sous matière de la matière recherchée
+         */
         $scope.getSousMatieres = function () {
             var matiere = evaluations.matieres.findWhere({id : $scope.search.matiere.id});
             if (matiere) $scope.selected.matiere = matiere;
@@ -436,13 +467,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return $sce.trustAsHtml(psTextLocal.replace(new RegExp(psKeyword, 'gi'), '<span class="highlightedText">$&</span>'));
         };
 
+        /**
+         * Séquence de création d'un devoir
+         */
+        //TODO Déplacer cette séquence dans la séquence du router
         $scope.createDevoir = function () {
             $scope.devoir = $scope.initDevoir();
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
             evaluations.enseignements.sync();
-            utils.safeApply(this, null);
+            utils.safeApply(this);
             $scope.initFilter(true);
             $scope.search.keyword = "";
             // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
@@ -458,20 +493,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.devoir.getLastSelectedCompetence().then(function (res)  {
                 $scope.devoir.competencesLastDevoirList = res;
-
-                /*
-                // Ajout des competences precedements selectionnees lors du dernier devoir dans le recapitulatif
-                if($scope.devoir.competencesLastDevoirList != undefined) {
-                    for (var i = 0; i < $scope.devoir.competencesLastDevoirList.length; i++) {
-                        evaluations.competencesDevoir.push($scope.devoir.competencesLastDevoirList[i])
-                    }
-                }
-                utils.safeApply($scope, null);
-                */
             });
-            setCurrentPeriode(model.me.structures[0]).then((defaultPeriode) => {
+            setCurrentPeriode().then((defaultPeriode) => {
                 $scope.devoir.id_periode = defaultPeriode.id;
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             });
             $scope.devoir.id_type = getDefaultTypDevoir();
             if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
@@ -487,7 +512,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-            utils.safeApply($scope, null);
+            utils.safeApply($scope);
         };
 
 
@@ -527,6 +552,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         });
 
+        /**
+         *  Sauvegarde du devoir à la suite du formulaire de création
+         */
         $scope.saveNewDevoir = function () {
 
             // Pour la sauvegarde on ne recupere que les id des competences
@@ -551,41 +579,47 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     $scope.opened.lightbox=false;
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                 });
             });
         };
-        var getClassesMatieres = function (idClasse, callback) {
-            var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
-            if (libelleClasse !== undefined) {
-                callback(evaluations.matieres.where({libelleClasse: libelleClasse}));
-            }
+
+        /**
+         * Récupère les matières enseignées sur la classe donnée
+         * @param idClasse Identifiant de la classe
+         * @param callback Callback de retour la fonction
+         */
+        var getClassesMatieres = function (idClasse) {
+            return new Promise((resolve, reject) => {
+                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+                if (libelleClasse !== undefined) {
+                    if (resolve && typeof(resolve) === 'function') {
+                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
+                    }
+                }
+            });
         };
 
+        /**
+         * Set les matière en fonction de l'identifiant de la classe
+         */
         $scope.setClasseMatieres = function () {
-            getClassesMatieres($scope.devoir.id_classe, function (matieres) {
+            getClassesMatieres($scope.devoir.id_classe).then((matieres) => {
                 if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.id_matiere = $scope.devoir.matieresByClasse[0].id;
                 $scope.selectedMatiere();
             });
         };
 
-        $scope.filtrerDevoir = function () {
-            var formatStr = "DD/MM/YYYY";
-
-            var dateCreationDebut    = moment(moment($scope.search.dateCreation.debut).format(formatStr), formatStr);
-            var dateCreationFin      = moment(moment($scope.search.dateCreation.fin).format(formatStr), formatStr);
-            var datePublicationDebut = moment(moment($scope.search.datePublication.debut).format(formatStr), formatStr);
-            var datePublicationFin   = moment(moment($scope.search.datePublication.fin).format(formatStr), formatStr);
-        };
-
+        /**
+         * Déclenche un safeApply lors de l'event apply du model
+         */
         model.on('apply', function () {
-            utils.safeApply($scope, null);
+            utils.safeApply($scope);
         });
 
-        $scope.formatDate = function (date) {
-            return utils.getFormatedDate(date, "DD/MM/YYYY");
-        };
-
+        /**
+         * Séquence de récupération d'un relevé de note
+         */
         $scope.getReleve = function () {
             if($scope.search.classe.id !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined && $scope.search.classe.id !== '*'
@@ -606,12 +640,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.releveNote.sync().then(() => {
                                 $scope.releveNote.synchronized.releve = true;
                                 $scope.releveNote.calculStatsDevoirs().then(() => {
-                                    utils.safeApply($scope, null);
+                                    utils.safeApply($scope);
                                 });
                                 $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope, null);
+                                    utils.safeApply($scope);
                                 });
-                                utils.safeApply($scope, null);
+                                utils.safeApply($scope);
                             });
                         });
                         return;
@@ -622,24 +656,30 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.releveNote.sync().then(() => {
                         $scope.releveNote.synchronized.releve = true;
                         $scope.releveNote.calculStatsDevoirs().then(() => {
-                            utils.safeApply($scope, null);
+                            utils.safeApply($scope);
                         });
                         $scope.releveNote.calculMoyennesEleves().then(() => {
-                            utils.safeApply($scope, null);
+                            utils.safeApply($scope);
                         });
                     });
                 } else {
                     $scope.releveNote = rn;
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                 }
             }
         };
 
+        /**
+         * Position l'objet matière sur le devoir en cours de création
+         */
         $scope.selectedMatiere = function () {
             var matiere = evaluations.matieres.findWhere({id : $scope.devoir.id_matiere});
             if (matiere !== undefined) $scope.devoir.matiere = matiere;
         };
 
+        /**
+         * Controle le fonctionnement des filtres dates sur la vue liste des devoirs
+         */
         $scope.controleDatePicker = function () {
             if (moment($scope.search.dateCreation.debut).diff(moment($scope.search.dateCreation.fin)) > 0) {
                 $scope.search.dateCreation.fin = moment();
@@ -647,44 +687,83 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (moment($scope.search.datePublication.debut).diff(moment($scope.search.datePublication.fin)) > 0) {
                 $scope.search.datePublication.fin = moment();
             }
-            utils.safeApply($scope, null);
+            utils.safeApply($scope);
         };
 
+        /**
+         * Retourne l'identifiant du type de devoirs par défaut
+         * @returns {number} identifiant du type de devoir par défaut
+         */
         var getDefaultTypDevoir = function(){
             return (evaluations.types.findWhere({default_type : true})).id;
         };
 
+        /**
+         * Format la date passée en paramètre
+         * @param date Date à formatter
+         * @returns {any|string} date formattée
+         */
         $scope.getDateFormated = function (date) {
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
+        /**
+         * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
+         * @param idClasse identifiant de la classe
+         * @returns {any} libelle de la classe
+         */
         $scope.getLibelleClasse = function(idClasse) {
             if (idClasse == null || idClasse === "") return "";
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
             return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
         };
 
+        /**
+         * Retourne le libelle de la période correspondant à l'identifiant passé en paramètre
+         * @param idPeriode identifiant de la période
+         * @returns {any} libelle de la période
+         */
         $scope.getLibellePeriode = function(idPeriode) {
             if (idPeriode == null || idPeriode === "") return "";
             return _.findWhere($scope.periodes.all, {id : parseInt(idPeriode)}).libelle;
         };
 
+        /**
+         * Retourne le libelle du type de devoir correspondant à l'identifiant passé en paramètre
+         * @param idType identifiant du type de devoir
+         * @returns {any} libelle du type de devoir
+         */
         $scope.getLibelleType = function(idType) {
             if (idType == null || idType === "") return "";
             return _.findWhere($scope.types.all, {id : parseInt(idType)}).nom;
         };
 
+        /**
+         * Retourne le libelle de la matière correspondant à l'identifiant passé en paramètre
+         * @param idMatiere identifiant de la matière
+         * @returns {any} libelle de la matière
+         */
         $scope.getLibelleMatiere = function(idMatiere) {
             if (idMatiere == null || idMatiere === "") return "";
             return _.findWhere($scope.matieres.all, { id: idMatiere }).name;
         };
 
+        /**
+         * Retourne le libelle de la sous matière correspondant à l'identifiant passé en paramètre
+         * @param idSousMatiere identifiant de la sous matière
+         * @returns {any} libelle de la sous matière
+         */
         $scope.getLibelleSousMatiere = function(idSousMatiere) {
             if (idSousMatiere == null || idSousMatiere === "") return "";
             return _.findWhere($scope.devoir.matiere.sousMatieres.all, {id : parseInt(idSousMatiere)}).libelle;
         };
 
-
+        /**
+         * Séquence d'enregistrement d'une évaluation
+         * @param evaluation évaluation à enregistrer
+         * @param $event evenement déclenchant
+         * @param eleve élève propriétaire de l'évaluation
+         */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
             if (evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur) {
@@ -700,7 +779,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 } else {
                                     $scope.calculStatsDevoir();
                                 }
-                                utils.safeApply($scope, null);
+                                utils.safeApply($scope);
                             });
                         } else {
                             notify.error(lang.translate("error.note.outbound")+devoir.diviseur);
@@ -718,7 +797,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             } else {
                                 $scope.calculStatsDevoir();
                             }
-                            utils.safeApply($scope, null);
+                            utils.safeApply($scope);
                         });
                     } else {
                         if (evaluation.valeur !== "") {
@@ -731,6 +810,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        /**
+         * Ouvre le détail du devoir correspondant à l'index passé en paramètre
+         * @param index index du devoir
+         * @param bool état du détail
+         */
         $scope.expand = function(index, bool){
             if($scope.openedDevoir !== index){
                 $scope.openedDevoir = index;
@@ -741,17 +825,27 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        /**
+         * Calcul la moyenne pour un élève
+         * @param eleve élève
+         */
         $scope.calculerMoyenneEleve = function(eleve) {
             eleve.getMoyenne().then(() => {
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             });
         };
 
+        /**
+         * Ouvre la fenêtre détail des compétences sur un devoir
+         */
         $scope.getInfoCompetencesDevoir = function () {
             $scope.opened.lightbox = true;
             template.open('lightboxContainer', '../templates/evaluations/enseignants/informations/display_competences');
         };
 
+        /**
+         * Calcul les statistiques du devoir courant
+         */
         $scope.calculStatsDevoir = function () {
             var evals = [];
             for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
@@ -763,10 +857,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
             $scope.currentDevoir.calculStats(evals).then(() => {
-                utils.safeApply($scope, null);
+                utils.safeApply($scope);
             });
         };
 
+        /**
+         * Calcul les statistiques du devoir dont l'identifiant est passé en paramètre
+         * @param devoirId identifiant du devoir
+         */
         $scope.calculStatsDevoirReleve = function (devoirId) {
             var devoir = $scope.releveNote.devoirs.findWhere({id : devoirId});
             if (devoir !== undefined) {
@@ -780,15 +878,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 }
                 devoir.calculStats(evals).then(() => {
-                    utils.safeApply($scope, null);
+                    utils.safeApply($scope);
                 });
             }
         };
 
+        /**
+         * Lance le focus sur la cible de l'évènement
+         * @param $event évènement
+         */
         $scope.focusMe = function($event) {
             $event.target.select();
         };
 
+        /**
+         * Affiche les informations d'un devoir en fonction de l'objet passé en paramètre
+          * @param obj objet de type Evaluation ou de type Devoir
+         */
         $scope.getDevoirInfo = function (obj) {
             if (template.isEmpty('leftSide-devoirInfo')) template.open('leftSide-devoirInfo', '../templates/evaluations/enseignants/informations/display_devoir');
             if (obj instanceof Devoir) $scope.informations.devoir = obj;
@@ -798,12 +904,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        /**
+         * Retourne les informations relatives à un élève
+         * @param eleve élève
+         */
         $scope.getEleveInfo = function (eleve) {
             if (template.isEmpty('leftSide-userInfo')) template.open('leftSide-userInfo', '../templates/evaluations/enseignants/informations/display_eleve');
             $scope.informations.eleve = eleve;
         };
 
-        var setCurrentPeriode = function (idEtablissement) : Promise<any> {
+        /**
+         * Retourne la période courante
+         * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
+         */
+        var setCurrentPeriode = function () : Promise<any> {
             return new Promise((resolve, reject) => {
                 var formatStr = "DD/MM/YYYY";
                 var momentCurrDate = moment(moment().format(formatStr), formatStr);

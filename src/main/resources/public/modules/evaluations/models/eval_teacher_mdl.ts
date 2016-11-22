@@ -104,13 +104,14 @@ export class ReleveNote extends  Model implements IModel{
                             var _e = _.findWhere(_t, {id_devoir : devoir.id});
                             if (_e) {
                                 _e.oldValeur = _e.valeur;
+                                _e.oldAppreciation = _e.appreciation !== undefined ? _e.appreciation : '';
                                 _evals.push(_e);
                             }
                             else {
-                                _evals.push(new Evaluation({valeur:"", oldValeur : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
                             }
                         } else {
-                            _evals.push(new Evaluation({valeur:"", oldValeur : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                            _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
                         }
                     });
                     eleve.evaluations.load(_evals);
@@ -274,6 +275,7 @@ export class Eleve extends Model implements IModel{
     ramener_sur : boolean;
     competenceNotes : Collection<CompetenceNote>;
     oldValeur : any;
+    oldAppreciation : any;
 
     get api () {
         return {
@@ -430,6 +432,7 @@ export class Devoir extends Model implements IModel{
                             if (_e !== undefined) {
                                 _e.evaluation = new Evaluation(res[i]);
                                 _e.evaluation.oldValeur = _e.evaluation.valeur;
+                                _e.evaluation.oldAppreciation = _e.evaluation.appreciation !== undefined ? _e.evaluation.appreciation : '';
                                 delete _e.evaluations;
                             }
                         }

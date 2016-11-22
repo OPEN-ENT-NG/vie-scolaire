@@ -50,7 +50,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve ")
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, notes.appreciation ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("WHERE notes.id_devoir = ? " +
                         "AND notes.id_devoir = devoirs.id");

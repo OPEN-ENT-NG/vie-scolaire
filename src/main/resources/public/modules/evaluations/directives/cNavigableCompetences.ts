@@ -107,8 +107,8 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                                 moveTo = children[index - 1];
                             }
                         }
-                        break;
                     }
+                        break;
                     case keys.numbers.zero:
                     case keys.numbers.one:
                     case keys.numbers.two:
@@ -118,21 +118,20 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                     case keys.shiftNumbers.one:
                     case keys.shiftNumbers.two:
                     case keys.shiftNumbers.three:
-                    case keys.shiftNumbers.four:
-                    case keys.arrow.right:{
-                        if (!scope.isCompetence(input)) {
-                            if (input.selectionEnd == input.value.length) {
-                                if(index < children.length){
-                                    moveTo = children[index+1];
-                                }
-                            }
-                        } else {
-                            if(index < children.length){
-                                moveTo = children[index+1];
+                    case keys.shiftNumbers.four: {
+                        if (scope.isCompetence(input)) {
+                               if(index < children.length){
+                               moveTo = children[index+1];
                             }
                         }
-                        break;
                     }
+                        break;
+                    case keys.arrow.right:{
+                        if(index < children.length){
+                            moveTo = children[index+1];
+                        }
+                    }
+                        break;
                     case keys.arrow.up:
                     case keys.enter:
                     case keys.arrow.down:{
@@ -161,8 +160,8 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                                 moveTo = navigableCells[pos];
                             }
                         }
-                        break;
                     }
+                        break;
                 }
                 if (moveTo) {
                     event.preventDefault();

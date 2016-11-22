@@ -7,8 +7,8 @@ let moment = require('moment');
 declare let _:any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
-    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce',
-    function ($scope, route, $rootScope, $location, $filter, $sce) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile',
+    function ($scope, route, $rootScope, $location, $filter, $sce, $compile) {
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
@@ -133,7 +133,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             devoirs : {
                 list : [],
                 all : false
-            }
+            },
+            eleve : null
         };
         $scope.releveNote = undefined;
 
@@ -308,9 +309,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
-
-
-
+        /**
+         * Lance la séquence d'ouverture de l'ajout d'une appréciation pour un élève
+         * @param eleve élève
+         */
+        $scope.addAppreciation = function(eleve) {
+            template.open('lightboxContainer', '../templates/evaluations/enseignants/liste_notes_devoir/add_appreciation');
+            $scope.selected.eleve = eleve;
+            $scope.opened.lightbox = true;
+            utils.safeApply($scope);
+        };
 
         /**
          * Methode qui determine si un enseignement doit être affiché ou non
@@ -756,19 +764,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
-            if (evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur) {
+            if ((evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur)
+                || evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
                 if (evaluation.valeur !== "" &&  evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
                     var devoir = evaluations.devoirs.findWhere({id : evaluation.id_devoir});
                     if (devoir !== undefined) {
                         if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
                             evaluation.save().then(() => {
                                 evaluation.oldValeur = evaluation.valeur;
+                                evaluation.oldAppreciation = evaluation.appreciation;
                                 if ($location.$$path === '/releve') {
                                     $scope.calculerMoyenneEleve(eleve);
                                     $scope.calculStatsDevoirReleve(evaluation.id_devoir);
                                 } else {
                                     $scope.calculStatsDevoir();
                                 }
+                                $scope.opened.lightbox = false;
+                                delete $scope.selected.eleve;
                                 utils.safeApply($scope);
                             });
                         } else {
@@ -927,5 +939,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             });
         };
+
+        /**
+         * Highlight la compétence survolée
+         * @param id identifiant de la compétence
+         */
+        $scope.highlightCompetence = function (id, bool) {
+            var competence = $scope.currentDevoir.competences.findWhere({id_competence : id});
+            if (competence && competence !== undefined) {
+                competence.hovered = bool;
+            }
+            return;
+        }
     }
 ]);

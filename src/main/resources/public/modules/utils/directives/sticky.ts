@@ -1,5 +1,6 @@
 import { ng } from 'entcore/entcore';
 
+
 export let sticky = ng.directive('sticky', ['$window', '$timeout', function($window, $timeout) {
         return {
             restrict: 'A', // this directive can only be used as an attribute.
@@ -78,13 +79,13 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                  */
                 function initSticky() {
 
-                    if (shouldInitialize) {
-
                         // Listeners
                         scrollbarElement.on('scroll', checkIfShouldStick);
                         windowElement.on('resize', $onResize);
 
                         memorizeDimensions(); // remember sticky's layout dimensions
+
+                        checkIfShouldStick();
 
                         // Setup watcher on digest and change
                         $scope.$watch(onDigest, onChange);
@@ -92,7 +93,6 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                         // Clean up
                         $scope.$on('$destroy', onDestroy);
                         shouldInitialize = false;
-                    }
                 };
 
                 /**
@@ -557,7 +557,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                         marginTop: $elem.css('margin-top'),
                         marginBottom: $elem.css('margin-bottom'),
                         cssLeft: getCSS($elem, 'left'),
-                        width: $elem[0].offsetWidth,
+                        width: $elem[0].parentElement.offsetWidth,
                         height: $elem.css('height')
                     };
                 };
@@ -580,6 +580,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                     // Init the directive
                     initSticky();
                 },0);
+
             },
 
             /**

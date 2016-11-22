@@ -32,7 +32,7 @@
                         [[sousCompetence.nom]]
                     </div>
                     <div class="two inline-block align-center ">
-                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations|filter:isMaxEvaluation(sousCompetence.competencesEvaluations)"
+                        <span ng-repeat="evaluation in sousCompetence.competencesEvaluations|filter:isMaxEvaluation(sousCompetence.competencesEvaluations)|limitTo:1"
                               tabindex="0" class="competence-eval rounded"
                               ng-click="openDetailCompetence(sousCompetence)"
                               ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>

@@ -267,9 +267,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if(poCompetences !== undefined) {
                 for (var i = 0; i < poCompetences.all.length; i++) {
                     var currCompetence = poCompetences.all[i];
-                    $scope.competencesFilter[currCompetence.id] = {
-                        //isSelected : pbInitSelected,
-                        nomHtml :currCompetence.nom
+                    $scope.competencesFilter[currCompetence.id+"_"+currCompetence.id_enseignement] = {
+                        isSelected : false,
+                        nomHtml :currCompetence.nom,
+                        data : currCompetence
                     };
 
                     $scope.initFilterRec(currCompetence.competences, pbInitSelected);
@@ -393,12 +394,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                         var nomHtml = $scope.highlight(sousCompetence.nom, psKeyword);
                         // mise à jour que si la réelle valeur de la chaine html est différente ($sce.trustAsHtml renvoie systématiquement une valeur différente)
-                        if($sce.getTrustedHtml($scope.competencesFilter[sousCompetence.id].nomHtml) !== $sce.getTrustedHtml(nomHtml)) {
-                            $scope.competencesFilter[sousCompetence.id].nomHtml = nomHtml;
+                        if($sce.getTrustedHtml($scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml) !== $sce.getTrustedHtml(nomHtml)) {
+                            $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = nomHtml;
                         }
 
                     } else {
-                        $scope.competencesFilter[sousCompetence.id].nomHtml = sousCompetence.nom;
+                        $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = sousCompetence.nom;
                     }
 
                     // si elle match le mot clef on déplie également les parents
@@ -494,9 +495,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         // ie on doit ajouter/supprimer toutes les sous competences dans le recap
         $scope.$on('checkConnaissances', function(event, parentItem){
             parentItem.competences.each(function(e){
-                if(parentItem.selected === true) {
+                if($scope.competencesFilter[parentItem.id+"_"+parentItem.id_enseignement].isSelected === true) {
                     // check si on a pas deja ajoute pour eviter les doublons
-                    if(!_.contains(evaluations.competencesDevoir, e)) {
+                    var competence = _.findWhere(evaluations.competencesDevoir, {id : e.id});
+
+                    // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
+                    if(competence === undefined) {
+                    //if(!_.contains(evaluations.competencesDevoir, e)) {
                         evaluations.competencesDevoir.push(e);
                     }
                 } else {
@@ -508,9 +513,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         // on ecoute sur l'evenement checkParent
         // ie on doit ajouter la sous competence selectionnee dans le recap
         $scope.$on('checkParent', function(event, parentItem, item){
-            if(item.selected === true) {
+            if($scope.competencesFilter[item.id+"_"+item.id_enseignement].isSelected === true) {
                 // check si on a pas deja ajoute pour eviter les doublons
-                if(!_.contains(evaluations.competencesDevoir, item)) {
+                var competence = _.findWhere(evaluations.competencesDevoir, {id : item.id});
+
+                // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
+                if(competence === undefined) {
+                //if(!_.contains(evaluations.competencesDevoir, item)) {
                     evaluations.competencesDevoir.push(item);
                 }
             } else {
@@ -519,16 +528,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         });
 
         $scope.saveNewDevoir = function () {
-            /*evaluations.competencesDevoir = [];
-            for (var i = 0; i < $scope.devoir.enseignements.all.length; i++) {
-                for (var j = 0; j < $scope.devoir.enseignements.all[i].competences.all.length; j++) {
-                    $scope.devoir.enseignements.all[i].competences.all[j].findSelectedChildren();
-                }
-            }
-
-            $scope.devoir.competences = evaluations.competencesDevoir;
-             */
-
 
             // Pour la sauvegarde on ne recupere que les id des competences
             $scope.devoir.competences = [];

@@ -64,6 +64,57 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             };
 
             $scope.toggleCheckbox = function(item, parentItem){
+
+                $scope.emitToggleCheckbox(item, parentItem);
+                var items = document.getElementsByClassName("competence_"+item.id);
+
+                if(items != null && items !== undefined) {
+                    for (var i = 0; i < items.length; i++) {
+
+                        var sIdCompetence = items[i].getAttribute("id");
+
+                        // on coche également les compétences similaires à item qui sont dans d'autres enseignements
+                        if($scope.competencesFilter[item.id+"_"+item.id_enseignement].isSelected !== $scope.competencesFilter[sIdCompetence].isSelected) {
+
+                            var competenceSimilaire = $scope.competencesFilter[sIdCompetence];
+
+                            // simulation click
+                            competenceSimilaire.isSelected = $scope.competencesFilter[item.id+"_"+item.id_enseignement].isSelected;
+
+                            // appel de lamethode toggleCheckBox pour cocher les éventuelles sous competences et le parent
+                            //$scope.toggleCheckbox(competenceSimilaire.data, competenceSimilaire.data.composer)
+
+
+                            // si la competence a des sous competences
+                            if(item.competences != undefined && item.competences.all.length > 0){
+
+
+                                if(competenceSimilaire.data.competences != undefined && competenceSimilaire.data.competences.all.length) {
+
+                                    // on coche toutes ces sous competences dans l'arbre de la competence similaire
+                                    competenceSimilaire.data.competences.each(function (sousCompSimilaire) {
+
+                                        // on ne coche QUE ces sous competences par les autres s'il y en a
+                                        // car l'arbre de la competence similaire peut potentiellement contenir d'autres sous compétences
+                                        var bSousCompetenceSimilaireInSousCompetenceOriginal =
+                                            _.findWhere(item.competences.all, {id: sousCompSimilaire.id}) !== undefined;
+
+                                        if (bSousCompetenceSimilaireInSousCompetenceOriginal) {
+                                            $scope.competencesFilter[sousCompSimilaire.id + "_" + sousCompSimilaire.id_enseignement].isSelected = competenceSimilaire.isSelected;
+                                        }
+                                    });
+                                }
+                            } else {
+                                $scope.$emit('checkParent', competenceSimilaire.data.composer, competenceSimilaire.data);
+                            }
+
+
+                        }
+                    }
+                }
+            };
+
+            $scope.emitToggleCheckbox = function(item, parentItem){
                 if(item.competences !== undefined && item.competences.all.length > 0){
                     $scope.$emit('checkConnaissances', item);
                 }else{
@@ -72,12 +123,14 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             };
 
             $scope.$on('checkConnaissances', function(event, parentItem){
-                return (parentItem.competences.each(function(e){e.selected = parentItem.selected;}));
+                return (parentItem.competences.each(function(e){
+                    $scope.competencesFilter[e.id+"_"+e.id_enseignement].isSelected = $scope.competencesFilter[parentItem.id+"_"+parentItem.id_enseignement].isSelected;
+                }));
             });
 
             // item pas utilise ici mais utilise dans la creation d'un devoir
             $scope.$on('checkParent', function(event, parentItem, item){
-                return (parentItem.selected = parentItem.competences.every(function(e){ return e.selected === true; }));
+                return ($scope.competencesFilter[parentItem.id+"_"+parentItem.id_enseignement].isSelected = parentItem.competences.every(function(e){ return $scope.competencesFilter[e.id+"_"+e.id_enseignement].isSelected === true; }));
             });
 
         }]

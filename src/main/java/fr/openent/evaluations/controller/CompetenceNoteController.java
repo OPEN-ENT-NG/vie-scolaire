@@ -253,7 +253,7 @@ public class CompetenceNoteController extends ControllerHelper {
                 oIdsJsonArray.addNumber(Long.parseLong(ids.get(i)));
             }
         } catch(NumberFormatException e) {
-            log.error("Error : id must be a long object");
+            log.error("Error : id must be a long object", e);
             badRequest(request);
         }
 

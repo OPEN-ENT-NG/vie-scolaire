@@ -103,20 +103,22 @@ public class EnseignementController extends ControllerHelper {
                                             // Je boucle sur mes enseignements
                                             for (int i = 0; i < enseignements.size(); i++) {
                                                 JsonObject enseignement = enseignements.get(i);
-                                                Integer id = enseignement.getInteger("id");
+                                                Integer idEnseignement = enseignement.getInteger("id");
                                                 JsonArray enseignement_competences_l1 = new JsonArray();
                                                 // Je boucle sur les competences de niveau 1
                                                 for (int j = 0; j < _competences_1.size(); j++) {
                                                     JsonObject _competence_1 = _competences_1.get(j);
                                                     // Si la compétence est dans l'enseignement
-                                                    if (_competence_1.getInteger("id_enseignement") == id) {
+                                                    if (_competence_1.getInteger("id_enseignement") == idEnseignement) {
                                                         Integer _competence_1_id = _competence_1.getInteger("id");
                                                         JsonArray _competence_1_competences_l2 = new JsonArray();
                                                         // Je boucle dans les competences de niveau 2
                                                         for (int g = 0; g < _competences_2.size(); g++) {
                                                             JsonObject _competence_2 = _competences_2.get(g);
                                                             // Si la competence de niveau 2 est dans la competence de niveau 1
-                                                            if (_competence_2.getInteger("id_parent") == _competence_1_id) {
+                                                            // ET qu'elle fait parti du même enseignement alors on la récupère
+                                                            if ( (_competence_2.getInteger("id_parent") == _competence_1_id) &&
+                                                                    _competence_2.getInteger("id_enseignement") == idEnseignement ) {
                                                                 // J'ajoute la compétence de niveau 2 dans la liste de compétences de la compétence de niveau 1
                                                                 _competence_1_competences_l2.addObject(_competence_2);
                                                             }

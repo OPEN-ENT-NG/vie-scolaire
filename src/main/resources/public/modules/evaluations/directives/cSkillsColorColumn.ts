@@ -40,6 +40,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
                         }
                     }
                     $scope.devoir.saveCompetencesNotes(_data);
+                    competenceHeader.modified = false;
                 }
             };
 

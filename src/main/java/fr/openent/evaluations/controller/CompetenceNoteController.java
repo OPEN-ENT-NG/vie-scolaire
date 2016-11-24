@@ -91,7 +91,7 @@ public class CompetenceNoteController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_COMPETENCE_NOTE_CREATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-                            competencesNotesService.create(resource, user, notEmptyResponseHandler(request));
+                            competencesNotesService.createCompetenceNote(resource, user, notEmptyResponseHandler(request));
                         }
                     });
                 }else {
@@ -119,7 +119,7 @@ public class CompetenceNoteController extends ControllerHelper {
                         @Override
                         public void handle(JsonObject resource) {
                             Integer id = resource.getInteger("id");
-                            competencesNotesService.update(String.valueOf(id), resource, notEmptyResponseHandler(request));
+                            competencesNotesService.updateCompetenceNote(String.valueOf(id), resource, user, notEmptyResponseHandler(request));
                         }
                     });
                 }else {

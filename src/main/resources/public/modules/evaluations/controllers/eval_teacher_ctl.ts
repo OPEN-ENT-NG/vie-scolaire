@@ -7,8 +7,8 @@ let moment = require('moment');
 declare let _:any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
-    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile',
-    function ($scope, route, $rootScope, $location, $filter, $sce, $compile) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout',
+    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout) {
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
@@ -559,6 +559,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 evaluations.competencesDevoir = _.reject(evaluations.competencesDevoir, function(comp){ return comp.id === item.id; });
             }
         });
+
+        // create the timer variable
+        var timer;
+
+        // mouseenter event
+        $scope.showIt = function (item) {
+            timer = $timeout(function () {
+                item.hoveringRecap = true;
+            }, 350);
+        };
+
+        // mouseleave event
+        $scope.hideIt = function (item) {
+            $timeout.cancel(timer);
+            item.hoveringRecap = false;
+        };
 
         /**
          *  Sauvegarde du devoir à la suite du formulaire de création

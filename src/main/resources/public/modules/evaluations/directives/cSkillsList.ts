@@ -16,7 +16,7 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             search: '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsList.html",
-        controller : ['$scope', '$sce', function($scope, $sce){
+        controller : ['$scope', '$sce','$timeout', function($scope, $sce, $timeout){
 
             $scope.initCheckBox = function(item, parentItem){
 
@@ -132,6 +132,26 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             $scope.$on('checkParent', function(event, parentItem, item){
                 return ($scope.competencesFilter[parentItem.id+"_"+parentItem.id_enseignement].isSelected = parentItem.competences.every(function(e){ return $scope.competencesFilter[e.id+"_"+e.id_enseignement].isSelected === true; }));
             });
+
+
+            // start with the div hidden
+            $scope.hovering = false;
+
+            // create the timer variable
+            var timer;
+
+            // mouseenter event
+            $scope.showIt = function (item) {
+                timer = $timeout(function () {
+                    item.hovering = true;
+                }, 350);
+            };
+
+            // mouseleave event
+            $scope.hideIt = function (item) {
+                $timeout.cancel(timer);
+                item.hovering = false;
+            };
 
         }]
     };

@@ -48,6 +48,15 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     @Override
     public void createCompetenceNote(JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
         super.create(competenceNote, user, handler);
+        /*StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+            query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
+            values.addNumber(competenceNote.getNumber("id_devoir"))
+                    .addNumber(competenceNote.getNumber("id_competence"))
+                    .addNumber(competenceNote.getNumber("evaluation"))
+                    .add(user.getUserId())
+                    .add(competenceNote.getString("id_eleve"));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validRowsResultHandler(handler));*/
     }
 
     @Override

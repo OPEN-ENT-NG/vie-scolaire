@@ -177,12 +177,14 @@
 
     </div>
 
+    <input class="button-add-devoir button-fixed-top-right" type="button" ng-click="saveNewDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
 
 
     <!-- PARTIE RECAPITULATIF -->
-    <div class="four cell">
+    <div class="four cell fixed-top-right">
         <div class="pannel-in-cell">
-            <h2>Récapitulatif</h2>
+            <h2 class="eight cell">Récapitulatif</h2>
+
             <div class="devoir-recapitulatif">
 
                 <!-- Titre devoir-->
@@ -253,8 +255,11 @@
                     <ul class="twelve devoir-skills-list">
                         <li ng-repeat="itemCompetence in evaluations.competencesDevoir" class="skills-connaissance">
                             <label class="skills-label">
-                                <span class="skill-connaissance-eye fa fa-eye"></span>
-                                <span class="ten skills-list-connaissance skills-text-overflow italic" title="Connaissance">
+                                <!--<span class="skill-connaissance-eye fa fa-eye"></span>-->
+                                <span ng-class="{whiteSpaceNormal : itemCompetence.hoveringRecap}"
+                                      ng-mouseenter="showIt(itemCompetence)"
+                                      ng-mouseleave="hideIt(itemCompetence)"
+                                      class="eleven skills-list-connaissance skills-text-overflow italic" title="Connaissance">
                                     [[itemCompetence.nom]]
                                 </span>
                             </label>

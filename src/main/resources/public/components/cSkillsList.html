@@ -27,7 +27,7 @@
                     <input id="[[competence.id]]_[[competence.id_enseignement]]" class="competence_[[competence.id]]" type="checkbox" ng-model="competencesFilter[competence.id+'_'+competence.id_enseignement].isSelected" ng-click="toggleCheckbox(competence, $parent.enseignement); doNotApplySearchFilter();">
                     <span></span>
                 </label>
-                <span ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Compétence" class="skills-text-overflow" ng-bind-html="competencesFilter[competence.id+'_'+competence.id_enseignement].nomHtml">
+                <span ng-class="{whiteSpaceNormal : competence.hovering}" ng-mouseenter="showIt(competence)" ng-mouseleave="hideIt(competence)" ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Compétence" class="skills-text-overflow" ng-bind-html="competencesFilter[competence.id+'_'+competence.id_enseignement].nomHtml">
                 </span>
                 <ul class="twelve">
                     <li ng-repeat="sousCompetence in competence.competences.all" ng-init="initCheckBox(sousCompetence, $parent.$parent)" class="skills-connaissance">

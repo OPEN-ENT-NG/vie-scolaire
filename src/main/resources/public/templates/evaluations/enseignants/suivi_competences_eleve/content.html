@@ -27,14 +27,13 @@
                 <div >
                     <h5>[[competence.nom]]</h5>
                 </div>
-                <div class="suivi-eleve-item" ng-repeat="sousCompetence in competence.competences.all">
+                <div class="suivi-eleve-item" ng-click="openDetailCompetence(sousCompetence)" ng-repeat="sousCompetence in competence.competences.all">
                     <div class="six inline-block ellipsis">
                         [[sousCompetence.nom]]
                     </div>
                     <div class="two inline-block align-center ">
                         <span ng-repeat="evaluation in sousCompetence.competencesEvaluations|filter:isMaxEvaluation(sousCompetence.competencesEvaluations)|limitTo:1"
                               tabindex="0" class="competence-eval rounded"
-                              ng-click="openDetailCompetence(sousCompetence)"
                               ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
                         <span class="competence-eval rounded grey" ng-if="sousCompetence.competencesEvaluations.length < 1 || notEvalutationOwner(sousCompetence.competencesEvaluations)"></span>
                     </div>

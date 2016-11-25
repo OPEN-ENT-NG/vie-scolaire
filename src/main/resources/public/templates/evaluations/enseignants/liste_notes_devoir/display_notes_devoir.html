@@ -18,6 +18,9 @@
   -->
 <div class="row">
     <div class="twelve cell">
+
+        <input class="right button-edit-devoir" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
+
         <header class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
                 <c-skills-color-page devoir="currentDevoir" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
@@ -143,14 +146,14 @@
                 </div>
             </div>
         </section>
-        <aside class="two cell card" ng-if="currentDevoir.competences.all.length > 0">
+        <aside class="two cell card recap-liste-competence-container" ng-if="currentDevoir.competences.all.length > 0">
             <ul class="recap-liste-competence">
                 <li class="competence" ng-class="{highlighted : competence.hovered}" ng-repeat="competence in currentDevoir.competences.all">[[competence.nom]]</li>
             </ul>
         </aside>
     </div>
 </div>
-<section class="toggle-buttons">
+<!--<section class="toggle-buttons">
     <div class="toggle">
         <div class="row">
             <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
@@ -164,4 +167,4 @@
             </button>
         </div>
     </div>
-</section>
+</section>-->

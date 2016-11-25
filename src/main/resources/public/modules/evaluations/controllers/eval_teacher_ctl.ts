@@ -81,6 +81,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             displaySuiviCompetencesEleve : function (params) {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
                 $scope.informations.eleve = null;
+                $scope.sortType     = 'title'; // set the default sort type
+                $scope.sortReverse  = false;  // set the default sort order
             }
         });
 
@@ -512,7 +514,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.id_matiere = $scope.search.matiere.id;
                 $scope.setClasseMatieres();
                 $scope.selectedMatiere();
+            } else {
+                // selection de la premiere classe par defaut
+                $scope.devoir.id_classe = $scope.classes.all[0].id;
+                // selection de la premiere matière associée à la classe
+                $scope.setClasseMatieres();
             }
+
             if ($location.path() === "/devoirs/list"){
                 $scope.devoir.id_type = $scope.search.type.id;
                 $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
@@ -629,6 +637,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.setClasseMatieres = function () {
             getClassesMatieres($scope.devoir.id_classe).then((matieres) => {
+                $scope.devoir.matieresByClasse = matieres;
                 if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.id_matiere = $scope.devoir.matieresByClasse[0].id;
                 $scope.selectedMatiere();
             });

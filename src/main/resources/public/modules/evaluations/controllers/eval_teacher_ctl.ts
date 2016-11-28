@@ -170,7 +170,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 id_etat           : 1,
                 owner            : model.me.userId,
                 matieresByClasse : [],
-                controlledDate   : true
+                controlledDate   : true,
+                isNoted         : true
             });
         };
 

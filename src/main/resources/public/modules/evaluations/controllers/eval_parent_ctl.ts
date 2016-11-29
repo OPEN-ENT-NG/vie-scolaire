@@ -21,8 +21,8 @@
  * Created by ledunoiss on 08/08/2016.
  */
 
-import { model, notify, http, IModel, Model, Collection, BaseModel, idiom as lang, ng, template } from 'entcore/entcore';
-import {evaluations, Periode, Evaluations, Devoir, Eleve, Matiere} from '../models/eval_parent_mdl';
+import { model, ng, template } from 'entcore/entcore';
+import {evaluations} from '../models/eval_parent_mdl';
 
 let moment = require('moment');
 

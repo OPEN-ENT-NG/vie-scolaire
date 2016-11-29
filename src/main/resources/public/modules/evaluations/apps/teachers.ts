@@ -1,8 +1,7 @@
 /**
  * Created by ledunoiss on 12/09/2016.
  */
-import { model, routes, notify, http, IModel, Model, Collection, BaseModel, idiom as lang, ng, template } from 'entcore/entcore';
-import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluation, Evaluations, Competence, CompetenceNote, evaluations, Matiere, Periode, ReleveNote, Structure, Type, SousMatiere} from '../models/eval_teacher_mdl';
+import {routes, ng} from 'entcore/entcore';
 
 //CONTROLLERS
 import {evaluationsController} from '../controllers/eval_teacher_ctl';

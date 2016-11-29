@@ -3,7 +3,7 @@
  */
 
 import {ng, template } from 'entcore/entcore';
-import {SuiviCompetence, CompetenceNote} from '../models/eval_teacher_mdl';
+import {SuiviCompetence} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;

@@ -1,5 +1,5 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel, idiom as lang, ng, template } from 'entcore/entcore';
-import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluation, Evaluations, Competence, CompetenceNote, evaluations, Matiere, Periode, ReleveNote, Structure, Type, SousMatiere} from '../models/eval_teacher_mdl';
+import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
+import {Devoir, Evaluation, evaluations, ReleveNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');

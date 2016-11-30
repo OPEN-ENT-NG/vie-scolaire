@@ -19,7 +19,7 @@
 <div class="row">
     <div class="twelve cell">
 
-        <input ng-class="{button-edit-devoir : currentDevoir.competences.all.length > 0}" class="right" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
+        <input ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}" class="right" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
 
         <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>

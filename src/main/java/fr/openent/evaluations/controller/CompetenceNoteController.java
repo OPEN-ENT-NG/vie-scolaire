@@ -182,23 +182,20 @@ public class CompetenceNoteController extends ControllerHelper {
     public void getCompetenceNoteEleve (final HttpServerRequest request) {
         if (request.params().contains("idEleve")) {
             String idEleve = request.params().get("idEleve");
-            String idPeriode;
+            Long idPeriode;
             if (request.params().contains("idPeriode")) {
-                idPeriode = request.params().get("idPeriode");
+                try {
+                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                } catch (NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object", e);
+                    badRequest(request, e.getMessage());
+                    return;
+                }
             } else {
                 idPeriode = null;
             }
 
-            Long lIdPeriode;
-            try {
-                lIdPeriode = Long.parseLong(idPeriode);
-            } catch(NumberFormatException e) {
-                log.error("Error : idPeriode must be a long object", e);
-                badRequest(request, e.getMessage());
-                return;
-            }
-
-            competencesNotesService.getCompetencesNotesEleve(idEleve, lIdPeriode, arrayResponseHandler(request));
+            competencesNotesService.getCompetencesNotesEleve(idEleve, idPeriode, arrayResponseHandler(request));
         } else {
             Renders.badRequest(request, "Invalid parameters");
         }

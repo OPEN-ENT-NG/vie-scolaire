@@ -144,8 +144,8 @@
                                     </div>
                                     <div  ng-if="currentDevoir.competences.all.length > 7" class="cell cell-input add-appreciation" >
                                         <!--<i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="addAppreciation(eleve)"></i>-->
-                                        <i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
-
+                                        <i ng-if="eleve.evaluation.appreciation !== undefined && eleve.evaluation.appreciation.trim() !== ''" class="appreciation icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.edit')]]" ng-click="expandAppreciation($index, true)"></i>
+                                        <i ng-if="eleve.evaluation.appreciation === undefined || eleve.evaluation.appreciation.trim() === ''" class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
                                     </div>
                                     <div ng-class="{eight : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
                                          class="cell cell-input navigable-cell eight" ng-if="currentDevoir.competences.all.length < 8">
@@ -154,7 +154,7 @@
 
                                     <div ng-if="openedEleve === $index" class="navigable-row twelve ng-scope">
                                         <div class="twelve cell" style="padding: 0 15px;margin: 5px 0;">
-                                            <input placeholder="Saisissez votre appréciation" type="text" class="twelve cell input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)"
+                                            <input placeholder="[[translate('viescolaire.utils.appreciation.add')]]" type="text" class="twelve cell input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)"
                                                    style="font-style: oblique;">
                                         </div>
                                     </div>

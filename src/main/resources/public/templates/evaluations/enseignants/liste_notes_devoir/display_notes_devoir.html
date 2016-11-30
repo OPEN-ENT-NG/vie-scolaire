@@ -152,7 +152,7 @@
                                         <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
                                     </div>
 
-                                    <div ng-if="openedEleve === $index" class="navigable-row twelve ng-scope">
+                                    <div ng-if="openedEleve === $index && currentDevoir.competences.all.length > 7" class="navigable-row twelve ng-scope">
                                         <div class="twelve cell" style="padding: 0 15px;margin: 5px 0;">
                                             <input placeholder="[[translate('viescolaire.utils.appreciation.add')]]" type="text" class="twelve cell input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)"
                                                    style="font-style: oblique;">

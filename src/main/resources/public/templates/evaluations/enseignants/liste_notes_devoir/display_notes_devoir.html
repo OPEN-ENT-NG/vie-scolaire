@@ -136,7 +136,7 @@
                                     <div class="cell cell-input one add-appreciation" ng-if="currentDevoir.competences.all.length > 0">
                                         <i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="addAppreciation(eleve)"></i>
                                     </div>
-                                    <div class="cell cell-input navigable-cell eight" ng-if="currentDevoir.competences.all.length === 0">
+                                    <div class="cell cell-input eight" ng-if="currentDevoir.competences.all.length === 0">
                                         <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
                                     </div>
                                 </div>

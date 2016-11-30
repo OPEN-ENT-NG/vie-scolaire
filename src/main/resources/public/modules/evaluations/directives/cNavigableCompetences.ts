@@ -127,8 +127,18 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                     }
                         break;
                     case keys.arrow.right:{
-                        if(index < children.length){
+                        if((index +1) < children.length){
                             moveTo = children[index+1];
+                        } else {
+                            var tr = scope.findAncestor(td, 'navigable-row');
+                            var pos = scope.findIndex(td, children);
+                            var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                            var trIndex = scope.findIndex(tr, expandChildren);
+                            var moveToRow = expandChildren[trIndex+1];
+                            if (moveToRow !== null) {
+                                var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                moveTo = navigableCells[0];
+                            }
                         }
                     }
                         break;

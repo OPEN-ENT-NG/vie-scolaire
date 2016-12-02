@@ -30,17 +30,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.selectEleve = function () {
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
-                var s = $scope.informations.eleve.suiviCompetences.findWhere({periode : $scope.search.periode});
-                if (s === undefined) {
-                    $scope.suiviCompetence = new SuiviCompetence($scope.enseignements, $scope.search.eleve, $scope.search.periode);
-                    $scope.suiviCompetence.sync().then(() => {
-                        $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
-                        utils.safeApply($scope);
-                    });
-                } else {
-                    $scope.suiviCompetence = s;
+                $scope.suiviCompetence = new SuiviCompetence($scope.enseignements, $scope.search.eleve, $scope.search.periode);
+                $scope.suiviCompetence.sync().then(() => {
+                    $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
+                    if ($scope.opened.detailCompetenceSuivi) {
+                        $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
+                        if (!$scope.detailCompetence) $scope.backToSuivi();
+                    }
                     utils.safeApply($scope);
-                }
+                });
             }
         };
 
@@ -85,8 +83,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
 
         /*
-            Listener sur le template suivi-competence-detail permettant la transition entre la vue détail
-            et la vue globale
+         Listener sur le template suivi-competence-detail permettant la transition entre la vue détail
+         et la vue globale
          */
         template.watch("suivi-competence-detail", function () {
             if (!$scope.opened.detailCompetenceSuivi) {
@@ -113,7 +111,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         /**
-         * Retourne
+         * Retourne si l'utilisateur est le propriétaire de l'évaluation
          * @param evaluation Evaluation à afficher
          * @returns {boolean} Retourne true si l'utilisateur est le propriétaire de l'évaluation
          */
@@ -122,6 +120,30 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 return true;
             }
             return evaluation.owner === $scope.me.userId;
-        }
+        };
+
+        /**
+         * Recherche l'index de l'objet dans le tableau
+         * @param array tableau d'objets
+         * @param obj objet
+         * @returns {number} index de l'objet
+         */
+        var searchIndex = function (array, obj) {
+            return _.indexOf(array, obj);
+        };
+
+        /**
+         * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index
+         * @param num pas d'incrémentation. Peut être positif ou négatif
+         */
+        $scope.incrementEleve = function (num) {
+            var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
+            if (index !== -1 && (index + parseInt(num)) >= 0
+                && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
+                $scope.search.eleve = $scope.search.classe.eleves.all[index + parseInt(num)];
+                $scope.selectEleve();
+                utils.safeApply($scope);
+            }
+        };
     }
 ]);

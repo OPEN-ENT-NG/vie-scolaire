@@ -15,9 +15,13 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             currentDevoir   : '=',
             disabled : '=?',
             focus : '=',
-            blur : '='
+            blur : '=',
+            indexRow:'=',
+            indexColumn:'=',
+            eleve:'=',
+            getEleveInfo:'='
         },
-        template : '<span ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true)" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
+        template : '<span autofocus ng-if="indexRow === 0 && indexColumn ===0 && !currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span> <span ng-if="indexRow !== 0 || indexColumn !==0 || currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
         controller : ['$scope', function($scope){
             $scope.color = -1;
             $scope.modified = false;

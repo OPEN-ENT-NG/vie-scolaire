@@ -30,6 +30,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             },
             viewNotesDevoir : function(params){
+                window.scrollTo(0, 0);
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
                     utils.safeApply($scope);

@@ -19,7 +19,7 @@
 <div class="row">
     <div class="twelve cell">
 
-        <input ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}" class="right" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
+        <input ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}" class="right" type="button" onclick="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
 
         <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
@@ -127,7 +127,12 @@
                                         <div ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="two cell cell-input">
 
                                             <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="six" type="text" ng-model="eleve.evaluation.valeur"
-                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0">
+                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0 && currentDevoir.is_evaluated">
+
+                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="six" type="text" ng-model="eleve.evaluation.valeur"
+                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index === 0 && !currentDevoir.is_evaluated">
+
+
                                             <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="six" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
                                         </div>
@@ -138,13 +143,19 @@
                                             <ul class="skills-eleve-list">
                                                 <li ng-mouseenter="highlightCompetence(competence.id_competence, true)"
                                                     ng-mouseleave="highlightCompetence(competence.id_competence, false)"
-                                                    class="navigable-cell competences-cell" ng-repeat="competence in eleve.evaluation.competenceNotes.all">
+                                                    class="navigable-cell competences-cell"
+                                                    ng-repeat="competence in eleve.evaluation.competenceNotes.all">
                                                     <c-skill-note-devoir focus="highlightCompetence"
+                                                                         get-eleve-info="getEleveInfo",
+                                                                         eleve="eleve",
                                                                          blur="highlightCompetence"
                                                                          current-devoir="currentDevoir"
                                                                          nb-eleve="currentDevoir.eleves.all.length"
                                                                          nb-competences-devoir="currentDevoir.competences.all.length"
-                                                                         competence="competence"></c-skill-note-devoir>
+                                                                         competence="competence"
+                                                                         index-row="$parent.$index"
+                                                                         index-column="$index"
+                                                    ></c-skill-note-devoir>
                                                 </li>
                                             </ul>
                                         </div>

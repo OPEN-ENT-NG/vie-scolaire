@@ -1027,6 +1027,16 @@ export class SuiviCompetence extends Model implements IModel{
         });
     }
 
+    findCompetence (idCompetence) {
+        for (var i = 0; i < this.enseignements.all.length; i++) {
+            for (var y = 0; y < this.enseignements.all[i].competences.all.length; y++) {
+                var c = this.enseignements.all[i].competences.all[y].competences.findWhere({id : idCompetence});
+                if (c !== undefined) return c;
+                else return false;
+            }
+        }
+    }
+
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
             this.enseignements.sync().then(() => {

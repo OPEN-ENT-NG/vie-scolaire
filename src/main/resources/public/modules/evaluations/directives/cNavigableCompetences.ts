@@ -76,7 +76,7 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                 return $(cell).find('.competence-eval')[0];
             };
 
-            element.bind('keyup', function(event){
+            element.bind('keydown', function(event){
                 var keys = {
                     enter : 13,
                     arrow : {left: 37, up: 38, right: 39, down: 40},
@@ -96,15 +96,46 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                 var moveTo = null;
                 switch(key){
                     case keys.arrow.left:{
+                        var moveToRow = null;
+
+                        // si champs de type input
                         if (!scope.isCompetence(input)) {
+
+                            // si on est en debut de champs au passe au champs précédent
                             if (input.selectionStart === 0) {
+                                // si on est pas en debut de ligne, on passe à la cellule précédente
                                 if (index > 0) {
                                     moveTo = children[index - 1];
+                                } else {
+                                    // sinon on est en debut de ligne, on doit remonter au dernier element de la ligne précédente
+                                    var tr = scope.findAncestor(td, 'navigable-row');
+                                    var pos = scope.findIndex(td, children);
+                                    var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                                    var trIndex = scope.findIndex(tr, expandChildren);
+                                    var moveToRow = expandChildren[trIndex-1];
+                                    if (moveToRow !== null) {
+                                        var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                        moveTo = navigableCells[navigableCells.length-1];
+                                    }
                                 }
                             }
                         } else {
+                            // si on est pas en debut de ligne, on passe à la cellule précédente
                             if (index > 0) {
                                 moveTo = children[index - 1];
+
+                            // sinon on est en debut de ligne, on doit remonter au dernier element de la ligne précédente
+                            } else {
+                                // si on est en debut de ligne, on doit remonter au dernier element de la ligne précédente
+                                var tr = scope.findAncestor(td, 'navigable-row');
+                                var pos = scope.findIndex(td, children);
+                                var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                                var trIndex = scope.findIndex(tr, expandChildren);
+                                var moveToRow = expandChildren[trIndex-1];
+                                if (moveToRow !== null) {
+                                    var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                    moveTo = navigableCells[navigableCells.length-1];
+                                }
                             }
                         }
                     }
@@ -120,25 +151,65 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                     case keys.shiftNumbers.three:
                     case keys.shiftNumbers.four: {
                         if (scope.isCompetence(input)) {
-                               if(index < children.length){
-                               moveTo = children[index+1];
+                            // si pas en fin de ligne on passe à la cellule suivante
+                            if((index +1) < children.length) {
+                                moveTo = children[index + 1];
+
+                                // sinon on passe à la ligne suivante
+                            } else {
+                                var tr = scope.findAncestor(td, 'navigable-row');
+                                var pos = scope.findIndex(td, children);
+                                var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                                var trIndex = scope.findIndex(tr, expandChildren);
+                                var moveToRow = expandChildren[trIndex + 1];
+                                if (moveToRow !== null) {
+                                    var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                    moveTo = navigableCells[0];
+                                }
                             }
                         }
                     }
                         break;
                     case keys.arrow.right:{
-                        if((index +1) < children.length){
-                            moveTo = children[index+1];
+                        // si champs de type input
+                        if (!scope.isCompetence(input)) {
+                                // seulement si on est a la fin de l 'input text on passe au champ suivant
+                                if (input.selectionStart === input.value.length) {
+
+                                    // si pas en fin de ligne on passe à la cellule suivante
+                                    if((index +1) < children.length) {
+                                        moveTo = children[index + 1];
+
+                                        // sinon on passe à la ligne suivante
+                                    } else {
+                                        var tr = scope.findAncestor(td, 'navigable-row');
+                                        var pos = scope.findIndex(td, children);
+                                        var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                                        var trIndex = scope.findIndex(tr, expandChildren);
+                                        var moveToRow = expandChildren[trIndex + 1];
+                                        if (moveToRow !== null) {
+                                            var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                            moveTo = navigableCells[0];
+                                        }
+                                    }
+                                }
                         } else {
-                            var tr = scope.findAncestor(td, 'navigable-row');
-                            var pos = scope.findIndex(td, children);
-                            var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
-                            var trIndex = scope.findIndex(tr, expandChildren);
-                            var moveToRow = expandChildren[trIndex+1];
-                            if (moveToRow !== null) {
-                                var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
-                                moveTo = navigableCells[0];
-                            }
+                            // si pas en fin de ligne on passe à la cellule suivante
+                            if((index +1) < children.length) {
+                                moveTo = children[index + 1];
+
+                            // sinon on passe à la ligne suivante
+                            } else {
+                                    var tr = scope.findAncestor(td, 'navigable-row');
+                                    var pos = scope.findIndex(td, children);
+                                    var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
+                                    var trIndex = scope.findIndex(tr, expandChildren);
+                                    var moveToRow = expandChildren[trIndex + 1];
+                                    if (moveToRow !== null) {
+                                        var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                                        moveTo = navigableCells[0];
+                                    }
+                                }
                         }
                     }
                         break;
@@ -167,7 +238,26 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                                 for(var i = 0 ; i < navigableCells.length; i++){
                                     targets.push(scope.findInput(navigableCells[i]));
                                 }
-                                moveTo = navigableCells[pos];
+
+                                // s'il l'on essaie de remonter/descendre sur une ligne avec plus ou moins de cellules
+                                // alors on effectue un traitement particulier
+                                if(children.length  !== navigableCells.length) {
+                                    // si la ligne n'a qu'un cellule on se positionne sur celle ci
+                                    if(navigableCells.length === 1) {
+                                        moveTo = navigableCells[0];
+                                    } else {
+                                        // sinon on se positionne sur la dernière si l'on remonte
+                                        if (key == keys.arrow.up) {
+                                            moveTo = navigableCells[navigableCells.length - 1];
+                                        } else {
+                                            // la première si l'on descends
+                                            moveTo = navigableCells[0];
+                                        }
+                                    }
+                                } else {
+                                    moveTo = navigableCells[pos];
+                                }
+
                             }
                         }
                     }
@@ -180,6 +270,8 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                     } else {
                         input = scope.findInput(moveTo);
                     }
+
+                    input.classList.remove("display-none");
                     input.focus();
                     if (!scope.isCompetenceCell(moveTo)) {
                         input.select();

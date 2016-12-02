@@ -870,6 +870,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param bool état du détail
          */
         $scope.expandAppreciation = function(index, bool){
+
             if($scope.openedEleve !== index){
                 $scope.openedEleve = index;
             }else{

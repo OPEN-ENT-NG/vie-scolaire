@@ -162,6 +162,7 @@
   "viescolaire.utils.criterion":"Vos critères",
   "viescolaire.utils.appreciation":"Appréciation",
   "viescolaire.utils.appreciation.add" : "Ajouter une appréciation",
+  "viescolaire.utils.appreciation.edit" : "Modifier l'appréciation",
   "viescolaire.utils.appreciation.add.student" : "Ajouter une appréciation pour",
   "evaluations.utils.test.type":"Type d'évaluation",
   "viescolaire.utils.stats":"Statistiques",

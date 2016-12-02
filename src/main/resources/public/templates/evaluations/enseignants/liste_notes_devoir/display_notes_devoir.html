@@ -19,9 +19,9 @@
 <div class="row">
     <div class="twelve cell">
 
-        <input class="right button-edit-devoir" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
+        <input ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}" class="right" type="button" ng-click="alert('Fonctionnalité bientôt disponible')" i18n-value="evaluations.test.edit">
 
-        <header class="header-releve header-notes twelve">
+        <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
                 <c-skills-color-page devoir="currentDevoir" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
             </h2>
@@ -77,67 +77,102 @@
             </div>
         </aside>
         <section class="cell" ng-class="{eight : currentDevoir.competences.all.length > 0, ten : currentDevoir.competences.all.length === 0}">
-            <div class="eleven aligned-center card">
-                <div class="marginFive">
+            <div class="marginFive">
+                <div class="card">
                     <content class="block row">
                         <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
                             <div class="two inline-block cell-indent left">
                                 <i18n>viescolaire.utils.student</i18n>
                             </div>
-                            <div class="two inline-block cell-indent left">
+                            <div ng-if="!currentDevoir.is_evaluated" class="header-grade-disable two inline-block cell-indent left" tooltip="L'évaluation numérique est désactivée">
                                 <i18n>evaluations.grade</i18n>
                             </div>
-                            <div class="seven inline-block cell-indent competence-text-overflow left" ng-if="currentDevoir.competences.all.length > 0">
-                                <i18n>evaluations.test.competences</i18n>
+                            <div ng-if="currentDevoir.is_evaluated" class="two inline-block cell-indent left">
+                                <i18n>evaluations.grade</i18n>
+                            </div>
+                            <div ng-class="{'six' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
+                                 class="inline-block cell-indent competence-text-overflow left" ng-if="currentDevoir.competences.all.length > 0">
+                                <i18n style="padding-left: 20px;">evaluations.test.competences</i18n>
                                 <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                                 <span id="competence-detail" tooltip=""></span>
                             </div>
                             <div class="inline-block cell-indent left eight" ng-if="currentDevoir.competences.all.length === 0">
-                            <i18n>viescolaire.utils.appreciation</i18n>
+                                <i18n>viescolaire.utils.appreciation</i18n>
+                            </div>
+                            <div ng-class="{'two' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
+                                 class="inline-block cell-indent left" ng-if="currentDevoir.competences.all.length > 0">
+                                <i18n>viescolaire.utils.appreciation</i18n>
                             </div>
                         </div>
                         <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
-                            <div class="row"  ng-if="currentDevoir.competences.all.length > 0">
+                            <div class="expandable row"  ng-if="currentDevoir.competences.all.length > 0">
                                 <div class="four cell">
                                     &nbsp;
                                 </div>
-                                <div class="four cell cell-indent" style="padding: 10px 0px 5px 10px;">
+                                <div ng-class="{'seven' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
+                                     class="cell cell-indent" style="padding: 10px 0px 5px 10px;">
                                     <c-skills-color-column devoir="currentDevoir"></c-skills-color-column>
                                 </div>
-                                <div class="cell" ng-class="{four : currentDevoir.competences.all.length > 0, eight : currentDevoir.competences.all.length == 0}">
+                                <div class="cell" ng-class="{one : currentDevoir.competences.all.length ===8, seven : currentDevoir.competences.all.length < 8}">
                                 </div>
                             </div>
-                            <div class="expandable navigable-row twelve" ng-repeat="eleve in currentDevoir.eleves.all track by $index">
 
-                                <div class="row navigable-inputs-row">
-                                    <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(eleve);expandNote($index, false)">
-                                        [[eleve.lastName]] [[eleve.firstName]]
+                            <div ng-repeat="eleve in currentDevoir.eleves.all track by $index" ng-class="{openedEleve : openedEleve === $index}">
+
+                                <div class="expandable navigable-row twelve">
+                                    <div class="row navigable-inputs-row">
+                                        <div class="two cell cell-indent expandable-content text-overflow" ng-click="getEleveInfo(eleve);expandNote($index, false)">
+                                            [[eleve.lastName]] [[eleve.firstName]]
+                                        </div>
+                                        <div ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="two cell cell-input">
+
+                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="six" type="text" ng-model="eleve.evaluation.valeur"
+                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0">
+                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="six" type="text" ng-model="eleve.evaluation.valeur"
+                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
+                                        </div>
+                                        <div ng-class="{'seven' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
+                                             class="cell cell-indent expandable-content"
+                                             ng-click="getEleveInfo(eleve);expandNote($index, false)"
+                                             ng-if="currentDevoir.competences.all.length > 0">
+                                            <ul class="skills-eleve-list">
+                                                <li ng-mouseenter="highlightCompetence(competence.id_competence, true)"
+                                                    ng-mouseleave="highlightCompetence(competence.id_competence, false)"
+                                                    class="navigable-cell competences-cell" ng-repeat="competence in eleve.evaluation.competenceNotes.all">
+                                                    <c-skill-note-devoir focus="highlightCompetence"
+                                                                         blur="highlightCompetence"
+                                                                         current-devoir="currentDevoir"
+                                                                         nb-eleve="currentDevoir.eleves.all.length"
+                                                                         nb-competences-devoir="currentDevoir.competences.all.length"
+                                                                         competence="competence"></c-skill-note-devoir>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div  ng-if="currentDevoir.competences.all.length > 7" class="cell cell-input add-appreciation" >
+                                            <!--<i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="addAppreciation(eleve)"></i>-->
+                                            <i ng-if="eleve.evaluation.appreciation !== undefined && eleve.evaluation.appreciation.trim() !== ''" class="appreciation icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.edit')]]" ng-click="expandAppreciation($index, true)"></i>
+                                            <i ng-if="eleve.evaluation.appreciation === undefined || eleve.evaluation.appreciation.trim() === ''" class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
+                                        </div>
+                                        <div ng-class="{eight : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
+                                             class="cell cell-input navigable-cell" ng-if="currentDevoir.competences.all.length < 8">
+                                            <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
+                                        </div>
                                     </div>
-                                    <div class="two cell navigable-cell cell-input">
-                                        <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
-                                               ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0">
-                                        <input ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="input-note six" type="text" ng-model="eleve.evaluation.valeur"
-                                               ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
-                                    </div>
-                                    <div class="seven cell cell-indent expandable-content" ng-click="getEleveInfo(eleve);expandNote($index, false)" ng-if="currentDevoir.competences.all.length > 0">
-                                        <ul class="skills-eleve-list">
-                                            <li ng-mouseenter="highlightCompetence(competence.id_competence, true)"
-                                                ng-mouseleave="highlightCompetence(competence.id_competence, false)"
-                                                class="navigable-cell competences-cell" ng-repeat="competence in eleve.evaluation.competenceNotes.all">
-                                                <c-skill-note-devoir focus="highlightCompetence"
-                                                                     blur="highlightCompetence"
-                                                                     current-devoir="currentDevoir"
-                                                                     nb-eleve="currentDevoir.eleves.all.length"
-                                                                     nb-competences-devoir="currentDevoir.competences.all.length"
-                                                                     competence="competence"></c-skill-note-devoir>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="cell cell-input one add-appreciation" ng-if="currentDevoir.competences.all.length > 0">
-                                        <i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="addAppreciation(eleve)"></i>
-                                    </div>
-                                    <div class="cell cell-input eight" ng-if="currentDevoir.competences.all.length === 0">
-                                        <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
+                                </div>
+
+                                <div ng-if="currentDevoir.competences.all.length > 7"
+                                     class="navigable-row twelve ng-scope"
+                                     ng-class="{'hide-appreciation' :openedEleve !== $index ,'show-appreciation' : openedEleve === $index && currentDevoir.competences.all.length > 7}">
+
+                                    <div class="navigable-inputs-row">
+                                        <div class="navigable-cell twelve cell" style="margin: 5px 0;" >
+                                            <input ng-class="{'display-none' :openedEleve !== $index ,'display-block' : openedEleve === $index && currentDevoir.competences.all.length > 7}"
+                                                   placeholder="[[translate('viescolaire.utils.appreciation.add')]]" type="text" class="twelve cell input-appreciation" name="appreciation"
+                                                   ng-model="eleve.evaluation.appreciation"
+                                                   ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event);expandAppreciation($index, true, $event);"
+                                                   ng-focus="getEleveInfo(eleve);expandAppreciation($index, false);"
+                                                   style="font-style: oblique;">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -153,18 +188,3 @@
         </aside>
     </div>
 </div>
-<!--<section class="toggle-buttons">
-    <div class="toggle">
-        <div class="row">
-            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">evaluations.test.edit</span></i18n>
-            </button>
-            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">evaluations.test.duplicate</span></i18n>
-            </button>
-            <button class="cell ng-scope" ng-click="alert('Fonctionnalité bientôt disponible')">
-                <i18n><span class="no-style">evaluations.test.delete</span></i18n>
-            </button>
-        </div>
-    </div>
-</section>-->

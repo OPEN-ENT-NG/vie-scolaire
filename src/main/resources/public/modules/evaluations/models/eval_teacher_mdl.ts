@@ -381,6 +381,7 @@ export class Devoir extends Model implements IModel{
     id_etablissement : string;
     diviseur : number;
     date : any;
+    is_evaluated  : boolean;
     that: any;
 
 
@@ -482,6 +483,7 @@ export class Devoir extends Model implements IModel{
             coefficient     : this.coefficient,
             date            : this.date,
             ramener_sur      : this.ramener_sur,
+            is_evaluated     : this.is_evaluated,
             competences     : this.competences
         };
     }

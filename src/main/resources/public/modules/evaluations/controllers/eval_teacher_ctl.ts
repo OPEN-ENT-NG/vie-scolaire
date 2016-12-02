@@ -171,7 +171,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 owner            : model.me.userId,
                 matieresByClasse : [],
                 controlledDate   : true,
-                isNoted         : true
+                is_evaluated         : false
             });
         };
 
@@ -860,6 +860,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }else{
                 if(bool === true){
                     $scope.openedDevoir = -1;
+                }
+            }
+        };
+
+        /**
+         * Ouvre le détail de l'élève correspondant à l'index passé en paramètre et affiche l'appréciation
+         * @param index index du devoir
+         * @param bool état du détail
+         */
+        $scope.expandAppreciation = function(index, bool){
+
+            if($scope.openedEleve !== index){
+                $scope.openedEleve = index;
+            }else{
+                if(bool === true){
+                    $scope.openedEleve = -1;
                 }
             }
         };

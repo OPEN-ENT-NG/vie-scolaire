@@ -33,7 +33,7 @@
                                     </div>
 
                                     <div class="nine cell">
-                                        <label class="select">
+                                        <label class="select eight cell">
                                             <select ng-model="devoir.id_etablissement" ng-change="updateEtabInfo()">
                                                 <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
                                             </select>
@@ -73,16 +73,18 @@
                                     </div>
 
                                     <!-- Sous matiere -->
-                                    <div style="margin-left: 15px;" class="cell addDevoirTable__libelle">
-                                        <i18n>viescolaire.utils.undersubject</i18n>
-                                    </div>
+                                    <div ng-if="devoir.matiere.sousMatieres.all.length !== 0">
+                                        <div style="margin-left: 15px;" class="cell addDevoirTable__libelle">
+                                            <i18n>viescolaire.utils.undersubject</i18n>
+                                        </div>
 
-                                    <div class="three cell">
-                                        <label style="margin-left: 15px" class="select" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
-                                            <select ng-model="devoir.id_sousmatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0">
-                                                <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.id_sousmatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
-                                            </select>
-                                        </label>
+                                        <div class="three cell">
+                                            <label style="margin-left: 15px" class="select" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
+                                                <select ng-model="devoir.id_sousmatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0">
+                                                    <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.id_sousmatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
+                                                </select>
+                                            </label>
+                                        </div>
                                     </div>
                                 </section>
 
@@ -132,9 +134,9 @@
 
                                 <!-- Activer l'évaluation numérique ? -->
                                 <section class="row">
-                                    <div class="three cell addDevoirTable__libelle pointer" ng-click="devoir.isEvaluated = !devoir.isEvaluated">
+                                    <div class="three cell addDevoirTable__libelle pointer" ng-click="devoir.is_evaluated = !devoir.is_evaluated">
                                         <label class="checkbox">
-                                            <input type="checkbox" ng-model="devoir.isEvaluated">
+                                            <input type="checkbox" ng-model="devoir.is_evaluated">
                                             <span></span>
                                         </label>
                                     </div>
@@ -144,7 +146,7 @@
                                     </div>
                                 </section>
 
-                                <div ng-if="devoir.isEvaluated">
+                                <div ng-if="devoir.is_evaluated">
 
                                     <section class="row">
                                         <!-- Noté sur -->
@@ -324,14 +326,13 @@
                 </section>
 
                 <!-- Coefficient / Note sur -->
-                <section>
+                <section ng-if="devoir.is_evaluated">
                     <label><i18n class="bold">viescolaire.utils.coefficient</i18n> [[devoir.coefficient]]</label>
                     <label><i18n class="bold">evaluations.test.grade.on</i18n> [[devoir.diviseur]]</label>
                 </section>
 
                 <!-- Checkbox ramener les notes sur 20 -->
-                <section>
-
+                <section ng-if="devoir.is_evaluated">
                     <label>
                         <i18n class="bold">evaluations.test.grade.report.average.shortlibelle</i18n>
                         <label class="checkbox">

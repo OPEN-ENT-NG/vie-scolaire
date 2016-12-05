@@ -17,3 +17,4 @@ workspace.xml
 /src/main/resources/public/modules/entcore
 /src/main/resources/public/templates/entcore
 /manifests
+*.bat

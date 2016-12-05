@@ -4,6 +4,8 @@
   "main": "gulpfile.js",
   "dependencies": {
     "bower": "^1.7.9",
+    "colors": "^1.1.2",
+    "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",
     "gulp-clean": "^0.3.2",

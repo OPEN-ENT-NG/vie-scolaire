@@ -4,9 +4,6 @@
   "main": "gulpfile.js",
   "dependencies": {
     "bower": "^1.7.9",
-    "colors": "^1.1.2",
-    "es6-shim": "^0.35.1",
-    "glob": "^7.0.6",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",
     "gulp-clean": "^0.3.2",
@@ -16,10 +13,10 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^2.12.2",
     "gulp-watch": "^4.3.5",
-    "humane-js": "^3.2.2",
-    "jquery": "^3.1.0",
     "merge2": "^1.0.2",
     "source-map-loader": "^0.1.5",
+    "toolkit": "git+https://git@github.com/entcore/toolkit.git#dev",
+    "typescript": "^2.1.1",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.1.0"
   },

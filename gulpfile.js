@@ -30,14 +30,22 @@ var rev = require('gulp-rev');
 var revReplace = require("gulp-rev-replace");
 var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
+var typescript = require('typescript');
 var glob = require('glob');
 var exec = require('child_process').exec;
 var colors = require('colors');
 
 var jsInfraPath = './bower_components/entcore';
 
+var paths = {
+    infra: '../infra-front',
+    toolkit: '../toolkit'
+};
+
 function compileTs(){
-    var tsProject = ts.createProject('./src/main/resources/public/modules/tsconfig.json');
+    var tsProject = ts.createProject('./src/main/resources/public/modules/tsconfig.json', {
+        typescript: typescript
+    });
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(ts(tsProject));
@@ -45,6 +53,18 @@ function compileTs(){
     return tsResult.js
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/temp'));
+}
+
+function startWebpackEntcore(isLocal) {
+    return gulp.src('./src/main/resources/public')
+        .pipe(webpack(require('./webpack-entcore.config.js')))
+        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(rev())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
+        .pipe(rev.manifest({ merge: true }))
+        .pipe(gulp.dest('./'));
 }
 
 function startWebpack(isLocal) {
@@ -88,7 +108,6 @@ function startWebpack(isLocal) {
         .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
         .pipe(rev.manifest({ path : './manifests/entcore.json' }))
         .pipe(gulp.dest('./'));
-
     return merge([entcore, absc, eval, vsco]);
 }
 
@@ -105,20 +124,19 @@ function updateRefs() {
     return merge([absc, eval, vsco]);
 }
 
-function copyLocalLibs () {
-    var ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
-        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
-    var html = gulp.src(jsInfraPath + '/src/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/templates/entcore'));
-    return merge([ts, html]);
-}
-
 gulp.task('copy-local-libs', function(){
-    copyLocalLibs();
-});
+    var ts = gulp.src(paths.infra + '/src/ts/**/*.ts')
+        .pipe(gulp.dest('./src/main/resources/public/ts/entcore'));
 
-gulp.task('copy-libs', ['update-libs'], function () {
-    return copyLocalLibs();
+    var toolkitModule = gulp.src([paths.toolkit + '/**/*.d.ts', paths.toolkit + '/**/*.js'])
+        .pipe(gulp.dest('./node_modules/toolkit'));
+
+    var module = gulp.src(paths.infra + '/src/ts/**/*.ts')
+        .pipe(gulp.dest('./node_modules/entcore'));
+
+    var html = gulp.src(paths.infra + '/src/template/**/*.html')
+        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
+    return merge([html, ts, module]);
 });
 
 gulp.task('drop-cache', function(){
@@ -131,50 +149,50 @@ gulp.task('bower', ['drop-cache'], function(){
 });
 
 gulp.task('update-libs', ['bower'], function(){
-    var html = gulp.src(jsInfraPath + '/src/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/templates/entcore'));
-    var node_ts = gulp.src(jsInfraPath + '/src/ts/**/*.ts')
+    var html = gulp.src('./bower_components/entcore/template/**/*.html')
+        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
+
+    var ts = gulp.src('./bower_components/entcore/src/ts/**/*.ts' )
+        .pipe(gulp.dest('./src/main/resources/public/ts/entcore'));
+
+    var module = gulp.src('./bower_components/entcore/src/ts/**/*.ts')
         .pipe(gulp.dest('./node_modules/entcore'));
-    return merge([html, node_ts]);
+
+    return merge([html, ts, module]);
 });
 
-gulp.task('ts-local', ['copy-local-libs'], function () {
-    var dist = gulp.src('./src/main/resources/public/dist')
-        .pipe(clean());
-    var temp = gulp.src('./src/main/resources/public/temp')
-        .pipe(clean());
-    var view = gulp.src('./src/main/resources/view')
-        .pipe(clean());
-    return merge([dist, temp, view, compileTs()]);
-});
+gulp.task('ts-local', ['copy-local-libs'], function () { return compileTs() });
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
+gulp.task('webpack-entcore-local', ['webpack-local'], function(){ return startWebpackEntcore() });
 
-gulp.task('ts', ['copy-libs'], function () {
-    var dist =gulp.src('./src/main/resources/public/dist')
-        .pipe(clean());
-    var temp = gulp.src('./src/main/resources/public/temp')
-        .pipe(clean());
-    var view = gulp.src('./src/main/resources/view')
-        .pipe(clean());
-    return merge([dist, temp, view, compileTs()]);
-});
-gulp.task('webpack', ['ts'], function(){
-    setTimeout(function () {
-        return startWebpack() });
-    }, 30000);
+gulp.task('ts', ['update-libs'], function () { return compileTs() });
+gulp.task('webpack', ['ts'], function(){ return startWebpack() });
+gulp.task('webpack-entcore', ['webpack'], function(){ return startWebpackEntcore() });
 
-gulp.task('build', ['webpack'], function () {
+gulp.task('drop-temp', ['webpack-entcore'], () => {
+    return gulp.src([
+        './src/main/resources/public/**/*.map.map',
+        './src/main/resources/public/temp',
+        './src/main/resources/public/dist/entcore/ng-app.js',
+        './src/main/resources/public/dist/entcore/ng-app.js.map',
+        './src/main/resources/public/dist/application.js',
+        './src/main/resources/public/dist/application.js.map'
+    ], { read: false })
+        .pipe(clean());
+})
+
+gulp.task('build', ['drop-temp'], function () {
     var refs = updateRefs();
-    var copyBehaviours = gulp.src('./src/main/resources/public/temp/behaviours.js')
+    var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
-    return merge([refs, copyBehaviours]);
+    return merge[refs, copyBehaviours];
 });
 
-gulp.task('build-local', ['webpack-local'], function () {
+gulp.task('build-local', ['webpack-entcore-local'], function () {
     var refs = updateRefs();
-    var copyBehaviours = gulp.src('./src/main/resources/public/temp/behaviours.js')
+    var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
-    return merge([refs, copyBehaviours]);
+    return merge[refs, copyBehaviours];
 });
 
 gulp.task('removeTemp', function () {

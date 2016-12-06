@@ -99,16 +99,7 @@ function startWebpack(isLocal) {
         .pipe(rev.manifest({path : './manifests/vsco.json' }))
         .pipe(gulp.dest('./'));
 
-    var entcore = gulp.src('./node_modules/entcore')
-        .pipe(webpack(require('./webpack-entcore.config.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(rev())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(rev.manifest({ path : './manifests/entcore.json' }))
-        .pipe(gulp.dest('./'));
-    return merge([entcore, absc, eval, vsco]);
+    return merge([absc, eval, vsco]);
 }
 
 function updateRefs() {
@@ -126,7 +117,7 @@ function updateRefs() {
 
 gulp.task('copy-local-libs', function(){
     var ts = gulp.src(paths.infra + '/src/ts/**/*.ts')
-        .pipe(gulp.dest('./src/main/resources/public/ts/entcore'));
+        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
 
     var toolkitModule = gulp.src([paths.toolkit + '/**/*.d.ts', paths.toolkit + '/**/*.js'])
         .pipe(gulp.dest('./node_modules/toolkit'));
@@ -153,7 +144,7 @@ gulp.task('update-libs', ['bower'], function(){
         .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
 
     var ts = gulp.src('./bower_components/entcore/src/ts/**/*.ts' )
-        .pipe(gulp.dest('./src/main/resources/public/ts/entcore'));
+        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
 
     var module = gulp.src('./bower_components/entcore/src/ts/**/*.ts')
         .pipe(gulp.dest('./node_modules/entcore'));
@@ -179,7 +170,7 @@ gulp.task('drop-temp', ['webpack-entcore'], () => {
         './src/main/resources/public/dist/application.js.map'
     ], { read: false })
         .pipe(clean());
-})
+});
 
 gulp.task('build', ['drop-temp'], function () {
     var refs = updateRefs();

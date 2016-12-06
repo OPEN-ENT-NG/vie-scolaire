@@ -45,8 +45,8 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     @Override
     public void getCompetences(Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type, rel_competences_cycle.id_cycle ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences, INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) "+ Viescolaire.EVAL_SCHEMA +".type_competences ")
+        query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type, competences.id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("WHERE competences.id_type = type_competences.id ")
                 .append("ORDER BY competences.id ASC");
         Sql.getInstance().prepared(query.toString(), new JsonArray(), SqlResult.validResultHandler(handler));
@@ -126,13 +126,12 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, rel_competences_cycle.id_cycle " +
+        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".competences " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) " +
-                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_cycle ON (competences.id = rel_competences_cycle.id_competence) " +
                 "WHERE competences."+ filter);
         if (idCycle != null) {
-            query.append("AND rel_competences_cycle.id_cycle = ?");
+            query.append(" AND competences.id_cycle = ?");
 
 
 

@@ -16,33 +16,33 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="list-view">
+<div class="list-view twelve-mobile">
     <div class="row devoirs-header" sticky offset="64">
-        <div class="one cell display-check">
+        <div class="one cell display-check two-mobile">
             <label class="checkbox">
                 <input type="checkbox" ng-model="$parent.selected.devoirs.all" ng-change="$parent.selectAllDevoirs()">
                 <span></span>
             </label>
         </div>
-        <div class="two cell cell-indent">
+        <div class="two cell cell-indent four-mobile">
             <i18n>viescolaire.utils.date</i18n>
         </div>
-        <div class="one cell cell-indent">
+        <div class="one cell cell-indent three-mobile">
             <i18n>viescolaire.utils.class</i18n>
         </div>
-        <div class="three cell cell-indent">
+        <div class="three cell cell-indent three-mobile">
             <i18n>viescolaire.utils.name</i18n>
         </div>
-        <div class="one cell cell-indent last">
+        <div class="one cell cell-indent last zero-mobile">
             <i18n>evaluations.test.coefficient</i18n>
         </div>
-        <div class="two cell cell-indent last">
+        <div class="two cell cell-indent last zero-mobile">
             <i18n>evaluations.skills.nb</i18n>
         </div>
-        <div class="one cell cell-indent">
+        <div class="one cell cell-indent zero-mobile">
             <i18n>evaluations.test.percent</i18n>
         </div>
-        <div class="one cell display-check">
+        <div class="one cell display-check zero-mobile">
             &nbsp;
         </div>
     </div>
@@ -53,33 +53,33 @@
              ng-repeat="devoir in devoirs.all | customSearchFilters:search"
              ng-class="{'opened shadow': openedDevoir === $index}" >
             <div class="row">
-                <div class="one cell cell-check expandable-content">
+                <div class="one cell cell-check expandable-content two-mobile">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="devoir.selected" ng-change="selectDevoir(devoir)">
                         <span></span>
                     </label>
                 </div>
                 <a ng-href="#/devoir/[[devoir.id]]">
-                    <div class="two cell cell-indent expandable-content">
+                    <div class="two cell cell-indent expandable-content four-mobile">
                         [[getDateFormated(devoir.date)]]
                     </div>
-                    <div class="one cell cell-indent expandable-content">
+                    <div class="one cell cell-indent expandable-content three-mobile">
                         [[getLibelleClasse(devoir.id_classe)]]
                     </div>
-                    <div class="three cell cell-indent expandable-content">
+                    <div class="three cell cell-indent expandable-content three-mobile">
                         [[devoir.name]]
                     </div>
-                    <div class="one cell cell-indent expandable-content">
+                    <div class="one cell cell-indent expandable-content zero-mobile">
                         [[devoir.coefficient]]
                     </div>
-                    <div class="two cell cell-indent expandable-content">
+                    <div class="two cell cell-indent expandable-content zero-mobile">
                         [[devoir.nbcompetences]]
                     </div>
-                    <div class="one cell cell-indent expandable-content">
+                    <div class="one cell cell-indent expandable-content  zero-mobile">
                         [[devoir.percent = (devoir.percent !== undefined) ? devoir.percent : 0]]%
                     </div>
                 </a>
-                <div class="one cell cell-check expandable-content">
+                <div class="one cell cell-check expandable-content zero-mobile">
                     <span class="plus-input" ng-click="expand($index, true)"></span>
                 </div>
             </div>

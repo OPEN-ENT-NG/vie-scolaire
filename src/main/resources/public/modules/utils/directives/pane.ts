@@ -13,7 +13,7 @@ export let pane = ng.directive('pane', function() {
             tabsCtrl.addPane(scope);
         },
         template:
-        '<div class="tab-pane" ng-class="{active: selected}" ng-transclude>' +
+        '<div class="tab-pane twelve-mobile" ng-class="{active: selected}" ng-transclude>' +
         '</div>',
         replace: true
     };

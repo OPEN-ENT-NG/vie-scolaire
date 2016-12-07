@@ -74,12 +74,12 @@
 
                                     <!-- Sous matiere -->
                                     <div class="twelve-mobile " ng-if="devoir.matiere.sousMatieres.all.length !== 0">
-                                        <div style="margin-left: 15px;" class="cell addDevoirTable__libelle twelve-mobile">
+                                        <div class="cell addDevoirTable__libelle twelve-mobile">
                                             <i18n>viescolaire.utils.undersubject</i18n>
                                         </div>
 
                                         <div class="three cell twelve-mobile">
-                                            <label style="margin-left: 15px" class="select eleven-mobile" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
+                                            <label class="select twelve-mobile" ng-class="{disabled : devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0}">
                                                 <select ng-model="devoir.id_sousmatiere"  ng-disabled="devoir.matiere === undefined || devoir.matiere.sousMatieres.all.length === 0">
                                                     <option ng-repeat="sousMatiere in devoir.matiere.sousMatieres.all" ng-selected="sousMatiere.id == devoir.id_sousmatiere" value="[[sousMatiere.id]]">[[sousMatiere.libelle]]</option>
                                                 </select>

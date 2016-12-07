@@ -17,6 +17,11 @@
   ~
   -->
 <div class="content-suivi-eleve ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
+    <div class="twelve suivi-eleve-ctl">
+        <h2 class="align-center"><i class="previous left" ng-click="incrementEleve(-1)"></i>
+            [[informations.eleve.lastName]] [[informations.eleve.firstName]]
+            <i class="next right" ng-click="incrementEleve(1)"></i></h2>
+    </div>
     <div class="suivi-eleve-slider">
         <div class="suivi-eleve inline-block six" ng-class="{slide : opened.detailCompetenceSuivi}">
             <h2><i18n>evaluations.suivi.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>

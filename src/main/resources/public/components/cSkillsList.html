@@ -16,12 +16,12 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<ul class="skills-list">
+<ul class="skills-list twelve-mobile">
     <li class="skills-header skill-30 skills-section" ng-class="{opened : enseignement.open}"
             ng-repeat="enseignement in data.all | filter:functionSearch(search.keyword) | filter:functionFilter"
             ng-init="initHeader(enseignement)">
         <span class="skills-text-overflow skills-teach bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open; doNotApplySearchFilter();" ng-bind-html="enseignementsFilter[enseignement.id].nomHtml"></span>
-        <ul>
+        <ul class="twelve-mobile">
             <li class="twelve skills-header skill-40 underline" ng-repeat="competence in enseignement.competences.all" ng-init="initHeader(competence); initCheckBox(competence, $parent.enseignement)" ng-class="{opened: competence.open}">
                 <label class="one checkbox skills-checkbox skills-headers-checkbox">
                     <input id="[[competence.id]]_[[competence.id_enseignement]]" class="competence_[[competence.id]]" type="checkbox" ng-model="competencesFilter[competence.id+'_'+competence.id_enseignement].isSelected" ng-click="toggleCheckbox(competence, $parent.enseignement); doNotApplySearchFilter();">

@@ -30,7 +30,7 @@ export let tabs = ng.directive('tabs', function() {
         '<a href=""">{{pane.title}}</a>' +
         '</li>' +
         '</ul>' +
-        '<div class="tab-content" ng-transclude></div>' +
+        '<div class="tab-content twelve-mobile" ng-transclude></div>' +
         '</div>',
         replace: true
     };

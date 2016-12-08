@@ -26,77 +26,85 @@
                ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
         <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></button>
+        <div class="microbox-wrapper zero">
+            <div class="microbox-content">
+                <i class="close-2x"></i>
+                <div class="microbox-material"></div>
+                <button class="microbox-close"></button>
+            </div>
+        </div>
     </nav>
     <div class="twelve cell list-devoirs">
-        <div class="two cell">
-            <div class="criterion card" >
-                <div  class="header">
-                    <h2><i18n>viescolaire.utils.criterion</i18n></h2>
+        <microbox title="evaluations.criteres.titre.bouton.ouvrir" close="evaluations.criteres.titre.bouton.fermer">
+            <div  class="two cell twelve-mobile">
+                <div class="criterion card" >
+                    <div  class="header">
+                        <h2><i18n>viescolaire.utils.criterion</i18n></h2>
+                    </div>
+
+                    <section>
+                        <label class="select">
+                            <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe.name for classe in classes.all">
+                                <option value="" class="header-opt">[[translate('viescolaire.utils.class')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section >
+                        <label class="select">
+                            <select ng-model="search.matiere" ng-change="getReleve()" ng-options="matiere.name for matiere in matieres.all">
+                                <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="select" ng-hide="selected.matiere.sousMatieres.all.length === 0 || search.matiere === '*' || selected.matiere === undefined">
+                            <select ng-model="search.sousmatiere" ng-options="sousmatiere.libelle for sousmatiere in search.sousmatieres.all">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.undersubject')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="select">
+                            <select ng-model="search.type" ng-options="type.nom for type in types.all">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.type')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section>
+                        <label class="select">
+                            <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
+                                <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section>
+                        <p>
+                            <b><i18n>evaluations.test.date</i18n> :</b>
+                            <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                            <section><i18n>viescolaire.utils.to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                        </p>
+                    </section>
+
+                    <section>
+                        <p>
+                            <b><i18n>evaluations.test.date.publication</i18n> :</b>
+                            <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                            <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
+                        </p>
+                    </section>
                 </div>
 
-                <section>
-                    <label class="select">
-                        <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe.name for classe in classes.all">
-                            <option value="" class="header-opt">[[translate('viescolaire.utils.class')]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section >
-                    <label class="select">
-                        <select ng-model="search.matiere" ng-change="getReleve()" ng-options="matiere.name for matiere in matieres.all">
-                            <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section>
-                    <label class="select" ng-hide="selected.matiere.sousMatieres.all.length === 0 || search.matiere === '*' || selected.matiere === undefined">
-                        <select ng-model="search.sousmatiere" ng-options="sousmatiere.libelle for sousmatiere in search.sousmatieres.all">
-                            <option class="header-opt" value="">[[translate('viescolaire.utils.undersubject')]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section>
-                    <label class="select">
-                        <select ng-model="search.type" ng-options="type.nom for type in types.all">
-                            <option class="header-opt" value="">[[translate('viescolaire.utils.type')]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section>
-                    <label class="select">
-                        <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
-                            <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
-                        </select>
-                    </label>
-                </section>
-
-                <section>
-                    <p>
-                        <b><i18n>evaluations.test.date</i18n> :</b>
-                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
-                        <section><i18n>viescolaire.utils.to.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.dateCreation.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
-                    </p>
-                </section>
-
-                <section>
-                    <p>
-                        <b><i18n>evaluations.test.date.publication</i18n> :</b>
-                        <section><i18n>viescolaire.utils.from.date</i18n> <date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.debut" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
-                        <section><i18n>viescolaire.utils.to.date</i18n>	<date-picker style="width: 80%;cursor: pointer;" ng-model="search.datePublication.fin" ng-change="showDate = true;controleDatePicker();"></date-picker></section>
-                    </p>
-                </section>
             </div>
-
-        </div>
-
-        <div class="ten cell">
+        </microbox>
+        <div class="ten cell twelve-mobile">
             <div class="marginFive card">
                 <header class="headerStyle">
-                    <h2><i18n>evaluations.test.owner.list</i18n></h2>
+                    <h2 class="twelve-mobile"><i18n>evaluations.test.owner.list</i18n></h2>
                     <input type="text" ng-model="search.name" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">
                 </header>
                 <container template="evaluations" class="twelve cell toggle-buttons-spacer"></container>

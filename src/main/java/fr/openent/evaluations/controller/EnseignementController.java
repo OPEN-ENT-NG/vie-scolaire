@@ -57,7 +57,7 @@ public class EnseignementController extends ControllerHelper {
     }
 
     /**
-     * Récupère la liste des enseignements
+     * Récupère la liste des enseignements et ses sous-compétences
      * @param request
      */
     @Get("/enseignements")

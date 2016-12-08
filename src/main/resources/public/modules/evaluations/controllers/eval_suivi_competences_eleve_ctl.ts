@@ -3,7 +3,7 @@
  */
 
 import {ng, template } from 'entcore/entcore';
-import {SuiviCompetence} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Domaine} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;
@@ -24,6 +24,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
 
+       $scope.idCycle = 1;
+
         /**
          * Créer une suivi de compétence
          */
@@ -32,6 +34,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
                 $scope.suiviCompetence = new SuiviCompetence($scope.enseignements, $scope.search.eleve, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
+                    $scope.suiviCompetence.domaines.sync($scope.idCycle);
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);

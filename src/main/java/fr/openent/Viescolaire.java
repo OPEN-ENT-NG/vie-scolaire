@@ -19,13 +19,13 @@
 
 package fr.openent;
 
-import fr.openent.absences.controller.MotifController;
-import fr.openent.evaluations.controller.*;
-import fr.openent.viescolaire.controller.*;
-import fr.wseduc.webutils.email.EmailSender;
 import fr.openent.absences.controller.AppelController;
 import fr.openent.absences.controller.EvenementController;
+import fr.openent.absences.controller.MotifController;
+import fr.openent.evaluations.controller.*;
 import fr.openent.evaluations.service.impl.InitDataService;
+import fr.openent.viescolaire.controller.*;
+import fr.wseduc.webutils.email.EmailSender;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
 import org.vertx.java.core.Handler;
@@ -60,6 +60,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_COMPETENCES_TABLE = "competences";
 	public static final String EVAL_COMPETENCES_NOTES_TABLE = "competences_notes";
     public static final String EVAL_ENSEIGNEMENTS_TABLE = "enseignements";
+	public static final String EVAL_DOMAINES_TABLE = "domaines";
 
 	/**
 	 * Déclaration des router préfixs
@@ -124,6 +125,7 @@ public class Viescolaire extends BaseServer {
 		addController(new CompetenceNoteController());
 		addController(new DevoirController());
 		addController(new EnseignementController());
+		addController(new DomaineController());
 		addController(new ExportPDFController(eb, notification));
 		addController(new NoteController());
 		addController(new UtilsController());

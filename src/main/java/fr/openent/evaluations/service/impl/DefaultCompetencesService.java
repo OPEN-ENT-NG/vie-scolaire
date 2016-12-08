@@ -43,6 +43,28 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
+    public void getCompetencesItem(Long poIdCycle, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT rel_competences_domaines.id_domaine, competences.* ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("WHERE competences.id_cycle = ? ")
+                .append("AND NOT EXISTS ( ")
+                    .append("SELECT 1 ")
+                    .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences AS competencesChildren ")
+                    .append("WHERE competencesChildren.id_parent = competences.id ")
+                    .append("AND competences.id_cycle = ? ")
+                .append(")");
+
+        JsonArray params = new JsonArray();
+        params.addNumber(poIdCycle);
+        params.addNumber(poIdCycle);
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
+
+    @Override
     public void getCompetences(Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT competences.id, competences.nom, competences.description, competences.id_type, competences.id_parent, type_competences.nom as type, competences.id_cycle ")
@@ -126,16 +148,15 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle " +
-                "FROM "+ Viescolaire.EVAL_SCHEMA +".competences " +
-                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) " +
-                "WHERE competences."+ filter);
+        query.append("SELECT domaines.codification as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
+                .append("WHERE competences."+ filter);
+
         if (idCycle != null) {
             query.append(" AND competences.id_cycle = ?");
-
-
-
-
             params.addNumber(idCycle);
         }
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));

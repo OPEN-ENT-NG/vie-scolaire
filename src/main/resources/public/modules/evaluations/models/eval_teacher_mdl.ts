@@ -1,4 +1,6 @@
 import { model, http, IModel, Model, Collection} from 'entcore/entcore';
+import {Collection} from "../../../../../../../bower_components/entcore/src/ts/modelDefinitions";
+import {DOMError} from "../../../../../../../../../../Program Files (x86)/JetBrains/IntelliJ IDEA 15.0.1/plugins/JavaScriptLanguage/typescriptCompiler/external/lib";
 
 let moment = require('moment');
 let $ = require('jquery');
@@ -740,12 +742,46 @@ export class Enseignement extends Model {
     }
 }
 
+export class Domaine extends Model {
+    domaines : Collection<Domaine>;
+    competences : Collection<Competence>;
+    id : number;
+    niveau : number;
+    id_parent : number;
+    libelle : string;
+    codification : string;
+    composer : any;
+
+    constructor (poDomaine?) {
+        super();
+        this.collection(Competence);
+        this.collection(Domaine);
+
+        var sousDomaines = poDomaine.domaines;
+        var sousCompetences = poDomaine.competences;
+
+        if(poDomaine !== undefined) {
+            this.updateData(poDomaine);
+            if(sousDomaines !== undefined) {
+                this.domaines.load(sousDomaines);
+                // TODO faire la recursivité en cas de sous sous .. domaines
+            }
+
+            if(sousCompetences !== undefined) {
+                this.competences.load(sousCompetences);
+            }
+        }
+    }
+
+}
+
 export class Competence extends Model {
     competences : Collection<Competence>;
     selected : boolean;
     id : number;
     id_competence : number;
     nom : string;
+    code_domaine : string;
     composer : any;
 
     constructor () {
@@ -868,6 +904,7 @@ export class CompetenceNote extends Model implements IModel {
     }
 }
 
+
 export class Evaluations extends Model {
     periodes : Collection<Periode>;
     types : Collection<Type>;
@@ -987,12 +1024,14 @@ export class Evaluations extends Model {
 
 export class SuiviCompetence extends Model implements IModel{
     enseignements : Collection<Enseignement>;
+    domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
 
     get api() {
         return {
-            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/'
+            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
+            getArbreDomaines : '/viescolaire/evaluations/domaines/'
         }
     }
 
@@ -1000,6 +1039,28 @@ export class SuiviCompetence extends Model implements IModel{
         super();
         this.periode = periode;
         var that = this;
+
+        this.collection(Domaine, {
+            sync: function (idCycle) {
+                return new Promise((resolve, reject) => {
+                    var url = that.api.getArbreDomaines + idCycle;
+                    http().getJson(url).done((res) => {
+                        for(var i=0; i<res.length; i++) {
+                            var domaine = new Domaine(res[i]);
+                            that.domaines.all.push(domaine);
+
+
+
+                        }
+
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve();
+                        }
+                    });
+                });
+            }
+        });
+
         this.collection(Enseignement, {
             sync: function () {
                 return new Promise((resolve, reject) => {

@@ -29,6 +29,16 @@ import org.vertx.java.core.json.JsonObject;
  * Created by ledunoiss on 05/08/2016.
  */
 public interface CompetencesService extends CrudService {
+
+
+    /**
+     * Récupération des compétences évaluables (feuille de l'arbre) du cycle donné.
+     *
+     * @param poIdCycle l'identifiant du cycle.
+     * @param handler handler portant le résultat de la requête
+     */
+    void getCompetencesItem(Long poIdCycle, Handler<Either<String, JsonArray>> handler);
+
     /**
      * Récupération des compétences
      * @param handler handler portant le résultat de la requête

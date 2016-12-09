@@ -682,6 +682,7 @@ export class DevoirsCollection {
                         evaluations.devoirs.synchronizedDevoirType();
                     });
                 }
+                evaluations.devoirs.trigger('sync');
             }.bind(this));
         }
     }

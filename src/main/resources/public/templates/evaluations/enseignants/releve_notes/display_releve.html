@@ -20,13 +20,13 @@
     <header>
         <!--<h1 style="float: left;">Relevé de notes</h1>-->
         <nav class="right">
-            <a class="button noMarginLeft" href="/viescolaire/evaluations#/devoir/create"><i18n>evaluations.test.new</i18n></a>
-            <a class="button" href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a>
+            <a class="button noMarginLeft twelve-mobile" href="/viescolaire/evaluations#/devoir/create"><i18n>evaluations.test.new</i18n></a>
+            <a class="button twelve-mobile" href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a>
         </nav>
     </header>
 
     <div class="twelve cell">
-        <aside class="two cell menuLeft left">
+        <aside class="two cell twelve-mobile menuLeft left">
             <div class="criteres card criterion"  ng-class="{opened : opened.criteres === true}">
                 <span class="plus-input" ng-click="opened.criteres = !opened.criteres"></span>
                 <div class="header" ng-click="opened.criteres = !opened.criteres">
@@ -39,6 +39,7 @@
                         </select>
                     </label>
                 </section>
+                <section>
                 <label class="select">
                     <select ng-model="search.matiere" ng-change="getReleve()" ng-options="matiere.name for matiere in matieres.all">
                         <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
@@ -62,26 +63,28 @@
                 </div>
             </div>
         </aside>
-        <section class="ten cell right">
+
+        <section class="ten twelve-mobile cell right">
+
             <content ng-show="releveNote.devoirs.all.length > 0">
+                <div class="responsive-table list-view tableReleve tableRelevePadding marginTopFive">
                 <table class="list-view tableReleve tableRelevePadding marginTopFive" c-naviga-table>
                     <thead>
                     <tr>
                         <th class="col1">Eleve</th>
-                        <th ng-class="{'devoir-with-comp' : devoir.nbcompetences > 0 }" class="colDevoir competence-text-overflow"
+                        <th ng-class="{'devoir-with-comp' : devoir.nbcompetences > 0 }"
                             ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir)"
                             ng-dblclick="goTo('/devoir/'+devoir.id)" tooltip="[[devoir.name]]">
                             [[getShortDateFormated(devoir.date)]]<br>
                             [[devoir.name]]
                         </th>
-                        <th class="colMoyenne">Moyenne</th>
-                        <th class="colRang">Rang</th>
+                        <th  class="colMoyenne">Moyenne</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="eleve in releveNote.classe.eleves.all">
                         <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
-                        <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all">
+                        <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
                             <input ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                    class="input-note"
                                    type="text"
@@ -91,68 +94,60 @@
                                    max="20" min="0" step="0.01">
                         </td>
                         <!--ng-init="initNoteReleve(evaluation)"-->
-                        <td class="colMoyenne">
-                            <div class="input-note input-moyenne" ng-focus="getEleveInfo(eleve.id)">
-                                [[eleve.moyenne]]
-                            </div>
-                        </td>
-                        <td class="colRang">
-                            <input class="input-note"
-                                   type="text"
-                                   style="width: 2em;"
-                                   ng-model="studentNoteDevoir.rang"
-                                   ng-readonly="true">
+                        <td  class="colMoyenne" data-label="Moyenne">
+                            [[eleve.moyenne]]
                         </td>
                     </tr>
                     </tbody>
                 </table>
+                </div>
+                <div class="responsive-table">
                 <table class="statClasse tableRelevePadding tailleMax">
                     <thead>
                     <tr>
-                        <th class="col1 text-overflow"></th>
-                        <th class="colDevoir competence-text-overflow" ng-repeat="devoir in releveNote.devoirs.all">
+                        <th  class="col1 text-overflow"></th>
+                        <th class="colDevoir competence-text-overflow"
+                            ng-repeat="devoir in releveNote.devoirs.all">
                             [[getShortDateFormated(devoir.date)]]<br>
                             [[devoir.name]]
                         </th>
                         <th class="colMoyenne"></th>
-                        <th class="colRang"></th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="moyenneClasse">
                         <td class="col1 text-overflow">Moyenne de la classe</td>
-                        <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                        <td class="colDevoir" ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
                             <div class="input-note">
                                 [[devoir.statistiques.moyenne]]
                             </div>
                         </td>
-                        <td class="colMoyenne"></td>
-                        <td class="colRang"></td>
+                        <td class="colMoyenne" data-label="Moyenne"></td>
                     </tr>
                     <tr class="minClasse">
                         <td class="col1 text-overflow">Note min</td>
-                        <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                        <td class="colDevoir"
+                            ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
                             <div class="input-note">
                                 [[devoir.statistiques.noteMin]]
                             </div>
                         </td>
-                        <td class="colMoyenne"></td>
-                        <td class="colRang"></td>
+                        <td class="colMoyenne" data-label="Moyenne"></td>
                     </tr>
                     <tr class="maxClasse">
                         <td class="col1 text-overflow">Note max</td>
-                        <td class="colDevoir" style="width:5em;" ng-repeat="devoir in releveNote.devoirs.all">
+                        <td class="colDevoir"  ng-repeat="devoir in releveNote.devoirs.all"
+                            data-label="[[devoir.name]]">
                             <div class="input-note">
                                 [[devoir.statistiques.noteMax]]
                             </div>
                         </td>
-                        <td class="colMoyenne"></td>
-                        <td class="colRang"></td>
+                        <td class="colMoyenne" data-label="Moyenne"></td>
                     </tr>
                     </tbody>
 
                 </table>
-
+                </div>
             </content>
             <content ng-show="releveNote.devoirs.all.length === 0">
                 <h1 style="color: grey;"><i18n>evaluations.no.summary</i18n>.</h1>
@@ -160,4 +155,5 @@
         </section>
 
     </div>
+
 </div>

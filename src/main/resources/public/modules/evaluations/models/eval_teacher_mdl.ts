@@ -753,17 +753,19 @@ export class Domaine extends Model {
 
     constructor (poDomaine?) {
         super();
+        var that = this;
         this.collection(Competence);
         this.collection(Domaine);
 
-        var sousDomaines = poDomaine.domaines;
-        var sousCompetences = poDomaine.competences;
-
         if(poDomaine !== undefined) {
+
+            var sousDomaines = poDomaine.domaines;
+            var sousCompetences = poDomaine.competences;
+
             this.updateData(poDomaine);
+
             if(sousDomaines !== undefined) {
                 this.domaines.load(sousDomaines);
-                // TODO faire la recursivité en cas de sous sous .. domaines
             }
 
             if(sousCompetences !== undefined) {
@@ -1022,7 +1024,6 @@ export class Evaluations extends Model {
 }
 
 export class SuiviCompetence extends Model implements IModel{
-    enseignements : Collection<Enseignement>;
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
@@ -1034,7 +1035,7 @@ export class SuiviCompetence extends Model implements IModel{
         }
     }
 
-    constructor (e : Collection<Enseignement>, eleve : Eleve, periode : Periode) {
+    constructor (eleve : Eleve, periode : Periode) {
         super();
         this.periode = periode;
         var that = this;
@@ -1043,42 +1044,24 @@ export class SuiviCompetence extends Model implements IModel{
             sync: function (idCycle) {
                 return new Promise((resolve, reject) => {
                     var url = that.api.getArbreDomaines + idCycle;
-                    http().getJson(url).done((res) => {
-                        for(var i=0; i<res.length; i++) {
-                            var domaine = new Domaine(res[i]);
-                            that.domaines.all.push(domaine);
+                    http().getJson(url).done((resDomaines) => {
 
-
-
+                        var url = that.api.getCompetencesNotes + eleve.id;
+                        if (periode !== null && periode !== undefined) {
+                            url += "?idPeriode="+periode.id;
                         }
 
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
-                });
-            }
-        });
+                        http().getJson(url).done((resCompetencesNotes) => {
 
-        this.collection(Enseignement, {
-            sync: function () {
-                return new Promise((resolve, reject) => {
-                    var url = that.api.getCompetencesNotes + eleve.id;
-                    if (periode !== null && periode !== undefined) {
-                        url += "?idPeriode="+periode.id;
-                    }
-                    http().getJson(url).done((res) => {
-                        that.enseignements.load(e.all);
-                        for (var i = 0; i < that.enseignements.all.length; i++) {
-                            that.enseignements.all[i].competences.load(e.all[i].competences.all);
-                            for (var y = 0; y < that.enseignements.all[i].competences.all.length; y++) {
-                                that.enseignements.all[i].competences.all[y].competences
-                                    .load(e.all[i].competences.all[y].competences.all);
-                                _.map(that.enseignements.all[i].competences.all[y].competences.all, function (competence) {
-                                    competence.competencesEvaluations = _.where(res, {id_competence : competence.id, id_enseignement : competence.id_enseignement});
-                                });
+                            if(resDomaines) {
+                                for(var i=0; i<resDomaines.length; i++) {
+                                    var domaine = new Domaine(resDomaines[i]);
+                                    that.domaines.all.push(domaine);
+                                    setCompetenceNotes(domaine, resCompetencesNotes);
+                                }
                             }
-                        }
+                        });
+
                         if (resolve && typeof (resolve) === 'function') {
                             resolve();
                         }
@@ -1086,24 +1069,57 @@ export class SuiviCompetence extends Model implements IModel{
                 });
             }
         });
+
     }
 
     findCompetence (idCompetence) {
-        for (var i = 0; i < this.enseignements.all.length; i++) {
-            for (var y = 0; y < this.enseignements.all[i].competences.all.length; y++) {
-                var c = this.enseignements.all[i].competences.all[y].competences.findWhere({id : idCompetence});
-                if (c !== undefined) return c;
-                else return false;
+        for(var i=0; i<this.domaines.all.length; i++) {
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            if(comp !== undefined) {
+                return comp;
+            } else {
+                continue;
             }
         }
+        return false;
     }
+
 
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
-            this.enseignements.sync().then(() => {
                resolve();
+        });
+    }
+}
+
+
+function findCompetenceRec (piIdCompetence, poCompetences) {
+    for (var i = 0; i < poCompetences.all.length; i++) {
+        // si compétences trouvée on arrete le traitement
+        if(poCompetences[i].id === piIdCompetence) {
+            return poCompetences[i];
+        } else {
+            // recherche dans les sous-compétences
+            return findCompetenceRec(piIdCompetence, poCompetences[i].competences);
+        }
+    }
+    return false;
+}
+
+function setCompetenceNotes(poDomaine, poCompetencesNotes) {
+    if(poDomaine.competences) {
+        _.map(poDomaine.competences.all, function (competence) {
+            competence.competencesEvaluations = _.where(poCompetencesNotes, {
+                id_competence: competence.id,
+                id_domaine: competence.id_domaine
             });
         });
+    }
+
+    if( poDomaine.domaines) {
+        for (var i = 0; i < poDomaine.domaines.all.length; i++) {
+            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes);
+        }
     }
 }
 

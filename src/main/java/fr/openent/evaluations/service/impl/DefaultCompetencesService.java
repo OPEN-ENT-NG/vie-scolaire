@@ -97,10 +97,12 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs, "+ Viescolaire.EVAL_SCHEMA +".competences ")
-                .append("WHERE competences_devoirs.id_competence = competences.id ")
-                .append("AND competences_devoirs.id_devoir = ? ")
+        query.append("SELECT domaines.codification as code_domaine, competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ON (competences.id = competences_devoirs.id_competence ) ")
+                .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
+                .append("WHERE competences_devoirs.id_devoir = ? ")
                 .append("ORDER BY competences_devoirs.id ASC;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
@@ -151,8 +153,8 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
         query.append("SELECT domaines.codification as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ")
-                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
-                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
+                .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
                 .append("WHERE competences."+ filter);
 
         if (idCycle != null) {

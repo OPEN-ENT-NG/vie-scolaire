@@ -111,7 +111,7 @@
                                 </div>
                                 <div ng-class="{'seven' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
                                      class="cell cell-indent" style="padding: 10px 0px 5px 10px;">
-                                    <c-skills-color-column devoir="currentDevoir"></c-skills-color-column>
+                                    <c-skills-color-column devoir="currentDevoir" name-function="buildCompetenceNom"></c-skills-color-column>
                                 </div>
                                 <div class="cell" ng-class="{one : currentDevoir.competences.all.length ===8, seven : currentDevoir.competences.all.length < 8}">
                                 </div>
@@ -194,7 +194,7 @@
         </section>
         <aside class="two cell card recap-liste-competence-container" ng-if="currentDevoir.competences.all.length > 0">
             <ul class="recap-liste-competence">
-                <li class="competence" ng-class="{highlighted : competence.hovered}" ng-repeat="competence in currentDevoir.competences.all">[[competence.nom]]</li>
+                <li class="competence" ng-class="{highlighted : competence.hovered}" ng-repeat="competence in currentDevoir.competences.all">[[buildCompetenceNom(competence)]]</li>
             </ul>
         </aside>
     </div>

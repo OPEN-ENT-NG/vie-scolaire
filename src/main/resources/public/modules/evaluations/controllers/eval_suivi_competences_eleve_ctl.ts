@@ -9,8 +9,8 @@ import * as utils from '../utils/teacher';
 declare let _:any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
-    '$scope', 'route', '$rootScope', '$location', '$filter',
-    function ($scope, route, $rootScope, $location, $filter) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$templateCache',
+    function ($scope, route, $rootScope, $location, $filter, $templateCache) {
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
@@ -31,6 +31,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Créer une suivi de compétence
          */
         $scope.selectEleve = function () {
+            //$templateCache.removeAll();
             template.close('suivi-competence-content');
             template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
             $scope.informations.eleve = $scope.search.eleve;
@@ -38,6 +39,12 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.sync($scope.idCycle);
+
+
+                    setTimeout(function() {
+                        $scope.suiviCompetence.setMoyenneCompetences();
+                    },400);
+
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);

@@ -21,7 +21,7 @@
 
     <div>
         <h4 class="margin-top-1em" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>
-        <h3 class="margin-top-1em" ng-if="domaine.niveau > 1" ng-style="{'font-size': 'calc(150% - (15% * [[domaine.niveau]]))'}">[[domaine.codification]] - [[domaine.libelle]]</h3>
+        <h3 class="margin-top-1em" ng-if="domaine.niveau > 1">[[domaine.codification]] - [[domaine.libelle]]</h3>
     </div>
 
     <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
@@ -47,12 +47,6 @@
 
 </script>
 
+<h2><i18n>evaluations.suivi.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
 <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'">
 </div>
-
-<!--<div ng-repeat="domaine in suiviCompetence.domaines.all">-->
-    <!--<div>-->
-        <!--<h4 class="margin-top-1em" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>-->
-        <!--<h3 class="margin-top-1em" ng-if="domaine.niveau > 1" ng-style="{'font-size': 'calc(150% - (15% * [[domaine.niveau]]))'}">[[domaine.codification]] - [[domaine.libelle]]</h3>-->
-    <!--</div>-->
-<!--</div>-->

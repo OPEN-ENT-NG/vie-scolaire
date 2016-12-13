@@ -747,6 +747,7 @@ export class Domaine extends Model {
     id : number;
     niveau : number;
     id_parent : number;
+    moyenne : number;
     libelle : string;
     codification : string;
     composer : any;
@@ -1043,34 +1044,64 @@ export class SuiviCompetence extends Model implements IModel{
         this.collection(Domaine, {
             sync: function (idCycle) {
                 return new Promise((resolve, reject) => {
-                    var url = that.api.getArbreDomaines + idCycle;
-                    http().getJson(url).done((resDomaines) => {
+                    if(idCycle) {
+                        var url = that.api.getArbreDomaines + idCycle;
+                        http().getJson(url).done((resDomaines) => {
 
-                        var url = that.api.getCompetencesNotes + eleve.id;
-                        if (periode !== null && periode !== undefined) {
-                            url += "?idPeriode="+periode.id;
-                        }
+                            var url = that.api.getCompetencesNotes + eleve.id;
+                            if (periode !== null && periode !== undefined) {
+                                url += "?idPeriode=" + periode.id;
+                            }
 
-                        http().getJson(url).done((resCompetencesNotes) => {
+                            http().getJson(url).done((resCompetencesNotes) => {
 
-                            if(resDomaines) {
-                                for(var i=0; i<resDomaines.length; i++) {
-                                    var domaine = new Domaine(resDomaines[i]);
-                                    that.domaines.all.push(domaine);
-                                    setCompetenceNotes(domaine, resCompetencesNotes);
+                                //for(var i=0; i<resCompetencesNotes.length; i++) {
+                                //    var competenceNotes = new CompetenceNote(resCompetencesNotes[i]);
+                                //    that.competenceNotes.all.push(competenceNotes);
+                                //}
+
+
+                                if (resDomaines) {
+                                    for (var i = 0; i < resDomaines.length; i++) {
+                                        var domaine = new Domaine(resDomaines[i]);
+                                        that.domaines.all.push(domaine);
+                                        setCompetenceNotes(domaine, resCompetencesNotes);
+                                    }
                                 }
+                            });
+
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve();
                             }
                         });
-
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
+                    }
                 });
             }
         });
 
     }
+
+
+    /**
+     * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
+     */
+    setMoyenneCompetences () {
+        for(var i=0; i< this.domaines.all.length; i++) {
+            var oEvaluationsArray = [];
+            var oDomaine = this.domaines.all[i];
+
+            // recherche de toutes les évaluations du domaine et ses sous domaines
+            // (uniquement les max de chaque compétence)
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray);
+
+            if (oEvaluationsArray.length > 0) {
+                oDomaine.moyenne = average(oEvaluationsArray);
+            } else {
+                oDomaine.moyenne = -1;
+            }
+        }
+    }
+
 
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
@@ -1092,6 +1123,28 @@ export class SuiviCompetence extends Model implements IModel{
     }
 }
 
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines) {
+    for(var i=0; i<poDomaine.competences.all.length; i++) {
+        var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
+        if(competencesEvaluations && competencesEvaluations.length > 0) {
+            poMaxEvaluationsDomaines.push(_.max(competencesEvaluations, function(competencesEvaluation){ return competencesEvaluation.evaluation;}).evaluation);
+        }
+    }
+
+    if(poDomaine.domaines) {
+        for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines);
+        }
+
+    }
+}
+
+function average (arr)
+{
+    return _.reduce(arr, function(memo, num) {
+            return memo + num;
+        }, 0) / (arr.length === 0 ? 1 : arr.length);
+}
 
 function findCompetenceRec (piIdCompetence, poCompetences) {
     for (var i = 0; i < poCompetences.all.length; i++) {

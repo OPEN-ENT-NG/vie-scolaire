@@ -5,6 +5,9 @@
 import {ng} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
+/**
+ * Directive de proportions de compétences
+ */
 export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence', function () {
     return {
         restrict : 'E',
@@ -18,16 +21,28 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
         'ng-style="{\'width\': prop.percent + \'%\'}" ' +
         'tooltip="[[prop.nb]] [[translate(\'evaluations\')]]"></div>',
         controller : ['$scope', function ($scope) {
+
+            /**
+             * Listener sur la variable filter. Si modification de la variable, recalcule des proportions
+             */
             $scope.$watch('filter', function (newValue, oldValue) {
                 if (newValue !== oldValue) {
                     $scope.calculProportion();
                 }
             }, true);
 
+            /**
+             * Retourne la valeur d'une clé i18n passées en paramètres
+             * @param key clé i18n
+             * @returns {String} valeur i18n
+             */
             $scope.translate = function (key) {
                 return utils.translate(key);
             };
 
+            /**
+             * Calcul la proportion d'évaluations pour une compétence
+             */
             $scope.calculProportion = function () {
                 $scope.competencesEvaluations = $scope.evaluations;
                 $scope.proportion = [];

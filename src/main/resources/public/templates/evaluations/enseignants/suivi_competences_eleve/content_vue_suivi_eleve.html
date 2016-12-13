@@ -25,17 +25,17 @@
     </div>
 
     <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
-        <div class="suivi-eleve-item" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all">
-            <div class="six inline-block ellipsis">
+        <div class="suivi-eleve-item competence-line" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all">
+            <div tooltip="[[competence.nom]]" class="six inline-block ellipsis competence">
                 [[competence.nom]]
             </div>
-            <div class="two inline-block align-center ">
+            <div class="two inline-block align-center align-top">
                         <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1"
                               tabindex="0" class="competence-eval rounded"
                               ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
                 <span class="competence-eval rounded grey" ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)"></span>
             </div>
-            <div class="three inline-block align-center">
+            <div class="three inline-block align-center align-top">
                 <proportion-suivi-competence evaluations="competence.competencesEvaluations" filter="suiviFilter" user="me"></proportion-suivi-competence>
             </div>
         </div>

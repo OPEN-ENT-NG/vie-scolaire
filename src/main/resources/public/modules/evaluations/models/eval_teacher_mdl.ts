@@ -1,6 +1,5 @@
 import { model, http, IModel, Model, Collection} from 'entcore/entcore';
-import {Collection} from "../../../../../../../bower_components/entcore/src/ts/modelDefinitions";
-import {DOMError} from "../../../../../../../../../../Program Files (x86)/JetBrains/IntelliJ IDEA 15.0.1/plugins/JavaScriptLanguage/typescriptCompiler/external/lib";
+import * as utils from '../utils/teacher';
 
 let moment = require('moment');
 let $ = require('jquery');
@@ -1084,18 +1083,21 @@ export class SuiviCompetence extends Model implements IModel{
 
     /**
      * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
+     *
+     * @pbMesEvaluations booleen pour savoir s'il faut calculer la moyenne de toutes les évaluations
+     * ou seulement celles du professeur
      */
-    setMoyenneCompetences () {
+    setMoyenneCompetences (pbMesEvaluations) {
         for(var i=0; i< this.domaines.all.length; i++) {
             var oEvaluationsArray = [];
-            var oDomaine = this.domaines.all[i];
+            var oDomaine = this.domaines.all[i] as Domaine;
 
             // recherche de toutes les évaluations du domaine et ses sous domaines
             // (uniquement les max de chaque compétence)
-            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray);
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, pbMesEvaluations);
 
             if (oEvaluationsArray.length > 0) {
-                oDomaine.moyenne = average(oEvaluationsArray);
+                oDomaine.moyenne = utils.average(oEvaluationsArray);
             } else {
                 oDomaine.moyenne = -1;
             }
@@ -1123,27 +1125,25 @@ export class SuiviCompetence extends Model implements IModel{
     }
 }
 
-function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines) {
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
     for(var i=0; i<poDomaine.competences.all.length; i++) {
         var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
-        if(competencesEvaluations && competencesEvaluations.length > 0) {
-            poMaxEvaluationsDomaines.push(_.max(competencesEvaluations, function(competencesEvaluation){ return competencesEvaluation.evaluation;}).evaluation);
+        var _t = competencesEvaluations;
+        _t = _.filter(competencesEvaluations, function (competence) {
+            return competence.owner !== undefined && competence.owner === model.me.userId;
+        });
+
+        if(_t && _t.length > 0) {
+            poMaxEvaluationsDomaines.push(_.max(_t, function(_t){ return _t.evaluation;}).evaluation);
         }
     }
 
     if(poDomaine.domaines) {
         for(var i=0; i<poDomaine.domaines.all.length; i++) {
-            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines);
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
         }
 
     }
-}
-
-function average (arr)
-{
-    return _.reduce(arr, function(memo, num) {
-            return memo + num;
-        }, 0) / (arr.length === 0 ? 1 : arr.length);
 }
 
 function findCompetenceRec (piIdCompetence, poCompetences) {

@@ -42,7 +42,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
 
                     setTimeout(function() {
-                        $scope.suiviCompetence.setMoyenneCompetences();
+                        $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
                     },400);
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
@@ -65,7 +65,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 var _t = listeEvaluations;
                 if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
                     _t = _.filter(listeEvaluations, function (competence) {
-                        return competence.owner === undefined || competence.owner === $scope.me.userId;
+                        return competence.owner !== undefined && competence.owner === $scope.me.userId;
                     });
                 }
                 var max = _.max(_t, function (competence) {

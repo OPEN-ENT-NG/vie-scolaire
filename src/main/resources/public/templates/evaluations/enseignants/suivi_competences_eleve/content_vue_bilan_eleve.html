@@ -25,11 +25,11 @@
     </div>
 
     <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
-        <div class="suivi-eleve-item" ng-repeat="competence in domaine.competences.all">
-            <div class="ten cell inline-block ellipsis">
+        <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all">
+            <div tooltip="[[competence.nom]]" class="ten cell inline-block ellipsis competence">
                 [[competence.nom]]
             </div>
-            <div class="two cell inline-block padding-left ">
+            <div class="two cell inline-block padding-left align-top">
                 <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1" tabindex="0">
                     <span ng-if="evaluation.evaluation === -1">
                         NE

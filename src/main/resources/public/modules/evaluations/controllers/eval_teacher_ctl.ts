@@ -79,9 +79,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope);
             },
-            displaySuiviCompetencesEleve : function (params) {
+            displaySuiviCompetencesEleve : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
                 $scope.informations.eleve = null;
+                $scope.sortType     = 'title'; // set the default sort type
+                $scope.sortReverse  = false;  // set the default sort order
+            },
+            displaySuiviCompetencesClasse : function () {
+                template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
             }

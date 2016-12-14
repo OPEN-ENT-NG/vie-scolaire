@@ -3,8 +3,10 @@
   "version": "0.2.0",
   "main": "gulpfile.js",
   "dependencies": {
+    "@types/core-js": "^0.9.35",
     "bower": "^1.7.9",
     "colors": "^1.1.2",
+    "core-js": "^2.4.1",
     "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",

@@ -18,38 +18,15 @@
   -->
 
 <div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
-    <div class="twelve suivi-eleve-ctl">
+    <div class="twelve suivi-eleve-ctl" sticky offset="64">
         <h2 class="align-center"><i class="previous left" ng-click="incrementEleve(-1)"></i>
             [[informations.eleve.lastName]] [[informations.eleve.firstName]]
             <i class="next right" ng-click="incrementEleve(1)"></i></h2>
+        <div ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
     </div>
     <div class="suivi-eleve-slider">
         <div class="suivi-eleve inline-block six" ng-class="{slide : opened.detailCompetenceSuivi}">
-
-            <div class="twelve">
-                <div class="right-magnet">
-                    <i class="show-suivi-eleve" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')"></i>
-                    <i class="show-bilan-eleve" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_eleve') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_eleve')"></i>
-                    <i class="show-bilan-fin-cycle" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')"></i>
-                </div>
-            </div>
-
             <container template="suivi-competence-content"></container>
-
-            <div class="twelve">
-                <div class="right-magnet">
-                    <i class="show-suivi-eleve" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')"></i>
-                    <i class="show-bilan-eleve" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_eleve') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_eleve')"></i>
-                    <i class="show-bilan-fin-cycle" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle') }"
-                       ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')"></i>
-                </div>
-            </div>
-
         </div>
         <div class="detail-competence inline-block six " ng-show="opened.detailCompetenceSuivi">
             <div class="twelve">

@@ -7,7 +7,8 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
     return {
         restrict : 'E',
         scope : {
-            devoir : '='
+            devoir : '=',
+            nameFunction: '='
         },
         templateUrl: "/"+appPrefix+"/public/components/cSkillsColorColumn.html",
         controller : ['$scope', function($scope){
@@ -48,6 +49,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
                 $scope.$on('initHeaderColumn', function () {
                     competenceHeader.evaluation = -1;
                     competenceHeader.modified = false;
+                    competenceHeader.nomAvecDomaine = $scope.nameFunction(competenceHeader);
                     $scope.majHeaderColor(competenceHeader);
                 })
             };

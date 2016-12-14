@@ -1,6 +1,5 @@
 import { model, http, IModel, Model, Collection} from 'entcore/entcore';
-import {Collection} from "../../../../../../../bower_components/entcore/src/ts/modelDefinitions";
-import {DOMError} from "../../../../../../../../../../Program Files (x86)/JetBrains/IntelliJ IDEA 15.0.1/plugins/JavaScriptLanguage/typescriptCompiler/external/lib";
+import * as utils from '../utils/teacher';
 
 let moment = require('moment');
 let $ = require('jquery');
@@ -748,23 +747,26 @@ export class Domaine extends Model {
     id : number;
     niveau : number;
     id_parent : number;
+    moyenne : number;
     libelle : string;
     codification : string;
     composer : any;
 
     constructor (poDomaine?) {
         super();
+        var that = this;
         this.collection(Competence);
         this.collection(Domaine);
 
-        var sousDomaines = poDomaine.domaines;
-        var sousCompetences = poDomaine.competences;
-
         if(poDomaine !== undefined) {
+
+            var sousDomaines = poDomaine.domaines;
+            var sousCompetences = poDomaine.competences;
+
             this.updateData(poDomaine);
+
             if(sousDomaines !== undefined) {
                 this.domaines.load(sousDomaines);
-                // TODO faire la recursivité en cas de sous sous .. domaines
             }
 
             if(sousCompetences !== undefined) {
@@ -1023,7 +1025,6 @@ export class Evaluations extends Model {
 }
 
 export class SuiviCompetence extends Model implements IModel{
-    enseignements : Collection<Enseignement>;
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
@@ -1035,7 +1036,7 @@ export class SuiviCompetence extends Model implements IModel{
         }
     }
 
-    constructor (e : Collection<Enseignement>, eleve : Eleve, periode : Periode) {
+    constructor (eleve : Eleve, periode : Periode) {
         super();
         this.periode = periode;
         var that = this;
@@ -1043,68 +1044,136 @@ export class SuiviCompetence extends Model implements IModel{
         this.collection(Domaine, {
             sync: function (idCycle) {
                 return new Promise((resolve, reject) => {
-                    var url = that.api.getArbreDomaines + idCycle;
-                    http().getJson(url).done((res) => {
-                        for(var i=0; i<res.length; i++) {
-                            var domaine = new Domaine(res[i]);
-                            that.domaines.all.push(domaine);
+                    if(idCycle) {
+                        var url = that.api.getArbreDomaines + idCycle;
+                        http().getJson(url).done((resDomaines) => {
 
-
-
-                        }
-
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
-                });
-            }
-        });
-
-        this.collection(Enseignement, {
-            sync: function () {
-                return new Promise((resolve, reject) => {
-                    var url = that.api.getCompetencesNotes + eleve.id;
-                    if (periode !== null && periode !== undefined) {
-                        url += "?idPeriode="+periode.id;
-                    }
-                    http().getJson(url).done((res) => {
-                        that.enseignements.load(e.all);
-                        for (var i = 0; i < that.enseignements.all.length; i++) {
-                            that.enseignements.all[i].competences.load(e.all[i].competences.all);
-                            for (var y = 0; y < that.enseignements.all[i].competences.all.length; y++) {
-                                that.enseignements.all[i].competences.all[y].competences
-                                    .load(e.all[i].competences.all[y].competences.all);
-                                _.map(that.enseignements.all[i].competences.all[y].competences.all, function (competence) {
-                                    competence.competencesEvaluations = _.where(res, {id_competence : competence.id, id_enseignement : competence.id_enseignement});
-                                });
+                            var url = that.api.getCompetencesNotes + eleve.id;
+                            if (periode !== null && periode !== undefined) {
+                                url += "?idPeriode=" + periode.id;
                             }
-                        }
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
+
+                            http().getJson(url).done((resCompetencesNotes) => {
+
+                                //for(var i=0; i<resCompetencesNotes.length; i++) {
+                                //    var competenceNotes = new CompetenceNote(resCompetencesNotes[i]);
+                                //    that.competenceNotes.all.push(competenceNotes);
+                                //}
+
+
+                                if (resDomaines) {
+                                    for (var i = 0; i < resDomaines.length; i++) {
+                                        var domaine = new Domaine(resDomaines[i]);
+                                        that.domaines.all.push(domaine);
+                                        setCompetenceNotes(domaine, resCompetencesNotes);
+                                    }
+                                }
+                            });
+
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve();
+                            }
+                        });
+                    }
                 });
             }
         });
+
     }
 
-    findCompetence (idCompetence) {
-        for (var i = 0; i < this.enseignements.all.length; i++) {
-            for (var y = 0; y < this.enseignements.all[i].competences.all.length; y++) {
-                var c = this.enseignements.all[i].competences.all[y].competences.findWhere({id : idCompetence});
-                if (c !== undefined) return c;
-                else return false;
+
+    /**
+     * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
+     *
+     * @pbMesEvaluations booleen pour savoir s'il faut calculer la moyenne de toutes les évaluations
+     * ou seulement celles du professeur
+     */
+    setMoyenneCompetences (pbMesEvaluations) {
+        for(var i=0; i< this.domaines.all.length; i++) {
+            var oEvaluationsArray = [];
+            var oDomaine = this.domaines.all[i] as Domaine;
+
+            // recherche de toutes les évaluations du domaine et ses sous domaines
+            // (uniquement les max de chaque compétence)
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, pbMesEvaluations);
+
+            if (oEvaluationsArray.length > 0) {
+                oDomaine.moyenne = utils.average(oEvaluationsArray);
+            } else {
+                oDomaine.moyenne = -1;
             }
         }
     }
 
+
+    findCompetence (idCompetence) {
+        for(var i=0; i<this.domaines.all.length; i++) {
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            if(comp !== undefined) {
+                return comp;
+            } else {
+                continue;
+            }
+        }
+        return false;
+    }
+
+
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
-            this.enseignements.sync().then(() => {
                resolve();
+        });
+    }
+}
+
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
+    for(var i=0; i<poDomaine.competences.all.length; i++) {
+        var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
+        var _t = competencesEvaluations;
+        _t = _.filter(competencesEvaluations, function (competence) {
+            return competence.owner !== undefined && competence.owner === model.me.userId;
+        });
+
+        if(_t && _t.length > 0) {
+            poMaxEvaluationsDomaines.push(_.max(_t, function(_t){ return _t.evaluation;}).evaluation);
+        }
+    }
+
+    if(poDomaine.domaines) {
+        for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
+        }
+
+    }
+}
+
+function findCompetenceRec (piIdCompetence, poCompetences) {
+    for (var i = 0; i < poCompetences.all.length; i++) {
+        // si compétences trouvée on arrete le traitement
+        if(poCompetences[i].id === piIdCompetence) {
+            return poCompetences[i];
+        } else {
+            // recherche dans les sous-compétences
+            return findCompetenceRec(piIdCompetence, poCompetences[i].competences);
+        }
+    }
+    return false;
+}
+
+function setCompetenceNotes(poDomaine, poCompetencesNotes) {
+    if(poDomaine.competences) {
+        _.map(poDomaine.competences.all, function (competence) {
+            competence.competencesEvaluations = _.where(poCompetencesNotes, {
+                id_competence: competence.id,
+                id_domaine: competence.id_domaine
             });
         });
+    }
+
+    if( poDomaine.domaines) {
+        for (var i = 0; i < poDomaine.domaines.all.length; i++) {
+            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes);
+        }
     }
 }
 

@@ -1,21 +1,18 @@
 <div class="twelve cell" ng-controller="EvalAcuTeacherController">
 
-    <!-- Header -->
-    <!--<header class="header-viescolaire">-->
-        <!--<h1><i18n>evaluations.title</i18n></h1>-->
-    <!--</header>-->
-
-    <!--  Menu de gauche  -->
-    <nav class="two cell vertical menu-accueil mobile-navigation" side-nav>
+    <!--  Left side nav  -->
+    <nav class="two cell vertical menu-accueil mobile-navigation zero-mobile">
         <ul>
+            <li><a href="#/"><i18n>home</i18n></a></li>
             <li><a href="#/devoir/create"><i18n>evaluations.evaluation.create</i18n></a></li>
+            <li><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
             <li><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
             <li><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
-            <li><a href="#"><i18n>evaluations.suivi.classe.title</i18n></a></li>
+            <li><a href="#/competence/classe"><i18n>evaluations.suivi.classe.title</i18n></a></li>
         </ul>
     </nav>
 
-    <!--  Contenu (zone centrale)  -->
+    <!--  Content (main zone)  -->
     <div class="ten cell main-content twelve-mobile">
         <section>
             <article class="five cell box-accueil twelve-mobile">

@@ -310,12 +310,28 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     var currCompetence = poCompetences.all[i];
                     $scope.competencesFilter[currCompetence.id+"_"+currCompetence.id_enseignement] = {
                         isSelected : false,
-                        nomHtml :currCompetence.nom,
+                        nomHtml :  $scope.buildCompetenceNom(currCompetence),
                         data : currCompetence
                     };
 
                     $scope.initFilterRec(currCompetence.competences, pbInitSelected);
                 }
+            }
+        };
+
+
+        /**
+         * Construis le nom d'une compétence préfixée de la codification du domaine dont elle est rattachée.
+         * Si pas de domaine rattaché, seul le nom est retourné
+         * @param poCompetence la compétence
+         * @returns {le nom construis sous forme d'une chaine de caractères}
+         */
+        $scope.buildCompetenceNom = function(poCompetence) {
+
+            if(poCompetence.code_domaine !== null && poCompetence.code_domaine !== undefined) {
+                return poCompetence.code_domaine+ " - " +poCompetence.nom;
+            } else{
+                return poCompetence.nom;
             }
         };
 
@@ -447,7 +463,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
 
                     } else {
-                        $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = sousCompetence.nom;
+                        $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = $scope.buildCompetenceNom(sousCompetence);
                     }
 
                     // si elle match le mot clef on déplie également les parents
@@ -493,7 +509,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-            evaluations.enseignements.sync();
+            // TODO calculer le cycle
+            var lIdCycle = 1;
+            evaluations.enseignements.sync(lIdCycle);
             utils.safeApply(this);
             $scope.initFilter(true);
             $scope.search.keyword = "";

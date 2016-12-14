@@ -557,7 +557,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                         marginTop: $elem.css('margin-top'),
                         marginBottom: $elem.css('margin-bottom'),
                         cssLeft: getCSS($elem, 'left'),
-                        width: $elem[0].parentElement.offsetWidth,
+                        width: $elem.css('width'),
                         height: $elem.css('height')
                     };
                 };

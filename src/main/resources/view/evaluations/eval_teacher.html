@@ -24,7 +24,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
     <script src="/viescolaire/public/dist/entcore/ng-app.js" id="context" type="text/javascript"></script>
-    <script src="/viescolaire/public/dist/evaluations/eval_teachers-4f7ae5cb79.js" type="text/javascript"></script>
+    <script src="/viescolaire/public/dist/evaluations/eval_teachers-4aaf496a5e.js" type="text/javascript"></script>
     <script type="text/ng-template" id="empty"></script>
     <link rel="stylesheet" href="/viescolaire/public/css/fontawesome/css/font-awesome.css">
 </head>
@@ -36,6 +36,16 @@
     <lightbox show="opened.lightbox" on-close="opened.lightbox=false">
         <container template="lightboxContainer"></container>
     </lightbox>
+        <nav class="cell vertical menu-accueil mobile-navigation vsco_navigation" side-nav>
+        <ul>
+            <li><a href="#/"><i18n>home</i18n></a></li>
+            <li><a href="#/devoir/create"><i18n>evaluations.evaluation.create</i18n></a></li>
+            <li><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
+            <li><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
+            <li><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
+            <li><a href="#"><i18n>evaluations.suivi.classe.title</i18n></a></li>
+        </ul>
+    </nav>
 </portal>
 </body>
 

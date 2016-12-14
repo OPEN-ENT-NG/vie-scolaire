@@ -1,4 +1,5 @@
 import { model, http, IModel, Model, Collection} from 'entcore/entcore';
+import * as utils from '../utils/teacher';
 
 let moment = require('moment');
 let $ = require('jquery');
@@ -199,7 +200,7 @@ export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
     name : string;
-    suiviCompetences : Collection<SuiviCompetence>;
+
     get api () {
         return {
             sync : '/directory/class/'+this.id+'/users?type=Student'
@@ -745,6 +746,7 @@ export class Domaine extends Model {
     id : number;
     niveau : number;
     id_parent : number;
+    moyenne : number;
     libelle : string;
     codification : string;
     composer : any;
@@ -1021,75 +1023,6 @@ export class Evaluations extends Model {
 
 }
 
-export class SuiviCompetence extends Model implements IModel{
-    domaines : Collection<Domaine>;
-    competenceNotes : Collection<CompetenceNote>;
-    periode : Periode;
-
-    get api() {
-        return {
-            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/'
-        }
-    }
-
-    constructor (eleve : Eleve, periode : Periode) {
-        super();
-        this.periode = periode;
-        var that = this;
-
-        this.collection(Domaine, {
-            sync: function (idCycle) {
-                return new Promise((resolve, reject) => {
-                    var url = that.api.getArbreDomaines + idCycle;
-                    http().getJson(url).done((resDomaines) => {
-
-                        var url = that.api.getCompetencesNotes + eleve.id;
-                        if (periode !== null && periode !== undefined) {
-                            url += "?idPeriode="+periode.id;
-                        }
-
-                        http().getJson(url).done((resCompetencesNotes) => {
-
-                            if(resDomaines) {
-                                for(var i=0; i<resDomaines.length; i++) {
-                                    var domaine = new Domaine(resDomaines[i]);
-                                    that.domaines.all.push(domaine);
-                                    setCompetenceNotes(domaine, resCompetencesNotes);
-                                }
-                            }
-                        });
-
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
-                });
-            }
-        });
-
-    }
-
-    findCompetence (idCompetence) {
-        for(var i=0; i<this.domaines.all.length; i++) {
-            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
-            if(comp !== undefined) {
-                return comp;
-            } else {
-                continue;
-            }
-        }
-        return false;
-    }
-
-
-    sync () : Promise<any> {
-        return new Promise((resolve, reject) => {
-               resolve();
-        });
-    }
-}
-
 export class SuiviCompetenceClasse extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
@@ -1159,6 +1092,129 @@ export class SuiviCompetenceClasse extends Model implements IModel{
     }
 }
 
+
+export class SuiviCompetence extends Model implements IModel{
+    domaines : Collection<Domaine>;
+    competenceNotes : Collection<CompetenceNote>;
+    periode : Periode;
+
+    get api() {
+        return {
+            getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
+            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+        }
+    }
+
+    constructor (eleve : Eleve, periode : Periode) {
+        super();
+        this.periode = periode;
+        var that = this;
+
+        this.collection(Domaine, {
+            sync: function (idCycle) {
+                return new Promise((resolve, reject) => {
+                    if(idCycle) {
+                        var url = that.api.getArbreDomaines + idCycle;
+                        http().getJson(url).done((resDomaines) => {
+
+                            var url = that.api.getCompetencesNotes + eleve.id;
+                            if (periode !== null && periode !== undefined) {
+                                url += "?idPeriode=" + periode.id;
+                            }
+
+                            http().getJson(url).done((resCompetencesNotes) => {
+
+                                //for(var i=0; i<resCompetencesNotes.length; i++) {
+                                //    var competenceNotes = new CompetenceNote(resCompetencesNotes[i]);
+                                //    that.competenceNotes.all.push(competenceNotes);
+                                //}
+
+
+                                if (resDomaines) {
+                                    for (var i = 0; i < resDomaines.length; i++) {
+                                        var domaine = new Domaine(resDomaines[i]);
+                                        that.domaines.all.push(domaine);
+                                        setCompetenceNotes(domaine, resCompetencesNotes);
+                                    }
+                                }
+                            });
+
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+    }
+
+
+    /**
+     * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
+     *
+     * @pbMesEvaluations booleen pour savoir s'il faut calculer la moyenne de toutes les évaluations
+     * ou seulement celles du professeur
+     */
+    setMoyenneCompetences (pbMesEvaluations) {
+        for(var i=0; i< this.domaines.all.length; i++) {
+            var oEvaluationsArray = [];
+            var oDomaine = this.domaines.all[i] as Domaine;
+
+            // recherche de toutes les évaluations du domaine et ses sous domaines
+            // (uniquement les max de chaque compétence)
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, pbMesEvaluations);
+
+            if (oEvaluationsArray.length > 0) {
+                oDomaine.moyenne = utils.average(oEvaluationsArray);
+            } else {
+                oDomaine.moyenne = -1;
+            }
+        }
+    }
+
+
+    findCompetence (idCompetence) {
+        for(var i=0; i<this.domaines.all.length; i++) {
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            if(comp !== undefined) {
+                return comp;
+            } else {
+                continue;
+            }
+        }
+        return false;
+    }
+
+
+    sync () : Promise<any> {
+        return new Promise((resolve, reject) => {
+               resolve();
+        });
+    }
+}
+
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
+    for(var i=0; i<poDomaine.competences.all.length; i++) {
+        var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
+        var _t = competencesEvaluations;
+        _t = _.filter(competencesEvaluations, function (competence) {
+            return competence.owner !== undefined && competence.owner === model.me.userId;
+        });
+
+        if(_t && _t.length > 0) {
+            poMaxEvaluationsDomaines.push(_.max(_t, function(_t){ return _t.evaluation;}).evaluation);
+        }
+    }
+
+    if(poDomaine.domaines) {
+        for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
+        }
+
+    }
+}
 
 function findCompetenceRec (piIdCompetence, poCompetences) {
     for (var i = 0; i < poCompetences.all.length; i++) {

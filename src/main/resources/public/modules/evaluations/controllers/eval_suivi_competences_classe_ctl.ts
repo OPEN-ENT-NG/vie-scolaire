@@ -136,5 +136,20 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         var searchIndex = function (array, obj) {
             return _.indexOf(array, obj);
         };
+
+
+        /**
+         * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index
+         * @param num pas d'incrémentation. Peut être positif ou négatif
+         */
+        $scope.incrementClasse = function (num) {
+            var index = searchIndex($scope.classes.all, $scope.search.classe);
+            if (index !== -1 && (index + parseInt(num)) >= 0
+                && (index + parseInt(num)) < $scope.classes.all.length) {
+                $scope.search.classe = $scope.classes.all[index + parseInt(num)];
+                $scope.selectSuivi('/competences/classe');
+                utils.safeApply($scope);
+            }
+        };
     }
 ]);

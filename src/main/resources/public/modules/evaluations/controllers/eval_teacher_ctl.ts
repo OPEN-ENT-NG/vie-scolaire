@@ -98,6 +98,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
+        $scope.bSelectAllEnseignements = false;
         $scope.matieres = evaluations.matieres;
         $scope.releveNotes = evaluations.releveNotes;
         $scope.releveNote = null;
@@ -145,6 +146,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             eleve : null
         };
         $scope.releveNote = undefined;
+        evaluations.devoirs.on('sync', function () {
+            $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
+                return [item.id, item.name]
+            }));
+        });
 
         evaluations.classes.on('classes-sync', function () {
             utils.safeApply($scope);
@@ -225,7 +231,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any} Valeur i18n
          */
         $scope.translate = function (key) {
-          return utils.translate(key);
+            return utils.translate(key);
         };
 
         /**
@@ -374,22 +380,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Sélectionne tous les enseignements dans l'écran de filtre des compétences
+         * Sélectionne/Désélectionne tous les enseignements dans l'écran de filtre des compétences
          * lors de la création d'un devoir.
          *
          */
-        $scope.selectAllEnseignements = function(){
-            $scope.selectEnseignements(true);
-        };
-
-
-        /**
-         * Désélectionne tous les enseignements dans l'écran de filtre des compétences
-         * lors de la création d'un devoir.
-         *
-         */
-        $scope.deselectAllEnseignements = function(){
-            $scope.selectEnseignements(false);
+        $scope.selectUnselectEnseignements = function(){
+            $scope.selectEnseignements($scope.bSelectAllEnseignements);
+            $scope.bSelectAllEnseignements = !$scope.bSelectAllEnseignements;
         };
 
 
@@ -567,7 +564,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                     // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
                     if(competence === undefined) {
-                    //if(!_.contains(evaluations.competencesDevoir, e)) {
+                        //if(!_.contains(evaluations.competencesDevoir, e)) {
                         evaluations.competencesDevoir.push(e);
                     }
                 } else {
@@ -585,7 +582,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
                 if(competence === undefined) {
-                //if(!_.contains(evaluations.competencesDevoir, item)) {
+                    //if(!_.contains(evaluations.competencesDevoir, item)) {
                     evaluations.competencesDevoir.push(item);
                 }
             } else {
@@ -815,6 +812,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (idSousMatiere == null || idSousMatiere === "") return "";
             return _.findWhere($scope.devoir.matiere.sousMatieres.all, {id : parseInt(idSousMatiere)}).libelle;
         };
+
+
+        /*  $scope.getLibelleDevoir = function (id) {
+         var devoir = $scope.devoirs.findWhere({id : id});
+         if (devoir !== undefined) return devoir.name;
+         };
+         */
+        $scope.getLibelleDevoir = function (id) {
+            if($scope.mapIdLibelleDevoir !== undefined) return $scope.mapIdLibelleDevoir[parseInt(id)];
+        };
+
 
         /**
          * Séquence d'enregistrement d'une évaluation

@@ -31,7 +31,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Créer une suivi de compétence
          */
         $scope.selectEleve = function () {
-            //$templateCache.removeAll();
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);

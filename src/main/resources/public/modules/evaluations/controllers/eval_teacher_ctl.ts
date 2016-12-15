@@ -93,6 +93,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
+        $scope.bSelectAllEnseignements = false;
         $scope.matieres = evaluations.matieres;
         $scope.releveNotes = evaluations.releveNotes;
         $scope.releveNote = null;
@@ -369,22 +370,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Sélectionne tous les enseignements dans l'écran de filtre des compétences
+         * Sélectionne/Désélectionne tous les enseignements dans l'écran de filtre des compétences
          * lors de la création d'un devoir.
          *
          */
-        $scope.selectAllEnseignements = function(){
-            $scope.selectEnseignements(true);
-        };
-
-
-        /**
-         * Désélectionne tous les enseignements dans l'écran de filtre des compétences
-         * lors de la création d'un devoir.
-         *
-         */
-        $scope.deselectAllEnseignements = function(){
-            $scope.selectEnseignements(false);
+        $scope.selectUnselectEnseignements = function(){
+            $scope.selectEnseignements($scope.bSelectAllEnseignements);
+            $scope.bSelectAllEnseignements = !$scope.bSelectAllEnseignements;
         };
 
 

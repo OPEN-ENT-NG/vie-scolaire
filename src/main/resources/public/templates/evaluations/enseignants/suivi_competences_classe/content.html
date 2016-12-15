@@ -33,12 +33,6 @@
                 <a ng-click="backToSuivi()" ng-show="opened.detailCompetenceSuivi">
                     <i class="icon-back"></i>
                 </a>
-                <div class="right-magnet">
-                    <i class="show-list" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau') }"
-                       ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau')"></i>
-                    <i class="show-chart" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph') }"
-                       ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph')"></i>
-                </div>
             </div>
             <h2 class="ellipsis ten">
                 [[detailCompetence.nom]]

@@ -100,4 +100,12 @@ public interface CompetenceNoteService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getCompetencesNotesEleve(String idEleve, Long idPeriode, Handler<Either<String,JsonArray>> handler);
+
+    /**
+     * Récupère toutes les compétences notes d'une classe
+     * @param idClasse identifiant de la classe
+     * @param idPeriode identifiant de la période
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String,JsonArray>> handler);
 }

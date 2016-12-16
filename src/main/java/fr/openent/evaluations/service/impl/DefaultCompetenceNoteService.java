@@ -152,4 +152,28 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+
+    @Override
+    public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray().addString(idClasse);
+        StringBuilder query = new StringBuilder()
+                .append("SELECT DISTINCT competences.id as id_competence, competences.id_parent, competences.id_type, competences.id_cycle, ")
+                .append("competences_notes.id as id_competences_notes, competences_notes.evaluation, competences_notes.owner, competences_notes.created, devoirs.name as evaluation_libelle, ")
+                .append("rel_competences_domaines.id_domaine ,competences_notes.id_eleve AS id_eleve ")
+                .append("FROM notes.competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
+                .append("WHERE devoirs.id_classe = ? ");
+        if (idPeriode != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(idPeriode);
+        }
+        query.append("ORDER BY competences_notes.created ");
+
+
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

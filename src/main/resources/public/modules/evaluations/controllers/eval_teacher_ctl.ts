@@ -79,9 +79,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope);
             },
-            displaySuiviCompetencesEleve : function (params) {
+            displaySuiviCompetencesEleve : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
                 $scope.informations.eleve = null;
+                $scope.sortType     = 'title'; // set the default sort type
+                $scope.sortReverse  = false;  // set the default sort order
+            },
+            displaySuiviCompetencesClasse : function () {
+                template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
             }
@@ -93,6 +98,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
+        $scope.bSelectAllEnseignements = false;
         $scope.matieres = evaluations.matieres;
         $scope.releveNotes = evaluations.releveNotes;
         $scope.releveNote = null;
@@ -374,22 +380,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Sélectionne tous les enseignements dans l'écran de filtre des compétences
+         * Sélectionne/Désélectionne tous les enseignements dans l'écran de filtre des compétences
          * lors de la création d'un devoir.
          *
          */
-        $scope.selectAllEnseignements = function(){
-            $scope.selectEnseignements(true);
-        };
-
-
-        /**
-         * Désélectionne tous les enseignements dans l'écran de filtre des compétences
-         * lors de la création d'un devoir.
-         *
-         */
-        $scope.deselectAllEnseignements = function(){
-            $scope.selectEnseignements(false);
+        $scope.selectUnselectEnseignements = function(){
+            $scope.selectEnseignements($scope.bSelectAllEnseignements);
+            $scope.bSelectAllEnseignements = !$scope.bSelectAllEnseignements;
         };
 
 

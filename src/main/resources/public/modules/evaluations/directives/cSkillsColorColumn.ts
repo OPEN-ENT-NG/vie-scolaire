@@ -8,7 +8,10 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
         restrict : 'E',
         scope : {
             devoir : '=',
-            nameFunction: '='
+            nameFunction: '=',
+            selectedEleves: '=',
+            selectedCompetences: '=',
+            check : '='
         },
         templateUrl: "/"+appPrefix+"/public/components/cSkillsColorColumn.html",
         controller : ['$scope', function($scope){
@@ -33,8 +36,9 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
             $scope.saveCompetences = function(competenceHeader){
                 if(competenceHeader.modified) {
                     var _data = [];
-                    for (var i = 0; i < $scope.devoir.eleves.all.length; i++) {
-                        var competence = $scope.devoir.eleves.all[i].evaluation.competenceNotes.findWhere({id_competence: competenceHeader.id_competence});
+                    var range = $scope.selectedEleves.length > 0 ? $scope.selectedEleves : $scope.devoir.eleves.all;
+                    for (var i = 0; i < range.length; i++) {
+                        var competence = range[i].evaluation.competenceNotes.findWhere({id_competence: competenceHeader.id_competence});
                         if (competence !== undefined) {
                             competence.evaluation = competenceHeader.evaluation;
                             _data.push(competence);
@@ -46,6 +50,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
             };
 
             $scope.init = function(competenceHeader){
+                competenceHeader.selected = false;
                 $scope.$on('initHeaderColumn', function () {
                     competenceHeader.evaluation = -1;
                     competenceHeader.modified = false;

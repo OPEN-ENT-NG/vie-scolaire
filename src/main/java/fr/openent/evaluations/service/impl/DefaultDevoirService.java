@@ -138,7 +138,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "WHERE notes.id_devoir = devoirs.id " +
                 "AND devoirs.owner = ? " +
-                "GROUP by devoirs.id");
+                "GROUP by devoirs.id, devoirs.id_classe");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));
     }

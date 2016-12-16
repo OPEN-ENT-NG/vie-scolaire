@@ -18,6 +18,10 @@
   -->
 <ul class="skills-color-column">
     <li ng-repeat="competenceHeader in devoir.competences.all">
+    <label class="checkbox">
+        <input type="checkbox" ng-model="competenceHeader.selected" ng-click="check(selectedCompetences, competenceHeader)">
+        <span></span>
+    </label>
     <span ng-click="switchColor(competenceHeader)"
           ng-mouseleave="saveCompetences(competenceHeader)"
           ng-init="init(competenceHeader);"

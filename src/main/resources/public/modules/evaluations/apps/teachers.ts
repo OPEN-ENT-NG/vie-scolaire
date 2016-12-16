@@ -7,10 +7,12 @@ import {routes, ng} from 'entcore/entcore';
 import {evaluationsController} from '../controllers/eval_teacher_ctl';
 import {evalAcuTeacherController} from '../controllers/eval_acu_teacher_ctl';
 import {evalSuiviCompetenceEleveCtl} from '../controllers/eval_suivi_competences_eleve_ctl';
+import {evalSuiviCompetenceClasseCtl} from '../controllers/eval_suivi_competences_classe_ctl';
 
 ng.controllers.push(evaluationsController);
 ng.controllers.push(evalAcuTeacherController);
 ng.controllers.push(evalSuiviCompetenceEleveCtl);
+ng.controllers.push(evalSuiviCompetenceClasseCtl);
 
 //FILTERS
 import {uniqueFilter} from '../../utils/filters/unique';
@@ -59,6 +61,7 @@ routes.define(function($routeProvider){
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
         .when('/competences/eleve', {action : 'displaySuiviCompetencesEleve'})
+        .when('/competences/classe', {action : 'displaySuiviCompetencesClasse'})
         .when('/',{action:'accueil'})
         .otherwise({
             redirectTo : '/'

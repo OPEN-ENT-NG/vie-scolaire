@@ -1024,6 +1024,76 @@ export class Evaluations extends Model {
 
 }
 
+export class SuiviCompetenceClasse extends Model implements IModel{
+    domaines : Collection<Domaine>;
+    competenceNotes : Collection<CompetenceNote>;
+    periode : Periode;
+
+    get api() {
+        return {
+            getCompetencesNotesClasse : '/viescolaire/evaluations/competence/notes/classe/',
+            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+        }
+    }
+
+    constructor (classe : Classe, periode : Periode) {
+        super();
+        this.periode = periode;
+        var that = this;
+
+        this.collection(Domaine, {
+            sync: function (idCycle) {
+                return new Promise((resolve, reject) => {
+                    var url = that.api.getArbreDomaines + idCycle;
+                    http().getJson(url).done((resDomaines) => {
+
+                        var url = that.api.getCompetencesNotesClasse + classe.id;
+                        if (periode !== null && periode !== undefined) {
+                            url += "?idPeriode="+periode.id;
+                        }
+
+                        http().getJson(url).done((resCompetencesNotes) => {
+
+                            if(resDomaines) {
+                                for(var i=0; i<resDomaines.length; i++) {
+                                    var domaine = new Domaine(resDomaines[i]);
+                                    that.domaines.all.push(domaine);
+                                    setCompetenceNotes(domaine, resCompetencesNotes);
+                                }
+                            }
+                        });
+
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve();
+                        }
+                    });
+                });
+            }
+        });
+
+    }
+
+    findCompetence (idCompetence) {
+        for(var i=0; i<this.domaines.all.length; i++) {
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            if(comp !== undefined) {
+                return comp;
+            } else {
+                continue;
+            }
+        }
+        return false;
+    }
+
+
+    sync () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    }
+}
+
+
 export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;

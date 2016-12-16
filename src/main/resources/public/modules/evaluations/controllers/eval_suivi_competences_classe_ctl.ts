@@ -3,24 +3,23 @@
  */
 
 import {ng, template } from 'entcore/entcore';
-import {SuiviCompetence, Domaine} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Domaine,SuiviCompetenceClasse} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;
 
-export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
+export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClasseCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route',
     function ($scope, route, $rootScope, $location, $filter, $route) {
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
-        template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
-        template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
-        $scope.route =  $route;
-        $scope.search.eleve = "";
+        template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
         delete $scope.informations.eleve;
         $scope.opened.detailCompetenceSuivi = false;
         $scope.suiviCompetence = {};
-
+        $scope.mapEleves = {};
+        $scope.route = $route;
+        $scope.search.classe = "";
         $scope.suiviFilter = {
             mine : 'true'
         };
@@ -28,58 +27,35 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
        $scope.idCycle = 1;
 
+
         /**
          * Créer une suivi de compétence
          */
-        $scope.selectSuivi = function () {
-            $scope.informations.eleve = $scope.search.eleve;
-            if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
-                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);
+        $scope.selectSuivi = function (state) {
+            template.close('suivi-competence-content');
+            template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_classe/content_vue_suivi_classe');
+            $scope.informations.classe = $scope.search.classe;
+            if ($scope.informations.classe !== null && $scope.search.classe !== "") {
+                $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.sync($scope.idCycle);
-
-
-                    setTimeout(function() {
-                        $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
-                    },400);
-
-                    $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         if (!$scope.detailCompetence) $scope.backToSuivi();
                     }
 
-                    $scope.template.close('suivi-competence-content');
-                    utils.safeApply($scope);
-                    $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
+                    // On stocke l'ensemble des élèves de la classe dan une Map
+
+                    var mapEleves = {};
+                    for (var i = 0; i < $scope.search.classe.eleves.all.length; i++) {
+                        mapEleves[$scope.search.classe.eleves.all[i].id]= $scope.search.classe.eleves.all[i];
+                    }
+                    $scope.search.classe.mapEleves = mapEleves;
                     utils.safeApply($scope);
                 });
             }
         };
 
-        /**
-         * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"
-         * @param listeEvaluations Tableau d'évaluations de compétences
-         * @returns {(evaluation:any)=>(boolean|boolean)} Retourne true si la compétence courante est la plus haute du tableau listeEvaluations
-         */
-        $scope.isMaxEvaluation = function (listeEvaluations) {
-            return function (evaluation) {
-                var _t = listeEvaluations;
-                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
-                    _t = _.filter(listeEvaluations, function (competence) {
-                        return competence.owner !== undefined && competence.owner === $scope.me.userId;
-                    });
-                }
-                var max = _.max(_t, function (competence) {
-                    return competence.evaluation;
-                });
-                if (typeof max === 'object') {
-                    return evaluation.id_competences_notes === max.id_competences_notes;
-                } else {
-                    return false;
-                }
-            };
-        };
 
         /**
          * Retourne si l'utilisateur n'est pas le propriétaire de compétences
@@ -108,13 +84,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         });
 
         /**
-         * Lance la séquence d'ouverture du détail d'une compétence permettant d'accéder à la vue liste ou graph
+         * Lance la séquence d'ouverture du détail d'une compétence
          * @param competence Compétence à ouvrir
          */
-        $scope.openDetailCompetence = function (competence) {
-            $scope.detailCompetence = competence;
-            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau");
-        };
+         $scope.openDetailCompetence = function (competence) {
+             $scope.detailCompetence = competence;
+             template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_classe/detail_vue_classe");
+         };
 
         /**
          * Lance la séquence de retour à la vue globale du suivi de compétence
@@ -147,16 +123,17 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             return _.indexOf(array, obj);
         };
 
+
         /**
          * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
-        $scope.incrementEleve = function (num) {
-            var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
+        $scope.incrementClasse = function (num) {
+            var index = searchIndex($scope.classes.all, $scope.search.classe);
             if (index !== -1 && (index + parseInt(num)) >= 0
-                && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
-                $scope.search.eleve = $scope.search.classe.eleves.all[index + parseInt(num)];
-                $scope.selectSuivi();
+                && (index + parseInt(num)) < $scope.classes.all.length) {
+                $scope.search.classe = $scope.classes.all[index + parseInt(num)];
+                $scope.selectSuivi('/competences/classe');
                 utils.safeApply($scope);
             }
         };

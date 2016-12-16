@@ -136,6 +136,13 @@
   "evaluations.competences.fragile":"Maîtrise fragile",
   "evaluations.competences.poor":"Maîtrise insuffisante",
   "evaluations.competence.unevaluated":"Compétence non évaluée",
+
+  "evaluations.competences.proficiency.abreviation":"TB",
+  "evaluations.competences.satisfying.abreviation":"MS",
+  "evaluations.competences.fragile.abreviation":"MF",
+  "evaluations.competences.poor.abreviation":"MI",
+  "evaluations.competence.unevaluated.abreviation":"NE",
+
   "evaluations.competences.overview":"Récapitulatif des compétences",
   "evaluation.classe.average":"Moyenne de la classe",
   "evaluation.domaine.average":"Moyenne du domaine",
@@ -145,6 +152,7 @@
   "viescolaire.utils.select.all" : "Tout sélectionner",
   "viescolaire.utils.deselect.all" : "Tout désélectionner",
   "viescolaire.utils.legend" : "Légende",
+  "viescolaire.utils.legend.conversion" : "Légende conversion",
   "viescolaire.utils.from.date":"du",
   "viescolaire.utils.to.date":"au",
   "viescolaire.utils.save":"Enregister",

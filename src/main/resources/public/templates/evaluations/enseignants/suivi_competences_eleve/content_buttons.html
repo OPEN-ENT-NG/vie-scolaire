@@ -17,7 +17,7 @@
   ~
   -->
 
-<div class="twelve">
+<div class="twelve" ng-show="!opened.detailCompetenceSuivi">
     <div class="right-magnet">
         <i tooltip="evaluations.suivi.eleve.title" class="show-suivi-eleve" ng-class="{ selected: template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve') }"
            ng-click="template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')"></i>

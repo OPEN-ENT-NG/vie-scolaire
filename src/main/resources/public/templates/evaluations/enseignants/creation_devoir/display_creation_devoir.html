@@ -74,7 +74,7 @@
 
                                     <!-- Sous matiere -->
                                     <div class="twelve-mobile " ng-if="devoir.matiere.sousMatieres.all.length !== 0">
-                                        <div class="cell addDevoirTable__libelle twelve-mobile">
+                                        <div class="cell cell-indent addDevoirTable__libelle twelve-mobile">
                                             <i18n>viescolaire.utils.undersubject</i18n>
                                         </div>
 
@@ -242,12 +242,15 @@
                     <!-- Filtre sur les enseignements -->
                     <div class="three cell twelve-mobile">
 
-                        <div class="row angle-container twelve-mobile">
-                            <!--<span style="font-size: 18px; font-weight: bold;">[[lang.translate("directory.classes")]]</span>-->
-                            <button ng-click="deselectAllEnseignements()" style="height: 25px" class="instantButtons deselect right-magnet" tooltip="viescolaire.utils.deselectAll"></button>
-                            <button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>
-                        </div>
+                        <!--<div class="row angle-container twelve-mobile">-->
+                            <!--<button ng-click="deselectAllEnseignements()" style="height: 25px" class="instantButtons deselect right-magnet" tooltip="viescolaire.utils.deselectAll"></button>-->
+                            <!--<button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>-->
+                        <!--</div>-->
 
+                        <label class="chip multiselect right-magnet margin-left">
+                            <span><i18n>viescolaire.utils.all.none</i18n></span>
+                            <input type="checkbox" ng-model="bSelectAllEnseignements" ng-change="selectUnselectEnseignements()" ng-class="{ selected: bSelectAllEnseignements }"/>
+                        </label>
 
                         <ul class="selectable-list twelve-mobile">
                             <li ng-repeat="enseignement in enseignements.all"

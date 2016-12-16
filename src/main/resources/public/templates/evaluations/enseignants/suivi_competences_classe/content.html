@@ -17,28 +17,22 @@
   ~
   -->
 
-<div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
-    <div class="twelve suivi-eleve-ctl" sticky offset="64">
-        <h2 class="align-center"><i class="previous left" ng-click="incrementEleve(-1)"></i>
-            [[informations.eleve.lastName]] [[informations.eleve.firstName]]
-            <i class="next right" ng-click="incrementEleve(1)"></i></h2>
-        <div ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
+<div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.classe !== '' && informations.classe !== undefined">
+    <div class="twelve suivi-eleve-ctl">
+        <h2 class="align-center"><i class="previous left" ng-click="incrementClasse(-1)"></i>
+            [[informations.classe.name]]
+            <i class="next right" ng-click="incrementClasse(1)"></i></h2>
     </div>
     <div class="suivi-eleve-slider">
         <div class="suivi-eleve inline-block six" ng-class="{slide : opened.detailCompetenceSuivi}">
+            <h2><i18n>evaluations.suivi.classe.title</i18n> :  [[informations.classe.name]]</h2>
             <container template="suivi-competence-content"></container>
         </div>
-        <div class="detail-competence inline-block six " ng-show="opened.detailCompetenceSuivi">
+        <div class="detail-competence inline-block six">
             <div class="twelve">
-                <a ng-click="backToSuivi()" >
+                <a ng-click="backToSuivi()" ng-show="opened.detailCompetenceSuivi">
                     <i class="icon-back"></i>
                 </a>
-                <div class="right-magnet">
-                    <i class="show-list" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau') }"
-                       ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau')"></i>
-                    <i class="show-chart" ng-class="{ selected: template.contains('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph') }"
-                       ng-click="template.open('suivi-competence-detail', '../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph')"></i>
-                </div>
             </div>
             <h2 class="ellipsis ten">
                 [[detailCompetence.nom]]

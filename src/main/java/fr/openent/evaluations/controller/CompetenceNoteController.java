@@ -201,6 +201,32 @@ public class CompetenceNoteController extends ControllerHelper {
         }
     }
 
+    @Get("/competence/notes/classe/:idClasse")
+    @ApiDoc("Retourne les compétences notes pour une classee. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetenceNoteClasse (final HttpServerRequest request) {
+        if (request.params().contains("idClasse")) {
+            String idClasse = request.params().get("idClasse");
+            Long idPeriode;
+            if (request.params().contains("idPeriode")) {
+                try {
+                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                } catch (NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object", e);
+                    badRequest(request, e.getMessage());
+                    return;
+                }
+            } else {
+                idPeriode = null;
+            }
+
+            competencesNotesService.getCompetencesNotesClasse(idClasse, idPeriode, arrayResponseHandler(request));
+        } else {
+            Renders.badRequest(request, "Invalid parameters");
+        }
+    }
+
     @Post("/competence/notes")
     @ApiDoc("Créer une liste de compétences notes pour un devoir donné")
     @SecuredAction("viescolaire.evaluations.createEvaluation")

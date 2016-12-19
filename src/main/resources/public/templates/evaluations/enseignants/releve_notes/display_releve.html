@@ -67,74 +67,7 @@
         <section class="ten twelve-mobile cell right">
 
             <content ng-show="releveNote.devoirs.all.length > 0">
-
-                <div ng-if="releveNote.devoirs.all.length < 10" class="responsive-table">
-                <table class="list-view tableReleve tableRelevePadding marginTopZero" c-naviga-table>
-                    <thead sticky offset="64px" use-placeholder="false">
-                    <tr >
-                        <th class="col1">Eleve</th>
-                        <th ng-class="{'devoir-with-comp' : devoir.nbcompetences > 0, 'ellipsis' : true }"
-                            ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir)"
-                            style="display: inline-block;min-width: 80px; width: calc((83.33333%-200px)/([[releveNote.devoirs.all.length +1]]));"
-                            ng-dblclick="goTo('/devoir/'+devoir.id)" tooltip="[[devoir.name]]">
-                            [[getShortDateFormated(devoir.date)]]<br>
-                            [[devoir.name]]
-                        </th>
-                        <th style="display: inline-block; width: calc((83.33333%-200px)/([[releveNote.devoirs.all.length +1]]));"
-                            class="backForscroll colMoyenne">Moyenne</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="eleve in releveNote.classe.eleves.all">
-                        <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
-                        <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
-                            <input ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
-                                   class="input-note"
-                                   type="text"
-                                   style="width: 5em;margin: 0 auto;"
-                                   ng-model="evaluation.valeur"
-                                   ng-blur="saveNoteDevoirEleve(evaluation, $event, eleve)"
-                                   max="20" min="0" step="0.01">
-                        </td>
-                        <!--ng-init="initNoteReleve(evaluation)"-->
-                        <td  class="colMoyenne" data-label="Moyenne">
-                            <span style="font-weight: bold;">[[eleve.moyenne]]</span>
-                        </td>
-
-                    </tr>
-                    <tr class="moyenneClasse">
-                        <td class="col1 text-overflow">Moyenne de la classe</td>
-                        <td class="colDevoir" ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
-                            <div class="input-note">
-                                [[devoir.statistiques.moyenne]]
-                            </div>
-                        </td>
-                        <td class="colMoyenne" data-label="Moyenne"></td>
-                    </tr>
-                    <tr class="minClasse">
-                        <td class="col1 text-overflow">Note min</td>
-                        <td class="colDevoir"
-                            ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
-                            <div >
-                                [[devoir.statistiques.noteMin]]
-                            </div>
-                        </td>
-                        <td class="colMoyenne" data-label="Moyenne"></td>
-                    </tr>
-                    <tr class="maxClasse">
-                        <td class="col1 text-overflow">Note max</td>
-                        <td class="colDevoir"  ng-repeat="devoir in releveNote.devoirs.all"
-                            data-label="[[devoir.name]]">
-                            <div class="input-note">
-                                [[devoir.statistiques.noteMax]]
-                            </div>
-                        </td>
-                        <td class="colMoyenne" data-label="Moyenne"></td>
-                    </tr>
-                    </tbody>
-                </table>
-                </div>
-                <div ng-if="releveNote.devoirs.all.length >= 10" class="responsive-table overflowXScroll">
+                <div class="responsive-table overflowXScroll">
                     <table id="relevetable" class="list-view tableReleve tableRelevePadding marginTopZero" c-naviga-table>
                         <thead>
                         <tr >

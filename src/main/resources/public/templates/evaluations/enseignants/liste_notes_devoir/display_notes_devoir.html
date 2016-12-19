@@ -84,7 +84,8 @@
                         <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
                             <div class="one inline-block cell-indent left">
                                 <label class="checkbox">
-                                    <input type="checkbox" ng-click="selectAllEleveListe()">
+                                    <input type="checkbox" ng-checked="selected.eleves.all || (selected.eleves.list.length === currentDevoir.eleves.all.length)"
+                                           ng-click="selectAllEleveListe()">
                                     <span></span>
                                 </label>
                             </div>
@@ -134,7 +135,7 @@
                                             <label class="checkbox">
                                                 <input type="checkbox" ng-model="eleve.selected"
                                                        ng-init="eleve.selected = false"
-                                                       ng-click="selectObject(selected.eleves.list, eleve)">
+                                                       ng-click="selectEleveListe(eleve)">
                                                 <span></span>
                                             </label>
                                         </div>

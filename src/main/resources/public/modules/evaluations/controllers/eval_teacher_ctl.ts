@@ -31,6 +31,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             viewNotesDevoir : function(params){
                 window.scrollTo(0, 0);
+                $scope.resetSelected();
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
                     utils.safeApply($scope);
@@ -175,6 +176,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             });
         });
+
+        $scope.resetSelected = function () {
+            $scope.selected = {
+                devoirs : {
+                    list : [],
+                    all : false
+                },
+                eleve : null,
+                eleves : {
+                    list : [],
+                    all : false
+                },
+                competences : {
+                    list : [],
+                    all : false
+                }
+            };
+        };
 
         /**
          * Initialise un nouveau devoir.
@@ -1053,8 +1072,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param eleve élève
          */
         $scope.selectEleveListe = function (eleve) {
-            if ($scope.selected.eleves.list.indexOf(eleve) === -1) $scope.selected.eleves.list.push(eleve);
-            else $scope.selected.eleves.list.splice($scope.selected.eleves.list.indexOf(eleve), 1);
+            $scope.selectObject($scope.selected.eleves.list, eleve);
+            $scope.selected.eleves.all = $scope.currentDevoir.eleves.every(function (eleve) { return eleve.selected});
         };
 
         /**
@@ -1062,7 +1081,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.selectAllEleveListe = function () {
             if ($scope.selected.eleves.all !== true) {
-                $scope.selected.eleves.list = $scope.currentDevoir.eleves.all;
+                for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
+                    $scope.selected.eleves.list.push($scope.currentDevoir.eleves.all[i]);
+                }
                 $scope.selected.eleves.all = !$scope.selected.eleves.all;
                 $scope.selectElement($scope.currentDevoir.eleves.all, $scope.selected.eleves.all);
                 return;
@@ -1078,8 +1099,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param object objet
          */
         $scope.selectObject = function (list, object) {
-            if (list.indexOf(object) === -1) list.push(object);
-            else list.splice(list.indexOf(object), 1);
+            if (list.indexOf(object) === -1) {
+                list.push(object);
+            }
+            else {
+                list.splice(list.indexOf(object), 1);
+            }
         };
     }
 ]);

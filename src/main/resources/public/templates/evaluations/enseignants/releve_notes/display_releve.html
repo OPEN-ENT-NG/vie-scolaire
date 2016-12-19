@@ -68,8 +68,8 @@
 
             <content ng-show="releveNote.devoirs.all.length > 0">
 
-                <div ng-if="releveNote.devoirs.all.length < 10" class="responsive-table">
-                <table class="list-view tableReleve tableRelevePadding marginTopZero" c-naviga-table>
+                <div ng-if="releveNote.devoirs.all.length < 10">
+                <table class="list-view tableReleve tableRelevePadding marginTopZero responsive-table" c-naviga-table>
                     <thead sticky offset="64px" use-placeholder="false">
                     <tr >
                         <th class="col1">Eleve</th>
@@ -134,8 +134,8 @@
                     </tbody>
                 </table>
                 </div>
-                <div ng-if="releveNote.devoirs.all.length >= 10" class="responsive-table overflowXScroll">
-                    <table id="relevetable" class="list-view tableReleve tableRelevePadding marginTopZero" c-naviga-table>
+                <div ng-if="releveNote.devoirs.all.length >= 10" class="overflowXScroll">
+                    <table id="relevetable" class="list-view tableReleve tableRelevePadding marginTopZero responsive-table" c-naviga-table>
                         <thead>
                         <tr >
                             <th class="col1">Eleve</th>

@@ -31,6 +31,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             viewNotesDevoir : function(params){
                 window.scrollTo(0, 0);
+                $scope.resetSelected();
                 if(evaluations.devoirs.all.length === 0){
                     $location.path("/releve");
                     utils.safeApply($scope);
@@ -143,7 +144,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 list : [],
                 all : false
             },
-            eleve : null
+            eleve : null,
+            eleves : {
+                list : [],
+                all : false
+            },
+            competences : {
+                list : [],
+                all : false
+            }
         };
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
@@ -167,6 +176,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             });
         });
+
+        $scope.resetSelected = function () {
+            $scope.selected = {
+                devoirs : {
+                    list : [],
+                    all : false
+                },
+                eleve : null,
+                eleves : {
+                    list : [],
+                    all : false
+                },
+                competences : {
+                    list : [],
+                    all : false
+                }
+            };
+        };
 
         /**
          * Initialise un nouveau devoir.
@@ -253,9 +280,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         /**
          * Sélectionne/Déselectionne chaque objet de la liste
          * @param list liste d'objet
+         * @param bool booleen
          */
-        $scope.selectListDevoir = function (list) {
+        $scope.selectElement = function (list, bool) {
             for (var i = 0; i < list.length; i++) {
+                if (bool !== undefined && list[i].selected === bool) continue;
                 list[i].selected = !list[i].selected;
             }
         };
@@ -265,12 +294,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.selectAllDevoirs = function(){
             if ($scope.selected.devoirs.all !== true) {
-                $scope.selectListDevoir($scope.selected.devoirs.list);
+                $scope.selectElement($scope.selected.devoirs.list);
                 $scope.selected.devoirs.list = [];
                 return;
             }
             $scope.selected.devoirs.list = $filter('customSearchFilters')($scope.devoirs.all, $scope.search);
-            $scope.selectListDevoir($scope.selected.devoirs.list);
+            $scope.selectElement($scope.selected.devoirs.list);
         };
 
         /**
@@ -1036,6 +1065,46 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 competence.hovered = bool;
             }
             return;
-        }
+        };
+
+        /**
+         * Sélectionne un élève et l'ajoute dans la liste d'élèves sélectionnés.
+         * @param eleve élève
+         */
+        $scope.selectEleveListe = function (eleve) {
+            $scope.selectObject($scope.selected.eleves.list, eleve);
+            $scope.selected.eleves.all = $scope.currentDevoir.eleves.every(function (eleve) { return eleve.selected});
+        };
+
+        /**
+         * Sélectionne tous les élèves de la liste passée en paramètre
+         */
+        $scope.selectAllEleveListe = function () {
+            if ($scope.selected.eleves.all !== true) {
+                for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
+                    $scope.selected.eleves.list.push($scope.currentDevoir.eleves.all[i]);
+                }
+                $scope.selected.eleves.all = !$scope.selected.eleves.all;
+                $scope.selectElement($scope.currentDevoir.eleves.all, $scope.selected.eleves.all);
+                return;
+            }
+            $scope.selected.eleves.list = [];
+            $scope.selected.eleves.all = !$scope.selected.eleves.all;
+            $scope.selectElement($scope.currentDevoir.eleves.all, $scope.selected.eleves.all);
+        };
+
+        /**
+         * Ajout ou supprimer l'objet dans la liste
+         * @param list liste d'objet
+         * @param object objet
+         */
+        $scope.selectObject = function (list, object) {
+            if (list.indexOf(object) === -1) {
+                list.push(object);
+            }
+            else {
+                list.splice(list.indexOf(object), 1);
+            }
+        };
     }
 ]);

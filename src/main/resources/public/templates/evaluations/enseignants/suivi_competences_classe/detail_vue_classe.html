@@ -16,31 +16,17 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="detail table-view">
-    <table class="ten responsive-table">
-        <thead>
-        <tr>
-            <th ng-click="sortType = 'evaluation_libelle'; sortReverse =!sortReverse">
-                <i18n>viescolaire.utils.student</i18n>
-            </th>
-            <th ng-click="sortType = 'evaluation'; sortReverse =!sortReverse">
-                <i18n>level</i18n>
-                <span ng-show="sortType == 'evaluation' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'evaluation' && sortReverse" class="fa fa-caret-up"></span>
-            </th>
-        </th>
-        </thead>
-        <tbody>
-            <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">
-                <td>[[search.classe.mapEleves[evaluation.id_eleve].firstName]] [[search.classe.mapEleves[evaluation.id_eleve].lastName]]</td>
-                <td>
-                    <span class="competence-eval rounded"
-                          ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0,
-                          orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2,
-                          green : evaluation.evaluation == 3}">
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="detail classe-view">
+    <dic class="dominos">
+        <div class="item" ng-repeat="eleve in informations.classe.eleves.all">
+            <section class="domino" ng-class="getEvaluationResult(eleve.id)">
+                <div class="top">
+                    <img src="/userbook/avatar/[[eleve.id]]" alt="[[eleve.firstName + ' ' + eleve.lastName]]">
+                </div>
+                <div class="bottom">
+                    <h4>[[eleve.firstName + ' ' + eleve.lastName]]</h4>
+                </div>
+            </section>
+        </div>
+    </dic>
 </div>

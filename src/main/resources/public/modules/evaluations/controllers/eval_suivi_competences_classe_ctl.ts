@@ -3,10 +3,7 @@
  */
 
 import {ng, template, model } from 'entcore/entcore';
-import {
-    SuiviCompetence, Domaine, SuiviCompetenceClasse,
-    CompetenceNote
-} from '../models/eval_teacher_mdl';
+import {SuiviCompetenceClasse, CompetenceNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;
@@ -17,7 +14,10 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
+        template.close('suivi-competence-detail');
+        template.close('suivi-competence-content');
         delete $scope.informations.eleve;
+        delete $scope.informations.classe;
         $scope.opened.detailCompetenceSuivi = false;
         $scope.suiviCompetence = {};
         $scope.mapEleves = {};

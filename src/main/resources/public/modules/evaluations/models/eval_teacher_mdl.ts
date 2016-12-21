@@ -200,6 +200,8 @@ export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
     name : string;
+    suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
+    mapEleves : any;
 
     get api () {
         return {
@@ -216,11 +218,16 @@ export class Classe extends Model {
                 return new Promise((resolve, reject) => {
                     http().getJson(this.api.sync).done(function (data) {
                         this.eleves.load(data);
+                        this.mapEleves = {};
+                        for (var i = 0; i < this.eleves.all.length; i++) {
+                            this.mapEleves[this.eleves.all[i].id]= this.eleves.all[i];
+                        }
                         resolve();
                     }.bind(this));
                 });
             }
         });
+        this.collection(SuiviCompetenceClasse);
     }
 }
 
@@ -1036,7 +1043,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
         }
     }
 
-    constructor (classe : Classe, periode : Periode) {
+    constructor (classe : Classe, periode : any) {
         super();
         this.periode = periode;
         var that = this;
@@ -1046,23 +1053,19 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                 return new Promise((resolve, reject) => {
                     var url = that.api.getArbreDomaines + idCycle;
                     http().getJson(url).done((resDomaines) => {
-
                         var url = that.api.getCompetencesNotesClasse + classe.id;
-                        if (periode !== null && periode !== undefined) {
+                        if (periode !== null && periode !== undefined && periode !== '*') {
                             url += "?idPeriode="+periode.id;
                         }
-
                         http().getJson(url).done((resCompetencesNotes) => {
-
                             if(resDomaines) {
                                 for(var i=0; i<resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
                                     that.domaines.all.push(domaine);
-                                    setCompetenceNotes(domaine, resCompetencesNotes);
+                                    setCompetenceNotes(domaine, resCompetencesNotes, this, classe);
                                 }
                             }
                         });
-
                         if (resolve && typeof (resolve) === 'function') {
                             resolve();
                         }
@@ -1106,7 +1109,7 @@ export class SuiviCompetence extends Model implements IModel{
         }
     }
 
-    constructor (eleve : Eleve, periode : Periode) {
+    constructor (eleve : Eleve, periode : any) {
         super();
         this.periode = periode;
         var that = this;
@@ -1117,29 +1120,19 @@ export class SuiviCompetence extends Model implements IModel{
                     if(idCycle) {
                         var url = that.api.getArbreDomaines + idCycle;
                         http().getJson(url).done((resDomaines) => {
-
                             var url = that.api.getCompetencesNotes + eleve.id;
-                            if (periode !== null && periode !== undefined) {
+                            if (periode !== null && periode !== undefined && periode !== '*') {
                                 url += "?idPeriode=" + periode.id;
                             }
-
                             http().getJson(url).done((resCompetencesNotes) => {
-
-                                //for(var i=0; i<resCompetencesNotes.length; i++) {
-                                //    var competenceNotes = new CompetenceNote(resCompetencesNotes[i]);
-                                //    that.competenceNotes.all.push(competenceNotes);
-                                //}
-
-
                                 if (resDomaines) {
                                     for (var i = 0; i < resDomaines.length; i++) {
                                         var domaine = new Domaine(resDomaines[i]);
                                         that.domaines.all.push(domaine);
-                                        setCompetenceNotes(domaine, resCompetencesNotes);
+                                        setCompetenceNotes(domaine, resCompetencesNotes, this, null);
                                     }
                                 }
                             });
-
                             if (resolve && typeof (resolve) === 'function') {
                                 resolve();
                             }
@@ -1232,19 +1225,38 @@ function findCompetenceRec (piIdCompetence, poCompetences) {
     return false;
 }
 
-function setCompetenceNotes(poDomaine, poCompetencesNotes) {
+function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
     if(poDomaine.competences) {
         _.map(poDomaine.competences.all, function (competence) {
             competence.competencesEvaluations = _.where(poCompetencesNotes, {
                 id_competence: competence.id,
                 id_domaine: competence.id_domaine
             });
+            // if (object.composer.constructor.name === "SuiviCompetenceClasse"
+            //     && classe !== null
+            //     && classe.eleves.all.length > 0
+            //     && competence.competencesEvaluations.length < classe.eleves.all.length) {
+            //     for (var i = 0; i < (classe.eleves.all.length - competence.competencesEvaluations.length); i++) {
+            //         var o = new CompetenceNote({id_competence : competence.id, nom : competence.nom, evaluation : -1});
+            //         competence.competencesEvaluations.push(o)
+            //     }
+            // }
+            if (object.composer.constructor.name === 'SuiviCompetenceClasse') {
+                for (var i = 0; i < classe.eleves.all.length; i++) {
+                    var mine = _.findWhere(competence.competencesEvaluations, {id_eleve : classe.eleves.all[i].id, owner : model.me.userId});
+                    var others = _.filter(competence.competencesEvaluations, function (evaluation) { return evaluation.owner !== model.me.userId; });
+                    if (mine === undefined)
+                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id, owner : model.me.userId}));
+                    if (others.length === 0)
+                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id}));
+                }
+            }
         });
     }
 
     if( poDomaine.domaines) {
         for (var i = 0; i < poDomaine.domaines.all.length; i++) {
-            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes);
+            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes, object, classe);
         }
     }
 }

@@ -10,42 +10,30 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
     return function(devoirs, searchParams){
         var output = devoirs;
         var tempTable = [];
-        if (searchParams.classe !== '*') {
+        if (searchParams.classe !== '*' && searchParams.classe !== null) {
             tempTable = _.where(output, {id_classe : searchParams.classe.id});
             output = tempTable;
         }
-        if (searchParams.matiere !== '*') {
+        if (searchParams.matiere !== '*' && searchParams.matiere !== null) {
             tempTable = _.where(output, {id_matiere : searchParams.matiere.id});
             output = tempTable;
         }
-        if (searchParams.sousmatiere !== '*') {
+        if (searchParams.sousmatiere !== '*' && searchParams.sousmatiere !== null) {
             tempTable = _.where(output, {id_sousmatiere : parseInt(searchParams.sousmatiere.id)});
             output = tempTable;
         }
-        if (searchParams.type !== '*') {
+        if (searchParams.type !== '*' && searchParams.type !== null) {
             tempTable = _.where(output, {id_type : parseInt(searchParams.type.id)});
             output = tempTable;
         }
-        if (searchParams.periode !== '*') {
+        if (searchParams.periode !== '*' && searchParams.periode !== null) {
             tempTable = _.where(output, {id_periode : parseInt(searchParams.periode.id  )});
             output = tempTable;
         }
-        if (searchParams.name !== "") {
+        if (searchParams.name !== "" && searchParams.name !== null) {
             tempTable = _.filter(output, function (devoir){
                 var  reg = new RegExp(searchParams.name.toUpperCase());
                 return devoir.name.toUpperCase().match(reg) !== null;
-            });
-            output = tempTable;
-        }
-        if (moment(searchParams.dateCreation.debut).diff(moment(searchParams.dateCreation.fin)) < 0) {
-            tempTable = _.filter(output, function (devoir) {
-                return (moment(devoir.date).diff(moment(searchParams.dateCreation.debut)) >= 0) && (moment(devoir.date).diff(moment(searchParams.dateCreation.fin)) <= 0);
-            });
-            output = tempTable;
-        }
-        if (moment(searchParams.datePublication.debut).diff(moment(searchParams.datePublication.fin)) < 0) {
-            tempTable = _.filter(output, function (devoir) {
-                return (moment(devoir.date_publication).diff(moment(searchParams.datePublication.debut)) >= 0) && (moment(devoir.datepublication).diff(moment(searchParams.datePublication.fin)) <= 0);
             });
             output = tempTable;
         }

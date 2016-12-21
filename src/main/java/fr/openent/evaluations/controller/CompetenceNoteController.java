@@ -282,12 +282,4 @@ public class CompetenceNoteController extends ControllerHelper {
 
         competencesNotesService.dropCompetencesNotesDevoir(oIdsJsonArray, arrayResponseHandler(request));
     }
-
-    @Get("/competence/notes/eleve")
-    @ApiDoc("Récupère la liste des compétences notes pour une periode (optionnelle), un élève et un cycle")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessSuiviCompetenceFilter.class)
-    public void getCompetencesNotesEleve(final HttpServerRequest request) {
-
-    }
 }

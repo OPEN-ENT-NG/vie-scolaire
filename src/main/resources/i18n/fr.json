@@ -190,6 +190,7 @@
   "ariane.viescolaire.viewNotesDevoir":"Saisie des notes",
   "ariane.viescolaire.listDevoirs":"Liste des évaluations",
   "ariane.viescolaire.displaySuiviCompetencesEleve" : "Suivi de compétences élèves",
+  "ariane.viescolaire.displaySuiviCompetencesClasse" : "Suivi de compétences classe",
   "error.note.outbound":"La note doit être comprise entre 0 et ",
   "error.note.invalid":"Note(s) invalide(s)",
   "evaluations.skills.evaluation":"Evaluation des compétences",

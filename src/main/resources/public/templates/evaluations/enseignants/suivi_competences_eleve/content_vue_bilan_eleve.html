@@ -56,7 +56,7 @@
         </div>
         <div class="two cell inline-block padding-left ">
                 <span ng-if="domaine.moyenne === -1">
-                    <b>NE</b>
+                    <b><i18n>evaluations.competence.unevaluated</i18n></b>
                 </span>
                 <span ng-if="domaine.moyenne > -1">
                     <b>[[domaine.moyenne | number:2]]</b>

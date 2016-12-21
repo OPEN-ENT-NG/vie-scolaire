@@ -116,15 +116,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
-            name : '',
-            dateCreation : {
-                debut : moment(),
-                fin : moment()
-            },
-            datePublication : {
-                debut : moment(),
-                fin : moment()
-            }
+            name : ''
         };
         $scope.informations = {};
         $scope.me = model.me;

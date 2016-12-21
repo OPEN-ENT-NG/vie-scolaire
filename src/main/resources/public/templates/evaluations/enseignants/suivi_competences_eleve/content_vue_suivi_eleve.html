@@ -36,7 +36,9 @@
                 <span class="competence-eval rounded grey" ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)"></span>
             </div>
             <div class="three inline-block align-center align-top">
-                <proportion-suivi-competence evaluations="competence.competencesEvaluations" filter="suiviFilter" user="me"></proportion-suivi-competence>
+                <proportion-suivi-competence evaluations="competence.competencesEvaluations"
+                                             filter="suiviFilter" user="me"
+                                             is-classe="false"></proportion-suivi-competence>
             </div>
         </div>
     </div>

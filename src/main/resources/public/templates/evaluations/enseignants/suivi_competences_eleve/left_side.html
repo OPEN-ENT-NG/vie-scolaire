@@ -43,7 +43,7 @@
             </select>
         </label>
     </section>
-    <section>
+    <section ng-show="!template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')">
         <div>
             <label>
                 <input type="radio" ng-change="suiviCompetence.setMoyenneCompetences(suiviFilter.mine)"

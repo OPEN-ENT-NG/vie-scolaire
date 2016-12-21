@@ -22,7 +22,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.suiviCompetence = {};
 
         $scope.suiviFilter = {
-            mine : 'true'
+            mine : 'false'
         };
 
 
@@ -40,7 +40,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
 
                     setTimeout(function() {
-                        $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
+                        $scope.suiviCompetence.setMoyenneCompetences();
                     },400);
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);

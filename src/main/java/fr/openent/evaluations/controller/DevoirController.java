@@ -24,10 +24,7 @@ import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
-import fr.wseduc.rs.ApiDoc;
-import fr.wseduc.rs.Get;
-import fr.wseduc.rs.Post;
-import fr.wseduc.rs.Put;
+import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -262,6 +259,24 @@ public class DevoirController extends ControllerHelper {
                         });
                     }
                 });
+            }
+        });
+    }
+    /**
+     *  Supprimer un devoir
+     */
+    @Delete("/devoir")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Supprime un devoir")
+    public void remove(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    devoirsService.delete(request.params().get("idDevoir"),user, notEmptyResponseHandler(request));
+                } else {
+                    unauthorized(request);
+                }
             }
         });
     }

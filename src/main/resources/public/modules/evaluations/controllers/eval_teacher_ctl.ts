@@ -626,6 +626,39 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             item.hoveringRecap = false;
         };
 
+
+        $scope.deleteDevoir = function (devoir) {
+            console.dir(devoir);
+            if(devoir.list !== undefined){
+                devoir.list.forEach(function(d)
+                    {
+                        d.remove().then((res) => {
+                            evaluations.devoirs.sync();
+                            evaluations.devoirs.on('sync', function () {
+                                $scope.opened.lightbox = false;
+                                var index= devoir.list.indexOf(d);
+                                if(index >-1) devoir.list.splice(index,1);
+                                utils.safeApply($scope);
+                                $scope.goTo('/devoirs/list');
+                                console.log("devoir supprimé");
+                            });
+                        });
+                    }
+                );
+            }
+            else {
+                devoir.remove().then((res) => {
+                    evaluations.devoirs.sync();
+                    evaluations.devoirs.on('sync', function () {
+                        $scope.opened.lightbox = false;
+                        utils.safeApply($scope);
+                        $scope.goTo('/devoirs/list');
+                        console.log("devoir supprimé");
+                    });
+                });
+            }
+        };
+
         /**
          *  Sauvegarde du devoir à la suite du formulaire de création
          */
@@ -1096,6 +1129,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             else {
                 list.splice(list.indexOf(object), 1);
             }
+        };
+
+        /**
+         * Afficher le suivi d'un élève depuis le suivi de classe
+         * @param eleve
+         */
+        $scope.displaySuiviEleve= function(eleve){
+            $scope.informations.eleve = eleve;
+            $scope.search.eleve = eleve;
+            $scope.selected.eleve = eleve;
+            $scope.displayFromClass = true;
+            $scope.displayFromEleve = true;
+            utils.safeApply($scope);
+            $scope.goTo("/competences/eleve");
         };
     }
 ]);

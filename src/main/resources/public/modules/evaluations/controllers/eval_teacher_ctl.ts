@@ -1131,6 +1131,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+
         /**
          * Afficher le suivi d'un élève depuis le suivi de classe
          * @param eleve

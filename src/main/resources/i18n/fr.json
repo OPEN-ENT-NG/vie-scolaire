@@ -200,5 +200,6 @@
   "evaluations.filter.name" : "Filtrer sur le nom",
   "evaluations.no.summary" : "Aucun relevé trouvé pour vos critères",
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
-  "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection"
+  "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
+  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)"
 }

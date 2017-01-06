@@ -1,4 +1,4 @@
-import { model, http, IModel, Model, Collection} from 'entcore/entcore';
+import {model, http, IModel, Model, Collection} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');

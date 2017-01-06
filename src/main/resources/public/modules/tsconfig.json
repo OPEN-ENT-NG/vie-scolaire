@@ -4,11 +4,12 @@
 
 {
     "compilerOptions": {
-    "target": "es5",
+        "target": "es5",
         "module": "commonjs",
         "declaration": false,
         "moduleResolution": "node",
         "sourceMap":  true,
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "lib" : ["DOM", "ES5", "ScriptHost", "ES2015"]
     }
 }

@@ -9,7 +9,6 @@
         "declaration": false,
         "moduleResolution": "node",
         "sourceMap":  true,
-        "noImplicitAny": false,
-        "lib" : ["DOM", "ES5", "ScriptHost", "ES2015"]
+        "noImplicitAny": false
     }
 }

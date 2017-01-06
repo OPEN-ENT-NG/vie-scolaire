@@ -2,7 +2,7 @@
  * Created by ledunoiss on 27/10/2016.
  */
 
-import {ng, template } from 'entcore/entcore';
+import {ng, template, model} from 'entcore/entcore';
 import {SuiviCompetence, Domaine,SuiviCompetenceClasse} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 

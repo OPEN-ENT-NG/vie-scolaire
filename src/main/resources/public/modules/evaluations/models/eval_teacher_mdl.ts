@@ -1,4 +1,4 @@
-import { model, http, IModel, Model, Collection} from 'entcore/entcore';
+import {model, http, IModel, Model, Collection} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');
@@ -519,11 +519,13 @@ export class Devoir extends Model implements IModel{
 
     remove () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete + this.id, this.toJSON()).done(function(data){
-                evaluations.devoirs.sync();
+            http().delete(this.api.delete + this.id).done(function(data){
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
+            })
+            .error(function () {
+                reject();
             });
         });
     }

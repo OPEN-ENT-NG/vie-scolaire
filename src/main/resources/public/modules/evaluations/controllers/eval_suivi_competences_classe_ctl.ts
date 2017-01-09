@@ -2,7 +2,7 @@
  * Created by ledunoiss on 27/10/2016.
  */
 
-import {ng, template } from 'entcore/entcore';
+import {ng, template, model} from 'entcore/entcore';
 import {SuiviCompetence, Domaine,SuiviCompetenceClasse} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
@@ -64,7 +64,26 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         $scope.idCycle = 1;
 
 
-
+        /**
+         * Retourne la classe en fonction de l'évaluation obtenue pour la compétence donnée
+         * @param eleveId identifiant de l'élève
+         * @returns {String} Nom de la classe
+         */
+        $scope.getEvaluationResult = function (eleveId) {
+            var evaluations = $scope.suiviFilter.mine == 'true'
+                ? _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : eleveId, owner : model.me.userId})
+                : _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : eleveId});
+            if (evaluations.length > 0) {
+                var evaluation = _.max(evaluations, function (evaluation) { return evaluation.evaluation; });
+                switch (evaluation.evaluation) {
+                    case 0 : return "border-red";
+                    case 1 : return "border-orange";
+                    case 2 : return "border-yellow";
+                    case 3 : return "border-green";
+                    default : return "border-grey";
+                }
+            }
+        };
 
 
         /**

@@ -36,12 +36,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle);
-
-
-                    setTimeout(function() {
+                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
-                    },500);
+                    });
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {
@@ -54,7 +51,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
                     utils.safeApply($scope);
                     if($scope.displayFromClass) delete $scope.displayFromClass;
-
                 });
             }
         };
@@ -71,7 +67,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.displayFromEleve = true;
             utils.safeApply($scope);
         }
-
 
 
         $scope.idCycle = 1;

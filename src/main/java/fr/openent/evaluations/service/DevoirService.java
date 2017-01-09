@@ -65,7 +65,8 @@ public interface DevoirService extends CrudService {
      * @param idPeriode identifiant de la période
      * @param handler handler portant le résultat de la requête
      */
-    void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler);
+    public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long
+            idPeriode, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste des devoirs publiés pour un établissement et une période donnée.
@@ -76,12 +77,13 @@ public interface DevoirService extends CrudService {
      * @param idUser identifant de l'utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    void listDevoirs(String idEtablissement, Long idPeriode, String idUser,Handler<Either<String, JsonArray>> handler);
+    public void listDevoirs(String idEtablissement, Long idPeriode, String idUser,
+                      Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
      * @param userId identifiant de l'utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler);
 }

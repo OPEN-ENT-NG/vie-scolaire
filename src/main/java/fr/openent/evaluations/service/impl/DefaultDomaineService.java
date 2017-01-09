@@ -39,18 +39,18 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
         JsonArray params = new JsonArray();
 
 
-        query.append("WITH RECURSIVE search_graph(niveau, id, id_parent, libelle, codification, pathinfo) AS ");
+        query.append("WITH RECURSIVE search_graph(niveau, id, id_parent, libelle, codification, evaluated, pathinfo) AS ");
             query.append("( ");
-                query.append("SELECT 1 as niveau, id, id_parent, libelle, codification,  array[id] as pathinfo ");
+                query.append("SELECT 1 as niveau, id, id_parent, libelle, codification, evaluated, array[id] as pathinfo ");
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines ");
                 query.append("WHERE id_parent = 0 ");
                 query.append("AND id_cycle = ? ");
             query.append("UNION ");
-                query.append("SELECT sg.niveau + 1  as niveau , dom.id, dom.id_parent, dom.libelle, dom.codification,  sg.pathinfo||dom.id ");
+                query.append("SELECT sg.niveau + 1  as niveau , dom.id, dom.id_parent, dom.libelle, dom.codification, dom.evaluated, sg.pathinfo||dom.id ");
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines dom , search_graph sg ");
                 query.append("WHERE dom.id_parent = sg.id ");
             query.append(") ");
-        query.append("SELECT niveau, id, id_parent, libelle, codification FROM search_graph ORDER BY pathinfo");
+        query.append("SELECT niveau, id, id_parent, libelle, codification, evaluated FROM search_graph ORDER BY pathinfo");
 
         params.addNumber(poIdCycle);
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));

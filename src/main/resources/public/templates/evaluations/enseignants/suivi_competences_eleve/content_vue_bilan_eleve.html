@@ -35,7 +35,7 @@
                         NE
                     </span>
                     <span ng-if="evaluation.evaluation > 0">
-                        [[evaluation.evaluation]]
+                        [[evaluation.evaluation + 1]]
                     </span>
                 </span>
                 <span ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
@@ -46,17 +46,18 @@
 
     </div>
 
-    <div ng-repeat="domaine in domaine.domaines.all" ng-include="'tree_item_renderer.html'">
+    <div ng-repeat="domaine in domaine.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = $parent.$parent.domaine">
     </div>
 
 
-    <div class="suivi-eleve-item" ng-if="domaine.niveau === 1">
+    <!-- On affiche la moyenne que pour les domaines evalues (sur le niveau le plus haut s'il y a des sous-domaines) -->
+    <div ng-if="domaine.evaluated && (parent.evaluated == null || parent.evaluated === false)" class="suivi-eleve-item">
         <div class="ten cell inline-block ellipsis moyenne">
             <b><i18n>evaluation.domaine.average</i18n> [[domaine.codification]]</b>
         </div>
         <div class="two cell inline-block padding-left ">
                 <span ng-if="domaine.moyenne === -1">
-                    <b><i18n>evaluations.competence.unevaluated</i18n></b>
+                    <b><i18n>evaluations.competence.unevaluated.abreviation</i18n></b>
                 </span>
                 <span ng-if="domaine.moyenne > -1">
                     <b>[[domaine.moyenne | number:2]]</b>
@@ -69,6 +70,6 @@
 
 <div class="content-bilan-eleve">
     <h2><i18n>evaluations.bilan.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
-    <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'">
+    <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
     </div>
 </div>

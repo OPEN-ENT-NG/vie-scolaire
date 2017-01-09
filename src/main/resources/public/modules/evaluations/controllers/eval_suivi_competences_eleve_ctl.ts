@@ -9,8 +9,8 @@ import * as utils from '../utils/teacher';
 declare let _:any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
-    '$scope', 'route', '$rootScope', '$location', '$filter', '$route',
-    function ($scope, route, $rootScope, $location, $filter, $route) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
+    function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
@@ -20,6 +20,14 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             mine: 'true'
         };
         $scope.opened.detailCompetenceSuivi = false;
+
+
+        this.refreshSlider = function () {
+            $timeout(function () {
+                $scope.$broadcast('rzSliderForceRender');
+            });
+        };
+
         /**
          * Créer une suivi de compétence
          */
@@ -33,7 +41,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
                     setTimeout(function() {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
-                    },400);
+                    },500);
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {

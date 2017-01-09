@@ -758,6 +758,7 @@ export class Domaine extends Model {
     libelle : string;
     codification : string;
     composer : any;
+    evaluated : boolean;
 
     constructor (poDomaine?) {
         super();
@@ -1157,14 +1158,56 @@ export class SuiviCompetence extends Model implements IModel{
             // recherche de toutes les évaluations du domaine et ses sous domaines
             // (uniquement les max de chaque compétence)
             getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, false);
-
-            if (oEvaluationsArray.length > 0) {
-                oDomaine.moyenne = utils.average(oEvaluationsArray);
-            } else {
-                oDomaine.moyenne = -1;
-            }
         }
     }
+
+    setSliderOptions(poDomaine) {
+        poDomaine.slider = {
+            disabled: false,
+            value: poDomaine.moyenne,
+            options: {
+                floor: 0,
+                ceil: 4,
+                step: 0.01,
+                precision: 2,
+                showTicksValues: false,
+                showTicks: 1,
+                showSelectionBar: true,
+                getSelectionBarColor: function(value) {
+                    if (value <= 1)
+                        return 'red';
+                    if (value <= 2)
+                        return 'orange';
+                    if (value <= 3)
+                        return '#ecbe30';
+                    if (value <= 4)
+                        return 'green';
+                    return '#2AE02A';
+                },
+                translate: function(value, sliderId, label) {
+                    if (value == 0)
+                        return 'Non évalué';
+                    if (value <= 1)
+                        return '<b>Maîtrise insuffisante' + ' '+value+'</b>';
+                    if (value <= 2)
+                        return'<b>Maîtrise fragile'+ ' '+value+'</b>';;
+                    if (value <= 3)
+                        return '<b>Maîtrise satisfaisante'+ ' '+value+'</b>';;
+                    if (value < 4)
+                        return '<b>Très bonne maîtrise'+ ' '+value+'</b>';
+                    if (value == 4)
+                        return 'Très bonne maîtrise';
+                }
+
+            }
+        };
+
+        if(poDomaine.moyenne == -1) {
+            poDomaine.slider.disabled = true;
+        }
+        this.setSliderOptions(poDomaine);
+
+    };
 
 
     findCompetence (idCompetence) {
@@ -1188,29 +1231,45 @@ export class SuiviCompetence extends Model implements IModel{
 }
 
 function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
-    for(var i=0; i<poDomaine.competences.all.length; i++) {
-        var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
-        var _t = competencesEvaluations;
+    // si le domaine est évalué, on ajoute les max de chacunes de ses competences
+    if(poDomaine.evaluated) {
+        for (var i = 0; i < poDomaine.competences.all.length; i++) {
+            var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
+            var _t = competencesEvaluations;
 
-        // filtre sur les compétences évaluées par l'enseignant
-        if(pbMesEvaluations) {
-            _t = _.filter(competencesEvaluations, function (competence) {
-                return competence.owner !== undefined && competence.owner === model.me.userId;
-            });
-        }
+            // filtre sur les compétences évaluées par l'enseignant
+            if (pbMesEvaluations) {
+                _t = _.filter(competencesEvaluations, function (competence) {
+                    return competence.owner !== undefined && competence.owner === model.me.userId;
+                });
+            }
 
-        if(_t && _t.length > 0) {
-            // TODO récupérer la vrai valeur numérique :
-            // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
-            poMaxEvaluationsDomaines.push(_.max(_t, function(_t){ return _t.evaluation;}).evaluation);
+            if (_t && _t.length > 0) {
+                // TODO récupérer la vrai valeur numérique :
+                // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
+                poMaxEvaluationsDomaines.push(_.max(_t, function (_t) {
+                        return _t.evaluation;
+                    }).evaluation + 1);
+            }
         }
     }
 
+    // calcul de la moyenne pour les sous-domaines
     if(poDomaine.domaines) {
         for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            // si le domaine parent n'est pas évalué, il faut vider pour chaque sous-domaine les poMaxEvaluationsDomaines sauvegardés
+            if(!poDomaine.evaluated) {
+                poMaxEvaluationsDomaines = [];
+            }
             getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
         }
+    }
 
+    // mise à jour de la moyenne
+    if (poMaxEvaluationsDomaines.length > 0) {
+        poDomaine.moyenne = utils.average(poMaxEvaluationsDomaines);
+    } else {
+        poDomaine.moyenne = -1;
     }
 }
 

@@ -16,6 +16,8 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>-->
+<!--<script src="https://rawgit.com/rzajac/angularjs-slider/master/dist/rzslider.js"></script>-->
 <div class="content-bilan-fin-cycle">
     <h2><i18n>evaluations.bilan.fin.cycle.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
 
@@ -42,4 +44,8 @@
         </tbody>
     </table>
 
+    <div ng-repeat="domaine in suiviCompetence.domaines.all">
+    <rzslider rz-slider-model="domaine.slider.value"
+              rz-slider-options="domaine.slider.options"></rzslider>
+    </div>
 </div>

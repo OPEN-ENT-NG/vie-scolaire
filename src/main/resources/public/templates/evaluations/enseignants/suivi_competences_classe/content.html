@@ -22,6 +22,15 @@
         <h2 class="align-center"><i class="previous left" ng-click="incrementClasse(-1)"></i>
             [[informations.classe.name]]
             <i class="next right" ng-click="incrementClasse(1)"></i></h2>
+        <div align="right">
+            <ul class="selectable-filter-list" ng-if="opened.detailCompetenceSuivi">
+                <li><span class="rounded green" ng-class="{selected : selected.colors.4}" ng-click="selected.colors.4 = !selected.colors.4"></span ></li>
+                <li><span class="rounded yellow" ng-class="{selected : selected.colors.3}" ng-click="selected.colors.3 = !selected.colors.3"></span ></li>
+                <li><span class="rounded orange" ng-class="{selected : selected.colors.2}" ng-click="selected.colors.2 = !selected.colors.2"></span ></li>
+                <li><span class="rounded red" ng-class="{selected : selected.colors.1}" ng-click="selected.colors.1 = !selected.colors.1"></span></li>
+                <li><span class="rounded grey" ng-class="{selected : selected.colors.0}" ng-click="selected.colors.0 = !selected.colors.0"></span></li>
+            </ul>
+        </div>
     </div>
     <div class="suivi-eleve-slider">
         <div class="suivi-eleve inline-block six" ng-class="{slide : opened.detailCompetenceSuivi}">

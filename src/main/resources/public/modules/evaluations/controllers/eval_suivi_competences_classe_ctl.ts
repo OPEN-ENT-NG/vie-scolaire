@@ -16,6 +16,15 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
         delete $scope.informations.eleve;
         $scope.route = $route;
+
+        $scope.selected.colors = {
+            0 : true,
+            1 : true,
+            2 : true,
+            3 : true,
+            4 : true
+        };
+
         /**
          * Créer une suivi de compétence
          */
@@ -63,6 +72,15 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
 
         $scope.idCycle = 1;
 
+        $scope.getMaxEvaluations = function (idEleve) {
+            var evaluations = $scope.suiviFilter.mine == 'true'
+                ? _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : idEleve, owner : model.me.userId})
+                : _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : idEleve});
+            if (evaluations.length > 0) {
+                return _.max(evaluations, function (evaluation) { return evaluation.evaluation; });
+            }
+        };
+
 
         /**
          * Retourne la classe en fonction de l'évaluation obtenue pour la compétence donnée
@@ -70,11 +88,8 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @returns {String} Nom de la classe
          */
         $scope.getEvaluationResult = function (eleveId) {
-            var evaluations = $scope.suiviFilter.mine == 'true'
-                ? _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : eleveId, owner : model.me.userId})
-                : _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : eleveId});
-            if (evaluations.length > 0) {
-                var evaluation = _.max(evaluations, function (evaluation) { return evaluation.evaluation; });
+            var evaluation = $scope.getMaxEvaluations(eleveId);
+            if (evaluation !== -Infinity) {
                 switch (evaluation.evaluation) {
                     case 0 : return "border-red";
                     case 1 : return "border-orange";
@@ -84,6 +99,13 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 }
             }
         };
+
+        $scope.FilterColor = function (item){
+            var evaluation = $scope.getMaxEvaluations(item.id);
+            if (evaluation !== -Infinity)
+                  return $scope.selected.colors[evaluation.evaluation + 1];
+        };
+
 
 
         /**

@@ -18,7 +18,7 @@
   -->
 <div class="detail classe-view">
     <dic class="dominos">
-        <div class="item" ng-repeat="eleve in informations.classe.eleves.all">
+        <div class="item" ng-repeat="eleve in informations.classe.eleves.all | filter:FilterColor">
             <section ng-click="displaySuiviEleve(eleve);" class="domino" ng-class="getEvaluationResult(eleve.id)">
                 <div class="top">
                     <img src="/userbook/avatar/[[eleve.id]]" alt="[[eleve.firstName + ' ' + eleve.lastName]]">

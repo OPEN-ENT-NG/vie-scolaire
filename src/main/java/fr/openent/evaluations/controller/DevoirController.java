@@ -24,10 +24,7 @@ import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
-import fr.wseduc.rs.ApiDoc;
-import fr.wseduc.rs.Get;
-import fr.wseduc.rs.Post;
-import fr.wseduc.rs.Put;
+import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -42,6 +39,10 @@ import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -215,10 +216,46 @@ public class DevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if (user != null) {
-                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX +
+                            Viescolaire.SCHEMA_DEVOIRS_UPDATE, new Handler<JsonObject>() {
                         @Override
-                        public void handle(JsonObject devoir) {
-                            devoirsService.updateDevoir(request.params().get("idDevoir"), devoir, user, notEmptyResponseHandler(request));
+                        public void handle(final JsonObject devoir) {
+                            JsonArray competences = devoir.getArray("competencesAdd");
+                            if(competences!=null) {
+                                if (competences.size() != 0) {
+                                    defaultCompetencesService.setDevoirCompetences(devoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
+                                        public void handle(Either<String, JsonObject> event) {
+                                            if (event.isRight()) {
+                                                JsonObject o = new JsonObject();
+                                                o.putNumber("id", devoir.getNumber("id"));
+                                                Renders.renderJson(request, o);
+                                            } else {
+                                                leftToResponse(request, event.left());
+                                            }
+                                        }
+                                    });
+                                }
+
+                                JsonArray competencesToRem = devoir.getArray("competencesRem");
+                                if (competencesToRem.size() != 0) {
+                                    defaultCompetencesService.remDevoirCompetences(devoir.getLong("id"), competencesToRem, new Handler<Either<String, JsonObject>>() {
+                                        public void handle(Either<String, JsonObject> event) {
+                                            if (event.isRight()) {
+                                                JsonObject o = new JsonObject();
+                                                o.putNumber("id", devoir.getNumber("id"));
+                                                Renders.renderJson(request, o);
+                                            } else {
+                                                leftToResponse(request, event.left());
+                                            }
+                                        }
+                                    });
+                                }
+                                devoir.removeField("competencesRem");
+                                devoir.removeField("competencesAdd");
+                            }
+                            devoir.removeField("competences");
+                             devoirsService.updateDevoir(request.params().get("idDevoir"),
+                                                        devoir, user, notEmptyResponseHandler(request));
                         }
                     });
 
@@ -265,5 +302,22 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
-
+    /**
+     *  Supprimer un devoir
+     */
+    @Delete("/devoir")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Supprime un devoir")
+    public void remove(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    devoirsService.delete(request.params().get("idDevoir"),user, notEmptyResponseHandler(request));
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
 }

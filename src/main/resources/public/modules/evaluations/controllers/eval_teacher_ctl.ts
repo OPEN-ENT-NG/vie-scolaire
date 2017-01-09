@@ -1,6 +1,7 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {Devoir, Evaluation, evaluations, ReleveNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {getFormatedDate} from "../../utils/functions/formatDate";
 
 let moment = require('moment');
 
@@ -12,10 +13,46 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
+                $scope.getDevoirsNotEnded();
             },
 
             createDevoir : function(params){
                 $scope.createDevoir();
+            },
+
+            editDevoir : function (params) {
+                //evaluations.devoirs.sync();
+                //evaluations.devoirs.on('sync', function () {
+                $scope.devoirs = evaluations.devoirs;
+                $scope.devoir = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                $scope.devoir.dateDevoir = $scope.devoir.date;
+                $scope.devoir.datePublication = $scope.devoir.date_publication;
+                $scope.evaluations.competencesDevoir = $scope.currentDevoir.competences.all;
+                $scope.enseignements = $scope.currentDevoir.enseignements;
+                $scope.devoir.getLastSelectedCompetence().then(function (res)  {
+                    $scope.devoir.competencesLastDevoirList = res;
+                });
+                $scope.currentDevoir = $scope.devoir;
+                $scope.initFilter(true);
+                for(var i=0; i< $scope.evaluations.competencesDevoir.length; i++){
+                    $scope.evaluations.competencesDevoir[i].isSelected =true;
+                    $scope.evaluations.competencesDevoir[i].selected =true;
+                    console.dir($scope.evaluations.competencesDevoir[i]);
+                    utils.safeApply($scope);
+                }
+
+                $scope.search.keyword = "";
+                $scope.$watch('search.keyword', function (newValue, oldValue) {
+                    $scope.search.haschange = (newValue !== oldValue);
+                }, true);
+                _.extend($scope.devoir.enseignements, $scope.enseignements);
+
+                console.dir($scope.devoir);
+                console.dir(evaluations);
+                console.dir($scope);
+                template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                utils.safeApply($scope);
+                //});
             },
 
             listDevoirs : function(params){
@@ -82,7 +119,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displaySuiviCompetencesEleve : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
-                $scope.informations.eleve = null;
+                if($scope.informations.eleve === undefined){
+                    $scope.informations.eleve = null;
+                }
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
             },
@@ -235,21 +274,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {boolean} Validité du formulaire
          */
         $scope.controleNewDevoirForm = function () {
-            return !(
-                $scope.devoir.controlledDate
-                && $scope.devoir.id_etablissement !== undefined
-                && $scope.devoir.id_classe !== undefined
-                && $scope.devoir.id_matiere !== undefined
-                && $scope.devoir.name !== undefined
-                && $scope.devoir.id_periode !== undefined
-                && $scope.devoir.coefficient !== undefined
-                && $scope.devoir.coefficient > 0
-                && $scope.devoir.diviseur !== undefined
-                && $scope.devoir.diviseur > 0
-                && $scope.devoir.id_type !== undefined
-                && $scope.devoir.ramener_sur !== undefined
-                && $scope.devoir.id_etat !== undefined
-            );
+                return !(
+                    $scope.devoir.controlledDate
+                    && $scope.devoir.id_etablissement !== undefined
+                    && $scope.devoir.id_classe !== undefined
+                    && $scope.devoir.id_matiere !== undefined
+                    && $scope.devoir.name !== undefined
+                    && $scope.devoir.id_periode !== undefined
+                    && $scope.devoir.coefficient !== undefined
+                    && $scope.devoir.coefficient > 0
+                    && $scope.devoir.diviseur !== undefined
+                    && $scope.devoir.diviseur > 0
+                    && $scope.devoir.id_type !== undefined
+                    && $scope.devoir.ramener_sur !== undefined
+                    && $scope.devoir.id_etat !== undefined
+                );
         };
 
         /**
@@ -322,13 +361,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.enseignementsFilter = {};
             $scope.competencesFilter = {};
             for (var i = 0; i < $scope.enseignements.all.length; i++) {
-
                 var currEnseignement = $scope.enseignements.all[i];
                 $scope.enseignementsFilter[currEnseignement.id] = {
                     isSelected : pbInitSelected,
                     nomHtml :currEnseignement.nom
                 };
-
                 // on initialise aussi les compétences
                 $scope.initFilterRec(currEnseignement.competences, pbInitSelected)
             }
@@ -635,18 +672,94 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             item.hoveringRecap = false;
         };
 
+
+        $scope.deleteDevoir = function (devoir) {
+            console.dir(devoir);
+            if(devoir.list !== undefined){
+                devoir.list.forEach(function(d)
+                    {
+                        d.remove().then((res) => {
+                            evaluations.devoirs.sync();
+                            evaluations.devoirs.on('sync', function () {
+                                $scope.opened.lightbox = false;
+                                var index= devoir.list.indexOf(d);
+                                if(index >-1) devoir.list.splice(index,1);
+                                utils.safeApply($scope);
+                                $scope.goTo('/devoirs/list');
+                            });
+                        });
+                    }
+                );
+            }
+            else {
+                devoir.remove().then((res) => {
+                    evaluations.devoirs.sync();
+                    evaluations.devoirs.on('sync', function () {
+                        $scope.opened.lightbox = false;
+                        utils.safeApply($scope);
+                        $scope.goTo('/devoirs/list');
+                    });
+                });
+            }
+        };
+
+
         /**
          *  Sauvegarde du devoir à la suite du formulaire de création
          */
         $scope.saveNewDevoir = function () {
 
             // Pour la sauvegarde on ne recupere que les id des competences
-            $scope.devoir.competences = [];
-            for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
-                $scope.devoir.competences.push(evaluations.competencesDevoir[i].id);
+            if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
+                if (evaluations.competencesDevoir !== undefined) {
+                    $scope.devoir.competences = [];
+                    for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                        $scope.devoir.competences.push(evaluations.competencesDevoir[i].id);
+                    }
+                }
             }
+            else{
+                $scope.devoir.date = $scope.getDateFormated($scope.devoir.dateDevoir);
+                $scope.devoir.date_publication = $scope.getDateFormated($scope.devoir.datePublication);
+                $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
+                if (evaluations.competencesDevoir !== undefined) {
+                    $scope.devoir.competencesAdd= [];
+                    $scope.devoir.compentencesRem = [];
+                    //recherche des competences a ajouter
+                    for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                        var toAdd = true;
+                        for(var j =0; j < $scope.devoir.competences.length; j++ ){
+                            if($scope.devoir.competences[j].id === evaluations.competencesDevoir[i].id){
+                                j=$scope.devoir.competences.length;
+                                toAdd = false;
+                                break;
+                            }
+                        }
+                        if(toAdd){
+                            $scope.devoir.competencesAdd.push(evaluations.competencesDevoir[i].id);
+                        }
+                    }
 
-            $scope.devoir.create().then((res) => {
+                    //Recherche des competences a supprimer
+                    for(var j =0; j < $scope.devoir.competences.length; j++ ){
+                        var toDel = true;
+                        for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                            if($scope.devoir.competences[j].id === evaluations.competencesDevoir[i].id){
+                                i=evaluations.competencesDevoir.length;
+                                toDel = false;
+                                break;
+                            }
+                        }
+                        if(toDel){
+                            $scope.devoir.compentencesRem.push(evaluations.competencesDevoir[i].id);
+                        }
+                    }
+
+                }
+                utils.safeApply($scope);
+                console.dir($scope.devoir.date_publication);
+            }
+            $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
                 evaluations.devoirs.on('sync', function () {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
@@ -658,6 +771,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.search.periode.id = $scope.devoir.id_periode;
                             $scope.getReleve();
                         } else {
+                            if($location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
+                                $scope.goTo("/devoir/"+$scope.devoir.id);
+                            }
                             $scope.releveNote.devoirs.sync();
                         }
                     }
@@ -1010,7 +1126,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         /**
          * Affiche les informations d'un devoir en fonction de l'objet passé en paramètre
-          * @param obj objet de type Evaluation ou de type Devoir
+         * @param obj objet de type Evaluation ou de type Devoir
          */
         $scope.getDevoirInfo = function (obj) {
             if (template.isEmpty('leftSide-devoirInfo')) template.open('leftSide-devoirInfo', '../templates/evaluations/enseignants/informations/display_devoir');
@@ -1106,5 +1222,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 list.splice(list.indexOf(object), 1);
             }
         };
+
+        $scope.displaySuiviEleve= function(eleve){
+            $scope.informations.eleve = eleve;
+            $scope.search.eleve = eleve;
+            $scope.selected.eleve = eleve;
+            $scope.displayFromClass = true;
+            $scope.displayFromEleve = true;
+            utils.safeApply($scope);
+            $scope.goTo("/competences/eleve");
+        };
     }
+
 ]);

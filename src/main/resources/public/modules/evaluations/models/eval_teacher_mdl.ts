@@ -499,9 +499,12 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    update () : Promise<any> {
+    update (addArray, remArray) : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().putJson(this.api.update + this.id, this.toJSON()).done(function(data){
+            var devoirJSON = this.toJSON();
+            devoirJSON.competencesAdd = addArray;
+            devoirJSON.competencesRem = remArray;
+            http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
@@ -521,7 +524,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    save () : Promise<any> {
+    save (add,rem) : Promise<any> {
         return new Promise((resolve, reject) => {
             if(!this.id){
                 this.create().then((data) => {
@@ -530,7 +533,7 @@ export class Devoir extends Model implements IModel{
                     }
                 });
             }else{
-                this.update().then((data) => {
+                this.update(add, rem).then((data) => {
                     if (resolve && (typeof (resolve) === 'function')) {
                         resolve(data);
                     }

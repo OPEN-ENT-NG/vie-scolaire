@@ -58,6 +58,7 @@ routes.define(function($routeProvider){
     $routeProvider
         .when('/devoirs/list',{action:'listDevoirs'})
         .when('/devoir/create',{action:'createDevoir'})
+        .when('/devoir/:idDevoir/edit', {action : 'editDevoir'})
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
         .when('/competences/eleve', {action : 'displaySuiviCompetencesEleve'})

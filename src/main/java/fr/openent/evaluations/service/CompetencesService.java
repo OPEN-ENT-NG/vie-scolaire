@@ -54,6 +54,14 @@ public interface CompetencesService extends CrudService {
     public void setDevoirCompetences(Long devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler);
 
     /**
+     * Enlever des compétences pour un devoir donné
+     * @param devoirId Id du devoir (Integer)
+     * @param values Objet contenant les compétences (JsonObject)
+     * @param handler handler portant le résultat de la requête
+     */
+    public void remDevoirCompetences(Long devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler);
+
+    /**
      * Getter : Récupération des compétences pour un devoir donné
      * @param devoirId id du Devoir (Integer)
      * @param handler handler portant le résultat de la requête

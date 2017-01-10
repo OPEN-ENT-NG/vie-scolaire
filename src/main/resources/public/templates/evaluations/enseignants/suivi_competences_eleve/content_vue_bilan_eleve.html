@@ -17,7 +17,7 @@
   ~
   -->
 
-<script type="text/ng-template"  id="tree_item_renderer.html">
+<script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="pOFilterEval.limitTo = pOFilterEval.limitTo + 2">
 
     <div>
         <h4 class="margin-top-1em twelve cell" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>
@@ -70,6 +70,6 @@
 
 <div class="content-bilan-eleve">
     <h2><i18n>evaluations.bilan.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
-    <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
+    <div ng-repeat="domaine in suiviCompetence.domaines.all | limitTo:pOFilterEval.limitTo" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
     </div>
 </div>

@@ -1104,6 +1104,7 @@ export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
+    // evaluationLibre : Devoir;
 
     get api() {
         return {
@@ -1115,6 +1116,7 @@ export class SuiviCompetence extends Model implements IModel{
     constructor (eleve : Eleve, periode : any) {
         super();
         this.periode = periode;
+        // this.evaluationLibre = new Devoir();
         var that = this;
 
         this.collection(Domaine, {

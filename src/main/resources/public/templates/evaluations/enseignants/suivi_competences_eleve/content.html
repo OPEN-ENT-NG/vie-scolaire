@@ -26,6 +26,7 @@
                 ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
 
         <div ng-show="opened.detailCompetenceSuivi" class="twelve">
+            <a href="#" ng-click="createEvaluationLibre();"><i18n>evaluations.evaluation.libre.add</i18n></a>
             <div class="right-magnet">
                 <a ng-click="backToSuivi()" tooltip="evaluations.back.suivi.eleve.title">
                     <i class="icon-back"></i>
@@ -45,9 +46,13 @@
             <container template="suivi-competence-content"></container>
         </div>
         <div class="detail-competence inline-block six " ng-show="opened.detailCompetenceSuivi">
+            <lightbox show="showEvalLibre" on-close="showEvalLibre=false">
+                <div ng-include="'/viescolaire/public//templates/evaluations/enseignants/creation_devoir/display_creation_eval_libre.html'"></div>
+            </lightbox>
             <h2 class="ellipsis ten">
                 [[detailCompetence.nom]]
             </h2>
+
             <container template="suivi-competence-detail"></container>
         </div>
     </div>

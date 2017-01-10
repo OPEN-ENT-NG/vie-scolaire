@@ -99,6 +99,7 @@
   "evaluations.test.add":"Ajouter une évaluation",
   "evaluations.test.all" : "Toutes les évaluations",
   "evaluations.evaluation.create":"Créer évaluation",
+  "evaluations.evaluation.libre.add":"Ajouter une évaluation libre",
   "evaluations.releve.title":"Relevé de notes",
   "evaluations.bilan.eleve.title":"Bilan élève",
   "evaluations.bilan.fin.cycle.title":"Bilan de fin de cycle",
@@ -138,6 +139,7 @@
   "evaluations.competences.satisfying":"Maîtrise satisfaisante",
   "evaluations.competences.fragile":"Maîtrise fragile",
   "evaluations.competences.poor":"Maîtrise insuffisante",
+  "evaluations.competence.evaluated" : "Compétence évaluée",
   "evaluations.competence.unevaluated":"Compétence non évaluée",
 
   "evaluations.competences.proficiency.abreviation":"TB",

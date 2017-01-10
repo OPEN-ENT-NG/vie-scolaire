@@ -39,7 +39,7 @@ import {cSkillsList} from '../directives/cSkillsList';
 import {autofocus} from '../../utils/directives/autofocus';
 import {sticky} from '../../utils/directives/sticky';
 import {proportionSuiviCompetence} from '../directives/ProportionSuiviCompetence';
-import {rzslider} from '../../utils/directives/rzslider';
+import {rzslider} from '../../utils/directives/slider';
 
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);

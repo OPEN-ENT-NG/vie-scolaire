@@ -1,4 +1,4 @@
-import { model, http, IModel, Model, Collection} from 'entcore/entcore';
+import {model, http, IModel, Model, Collection} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');
@@ -200,6 +200,8 @@ export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
     name : string;
+    suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
+    mapEleves : any;
 
     get api () {
         return {
@@ -216,11 +218,16 @@ export class Classe extends Model {
                 return new Promise((resolve, reject) => {
                     http().getJson(this.api.sync).done(function (data) {
                         this.eleves.load(data);
+                        this.mapEleves = {};
+                        for (var i = 0; i < this.eleves.all.length; i++) {
+                            this.mapEleves[this.eleves.all[i].id]= this.eleves.all[i];
+                        }
                         resolve();
                     }.bind(this));
                 });
             }
         });
+        this.collection(SuiviCompetenceClasse);
     }
 }
 
@@ -515,11 +522,13 @@ export class Devoir extends Model implements IModel{
 
     remove () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete + this.id, this.toJSON()).done(function(data){
-                evaluations.devoirs.sync();
+            http().delete(this.api.delete + this.id).done(function(data){
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
+            })
+            .error(function () {
+                reject();
             });
         });
     }
@@ -754,6 +763,7 @@ export class Domaine extends Model {
     libelle : string;
     codification : string;
     composer : any;
+    evaluated : boolean;
 
     constructor (poDomaine?) {
         super();
@@ -1039,7 +1049,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
         }
     }
 
-    constructor (classe : Classe, periode : Periode) {
+    constructor (classe : Classe, periode : any) {
         super();
         this.periode = periode;
         var that = this;
@@ -1049,23 +1059,19 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                 return new Promise((resolve, reject) => {
                     var url = that.api.getArbreDomaines + idCycle;
                     http().getJson(url).done((resDomaines) => {
-
                         var url = that.api.getCompetencesNotesClasse + classe.id;
-                        if (periode !== null && periode !== undefined) {
+                        if (periode !== null && periode !== undefined && periode !== '*') {
                             url += "?idPeriode="+periode.id;
                         }
-
                         http().getJson(url).done((resCompetencesNotes) => {
-
                             if(resDomaines) {
                                 for(var i=0; i<resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
                                     that.domaines.all.push(domaine);
-                                    setCompetenceNotes(domaine, resCompetencesNotes);
+                                    setCompetenceNotes(domaine, resCompetencesNotes, this, classe);
                                 }
                             }
                         });
-
                         if (resolve && typeof (resolve) === 'function') {
                             resolve();
                         }
@@ -1109,7 +1115,7 @@ export class SuiviCompetence extends Model implements IModel{
         }
     }
 
-    constructor (eleve : Eleve, periode : Periode) {
+    constructor (eleve : Eleve, periode : any) {
         super();
         this.periode = periode;
         var that = this;
@@ -1120,29 +1126,19 @@ export class SuiviCompetence extends Model implements IModel{
                     if(idCycle) {
                         var url = that.api.getArbreDomaines + idCycle;
                         http().getJson(url).done((resDomaines) => {
-
                             var url = that.api.getCompetencesNotes + eleve.id;
-                            if (periode !== null && periode !== undefined) {
+                            if (periode !== null && periode !== undefined && periode !== '*') {
                                 url += "?idPeriode=" + periode.id;
                             }
-
                             http().getJson(url).done((resCompetencesNotes) => {
-
-                                //for(var i=0; i<resCompetencesNotes.length; i++) {
-                                //    var competenceNotes = new CompetenceNote(resCompetencesNotes[i]);
-                                //    that.competenceNotes.all.push(competenceNotes);
-                                //}
-
-
                                 if (resDomaines) {
                                     for (var i = 0; i < resDomaines.length; i++) {
                                         var domaine = new Domaine(resDomaines[i]);
                                         that.domaines.all.push(domaine);
-                                        setCompetenceNotes(domaine, resCompetencesNotes);
+                                        setCompetenceNotes(domaine, resCompetencesNotes, this, null);
                                     }
                                 }
                             });
-
                             if (resolve && typeof (resolve) === 'function') {
                                 resolve();
                             }
@@ -1158,25 +1154,65 @@ export class SuiviCompetence extends Model implements IModel{
     /**
      * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
      *
-     * @pbMesEvaluations booleen pour savoir s'il faut calculer la moyenne de toutes les évaluations
-     * ou seulement celles du professeur
      */
-    setMoyenneCompetences (pbMesEvaluations) {
+    setMoyenneCompetences () {
         for(var i=0; i< this.domaines.all.length; i++) {
             var oEvaluationsArray = [];
             var oDomaine = this.domaines.all[i] as Domaine;
 
             // recherche de toutes les évaluations du domaine et ses sous domaines
             // (uniquement les max de chaque compétence)
-            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, pbMesEvaluations);
-
-            if (oEvaluationsArray.length > 0) {
-                oDomaine.moyenne = utils.average(oEvaluationsArray);
-            } else {
-                oDomaine.moyenne = -1;
-            }
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, false);
         }
     }
+
+    setSliderOptions(poDomaine) {
+        poDomaine.slider = {
+            disabled: false,
+            value: poDomaine.moyenne,
+            options: {
+                floor: 0,
+                ceil: 4,
+                step: 0.01,
+                precision: 2,
+                showTicksValues: false,
+                showTicks: 1,
+                showSelectionBar: true,
+                getSelectionBarColor: function(value) {
+                    if (value <= 1)
+                        return 'red';
+                    if (value <= 2)
+                        return 'orange';
+                    if (value <= 3)
+                        return '#ecbe30';
+                    if (value <= 4)
+                        return 'green';
+                    return '#2AE02A';
+                },
+                translate: function(value, sliderId, label) {
+                    if (value == 0)
+                        return 'Non évalué';
+                    if (value <= 1)
+                        return '<b>Maîtrise insuffisante' + ' '+value+'</b>';
+                    if (value <= 2)
+                        return'<b>Maîtrise fragile'+ ' '+value+'</b>';;
+                    if (value <= 3)
+                        return '<b>Maîtrise satisfaisante'+ ' '+value+'</b>';;
+                    if (value < 4)
+                        return '<b>Très bonne maîtrise'+ ' '+value+'</b>';
+                    if (value == 4)
+                        return 'Très bonne maîtrise';
+                }
+
+            }
+        };
+
+        if(poDomaine.moyenne == -1) {
+            poDomaine.slider.disabled = true;
+        }
+        this.setSliderOptions(poDomaine);
+
+    };
 
 
     findCompetence (idCompetence) {
@@ -1200,23 +1236,45 @@ export class SuiviCompetence extends Model implements IModel{
 }
 
 function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
-    for(var i=0; i<poDomaine.competences.all.length; i++) {
-        var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
-        var _t = competencesEvaluations;
-        _t = _.filter(competencesEvaluations, function (competence) {
-            return competence.owner !== undefined && competence.owner === model.me.userId;
-        });
+    // si le domaine est évalué, on ajoute les max de chacunes de ses competences
+    if(poDomaine.evaluated) {
+        for (var i = 0; i < poDomaine.competences.all.length; i++) {
+            var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
+            var _t = competencesEvaluations;
 
-        if(_t && _t.length > 0) {
-            poMaxEvaluationsDomaines.push(_.max(_t, function(_t){ return _t.evaluation;}).evaluation);
+            // filtre sur les compétences évaluées par l'enseignant
+            if (pbMesEvaluations) {
+                _t = _.filter(competencesEvaluations, function (competence) {
+                    return competence.owner !== undefined && competence.owner === model.me.userId;
+                });
+            }
+
+            if (_t && _t.length > 0) {
+                // TODO récupérer la vrai valeur numérique :
+                // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
+                poMaxEvaluationsDomaines.push(_.max(_t, function (_t) {
+                        return _t.evaluation;
+                    }).evaluation + 1);
+            }
         }
     }
 
+    // calcul de la moyenne pour les sous-domaines
     if(poDomaine.domaines) {
         for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            // si le domaine parent n'est pas évalué, il faut vider pour chaque sous-domaine les poMaxEvaluationsDomaines sauvegardés
+            if(!poDomaine.evaluated) {
+                poMaxEvaluationsDomaines = [];
+            }
             getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
         }
+    }
 
+    // mise à jour de la moyenne
+    if (poMaxEvaluationsDomaines.length > 0) {
+        poDomaine.moyenne = utils.average(poMaxEvaluationsDomaines);
+    } else {
+        poDomaine.moyenne = -1;
     }
 }
 
@@ -1233,19 +1291,38 @@ function findCompetenceRec (piIdCompetence, poCompetences) {
     return false;
 }
 
-function setCompetenceNotes(poDomaine, poCompetencesNotes) {
+function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
     if(poDomaine.competences) {
         _.map(poDomaine.competences.all, function (competence) {
             competence.competencesEvaluations = _.where(poCompetencesNotes, {
                 id_competence: competence.id,
                 id_domaine: competence.id_domaine
             });
+            // if (object.composer.constructor.name === "SuiviCompetenceClasse"
+            //     && classe !== null
+            //     && classe.eleves.all.length > 0
+            //     && competence.competencesEvaluations.length < classe.eleves.all.length) {
+            //     for (var i = 0; i < (classe.eleves.all.length - competence.competencesEvaluations.length); i++) {
+            //         var o = new CompetenceNote({id_competence : competence.id, nom : competence.nom, evaluation : -1});
+            //         competence.competencesEvaluations.push(o)
+            //     }
+            // }
+            if (object.composer.constructor.name === 'SuiviCompetenceClasse') {
+                for (var i = 0; i < classe.eleves.all.length; i++) {
+                    var mine = _.findWhere(competence.competencesEvaluations, {id_eleve : classe.eleves.all[i].id, owner : model.me.userId});
+                    var others = _.filter(competence.competencesEvaluations, function (evaluation) { return evaluation.owner !== model.me.userId; });
+                    if (mine === undefined)
+                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id, owner : model.me.userId}));
+                    if (others.length === 0)
+                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id}));
+                }
+            }
         });
     }
 
     if( poDomaine.domaines) {
         for (var i = 0; i < poDomaine.domaines.all.length; i++) {
-            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes);
+            setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes, object, classe);
         }
     }
 }

@@ -9,8 +9,8 @@ import * as utils from '../utils/teacher';
 declare let _:any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
-    '$scope', 'route', '$rootScope', '$location', '$filter', '$route',
-    function ($scope, route, $rootScope, $location, $filter, $route) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
+    function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
@@ -20,6 +20,12 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             mine: 'true'
         };
         $scope.opened.detailCompetenceSuivi = false;
+        this.refreshSlider = function () {
+            $timeout(function () {
+                $scope.$broadcast('rzSliderForceRender');
+            });
+        };
+
         /**
          * Créer une suivi de compétence
          */
@@ -28,12 +34,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle);
-
-
-                    setTimeout(function() {
+                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
-                    },400);
+                    });
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
                     if ($scope.opened.detailCompetenceSuivi) {
@@ -64,7 +67,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             utils.safeApply($scope);
         }
 
-
+        $scope.pOFilterEval = {
+            limitTo : 2
+        };
 
         $scope.idCycle = 1;
 

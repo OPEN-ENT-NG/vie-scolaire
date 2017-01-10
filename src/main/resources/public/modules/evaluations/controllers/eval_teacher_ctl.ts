@@ -1,7 +1,6 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {Devoir, Evaluation, evaluations, ReleveNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
-import {getFormatedDate} from "../../utils/functions/formatDate";
 
 let moment = require('moment');
 
@@ -13,7 +12,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
-                $scope.getDevoirsNotEnded();
             },
 
             createDevoir : function(params){
@@ -127,8 +125,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displaySuiviCompetencesClasse : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
-                $scope.sortType     = 'title'; // set the default sort type
-                $scope.sortReverse  = false;  // set the default sort order
+                $scope.opened.detailCompetenceSuivi = false;
             }
         });
 
@@ -156,15 +153,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
-            name : '',
-            dateCreation : {
-                debut : moment(),
-                fin : moment()
-            },
-            datePublication : {
-                debut : moment(),
-                fin : moment()
-            }
+            name : ''
         };
         $scope.informations = {};
         $scope.me = model.me;
@@ -207,6 +196,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.goTo = function(path){
             $location.path(path);
             $location.replace();
+            utils.safeApply($scope);
         };
 
         evaluations.periodes.on('sync', function () {
@@ -673,36 +663,28 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
 
-        $scope.deleteDevoir = function (devoir) {
-            console.dir(devoir);
-            if(devoir.list !== undefined){
-                devoir.list.forEach(function(d)
-                    {
+        $scope.deleteDevoir = function () {
+            if($scope.selected.devoirs.list.length > 0){
+                $scope.selected.devoirs.list.forEach(function(d) {
                         d.remove().then((res) => {
                             evaluations.devoirs.sync();
                             evaluations.devoirs.on('sync', function () {
                                 $scope.opened.lightbox = false;
-                                var index= devoir.list.indexOf(d);
-                                if(index >-1) devoir.list.splice(index,1);
-                                utils.safeApply($scope);
+                                var index= $scope.selected.devoirs.list.indexOf(d);
+                                if(index > -1) {
+                                    $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, d);
+                                }
                                 $scope.goTo('/devoirs/list');
+                                utils.safeApply($scope);
                             });
+                        })
+                        .catch(() => {
+                            notify.error("evaluation.delete.devoir.error");
                         });
                     }
                 );
             }
-            else {
-                devoir.remove().then((res) => {
-                    evaluations.devoirs.sync();
-                    evaluations.devoirs.on('sync', function () {
-                        $scope.opened.lightbox = false;
-                        utils.safeApply($scope);
-                        $scope.goTo('/devoirs/list');
-                    });
-                });
-            }
         };
-
 
         /**
          *  Sauvegarde du devoir à la suite du formulaire de création
@@ -1232,6 +1214,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
             $scope.goTo("/competences/eleve");
         };
-    }
 
+
+        /**
+         * Afficher le suivi d'un élève depuis le suivi de classe
+         * @param eleve
+         */
+        $scope.displaySuiviEleve= function(eleve){
+            $scope.informations.eleve = eleve;
+            $scope.search.eleve = eleve;
+            $scope.selected.eleve = eleve;
+            $scope.displayFromClass = true;
+            $scope.displayFromEleve = true;
+            utils.safeApply($scope);
+            $scope.goTo("/competences/eleve");
+        };
+        $scope.pOFilterEval = {
+            limitTo : 22
+        };
+    }
 ]);

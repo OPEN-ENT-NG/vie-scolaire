@@ -190,6 +190,7 @@
   "ariane.viescolaire.viewNotesDevoir":"Saisie des notes",
   "ariane.viescolaire.listDevoirs":"Liste des évaluations",
   "ariane.viescolaire.displaySuiviCompetencesEleve" : "Suivi de compétences élèves",
+  "ariane.viescolaire.displaySuiviCompetencesClasse" : "Suivi de compétences classe",
   "error.note.outbound":"La note doit être comprise entre 0 et ",
   "error.note.invalid":"Note(s) invalide(s)",
   "evaluations.skills.evaluation":"Evaluation des compétences",
@@ -199,5 +200,6 @@
   "evaluations.filter.name" : "Filtrer sur le nom",
   "evaluations.no.summary" : "Aucun relevé trouvé pour vos critères",
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
-  "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection"
+  "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
+  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)"
 }

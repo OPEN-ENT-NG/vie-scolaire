@@ -1,4 +1,4 @@
-import {model, http, IModel, Model, Collection} from 'entcore/entcore';
+import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');
@@ -251,29 +251,29 @@ export class Eleve extends Model implements IModel{
         this.collection(SuiviCompetence);
     }
 
-        getMoyenne () : Promise<any> {
-            return new Promise((resolve, reject) => {
-                if (this.evaluations.all.length > 0) {
-                    var _datas = [];
-                    for (var i = 0; i < this.evaluations.all.length; i++) {
-                        if (this.evaluations.all[i].valeur !== "") _datas.push(this.evaluations.all[i].formatMoyenne());
-                    }
-                    if (_datas.length > 0) {
-                        http().postJson( this.api.getMoyenne, {notes : _datas}).done(function (res) {
-                            if (_.has(res, "moyenne")) {
-                                this.moyenne = res.moyenne;
-                                if(resolve && typeof(resolve) === 'function'){
-                                    resolve();
-                                }
-                            }
-                        }.bind(this));
-                    }
+    getMoyenne () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.evaluations.all.length > 0) {
+                var _datas = [];
+                for (var i = 0; i < this.evaluations.all.length; i++) {
+                    if (this.evaluations.all[i].valeur !== "") _datas.push(this.evaluations.all[i].formatMoyenne());
                 }
-            });
+                if (_datas.length > 0) {
+                    http().postJson( this.api.getMoyenne, {notes : _datas}).done(function (res) {
+                        if (_.has(res, "moyenne")) {
+                            this.moyenne = res.moyenne;
+                            if(resolve && typeof(resolve) === 'function'){
+                                resolve();
+                            }
+                        }
+                    }.bind(this));
+                }
+            }
+        });
     }
-    }
+}
 
-    export class Evaluation extends Model implements IModel{
+export class Evaluation extends Model implements IModel{
     id : number;
     id_eleve : string;
     id_devoir : number;
@@ -433,7 +433,7 @@ export class Devoir extends Model implements IModel{
                     // that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
                     // that.eleves.load($.extend(true, {}, JSON.stringify(_classe.eleves.all)));
                     var e = $.map($.extend(true, {}, _classe.eleves.all), function (el) {
-                       return el;
+                        return el;
                     });
                     that.eleves.load(e);
                     http().getJson(that.api.getNotesDevoir).done(function (res) {
@@ -529,9 +529,9 @@ export class Devoir extends Model implements IModel{
                     resolve(data);
                 }
             })
-            .error(function () {
-                reject();
-            });
+                .error(function () {
+                    reject();
+                });
         });
     }
 
@@ -1142,10 +1142,10 @@ export class SuiviCompetence extends Model implements IModel{
                                         setCompetenceNotes(domaine, resCompetencesNotes, this, null);
                                     }
                                 }
+                                if (resolve && typeof (resolve) === 'function') {
+                                    resolve();
+                                }
                             });
-                            if (resolve && typeof (resolve) === 'function') {
-                                resolve();
-                            }
                         });
                     }
                 });
@@ -1170,55 +1170,6 @@ export class SuiviCompetence extends Model implements IModel{
         }
     }
 
-    setSliderOptions(poDomaine) {
-        poDomaine.slider = {
-            disabled: false,
-            value: poDomaine.moyenne,
-            options: {
-                floor: 0,
-                ceil: 4,
-                step: 0.01,
-                precision: 2,
-                showTicksValues: false,
-                showTicks: 1,
-                showSelectionBar: true,
-                getSelectionBarColor: function(value) {
-                    if (value <= 1)
-                        return 'red';
-                    if (value <= 2)
-                        return 'orange';
-                    if (value <= 3)
-                        return '#ecbe30';
-                    if (value <= 4)
-                        return 'green';
-                    return '#2AE02A';
-                },
-                translate: function(value, sliderId, label) {
-                    if (value == 0)
-                        return 'Non évalué';
-                    if (value <= 1)
-                        return '<b>Maîtrise insuffisante' + ' '+value+'</b>';
-                    if (value <= 2)
-                        return'<b>Maîtrise fragile'+ ' '+value+'</b>';;
-                    if (value <= 3)
-                        return '<b>Maîtrise satisfaisante'+ ' '+value+'</b>';;
-                    if (value < 4)
-                        return '<b>Très bonne maîtrise'+ ' '+value+'</b>';
-                    if (value == 4)
-                        return 'Très bonne maîtrise';
-                }
-
-            }
-        };
-
-        if(poDomaine.moyenne == -1) {
-            poDomaine.slider.disabled = true;
-        }
-        this.setSliderOptions(poDomaine);
-
-    };
-
-
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
@@ -1234,10 +1185,54 @@ export class SuiviCompetence extends Model implements IModel{
 
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
-               resolve();
+            resolve();
         });
     }
 }
+
+function setSliderOptions(poDomaine) {
+    poDomaine.slider = {
+        value: parseFloat(poDomaine.moyenne),
+        options: {
+            disabled: parseFloat(poDomaine.moyenne) === -1,
+            floor: 0,
+            ceil: 4,
+            step: 0.01,
+            precision: 2,
+            showTicksValues: false,
+            showTicks: 1,
+            showSelectionBar: true,
+            getSelectionBarClass: function(value) {
+                if (value <= 1)
+                    return 'red';
+                if (value <= 2)
+                    return 'orange';
+                if (value <= 3)
+                    return 'yellow';
+                if (value <= 4)
+                    return 'green';
+                return 'grey';
+            },
+            translate: function(value, sliderId, label) {
+                var l = '#label#';
+                if (label === 'model') l = '<b>#label#</b>'
+                if (value == -1)
+                    return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
+                if (value < 1)
+                    return l.replace('#label#', lang.translate('evaluations.competences.poor'));
+                if (value < 2)
+                    return l.replace('#label#', lang.translate('evaluations.competences.fragile'));
+                if (value < 3)
+                    return l.replace('#label#', lang.translate('evaluations.competences.satisfying'));
+                if (value < 4)
+                    return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
+                if (value == 4)
+                    return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
+            }
+
+        }
+    };
+};
 
 function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
     // si le domaine est évalué, on ajoute les max de chacunes de ses competences
@@ -1280,6 +1275,8 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEva
     } else {
         poDomaine.moyenne = -1;
     }
+
+    setSliderOptions(poDomaine);
 }
 
 function findCompetenceRec (piIdCompetence, poCompetences) {

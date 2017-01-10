@@ -92,6 +92,24 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
 
         Sql.getInstance().prepared(query.toString(), data, SqlResult.validRowsResultHandler(handler));
     }
+    @Override
+    public void remDevoirCompetences(Long devoirId, JsonArray values, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray data = new JsonArray();
+        query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs WHERE ");
+        for(int i = 0; i < values.size(); i++){
+            query.append("(id_devoir = ? AND  id_competence = ?)");
+            data.addNumber(devoirId);
+            data.addNumber((Number) values.get(i));
+            if(i != values.size()-1){
+                query.append(" OR ");
+            }else{
+                query.append(";");
+            }
+        }
+
+        Sql.getInstance().prepared(query.toString(), data, SqlResult.validRowsResultHandler(handler));
+    }
 
     @Override
     public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler) {

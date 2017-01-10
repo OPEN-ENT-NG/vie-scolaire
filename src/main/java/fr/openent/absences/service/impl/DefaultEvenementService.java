@@ -43,7 +43,6 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
     public static String gsFormatTimestampWithoutTimeZone = "'yyyy-mm-dd\"T\"hh24:mi:ss.MS'";
 
-    @Override
     public void updateEvenement(String pIIdEvenement, JsonObject pOEvenement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
@@ -80,7 +79,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "AND evenement.fk_appel_id = appel.id " +
                 "AND appel.fk_cours_id = cours.id " +
                 "AND evenement.fk_type_evt_id = 5 " +
-                "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
+                "AND cours.timestamp_dt >to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')  " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
                 "AND cours.id_etablissement = ? " +
                 "ORDER BY cours.timestamp_dt DESC");

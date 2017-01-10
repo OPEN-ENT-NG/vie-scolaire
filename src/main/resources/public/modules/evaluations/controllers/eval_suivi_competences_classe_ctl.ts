@@ -16,6 +16,10 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
         delete $scope.informations.eleve;
         $scope.route = $route;
+        $scope.search.classe = "";
+        $scope.suiviFilter = {
+            mine : 'true'
+        };
 
         $scope.selected.colors = {
             0 : true,
@@ -24,6 +28,9 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             3 : true,
             4 : true
         };
+
+       $scope.idCycle = 1;
+
 
         /**
          * Créer une suivi de compétence
@@ -65,13 +72,6 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             $scope.selectSuivi($scope.route.current.$$route.originalPath);
         }
 
-        $scope.suiviFilter = {
-            mine : 'true'
-        };
-
-
-        $scope.idCycle = 1;
-
         $scope.getMaxEvaluations = function (idEleve) {
             var evaluations = $scope.suiviFilter.mine == 'true'
                 ? _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : idEleve, owner : model.me.userId})
@@ -106,10 +106,8 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         $scope.FilterColor = function (item){
             var evaluation = $scope.getMaxEvaluations(item.id);
             if (evaluation !== -Infinity)
-                  return $scope.selected.colors[evaluation.evaluation + 1];
+                return $scope.selected.colors[evaluation.evaluation + 1];
         };
-
-
 
         /**
          * Retourne si l'utilisateur n'est pas le propriétaire de compétences
@@ -191,6 +189,5 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 utils.safeApply($scope);
             }
         };
-
     }
 ]);

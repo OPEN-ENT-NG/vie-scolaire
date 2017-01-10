@@ -1137,8 +1137,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
             $scope.goTo("/competences/eleve");
         };
-        $scope.pOFilterEval = { //Objet permettant le filtre des appels oubliés / non oubliés
-            sansmotifs : true,
+        $scope.pOFilterEval = {
             limitTo : 22
         };
     }

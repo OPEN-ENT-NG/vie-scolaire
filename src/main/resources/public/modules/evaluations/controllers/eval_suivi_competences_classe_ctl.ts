@@ -81,8 +81,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             }
         };
 
-        $scope.pOFilterEval = { //Objet permettant le filtre des appels oubliés / non oubliés
-            sansmotifs : true,
+        $scope.pOFilterEval = {
             limitTo : 2
         };
 

@@ -16,7 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="list-view twelve-mobile">
+<div class="list-view twelve-mobile" >
     <div class="row devoirs-header" sticky offset="64">
         <div class="one cell display-check two-mobile">
             <label class="checkbox">
@@ -48,9 +48,9 @@
     </div>
 
 
-    <div class="expandable-liste card">
+    <div class="expandable-liste card"  bottom-scroll="pOFilterEval.limitTo = pOFilterEval.limitTo + 5" >
         <div class="expandable twelve"
-             ng-repeat="devoir in devoirs.all | customSearchFilters:search"
+             ng-repeat="devoir in devoirs.all | customSearchFilters:search | limitTo:pOFilterEval.limitTo"
              ng-class="{'opened shadow': openedDevoir === $index}" >
             <div class="row">
                 <div class="one cell cell-check expandable-content two-mobile">

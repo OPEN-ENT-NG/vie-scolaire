@@ -20,8 +20,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             mine: 'true'
         };
         $scope.opened.detailCompetenceSuivi = false;
-
-
         this.refreshSlider = function () {
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
@@ -51,6 +49,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
                     utils.safeApply($scope);
                     if($scope.displayFromClass) delete $scope.displayFromClass;
+
                 });
             }
         };
@@ -68,6 +67,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             utils.safeApply($scope);
         }
 
+        $scope.pOFilterEval = {
+            limitTo : 2
+        };
 
         $scope.idCycle = 1;
 

@@ -30,7 +30,13 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.entcore.common.sql.Sql.parseId;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
+import static org.entcore.common.sql.SqlResult.validRowsResultHandler;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -48,7 +54,39 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
     @Override
     public void updateDevoir(String id, JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-        super.update(id, devoir, user, handler);
+        System.out.println("in default service");
+        StringBuilder sb = new StringBuilder();
+        JsonArray values = new JsonArray();
+        for (String attr : devoir.getFieldNames()) {
+            if(attr.contains("date")){
+                sb.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
+                try {
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    String date_publication = devoir.getString(attr);
+                    Date parsedDate = formatter.parse(date_publication);
+                    StringBuilder dateFormated = new StringBuilder();
+                    dateFormated.append(date_publication.split("/")[2]).append('-');
+                    dateFormated.append(date_publication.split("/")[1]).append('-');
+                    dateFormated.append(date_publication.split("/")[0]);
+
+                    values.add(dateFormated.toString());
+                }
+                catch(ParseException pe){
+                    System.err.println(pe);
+                }
+            }
+            else {
+                sb.append(attr).append(" = ?, ");
+                values.add(devoir.getValue(attr));
+            }
+        }
+        String query =
+                "UPDATE " + resourceTable +
+                        " SET " + sb.toString() + "modified = NOW() " +
+                        "WHERE id = ? ";
+        sql.prepared(query, values.add(parseId(id)), validRowsResultHandler(handler));
+
     }
 
     @Override

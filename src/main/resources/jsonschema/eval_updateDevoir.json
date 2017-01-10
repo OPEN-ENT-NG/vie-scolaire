@@ -1,25 +1,9 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "additionalProperties": true,
   "properties": {
     "name": {
       "type": "string"
-    },
-    "owner": {
-      "type": "string"
-    },
-    "created": {
-      "type": "string"
-    },
-    "modified": {
-      "type": "string"
-    },
-    "visibility": {
-      "type": "string"
-    },
-    "number": {
-      "type": "integer"
     },
     "libelle": {
       "type": "string"
@@ -44,9 +28,6 @@
     },
     "id_etat" : {
       "type" : "integer"
-    },
-    "date_publication" : {
-      "type" : "string"
     },
     "diviseur" : {
       "type" : "integer"

@@ -22,9 +22,12 @@
             <i18n>evaluations.evaluation.libre.add</i18n>
         </h4>
 
-        <h2 class="ellipsis ten">
-            [[detailCompetence.nom]]
+        <h2>
+            "[[detailCompetence.nom]]"
         </h2>
+
+        <div class="separator"></div>
+
     </div>
     <div class="cell twelve">
         <!-- Titre -->
@@ -56,12 +59,16 @@
         <!-- Compétence évaluée -->
         <section class="row twelve-mobile">
             <div class="three cell addDevoirTable__libelle twelve-mobile">
-                <i18n>evaluations.competence.evaluated</i18n>
+                <i18n>evaluations.competence.evaluate</i18n>
                 <i class="fa fa-asterisk obligatoire"></i>
             </div>
 
-            <div class="nine inline-block align-center align-topvtwelve-mobile">
-                <span class="competence-eval rounded" ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0, orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2, green : evaluation.evaluation == 3}"></span>
+            <div class="inline-block align-center align-top">
+                <span class="competence-eval rounded pointer"
+                      ng-class="{grey : evaluationLibre.competenceEvaluee.evaluation == -1, red : evaluationLibre.competenceEvaluee.evaluation == 0, orange : evaluationLibre.competenceEvaluee.evaluation == 1, yellow : evaluationLibre.competenceEvaluee.evaluation == 2, green : evaluationLibre.competenceEvaluee.evaluation == 3}"
+                        ng-click="switchColor()"
+                >
+                </span>
             </div>
         </section>
 

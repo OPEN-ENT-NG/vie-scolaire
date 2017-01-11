@@ -22,6 +22,8 @@ package fr.openent.evaluations.controller;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
+import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.wseduc.rs.*;
@@ -58,11 +60,13 @@ public class DevoirController extends ControllerHelper {
      */
     private final DefaultDevoirService devoirsService;
     private final DefaultCompetencesService defaultCompetencesService;
+    private final CompetenceNoteService competencesNotesService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         devoirsService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
         defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     @Get("/devoirs")
@@ -117,10 +121,11 @@ public class DevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                    RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
                         @Override
-                        public void handle(JsonObject resource) {
+                        public void handle(final JsonObject resource) {
                             resource.removeField("competences");
+                            resource.removeField("competenceEvaluee");
                             devoirsService.createDevoir(resource, user,
                                     new Handler<Either<String, JsonObject>>() {
                                         @Override
@@ -132,6 +137,14 @@ public class DevoirController extends ControllerHelper {
                                                     public void handle(JsonObject createdDevoir) {
                                                         createdDevoir.putNumber("id", devoirId[0]);
                                                         JsonArray competences = createdDevoir.getArray("competences");
+
+                                                        // récupération de la compétence évaluée (cas évaluation libre)
+                                                        JsonObject oCompetenceNote = createdDevoir.getObject("competenceEvaluee");
+                                                        oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
+                                                        if(oCompetenceNote != null) {
+                                                            competencesNotesService.createCompetenceNote(oCompetenceNote, user, notEmptyResponseHandler(request));
+                                                        }
+
                                                         if(competences.size() != 0) {
                                                             defaultCompetencesService.setDevoirCompetences(createdDevoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
                                                                 public void handle(Either<String, JsonObject> event) {

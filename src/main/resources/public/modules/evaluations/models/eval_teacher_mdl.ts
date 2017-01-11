@@ -371,6 +371,7 @@ export class Devoir extends Model implements IModel{
     matiere : Matiere;
     type : Type;
     competences : Collection<Competence>;
+    competenceEvaluee : CompetenceNote;
 
     // DATABASE FIELDS
     id : number;
@@ -492,7 +493,8 @@ export class Devoir extends Model implements IModel{
             date            : this.date,
             ramener_sur      : this.ramener_sur,
             is_evaluated     : this.is_evaluated,
-            competences     : this.competences
+            competences     : this.competences,
+            competenceEvaluee : this.competenceEvaluee
         };
     }
 

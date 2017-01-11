@@ -139,7 +139,7 @@
   "evaluations.competences.satisfying":"Maîtrise satisfaisante",
   "evaluations.competences.fragile":"Maîtrise fragile",
   "evaluations.competences.poor":"Maîtrise insuffisante",
-  "evaluations.competence.evaluated" : "Compétence évaluée",
+  "evaluations.competence.evaluate" : "Evaluation de la compétence",
   "evaluations.competence.unevaluated":"Compétence non évaluée",
 
   "evaluations.competences.proficiency.abreviation":"TB",

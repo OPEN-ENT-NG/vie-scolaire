@@ -2,8 +2,8 @@
  * Created by ledunoiss on 27/10/2016.
  */
 
-import {ng, template, model } from 'entcore/entcore';
-import {SuiviCompetence, Devoir} from '../models/eval_teacher_mdl';
+import {ng, template, model} from 'entcore/entcore';
+import {SuiviCompetence, Devoir, CompetenceNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;
@@ -11,6 +11,13 @@ declare let _:any;
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
+
+
+        template.open('container', '../templates/layouts/2_10_layout');
+        template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
+        template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
+        template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
+        $scope.route = $route;
 
         $scope.showEvalLibre = false;
 
@@ -30,12 +37,17 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 is_evaluated: false,
                 id_classe: null,
                 id_periode: null,
-                id_type: null,
-                id_matiere: null,
+                id_type: 1, // TODO modifier en optional foreign key
+                id_matiere: "", // TODO modifier en optional foreign key
+                id_sousmatiere: 1, // TODO modifier en optional foreign key
                 competences : [],
                 controlledDate: false
             });
-            evaluationLibre.competences.push($scope.detailCompetence);
+
+            var competenceEvaluee = new CompetenceNote({evaluation : -1, id_competence: $scope.detailCompetence.id, id_eleve : $scope.informations.eleve.id, owner : model.me.userId});
+            evaluationLibre.competences.all.push($scope.detailCompetence.id);
+            evaluationLibre.competenceEvaluee = competenceEvaluee;
+            return evaluationLibre;
         };
 
         /**
@@ -52,7 +64,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          */
         $scope.switchColor = function(){
             // recupération de la compétence (il n'y en a qu'une)
-            var competenceEvaluee = $scope.evaluationLibre.competences[0];
+            var competenceEvaluee = $scope.evaluationLibre.competenceEvaluee;
             if(competenceEvaluee.evaluation === -1){
                 competenceEvaluee.evaluation = 3;
             }else{
@@ -64,7 +76,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *  Sauvegarde d'une évaluation libre
          */
         $scope.saveNewEvaluationLibre = function () {
-            $scope.evaluationLibre.create();
+            $scope.evaluationLibre.create().then(function (res)  {
+                $scope.showEvalLibre = false;
+            });
         };
 
         /**
@@ -84,14 +98,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.evaluationLibre.controlledDate
                 && $scope.evaluationLibre.name !== undefined
                 && $scope.evaluationLibre.id_periode !== undefined
+                && $scope.evaluationLibre.competenceEvaluee.evaluation !== -1
             );
         };
 
-        template.open('container', '../templates/layouts/2_10_layout');
-        template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
-        template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
-        template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
-        $scope.route = $route;
         $scope.suiviFilter = {
             mine: 'true'
         };

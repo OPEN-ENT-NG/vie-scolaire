@@ -391,6 +391,8 @@ export class Devoir extends Model implements IModel{
     date : any;
     is_evaluated  : boolean;
     that: any;
+    competencesAdd: any;
+    competencesRem: any;
 
 
     get api () {
@@ -492,7 +494,9 @@ export class Devoir extends Model implements IModel{
             date            : this.date,
             ramener_sur      : this.ramener_sur,
             is_evaluated     : this.is_evaluated,
-            competences     : this.competences
+            competences     : this.competences,
+            competencesAdd : null,
+            competencesRem : null
         };
     }
 
@@ -511,6 +515,7 @@ export class Devoir extends Model implements IModel{
             var devoirJSON = this.toJSON();
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
+            devoirJSON.competences = [];
             http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {

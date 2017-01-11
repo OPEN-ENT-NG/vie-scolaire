@@ -126,6 +126,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
     }
 
+
     @Override
     public void getLastCompetencesDevoir(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

@@ -63,7 +63,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 utils.safeApply($scope);
 
-                console.dir($scope);
 
             },
 
@@ -734,7 +733,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                     //recherche des competences a ajouter
                     for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
-                        if(evaluations.competencesDevoir[i].id_competences === undefined){
+                        var toAdd = true;
+                        for(var j =0; j < $scope.devoir.competences.all.length; j++) {
+                            if ($scope.devoir.competences.all[j].id_competence
+                                === evaluations.competencesDevoir[i].id) {
+                                toAdd = false;
+                                break;
+                            }
+                        }
+                        if(toAdd){
                             $scope.devoir.competencesAdd.push(evaluations.competencesDevoir[i].id);
                         }
                     }
@@ -754,11 +761,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 }
                 utils.safeApply($scope);
-                console.dir($scope.devoir);
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
-                evaluations.devoirs.on('sync', function () {
+                evaluations.devoirs.on('sync', function (res) {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
                         $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){

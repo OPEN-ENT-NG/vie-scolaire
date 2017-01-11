@@ -2,8 +2,8 @@
  * Created by ledunoiss on 27/10/2016.
  */
 
-import {ng, template } from 'entcore/entcore';
-import {SuiviCompetence, Domaine} from '../models/eval_teacher_mdl';
+import {ng, template, model} from 'entcore/entcore';
+import {SuiviCompetence, Devoir, CompetenceNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 declare let _:any;
@@ -11,11 +11,97 @@ declare let _:any;
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
+
+
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
         template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
         $scope.route = $route;
+
+        $scope.showEvalLibre = false;
+
+        /**
+         * Initialise d'une évaluation libre.
+         */
+        $scope.initEvaluationLibre = function () {
+            var evaluationLibre = new Devoir({
+                date_publication: new Date(),
+                date: new Date(),
+                diviseur: 20,
+                coefficient: 1,
+                id_etablissement: model.me.structures[0],
+                ramener_sur: false,
+                id_etat: 1,
+                owner: model.me.userId,
+                is_evaluated: false,
+                id_classe: null,
+                id_periode: null,
+                id_type: 1, // TODO modifier en optional foreign key
+                id_matiere: "", // TODO modifier en optional foreign key
+                id_sousmatiere: 1, // TODO modifier en optional foreign key
+                competences : [],
+                controlledDate: false
+            });
+
+            var competenceEvaluee = new CompetenceNote({evaluation : -1, id_competence: $scope.detailCompetence.id, id_eleve : $scope.informations.eleve.id, owner : model.me.userId});
+            evaluationLibre.competences.all.push($scope.detailCompetence.id);
+            evaluationLibre.competenceEvaluee = competenceEvaluee;
+            return evaluationLibre;
+        };
+
+        /**
+         * Ouvre la fenêtre de création d'une évaluation libre
+         */
+        $scope.createEvaluationLibre = function () {
+            $scope.evaluationLibre = $scope.initEvaluationLibre();
+            $scope.showEvalLibre = true;
+            //template.open('lightboxContainerEvalLibre', '../templates/evaluations/enseignants/creation_devoir/display_creation_eval_libre');
+        };
+
+        /**
+         * Evaluation de la compétence sur laquelle on est lors d'une évaluation libre
+         */
+        $scope.switchColor = function(){
+            // recupération de la compétence (il n'y en a qu'une)
+            var competenceEvaluee = $scope.evaluationLibre.competenceEvaluee;
+            if(competenceEvaluee.evaluation === -1){
+                competenceEvaluee.evaluation = 3;
+            }else{
+                competenceEvaluee.evaluation = competenceEvaluee.evaluation -1;
+            }
+        };
+
+        /**
+         *  Sauvegarde d'une évaluation libre
+         */
+        $scope.saveNewEvaluationLibre = function () {
+            $scope.evaluationLibre.create().then(function (res)  {
+                $scope.showEvalLibre = false;
+            });
+        };
+
+        /**
+         * Controle que la date de publication du devoir n'est pas inférieur à la date du devoir.
+         */
+        $scope.controleDate = function () {
+            $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.date_publication).diff(moment($scope.evaluationLibre.date), "days") >= 0);
+        };
+
+        /**
+         * Controle la validité du formulaire de création d'une évaluation libre.
+         * @returns {boolean} Validité du formulaire
+         */
+        $scope.controleNewEvaluationLibreForm = function () {
+            return $scope.evaluationLibre == undefined ||
+                !(
+                $scope.evaluationLibre.controlledDate
+                && $scope.evaluationLibre.name !== undefined
+                && $scope.evaluationLibre.id_periode !== undefined
+                && $scope.evaluationLibre.competenceEvaluee.evaluation !== -1
+            );
+        };
+
         $scope.suiviFilter = {
             mine: 'true'
         };

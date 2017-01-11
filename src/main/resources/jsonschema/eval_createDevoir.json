@@ -18,13 +18,13 @@
       "type": "integer"
     },
     "id_type" : {
-      "type" : "integer"
+      "type" : ["integer","null"]
     },
     "id_etablissement" : {
       "type" : "string"
     },
     "id_matiere" : {
-      "type" : "string"
+      "type" : ["string","null"]
     },
     "id_etat" : {
       "type" : "integer"

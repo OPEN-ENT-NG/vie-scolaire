@@ -371,6 +371,7 @@ export class Devoir extends Model implements IModel{
     matiere : Matiere;
     type : Type;
     competences : Collection<Competence>;
+    competenceEvaluee : CompetenceNote;
 
     // DATABASE FIELDS
     id : number;
@@ -492,7 +493,8 @@ export class Devoir extends Model implements IModel{
             date            : this.date,
             ramener_sur      : this.ramener_sur,
             is_evaluated     : this.is_evaluated,
-            competences     : this.competences
+            competences     : this.competences,
+            competenceEvaluee : this.competenceEvaluee
         };
     }
 
@@ -1107,6 +1109,7 @@ export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
+    // evaluationLibre : Devoir;
 
     get api() {
         return {
@@ -1118,6 +1121,7 @@ export class SuiviCompetence extends Model implements IModel{
     constructor (eleve : Eleve, periode : any) {
         super();
         this.periode = periode;
+        // this.evaluationLibre = new Devoir();
         var that = this;
 
         this.collection(Domaine, {

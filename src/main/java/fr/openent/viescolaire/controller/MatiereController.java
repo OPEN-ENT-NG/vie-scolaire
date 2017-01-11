@@ -240,7 +240,7 @@ public class MatiereController extends ControllerHelper {
                                         JsonObject nInter = new JsonObject();
 
                                         final JsonArray reponse = new JsonArray();
-                                        String[] ids = new String[r.size()];
+                                        String[] ids = new String[correspondanceMatiere.size()];
                                         for(int i = 0 ; i < r.size(); i ++){
                                             n = r.get(i);
                                             nInter = n.getObject("n");

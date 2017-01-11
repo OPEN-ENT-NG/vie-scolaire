@@ -140,8 +140,8 @@ public class DevoirController extends ControllerHelper {
 
                                                         // récupération de la compétence évaluée (cas évaluation libre)
                                                         JsonObject oCompetenceNote = createdDevoir.getObject("competenceEvaluee");
-                                                        oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
                                                         if(oCompetenceNote != null) {
+                                                            oCompetenceNote.putNumber("id_devoir", devoirId[0]);
                                                             competencesNotesService.createCompetenceNote(oCompetenceNote, user, notEmptyResponseHandler(request));
                                                         }
 

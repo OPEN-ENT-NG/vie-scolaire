@@ -518,6 +518,9 @@ export class Devoir extends Model implements IModel{
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
             devoirJSON.competences = [];
+            if(devoirJSON.competenceEvaluee == undefined) {
+                delete devoirJSON.competenceEvaluee;
+            }
             http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {

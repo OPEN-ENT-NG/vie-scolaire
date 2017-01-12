@@ -6,7 +6,7 @@
       "type": "string"
     },
     "libelle": {
-      "type": "string"
+      "type": ["string","null"]
     },
     "id_classe": {
       "type": "string"

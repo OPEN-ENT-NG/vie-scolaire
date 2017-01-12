@@ -370,7 +370,7 @@ export class Devoir extends Model implements IModel{
     eleves : Collection<Eleve>;
     matiere : Matiere;
     type : Type;
-    competences : Collection<Competence>;
+    competences : Collection<Competence> | any;
     competenceEvaluee : CompetenceNote;
 
     // DATABASE FIELDS
@@ -540,7 +540,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    save (add,rem) : Promise<any> {
+    save (add? : any,rem? : any) : Promise<any> {
         return new Promise((resolve, reject) => {
             if(!this.id){
                 this.create().then((data) => {
@@ -1302,15 +1302,6 @@ function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
                 id_competence: competence.id,
                 id_domaine: competence.id_domaine
             });
-            // if (object.composer.constructor.name === "SuiviCompetenceClasse"
-            //     && classe !== null
-            //     && classe.eleves.all.length > 0
-            //     && competence.competencesEvaluations.length < classe.eleves.all.length) {
-            //     for (var i = 0; i < (classe.eleves.all.length - competence.competencesEvaluations.length); i++) {
-            //         var o = new CompetenceNote({id_competence : competence.id, nom : competence.nom, evaluation : -1});
-            //         competence.competencesEvaluations.push(o)
-            //     }
-            // }
             if (object.composer.constructor.name === 'SuiviCompetenceClasse') {
                 for (var i = 0; i < classe.eleves.all.length; i++) {
                     var mine = _.findWhere(competence.competencesEvaluations, {id_eleve : classe.eleves.all[i].id, owner : model.me.userId});

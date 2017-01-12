@@ -385,10 +385,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.initFilterRec = function (poCompetences, pbInitSelected) {
             if(poCompetences !== undefined) {
                 var _b = false;
-                var comp = null;
+                var comp : any = null;
                 for (var i = 0; i < poCompetences.all.length; i++) {
                     var currCompetence = poCompetences.all[i];
-                    var comp = _.findWhere(poCompetences.all, {id : poCompetences.all[i].id}) !== undefined
+                    comp = _.findWhere(poCompetences.all, {id : poCompetences.all[i].id}) !== undefined
                     if (comp !== undefined) _b = false;
                     $scope.competencesFilter[currCompetence.id+"_"+currCompetence.id_enseignement] = {
                         isSelected : _b,
@@ -764,7 +764,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
-                evaluations.devoirs.on('sync', function (res) {
+                evaluations.devoirs.on('sync', function () {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
                         $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){

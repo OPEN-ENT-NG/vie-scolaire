@@ -25,6 +25,10 @@
                 <span ng-show="sortType == 'evaluation_libelle' && !sortReverse" class="fa fa-caret-down"></span>
                 <span ng-show="sortType == 'evaluation_libelle' && sortReverse" class="fa fa-caret-up"></span>
             </th>
+            <th ng-click="sortType = 'owner_name'; sortReverse =!sortReverse"><i18n>viescolaire.utils.teacher</i18n>
+                <span ng-show="sortType == 'owner_name' && !sortReverse" class="fa fa-caret-down"></span>
+                <span ng-show="sortType == 'owner_name' && sortReverse" class="fa fa-caret-up"></span>
+            </th>
             <th ng-click="sortType = 'created'; sortReverse =!sortReverse"><i18n>date</i18n>
                 <span ng-show="sortType == 'created' && !sortReverse" class="fa fa-caret-down"></span>
                 <span ng-show="sortType == 'created' && sortReverse" class="fa fa-caret-up"></span>
@@ -39,6 +43,7 @@
         <tbody>
             <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">
                 <td>[[evaluation.evaluation_libelle]]</td>
+                <td>[[evaluation.owner_name]]</td>
                 <td>[[getDateFormated(evaluation.created)]]</td>
                 <td>
                     <span class="competence-eval rounded"

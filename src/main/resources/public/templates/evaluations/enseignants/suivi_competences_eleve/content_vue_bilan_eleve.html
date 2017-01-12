@@ -69,7 +69,7 @@
 </script>
 
 <div class="content-bilan-eleve">
-    <h2><i18n>evaluations.bilan.eleve.title</i18n> : [[informations.eleve.lastName]] [[informations.eleve.firstName]]</h2>
+    <h2><i18n>evaluations.bilan.eleve.title</i18n></h2>
     <div ng-repeat="domaine in suiviCompetence.domaines.all | limitTo:pOFilterEval.limitTo" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
     </div>
 </div>

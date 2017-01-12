@@ -154,8 +154,8 @@
                                         <div class="three cell addDevoirTable__libelle four-mobile">
                                             <i18n>evaluations.test.grade.on</i18n>
                                         </div>
-                                            <div class="one cell eight-mobile">
-                                                <input type="number" class="eleven small-input-number three-mobile" ng-change="setRamenerSur()" ng-model="devoir.diviseur" min="0">
+                                        <div class="one cell eight-mobile">
+                                            <input type="number" class="eleven small-input-number three-mobile" ng-change="setRamenerSur()" ng-model="devoir.diviseur" min="0">
                                         </div>
                                     </section>
 
@@ -196,8 +196,8 @@
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
-                                            <select ng-model="devoir.id_periode" >
-                                                <option ng-repeat="periode in periodes.all" ng-selected="periode.id === devoir.id_periode" value="[[periode.id]]">[[periode.libelle]]</option>
+                                            <select ng-model="devoir.id_periode"
+                                                ng-options="periode.id as periode.libelle for periode in periodes.all">
                                             </select>
                                         </label>
                                     </div>
@@ -243,8 +243,8 @@
                     <div class="three cell twelve-mobile">
 
                         <!--<div class="row angle-container twelve-mobile">-->
-                            <!--<button ng-click="deselectAllEnseignements()" style="height: 25px" class="instantButtons deselect right-magnet" tooltip="viescolaire.utils.deselectAll"></button>-->
-                            <!--<button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>-->
+                        <!--<button ng-click="deselectAllEnseignements()" style="height: 25px" class="instantButtons deselect right-magnet" tooltip="viescolaire.utils.deselectAll"></button>-->
+                        <!--<button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>-->
                         <!--</div>-->
 
                         <label class="chip multiselect right-magnet margin-left">
@@ -274,12 +274,13 @@
                             competences-filter : objet où l'on stocke les noms au format html des compétences (pour le surlignement lors d'une recherche)
                             search : objet concernant la recherche
                         -->
-                       <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
-                                           function-search="enseignementsSearchFunction"
-                                           data="devoir.enseignements"
-                                           enseignements-filter="enseignementsFilter"
-                                           competences-filter="competencesFilter"
-                                           search="search">
+                        <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
+                                       function-search="enseignementsSearchFunction"
+                                       data="devoir.enseignements"
+                                       enseignements-filter="enseignementsFilter"
+                                       competences-filter="competencesFilter"
+                                       search="search"
+                                       devoir-competences="evaluations.competencesDevoir">
 
                         </c-skills-list>
                     </div>

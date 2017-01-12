@@ -156,6 +156,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             name : ''
         };
         $scope.informations = {};
+        $scope.messages = {
+            successEvalLibre : false
+        };
         $scope.me = model.me;
         $scope.opened = {
             devoir : -1,
@@ -165,7 +168,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             statistiques : true,
             studentInfo : true,
             devoirInfo : true,
-            lightbox : false
+            lightbox : false,
+            lightboxEvalLibre : false
         };
         $scope.selected = {
             devoirs : {

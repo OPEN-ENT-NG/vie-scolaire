@@ -100,6 +100,7 @@
   "evaluations.test.all" : "Toutes les évaluations",
   "evaluations.evaluation.create":"Créer évaluation",
   "evaluations.evaluation.libre.add":"Ajouter une évaluation libre",
+  "evaluations.evaluation.libre.add.success":"Evaluation libre ajoutée !",
   "evaluations.releve.title":"Relevé de notes",
   "evaluations.bilan.eleve.title":"Bilan élève",
   "evaluations.bilan.fin.cycle.title":"Bilan de fin de cycle",

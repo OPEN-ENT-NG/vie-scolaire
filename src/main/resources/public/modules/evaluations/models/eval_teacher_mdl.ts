@@ -1172,7 +1172,7 @@ export class SuiviCompetence extends Model implements IModel{
 
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
-            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i]);
             if(comp !== undefined) {
                 return comp;
             } else {
@@ -1279,16 +1279,21 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEva
     setSliderOptions(poDomaine);
 }
 
-function findCompetenceRec (piIdCompetence, poCompetences) {
-    for (var i = 0; i < poCompetences.all.length; i++) {
+function findCompetenceRec (piIdCompetence, poDomaine) {
+    for (var i = 0; i < poDomaine.competences.all.length; i++) {
         // si compétences trouvée on arrete le traitement
-        if(poCompetences[i].id === piIdCompetence) {
-            return poCompetences[i];
-        } else {
-            // recherche dans les sous-compétences
-            return findCompetenceRec(piIdCompetence, poCompetences[i].competences);
+        if(poDomaine.competences.all[i].id === piIdCompetence) {
+            return poDomaine.competences.all[i];
         }
     }
+
+    // recherche dans les sous-domaines
+    if(poDomaine.domaines) {
+        for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            return findCompetenceRec(piIdCompetence, poDomaine.domaines.all[i]);
+        }
+    }
+
     return false;
 }
 

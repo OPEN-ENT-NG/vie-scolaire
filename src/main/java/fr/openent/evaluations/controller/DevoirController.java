@@ -126,6 +126,8 @@ public class DevoirController extends ControllerHelper {
                         public void handle(final JsonObject resource) {
                             resource.removeField("competences");
                             resource.removeField("competenceEvaluee");
+
+                            // création du devoir
                             devoirsService.createDevoir(resource, user,
                                     new Handler<Either<String, JsonObject>>() {
                                         @Override
@@ -134,24 +136,39 @@ public class DevoirController extends ControllerHelper {
                                                 devoirId[0] = event.right().getValue().getInteger("id");
                                                 RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
                                                     @Override
-                                                    public void handle(JsonObject createdDevoir) {
+                                                    public void handle(final JsonObject createdDevoir) {
                                                         createdDevoir.putNumber("id", devoirId[0]);
                                                         JsonArray competences = createdDevoir.getArray("competences");
-
-                                                        // récupération de la compétence évaluée (cas évaluation libre)
-                                                        JsonObject oCompetenceNote = createdDevoir.getObject("competenceEvaluee");
-                                                        oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
-                                                        if(oCompetenceNote != null) {
-                                                            competencesNotesService.createCompetenceNote(oCompetenceNote, user, notEmptyResponseHandler(request));
-                                                        }
+                                                        final JsonObject oCompetenceNote = createdDevoir.getObject("competenceEvaluee");
 
                                                         if(competences.size() != 0) {
+
+                                                            // ajout des compétences sur le devoir s'il y en a
                                                             defaultCompetencesService.setDevoirCompetences(createdDevoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
                                                                 public void handle(Either<String, JsonObject> event) {
                                                                     if (event.isRight()) {
-                                                                        JsonObject o = new JsonObject();
-                                                                        o.putNumber("id", devoirId[0]);
-                                                                        Renders.renderJson(request, o);
+
+                                                                        // ajoute de l'évaluation de la compéténce (cas évaluation libre)
+
+                                                                        oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
+                                                                        if(oCompetenceNote != null) {
+                                                                            competencesNotesService.createCompetenceNote(oCompetenceNote, user, new Handler<Either<String, JsonObject>>() {
+                                                                                public void handle(Either<String, JsonObject> event) {
+                                                                                    if (event.isRight()) {
+                                                                                        JsonObject o = new JsonObject();
+                                                                                        o.putNumber("id", devoirId[0]);
+                                                                                        Renders.renderJson(request, o);
+                                                                                    } else {
+                                                                                        leftToResponse(request, event.left());
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        } else {
+                                                                            JsonObject o = new JsonObject();
+                                                                            o.putNumber("id", devoirId[0]);
+                                                                            Renders.renderJson(request, o);
+                                                                        }
+
                                                                     } else {
                                                                         leftToResponse(request, event.left());
                                                                     }

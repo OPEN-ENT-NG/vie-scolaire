@@ -12,6 +12,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
+
             },
 
             createDevoir : function(params){
@@ -128,6 +129,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.opened.detailCompetenceSuivi = false;
             }
         });
+
+
 
         $scope.evaluations = evaluations;
 
@@ -264,21 +267,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {boolean} Validité du formulaire
          */
         $scope.controleNewDevoirForm = function () {
-                return !(
-                    $scope.devoir.controlledDate
-                    && $scope.devoir.id_etablissement !== undefined
-                    && $scope.devoir.id_classe !== undefined
-                    && $scope.devoir.id_matiere !== undefined
-                    && $scope.devoir.name !== undefined
-                    && $scope.devoir.id_periode !== undefined
-                    && $scope.devoir.coefficient !== undefined
-                    && $scope.devoir.coefficient > 0
-                    && $scope.devoir.diviseur !== undefined
-                    && $scope.devoir.diviseur > 0
-                    && $scope.devoir.id_type !== undefined
-                    && $scope.devoir.ramener_sur !== undefined
-                    && $scope.devoir.id_etat !== undefined
-                );
+            return !(
+                $scope.devoir.controlledDate
+                && $scope.devoir.id_etablissement !== undefined
+                && $scope.devoir.id_classe !== undefined
+                && $scope.devoir.id_matiere !== undefined
+                && $scope.devoir.name !== undefined
+                && $scope.devoir.id_periode !== undefined
+                && $scope.devoir.coefficient !== undefined
+                && $scope.devoir.coefficient > 0
+                && $scope.devoir.diviseur !== undefined
+                && $scope.devoir.diviseur > 0
+                && $scope.devoir.id_type !== undefined
+                && $scope.devoir.ramener_sur !== undefined
+                && $scope.devoir.id_etat !== undefined
+            );
         };
 
         /**
@@ -678,9 +681,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 utils.safeApply($scope);
                             });
                         })
-                        .catch(() => {
-                            notify.error("evaluation.delete.devoir.error");
-                        });
+                            .catch(() => {
+                                notify.error("evaluation.delete.devoir.error");
+                            });
                     }
                 );
             }

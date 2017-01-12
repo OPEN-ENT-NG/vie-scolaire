@@ -27,8 +27,8 @@ import org.vertx.java.core.json.JsonArray;
 public interface DomainesService extends CrudService {
     /**
      * Récupération de tous les enseignements
-     * @param poIdCycle L'identifiant du cycle.
+     * @param idClasse L'identifiant de la classe.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getArbreDomaines(Long poIdCycle, Handler<Either<String, JsonArray>> handler);
+    public void getArbreDomaines(String idClasse, Handler<Either<String, JsonArray>> handler);
 }

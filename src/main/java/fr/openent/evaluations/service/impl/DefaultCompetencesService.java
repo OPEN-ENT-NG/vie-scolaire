@@ -34,7 +34,7 @@ import org.vertx.java.core.logging.impl.LoggerFactory;
 /**
  * Created by ledunoiss on 05/08/2016.
  */
-public class DefaultCompetencesService extends SqlCrudService implements fr.openent.evaluations.service.CompetencesService {
+public class DefaultCompetencesService extends SqlCrudService implements CompetencesService {
 
     protected static final Logger log = LoggerFactory.getLogger(DefaultCompetencesService.class);
 
@@ -43,22 +43,24 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
     }
 
     @Override
-    public void getCompetencesItem(Long poIdCycle, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesItem(String idClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT rel_competences_domaines.id_domaine, competences.* ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
-                .append("WHERE competences.id_cycle = ? ")
+                .append("WHERE competences.id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +
+                        ".rel_classe_cycle WHERE id_classe = ?) ")
                 .append("AND NOT EXISTS ( ")
                     .append("SELECT 1 ")
                     .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences AS competencesChildren ")
                     .append("WHERE competencesChildren.id_parent = competences.id ")
-                    .append("AND competences.id_cycle = ? ")
+                    .append("AND competences.id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +
+                            ".rel_classe_cycle WHERE id_classe = ?) ")
                 .append(")");
 
         JsonArray params = new JsonArray();
-        params.addNumber(poIdCycle);
-        params.addNumber(poIdCycle);
+        params.addString(idClasse);
+        params.addString(idClasse);
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
@@ -125,6 +127,7 @@ public class DefaultCompetencesService extends SqlCrudService implements fr.open
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
     }
+
 
     @Override
     public void getLastCompetencesDevoir(String userId, Handler<Either<String, JsonArray>> handler) {

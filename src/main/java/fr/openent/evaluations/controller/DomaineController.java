@@ -68,28 +68,17 @@ public class DomaineController extends ControllerHelper {
      * Récupère la liste des enseignements
      * @param request
      */
-    @Get("/domaines/:idCycle")
+    @Get("/domaines/classe/:idClasse")
     @ApiDoc("Recupère l'arbre des domaines pour un cycle donné.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getArbreDomaines(final HttpServerRequest request){
         final JsonArray oArbreDomainesArray = new JsonArray();
-
-        String idCycle = null;
-        Long lIdCycle = null;
-        if (request.params().contains("idCycle")) {
-            idCycle = request.params().get("idCycle");
-            try {
-                lIdCycle = Long.parseLong(idCycle);
-            } catch (NumberFormatException e) {
-                log.error("Error : idCycle must be a long object", e);
-                badRequest(request, e.getMessage());
-                return;
-            }
+        if (!request.params().contains("idClasse")) {
+            renderError(request);
         }
-
-        final Long finalLIdCycle = lIdCycle;
+        final String idClasse = request.params().get("idClasse");
         // 1 - Chargement des domaines ordonnés selon l'arbre recursif
-        domainesService.getArbreDomaines(lIdCycle, new Handler<Either<String, JsonArray>>() {
+        domainesService.getArbreDomaines(idClasse, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if (event.right().isRight()) {
@@ -98,7 +87,7 @@ public class DomaineController extends ControllerHelper {
                     final JsonArray oDomainesArray = event.right().getValue();
 
                     // 2 - Chargement de toutes les competences evaluables du cycle
-                    competencesService.getCompetencesItem(finalLIdCycle, new Handler<Either<String, JsonArray>>() {
+                    competencesService.getCompetencesItem(idClasse, new Handler<Either<String, JsonArray>>() {
                                 @Override
                                 public void handle(Either<String, JsonArray> event) {
                                     if (event.right().isRight()) {

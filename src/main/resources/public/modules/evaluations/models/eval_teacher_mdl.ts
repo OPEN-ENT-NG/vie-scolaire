@@ -370,7 +370,7 @@ export class Devoir extends Model implements IModel{
     eleves : Collection<Eleve>;
     matiere : Matiere;
     type : Type;
-    competences : Collection<Competence>;
+    competences : Collection<Competence> | any;
     competenceEvaluee : CompetenceNote;
 
     // DATABASE FIELDS
@@ -392,6 +392,8 @@ export class Devoir extends Model implements IModel{
     date : any;
     is_evaluated  : boolean;
     that: any;
+    competencesAdd: any;
+    competencesRem: any;
 
 
     get api () {
@@ -494,7 +496,9 @@ export class Devoir extends Model implements IModel{
             ramener_sur      : this.ramener_sur,
             is_evaluated     : this.is_evaluated,
             competences     : this.competences,
-            competenceEvaluee : this.competenceEvaluee
+            competenceEvaluee : this.competenceEvaluee,
+            competencesAdd : null,
+            competencesRem : null
         };
     }
 
@@ -513,6 +517,10 @@ export class Devoir extends Model implements IModel{
             var devoirJSON = this.toJSON();
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
+            devoirJSON.competences = [];
+            if(devoirJSON.competenceEvaluee == undefined) {
+                delete devoirJSON.competenceEvaluee;
+            }
             http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
@@ -535,7 +543,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    save (add,rem) : Promise<any> {
+    save (add? : any,rem? : any) : Promise<any> {
         return new Promise((resolve, reject) => {
             if(!this.id){
                 this.create().then((data) => {
@@ -1050,7 +1058,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
     get api() {
         return {
             getCompetencesNotesClasse : '/viescolaire/evaluations/competence/notes/classe/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/'
         }
     }
 
@@ -1060,9 +1068,9 @@ export class SuiviCompetenceClasse extends Model implements IModel{
         var that = this;
 
         this.collection(Domaine, {
-            sync: function (idCycle) {
+            sync: function () {
                 return new Promise((resolve, reject) => {
-                    var url = that.api.getArbreDomaines + idCycle;
+                    var url = that.api.getArbreDomaines + classe.id;
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotesClasse + classe.id;
                         if (periode !== null && periode !== undefined && periode !== '*') {
@@ -1112,45 +1120,43 @@ export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
-    // evaluationLibre : Devoir;
+    classe : Classe;
 
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/'
         }
     }
 
-    constructor (eleve : Eleve, periode : any) {
+    constructor (eleve : Eleve, periode : any, classe : Classe) {
         super();
         this.periode = periode;
-        // this.evaluationLibre = new Devoir();
+        this.classe = classe;
         var that = this;
 
         this.collection(Domaine, {
-            sync: function (idCycle) {
+            sync: function () {
                 return new Promise((resolve, reject) => {
-                    if(idCycle) {
-                        var url = that.api.getArbreDomaines + idCycle;
-                        http().getJson(url).done((resDomaines) => {
-                            var url = that.api.getCompetencesNotes + eleve.id;
-                            if (periode !== null && periode !== undefined && periode !== '*') {
-                                url += "?idPeriode=" + periode.id;
+                    var url = that.api.getArbreDomaines + that.classe.id;
+                    http().getJson(url).done((resDomaines) => {
+                        var url = that.api.getCompetencesNotes + eleve.id;
+                        if (periode !== null && periode !== undefined && periode !== '*') {
+                            url += "?idPeriode=" + periode.id;
+                        }
+                        http().getJson(url).done((resCompetencesNotes) => {
+                            if (resDomaines) {
+                                for (var i = 0; i < resDomaines.length; i++) {
+                                    var domaine = new Domaine(resDomaines[i]);
+                                    that.domaines.all.push(domaine);
+                                    setCompetenceNotes(domaine, resCompetencesNotes, this, null);
+                                }
                             }
-                            http().getJson(url).done((resCompetencesNotes) => {
-                                if (resDomaines) {
-                                    for (var i = 0; i < resDomaines.length; i++) {
-                                        var domaine = new Domaine(resDomaines[i]);
-                                        that.domaines.all.push(domaine);
-                                        setCompetenceNotes(domaine, resCompetencesNotes, this, null);
-                                    }
-                                }
-                                if (resolve && typeof (resolve) === 'function') {
-                                    resolve();
-                                }
-                            });
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve();
+                            }
                         });
-                    }
+                    });
                 });
             }
         });
@@ -1175,7 +1181,7 @@ export class SuiviCompetence extends Model implements IModel{
 
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
-            var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
+            var comp = findCompetenceRec(idCompetence, this.domaines.all[i]);
             if(comp !== undefined) {
                 return comp;
             } else {
@@ -1282,16 +1288,21 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEva
     setSliderOptions(poDomaine);
 }
 
-function findCompetenceRec (piIdCompetence, poCompetences) {
-    for (var i = 0; i < poCompetences.all.length; i++) {
+function findCompetenceRec (piIdCompetence, poDomaine) {
+    for (var i = 0; i < poDomaine.competences.all.length; i++) {
         // si compétences trouvée on arrete le traitement
-        if(poCompetences[i].id === piIdCompetence) {
-            return poCompetences[i];
-        } else {
-            // recherche dans les sous-compétences
-            return findCompetenceRec(piIdCompetence, poCompetences[i].competences);
+        if(poDomaine.competences.all[i].id === piIdCompetence) {
+            return poDomaine.competences.all[i];
         }
     }
+
+    // recherche dans les sous-domaines
+    if(poDomaine.domaines) {
+        for(var i=0; i<poDomaine.domaines.all.length; i++) {
+            return findCompetenceRec(piIdCompetence, poDomaine.domaines.all[i]);
+        }
+    }
+
     return false;
 }
 
@@ -1302,15 +1313,6 @@ function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
                 id_competence: competence.id,
                 id_domaine: competence.id_domaine
             });
-            // if (object.composer.constructor.name === "SuiviCompetenceClasse"
-            //     && classe !== null
-            //     && classe.eleves.all.length > 0
-            //     && competence.competencesEvaluations.length < classe.eleves.all.length) {
-            //     for (var i = 0; i < (classe.eleves.all.length - competence.competencesEvaluations.length); i++) {
-            //         var o = new CompetenceNote({id_competence : competence.id, nom : competence.nom, evaluation : -1});
-            //         competence.competencesEvaluations.push(o)
-            //     }
-            // }
             if (object.composer.constructor.name === 'SuiviCompetenceClasse') {
                 for (var i = 0; i < classe.eleves.all.length; i++) {
                     var mine = _.findWhere(competence.competencesEvaluations, {id_eleve : classe.eleves.all[i].id, owner : model.me.userId});

@@ -86,7 +86,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
                 // refresh du suivi élève
                 //$scope.selectSuivi();
-                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode);
+                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);

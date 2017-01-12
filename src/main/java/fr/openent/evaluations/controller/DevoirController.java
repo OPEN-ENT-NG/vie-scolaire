@@ -151,9 +151,8 @@ public class DevoirController extends ControllerHelper {
                                                                     if (event.isRight()) {
 
                                                                         // ajoute de l'évaluation de la compéténce (cas évaluation libre)
-
-                                                                        oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
                                                                         if(oCompetenceNote != null) {
+                                                                            oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
                                                                             competencesNotesService.createCompetenceNote(oCompetenceNote, user, new Handler<Either<String, JsonObject>>() {
                                                                                 public void handle(Either<String, JsonObject> event) {
                                                                                     if (event.isRight()) {

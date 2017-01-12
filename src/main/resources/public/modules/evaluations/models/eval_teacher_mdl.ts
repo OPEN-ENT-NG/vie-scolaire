@@ -1224,7 +1224,18 @@ function setSliderOptions(poDomaine) {
             },
             translate: function(value, sliderId, label) {
                 var l = '#label#';
-                if (label === 'model') l = '<b>#label#</b>'
+
+                if(value > 0) {
+                    l = l + ' '+value;
+                }
+
+                if (label === 'model') {
+                    if(value > 0) {
+                        l = '<b>#label#' + ' ' + value + '</b>';
+                    } else {
+                        l = '<b>#label#</b>';
+                    }
+                }
                 if (value == -1)
                     return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
                 if (value < 1)

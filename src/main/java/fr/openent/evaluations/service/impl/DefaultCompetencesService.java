@@ -171,7 +171,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT domaines.codification as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
+        query.append("SELECT DISTINCT domaines.codification as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")

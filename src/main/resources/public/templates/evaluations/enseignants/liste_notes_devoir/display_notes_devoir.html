@@ -84,7 +84,7 @@
                 <div class="card">
                     <content class="block row">
                         <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
-                            <div class="one inline-block cell-indent left">
+                            <div class="one inline-block cell-indent left indent-five">
                                 <label class="checkbox">
                                     <input type="checkbox" ng-checked="selected.eleves.all || (selected.eleves.list.length === currentDevoir.eleves.all.length)"
                                            ng-click="selectAllEleveListe()">
@@ -133,7 +133,7 @@
 
                                 <div class="expandable navigable-row twelve" ng-class="{'background-grey' : eleve.selected}">
                                     <div class="row navigable-inputs-row">
-                                        <div class="one inline-block cell-indent left">
+                                        <div class="one inline-block coche-case left">
                                             <label class="checkbox">
                                                 <input type="checkbox" ng-model="eleve.selected"
                                                        ng-init="eleve.selected = false"

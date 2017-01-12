@@ -32,6 +32,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import static org.entcore.common.sql.Sql.parseId;
@@ -53,13 +54,60 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void updateDevoir(String id, JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-        System.out.println("in default service");
-        StringBuilder sb = new StringBuilder();
-        JsonArray values = new JsonArray();
+    public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {
+        JsonArray statements = new JsonArray();
+        if (devoir.containsField("competencesAdd") &&
+                devoir.getArray("competencesAdd").size() > 0) {
+            JsonArray competenceAdd = devoir.getArray("competencesAdd");
+            JsonArray params = new JsonArray();
+            StringBuilder query = new StringBuilder()
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs (id_devoir, id_competence) VALUES ");
+            for(int i = 0; i < competenceAdd.size(); i++){
+                query.append("(?, ?)");
+                params.addNumber(Integer.parseInt(id));
+                params.addNumber((Number) competenceAdd.get(i));
+                if(i != competenceAdd.size()-1){
+                    query.append(",");
+                }else{
+                    query.append(";");
+                }
+            }
+            statements.add(new JsonObject()
+                    .putString("statement", query.toString())
+                    .putArray("values", params)
+                    .putString("action", "prepared"));
+        }
+        if (devoir.containsField("competencesRem") &&
+                devoir.getArray("competencesRem").size() > 0) {
+            JsonArray competenceRem = devoir.getArray("competencesRem");
+            JsonArray params = new JsonArray();
+            StringBuilder query = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs WHERE ");
+            for(int i = 0; i < competenceRem.size(); i++){
+                query.append("(id_devoir = ? AND  id_competence = ?)");
+                params.addNumber(Integer.parseInt(id));
+                params.addNumber((Number) competenceRem.get(i));
+                if(i != competenceRem.size()-1){
+                    query.append(" OR ");
+                }else{
+                    query.append(";");
+                }
+            }
+            statements.add(new JsonObject()
+            .putString("statement", query.toString())
+            .putArray("values", params)
+            .putString("action", "prepared"));
+        }
+
+        StringBuilder queryParams = new StringBuilder();
+        JsonArray params = new JsonArray();
+        devoir.removeField("competencesRem");
+        devoir.removeField("competencesAdd");
+        devoir.removeField("competences");
+
         for (String attr : devoir.getFieldNames()) {
             if(attr.contains("date")){
-                sb.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
+                queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
                 try {
                     java.util.Calendar cal = java.util.Calendar.getInstance();
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -70,23 +118,24 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     dateFormated.append(date_publication.split("/")[1]).append('-');
                     dateFormated.append(date_publication.split("/")[0]);
 
-                    values.add(dateFormated.toString());
+                    params.add(dateFormated.toString());
                 }
                 catch(ParseException pe){
                     System.err.println(pe);
                 }
             }
             else {
-                sb.append(attr).append(" = ?, ");
-                values.add(devoir.getValue(attr));
+                queryParams.append(attr).append(" = ?, ");
+                params.add(devoir.getValue(attr));
             }
         }
-        String query =
-                "UPDATE " + resourceTable +
-                        " SET " + sb.toString() + "modified = NOW() " +
-                        "WHERE id = ? ";
-        sql.prepared(query, values.add(parseId(id)), validRowsResultHandler(handler));
-
+        StringBuilder query = new StringBuilder()
+                .append("UPDATE " + resourceTable +" SET " + queryParams.toString() + "modified = NOW() WHERE id = ? ");
+        statements.add(new JsonObject()
+                .putString("statement", query.toString())
+                .putArray("values", params.addNumber(Integer.parseInt(id)))
+                .putString("action", "prepared"));
+        Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
     }
 
     @Override

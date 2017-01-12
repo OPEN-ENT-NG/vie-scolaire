@@ -43,10 +43,9 @@ public interface DevoirService extends CrudService {
      * Met à jour un devoir
      * @param id Identifian du devoir
      * @param devoir Devoir à mettre à jour
-     * @param user Utilisateur
      * @param handler
      */
-    public void updateDevoir(String id, JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler);
+    public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste des devoirs de l'utilisateur

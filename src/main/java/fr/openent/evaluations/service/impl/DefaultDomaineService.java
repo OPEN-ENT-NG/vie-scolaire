@@ -34,7 +34,7 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
     }
 
     @Override
-    public void getArbreDomaines(Long poIdCycle, Handler<Either<String, JsonArray>> handler) {
+    public void getArbreDomaines(String idClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
@@ -44,7 +44,8 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
                 query.append("SELECT 1 as niveau, id, id_parent, libelle, codification, evaluated, array[id] as pathinfo ");
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines ");
                 query.append("WHERE id_parent = 0 ");
-                query.append("AND id_cycle = ? ");
+                query.append("AND id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +"" +
+                        ".rel_classe_cycle WHERE id_classe = ?) ");
             query.append("UNION ");
                 query.append("SELECT sg.niveau + 1  as niveau , dom.id, dom.id_parent, dom.libelle, dom.codification, dom.evaluated, sg.pathinfo||dom.id ");
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines dom , search_graph sg ");
@@ -52,7 +53,7 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
             query.append(") ");
         query.append("SELECT niveau, id, id_parent, libelle, codification, evaluated FROM search_graph ORDER BY pathinfo");
 
-        params.addNumber(poIdCycle);
+        params.addString(idClasse);
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }
 

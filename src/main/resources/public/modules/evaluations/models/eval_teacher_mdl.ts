@@ -392,6 +392,8 @@ export class Devoir extends Model implements IModel{
     date : any;
     is_evaluated  : boolean;
     that: any;
+    competencesAdd: any;
+    competencesRem: any;
 
 
     get api () {
@@ -494,7 +496,9 @@ export class Devoir extends Model implements IModel{
             ramener_sur      : this.ramener_sur,
             is_evaluated     : this.is_evaluated,
             competences     : this.competences,
-            competenceEvaluee : this.competenceEvaluee
+            competenceEvaluee : this.competenceEvaluee,
+            competencesAdd : null,
+            competencesRem : null
         };
     }
 
@@ -513,6 +517,7 @@ export class Devoir extends Model implements IModel{
             var devoirJSON = this.toJSON();
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
+            devoirJSON.competences = [];
             http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
@@ -1047,7 +1052,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
     get api() {
         return {
             getCompetencesNotesClasse : '/viescolaire/evaluations/competence/notes/classe/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/'
         }
     }
 
@@ -1057,9 +1062,9 @@ export class SuiviCompetenceClasse extends Model implements IModel{
         var that = this;
 
         this.collection(Domaine, {
-            sync: function (idCycle) {
+            sync: function () {
                 return new Promise((resolve, reject) => {
-                    var url = that.api.getArbreDomaines + idCycle;
+                    var url = that.api.getArbreDomaines + classe.id;
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotesClasse + classe.id;
                         if (periode !== null && periode !== undefined && periode !== '*') {
@@ -1109,45 +1114,43 @@ export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
-    // evaluationLibre : Devoir;
+    classe : Classe;
 
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/'
+            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/'
         }
     }
 
-    constructor (eleve : Eleve, periode : any) {
+    constructor (eleve : Eleve, periode : any, classe : Classe) {
         super();
         this.periode = periode;
-        // this.evaluationLibre = new Devoir();
+        this.classe = classe;
         var that = this;
 
         this.collection(Domaine, {
-            sync: function (idCycle) {
+            sync: function () {
                 return new Promise((resolve, reject) => {
-                    if(idCycle) {
-                        var url = that.api.getArbreDomaines + idCycle;
-                        http().getJson(url).done((resDomaines) => {
-                            var url = that.api.getCompetencesNotes + eleve.id;
-                            if (periode !== null && periode !== undefined && periode !== '*') {
-                                url += "?idPeriode=" + periode.id;
+                    var url = that.api.getArbreDomaines + that.classe.id;
+                    http().getJson(url).done((resDomaines) => {
+                        var url = that.api.getCompetencesNotes + eleve.id;
+                        if (periode !== null && periode !== undefined && periode !== '*') {
+                            url += "?idPeriode=" + periode.id;
+                        }
+                        http().getJson(url).done((resCompetencesNotes) => {
+                            if (resDomaines) {
+                                for (var i = 0; i < resDomaines.length; i++) {
+                                    var domaine = new Domaine(resDomaines[i]);
+                                    that.domaines.all.push(domaine);
+                                    setCompetenceNotes(domaine, resCompetencesNotes, this, null);
+                                }
                             }
-                            http().getJson(url).done((resCompetencesNotes) => {
-                                if (resDomaines) {
-                                    for (var i = 0; i < resDomaines.length; i++) {
-                                        var domaine = new Domaine(resDomaines[i]);
-                                        that.domaines.all.push(domaine);
-                                        setCompetenceNotes(domaine, resCompetencesNotes, this, null);
-                                    }
-                                }
-                                if (resolve && typeof (resolve) === 'function') {
-                                    resolve();
-                                }
-                            });
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve();
+                            }
                         });
-                    }
+                    });
                 });
             }
         });

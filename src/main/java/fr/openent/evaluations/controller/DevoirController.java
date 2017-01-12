@@ -125,6 +125,8 @@ public class DevoirController extends ControllerHelper {
                         @Override
                         public void handle(final JsonObject resource) {
                             resource.removeField("competences");
+                            resource.removeField("competencesAdd");
+                            resource.removeField("competencesRem");
                             resource.removeField("competenceEvaluee");
 
                             // création du devoir
@@ -242,56 +244,12 @@ public class DevoirController extends ControllerHelper {
     @ResourceFilter(AccessEvaluationFilter.class)
     @ApiDoc("Met à jour un devoir")
     public void updateDevoir (final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX +
+                Viescolaire.SCHEMA_DEVOIRS_UPDATE, new Handler<JsonObject>() {
             @Override
-            public void handle(final UserInfos user) {
-                if (user != null) {
-                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX +
-                            Viescolaire.SCHEMA_DEVOIRS_UPDATE, new Handler<JsonObject>() {
-                        @Override
-                        public void handle(final JsonObject devoir) {
-                            JsonArray competences = devoir.getArray("competencesAdd");
-                            if(competences!=null) {
-                                if (competences.size() != 0) {
-                                    defaultCompetencesService.setDevoirCompetences(devoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
-                                        public void handle(Either<String, JsonObject> event) {
-                                            if (event.isRight()) {
-                                                JsonObject o = new JsonObject();
-                                                o.putNumber("id", devoir.getNumber("id"));
-                                                Renders.renderJson(request, o);
-                                            } else {
-                                                leftToResponse(request, event.left());
-                                            }
-                                        }
-                                    });
-                                }
-
-                                JsonArray competencesToRem = devoir.getArray("competencesRem");
-                                if (competencesToRem.size() != 0) {
-                                    defaultCompetencesService.remDevoirCompetences(devoir.getLong("id"), competencesToRem, new Handler<Either<String, JsonObject>>() {
-                                        public void handle(Either<String, JsonObject> event) {
-                                            if (event.isRight()) {
-                                                JsonObject o = new JsonObject();
-                                                o.putNumber("id", devoir.getNumber("id"));
-                                                Renders.renderJson(request, o);
-                                            } else {
-                                                leftToResponse(request, event.left());
-                                            }
-                                        }
-                                    });
-                                }
-                                devoir.removeField("competencesRem");
-                                devoir.removeField("competencesAdd");
-                            }
-                            devoir.removeField("competences");
-                             devoirsService.updateDevoir(request.params().get("idDevoir"),
-                                                        devoir, user, notEmptyResponseHandler(request));
-                        }
-                    });
-
-                } else {
-                    unauthorized(request);
-                }
+            public void handle(final JsonObject devoir) {
+                devoirsService.updateDevoir(request.params().get("idDevoir"),
+                        devoir, arrayResponseHandler(request));
             }
         });
     }

@@ -43,6 +43,10 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                     }
                 };
 
+                angular.element($elem).ready(() => {
+                    $scope.$apply(onResize);
+                });
+
                 // Define options
                 var usePlaceholder = ($attrs.usePlaceholder !== 'false');
                 var anchor = $attrs.anchor === 'bottom' ? 'bottom' : 'top';
@@ -84,6 +88,9 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                         windowElement.on('resize', $onResize);
 
                         memorizeDimensions(); // remember sticky's layout dimensions
+                        setTimeout(() => {
+                           memorizeDimensions();
+                        }, 1000);
 
                         checkIfShouldStick();
 

@@ -23,5 +23,38 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
+
+        /**
+         * Retourne un tableau contenant les informations des devoirs pour une classe donnée et un critère donné
+         * @param idClasse identifiant de la classe
+         * @param information critère
+         * @returns {any[]} tableau contenant les informations
+         */
+        $scope.getDevoirsInformations = function (idClasse : string, information : string) : any[] {
+            if (!evaluations.devoirs.percentDone) return;
+            let devoirs = _.where($scope.devoirs, {id_classe : idClasse});
+            devoirs = _.filter(devoirs, devoir => (devoir.percent !== undefined && devoir.percent !== 100));
+            return _.pluck(devoirs, information);
+        };
+
+        /**
+         *  Options des graphiques
+         */
+        $scope.optionsGraphics = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        size: 0,
+                        max: 100,
+                        min: 0,
+                        stepSize: 20,
+                    },
+                }],
+                xAxes: [{
+                    display:false,
+
+                }]
+            }
+        }
     }
 ]);

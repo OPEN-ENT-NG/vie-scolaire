@@ -12,6 +12,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         route({
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
+
             },
 
             createDevoir : function(params){
@@ -143,6 +144,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.sortReverse  = false;  // set the default sort order
             }
         });
+
+
 
         $scope.evaluations = evaluations;
 

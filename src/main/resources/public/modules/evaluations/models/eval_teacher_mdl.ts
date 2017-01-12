@@ -680,6 +680,7 @@ export class Devoir extends Model implements IModel{
 export class DevoirsCollection {
     all : Devoir[];
     sync : any;
+    percentDone : boolean;
 
     get api () {
         return {
@@ -707,6 +708,7 @@ export class DevoirsCollection {
                 }
                 evaluations.devoirs.trigger('sync');
             }.bind(this));
+            this.percentDone = false;
         }
     }
 
@@ -741,6 +743,7 @@ export class DevoirsCollection {
                     this.all[i].percent = res[this.all[i].id];
                 }
                 model.trigger('apply');
+                this.percentDone = true;
             }.bind(this));
         }
     }
@@ -1344,6 +1347,7 @@ function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
 export let evaluations = new Evaluations();
 
 model.build = function () {
+    require('angular-chart.js');
     (this as any).evaluations = evaluations;
     evaluations.sync();
 };

@@ -50,38 +50,18 @@
             </article>
         </section>
 
-        <section>
+       <section ng-repeat="classe in classes.all">
             <article class="five cell box-accueil twelve-mobile">
+                <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n>: [[classe.name]]</h2>
                 <div class="content-box-accueil">
-                    <select name="" id="">
-                        <option value="">Lorem ipsum dolor sit amet</option>
-                    </select>
-                    <img src="/viescolaire/public/img/chart.png" alt="">
+                    <canvas class="chart chart-bar graphe-widget"
+                            chart-data="getDevoirsInformations(classe.id, 'percent')"  chart-labels="getDevoirsInformations(classe.id, 'name')" chart-options="optionsGraphics" >
+                    </canvas>
                 </div>
             </article>
         </section>
 
-        <section>
-            <article class="five cell box-accueil twelve-mobile">
-                <div class="content-box-accueil">
-                    <select name="" id="">
-                        <option value="">Lorem ipsum dolor sit amet</option>
-                    </select>
-                    <img src="/viescolaire/public/img/chart.png" alt="">
-                </div>
-            </article>
-        </section>
 
-        <section>
-            <article class="five cell box-accueil twelve-mobile">
-                <div class="content-box-accueil">
-                    <select name="" id="">
-                        <option value="">Lorem ipsum dolor sit amet</option>
-                    </select>
-                    <img src="/viescolaire/public/img/chart.png" alt="">
-                </div>
-            </article>
-        </section>
     </div>
 
 

@@ -103,8 +103,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.suiviFilter = {
-            mine: 'true'
+            mine: 'false'
         };
+
         $scope.opened.detailCompetenceSuivi = false;
         this.refreshSlider = function () {
             $timeout(function () {

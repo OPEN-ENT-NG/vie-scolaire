@@ -17,7 +17,7 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                 var text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
                 if(confirm(text) === true){
                     var _datas = [];
-                    var _range = $scope.selectedEleves.length > 0 ? $scope.selectedEleves
+                    var _range = $scope.selectedEleves.list.length > 0 ? $scope.selectedEleves.list
                         : $scope.devoir.eleves.all;
                     // Boucle sur les élèves
                     for (var i = 0; i < _range.length; i++) {
@@ -49,13 +49,14 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                         comp.selected = false;
                     });
                     $scope.selectedCompetences = [];
-                    _.map($scope.selectedEleves, function (eleve) {
+                    _.map($scope.selectedEleves.list, function (eleve) {
                         eleve.selected = false;
                     });
-                    $scope.selectedEleves = [];
+                    $scope.selectedEleves.list = [];
+                    $scope.selectedEleves.all = false;
                     $scope.devoir.saveCompetencesNotes(_datas);
                 }
             };
         }]
     };
-})
+});

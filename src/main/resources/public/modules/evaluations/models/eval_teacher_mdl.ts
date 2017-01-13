@@ -394,7 +394,7 @@ export class Devoir extends Model implements IModel{
     that: any;
     competencesAdd: any;
     competencesRem: any;
-
+    percent: any;
 
     get api () {
         return {
@@ -726,26 +726,33 @@ export class DevoirsCollection {
         }
     }
 
-    getPercentDone () {
-        if (evaluations.synchronized.classes !== 0) {
-            evaluations.classes.on('classes-sync', function () {
-                evaluations.devoirs.getPercentDone();
-            });
-            return;
-        }
-        if (this.all.length > 0 ) {
-            var _datas = {};
-            for (var i = 0; i < evaluations.classes.all.length; i++) {
-                _datas[evaluations.classes.all[i].id] = evaluations.classes.all[i].eleves.all.length;
+    getPercentDone () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (evaluations.synchronized.classes !== 0) {
+                evaluations.classes.on('classes-sync', function () {
+                    evaluations.devoirs.getPercentDone();
+                });
+                return;
             }
-            http().postJson('/viescolaire/evaluations/devoirs/done', {'datas' : _datas}).done(function (res) {
-                for (var i = 0; i < this.all.length; i++) {
-                    this.all[i].percent = res[this.all[i].id];
+            if (this.all.length > 0 ) {
+                var _datas = {};
+                for (var i = 0; i < evaluations.classes.all.length; i++) {
+                    _datas[evaluations.classes.all[i].id] = evaluations.classes.all[i].eleves.all.length;
                 }
-                model.trigger('apply');
-                this.percentDone = true;
-            }.bind(this));
-        }
+                http().postJson('/viescolaire/evaluations/devoirs/done', {'datas' : _datas})
+                    .done((res) => {
+                        for (var i = 0; i < this.all.length; i++) {
+                            this.all[i].percent = res[this.all[i].id];
+                        }
+                        model.trigger('apply');
+                        this.percentDone = true;
+                        resolve();
+                    })
+                    .error(() => {
+                        reject();
+                    });
+            }
+        });
     }
 }
 

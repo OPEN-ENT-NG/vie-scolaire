@@ -75,7 +75,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
                 template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
-                evaluations.devoirs.getPercentDone();
+                if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
                 utils.safeApply($scope);
             },
             viewNotesDevoir : function(params){
@@ -945,7 +945,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getLibelleType = function(idType) {
             if (idType == null || idType === "") return "";
-            return _.findWhere($scope.types.all, {id : parseInt(idType)}).nom;
+            let type = _.findWhere($scope.types.all, {id : parseInt(idType)});
+            if (type !== undefined && type.hasOwnProperty('nom')) return type.nom;
+            else return ''
         };
 
         /**

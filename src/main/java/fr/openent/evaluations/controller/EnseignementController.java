@@ -109,8 +109,7 @@ public class EnseignementController extends ControllerHelper {
                                                 for (int j = 0; j < _competences_1.size(); j++) {
                                                     JsonObject _competence_1 = _competences_1.get(j);
                                                     // Si la compétence est dans l'enseignement
-                                                    if (_competence_1.getInteger("id_enseignement") == idEnseignement
-                                                            && _competence_1.getInteger("id_cycle").longValue() == finalIdCycle) {
+                                                    if (_competence_1.getInteger("id_enseignement") == idEnseignement) {
                                                         Integer _competence_1_id = _competence_1.getInteger("id");
                                                         JsonArray _competence_1_competences_l2 = new JsonArray();
                                                         // Je boucle dans les competences de niveau 2

@@ -50,12 +50,15 @@
             </article>
         </section>
 
-       <section ng-repeat="classe in classes.all">
+       <section ng-repeat="classe in classes.all track by $index">
             <article class="five cell box-accueil twelve-mobile">
                 <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n>: [[classe.name]]</h2>
                 <div class="content-box-accueil">
                     <canvas class="chart chart-bar graphe-widget"
-                            chart-data="getDevoirsInformations(classe.id, 'percent')"  chart-labels="getDevoirsInformations(classe.id, 'name')" chart-options="optionsGraphics" >
+                            chart-data="chartOptions.classes[$index].percents"
+                            chart-labels="chartOptions.classes[$index].names"
+                            chart-options="chartOptions.options"
+                            chart-colors="chartOptions.colors">
                     </canvas>
                 </div>
             </article>

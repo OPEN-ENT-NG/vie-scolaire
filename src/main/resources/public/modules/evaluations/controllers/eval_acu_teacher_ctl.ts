@@ -11,8 +11,19 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.evaluations = evaluations;
         $scope.devoirs= [];
 
-        // TODO chercher ses evaluations non terminees
-        $scope.evaluations.devoirs.getPercentDone();
+
+        if (evaluations.synchronized.classes !== 0) {
+            evaluations.classes.on('classes-sync', () => {
+                $scope.evaluations.devoirs.getPercentDone().then(() => {
+                    $scope.initCharts();
+                });
+            });
+        } else {
+            $scope.evaluations.devoirs.getPercentDone().then(() => {
+                $scope.initCharts();
+            });
+        }
+
         for(var i=0; i< $scope.evaluations.devoirs.all.length; i++){
             if($scope.evaluations.devoirs.all[i].percent != 100){
                 $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
@@ -38,23 +49,40 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         /**
-         *  Options des graphiques
+         * Initialise les graphiques
          */
-        $scope.optionsGraphics = {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        size: 0,
-                        max: 100,
-                        min: 0,
-                        stepSize: 20,
-                    },
-                }],
-                xAxes: [{
-                    display:false,
+        $scope.initCharts = function () {
+            $scope.chartOptions = {
+                classes : [],
+                options : {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                size: 0,
+                                max: 100,
+                                min: 0,
+                                stepSize: 20,
+                            },
+                        }],
+                        xAxes: [{
+                            display:false,
+                        }]
+                    }
+                },
+                colors : ['#4bafd5', '#46bfaf', '#ecbe30', '#FF8500', '#e13a3a', '#b930a2', '#763294', '#1a22a2']
+            };
 
-                }]
+            for (let i = 0; i < $scope.classes.all.length; i++) {
+                let _o = {
+                    names : [],
+                    percents : []
+                };
+                _o.names = $scope.getDevoirsInformations($scope.classes.all[i].id, 'name');
+                _o.percents = $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent');
+                $scope.chartOptions.classes.push(_o);
             }
-        }
+
+            $scope.$apply();
+        };
     }
 ]);

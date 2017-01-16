@@ -777,9 +777,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
-                evaluations.devoirs.on('sync', function () {
+                $scope.id = res.id;
+                evaluations.devoirs.on('sync', function (res) {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
-                        $location.path("/devoir/"+res.id);
+                        if(res!= undefined) {
+                            $location.path("/devoir/" + res.id);
+                        }
+                        else {
+                            $scope.goTo("/devoir/"+$scope.id);
+                        }
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
                             $scope.search.classe.id = $scope.devoir.id_classe;

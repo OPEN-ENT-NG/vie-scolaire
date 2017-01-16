@@ -11,6 +11,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.evaluations = evaluations;
         $scope.devoirs= [];
 
+        $scope.charts = {
+            uncomplete : model.me.classes[0]
+        };
 
         if (evaluations.synchronized.classes !== 0) {
             evaluations.classes.on('classes-sync', () => {
@@ -53,7 +56,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
          */
         $scope.initCharts = function () {
             $scope.chartOptions = {
-                classes : [],
+                classes : {},
                 options : {
                     scales: {
                         yAxes: [{
@@ -73,16 +76,18 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             };
 
             for (let i = 0; i < $scope.classes.all.length; i++) {
-                let _o = {
-                    names : [],
-                    percents : []
-                };
-                _o.names = $scope.getDevoirsInformations($scope.classes.all[i].id, 'name');
-                _o.percents = $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent');
-                $scope.chartOptions.classes.push(_o);
+                $scope.chartOptions.classes[$scope.classes.all[i].id] = {
+                    names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
+                    percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
+                   // id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+                }
             }
-
             $scope.$apply();
         };
+
+        $scope.SaisieNote = function (event) {
+
+           // let points = chart.getPointsAtEvent(event);
+        }
     }
 ]);

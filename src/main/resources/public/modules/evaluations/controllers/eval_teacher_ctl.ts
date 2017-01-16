@@ -581,6 +581,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
+         * Charge les enseignements et les compétences en fonction de la classe.
+         * @param psIdClasse identifiant de la classe sélectionnée.
+         */
+        $scope.loadEnseignementsByClasse = function (psIdClasse) {
+            evaluations.enseignements.sync($scope.devoir.id_classe);
+            utils.safeApply(this);
+        };
+
+        /**
          * Séquence de création d'un devoir
          */
         //TODO Déplacer cette séquence dans la séquence du router
@@ -589,9 +598,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-            // TODO calculer le cycle
-            var lIdCycle = 1;
-            evaluations.enseignements.sync(lIdCycle);
+
             utils.safeApply(this);
             $scope.search.keyword = "";
             // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
@@ -628,6 +635,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // selection de la premiere matière associée à la classe
                     $scope.setClasseMatieres();
                 }
+
+                // Chargement des enseignements et compétences en fonction de la classe
+                evaluations.enseignements.sync($scope.devoir.id_classe);
 
                 if ($location.path() === "/devoirs/list") {
                     $scope.devoir.id_type = $scope.search.type.id;

@@ -977,10 +977,10 @@ export class Evaluations extends Model {
         this.devoirs.sync();
         this.collection(Enseignement, {
             // sync : '/viescolaire/evaluations/enseignements'
-            sync : function  (idCycle?:any) {
+            sync : function  (idClasse?:any) {
                 var uri = '/viescolaire/evaluations/enseignements';
-                if (idCycle !== undefined) {
-                    uri += '?idCycle='+idCycle;
+                if (idClasse !== undefined) {
+                    uri += '?idClasse='+idClasse;
                 }
                 http().getJson(uri).done(function (res) {
                     this.load(res);

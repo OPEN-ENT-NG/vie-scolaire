@@ -69,29 +69,21 @@ public class EnseignementController extends ControllerHelper {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if (event.right().isRight()) {
-                    String idCycle = null;
-                    Long lIdCycle = null;
-                    if (request.params().contains("idCycle")) {
-                        idCycle = request.params().get("idCycle");
-                        try {
-                            lIdCycle = Long.parseLong(idCycle);
-                        } catch(NumberFormatException e) {
-                            log.error("Error : idCycle must be a long object", e);
-                            badRequest(request, e.getMessage());
-                            return;
-                        }
+                    String idClasse = null;
+                    if (request.params().contains("idClasse")) {
+                        idClasse = request.params().get("idClasse");
                     }
 
                     _datas.putArray("enseignements", event.right().getValue());
 
-                    final Long finalIdCycle = lIdCycle;
+                    final String finalIdClasse = idClasse;
 
-                    competencesService.getCompetencesByLevel("id_type = 1", finalIdCycle, new Handler<Either<String, JsonArray>>() {
+                    competencesService.getCompetencesByLevel("id_type = 1", finalIdClasse, new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> eventCompetences_1) {
                             if (eventCompetences_1.right().isRight()) {
                                 _datas.putArray("_competences_1", eventCompetences_1.right().getValue());
-                                competencesService.getCompetencesByLevel("id_type = 2", finalIdCycle, new Handler<Either<String, JsonArray>>() {
+                                competencesService.getCompetencesByLevel("id_type = 2", finalIdClasse, new Handler<Either<String, JsonArray>>() {
                                     @Override
                                     public void handle(Either<String, JsonArray> eventCompetences_2) {
                                         if (eventCompetences_2.right().isRight()) {

@@ -167,20 +167,26 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
     }
 
     @Override
-    public void getCompetencesByLevel(String filter, Long idCycle, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetencesByLevel(String filter, String idClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
         query.append("SELECT DISTINCT domaines.codification as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
+
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
-                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ")
-                .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ");
+
+                if (idClasse != null) {
+                    query.append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".rel_classe_cycle ON (rel_classe_cycle.id_cycle = competences.id_cycle) ");
+                }
+
+                query.append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
                 .append("WHERE competences."+ filter);
 
-        if (idCycle != null) {
-            query.append(" AND competences.id_cycle = ?");
-            params.addNumber(idCycle);
+        if (idClasse != null) {
+            query.append(" AND rel_classe_cycle.id_classe = ?");
+            params.addString(idClasse);
         }
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }

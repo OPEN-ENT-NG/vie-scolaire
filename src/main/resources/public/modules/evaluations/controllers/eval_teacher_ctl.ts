@@ -580,6 +580,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return $sce.trustAsHtml(psTextLocal.replace(new RegExp(psKeyword, 'gi'), '<span class="highlightedText">$&</span>'));
         };
 
+
         /**
          * Séquence de création d'un devoir
          */
@@ -589,9 +590,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-            // TODO calculer le cycle
-            var lIdCycle = 1;
-            evaluations.enseignements.sync(lIdCycle);
+
+            // Calcul du cycle et chargement des enseignements / compétences correspondants
+            $scope.$watch('devoir.id_classe', function (newValue, oldValue) {
+                var haschange = newValue !== null && newValue !== undefined && newValue !== "*" && (newValue !== oldValue);
+                evaluations.enseignements.sync(newValue);
+            }, true);
+
+
             utils.safeApply(this);
             $scope.search.keyword = "";
             // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre

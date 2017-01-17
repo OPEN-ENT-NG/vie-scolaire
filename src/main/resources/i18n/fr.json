@@ -205,5 +205,6 @@
   "evaluations.no.summary" : "Aucun relevé trouvé pour vos critères",
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
   "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
-  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)"
+  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
+  "open.devoir" : "Ouvrir le devoir"
 }

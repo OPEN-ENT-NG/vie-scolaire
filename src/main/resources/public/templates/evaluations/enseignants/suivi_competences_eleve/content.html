@@ -28,7 +28,9 @@
              ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
 
         <div ng-show="opened.detailCompetenceSuivi" class="twelve">
-            <a ng-click="createEvaluationLibre();"><i18n>evaluations.evaluation.libre.add</i18n></a>
+            <div>
+                <a class="button twelve-mobile" ng-click="createEvaluationLibre();"><i18n>evaluations.evaluation.libre.add</i18n></a>
+            </div>
             <div class="right-magnet">
                 <a ng-click="backToSuivi()" tooltip="evaluations.back.suivi.eleve.title">
                     <i class="icon-back"></i>

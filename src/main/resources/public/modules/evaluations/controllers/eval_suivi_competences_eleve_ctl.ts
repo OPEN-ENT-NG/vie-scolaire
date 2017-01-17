@@ -25,9 +25,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Initialise d'une évaluation libre.
          */
         $scope.initEvaluationLibre = function () {
+            var today = new Date();
             var evaluationLibre = new Devoir({
-                date_publication: new Date(),
-                date: new Date(),
+                date_publication: today,
+                date: today,
                 diviseur: 20,
                 coefficient: 1,
                 id_etablissement: model.me.structures[0],
@@ -56,6 +57,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.createEvaluationLibre = function () {
             $scope.messages.successEvalLibre = false;
             $scope.evaluationLibre = $scope.initEvaluationLibre();
+            $scope.controleDate();
             $scope.opened.lightboxEvalLibre = true;
             template.open('lightboxContainerEvalLibre', '../templates/evaluations/enseignants/creation_devoir/display_creation_eval_libre');
         };
@@ -116,7 +118,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 !(
                 $scope.evaluationLibre.controlledDate
                 && $scope.evaluationLibre.name !== undefined
-                && $scope.evaluationLibre.id_periode !== undefined
+                && $scope.evaluationLibre.id_periode !== null && $scope.evaluationLibre.id_periode !== undefined
                 && $scope.evaluationLibre.competenceEvaluee.evaluation !== -1
             );
         };

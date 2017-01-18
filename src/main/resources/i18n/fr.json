@@ -129,7 +129,7 @@
   "evaluations.test.duplicate":"Dupliquer",
   "evaluations.test.delete":"Supprimer",
   "evaluations.test.percent":"Avancement",
-  "evaluations.test.edit":"Modifier",
+  "evaluations.test.edit":"Modifier l'évaluation",
   "evaluations.test.new":"Nouvelle évaluation",
   "evaluations.test.mine" : "Mes évaluations",
   "evaluations.test.list":"Liste des évaluations",
@@ -189,7 +189,7 @@
   "evaluations.homework.details":"Détails de l'évaluation",
   "viescolaire.utils.user.birthdate":"Date de naissance",
   "ariane.viescolaire.createDevoir":"Ajouter une évaluation",
-  "ariane.viescolaire.editDevoir":"Editer une évaluation",
+  "ariane.viescolaire.editDevoir":"Modifier une évaluation",
   "ariane.viescolaire.displayReleveNotes":"Relevé de notes",
   "ariane.viescolaire.viewNotesDevoir":"Saisie des notes",
   "ariane.viescolaire.listDevoirs":"Liste des évaluations",
@@ -205,5 +205,6 @@
   "evaluations.no.summary" : "Aucun relevé trouvé pour vos critères",
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
   "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
-  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)"
+  "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
+  "open.devoir" : "Ouvrir le devoir"
 }

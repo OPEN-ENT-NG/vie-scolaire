@@ -177,7 +177,12 @@ public class DevoirController extends ControllerHelper {
                                                             });
                                                         }else{
                                                             if(event.isRight()){
-                                                                Renders.renderJson(request, event.right().getValue());
+                                                                JsonObject o = new JsonObject();
+                                                                o.putNumber("id", devoirId[0]);
+                                                                Renders.renderJson(request, o);
+                                                            }
+                                                            else {
+                                                                leftToResponse(request, event.left());
                                                             }
                                                         }
                                                     }

@@ -4,6 +4,7 @@ import * as utils from '../utils/teacher';
 
 let moment = require('moment');
 
+
 declare let _:any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
@@ -130,8 +131,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope);
             },
-            displaySuiviCompetencesEleve : function () {
+            displaySuiviCompetencesEleve : function (params) {
+
+                if( params.idEleve != undefined && params.idClasse != undefined ){
+                    //console.log(params.idEleve);
+                   // console.log(params.idClasse);
+                    $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
+                    $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                    $scope.displayFromClass = true;
+                }
+
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
+
                 if($scope.informations.eleve === undefined){
                     $scope.informations.eleve = null;
                 }
@@ -171,7 +182,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
-            name : ''
+            name : '',
+            eleveName: ''
         };
         $scope.informations = {};
         $scope.messages = {
@@ -215,11 +227,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
-        $scope.goTo = function(path){
+        $scope.goTo = function(path,id){
             $location.path(path);
+            if(id != undefined)
+                $location.search(id);
             $location.replace();
             utils.safeApply($scope);
         };
+
 
         evaluations.periodes.on('sync', function () {
             setCurrentPeriode().then((defaultPeriode) => {

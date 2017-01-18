@@ -16,14 +16,27 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+<!--
+<div>
+    <header class="headerStyle">
+        <h2 class="twelve-mobile"><i18n>Recherche par nom</i18n></h2>
+        <input class="inline-block" type="text" ng-model="search.eleve" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 70%;font-size: 1em;font-style: italic;">
+        <span>
+            <button  type="submit" ng-click="searchEleve()">
+                ok
+            </button>
+        </span>
+    </header>
+
+</div> -->
 
 <div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
-        <div class="twelve suivi-eleve-ctl" sticky offset="64">
-          <h2 class="align-center">
+    <div class="twelve suivi-eleve-ctl" sticky offset="64">
+        <h2 class="align-center">
             <i class="previous left" ng-click="incrementEleve(-1)"></i>
             [[informations.eleve.lastName]] [[informations.eleve.firstName]]
             <i class="next right" ng-click="incrementEleve(1)"></i>
-          </h2>
+        </h2>
         <div ng-show="!opened.detailCompetenceSuivi"
              ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
 

@@ -10,7 +10,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
     function ($scope, route, model) {
         $scope.evaluations = evaluations;
         $scope.devoirs= [];
-        $scope.eleves = [];
+
 
         $scope.showAutocomplete= false;
         $scope.charts = {
@@ -21,32 +21,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.evaluations.devoirs.getPercentDone().then(() => {
                     $scope.initCharts();
                 });
-                for (let i = 0; i < evaluations.classes.all.length; i++) {
-                    let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                        return _.extend(eleve,{
-                                classEleve : evaluations.classes.all[i]
-                            }
-                        );
-                    });
-                    $scope.eleves = _.union($scope.eleves, elevesOfclass);
-                }
-
-
             });
         } else {
             $scope.evaluations.devoirs.getPercentDone().then(() => {
                 $scope.initCharts();
             });
-            for (let i = 0; i < evaluations.classes.all.length; i++) {
-                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                    return _.extend(eleve,{
-                            classEleve : evaluations.classes.all[i]
-                        }
-                    );
-                });
-                $scope.eleves = _.union($scope.eleves, elevesOfclass);
-            }
-
         }
 
         for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
@@ -111,11 +90,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.searchStudent = (student) => (student.firstName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1
         || student.lastName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1);
 
-        $scope.openSuiviEleve = (Eleve) => {
-            let path = '/competences/eleve';
-            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id}
-            $scope.goTo(path,idOfpath);
 
-        };
     }
 ]);

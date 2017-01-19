@@ -157,8 +157,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                                 $scope.backToSuivi();
                             }
                         }
-
-
                     });
 
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
@@ -171,20 +169,29 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
                 });
             }
+
         };
 
 
-        if( $scope.displayFromClass !== true) {
-            $scope.search.eleve = "";
-            delete $scope.informations.eleve;
-            $scope.suiviCompetence = {};
+        $scope.initSuivi = () => {
+            if( $scope.displayFromClass !== true) {
+                $scope.search.eleve = "";
+                delete $scope.informations.eleve;
+                $scope.suiviCompetence = {};
 
-        }
-        else {
-            $scope.selectSuivi($scope.route.current.$$route.originalPath);
-            $scope.displayFromEleve = true;
-            utils.safeApply($scope);
-        }
+            }
+            else {
+                $scope.selectSuivi($scope.route.current.$$route.originalPath);
+                $scope.displayFromEleve = true;
+                utils.safeApply($scope);
+            }
+        };
+
+        $scope.initSuivi();
+        $scope.$watch($scope.displayFromClass, () => {
+           $scope.initSuivi();
+        });
+
 
         $scope.pOFilterEval = {
             limitTo : 2

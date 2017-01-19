@@ -10,6 +10,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout) {
         route({
+
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
 
@@ -130,13 +131,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope);
             },
-            displaySuiviCompetencesEleve : function () {
+            displaySuiviCompetencesEleve : function (params) {
+
+                if( params.idEleve != undefined && params.idClasse != undefined ){
+                    //console.log(params.idEleve);
+                    // console.log(params.idClasse);
+                    $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
+                    $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                    $scope.displayFromClass = true;
+                }
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
                 if($scope.informations.eleve === undefined){
                     $scope.informations.eleve = null;
                 }
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
+
             },
             displaySuiviCompetencesClasse : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
@@ -204,6 +214,41 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 all : false
             }
         };
+        $scope.eleves = [];
+        if (evaluations.synchronized.classes !== 0) {
+            evaluations.classes.on('classes-sync', () => {
+                for (let i = 0; i < evaluations.classes.all.length; i++) {
+                    let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                        return _.extend(eleve,{
+                                classEleve : evaluations.classes.all[i]
+                            }
+                        );
+                    });
+                    $scope.eleves = _.union($scope.eleves, elevesOfclass);
+                }
+
+
+            });
+        } else {
+            for (let i = 0; i < evaluations.classes.all.length; i++) {
+                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                    return _.extend(eleve,{
+                            classEleve : evaluations.classes.all[i]
+                        }
+                    );
+                });
+                $scope.eleves = _.union($scope.eleves, elevesOfclass);
+            }
+
+        }
+
+        $scope.openSuiviEleve = (Eleve) => {
+            let path = '/competences/eleve';
+            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
+            $scope.goTo(path,idOfpath);
+
+
+        };
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
@@ -215,8 +260,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
-        $scope.goTo = function(path){
+        $scope.goTo = function(path,id){
             $location.path(path);
+            if(id != undefined)
+                $location.search(id);
             $location.replace();
             utils.safeApply($scope);
         };

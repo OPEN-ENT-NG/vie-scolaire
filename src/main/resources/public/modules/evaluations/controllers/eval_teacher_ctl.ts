@@ -382,17 +382,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+
+
         /**
          * Sélectionne/Déselectionne tous les devoirs de l'utilisateur
          */
         $scope.selectAllDevoirs = function(){
             if ($scope.selected.devoirs.all !== true) {
-                $scope.selectElement($scope.selected.devoirs.list);
+                $scope.selectElement($scope.selected.devoirs.list, false);
                 $scope.selected.devoirs.list = [];
                 return;
             }
             $scope.selected.devoirs.list = $filter('customSearchFilters')($scope.devoirs.all, $scope.search);
-            $scope.selectElement($scope.selected.devoirs.list);
+            $scope.selectElement($scope.selected.devoirs.list, true);
         };
 
         /**

@@ -164,23 +164,29 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.template.close('suivi-competence-content');
                     utils.safeApply($scope);
                     $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
-                    utils.safeApply($scope);
                     if($scope.displayFromClass) delete $scope.displayFromClass;
+                    utils.safeApply($scope);
+
 
                 });
             }
 
         };
 
+        $scope.updateSuiviEleve = (Eleve) => {
+            let path = '/competences/eleve';
+            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
+            $scope.goTo(path,idOfpath);
+            $scope.initSuivi();
 
+        };
         $scope.initSuivi = () => {
             if( $scope.displayFromClass !== true) {
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
                 $scope.suiviCompetence = {};
 
-            }
-            else {
+            } else {
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
                 $scope.displayFromEleve = true;
                 utils.safeApply($scope);
@@ -191,7 +197,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.$watch($scope.displayFromClass, () => {
            $scope.initSuivi();
         });
-
 
         $scope.pOFilterEval = {
             limitTo : 2

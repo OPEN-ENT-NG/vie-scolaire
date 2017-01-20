@@ -138,6 +138,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // console.log(params.idClasse);
                     $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
                     $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                    if($scope.displayFromClass)  $scope.displayFromClass= false;
                     $scope.displayFromClass = true;
                 }
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
@@ -158,9 +159,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
         $scope.evaluations = evaluations;
-
         $scope.competencesSearchKeyWord = "";
-
+        $scope.displayFromClass ;
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
         $scope.bSelectAllEnseignements = false;
@@ -242,13 +242,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         }
 
-        $scope.openSuiviEleve = (Eleve) => {
-            let path = '/competences/eleve';
-            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
-            $scope.goTo(path,idOfpath);
 
 
-        };
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {

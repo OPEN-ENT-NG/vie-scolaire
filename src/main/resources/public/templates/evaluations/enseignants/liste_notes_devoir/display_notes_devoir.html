@@ -131,7 +131,7 @@
 
                             <div ng-repeat="eleve in currentDevoir.eleves.all track by $index" ng-class="{openedEleve : openedEleve === $index}">
 
-                                <div class="expandable navigable-row twelve" ng-class="{'background-grey' : eleve.selected}">
+                                <div class="expandable navigable-row twelve">
                                     <div class="row navigable-inputs-row">
                                         <div class="one inline-block coche-case left">
                                             <label class="checkbox">
@@ -168,6 +168,7 @@
                                                     <c-skill-note-devoir focus="highlightCompetence"
                                                                          get-eleve-info="getEleveInfo",
                                                                          eleve="eleve",
+                                                                         eleves="currentDevoir.eleves.all",
                                                                          blur="highlightCompetence"
                                                                          current-devoir="currentDevoir"
                                                                          nb-eleve="currentDevoir.eleves.all.length"
@@ -175,6 +176,7 @@
                                                                          competence="competence"
                                                                          index-row="$parent.$index"
                                                                          index-column="$index"
+                                                                         selected-competences="selected.competences.list"
                                                     ></c-skill-note-devoir>
                                                 </li>
                                             </ul>

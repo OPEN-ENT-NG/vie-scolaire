@@ -16,19 +16,11 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<!--
-<div>
-    <header class="headerStyle">
-        <h2 class="twelve-mobile"><i18n>Recherche par nom</i18n></h2>
-        <input class="inline-block" type="text" ng-model="search.eleve" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 70%;font-size: 1em;font-style: italic;">
-        <span>
-            <button  type="submit" ng-click="searchEleve()">
-                ok
-            </button>
-        </span>
-    </header>
 
-</div> -->
+<div class="titre-widget RechercheAcceuil">
+    <h2><i18n>Recherche Eleve</i18n></h2>
+    <autocomplete options="eleves" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+</div>
 
 <div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
     <div class="twelve suivi-eleve-ctl" sticky offset="64">

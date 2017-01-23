@@ -90,6 +90,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.searchStudent = (student) => (student.firstName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1
         || student.lastName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1);
 
+        $scope.openSuiviEleve = (Eleve) => {
+            let path = '/competences/eleve';
+            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
+            $scope.goTo(path,idOfpath);
+        };
 
     }
 ]);

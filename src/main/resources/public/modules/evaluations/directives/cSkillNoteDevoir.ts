@@ -19,9 +19,11 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             indexRow:'=',
             indexColumn:'=',
             eleve:'=',
-            getEleveInfo:'='
+            eleves:'=',
+            getEleveInfo:'=',
+            selectedCompetences: '='
         },
-        template : '<span autofocus ng-if="indexRow === 0 && indexColumn ===0 && !currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span> <span ng-if="indexRow !== 0 || indexColumn !==0 || currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
+        template : '<span autofocus ng-if="indexRow === 0 && indexColumn ===0 && !currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span> <span ng-if="indexRow !== 0 || indexColumn !==0 || currentDevoir.is_evaluated" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
         controller : ['$scope', function($scope){
             $scope.color = -1;
             $scope.modified = false;
@@ -36,6 +38,46 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
                     $scope.$emit('majHeaderColumn', $scope.competence);
                     $scope.modified = $scope.competence.oldValeur !== $scope.competence.evaluation;
                 }
+            };
+
+
+            $scope.isCompetenceHeaderSelected = function() {
+
+               return  _.where($scope.selectedCompetences,{id_competence : $scope.competence.id_competence}).length > 0;
+
+            };
+
+            $scope.getNbElevesSelected = function() {
+                return  _.where($scope.eleves,{selected: true}).length;
+            };
+
+            $scope.highlightCompetenceNote = function() {
+
+                var nbColumnSelected = $scope.selectedCompetences.length;
+                var eleveSelected =  $scope.eleve.selected;
+                var nbElevesSelected = $scope.getNbElevesSelected();
+
+                // cas 1 : aucune colonne sélectionnée et élève sélectionné
+                if(nbColumnSelected === 0 && eleveSelected) {
+                    return true;
+                }
+
+                // cas 2 : au moins 1 colonne sélectionnée
+                if(nbColumnSelected > 0) {
+                    // si l'élève est sélectionné alors dans ce cas on met en évidence que si on est sur la colonne sélectionnée
+                    if(eleveSelected && $scope.isCompetenceHeaderSelected()) {
+                        return true;
+                    }
+
+                    // si aucun élève est sélectionné, alors, on met en évidence toute la colonne (si celle ci est sélectionnée)
+                    if(nbElevesSelected === 0 && $scope.isCompetenceHeaderSelected()) {
+                        return true
+                    }
+                }
+
+                // dans tous les autres cas on ne met rien en évidence
+                return false;
+
             };
 
             $scope.keys = {

@@ -160,7 +160,7 @@ gulp.task('ts', ['update-libs'], function () { return compileTs() });
 gulp.task('webpack', ['ts'], function(){ return startWebpack() });
 gulp.task('webpack-entcore', ['webpack'], function(){ return startWebpackEntcore() });
 
-gulp.task('drop-temp', ['webpack-entcore'], () => {
+gulp.task('drop-temp', ['webpack-entcore'], function() {
     return gulp.src([
         './src/main/resources/public/**/*.map.map',
         './src/main/resources/public/temp',

@@ -56,14 +56,14 @@ function compileTs(){
 }
 
 function startWebpackEntcore(isLocal) {
-    return gulp.src('./src/main/resources/public')
+    return gulp.src('./src/main/resources/public/module/entcore')
         .pipe(webpack(require('./webpack-entcore.config.js')))
         .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(rev.manifest({ merge: true }))
+        .pipe(rev.manifest({ merge: true, path : './manifests/entcore.json' }))
         .pipe(gulp.dest('./'));
 }
 
@@ -109,7 +109,7 @@ function updateRefs() {
     var eval = gulp.src(glob.sync("./src/main/resources/view-src/evaluations/*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/eval.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/evaluations"));
-    var vsco =  gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
+    var vsco = gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
     return merge([absc, eval, vsco]);

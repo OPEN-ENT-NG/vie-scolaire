@@ -1251,13 +1251,13 @@ function setSliderOptions(poDomaine) {
                 if (value == -1)
                     return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
                 if (value < 1)
-                    return l.replace('#label#', lang.translate('evaluations.competences.poor'));
+                    return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
                 if (value < 2)
-                    return l.replace('#label#', lang.translate('evaluations.competences.fragile'));
+                    return l.replace('#label#', lang.translate('evaluations.competences.poor'));
                 if (value < 3)
-                    return l.replace('#label#', lang.translate('evaluations.competences.satisfying'));
+                    return l.replace('#label#', lang.translate('evaluations.competences.fragile'));
                 if (value < 4)
-                    return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
+                    return l.replace('#label#', lang.translate('evaluations.competences.satisfying'));
                 if (value == 4)
                     return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
             }

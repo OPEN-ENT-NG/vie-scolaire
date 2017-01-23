@@ -17,13 +17,18 @@
   ~
   -->
 
+<div class="titre-widget RechercheAcceuil">
+    <h2><i18n>Recherche Eleve</i18n></h2>
+    <autocomplete options="eleves" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+</div>
+
 <div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
-        <div class="twelve suivi-eleve-ctl" sticky offset="64">
-          <h2 class="align-center">
+    <div class="twelve suivi-eleve-ctl" sticky offset="64">
+        <h2 class="align-center">
             <i class="previous left" ng-click="incrementEleve(-1)"></i>
             [[informations.eleve.lastName]] [[informations.eleve.firstName]]
             <i class="next right" ng-click="incrementEleve(1)"></i>
-          </h2>
+        </h2>
         <div ng-show="!opened.detailCompetenceSuivi"
              ng-include="'/viescolaire/public/templates/evaluations/enseignants/suivi_competences_eleve/content_buttons.html'"></div>
 

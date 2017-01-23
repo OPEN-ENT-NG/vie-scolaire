@@ -10,6 +10,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout) {
         route({
+
             accueil : function(params){
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
 
@@ -130,13 +131,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 utils.safeApply($scope);
             },
-            displaySuiviCompetencesEleve : function () {
+            displaySuiviCompetencesEleve : function (params) {
+
+                if( params.idEleve != undefined && params.idClasse != undefined ){
+                    //console.log(params.idEleve);
+                    // console.log(params.idClasse);
+                    $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
+                    $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                    if($scope.displayFromClass)  $scope.displayFromClass= false;
+                    $scope.displayFromClass = true;
+                }
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
                 if($scope.informations.eleve === undefined){
                     $scope.informations.eleve = null;
                 }
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
+
             },
             displaySuiviCompetencesClasse : function () {
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
@@ -148,9 +159,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
         $scope.evaluations = evaluations;
-
         $scope.competencesSearchKeyWord = "";
-
+        $scope.displayFromClass ;
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
         $scope.bSelectAllEnseignements = false;
@@ -204,6 +214,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 all : false
             }
         };
+        $scope.eleves = [];
+        if (evaluations.synchronized.classes !== 0) {
+            evaluations.classes.on('classes-sync', () => {
+                for (let i = 0; i < evaluations.classes.all.length; i++) {
+                    let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                        return _.extend(eleve,{
+                                classEleve : evaluations.classes.all[i]
+                            }
+                        );
+                    });
+                    $scope.eleves = _.union($scope.eleves, elevesOfclass);
+                }
+
+
+            });
+        } else {
+            for (let i = 0; i < evaluations.classes.all.length; i++) {
+                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                    return _.extend(eleve,{
+                            classEleve : evaluations.classes.all[i]
+                        }
+                    );
+                });
+                $scope.eleves = _.union($scope.eleves, elevesOfclass);
+            }
+
+        }
+
+
+
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
@@ -215,8 +255,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
-        $scope.goTo = function(path){
+        $scope.goTo = function(path,id){
             $location.path(path);
+            if(id != undefined)
+                $location.search(id);
             $location.replace();
             utils.safeApply($scope);
         };
@@ -340,17 +382,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+
+
         /**
          * Sélectionne/Déselectionne tous les devoirs de l'utilisateur
          */
         $scope.selectAllDevoirs = function(){
             if ($scope.selected.devoirs.all !== true) {
-                $scope.selectElement($scope.selected.devoirs.list);
+                $scope.selectElement($scope.selected.devoirs.list, false);
                 $scope.selected.devoirs.list = [];
                 return;
             }
             $scope.selected.devoirs.list = $filter('customSearchFilters')($scope.devoirs.all, $scope.search);
-            $scope.selectElement($scope.selected.devoirs.list);
+            $scope.selectElement($scope.selected.devoirs.list, true);
         };
 
         /**
@@ -581,15 +625,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Charge les enseignements et les compétences en fonction de la classe.
-         * @param psIdClasse identifiant de la classe sélectionnée.
-         */
-        $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            evaluations.enseignements.sync($scope.devoir.id_classe);
-            utils.safeApply(this);
-        };
-
-        /**
          * Séquence de création d'un devoir
          */
         //TODO Déplacer cette séquence dans la séquence du router
@@ -598,7 +633,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
             // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-
+            // TODO calculer le cycle
+            var lIdCycle = 1;
+            evaluations.enseignements.sync(lIdCycle);
             utils.safeApply(this);
             $scope.search.keyword = "";
             // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
@@ -635,9 +672,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // selection de la premiere matière associée à la classe
                     $scope.setClasseMatieres();
                 }
-
-                // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_classe);
 
                 if ($location.path() === "/devoirs/list") {
                     $scope.devoir.id_type = $scope.search.type.id;
@@ -781,15 +815,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
-                $scope.id = res.id;
-                evaluations.devoirs.on('sync', function (res) {
+                evaluations.devoirs.on('sync', function () {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
-                        if(res!= undefined) {
-                            $location.path("/devoir/" + res.id);
-                        }
-                        else {
-                            $scope.goTo("/devoir/"+$scope.id);
-                        }
+                        $location.path("/devoir/"+res.id);
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
                             $scope.search.classe.id = $scope.devoir.id_classe;

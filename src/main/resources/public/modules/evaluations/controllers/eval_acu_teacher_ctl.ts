@@ -11,10 +11,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.evaluations = evaluations;
         $scope.devoirs= [];
 
+
+        $scope.showAutocomplete= false;
         $scope.charts = {
             uncomplete : model.me.classes[0]
         };
-
         if (evaluations.synchronized.classes !== 0) {
             evaluations.classes.on('classes-sync', () => {
                 $scope.evaluations.devoirs.getPercentDone().then(() => {
@@ -27,7 +28,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             });
         }
 
-        for(var i=0; i< $scope.evaluations.devoirs.all.length; i++){
+        for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
             if($scope.evaluations.devoirs.all[i].percent != 100){
                 $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
                 utils.safeApply($scope);
@@ -50,6 +51,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             devoirs = _.filter(devoirs, devoir => (devoir.percent !== undefined && devoir.percent !== 100));
             return _.pluck(devoirs, information);
         };
+
 
         /**
          * Initialise les graphiques
@@ -79,15 +81,20 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.chartOptions.classes[$scope.classes.all[i].id] = {
                     names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
                     percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
-                   // id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+                    // id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
                 }
             }
             $scope.$apply();
         };
 
-        $scope.SaisieNote = function (event) {
+        $scope.searchStudent = (student) => (student.firstName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1
+        || student.lastName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1);
 
-           // let points = chart.getPointsAtEvent(event);
-        }
+        $scope.openSuiviEleve = (Eleve) => {
+            let path = '/competences/eleve';
+            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
+            $scope.goTo(path,idOfpath);
+        };
+
     }
 ]);

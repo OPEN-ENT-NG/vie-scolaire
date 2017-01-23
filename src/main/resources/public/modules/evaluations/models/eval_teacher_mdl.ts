@@ -236,6 +236,8 @@ export class Eleve extends Model implements IModel{
     evaluations : Collection<Evaluation>;
     evaluation : Evaluation;
     id : string;
+    firstName: string;
+    lastName: string;
     suiviCompetences : Collection<SuiviCompetence>;
 
     get api() {
@@ -249,6 +251,9 @@ export class Eleve extends Model implements IModel{
         var that = this;
         this.collection(Evaluation);
         this.collection(SuiviCompetence);
+    }
+    toString () {
+        return this.firstName+" "+this.lastName;
     }
 
     getMoyenne () : Promise<any> {

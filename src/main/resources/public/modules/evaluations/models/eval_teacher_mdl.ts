@@ -1224,11 +1224,11 @@ function setSliderOptions(poDomaine) {
             showTicks: 1,
             showSelectionBar: true,
             getSelectionBarClass: function(value) {
-                if (value <= 1)
+                if (value < 1.5)
                     return 'red';
-                if (value <= 2)
+                if (value < 2.5)
                     return 'orange';
-                if (value <= 3)
+                if (value < 3.1)
                     return 'yellow';
                 if (value <= 4)
                     return 'green';

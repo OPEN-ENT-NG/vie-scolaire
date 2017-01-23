@@ -1782,7 +1782,9 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                         else
                             newValue = this.roundStep(newValue);
                     }
+                    if(newValue !== 0){
                     this.positionTrackingHandle(newValue);
+                    }
                 },
 
                 /**

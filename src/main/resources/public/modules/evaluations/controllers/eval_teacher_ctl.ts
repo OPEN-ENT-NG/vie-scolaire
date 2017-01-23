@@ -624,6 +624,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return $sce.trustAsHtml(psTextLocal.replace(new RegExp(psKeyword, 'gi'), '<span class="highlightedText">$&</span>'));
         };
 
+
+        /**
+         * Charge les enseignements et les compétences en fonction de la classe.
+         * @param psIdClasse identifiant de la classe sélectionnée.
+         */
+        $scope.loadEnseignementsByClasse = function (psIdClasse) {
+            evaluations.enseignements.sync($scope.devoir.id_classe);
+            utils.safeApply(this);
+        };
+
         /**
          * Séquence de création d'un devoir
          */
@@ -672,6 +682,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // selection de la premiere matière associée à la classe
                     $scope.setClasseMatieres();
                 }
+
+                // Chargement des enseignements et compétences en fonction de la classe
+                evaluations.enseignements.sync($scope.devoir.id_classe);
 
                 if ($location.path() === "/devoirs/list") {
                     $scope.devoir.id_type = $scope.search.type.id;

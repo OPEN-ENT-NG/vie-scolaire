@@ -3,7 +3,6 @@
     <!--  Left side nav  -->
     <nav class="two cell vertical menu-accueil mobile-navigation zero-mobile">
         <ul>
-            <li><a href="#/devoir/create"><i18n>evaluations.evaluation.create</i18n></a></li>
             <li><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
             <li><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
             <li><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
@@ -13,10 +12,17 @@
 
     <!--  Content (main zone)  -->
     <div class="ten cell main-content twelve-mobile">
-        <div class="titre-widget RechercheAcceuil">
-            <h2><i18n>Recherche Eleve</i18n></h2>
-            <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-        </div>
+        <section class="eleven cell row headerAccueil">
+            <div class="twelve cell ">
+                <header>
+                    <button class=" marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
+                </header>
+            </div>
+            <div class="twelve cell ">
+                <h2><i18n>Recherche Eleve</i18n></h2>
+                <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+            </div>
+        </section>
         <section>
             <article class="five cell box-accueil twelve-mobile">
                 <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n></h2>
@@ -75,36 +81,36 @@
                 </div>
             </article>
         </section>
-      <!--  <section >
-            <article class="five cell box-accueil twelve-mobile">
-                <div class="titre-widget">
-                    <h2><i18n>Recherche Eleve</i18n></h2>
-                    <input  type="text" ng-model="search.eleveName" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">
-                </div>
-                <div class="content-box-accueil--table">
-                    <div class="content-box-accueil--table--header row">
-                        <div class="two cell cell-indent four-mobile">
-                            <i18n>viescolaire.utils.name</i18n>
-                        </div>
-                        <div class="one cell cell-indent three-mobile">
-                            <i18n>viescolaire.utils.class</i18n>
-                        </div>
-                    </div>
-                    <div class="content-box-accueil--table--content">
-                        <div ng-repeat="eleve in eleves | filter:searchStudent" class="row">
-                            <a ng-href="#/competences/eleve">
-                                <div class="five cell">
-                                    [[eleve.lastName]] [[eleve.firstName]]
-                                </div>
-                                <div class="three cell">
-                                    [[classe.name]]
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </section> -->
+        <!--  <section >
+              <article class="five cell box-accueil twelve-mobile">
+                  <div class="titre-widget">
+                      <h2><i18n>Recherche Eleve</i18n></h2>
+                      <input  type="text" ng-model="search.eleveName" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">
+                  </div>
+                  <div class="content-box-accueil--table">
+                      <div class="content-box-accueil--table--header row">
+                          <div class="two cell cell-indent four-mobile">
+                              <i18n>viescolaire.utils.name</i18n>
+                          </div>
+                          <div class="one cell cell-indent three-mobile">
+                              <i18n>viescolaire.utils.class</i18n>
+                          </div>
+                      </div>
+                      <div class="content-box-accueil--table--content">
+                          <div ng-repeat="eleve in eleves | filter:searchStudent" class="row">
+                              <a ng-href="#/competences/eleve">
+                                  <div class="five cell">
+                                      [[eleve.lastName]] [[eleve.firstName]]
+                                  </div>
+                                  <div class="three cell">
+                                      [[classe.name]]
+                                  </div>
+                              </a>
+                          </div>
+                      </div>
+                  </div>
+              </article>
+          </section> -->
         <!--section-- >
             <article class="five cell box-accueil twelve-mobile">
                 <div class="titre-widget">

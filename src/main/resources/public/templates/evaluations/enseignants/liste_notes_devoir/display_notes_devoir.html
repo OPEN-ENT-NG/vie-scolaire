@@ -84,14 +84,14 @@
                 <div class="card">
                     <content class="block row">
                         <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
-                            <div class="one inline-block cell-indent left indent-five">
+                            <div class="one inline-block  left coche-case">
                                 <label class="checkbox">
                                     <input type="checkbox" ng-checked="selected.eleves.all || (selected.eleves.list.length === currentDevoir.eleves.all.length)"
                                            ng-click="selectAllEleveListe()">
                                     <span></span>
                                 </label>
                             </div>
-                            <div class="two inline-block cell-indent left">
+                            <div class="two indent-fifteen inline-block cell-indent left">
                                 <i18n>viescolaire.utils.student</i18n>
                             </div>
                             <div ng-if="!currentDevoir.is_evaluated" class="header-grade-disable one inline-block cell-indent left" tooltip="L'évaluation numérique est désactivée">

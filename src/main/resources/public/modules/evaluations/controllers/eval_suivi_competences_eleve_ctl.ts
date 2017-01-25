@@ -87,10 +87,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.messages.successEvalLibre = true;
 
                 // refresh du suivi élève
-                //$scope.selectSuivi();
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
+                    $scope.suiviCompetence.domaines.sync().then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         utils.safeApply($scope);
@@ -182,7 +181,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.all = [];
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
+                    $scope.suiviCompetence.domaines.sync().then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
 
                         if ($scope.opened.detailCompetenceSuivi) {
@@ -239,8 +238,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.pOFilterEval = {
             limitTo : 2
         };
-
-        $scope.idCycle = 1;
 
         /**
          * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"

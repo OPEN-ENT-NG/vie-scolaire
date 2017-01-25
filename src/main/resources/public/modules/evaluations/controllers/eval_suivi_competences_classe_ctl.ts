@@ -29,9 +29,6 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             4 : true
         };
 
-       $scope.idCycle = 1;
-
-
         /**
          *
          * Affiche le domaine suivant (de niveau 0) et ses
@@ -64,7 +61,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             if ($scope.informations.classe !== null && $scope.search.classe !== "") {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle);
+                    $scope.suiviCompetence.domaines.sync();
                     if ($scope.opened.detailCompetenceSuivi) {
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         if (!$scope.detailCompetence) $scope.backToSuivi();

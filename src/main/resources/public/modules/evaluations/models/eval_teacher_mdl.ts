@@ -778,6 +778,23 @@ export class Enseignement extends Model {
     }
 }
 
+/**
+ * Méthode récursive de l'affichage des sous domaines d'un domaine
+ *
+ * @param poDomaines la liste des domaines
+ * @pbMesEvaluations booleen indiquant d'afficher ou non un domaine
+ *
+ */
+function setVisibleSousDomainesRec (poDomaines, pbVisible) {
+    if(poDomaines !== null && poDomaines !== undefined) {
+        for (var i = 0; i < poDomaines.all.length; i++) {
+            var oSousDomaine = poDomaines.all[i];
+            oSousDomaine.visible = pbVisible;
+            setVisibleSousDomainesRec(oSousDomaine.domaines, pbVisible);
+        }
+    }
+}
+
 export class Domaine extends Model {
     domaines : Collection<Domaine>;
     competences : Collection<Competence>;
@@ -789,6 +806,18 @@ export class Domaine extends Model {
     codification : string;
     composer : any;
     evaluated : boolean;
+    visible : boolean;
+
+
+    /**
+     * Méthode activant l'affichage des sous domaines d'un domaine
+     *
+     * @pbMesEvaluations booleen indiquant d'afficher ou non un domaine
+     *
+     */
+    setVisibleSousDomaines (pbVisible) {
+        setVisibleSousDomainesRec(this.domaines, pbVisible);
+    }
 
     constructor (poDomaine?) {
         super();
@@ -1092,6 +1121,14 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                             if(resDomaines) {
                                 for(var i=0; i<resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
+
+                                    // affichage du 1er domaine uniquement par défaut
+                                    var bPremierDomaine = (i == 0);
+                                    if(bPremierDomaine) {
+                                        domaine.visible = true;
+                                        domaine.setVisibleSousDomaines(true);
+                                    }
+
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, classe);
                                 }
@@ -1160,6 +1197,13 @@ export class SuiviCompetence extends Model implements IModel{
                             if (resDomaines) {
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
+                                    // affichage du 1er domaine uniquement par défaut
+                                    var bPremierDomaine = (i == 0);
+                                    if(bPremierDomaine) {
+                                        domaine.visible = true;
+                                        domaine.setVisibleSousDomaines(true);
+                                    }
+
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, null);
                                 }

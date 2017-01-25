@@ -142,7 +142,7 @@
   "evaluations.competences.poor":"Maîtrise insuffisante",
   "evaluations.competence.evaluate" : "Evaluation de la compétence",
   "evaluations.competence.unevaluated":"Compétence non évaluée",
-
+  "evaluation.not.exist":"Aucune evaluation noté",
   "evaluations.competences.proficiency.abreviation":"TB",
   "evaluations.competences.satisfying.abreviation":"MS",
   "evaluations.competences.fragile.abreviation":"MF",

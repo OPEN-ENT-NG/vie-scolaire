@@ -17,6 +17,9 @@
   ~
   -->
 <div class="detail table-view">
+    <div class="ten cell info " ng-show="EvaluationExiste(detailCompetence.competencesEvaluations)">
+        <i18n>evaluation.not.exist</i18n>
+    </div>
     <table class="ten responsive-table">
         <thead>
         <tr>
@@ -38,7 +41,7 @@
                 <span ng-show="sortType == 'evaluation' && !sortReverse" class="fa fa-caret-down"></span>
                 <span ng-show="sortType == 'evaluation' && sortReverse" class="fa fa-caret-up"></span>
             </th>
-        </th>
+        </tr>
         </thead>
         <tbody>
             <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">

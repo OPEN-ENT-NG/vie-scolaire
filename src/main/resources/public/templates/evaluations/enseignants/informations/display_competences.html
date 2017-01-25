@@ -33,8 +33,8 @@
         <h4>
             <i18n>evaluations.competences.overview</i18n>
         </h4>
-        <ol>
-            <li ng-repeat="competence in currentDevoir.competences.all">[[competence.nom]]</li>
-        </ol>
+        <ul>
+            <li ng-repeat="competence in currentDevoir.competences.all">[[competence.code_domaine]]-[[competence.nom]]</li>
+        </ul>
     </div>
 </div>

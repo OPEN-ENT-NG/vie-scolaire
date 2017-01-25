@@ -68,22 +68,22 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
             $scope.confirme = function(evaluation){
                 // des élèves et des compétences sélectionnées
                 if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
-                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
+                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.";
 
                     // des élèves et aucune compétence sélectionnée
                 } else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length === 0) {
-                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour l'ensemble des compétences.\n\n Souhaitez vous continuer ?\n";
+                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour l'ensemble des compétences.";
 
                     // aucune élève et des compétences sélectionnées
                 } else  if($scope.selectedEleves.list.length === 0 && $scope.selectedCompetences.length === 0) {
-                    $scope.text = "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
+                    $scope.text = "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.";
                 }
                 $scope.eval = evaluation;
                 $scope.opened.lightbox = true;
 
             };
             $scope.annuler = function () {
-                $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
+                $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.";
                 $scope.eval = "";
                 $scope.opened.lightbox = false;
 

@@ -139,6 +139,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.selectSuivi = function () {
             if ($scope.search.classe.eleves.findWhere({id : $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
+                delete $scope.suiviCompetence;
                 return;
             }
             $scope.informations.eleve = $scope.search.eleve;
@@ -183,7 +184,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if( $scope.displayFromClass !== true) {
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
-                $scope.suiviCompetence = {};
+                delete $scope.suiviCompetence;
 
             } else {
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);

@@ -134,6 +134,7 @@ public class Viescolaire extends BaseServer {
 
 		//TODO awaiting an admin console
 		//waiting for automatic script, launch after one mitute
+		/*
 		vertx.setTimer(60000, new Handler<Long>() {
 			@Override
 			public void handle(Long aLong) {
@@ -141,6 +142,7 @@ public class Viescolaire extends BaseServer {
 				new InitDataService().initData();
 		}
 		});
+		*/
 	}
 
 }

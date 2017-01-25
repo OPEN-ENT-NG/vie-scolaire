@@ -88,10 +88,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.messages.successEvalLibre = true;
 
                 // refresh du suivi élève
-                //$scope.selectSuivi();
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
+                    $scope.suiviCompetence.domaines.sync().then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         utils.safeApply($scope);
@@ -135,19 +134,56 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             });
         };
 
+
+        /**
+         *
+         * Affiche le domaine suivant (de niveau 0) et ses
+         * sous domaines.
+         *
+         */
+        $scope.afficherDomaineSuivant = function () {
+            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+                var domaine = $scope.suiviCompetence.domaines.all[i];
+                if( i> 0) {
+                    var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
+                    if(domainePrec.visible && !domaine.visible) {
+                        domaine.visible = true;
+                        domaine.setVisibleSousDomaines(true);
+                        return;
+                    }
+                }
+            }
+        };
+
+        /**
+         *
+         * Méthode qui n'affiche que le 1er domaine
+         *
+         */
+        $scope.initAffichageDomaines = function () {
+            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+                var domaine = $scope.suiviCompetence.domaines.all[i];
+                var bPremierDomaine = (i == 0);
+                domaine.visible = bPremierDomaine;
+                domaine.setVisibleSousDomaines(bPremierDomaine);
+            }
+        };
+
         /**
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function () {
             if ($scope.search.classe.eleves.findWhere({id : $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
+                delete $scope.suiviCompetence;
                 return;
             }
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle).then(() => {
+                    $scope.suiviCompetence.domaines.all = [];
+                    $scope.suiviCompetence.domaines.sync().then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
 
                         if ($scope.opened.detailCompetenceSuivi) {
@@ -185,7 +221,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if( $scope.displayFromClass !== true) {
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
-                $scope.suiviCompetence = {};
+                delete $scope.suiviCompetence;
 
             } else {
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
@@ -195,15 +231,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.initSuivi();
-        $scope.$watch($scope.displayFromClass, () => {
-           $scope.initSuivi();
+        $scope.$watch($scope.displayFromClass, function (newValue, oldValue) {
+            if(newValue !== oldValue) {
+                $scope.initSuivi();
+            }
         });
 
         $scope.pOFilterEval = {
             limitTo : 2
         };
-
-        $scope.idCycle = 1;
 
         /**
          * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"

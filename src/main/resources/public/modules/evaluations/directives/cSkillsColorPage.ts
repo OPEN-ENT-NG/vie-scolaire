@@ -2,6 +2,7 @@
  * Created by ledunoiss on 21/09/2016.
  */
 import {ng, appPrefix} from 'entcore/entcore';
+import {lightbox} from "../../entcore/directives/lightbox";
 
 export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
     return {
@@ -13,23 +14,10 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
         },
         templateUrl: "/"+appPrefix+"/public/components/cSkillsColorPage.html",
         controller : ['$scope', function($scope){
-            $scope.selectColor = function(evaluation){
-                var text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
+            $scope.selectColor = function(){
 
-
-                // des élèves et des compétences sélectionnées
-                if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
-                    text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
-
-                // des élèves et aucune compétence sélectionnée
-                } else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length === 0) {
-                    text = "Cette action va évaluer les élèves sélectionnés pour l'ensemble des compétences.\n\n Souhaitez vous continuer ?\n";
-
-                // aucune élève et des compétences sélectionnées
-                } else  if($scope.selectedEleves.list.length === 0 && $scope.selectedCompetences.length === 0) {
-                    text = "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
-                }
-                if(confirm(text) === true){
+              //  if(confirm(text) === true){
+                    let evaluation = $scope.eval;
                     var _datas = [];
                     var _range = $scope.selectedEleves.list.length > 0 ? $scope.selectedEleves.list
                         : $scope.devoir.eleves.all;
@@ -69,7 +57,36 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                     $scope.selectedEleves.list = [];
                     $scope.selectedEleves.all = false;
                     $scope.devoir.saveCompetencesNotes(_datas);
+                    $scope.annuler();
+                //}
+            };
+            $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
+            $scope.eval = "";
+            $scope.opened = {
+                lightbox : false
+            };
+            $scope.confirme = function(evaluation){
+                // des élèves et des compétences sélectionnées
+                if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
+                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
+
+                    // des élèves et aucune compétence sélectionnée
+                } else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length === 0) {
+                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour l'ensemble des compétences.\n\n Souhaitez vous continuer ?\n";
+
+                    // aucune élève et des compétences sélectionnées
+                } else  if($scope.selectedEleves.list.length === 0 && $scope.selectedCompetences.length === 0) {
+                    $scope.text = "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.\n\n Souhaitez vous continuer ?\n";
                 }
+                $scope.eval = evaluation;
+                $scope.opened.lightbox = true;
+
+            };
+            $scope.annuler = function () {
+                $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
+                $scope.eval = "";
+                $scope.opened.lightbox = false;
+
             };
         }]
     };

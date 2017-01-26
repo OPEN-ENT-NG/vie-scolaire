@@ -109,6 +109,7 @@
   "evaluations.suivi.eleve.vue.graph":"Vue graph",
   "evaluations.back.suivi.eleve.title":"Revenir au suivi élève",
   "evaluation.suivi.eleve.empty": "Aucun suivi de compétences élève généré. Vous pouvez en générer un en sélectionnant les critères.",
+  "evaluation.suivi.classe.empty": "Aucun suivi de compétences classe généré. Vous pouvez en générer un en sélectionnant les critères.",
   "evaluations.suivi.classe.title":"Suivi classe",
   "evaluations.mes.evaluations.non.terminees":"Mes évaluations non terminées",
   "evaluations.test.grade.on":"Note sur",

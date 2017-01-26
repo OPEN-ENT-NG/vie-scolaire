@@ -17,10 +17,10 @@
   ~
   -->
 <div class="detail table-view">
-    <div class="ten cell info " ng-show="EvaluationExiste(detailCompetence.competencesEvaluations)">
+    <div class="ten cell info " ng-if="EvaluationExiste(detailCompetence.competencesEvaluations)">
         <i18n>evaluation.not.exist</i18n>
     </div>
-    <table class="ten responsive-table">
+    <table class="ten responsive-table" ng-if="!EvaluationExiste(detailCompetence.competencesEvaluations)">
         <thead>
         <tr>
             <th ng-click="sortType = 'evaluation_libelle'; sortReverse =!sortReverse">

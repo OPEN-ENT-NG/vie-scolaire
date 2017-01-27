@@ -16,8 +16,10 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-
-<div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.classe !== '' && informations.classe !== undefined">
+<article class="ten card twelve-mobile centered" ng-if="informations.classe === undefined || informations.classe === '' || search.classe === ''">
+    <i18n>evaluation.suivi.classe.empty</i18n>
+</article>
+<div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.classe !== '' && informations.classe !== undefined && search.classe !== ''">
     <div class="twelve suivi-eleve-ctl" sticky offset="64">
         <h2 class="align-center"><i class="previous left" ng-click="incrementClasse(-1)"></i>
             [[informations.classe.name]]

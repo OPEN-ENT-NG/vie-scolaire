@@ -6,6 +6,7 @@ import {ng, template, model} from 'entcore/entcore';
 import {SuiviCompetence, Devoir, CompetenceNote} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
+
 declare let _:any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
@@ -174,6 +175,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.selectSuivi = function () {
             if ($scope.search.classe.eleves.findWhere({id : $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
+                delete $scope.suiviCompetence;
                 return;
             }
             $scope.informations.eleve = $scope.search.eleve;
@@ -219,7 +221,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if( $scope.displayFromClass !== true) {
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
-                $scope.suiviCompetence = {};
+                delete $scope.suiviCompetence;
 
             } else {
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
@@ -330,7 +332,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         var searchIndex = function (array, obj) {
             return _.indexOf(array, obj);
         };
-
+        $scope.EvaluationExiste = function (list){
+          let  ListOfOwner = _.map(list,function(item){
+              if (item.owner === $scope.me.userId)
+                  return item;
+          });
+          if(ListOfOwner.length === 0 ){
+                return true;
+          }else {return false;}
+        };
         /**
          * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index
          * @param num pas d'incrémentation. Peut être positif ou négatif

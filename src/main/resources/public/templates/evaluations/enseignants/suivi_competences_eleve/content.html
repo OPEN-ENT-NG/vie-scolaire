@@ -17,12 +17,16 @@
   ~
   -->
 
-<div class="titre-widget RechercheSuiviEleve">
+<div class="titre-widget ten centered">
     <h2><i18n>Recherche Eleve</i18n></h2>
     <autocomplete options="eleves" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
 </div>
 
-<div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.eleve !== '' && informations.eleve !== undefined">
+<article class="ten card twelve-mobile centered" ng-if="suiviCompetence === undefined">
+    <i18n>evaluation.suivi.eleve.empty</i18n>
+</article>
+<div class="content-suivi-eleve twelve-mobile ten card"
+     ng-if="informations.eleve !== '' && informations.eleve !== undefined && suiviCompetence !== undefined">
 
     <div class="twelve suivi-eleve-ctl" sticky offset="64">
         <h2 class="align-center">
@@ -62,7 +66,7 @@
             <lightbox show="opened.lightboxEvalLibre" on-close="opened.lightboxEvalLibre=false">
                 <container template="lightboxContainerEvalLibre"></container>
             </lightbox>
-            <h2 class="ellipsis ten">
+            <h2 class="ellipsis ten align-center">
                 [[detailCompetence.nom]]
             </h2>
 

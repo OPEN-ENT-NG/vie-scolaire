@@ -227,6 +227,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             idEleve : '*',
             name : ''
         };
+
         $scope.informations = {};
         $scope.messages = {
             successEvalLibre : false
@@ -241,8 +242,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             studentInfo : true,
             devoirInfo : true,
             lightbox : false,
-            lightboxEvalLibre : false
+            lightboxEvalLibre : false,
+            accOp : 0,
+            evaluation : {
+                suppretion : false,
+            }
         };
+        $scope.text = "";
         $scope.selected = {
             devoirs : {
                 list : [],
@@ -285,9 +291,27 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
         }
+        $scope.afficherRecap = function () {
+            if($scope.opened.accOp === 1 ){
+                $scope.opened.accOp = 0;
+            }else {
+                $scope.opened.accOp = 1;
+            }
 
+        };
 
+        $scope.confirmSuppretion = function (SelectedDevoirs) {
+            if ($scope.selected.devoirs.list.length > 0) {
+                $scope.text = "Les evaluations selectionnées seront supprimées.";
 
+                $scope.opened.evaluation.suppretion = true;
+            }
+        };
+        $scope.annulerSuppretion = function () {
+
+            $scope.text = "";
+            $scope.opened.evaluation.suppretion = false;
+        };
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
@@ -710,26 +734,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     utils.safeApply($scope);
                 });
             }
-                $scope.devoir.id_type = getDefaultTypDevoir();
-                if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                    $scope.devoir.id_classe = $scope.search.classe.id;
-                    $scope.devoir.id_matiere = $scope.search.matiere.id;
-                    $scope.setClasseMatieres();
-                    $scope.selectedMatiere();
-                } else {
-                    // selection de la premiere classe par defaut
-                    $scope.devoir.id_classe = $scope.classes.all[0].id;
-                    // selection de la premiere matière associée à la classe
-                    $scope.setClasseMatieres();
-                }
+            $scope.devoir.id_type = getDefaultTypDevoir();
+            if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                $scope.devoir.id_classe = $scope.search.classe.id;
+                $scope.devoir.id_matiere = $scope.search.matiere.id;
+                $scope.setClasseMatieres();
+                $scope.selectedMatiere();
+            } else {
+                // selection de la premiere classe par defaut
+                $scope.devoir.id_classe = $scope.classes.all[0].id;
+                // selection de la premiere matière associée à la classe
+                $scope.setClasseMatieres();
+            }
 
-                // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_classe);
+            // Chargement des enseignements et compétences en fonction de la classe
+            evaluations.enseignements.sync($scope.devoir.id_classe);
 
-                if ($location.path() === "/devoirs/list") {
-                    $scope.devoir.id_type = $scope.search.type.id;
-                    $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
-                }
+            if ($location.path() === "/devoirs/list") {
+                $scope.devoir.id_type = $scope.search.type.id;
+                $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
+            }
 
             //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
@@ -811,6 +835,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 );
             }
+            $scope.annulerSuppretion ();
         };
 
         /**
@@ -1352,6 +1377,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
             $scope.goTo("/competences/eleve");
         };
+
         $scope.pOFilterEval = {
             limitTo : 22
         };

@@ -96,5 +96,10 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.goTo(path,idOfpath);
         };
 
+        $scope.openCreateEval = () =>{
+            let path = '/devoir/create';
+            $scope.goTo(path);
+        }
+
     }
 ]);

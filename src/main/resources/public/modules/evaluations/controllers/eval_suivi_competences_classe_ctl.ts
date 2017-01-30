@@ -29,20 +29,39 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             4 : true
         };
 
-       $scope.idCycle = 1;
-
+        /**
+         *
+         * Affiche le domaine suivant (de niveau 0) et ses
+         * sous domaines.
+         *
+         */
+        $scope.afficherDomaineSuivant = function () {
+            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+                var domaine = $scope.suiviCompetence.domaines.all[i];
+                if( i> 0) {
+                    var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
+                    if(domainePrec.visible && !domaine.visible) {
+                        domaine.visible = true;
+                        domaine.setVisibleSousDomaines(true);
+                        return;
+                    }
+                }
+            }
+        };
 
         /**
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function (state) {
             template.close('suivi-competence-content');
+            utils.safeApply($scope);
             template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_classe/content_vue_suivi_classe');
+            utils.safeApply($scope);
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== "") {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.sync($scope.idCycle);
+                    $scope.suiviCompetence.domaines.sync();
                     if ($scope.opened.detailCompetenceSuivi) {
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         if (!$scope.detailCompetence) $scope.backToSuivi();

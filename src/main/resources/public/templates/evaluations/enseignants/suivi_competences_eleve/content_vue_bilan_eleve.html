@@ -17,59 +17,60 @@
   ~
   -->
 
-<script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="pOFilterEval.limitTo = pOFilterEval.limitTo + 2">
+<script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="afficherDomaineSuivant();">
 
-    <div>
-        <h4 class="margin-top-1em twelve cell" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>
-        <h3 class="margin-top-1em" ng-if="domaine.niveau > 1">[[domaine.codification]] - [[domaine.libelle]]</h3>
-    </div>
+    <div ng-if="domaine.visible">
+        <div>
+            <h4 class="margin-top-1em twelve cell" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>
+            <h3 class="margin-top-1em" ng-if="domaine.niveau > 1">[[domaine.codification]] - [[domaine.libelle]]</h3>
+        </div>
 
-    <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
-        <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all">
-            <div tooltip="[[competence.nom]]" class="ten cell inline-block ellipsis competence">
-                [[competence.nom]]
-            </div>
-            <div class="two cell inline-block padding-left align-top">
-                <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1" tabindex="0">
-                    <span ng-if="evaluation.evaluation === -1">
+        <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
+            <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all">
+                <div tooltip="[[competence.nom]]" class="ten cell inline-block ellipsis competence">
+                    [[competence.nom]]
+                </div>
+                <div class="two cell inline-block padding-left align-top">
+                    <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1" tabindex="0">
+                        <span ng-if="evaluation.evaluation === -1">
+                            NE
+                        </span>
+                        <span ng-if="evaluation.evaluation > 0">
+                            [[evaluation.evaluation + 1]]
+                        </span>
+                    </span>
+                    <span ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
                         NE
                     </span>
-                    <span ng-if="evaluation.evaluation > 0">
-                        [[evaluation.evaluation + 1]]
+                </div>
+            </div>
+
+        </div>
+
+        <div ng-repeat="domaine in domaine.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = $parent.$parent.domaine">
+        </div>
+
+
+        <!-- On affiche la moyenne que pour les domaines evalues (sur le niveau le plus haut s'il y a des sous-domaines) -->
+        <div ng-if="domaine.evaluated && (parent.evaluated == null || parent.evaluated === false)" class="suivi-eleve-item">
+            <div class="ten cell inline-block ellipsis moyenne">
+                <b><i18n>evaluation.domaine.average</i18n> [[domaine.codification]]</b>
+            </div>
+            <div class="two cell inline-block padding-left ">
+                    <span ng-if="domaine.moyenne === -1">
+                        <b><i18n>evaluations.competence.unevaluated.abreviation</i18n></b>
                     </span>
-                </span>
-                <span ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
-                    NE
-                </span>
+                    <span ng-if="domaine.moyenne > -1">
+                        <b>[[domaine.moyenne | number:2]]</b>
+                    </span>
             </div>
         </div>
-
     </div>
-
-    <div ng-repeat="domaine in domaine.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = $parent.$parent.domaine">
-    </div>
-
-
-    <!-- On affiche la moyenne que pour les domaines evalues (sur le niveau le plus haut s'il y a des sous-domaines) -->
-    <div ng-if="domaine.evaluated && (parent.evaluated == null || parent.evaluated === false)" class="suivi-eleve-item">
-        <div class="ten cell inline-block ellipsis moyenne">
-            <b><i18n>evaluation.domaine.average</i18n> [[domaine.codification]]</b>
-        </div>
-        <div class="two cell inline-block padding-left ">
-                <span ng-if="domaine.moyenne === -1">
-                    <b><i18n>evaluations.competence.unevaluated.abreviation</i18n></b>
-                </span>
-                <span ng-if="domaine.moyenne > -1">
-                    <b>[[domaine.moyenne | number:2]]</b>
-                </span>
-        </div>
-    </div>
-
 
 </script>
 
 <div class="content-bilan-eleve">
     <h2><i18n>evaluations.bilan.eleve.title</i18n></h2>
-    <div ng-repeat="domaine in suiviCompetence.domaines.all | limitTo:pOFilterEval.limitTo" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
+    <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = tree_item_renderer.html">
     </div>
 </div>

@@ -817,6 +817,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *  Sauvegarde du devoir à la suite du formulaire de création
          */
         $scope.saveNewDevoir = function () {
+            $scope.devoir.date = $scope.getDateFormated($scope.devoir.dateDevoir);
+            $scope.devoir.date_publication = $scope.getDateFormated($scope.devoir.datePublication);
 
             // Pour la sauvegarde on ne recupere que les id des competences
             if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
@@ -828,9 +830,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
             else{
-                $scope.devoir.date = $scope.getDateFormated($scope.devoir.dateDevoir);
-                $scope.devoir.date_publication = $scope.getDateFormated($scope.devoir.datePublication);
-                $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
+                 $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
                 if (evaluations.competencesDevoir !== undefined) {
                     $scope.devoir.competencesAdd= [];
                     $scope.devoir.competencesRem = [];

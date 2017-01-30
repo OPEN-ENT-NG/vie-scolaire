@@ -355,6 +355,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
         };
         $scope.textPeriode = "Hors periode scolaire";
+
+        /**
+         * Return la periode scolaire courante
+         * @returns {any}
+         */
         $scope.periodeParDefault = function () {
             let PeriodeParD  = new Date().toISOString();
             let PeriodeSet = false ;

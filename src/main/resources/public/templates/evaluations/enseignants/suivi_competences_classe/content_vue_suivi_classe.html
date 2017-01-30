@@ -21,10 +21,10 @@
 
     <div ng-if="domaine.visible">
         <h4 ng-class="{'openedDom' : domaine.OpenDom, 'Domaine' : domaine.competences.all.length > 0 }" class="margin-top-1em" ng-if="domaine.niveau === 1" ng-click="domaine.OpenDom = !domaine.OpenDom" ng-init="domaine.OpenDom = false">[[domaine.codification]] - [[domaine.libelle]]</h4>
-        <div ng-class="{'opened' : domaine.OpenDom}" ng-if="domaine.competences.all.length > 0" class="twelve cell" style='height: auto;'>
+        <div ng-class="{'openedSectionDom' : domaine.OpenDom}" ng-if="domaine.competences.all.length > 0" class="twelve cell" style='height: auto;'>
 
             <h3 ng-class="{'openedDom' : domaine.OpenSousDom}"  class="margin-top-1em Domaine" ng-if="domaine.niveau > 1  && domaine.competences.all.length > 0" ng-style="{'font-size': 'calc(150% - (15% * [[domaine.niveau]]))'}"  ng-click="domaine.OpenSousDom = !domaine.OpenSousDom" ng-init="domaine.OpenSousDom = false">[[domaine.codification]] - [[domaine.libelle]]</h3>
-            <div ng-class="{'margin-top-1em' : domaine.competences.length > 0, 'opened' : domaine.OpenSousDom}" style='height: auto;'>
+            <div ng-class="{'margin-top-1em' : domaine.competences.length > 0, 'openedSectionDom' : domaine.OpenSousDom}" style='height: auto;'>
 
                 <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
                     <div class="suivi-eleve-item" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all ">

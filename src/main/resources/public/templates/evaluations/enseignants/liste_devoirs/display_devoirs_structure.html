@@ -116,16 +116,16 @@
 <lightbox  show="opened.evaluation.suppretion" on-close="opened.evaluation.suppretion=false">
     <p>[[text]]</p>
     <div ng-if="(selected.devoirs.list.length < 15)">
-        <p>Récapitulatif:</p>
+        <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
         <ul>
             <li ng-repeat="devoir in selected.devoirs.list">[[devoir.name]]</li>
         </ul>
     </div>
-    <p>Souhaitez vous continuer ?</p>
+    <p><i18>evaluations.devoir.confirmation.question</i18></p>
     <button class="marginFive" ng-click="deleteDevoir()">
-        <i18n>confirmer</i18n>
+        <i18n>evaluations.devoir.confirmation</i18n>
     </button>
     <button class="marginFive" ng-click="annulerSuppretion()">
-        <i18n>annuler</i18n>
+        <i18n>evaluations.devoir.annuler</i18n>
     </button>
 </lightbox>

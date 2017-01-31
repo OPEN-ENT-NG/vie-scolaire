@@ -29,8 +29,8 @@
     </section>
     <section>
         <label class="select">
-            <select ng-model="search.periode" ng-change="selectSuivi(route.current.$$route.originalPath)" ng-options="periode.libelle for periode in periodes.all">
-                <option class="header-opt" value="">[[translate('viescolaire.utils.periode')]]</option>
+            <select ng-model="search.periode" ng-change="selectSuivi(route.current.$$route.originalPath)" ng-options="periode.libelle for periode in periodes.all" >
+                <option class="header-opt" value="" ng-if = "search.periode === textPeriode">[[translate('viescolaire.utils.periode')]]</option>
             </select>
         </label>
     </section>

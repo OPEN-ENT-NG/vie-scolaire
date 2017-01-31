@@ -354,5 +354,29 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 utils.safeApply($scope);
             }
         };
+        $scope.textPeriode = "Hors periode scolaire";
+
+        /**
+         * Return la periode scolaire courante
+         * @returns {any}
+         */
+        $scope.periodeParDefault = function () {
+            let PeriodeParD  = new Date().toISOString();
+            let PeriodeSet = false ;
+           //let  PeriodeParD = new Date().getFullYear() +"-"+ new Date().getMonth() +1 +"-" +new Date().getDate();
+
+           for(let i=0; i<$scope.periodes.all.length ; i++){
+                if(PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn  ){
+                    PeriodeSet = true;
+                    return $scope.periodes.all[i];
+                }
+           }
+           if( PeriodeSet === false){
+               return $scope.textPeriode;
+           }
+        };
+        $scope.search.periode = $scope.periodeParDefault();
+
+
     }
 ]);

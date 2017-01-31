@@ -19,7 +19,7 @@
                 </header>
             </div>
             <div class="twelve cell ">
-                <h2><i18n>Recherche Eleve</i18n></h2>
+                <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
                 <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
             </div>
         </section>
@@ -76,51 +76,12 @@
                             chart-labels="chartOptions.classes[charts.uncomplete].names"
                             chart-options="chartOptions.options"
                             chart-colors="chartOptions.colors"
-                            chart-click="SaisieNote()">
+                            chart-click="SaisieNote">
                     </canvas>
                 </div>
             </article>
         </section>
-        <!--  <section >
-              <article class="five cell box-accueil twelve-mobile">
-                  <div class="titre-widget">
-                      <h2><i18n>Recherche Eleve</i18n></h2>
-                      <input  type="text" ng-model="search.eleveName" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">
-                  </div>
-                  <div class="content-box-accueil--table">
-                      <div class="content-box-accueil--table--header row">
-                          <div class="two cell cell-indent four-mobile">
-                              <i18n>viescolaire.utils.name</i18n>
-                          </div>
-                          <div class="one cell cell-indent three-mobile">
-                              <i18n>viescolaire.utils.class</i18n>
-                          </div>
-                      </div>
-                      <div class="content-box-accueil--table--content">
-                          <div ng-repeat="eleve in eleves | filter:searchStudent" class="row">
-                              <a ng-href="#/competences/eleve">
-                                  <div class="five cell">
-                                      [[eleve.lastName]] [[eleve.firstName]]
-                                  </div>
-                                  <div class="three cell">
-                                      [[classe.name]]
-                                  </div>
-                              </a>
-                          </div>
-                      </div>
-                  </div>
-              </article>
-          </section> -->
-        <!--section-- >
-            <article class="five cell box-accueil twelve-mobile">
-                <div class="titre-widget">
-                    <h2><i18n>Recherche Eleve</i18n></h2>
-                    <div class="row reduce-block-six" ng-if="showSelectedElement">Vous avez sélectionné "[[search.eleveName]]"</div>
-                    <autocomplete options="ElevesName" ng-change="showSelectedElement=true" ng-model="search.eleveName"></autocomplete>
-                </div>
 
-            </article>
-        </section-->
 
     </div>
 

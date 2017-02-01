@@ -107,7 +107,6 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
-
     /**
      * Créer un devoir avec les paramètres passés en post.
      * @param request
@@ -115,12 +114,11 @@ public class DevoirController extends ControllerHelper {
     @Post("/devoir")
     @ApiDoc("Créer un devoir")
     @SecuredAction("viescolaire.evaluations.createEvaluation")
-    public void create(final HttpServerRequest request){
-        final Integer[] devoirId = {0};
+    public void create(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
-                if(user != null){
+                if (user != null) {
                     RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
                         @Override
                         public void handle(final JsonObject resource) {
@@ -129,78 +127,34 @@ public class DevoirController extends ControllerHelper {
                             resource.removeField("competencesRem");
                             resource.removeField("competenceEvaluee");
 
-                            // création du devoir
-                            devoirsService.createDevoir(resource, user,
-                                    new Handler<Either<String, JsonObject>>() {
+                            RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX +
+                                    Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {
+                                @Override
+                                public void handle(final JsonObject devoir) {
+
+                                     devoirsService.createDevoir(devoir, user, new Handler<Either<String, JsonObject>>() {
                                         @Override
-                                        public void handle(final Either<String, JsonObject> event) {
-                                            if (event.isRight() && event.right().getValue().containsField("id")) {
-                                                devoirId[0] = event.right().getValue().getInteger("id");
-                                                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-                                                    @Override
-                                                    public void handle(final JsonObject createdDevoir) {
-                                                        createdDevoir.putNumber("id", devoirId[0]);
-                                                        JsonArray competences = createdDevoir.getArray("competences");
-                                                        final JsonObject oCompetenceNote = createdDevoir.getObject("competenceEvaluee");
-
-                                                        if(competences.size() != 0) {
-
-                                                            // ajout des compétences sur le devoir s'il y en a
-                                                            defaultCompetencesService.setDevoirCompetences(createdDevoir.getLong("id"), competences, new Handler<Either<String, JsonObject>>() {
-                                                                public void handle(Either<String, JsonObject> event) {
-                                                                    if (event.isRight()) {
-
-                                                                        // ajoute de l'évaluation de la compéténce (cas évaluation libre)
-                                                                        if(oCompetenceNote != null) {
-                                                                            oCompetenceNote.putNumber("id_devoir", createdDevoir.getInteger("id"));
-                                                                            competencesNotesService.createCompetenceNote(oCompetenceNote, user, new Handler<Either<String, JsonObject>>() {
-                                                                                public void handle(Either<String, JsonObject> event) {
-                                                                                    if (event.isRight()) {
-                                                                                        JsonObject o = new JsonObject();
-                                                                                        o.putNumber("id", devoirId[0]);
-                                                                                        Renders.renderJson(request, o);
-                                                                                    } else {
-                                                                                        leftToResponse(request, event.left());
-                                                                                    }
-                                                                                }
-                                                                            });
-                                                                        } else {
-                                                                            JsonObject o = new JsonObject();
-                                                                            o.putNumber("id", devoirId[0]);
-                                                                            Renders.renderJson(request, o);
-                                                                        }
-
-                                                                    } else {
-                                                                        leftToResponse(request, event.left());
-                                                                    }
-                                                                }
-                                                            });
-                                                        }else{
-                                                            if(event.isRight()){
-                                                                JsonObject o = new JsonObject();
-                                                                o.putNumber("id", devoirId[0]);
-                                                                Renders.renderJson(request, o);
-                                                            }
-                                                            else {
-                                                                leftToResponse(request, event.left());
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            }else{
-                                                leftToResponse(request,event.left());
+                                        public void handle(Either<String, JsonObject> event) {
+                                            if (event.isRight()) {
+                                                renderJson(request, event.right().getValue());
+                                            } else {
+                                                badRequest(request);
                                             }
                                         }
                                     });
+
+                                }
+                            });
                         }
                     });
-                }else {
+                } else {
                     log.debug("User not found in session.");
                     Renders.unauthorized(request);
                 }
             }
         });
     }
+
 
     /**
      * Liste des devoirs publiés pour un établissement et une période donnée.

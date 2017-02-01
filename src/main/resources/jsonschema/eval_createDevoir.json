@@ -9,7 +9,7 @@
       "type": "string"
     },
     "id_classe": {
-      "type": "string"
+      "type": ["string","null"]
     },
     "id_sousmatiere": {
       "type": ["integer","null"]

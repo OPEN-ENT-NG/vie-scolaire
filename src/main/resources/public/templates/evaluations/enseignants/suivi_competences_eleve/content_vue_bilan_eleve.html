@@ -17,20 +17,21 @@
   ~
   -->
 
-<script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="afficherDomaineSuivant();">
+<script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="afficherDomaineSuivant();" >
 
     <div ng-if="domaine.visible">
-        <div>
-            <h4 class="margin-top-1em twelve cell" ng-if="domaine.niveau === 1">[[domaine.codification]] - [[domaine.libelle]]</h4>
-            <h3 class="margin-top-1em" ng-if="domaine.niveau > 1">[[domaine.codification]] - [[domaine.libelle]]</h3>
-        </div>
 
-        <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
-            <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all">
-                <div tooltip="[[competence.nom]]" class="ten cell inline-block ellipsis competence">
-                    [[competence.nom]]
-                </div>
-                <div class="two cell inline-block padding-left align-top">
+        <h4 ng-class="{'openedDom' : domaine.OpenDom, 'Domaine' : domaine.competences.all.length > 0 }" class="margin-top-1em twelve cell " ng-if="domaine.niveau === 1" ng-click="domaine.OpenDom = !domaine.OpenDom" ng-init="domaine.OpenDom = false">[[domaine.codification]] - [[domaine.libelle]]</h4>
+        <div ng-class="{'openedSectionDom' : domaine.OpenDom}" ng-if="domaine.competences.all.length > 0"  style='height: auto;'>
+
+            <h3 ng-class="{'openedDom' : domaine.OpenSousDom}" class="margin-top-1em Domaine" ng-if="domaine.niveau > 1 && domaine.competences.all.length > 0" ng-click="domaine.OpenSousDom = !domaine.OpenSousDom" ng-init="domaine.OpenSousDom = false">[[domaine.codification]] - [[domaine.libelle]]</h3>
+            <div ng-class="{'margin-top-1em' : domaine.competences.length > 0, 'openedSectionDom' : domaine.OpenSousDom}" style='height: auto;'>
+
+                <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all">
+                    <div tooltip="[[competence.nom]]" class="ten cell inline-block ellipsis competence">
+                        [[competence.nom]]
+                    </div>
+                    <div class="two cell inline-block padding-left align-top">
                     <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1" tabindex="0">
                         <span ng-if="evaluation.evaluation === -1">
                             NE
@@ -39,14 +40,14 @@
                             [[evaluation.evaluation + 1]]
                         </span>
                     </span>
-                    <span ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
+                        <span ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
                         NE
                     </span>
+                    </div>
                 </div>
+
             </div>
-
         </div>
-
         <div ng-repeat="domaine in domaine.domaines.all" ng-include="'tree_item_renderer.html'" ng-init="parent = $parent.$parent.domaine">
         </div>
 
@@ -60,7 +61,7 @@
                     <span ng-if="domaine.moyenne === -1">
                         <b><i18n>evaluations.competence.unevaluated.abreviation</i18n></b>
                     </span>
-                    <span ng-if="domaine.moyenne > -1">
+                <span ng-if="domaine.moyenne > -1">
                         <b>[[domaine.moyenne | number:2]]</b>
                     </span>
             </div>

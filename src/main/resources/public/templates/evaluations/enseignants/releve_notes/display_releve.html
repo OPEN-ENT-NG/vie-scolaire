@@ -72,7 +72,7 @@
                     <table id="relevetable" class="list-view tableReleve tableRelevePadding marginTopZero" c-naviga-table>
                         <thead>
                         <tr >
-                            <th class="col1">Eleve</th>
+                            <th class="col1"><i18n>student</i18n></th>
                             <th ng-class="{'devoir-with-comp' : devoir.nbcompetences > 0, 'ellipsis' : true }"
                                 ng-repeat="devoir in releveNote.devoirs.all" ng-click="getDevoirInfo(devoir)"
                                 style="display: inline-block;min-width: 80px; width: calc((83.33333%-200px)/([[releveNote.devoirs.all.length +1]]));"
@@ -81,7 +81,7 @@
                                 [[devoir.name]]
                             </th>
                             <th style="display: inline-block; width: calc((83.33333%-200px)/([[releveNote.devoirs.all.length +1]]));"
-                                class="colMoyenne">Moyenne</th>
+                                class="colMoyenne"><i18n>average</i18n></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -103,7 +103,7 @@
 
                         </tr>
                         <tr class="moyenneClasse">
-                            <td class="col1 text-overflow">Moyenne de la classe</td>
+                            <td class="col1 text-overflow"><i18n>viescolaire.classe.moyenne</i18n></td>
                             <td class="colDevoir" ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
                                 <div class="input-note">
                                     [[devoir.statistiques.moyenne]]
@@ -112,7 +112,7 @@
                             <td class="colMoyenne" data-label="Moyenne"></td>
                         </tr>
                         <tr class="minClasse">
-                            <td class="col1 text-overflow">Note min</td>
+                            <td class="col1 text-overflow"><i18n>viescolaire.classe.note.min</i18n></td>
                             <td class="colDevoir"
                                 ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
                                 <div >
@@ -122,7 +122,7 @@
                             <td class="colMoyenne" data-label="Moyenne"></td>
                         </tr>
                         <tr class="maxClasse">
-                            <td class="col1 text-overflow">Note max</td>
+                            <td class="col1 text-overflow"><i18n>viescolaire.classe.note.max</i18n></td>
                             <td class="colDevoir"  ng-repeat="devoir in releveNote.devoirs.all"
                                 data-label="[[devoir.name]]">
                                 <div class="input-note">

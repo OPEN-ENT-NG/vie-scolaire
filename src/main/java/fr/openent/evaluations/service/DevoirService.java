@@ -37,7 +37,7 @@ public interface DevoirService extends CrudService {
      * @param user utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    public void createDevoir(JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler);
+    public void createDevoir(final JsonObject devoir, UserInfos user,final Handler<Either<String, JsonObject>> handler);
 
     /**
      * Met à jour un devoir

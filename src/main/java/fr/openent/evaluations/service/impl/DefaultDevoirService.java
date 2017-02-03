@@ -22,22 +22,18 @@ package fr.openent.evaluations.service.impl;
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.service.DevoirService;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
-import static org.entcore.common.sql.Sql.parseId;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
-import static org.entcore.common.sql.SqlResult.validRowsResultHandler;
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -48,9 +44,145 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         super(schema, table);
     }
 
+    public StringBuilder formatDate (String date) {
+        StringBuilder dateFormated = new StringBuilder();
+        dateFormated.append(date.split("/")[2]).append('-');
+        dateFormated.append(date.split("/")[1]).append('-');
+        dateFormated.append(date.split("/")[0]);
+        return dateFormated;
+    }
+
     @Override
-    public void createDevoir(JsonObject devoir, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-        super.create(devoir, user, handler);
+    public void createDevoir(final JsonObject devoir, final UserInfos user, final Handler<Either<String, JsonObject>> handler) {
+        // Requête de recupération de l'id du devoir à créer
+        final String queryNewDevoirId =
+                "SELECT nextval('" + Viescolaire.EVAL_SCHEMA + ".devoirs_id_seq') as id";
+
+        sql.raw(queryNewDevoirId, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
+            @Override
+            public void handle(Either<String, JsonObject> event) {
+
+                if (event.isRight()) {
+                    //Récupération de l'id du devoir à créer
+                    final Long devoirId = event.right().getValue().getLong("id");
+                    JsonArray statements = new JsonArray();
+                    JsonArray competences = devoir.getArray("competences");
+                    final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
+
+                    StringBuilder queryParams = new StringBuilder();
+                    JsonArray params = new JsonArray();
+
+
+                    //Ajout de la creation du devoir dans la pile de transaction
+                    StringBuilder valueParams = new StringBuilder();
+                    queryParams.append("( id ");
+                    valueParams.append("( ?");
+                    params.addNumber(devoirId);
+                    for (String attr : devoir.getFieldNames()) {
+                        if(attr.contains("date")){
+                            queryParams.append(" , ").append(attr);
+                            valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
+                            params.add(formatDate(devoir.getString(attr)).toString());
+                        }
+                        else{
+                            if(!(attr.equals("competencesAdd")
+                                    ||  attr.equals("competencesRem")
+                                    ||  attr.equals("competenceEvaluee")
+                                    ||  attr.equals("competences"))) {
+                                queryParams.append(" , ").append(attr);
+                                valueParams.append(" , ? ");
+                                params.add(devoir.getValue(attr));
+                            }
+                        }
+                    }
+                    queryParams.append(" )");
+                    valueParams.append(" ) ");
+                    queryParams.append(" VALUES ").append(valueParams.toString());
+                    StringBuilder query = new StringBuilder()
+                            .append("INSERT INTO " + resourceTable + queryParams.toString());
+                    statements.add(new JsonObject()
+                            .putString("statement", query.toString())
+                            .putArray("values", params)
+                            .putString("action", "prepared"));
+
+
+                    //Ajout de chaque compétence dans la pile de transaction
+                    if (devoir.containsField("competences") &&
+                            devoir.getArray("competences").size() > 0) {
+
+                        JsonArray paramsComp = new JsonArray();
+                        StringBuilder queryComp = new StringBuilder()
+                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
+                                        +".competences_devoirs (id_devoir, id_competence) VALUES ");
+                        for(int i = 0; i < competences.size(); i++){
+                            queryComp.append("(?, ?)");
+                            paramsComp.addNumber(devoirId);
+                            paramsComp.addNumber((Number) competences.get(i));
+                            if(i != competences.size()-1){
+                                queryComp.append(",");
+                            }else{
+                                queryComp.append(";");
+                            }
+                        }
+                        statements.add(new JsonObject()
+                                .putString("statement", queryComp.toString())
+                                .putArray("values", paramsComp)
+                                .putString("action", "prepared"));
+                    }
+
+                    // ajoute de l'évaluation de la compéténce (cas évaluation libre)
+                    if(oCompetenceNote != null) {
+                        JsonArray paramsCompLibre = new JsonArray();
+                        StringBuilder valueParamsLibre = new StringBuilder();
+                        oCompetenceNote.putString("owner", user.getUserId());
+                        StringBuilder queryCompLibre = new StringBuilder()
+                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes ");
+                        queryCompLibre.append("( id_devoir ");
+                        valueParamsLibre.append("( ?");
+                        paramsCompLibre.addNumber(devoirId);
+                        for (String attr : oCompetenceNote.getFieldNames()) {
+                            if(attr.contains("date")){
+                                queryCompLibre.append(" , ").append(attr);
+                                valueParamsLibre.append(" , to_timestamp(?,'YYYY-MM-DD') ");
+                                paramsCompLibre.add(formatDate(oCompetenceNote.getString(attr)).toString());
+                            }
+                            else{
+                                queryCompLibre.append(" , ").append(attr);
+                                valueParamsLibre.append(" , ? ");
+                                paramsCompLibre.add(oCompetenceNote.getValue(attr));
+                            }
+                        }
+                        queryCompLibre.append(" )");
+                        valueParamsLibre.append(" ) ");
+                        queryCompLibre.append(" VALUES ").append(valueParamsLibre.toString());
+                        statements.add(new JsonObject()
+                                .putString("statement", queryCompLibre.toString())
+                                .putArray("values", paramsCompLibre)
+                                .putString("action", "prepared"));
+
+                    }
+                    //Exécution de la transaction avec roleBackw
+
+                    Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
+                        @Override
+                        public void handle(Message<JsonObject> event) {
+                            JsonObject result = event.body();
+                            if (result.containsField("status") && result.getString("status").equals("ok")) {
+                                handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
+                            }
+                            else {
+                                handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
+                }
+            }
+        }));
+
+
+
     }
 
     @Override
@@ -94,9 +226,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 }
             }
             statements.add(new JsonObject()
-            .putString("statement", query.toString())
-            .putArray("values", params)
-            .putString("action", "prepared"));
+                    .putString("statement", query.toString())
+                    .putArray("values", params)
+                    .putString("action", "prepared"));
         }
 
         StringBuilder queryParams = new StringBuilder();
@@ -108,21 +240,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         for (String attr : devoir.getFieldNames()) {
             if(attr.contains("date")){
                 queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
-                try {
-                    java.util.Calendar cal = java.util.Calendar.getInstance();
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                    String date_publication = devoir.getString(attr);
-                    Date parsedDate = formatter.parse(date_publication);
-                    StringBuilder dateFormated = new StringBuilder();
-                    dateFormated.append(date_publication.split("/")[2]).append('-');
-                    dateFormated.append(date_publication.split("/")[1]).append('-');
-                    dateFormated.append(date_publication.split("/")[0]);
+                params.add(formatDate(devoir.getString(attr)).toString());
 
-                    params.add(dateFormated.toString());
-                }
-                catch(ParseException pe){
-                    System.err.println(pe);
-                }
             }
             else {
                 queryParams.append(attr).append(" = ?, ");

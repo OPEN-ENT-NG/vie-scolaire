@@ -20,44 +20,18 @@
     <div class="ten cell info " ng-show="EvaluationExiste(detailCompetence.competencesEvaluations)">
         <i18n>evaluation.not.exist</i18n>
     </div>
-    <table ng-if="!EvaluationExiste(detailCompetence.competencesEvaluations)">
-        <tr>
-            <td><i18n>evaluations.competences.proficiency</i18n></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="competence-eval rounded green" ng-if="evaluation.evaluation === 3" tooltip="[[evaluation.evaluation_libelle]] : [[evaluation.owner_name]] "></span>
-            </td>
-        </tr>
-        <tr>
-            <td><i18n>evaluations.competences.satisfying</i18n></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="competence-eval rounded yellow" ng-if="evaluation.evaluation === 2" tooltip="[[evaluation.evaluation_libelle]] : [[evaluation.owner_name]] "></span>
-            </td>
-        </tr>
-        <tr>
-            <td><i18n>evaluations.competences.fragile</i18n></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="competence-eval rounded orange" ng-if="evaluation.evaluation === 1" tooltip="[[evaluation.evaluation_libelle]] : [[evaluation.owner_name]]"></span>
-            </td>
-        </tr>
-        <tr>
-            <td><i18n>evaluations.competences.poor</i18n></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="competence-eval rounded red" ng-if="evaluation.evaluation === 0" tooltip="[[evaluation.evaluation_libelle]] : [[evaluation.owner_name]]"></span>
-            </td>
-        </tr>
-        <tr>
-            <td><i18n>evaluations.competence.unevaluated</i18n></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="competence-eval rounded grey" ng-if="evaluation.evaluation === -1" tooltip="[[evaluation.evaluation_libelle]] : [[evaluation.owner_name]]"></span>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td class="align-center" ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi">
-                <span class="reversed">
-                [[getDateFormated(evaluation.created)]]
-                </span>
-            </td>
-        </tr>
-    </table>
+    <div ng-if="!EvaluationExiste(detailCompetence.competencesEvaluations)">
+        <div class="six cell box-accueil twelve-mobile">
+                <canvas class="chart chart-bubble chartSuiviEleve"
+                        chart-data="chartOptionsEval.datasets.data"
+                        chart-labels="chartOptionsEval.datasets.labels"
+                        chart-options="chartOptionsEval.options"
+                        chart-colors="chartOptionsEval.colors"
+                        chart-type="line"
+                        >
+                </canvas>
+        </div>
+    </div>
 </div>
+
+

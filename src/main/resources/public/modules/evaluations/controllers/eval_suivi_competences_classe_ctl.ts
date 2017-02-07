@@ -53,10 +53,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function (state) {
-            template.close('suivi-competence-content');
-            utils.safeApply($scope);
-            template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_classe/content_vue_suivi_classe');
-            utils.safeApply($scope);
+
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== "") {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
@@ -76,6 +73,12 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     $scope.search.classe.mapEleves = mapEleves;
                     utils.safeApply($scope);
                     if($scope.displayFromEleve) delete $scope.displayFromEleve;
+
+                    template.close('suivi-competence-content');
+                    utils.safeApply($scope);
+                    template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_classe/content_vue_suivi_classe');
+                    utils.safeApply($scope);
+
                 });
             }
         };

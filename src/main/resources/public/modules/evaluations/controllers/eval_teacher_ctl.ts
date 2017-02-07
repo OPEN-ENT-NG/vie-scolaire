@@ -302,8 +302,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.confirmSuppretion = function (SelectedDevoirs) {
             if ($scope.selected.devoirs.list.length > 0) {
-                $scope.text = "Les evaluations selectionnées seront supprimées.";
-
                 $scope.opened.evaluation.suppretion = true;
             }
         };

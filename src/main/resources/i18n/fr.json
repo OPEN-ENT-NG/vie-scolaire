@@ -156,6 +156,7 @@
   "evaluations.competences.fragile.abreviation":"MF",
   "evaluations.competences.poor.abreviation":"MI",
   "evaluations.competence.unevaluated.abreviation":"NE",
+  "evalutions.competences.confirmation":"Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.",
   "evaluations.devoir.information.suppression":"Les évaluations sélectionnées seront supprimées.",
   "evaluations.devoir.confirmation.question":"Souhaitez vous continuer ?",
   "evaluations.devoir.confirmation":"confirmer",

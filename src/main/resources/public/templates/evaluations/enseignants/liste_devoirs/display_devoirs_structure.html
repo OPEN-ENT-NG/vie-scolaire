@@ -16,8 +16,10 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-
-<div class="row">
+<article class="ten card twelve-mobile centered" ng-if="evaluations.devoirs.all.length === 0">
+    <i18n>evaluation.list.empty</i18n>
+</article>
+<div class="row" ng-if="evaluations.devoirs.all.length !== 0">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
             <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view') }"

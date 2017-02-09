@@ -1387,7 +1387,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *  Initialiser le filtre de recherche pour faire disparaitre la liste
          *  des élèves
          *
-
+         */
         $scope.cleanRoot = function () {
             var elem = document.getElementsByClassName("autocomplete");
 
@@ -1396,6 +1396,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
         };
-         */
+
     }
 ]);

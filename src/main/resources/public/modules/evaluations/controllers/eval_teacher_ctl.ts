@@ -12,16 +12,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         route({
 
             accueil : function(params){
+                $scope.cleanRoot();
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
 
             },
 
             createDevoir : function(params){
+                $scope.cleanRoot();
                 $scope.createDevoir();
                 $scope.initFilter(true);
             },
 
             editDevoir : function (params) {
+                $scope.cleanRoot();
                 $scope.createDevoir();
                 var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
                 $scope.devoir.id = devoirTmp.id;
@@ -113,17 +116,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
 
             listDevoirs : function(params){
-                if(evaluations.devoirs.all.length === 0){
-                    $location.path("/releve");
-                    utils.safeApply($scope);
-                    $location.replace();
-                }
+                $scope.cleanRoot();
                 template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                 if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
                 utils.safeApply($scope);
             },
             viewNotesDevoir : function(params){
+                $scope.cleanRoot();
                 window.scrollTo(0, 0);
                 $scope.resetSelected();
                 if(evaluations.devoirs.all.length === 0){
@@ -162,6 +162,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             },
             displayReleveNotes : function(params) {
+                $scope.cleanRoot();
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
@@ -176,7 +177,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             },
             displaySuiviCompetencesEleve : function (params) {
-
+                $scope.cleanRoot();
                 if( params.idEleve != undefined && params.idClasse != undefined ){
                     //console.log(params.idEleve);
                     // console.log(params.idClasse);
@@ -194,6 +195,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             },
             displaySuiviCompetencesClasse : function () {
+                $scope.cleanRoot();
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
@@ -302,8 +304,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.confirmSuppretion = function (SelectedDevoirs) {
             if ($scope.selected.devoirs.list.length > 0) {
-                $scope.text = "Les evaluations selectionnées seront supprimées.";
-
                 $scope.opened.evaluation.suppretion = true;
             }
         };
@@ -1381,5 +1381,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.pOFilterEval = {
             limitTo : 22
         };
+
+
+        /**
+         *  Initialiser le filtre de recherche pour faire disparaitre la liste
+         *  des élèves
+         *
+
+        $scope.cleanRoot = function () {
+            var elem = document.getElementsByClassName("autocomplete");
+
+            for(let i=0; i<elem.length; i++){
+                elem[i].style.height="0px";
+            }
+
+        };
+         */
     }
 ]);

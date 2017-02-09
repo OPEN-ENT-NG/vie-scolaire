@@ -16,8 +16,10 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-
-<div class="row">
+<article class="ten card twelve-mobile centered" ng-if="evaluations.devoirs.all.length === 0">
+    <i18n>evaluation.list.empty</i18n>
+</article>
+<div class="row" ng-if="evaluations.devoirs.all.length !== 0">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
             <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view') }"
@@ -114,14 +116,14 @@
 </section>
 
 <lightbox  show="opened.evaluation.suppretion" on-close="opened.evaluation.suppretion=false">
-    <p>[[text]]</p>
+    <p><i18n>evaluations.devoir.information.suppression</i18n></p>
     <div ng-if="(selected.devoirs.list.length < 15)">
         <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
         <ul>
             <li ng-repeat="devoir in selected.devoirs.list">[[devoir.name]]</li>
         </ul>
     </div>
-    <p><i18>evaluations.devoir.confirmation.question</i18></p>
+    <p><i18n>evaluations.devoir.confirmation.question</i18n></p>
     <button class="marginFive" ng-click="deleteDevoir()">
         <i18n>evaluations.devoir.confirmation</i18n>
     </button>

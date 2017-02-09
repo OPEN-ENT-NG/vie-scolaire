@@ -43,6 +43,7 @@
   "seemore":"Voir la suite",
   "student":"Eleve",
   "average":"Moyenne",
+  "evaluation.suivieleve.filtre.competence":"Afficher les compétences non evalué",
   "viescolaire.classe.moyenne" :"Moyenne de la classe",
   "viescolaire.classe.note.min":"Note min",
   "viescolaire.classe.note.max":"Note max",

@@ -84,9 +84,8 @@
 
             <div class="nine cell twelve-mobile">
                 <label class="select four twelve-mobile">
-                    <select ng-model="evaluationLibre.id_periode">
-                        <option ng-repeat="periode in periodes.all" ng-selected="periode.id === evaluationLibre.id_periode" value="[[periode.id]]">
-                            [[periode.libelle]]
+                    <select ng-model="evaluationLibre.id_periode" ng-change="" ng-options="periode.libelle for periode in periodes.all">
+                        <option  value="" ng-if = "evaluationLibre.id_periode === undefined || evaluationLibre.id_periode === null || evaluationLibre.id_periode===''">[[translate('viescolaire.utils.periode')]]
                         </option>
                     </select>
                 </label>

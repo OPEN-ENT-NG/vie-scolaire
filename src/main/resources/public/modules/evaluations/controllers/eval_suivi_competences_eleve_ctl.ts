@@ -38,7 +38,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 owner: model.me.userId,
                 is_evaluated: false,
                 id_classe: null,
-                id_periode: null,
+                id_periode: $scope.search.periode,
                 id_type: 1, // TODO modifier en optional foreign key
                 id_matiere: "", // TODO modifier en optional foreign key
                 id_sousmatiere: 1, // TODO modifier en optional foreign key
@@ -412,13 +412,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 scales: {
                     responsive: true,
                     yAxes: [{
-                        gridLines : {display : false},
+                        gridLines : {display : false,
+                            color : '#000000'},
                         pointRadius: 10,
                         type: 'linear',
                         display: true,
                         ticks: {
                             max: 6,
                             min: 0,
+                            fontColor : 'black',
                             stepSize: 1,
                             padding : 20,
                             callback: function (value, index, values) {
@@ -450,13 +452,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                         responsive: false,
                         gridLines:{
                             display : false,
-                            offsetGridLines : false
+                            offsetGridLines : false,
+                            color : '#000000'
                         },
                         ticks: {
                             labelOffset : 30,
                             minRotation : 20, // rotation des labels
                             autoSkip: true,
-                            maxTicksLimit: 20
+                            maxTicksLimit: 20,
+                            fontColor : 'black'
                         }
                     }]
                 }
@@ -484,7 +488,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.chartOptionsEval.tooltipLabels = [];
                 $scope.chartOptionsEval.tooltipLabels.push(' ');
                 $scope.chartOptionsEval.datasets.data = [];
-                $scope.chartOptionsEval.datasets.data.push(-1);
+                $scope.chartOptionsEval.datasets.data.push(-10);
                 $scope.chartOptionsEval.datasets.labels = [];
                 $scope.chartOptionsEval.datasets.labels.push(" ");
                 $scope.chartOptionsEval.colors = [];
@@ -505,7 +509,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 }
 
                 //rajout de la dernière colomn vide
-                $scope.chartOptionsEval.datasets.data.push(-1);
+                $scope.chartOptionsEval.datasets.data.push(-10);
                 $scope.chartOptionsEval.datasets.labels.push(" ");
                 $scope.chartOptionsEval.colors.push('#FFFFFF');
                 $scope.chartOptionsEval.tooltipLabels.push(' ');
@@ -515,10 +519,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.initChartsEval();
         });
 
-        $scope.selected.grey = true;
+        $scope.selected.grey = false;
 
         $scope.FilterNotEvaluated = function (MaCompetence) {
-            if($scope.selected.grey === false){
+            if($scope.selected.grey === true){
                 let _t;
 
                 _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {

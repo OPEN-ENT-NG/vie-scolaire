@@ -16,6 +16,15 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+<article class="twelve cell" >
+    <div class="cell cell-check expandable-content two-mobile">
+        <label class="checkbox">
+            <input type="checkbox" ng-model="Display.EvaluatedCompetences">
+            <span></span>
+        </label>
+    </div>
+    <i18n>evaluation.suivieleve.filtre.competence</i18n>
+</article>
 
 <script type="text/ng-template"  id="tree_item_renderer.html"  bottom-scroll="afficherDomaineSuivant();">
 
@@ -27,7 +36,7 @@
             <div ng-class="{'margin-top-1em' : domaine.competences.length > 0, 'openedSectionDom' : domaine.OpenSousDom}" style='height: auto;'>
 
                 <div ng-class="{'margin-top-1em' : domaine.competences.length > 0}">
-                    <div class="suivi-eleve-item" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all ">
+                    <div class="suivi-eleve-item" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all|filter:ClasseFilterNotEvaluated">
                         <div class="six inline-block ellipsis">
                             [[competence.nom]]
                         </div>

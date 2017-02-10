@@ -38,7 +38,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 owner: model.me.userId,
                 is_evaluated: false,
                 id_classe: null,
-                id_periode: null,
+                id_periode: $scope.search.periode,
                 id_type: 1, // TODO modifier en optional foreign key
                 id_matiere: "", // TODO modifier en optional foreign key
                 id_sousmatiere: 1, // TODO modifier en optional foreign key

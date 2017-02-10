@@ -27,7 +27,7 @@
             <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view') }"
                ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
-        <button class="marginFive" ng-click="createDevoir(); opened.createDevoir = true"><i18n>evaluations.test.new</i18n></button>
+        <button class="marginFive" ng-click="goTo('/devoir/create');"><i18n>evaluations.test.new</i18n></button>
         <div class="microbox-wrapper zero">
             <div class="microbox-content">
                 <i class="close-2x"></i>

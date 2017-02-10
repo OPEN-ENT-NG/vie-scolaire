@@ -16,15 +16,17 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<article class="twelve cell" >
-    <div class="cell cell-check expandable-content two-mobile">
-        <label class="checkbox">
-            <input type="checkbox" ng-model="selected.grey" >
-            <span></span>
-        </label>
-    </div>
-    <i18n>evaluation.suivieleve.filtre.competence</i18n>
-</article>
+<div class="cell ng-scope twelve vertical-spacing">
+    <label>
+        <div class="cell cell-check expandable-content two-mobile">
+            <label class="checkbox">
+                <input type="checkbox" ng-model="selected.grey" class="ng-valid ng-dirty">
+                <span></span>
+            </label>
+        </div>
+        <i18n>evaluation.suivieleve.filtre.competence</i18n>
+    </label>
+</div>
 
 
 <script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="afficherDomaineSuivant();">

@@ -307,7 +307,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.openDetailCompetence = function (competence) {
             $scope.detailCompetence = competence;
             $scope.initChartsEval();
-            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_tableau");
+            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph");
             utils.scrollTo('top');
         };
 

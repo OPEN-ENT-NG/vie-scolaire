@@ -16,15 +16,21 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="twelve cell" >
-    <ul class="selectable-list filtres">
-        <li ng-click="selected.grey = !selected.grey" ng-class="{ selectedFilterGrey: selected.grey }"><i18n>evaluation.suivieleve.filtre.competence</i18n></li>
-    </ul>
-</div>
+<article class="twelve cell" >
+    <div class="cell cell-check expandable-content two-mobile">
+        <label class="checkbox">
+            <input type="checkbox" ng-model="selected.grey" >
+            <span></span>
+        </label>
+    </div>
+    <i18n>evaluation.suivieleve.filtre.competence</i18n>
+</article>
+
 
 <script type="text/ng-template"  id="tree_item_renderer.html" bottom-scroll="afficherDomaineSuivant();">
 
     <div ng-if="domaine.visible">
+
         <h4 ng-class="{'openedDom' : domaine.OpenDom, 'Domaine' : domaine.competences.all.length > 0 }" class="margin-top-1em twelve cell " ng-if="domaine.niveau === 1" ng-click="domaine.OpenDom = !domaine.OpenDom" ng-init="domaine.OpenDom = false">[[domaine.codification]] - [[domaine.libelle]]</h4>
         <div ng-class="{'openedSectionDom' : domaine.OpenDom}" ng-if="domaine.competences.all.length > 0" class="twelve cell" style='height: auto;'>
 

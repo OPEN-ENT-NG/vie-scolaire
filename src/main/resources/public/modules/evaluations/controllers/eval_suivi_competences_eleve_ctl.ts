@@ -412,7 +412,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 scales: {
                     responsive: true,
                     yAxes: [{
-                        gridLines : {display : false},
+                        gridLines : {display : false,
+                            color : '#000000'},
                         pointRadius: 10,
                         type: 'linear',
                         display: true,
@@ -450,7 +451,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                         responsive: false,
                         gridLines:{
                             display : false,
-                            offsetGridLines : false
+                            offsetGridLines : false,
+                            color : '#000000'
                         },
                         ticks: {
                             labelOffset : 30,
@@ -484,7 +486,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.chartOptionsEval.tooltipLabels = [];
                 $scope.chartOptionsEval.tooltipLabels.push(' ');
                 $scope.chartOptionsEval.datasets.data = [];
-                $scope.chartOptionsEval.datasets.data.push(-1);
+                $scope.chartOptionsEval.datasets.data.push(-10);
                 $scope.chartOptionsEval.datasets.labels = [];
                 $scope.chartOptionsEval.datasets.labels.push(" ");
                 $scope.chartOptionsEval.colors = [];
@@ -505,7 +507,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 }
 
                 //rajout de la dernière colomn vide
-                $scope.chartOptionsEval.datasets.data.push(-1);
+                $scope.chartOptionsEval.datasets.data.push(-10);
                 $scope.chartOptionsEval.datasets.labels.push(" ");
                 $scope.chartOptionsEval.colors.push('#FFFFFF');
                 $scope.chartOptionsEval.tooltipLabels.push(' ');
@@ -515,10 +517,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.initChartsEval();
         });
 
-        $scope.selected.grey = true;
+        $scope.selected.grey = false;
 
         $scope.FilterNotEvaluated = function (MaCompetence) {
-            if($scope.selected.grey === false){
+            if($scope.selected.grey === true){
                 let _t;
 
                 _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {

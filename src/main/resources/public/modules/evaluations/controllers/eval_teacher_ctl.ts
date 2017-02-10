@@ -649,9 +649,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if(sousCompetence.open) {
 
                         var nomHtml = $scope.highlight(sousCompetence.nom, psKeyword);
+                        var DisplayNomSousCompetence = nomHtml;
+                        if(sousCompetence.code_domaine!=null){
+                            DisplayNomSousCompetence = sousCompetence.code_domaine + " - "+ nomHtml;
+                        }
                         // mise à jour que si la réelle valeur de la chaine html est différente ($sce.trustAsHtml renvoie systématiquement une valeur différente)
                         if($sce.getTrustedHtml($scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml) !== $sce.getTrustedHtml(nomHtml)) {
-                            $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = nomHtml;
+                            $scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml = DisplayNomSousCompetence;
                         }
 
                     } else {

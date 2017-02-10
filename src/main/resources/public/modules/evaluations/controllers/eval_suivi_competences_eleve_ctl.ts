@@ -85,6 +85,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *  Sauvegarde d'une évaluation libre
          */
         $scope.saveNewEvaluationLibre = function () {
+            $scope.evaluationLibre.date = $scope.getDateFormated($scope.evaluationLibre.date);
+            $scope.evaluationLibre.date_publication = $scope.getDateFormated($scope.evaluationLibre.date_publication);
+            $scope.evaluationLibre.id_periode = $scope.evaluationLibre.id_periode.id;
             $scope.evaluationLibre.create().then(function (res) {
                 // fermeture popup
                 $scope.opened.lightboxEvalLibre = false;

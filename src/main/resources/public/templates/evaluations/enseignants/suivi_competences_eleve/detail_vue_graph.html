@@ -17,12 +17,12 @@
   ~
   -->
 <div class="detail graph-view">
-    <div class="ten cell info " ng-show="EvaluationExiste(detailCompetence.competencesEvaluations)">
+    <div class="ten cell info " ng-if="EvaluationExiste(detailCompetence.competencesEvaluations)">
         <i18n>evaluation.not.exist</i18n>
     </div>
-    <div ng-if="!EvaluationExiste(detailCompetence.competencesEvaluations)">
-        <div class="six cell box-accueil twelve-mobile">
-                <canvas class="chart chart-bubble chartSuiviEleve"
+    <div ng-if="!EvaluationExiste(detailCompetence.competencesEvaluations)" class = "ten cell">
+        <div class="box-accueil twelve-mobile">
+                <canvas class="chart chart-bubble chartSuiviEleve align-center"
                         chart-data="chartOptionsEval.datasets.data"
                         chart-labels="chartOptionsEval.datasets.labels"
                         chart-options="chartOptionsEval.options"

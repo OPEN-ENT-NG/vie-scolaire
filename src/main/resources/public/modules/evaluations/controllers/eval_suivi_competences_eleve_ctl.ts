@@ -420,6 +420,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                         ticks: {
                             max: 6,
                             min: 0,
+                            fontColor : 'black',
                             stepSize: 1,
                             padding : 20,
                             callback: function (value, index, values) {
@@ -458,7 +459,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             labelOffset : 30,
                             minRotation : 20, // rotation des labels
                             autoSkip: true,
-                            maxTicksLimit: 20
+                            maxTicksLimit: 20,
+                            fontColor : 'black'
                         }
                     }]
                 }

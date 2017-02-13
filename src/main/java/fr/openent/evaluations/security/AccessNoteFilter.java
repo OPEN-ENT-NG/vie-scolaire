@@ -51,8 +51,7 @@ public class AccessNoteFilter implements ResourcesProvider {
                     return;
                 }
 
-                new FilterNoteUtils().validateNoteOwner(idNote,
-                        user.getUserId(), new Handler<Boolean>() {
+                new FilterNoteUtils().validateAccessNote(idNote, user, new Handler<Boolean>() {
                             @Override
                             public void handle(Boolean isValid) {
                                 resourceRequest.resume();

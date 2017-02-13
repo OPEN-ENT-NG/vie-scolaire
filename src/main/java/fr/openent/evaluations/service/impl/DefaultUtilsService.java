@@ -22,17 +22,14 @@ package fr.openent.evaluations.service.impl;
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.bean.NoteDevoir;
-import fr.openent.evaluations.service.UtilsService;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
-import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
@@ -41,8 +38,64 @@ import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 /**
  * Created by ledunoiss on 05/08/2016.
  */
-public class DefaultUtilsService implements fr.openent.evaluations.service.UtilsService {
+public class DefaultUtilsService  implements fr.openent.evaluations.service.UtilsService {
     private final Neo4j neo4j = Neo4j.getInstance();
+
+    @Override
+    /**
+     * Récupère la liste des professeurs remplaçants du titulaire
+     * (si lien titulaire/remplaçant toujours actif à l'instant T)
+     *
+     * @param psIdTitulaire identifiant neo4j du titulaire
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des rempacants
+     */
+    public void getRemplacants(String psIdTitulaire, String psIdEtablissement, Handler<Either<String, JsonArray>> handler) {
+
+        //TODO Methode à tester (pas utilisée pour le moment)
+
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT DISTINCT id_remplacant ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_professeurs_remplacants ")
+                .append("WHERE id_titulaire = ? ")
+                .append("AND id_etablissement = ? ")
+                .append("AND date_debut <= current_date ")
+                .append("AND current_date <= date_fin ");
+
+        values.add(psIdTitulaire);
+        values.add(psIdEtablissement);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    /**
+     * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
+     * (si lien titulaire/remplaçant toujours actif à l'instant T)
+     *
+     * @param psIdRemplacant identifiant neo4j du remplaçant
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des titulaires
+     */
+    public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT DISTINCT id_titulaire ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_professeurs_remplacants ")
+                .append("WHERE id_remplacant = ? ")
+                .append("AND id_etablissement = ? ")
+                .append("AND date_debut <= current_date ")
+                .append("AND current_date <= date_fin ");
+
+        values.add(psIdRemplacant);
+        values.add(psIdEtablissement);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
 
     @Override
     public void listTypesDevoirsParEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {

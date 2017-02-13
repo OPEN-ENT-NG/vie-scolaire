@@ -23,13 +23,19 @@ import fr.openent.absences.controller.AppelController;
 import fr.openent.absences.controller.EvenementController;
 import fr.openent.absences.controller.MotifController;
 import fr.openent.evaluations.controller.*;
-import fr.openent.evaluations.service.impl.InitDataService;
 import fr.openent.viescolaire.controller.*;
 import fr.wseduc.webutils.email.EmailSender;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
-import org.vertx.java.core.Handler;
+import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.share.impl.SqlShareService;
+import org.entcore.common.sql.SqlConf;
+import org.entcore.common.sql.SqlConfs;
 import org.vertx.java.core.eventbus.EventBus;
+import org.vertx.java.core.json.JsonArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Viescolaire extends BaseServer {
 
@@ -85,6 +91,12 @@ public class Viescolaire extends BaseServer {
 	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
 	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
 
+	public final static String DEVOIR_RESOURCE_ID = "devoirsid";
+	public final static String DEVOIR_TABLE = "devoirs";
+	public final static String DEVOIR_SHARE_TABLE = "devoirs_shares";
+
+	public final static String DEVOIR_ACTION_UPDATE = "fr-openent-evaluations-controller-DevoirController|updateDevoir";
+
 	@Override
 	public void start() {
 		super.start();
@@ -123,7 +135,21 @@ public class Viescolaire extends BaseServer {
 		 */
 		addController(new CompetenceController());
 		addController(new CompetenceNoteController());
-		addController(new DevoirController());
+
+		// devoir table
+		SqlConf confDevoir = SqlConfs.createConf(DevoirController.class.getName());
+		confDevoir.setResourceIdLabel(DEVOIR_RESOURCE_ID);
+		confDevoir.setTable(DEVOIR_TABLE);
+		confDevoir.setShareTable(DEVOIR_SHARE_TABLE);
+		confDevoir.setSchema(EVAL_SCHEMA);
+
+		// devoir controller
+		DevoirController devoirController = new DevoirController();
+		SqlCrudService devoirSqlCrudService = new SqlCrudService(EVAL_SCHEMA, DEVOIR_TABLE, DEVOIR_SHARE_TABLE, new JsonArray().addString("*"), new JsonArray().add("*"), true);
+		devoirController.setCrudService(devoirSqlCrudService);
+		devoirController.setShareService(new SqlShareService(EVAL_SCHEMA, DEVOIR_SHARE_TABLE, eb, securedActions, null));
+		addController(devoirController);
+
 		addController(new EnseignementController());
 		addController(new DomaineController());
 		addController(new ExportPDFController(eb, notification));

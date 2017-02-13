@@ -25,7 +25,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +32,26 @@ import java.util.List;
  */
 public interface UtilsService {
     // TODO REDECOUPER LA STRUCTURE UNE FOIS L'ARCHITECTURE DEFINIE
+
+
+    /**
+     * Récupère la liste des professeurs remplaçants du titulaire sur un établissement donné
+     * (si lien titulaire/remplaçant toujours actif à l'instant T)
+     * @param psIdTitulaire identifiant neo4j du titulaire
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des rempacants
+     */
+    public void getRemplacants(String psIdTitulaire, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
+
+    /**
+     * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
+     * (si lien titulaire/remplaçant toujours actif à l'instant T)
+     * @param psIdRemplacant identifiant neo4j du remplaçant
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des titulaires
+     */
+    public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste les types de devoirs pour un etablissement donné

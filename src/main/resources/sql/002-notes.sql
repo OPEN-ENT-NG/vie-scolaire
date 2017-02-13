@@ -193,6 +193,26 @@ CREATE TABLE notes.competences_devoirs
   ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
+CREATE TABLE notes.rel_professeurs_remplacants
+(
+  id_titulaire character varying(36) NOT NULL,
+  id_remplacant character varying(36),
+  date_debut timestamp without time zone,
+  date_fin timestamp without time zone
+);
+
+CREATE TABLE notes.devoirs_shares
+(
+  member_id character varying(36) NOT NULL,
+  resource_id bigint NOT NULL,
+  action character varying(255) NOT NULL,
+  CONSTRAINT devoirs_shares_pk PRIMARY KEY (member_id, resource_id, action),
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (resource_id)
+      REFERENCES notes.devoirs (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+
+);
+
 -- functions and triggers
 CREATE OR REPLACE FUNCTION notes.insert_users_members() RETURNS trigger AS
 $$

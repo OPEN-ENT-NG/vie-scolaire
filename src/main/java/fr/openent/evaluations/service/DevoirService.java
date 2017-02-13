@@ -26,6 +26,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.List;
+
 /**
  * Created by ledunoiss on 05/08/2016.
  */
@@ -49,7 +51,7 @@ public interface DevoirService extends CrudService {
 
     /**
      * Liste des devoirs de l'utilisateur
-     * @param user utilisateur
+     * @param user utilisateur l'utilisateur connecté
      * @param handler handler portant le résultat de la requête
      */
     public void listDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
@@ -81,8 +83,8 @@ public interface DevoirService extends CrudService {
 
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
-     * @param userId identifiant de l'utilisateur
+     * @param user l'utilisateur connecté
      * @param handler handler portant le résultat de la requête
      */
-    public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
 }

@@ -20,9 +20,9 @@
 package fr.openent.evaluations.security.utils;
 
 import fr.openent.Viescolaire;
-import fr.wseduc.webutils.Either;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
@@ -33,7 +33,7 @@ import org.vertx.java.core.json.JsonObject;
  */
 public class FilterDevoirUtils {
 
-    public void validateOwnerDevoir(Long idDevoir, String owner, final Handler<Boolean> handler) {
+    public void validateOwnerDevoir(Integer idDevoir, String owner, final Handler<Boolean> handler) {
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(devoirs.*) " +
                         "FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
@@ -41,6 +41,51 @@ public class FilterDevoirUtils {
                         "AND devoirs.owner = ?;");
 
         JsonArray params = new JsonArray().addNumber(idDevoir).addString(owner);
+
+        Sql.getInstance().prepared(query.toString(), params, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> message) {
+                Long count = SqlResult.countResult(message);
+                handler.handle(count != null && count > 0);
+            }
+        });
+    }
+
+
+    public void validateAccessDevoir(Long idDevoir, UserInfos user, final Handler<Boolean> handler) {
+
+        JsonArray params = new JsonArray();
+
+        StringBuilder query = new StringBuilder()
+                .append("SELECT count(*) FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs ")
+                .append("WHERE devoirs.id = ? ")
+                .append("AND (devoirs.owner = ? OR ")
+                     .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ")
+                                       .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                                       .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                                       .append("WHERE devoirs.id = ? ")
+                                       .append("AND id_remplacant = ? ")
+                                       .append(") OR ")
+
+                    .append("? IN (SELECT member_id ")
+                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                            .append("WHERE resource_id = ? ")
+                            .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+
+                    .append(")");
+
+        // Ajout des params pour la partie de la requête où on vérifie si on est le propriétaire
+        params.addNumber(idDevoir);
+        params.addString(user.getUserId());
+
+        // Ajout des params pour la partie de la requête où on vérifie si on a des titulaires propriétaire
+        params.addNumber(idDevoir);
+        params.addString(user.getUserId());
+
+        // Ajout des params pour la partie de la requête où on vérifie si on a des droits de partage provenant d'un remplaçant
+        params.addString(user.getUserId());
+        params.addNumber(idDevoir);
+
 
         Sql.getInstance().prepared(query.toString(), params, new Handler<Message<JsonObject>>() {
             @Override

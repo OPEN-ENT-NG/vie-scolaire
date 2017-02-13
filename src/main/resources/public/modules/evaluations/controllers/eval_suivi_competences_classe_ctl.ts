@@ -14,6 +14,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
         template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
+
         delete $scope.informations.eleve;
         $scope.route = $route;
         $scope.search.classe = "";
@@ -212,5 +213,32 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 utils.safeApply($scope);
             }
         };
-    }
+
+
+        $scope.Display = {EvaluatedCompetences : false};
+        $scope.ClasseFilterNotEvaluated = function (MaCompetence) {
+            if($scope.Display.EvaluatedCompetences === true){
+                let _t = MaCompetence.competencesEvaluations;
+                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
+                    _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {
+                        if (evaluation.owner !== undefined && evaluation.owner === $scope.me.userId)
+                            return evaluation;
+                    });
+                }
+                let EvaluatedOK = false;
+                _.map(_t,function(competenceNote){
+                    if(competenceNote.evaluation != -1){
+                        EvaluatedOK = true;
+                    }
+                });
+                return EvaluatedOK;
+            }else{
+                return true;
+            }
+        }
+
+
+
+
+}
 ]);

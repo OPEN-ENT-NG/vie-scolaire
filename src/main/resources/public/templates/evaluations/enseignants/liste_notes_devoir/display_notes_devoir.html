@@ -187,7 +187,7 @@
                                             <i ng-if="eleve.evaluation.appreciation === undefined || eleve.evaluation.appreciation.trim() === ''" class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
                                         </div>
                                         <div ng-class="{eight : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
-                                             class="cell cell-input navigable-cell" ng-if="currentDevoir.competences.all.length < 8">
+                                             class="cell cell-input " ng-if="currentDevoir.competences.all.length < 8">
                                             <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
                                         </div>
                                     </div>
@@ -197,8 +197,8 @@
                                      class="navigable-row twelve ng-scope"
                                      ng-class="{'hide-appreciation' :openedEleve !== $index ,'show-appreciation' : openedEleve === $index && currentDevoir.competences.all.length > 7}">
 
-                                    <div class="navigable-inputs-row">
-                                        <div class="navigable-cell twelve cell" style="margin: 5px 0;" >
+                                    <div class="row">
+                                        <div class="twelve cell" style="margin: 5px 0;" >
                                             <input ng-class="{'display-none' :openedEleve !== $index ,'display-block' : openedEleve === $index && currentDevoir.competences.all.length > 7}"
                                                    placeholder="[[translate('viescolaire.utils.appreciation.add')]]" type="text" class="twelve cell input-appreciation" name="appreciation"
                                                    ng-model="eleve.evaluation.appreciation"

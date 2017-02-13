@@ -87,19 +87,30 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.$apply();
         };
 
-        $scope.searchStudent = (student) => (student.firstName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1
-        || student.lastName.toUpperCase().indexOf($scope.search.eleveName.toUpperCase()) !== -1);
 
+
+        /**
+         * ouvrir le suivi d'un eleve (utilisé dans la barre de recherche)
+         * @param Eleve
+         */
         $scope.openSuiviEleve = (Eleve) => {
             let path = '/competences/eleve';
             let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
             $scope.goTo(path,idOfpath);
         };
 
+        /**
+         * ouvrir la page de création devoir
+         */
         $scope.openCreateEval = () =>{
             let path = '/devoir/create';
             $scope.goTo(path);
-        }
+        };
 
+        $scope.SaisieNote = (points, evt) =>{
+
+                console.log(points, evt);
+
+        }
     }
 ]);

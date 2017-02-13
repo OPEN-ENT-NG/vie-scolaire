@@ -445,7 +445,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                                 else{
                                     return " " ;
                                 }
-                               // return parseFloat(value).toFixed(2) + '%';
+                                // return parseFloat(value).toFixed(2) + '%';
                             }
                         },
                     }],
@@ -526,25 +526,24 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
         $scope.FilterNotEvaluated = function (MaCompetence) {
             if($scope.selected.grey === true){
-                let _t;
+                let _t = MaCompetence.competencesEvaluations;
+                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
+                    _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {
+                        if (evaluation.owner !== undefined && evaluation.owner === $scope.me.userId)
+                            return evaluation;
+                    });
+                }
 
-                _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {
-                    if(evaluation.owner !== undefined && evaluation.owner === $scope.me.userId)
-                        return evaluation;
-                });
 
                 let max = _.max(_t, function (evaluation) {
                     return evaluation.evaluation;
                 });
                 if (typeof max === 'object' ) {
-                    if (max.evaluation == -1){
-                        return false;
-                    }else{
-                        return true;
-                    }
+                    return (!(max.evaluation == -1));
                 } else {
                     return false;
                 }
+
             }else{
                 return true;
             }

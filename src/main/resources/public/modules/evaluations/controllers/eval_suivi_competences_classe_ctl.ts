@@ -218,8 +218,15 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         $scope.Display = {EvaluatedCompetences : false};
         $scope.ClasseFilterNotEvaluated = function (MaCompetence) {
             if($scope.Display.EvaluatedCompetences === true){
+                let _t = MaCompetence.competencesEvaluations;
+                if ($scope.suiviFilter.mine === 'true' || $scope.suiviFilter.mine === true) {
+                    _t = _.filter(MaCompetence.competencesEvaluations, function (evaluation) {
+                        if (evaluation.owner !== undefined && evaluation.owner === $scope.me.userId)
+                            return evaluation;
+                    });
+                }
                 let EvaluatedOK = false;
-                _.map(MaCompetence.competencesEvaluations,function(competenceNote){
+                _.map(_t,function(competenceNote){
                     if(competenceNote.evaluation != -1){
                         EvaluatedOK = true;
                     }

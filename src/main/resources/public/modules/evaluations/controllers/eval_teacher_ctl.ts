@@ -703,7 +703,30 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.loadEnseignementsByClasse = function (psIdClasse) {
             evaluations.enseignements.sync($scope.devoir.id_classe);
-            utils.safeApply(this);
+            evaluations.enseignements.on('sync', function () {
+                //suppression des compétences qui n'appartiennent pas au cycle
+                var currentIdCycle = null;
+                var newCompentenceDevoir = [];
+                for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
+                    if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
+                        $scope.enseignements.all[i].data.competences_1 !== null) {
+                        for (let j = 0; j < $scope.enseignements.all[i].data.competences_1.length && currentIdCycle == null; j++) {
+                            currentIdCycle = $scope.enseignements.all[i].data.competences_1[j].id_cycle;
+                        }
+                    }
+                }
+                if (currentIdCycle !== null) {
+                    for (var o in $scope.competencesFilter) {
+                        if ($scope.competencesFilter[o].isSelected === true
+                            && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
+                            newCompentenceDevoir.push($scope.competencesFilter[o].data);
+                        }
+                    }
+                    evaluations.competencesDevoir = newCompentenceDevoir;
+                  }
+                //utils.safeApply($scope);
+               utils.safeApply(this);
+            });
         };
 
         /**
@@ -859,7 +882,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
             else{
-                 $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
+                $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
                 if (evaluations.competencesDevoir !== undefined) {
                     $scope.devoir.competencesAdd= [];
                     $scope.devoir.competencesRem = [];

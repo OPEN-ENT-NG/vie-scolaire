@@ -20,7 +20,7 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
         template : '<div class="inline-block suivi-proportion" ng-repeat="prop in proportion" ' +
         'ng-class="{green : prop.eval === 3, yellow : prop.eval === 2, orange: prop.eval === 1, red : prop.eval === 0, grey : prop.eval === -1}" ' +
         'ng-style="{\'width\': prop.percent + \'%\'}" ' +
-        'tooltip="[[prop.percent.toFixed(2)]] [[translate(\'%\')]]"></div>',
+        'tooltip="[[prop.percent.toFixed(0)]] [[translate(\'%\')]]"></div>',
         controller : ['$scope', function ($scope) {
 
             $scope.isClasse = $scope.isClasse !== undefined ? $scope.isClasse : false;

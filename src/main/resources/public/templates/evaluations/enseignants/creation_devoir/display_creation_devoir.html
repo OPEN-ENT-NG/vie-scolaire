@@ -16,6 +16,8 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+
+
 <div class="addDevoir row twelve cell">
     <div class="eight cell twelve-mobile">
         <div class="pannel-in-cell">
@@ -291,12 +293,12 @@
         </div>
 
         <div class="twelve cell">
-            <input class="button-add-devoir " type="button" ng-click="saveNewDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+            <input class="button-add-devoir " type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
         </div>
 
     </div>
 
-    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="saveNewDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
 
 
     <!-- PARTIE RECAPITULATIF -->
@@ -411,6 +413,32 @@
         </div>
 
     </div>
-
-
 </div>
+
+<lightbox  show="opened.lightboxs.updateDevoir.firstConfirmSupp" on-close="opened.lightboxs.updateDevoir.firstConfirmSupp = false">
+    <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part1</i18n></p>
+    <div ng-if="(evaluatedCompetencesSupp.length < 15)">
+        <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
+        <ul>
+            <li ng-repeat="competence in evaluatedCompetencesSupp">[[competence.nom]]</li>
+        </ul>
+    </div>
+    <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part2</i18n></p>
+
+    <button class="marginFive" ng-click="ConfirmeUpdateDevoir()">
+        <i18n>evaluations.devoir.confirmation</i18n>
+    </button>
+    <button class="marginFive" ng-click="cancelUpdateDevoir()">
+        <i18n>evaluations.devoir.annuler</i18n>
+    </button>
+</lightbox>
+
+<lightbox  show="opened.lightboxs.updateDevoir.secondConfirmSupp" on-close="opened.lightboxs.updateDevoir.secondConfirmSupp = false ">
+    <p><i18n>evaluations.devoir.updateDevoir.secondConfirmSupp.part1</i18n></p>
+    <button class="marginFive" ng-click="ConfirmeUpdateDevoir()">
+        <i18n>evaluations.devoir.confirmation</i18n>
+    </button>
+    <button class="marginFive" ng-click="cancelUpdateDevoir()">
+        <i18n>evaluations.devoir.annuler</i18n>
+    </button>
+</lightbox>

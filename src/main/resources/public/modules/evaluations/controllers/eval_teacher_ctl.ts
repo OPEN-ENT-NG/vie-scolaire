@@ -724,8 +724,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                     evaluations.competencesDevoir = newCompentenceDevoir;
                   }
-                //utils.safeApply($scope);
-               utils.safeApply(this);
+                utils.safeApply($scope);
             });
         };
 

@@ -26,13 +26,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             editDevoir : function (params) {
                 $scope.cleanRoot();
-                $scope.createDevoir();
                 var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                $scope.devoir = $scope.initDevoir();
+                $scope.devoir.id_classe = devoirTmp.id_classe;
                 $scope.devoir.id = devoirTmp.id;
                 $scope.devoir.name = devoirTmp.name;
                 $scope.devoir.owner =  devoirTmp.owner;
                 $scope.devoir.libelle =devoirTmp.libelle;
-                $scope.devoir.id_classe = devoirTmp.id_classe;
+
                 $scope.devoir.id_sousmatiere = devoirTmp.id_sousmatiere;
                 $scope.devoir.id_type = parseInt(devoirTmp.id_type);
                 $scope.devoir.id_matiere  = devoirTmp.id_matiere;
@@ -55,72 +56,70 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.allCompetences = devoirTmp.competences;
                 $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
                 $scope.devoir.competences.sync().then(() => {
-                    utils.safeApply($scope);
+                        $scope.createDevoir();
+                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
 
-                    $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
 
-                    //$scope.devoir.competences = $scope.currentDevoir.competences;
+                        evaluations.enseignements.on('sync', function() {
+                        $scope.initFilter(true);
 
-                    $scope.initFilter(true);
+                        //tableau des connaissances à cocher éventuellement
+                        var parentToCheck = [];
 
-                    //tableau des connaissances à cocher éventuellement
-                    var parentToCheck = [];
+                        for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
+                            for (var j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
+                                if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
+                                    + $scope.evaluations.enseignements.all[j].id] !== undefined) {
+                                    //selection des competences du devoir
+                                    $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence
+                                    + '_' + $scope.evaluations.enseignements.all[j].id].isSelected = true;
 
-                    for(var i=0; i< $scope.evaluations.competencesDevoir.length; i++){
-                        for(var j=0; j < $scope.evaluations.enseignements.all.length; j++){
-                            if($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence+'_'
-                                + $scope.evaluations.enseignements.all[j].id] !== undefined) {
-                                //selection des competences du devoir
-                                $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence
-                                + '_'+ $scope.evaluations.enseignements.all[j].id].isSelected = true;
+                                    $scope.evaluations.competencesDevoir[i].id
+                                        = $scope.evaluations.competencesDevoir[i].id_competence;
+                                    $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
 
-                                $scope.evaluations.competencesDevoir[i].id
-                                    = $scope.evaluations.competencesDevoir[i].id_competence;
-                                $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
+                                    //remplissage des connaissances parent  à cocher éventuellement
+                                    var parentCo = $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
+                                    + '_' + $scope.evaluations.enseignements.all[j].id];
+                                    if (parentToCheck.indexOf(parentCo) === -1 && parentCo !== undefined) {
+                                        parentToCheck.push(parentCo);
+                                    }
 
-                                //remplissage des connaissances parent  à cocher éventuellement
-                                var parentCo =$scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
-                                + '_'+ $scope.evaluations.enseignements.all[j].id];
-                                if(parentToCheck.indexOf(parentCo) === -1 && parentCo !== undefined){
-                                    parentToCheck.push(parentCo);
+                                    utils.safeApply($scope);
                                 }
+                            }
+                        }
 
+                        //On coche la connaissance si elle n'a aucun fils sélectionné
+                        for (var i = 0; i < parentToCheck.length; i++) {
+                            var checkIt = true;
+                            for (var j in  $scope.competencesFilter) {
+                                if ($scope.competencesFilter.hasOwnProperty(j)) {
+                                    var currComp = $scope.competencesFilter[j];
+                                    if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
+                                        checkIt = currComp.isSelected;
+                                    }
+                                    // si on rencontre un fils non selectionné on arrête de chercher
+                                    if (!checkIt) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (checkIt) {
+                                parentToCheck[i].isSelected = true;
+                                parentToCheck[i].id = parentToCheck[i].id_competence;
+                                utils.safeApply($scope);
+                            }
+                            else {
+                                parentToCheck[i].isSelected = false;
+                                parentToCheck[i].id = parentToCheck[i].id_competence;
                                 utils.safeApply($scope);
                             }
                         }
-                    }
-
-                    //On coche la connaissance si elle n'a aucun fils sélectionné
-                    for (var i=0; i < parentToCheck.length; i++){
-                        var checkIt = true;
-                        for (var j in  $scope.competencesFilter){
-                            if ($scope.competencesFilter.hasOwnProperty(j)) {
-                                var currComp = $scope.competencesFilter[j];
-                                if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
-                                    checkIt = currComp.isSelected;
-                                }
-                                // si on rencontre un fils non selectionné on arrête de chercher
-                                if (!checkIt) {
-                                    break;
-                                }
-                            }
-                        }
-                        if(checkIt){
-                            parentToCheck[i].isSelected = true;
-                            parentToCheck[i].id = parentToCheck[i].id_competence;
-                            utils.safeApply($scope);
-                        }
-                        else {
-                            parentToCheck[i].isSelected = false;
-                            parentToCheck[i].id = parentToCheck[i].id_competence;
-                            utils.safeApply($scope);
-                        }
-                    }
+                    });
+                    template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                    utils.safeApply($scope);
                 });
-
-                utils.safeApply($scope);
-
-
             },
 
             listDevoirs : function(params){
@@ -592,7 +591,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.enseignementsFilterFunction = function (enseignement) {
             // si valeur est rensiegnée on la retourne sinon on considère qu'elle est sélectionné (gestion du CTRL-F5)
-            return ($scope.enseignementsFilter[enseignement.id] && $scope.enseignementsFilter[enseignement.id].isSelected);
+            if($scope.enseignementsFilter !== undefined){
+                return ($scope.enseignementsFilter[enseignement.id] && $scope.enseignementsFilter[enseignement.id].isSelected);
+            }
         };
 
 
@@ -754,7 +755,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     for (var o in $scope.competencesFilter) {
                         if ($scope.competencesFilter[o].isSelected === true
                             && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
-                            newCompentenceDevoir.push($scope.competencesFilter[o].data);
+                            if($scope.competencesFilter[o].data.id_parent !== 0) {
+                                newCompentenceDevoir.push($scope.competencesFilter[o].data);
+                            }
                         }
                     }
                     evaluations.competencesDevoir = newCompentenceDevoir;
@@ -768,57 +771,68 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         //TODO Déplacer cette séquence dans la séquence du router
         $scope.createDevoir = function () {
-            $scope.devoir = $scope.initDevoir();
-            //$scope.opened.lightbox = true;
-            $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
-            // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-            $scope.search.keyword = "";
-            // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
-            // evenement (depliement/repliement d'un compétence par exemple)
-            // on ne réaplique pas le filtre dans ce cas car on veut déplier l'élément sur lequel on a cliqué
-            $scope.$watch('search.keyword', function (newValue, oldValue) {
-                $scope.search.haschange = (newValue !== oldValue);
-            }, true);
-            _.extend($scope.devoir.enseignements, $scope.enseignements);
+            if($scope.devoir === undefined) {
+                $scope.devoir = $scope.initDevoir();
+            }
+                //$scope.opened.lightbox = true;
+                $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
+                // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
+                $scope.search.keyword = "";
+                // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
+                // evenement (depliement/repliement d'un compétence par exemple)
+                // on ne réaplique pas le filtre dans ce cas car on veut déplier l'élément sur lequel on a cliqué
+                $scope.$watch('search.keyword', function (newValue, oldValue) {
+                    $scope.search.haschange = (newValue !== oldValue);
+                }, true);
+                _.extend($scope.devoir.enseignements, $scope.enseignements);
 
 
-            evaluations.competencesDevoir = [];
+                evaluations.competencesDevoir = [];
 
-            $scope.devoir.getLastSelectedCompetence().then(function (res)  {
-                $scope.devoir.competencesLastDevoirList = res;
-            });
-
-            //Séquence non exécutée lors de la modification d'un devoir
-            if($scope.devoir.id_periode !== undefined) {
-                setCurrentPeriode().then((defaultPeriode) => {
-                    $scope.devoir.id_periode = defaultPeriode.id;
-                    utils.safeApply($scope);
+                $scope.devoir.getLastSelectedCompetence().then(function (res)  {
+                    $scope.devoir.competencesLastDevoirList = res;
                 });
-            }
-            $scope.devoir.id_type = getDefaultTypDevoir();
-            if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                $scope.devoir.id_classe = $scope.search.classe.id;
-                $scope.devoir.id_matiere = $scope.search.matiere.id;
-                $scope.setClasseMatieres();
-                $scope.selectedMatiere();
-            } else {
-                // selection de la premiere classe par defaut
-                $scope.devoir.id_classe = $scope.classes.all[0].id;
-                // selection de la premiere matière associée à la classe
-                $scope.setClasseMatieres();
-            }
 
-            // Chargement des enseignements et compétences en fonction de la classe
-            evaluations.enseignements.sync($scope.devoir.id_classe);
+                //Séquence non exécutée lors de la modification d'un devoir
+                if($scope.devoir.id_periode !== undefined) {
+                    setCurrentPeriode().then((defaultPeriode) => {
+                        $scope.devoir.id_periode = defaultPeriode.id;
+                        utils.safeApply($scope);
+                    });
+                }
+                if($scope.devoir.id_type === undefined) {
+                    $scope.devoir.id_type = getDefaultTypDevoir();
+                }
+                if($scope.devoir.id_classe === undefined) {
+                    if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                        $scope.devoir.id_classe = $scope.search.classe.id;
+                        $scope.devoir.id_matiere = $scope.search.matiere.id;
+                        $scope.setClasseMatieres();
+                        $scope.selectedMatiere();
+                    } else {
+                        // selection de la premiere classe par defaut
+                        $scope.devoir.id_classe = $scope.classes.all[0].id;
+                        // selection de la premiere matière associée à la classe
+                        $scope.setClasseMatieres();
+                    }
+                }
 
-            if ($location.path() === "/devoirs/list") {
-                $scope.devoir.id_type = $scope.search.type.id;
-                $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
-            }
+                // Chargement des enseignements et compétences en fonction de la classe
+                evaluations.enseignements.sync($scope.devoir.id_classe);
 
-            //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-            template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-            utils.safeApply($scope);
+                if ($location.path() === "/devoirs/list") {
+                    $scope.devoir.id_type = $scope.search.type.id;
+                    $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
+                }
+
+
+                //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
+                    template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                    utils.safeApply($scope);
+                }
+
+
         };
 
 

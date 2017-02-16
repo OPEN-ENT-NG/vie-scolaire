@@ -16,10 +16,8 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<article class="ten card twelve-mobile centered" ng-if="evaluations.devoirs.all.length === 0">
-    <i18n>evaluation.list.empty</i18n>
-</article>
-<div class="row" ng-if="evaluations.devoirs.all.length !== 0">
+
+<div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
         <div class="cell switch-view-buttons">
             <i class="show-list" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view') }"
@@ -89,7 +87,10 @@
             </div>
         </microbox>
         <div class="ten cell twelve-mobile">
-            <div class="marginFive card">
+            <article class="ten card twelve-mobile centered ng-scope" ng-if="evaluations.devoirs.all.length === 0">
+                <i18n>evaluation.list.empty</i18n>
+            </article>
+            <div class="marginFive card" ng-if="evaluations.devoirs.all.length !== 0">
                 <header class="headerStyle">
                     <h2 class="twelve-mobile"><i18n>evaluations.test.owner.list</i18n></h2>
                     <input type="text" ng-model="search.name" placeholder="[[translate('evaluations.filter.name')]]..." style="width: 99%;font-size: 1em;font-style: italic;">

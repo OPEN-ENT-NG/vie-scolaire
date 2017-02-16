@@ -46,6 +46,7 @@
   "evaluations.devoir.updateDevoir.firstConfirmSupp.part1": "Des compétences évaluées seront supprimées.",
   "evaluations.devoir.updateDevoir.firstConfirmSupp.part2" : "Souhaitez vous continuer ?",
   "evaluations.devoir.updateDevoir.secondConfirmSupp.part1" : "Confirmez-vous le choix de retirer une ou plusieurs compétences évaluées ?",
+ "evaluations.devoir.updateDevoir.evaluatedSkillDisabel.part1" : "Des notes ont été saisies pour cette évaluation, souhaitez-vous retirer l'évaluation numérique ?",
   "evaluation.suivieleve.filtre.competence":"Afficher uniquement les compétences évaluées",
   "viescolaire.classe.moyenne" :"Moyenne de la classe",
   "viescolaire.classe.note.min":"Note min",

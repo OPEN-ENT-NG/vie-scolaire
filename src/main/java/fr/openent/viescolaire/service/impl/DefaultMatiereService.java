@@ -56,7 +56,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
     @Override
     public void listMatieres(String id, Handler<Either<String, JsonArray>> result) {
-        String query = "MATCH (u:User {id:{id}}) return u.classesFieldOfStudy";
+        String query = "MATCH (u:User {id:{id}}) return u.classesFieldOfStudy,u.groupsFieldOfStudy";
         neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validResultHandler(result));
     }
 

@@ -52,6 +52,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         return dateFormated;
     }
 
+    private static final String attributeTypeClasse = "type_classe";
+    private static final String typeClasse_Classe = "classe";
+    private static final String typeClasse_Grp_Ens = "groupeEnseignement";
+
     @Override
     public void createDevoir(final JsonObject devoir, final UserInfos user, final Handler<Either<String, JsonObject>> handler) {
         // Requête de recupération de l'id du devoir à créer
@@ -88,7 +92,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                             if(!(attr.equals("competencesAdd")
                                     ||  attr.equals("competencesRem")
                                     ||  attr.equals("competenceEvaluee")
-                                    ||  attr.equals("competences"))) {
+                                    ||  attr.equals("competences")
+                                    || (attr.equals(attributeTypeClasse) && devoir.getValue(attr).toString().equalsIgnoreCase(typeClasse_Classe)))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));

@@ -200,12 +200,19 @@ export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
     name : string;
+    type : string;
     suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
     mapEleves : any;
 
     get api () {
         return {
-            sync : '/directory/class/'+this.id+'/users?type=Student'
+            sync: '/directory/class/' + this.id + '/users?type=Student'
+        }
+    }
+
+    get apiForGroupeEnseignement () {
+        return {
+            sync: '/userbook/visible/users/' + this.id
         }
     }
 
@@ -216,14 +223,29 @@ export class Classe extends Model {
             sync : () : Promise<any> => {
                 var that = this;
                 return new Promise((resolve, reject) => {
-                    http().getJson(this.api.sync).done(function (data) {
-                        this.eleves.load(data);
-                        this.mapEleves = {};
-                        for (var i = 0; i < this.eleves.all.length; i++) {
-                            this.mapEleves[this.eleves.all[i].id]= this.eleves.all[i];
-                        }
-                        resolve();
-                    }.bind(this));
+                    if (this.type === lang.translate('viescolaire.utils.class')) {
+                        http().getJson(this.api.sync).done(function (data) {
+                            this.eleves.load(data);
+                            this.mapEleves = {};
+                            for (var i = 0; i < this.eleves.all.length; i++) {
+                                this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
+                            }
+                            resolve();
+                        }.bind(this));
+                    }else{
+                        http().getJson(this.apiForGroupeEnseignement.sync).done(function (data) {
+                            for (var i = 0; i < data.length; i++) {
+                                if(data[i].type === 'Student'){
+                                    this.eleves.push(data[i]);
+                                }
+                            }
+                            this.mapEleves = {};
+                            for (var i = 0; i < this.eleves.all.length; i++) {
+                                this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
+                            }
+                            resolve();
+                        }.bind(this));
+                    }
                 });
             }
         });
@@ -483,11 +505,14 @@ export class Devoir extends Model implements IModel{
     }
 
     toJSON () {
+        let classe = evaluations.classes.findWhere({id : this.id_classe});
+        let type = classe !== undefined ? classe.type : '';
         return {
             name            : this.name,
             owner           : this.owner,
             libelle         : this.libelle,
             id_classe        : this.id_classe,
+            type_classe      : type,
             id_sousmatiere   : parseInt(this.id_sousmatiere),
             id_periode       : parseInt(this.id_periode),
             id_type          : parseInt(this.id_type),
@@ -1070,18 +1095,31 @@ export class Evaluations extends Model {
         this.structures.on('synchronized', function () {
             var _classes = [];
             _.each(model.me.classes, function (classe) {
-                _classes.push(_.findWhere(evaluations.structures.all[0].classes, {id : classe}));
+                let c = _.findWhere(evaluations.structures.all[0].classes, {id : classe});
+                if (c !== undefined) {
+                    c.type = lang.translate('viescolaire.utils.class');
+                    _classes.push(c);
+                }
             });
-            evaluations.classes.load(_classes);
-            evaluations.synchronized.classes = evaluations.classes.all.length;
-            for (var i = 0; i < evaluations.classes.all.length; i++) {
-                evaluations.classes.all[i].eleves.sync().then(() => {
-                    evaluations.synchronized.classes--;
-                    if (evaluations.synchronized.classes === 0) {
-                        evaluations.classes.trigger('classes-sync');
-                    }
-                });
-            }
+
+            http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
+                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type = lang.translate('viescolaire.utils.groupeEnseignement'));
+                _.each(groupesEnseignements, (groupeEnseignement) => _classes.push(groupeEnseignement));
+                model.trigger('groupe.sync');
+            });
+
+            model.on('groupe.sync', () => {
+                evaluations.classes.load(_classes);
+                evaluations.synchronized.classes = evaluations.classes.all.length;
+                for (let i = 0; i < evaluations.classes.all.length; i++) {
+                    evaluations.classes.all[i].eleves.sync().then(() => {
+                        evaluations.synchronized.classes--;
+                        if (evaluations.synchronized.classes === 0) {
+                            evaluations.classes.trigger('classes-sync');
+                        }
+                    });
+                }
+            })
         });
         this.structures.sync();
         this.devoirs.on('sync', function () {

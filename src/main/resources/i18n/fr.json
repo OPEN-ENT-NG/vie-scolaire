@@ -180,6 +180,7 @@
   "viescolaire.utils.description":"Description",
   "viescolaire.utils.school":"Etablissement",
   "viescolaire.utils.class":"Classe",
+  "viescolaire.utils.groupeEnseignement":"Groupe d'enseignement",
   "viescolaire.utils.subject":"Matière",
   "viescolaire.utils.subjects":"Matières",
   "viescolaire.utils.undersubject":"Sous matière",

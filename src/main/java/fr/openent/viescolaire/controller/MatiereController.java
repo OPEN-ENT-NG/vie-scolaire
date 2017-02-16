@@ -210,6 +210,12 @@ public class MatiereController extends ControllerHelper {
                                 JsonObject r = event.right().getValue().get(0);
                                 JsonArray matieres = r.getArray("u.classesFieldOfStudy");
 
+                                JsonArray matieresFromGroup = r.getArray("u.groupsFieldOfStudy");
+
+                                for (int i = 0; i < matieresFromGroup.size(); i++) {
+                                    matieres.add(matieresFromGroup.get(i));
+                                }
+
                                 final JsonArray codeEtab = new JsonArray();
                                 JsonArray codeMatieres = new JsonArray();
                                 Pattern p = Pattern.compile("\\$");

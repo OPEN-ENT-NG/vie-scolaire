@@ -18,10 +18,10 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 if (!hasProperty('sonatypeUsername')) {
-	ext.sonatypeUsername = ''
+	ext.sonatypeUsername = 'deployment'
 }
 if (!hasProperty('sonatypePassword')) {
-	ext.sonatypePassword = ''
+	ext.sonatypePassword = 'deployment123'
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,11 +44,11 @@ uploadArchives {
 
 			configuration = configurations.archives
 
-			repository(url: "http://maven.web-education.net/nexus/content/repositories/releases/") {
+			repository(url: "http://10.83.199.36:8088/content/repositories/releases/") {
 				authentication(userName: sonatypeUsername, password: sonatypePassword)
 			}
 
-			snapshotRepository(url: "http://maven.web-education.net/nexus/content/repositories/snapshots/") {
+			snapshotRepository(url: "http://10.83.199.36:8088/content/repositories/snapshots/") {
 				authentication(userName: sonatypeUsername, password: sonatypePassword)
 			}
 

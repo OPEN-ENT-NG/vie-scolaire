@@ -44,10 +44,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.date = new Date(devoirTmp.date);
                 $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
                 $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
+                $scope.oldIs_Evaluated = devoirTmp.is_evaluated;
                 $scope.devoir.dateDevoir = new Date($scope.devoir.date);
                 $scope.devoir.datePublication = new Date($scope.devoir.date_publication);
                 $scope.devoir.id_periode = devoirTmp.id_periode;
                 $scope.devoir.controlledDate = true;
+                $scope.firstConfirmSuppSkill = false;
+                $scope.secondConfirmSuppSkill = false;
+                $scope.evaluatedDisabel = false;
                 $scope.allCompetences = devoirTmp.competences;
                 $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
                 $scope.devoir.competences.sync().then(() => {
@@ -251,7 +255,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             lightboxs : {
                 updateDevoir : {
                     firstConfirmSupp : false,
-                    secondConfirmSupp : false
+                    secondConfirmSupp : false,
+                    evaluatedSkillDisabel : false
                 },
                 createDevoir : {
                     firstConfirmSupp : false,
@@ -753,7 +758,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     evaluations.competencesDevoir = newCompentenceDevoir;
-                  }
+                }
                 utils.safeApply($scope);
             });
         };
@@ -895,22 +900,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.cancelUpdateDevoir = function () {
-            if($scope.opened.lightboxs.updateDevoir.firstConfirmSupp === true){
-                $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = false ;
-            }else if($scope.opened.lightboxs.updateDevoir.secondConfirmSupp === true){
-                $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = false ;
-            }
-
+            $scope.firstConfirmSuppSkill = false;
+            $scope.secondConfirmSuppSkill = false;
+            $scope.evaluatedDisabel = false;
+            $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = false ;
+            $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = false ;
+            $scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel = false;
 
         };
         $scope.ConfirmeUpdateDevoir = function () {
-            if($scope.opened.lightboxs.updateDevoir.secondConfirmSupp === true){
-                $scope.saveNewDevoir();
-            }else if($scope.opened.lightboxs.updateDevoir.firstConfirmSupp === true){
+            if($scope.opened.lightboxs.updateDevoir.firstConfirmSupp === true){
+                $scope.firstConfirmSuppSkill = true;
                 $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = true;
+                $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = false;
+            }else if($scope.opened.lightboxs.updateDevoir.secondConfirmSupp === true){
+                $scope.secondConfirmSuppSkill = true;
+                $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = false;
+            }else  if($scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel){
+                $scope.evaluatedDisabel = true;
+                $scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel = false;
             }
-
-            $scope.cancelUpdateDevoir();
         };
         /**
          *
@@ -918,7 +927,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.beforSaveDevoir = function () {
             $scope.competencesSupp = [];
             $scope.evaluatedCompetencesSupp = [];
-
+            //
             if( $location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
                 //les compétences à supprimer
                 for( let i=0; i < $scope.allCompetences.all.length ; i++){
@@ -939,17 +948,55 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                     if( $scope.evaluatedCompetencesSupp.length > 0)
                         $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
-                    else
-                        $scope.saveNewDevoir();
+                    else{
+                        $scope.firstConfirmSuppSkill = true;
+                        $scope.secondConfirmSuppSkill = true;
+                    }
+
                 }else {
-                    $scope.saveNewDevoir();
+                    $scope.firstConfirmSuppSkill = true;
+                    $scope.secondConfirmSuppSkill = true;
                 }
 
+
+
             }else{
-                $scope.saveNewDevoir();
+                $scope.firstConfirmSuppSkill = true;
+                $scope.secondConfirmSuppSkill = true;
+                $scope.evaluatedDisabel = true;
             }
 
         };
+
+        $scope.listnerSaveNewDevoir = function () {
+            if ($scope.firstConfirmSuppSkill === true && $scope.secondConfirmSuppSkill === true && $scope.evaluatedDisabel === true) {
+                $scope.saveNewDevoir();
+                $scope.firstConfirmSuppSkill = false;
+                $scope.secondConfirmSuppSkill = false;
+                $scope.evaluatedDisabel = false;
+            }
+        };
+        $scope.$watch(function() { return $scope.firstConfirmSuppSkill; }, function (newValue, oldValue) {
+            if (newValue){
+
+                $scope.listnerSaveNewDevoir();
+            }
+
+        });
+        $scope.$watch(function() { return $scope.secondConfirmSuppSkill; }, function (newValue, oldValue) {
+            if (newValue){
+                if($scope.firstConfirmSuppSkill === true && $scope.secondConfirmSuppSkill === true && $scope.evaluatedDisabel === false) {
+                    if ($scope.oldIs_Evaluated === true && $scope.devoir.is_evaluated === false) {
+                        $scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel = true;
+                    } else
+                        $scope.evaluatedDisabel = true;
+                }
+                $scope.listnerSaveNewDevoir();}
+        });
+        $scope.$watch(function() { return $scope.evaluatedDisabel; }, function (newValue, oldValue) {
+            if (newValue)
+                $scope.listnerSaveNewDevoir();
+        });
         /**
          *  Sauvegarde du devoir à la suite du formulaire de création
          */

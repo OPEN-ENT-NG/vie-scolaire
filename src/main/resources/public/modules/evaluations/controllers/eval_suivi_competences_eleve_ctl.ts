@@ -85,8 +85,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *  Sauvegarde d'une évaluation libre
          */
         $scope.saveNewEvaluationLibre = function () {
-            $scope.evaluationLibre.date = $scope.getDateFormated($scope.evaluationLibre.date);
-            $scope.evaluationLibre.date_publication = $scope.getDateFormated($scope.evaluationLibre.date_publication);
+            $scope.evaluationLibre.date = $scope.getDateFormated($scope.evaluationLibre.dateDevoir);
+            $scope.evaluationLibre.date_publication = $scope.getDateFormated($scope.evaluationLibre.datePublication);
             $scope.evaluationLibre.id_periode = $scope.evaluationLibre.id_periode.id;
             $scope.evaluationLibre.create().then(function (res) {
                 // fermeture popup
@@ -497,10 +497,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.chartOptionsEval.datasets.labels.push(" ");
                 $scope.chartOptionsEval.colors = [];
                 $scope.chartOptionsEval.colors.push('#FFFFFF');
-                ListEval =  _.sortBy(ListEval, function(evalu){ return evalu.created; });
+                ListEval =  _.sortBy(ListEval, function(evalu){ return evalu.evaluation_date; });
                 for (let i = 0; i < ListEval.length; i++) {
                     $scope.chartOptionsEval.datasets.data.push(ListEval[i].evaluation + 2);
-                    $scope.chartOptionsEval.datasets.labels.push($scope.getDateFormated(ListEval[i].created));
+                    $scope.chartOptionsEval.datasets.labels.push($scope.getDateFormated(ListEval[i].evaluation_date));
                     let colorValue;
                     if(ListEval[i].evaluation == 0){colorValue = '#E13A3A';}
                     else if(ListEval[i].evaluation == 1){colorValue = '#FF8500';}

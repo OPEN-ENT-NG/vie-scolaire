@@ -1231,8 +1231,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getLibelleClasse = function(idClasse) {
             if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+            if(evaluations.classes.all.length === 0) return;
+            return _.findWhere(evaluations.classes.all, {id : idClasse}).name;
         };
 
         /**

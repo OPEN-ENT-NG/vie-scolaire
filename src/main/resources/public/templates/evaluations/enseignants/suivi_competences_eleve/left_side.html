@@ -22,8 +22,8 @@
     </div>
     <section>
         <label class="select">
-            <select ng-model="search.classe" ng-change="selectSuivi(route.current.$$route.originalPath)" ng-options="classe.name for classe in classes.all">
-                <option class="header-opt" value="">[[translate('viescolaire.utils.class')]]</option>
+            <select ng-model="search.classe" ng-change="selectSuivi(route.current.$$route.originalPath)" ng-options="classe as classe.name group by classe.type for classe in classes.all | orderBy:['type','name']">
+                <option class="header-opt" value="">[[translate('viescolaire.utils.class.groupe')]]</option>
             </select>
         </label>
     </section>

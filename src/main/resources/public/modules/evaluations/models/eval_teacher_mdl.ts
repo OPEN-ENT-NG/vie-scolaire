@@ -404,6 +404,7 @@ export class Devoir extends Model implements IModel{
     // DATABASE FIELDS
     id : number;
     id_classe : string;
+    id_groupe : string;
     ramener_sur : boolean;
     coefficient : number;
     name : string ;
@@ -739,6 +740,15 @@ export class DevoirsCollection {
                         evaluations.devoirs.synchronizedDevoirType();
                     });
                 }
+
+                if (evaluations.synchronized.classes) {
+                    evaluations.devoirs.updateClasseGroupe();
+                } else {
+                    evaluations.classes.on('sync', function () {
+                        evaluations.devoirs.updateClasseGroupe();
+                    });
+                }
+
                 evaluations.devoirs.trigger('sync');
             }.bind(this));
             this.percentDone = false;
@@ -749,6 +759,15 @@ export class DevoirsCollection {
         for (var i = 0; i < evaluations.devoirs.all.length; i++) {
             var matiere = evaluations.matieres.findWhere({id : evaluations.devoirs.all[i].id_matiere});
             if (matiere) evaluations.devoirs.all[i].matiere = matiere;
+        }
+    }
+
+    updateClasseGroupe () {
+        for (var i = 0; i < evaluations.devoirs.all.length; i++) {
+            if ( evaluations.devoirs.all[i].id_classe === undefined
+                || evaluations.devoirs.all[i].id_classe === null) {
+                evaluations.devoirs.all[i].id_classe =evaluations.devoirs.all[i].id_groupe;
+            }
         }
     }
 

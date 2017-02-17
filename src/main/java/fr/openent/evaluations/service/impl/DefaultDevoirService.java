@@ -98,7 +98,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                     ||  attr.equals("competenceEvaluee")
                                     ||  attr.equals("competences")
                                     ||  attr.equals(attributeTypeClasse)
-                                    ||  attr.equals(attributeCodeTypeClasse))) {
+                                    ||  attr.equals(attributeCodeTypeClasse)
+                                    ||  (attr.equals(attributeIdClasse)
+                                            && devoir.getLong(attributeCodeTypeClasse).longValue() == typeClasse_GroupeEnseignement
+                                    ))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));
@@ -173,6 +176,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     }
 
                     // Ajoute une relation notes.rel_devoirs_groupes si la classe est un groupe
+                    // Dans ce cas notes.devoirs.id_classe n'est pas renseignée
                     if(null != devoir.getLong(attributeCodeTypeClasse)
                             && devoir.getLong(attributeCodeTypeClasse).longValue() == typeClasse_GroupeEnseignement){
                         JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
@@ -288,7 +292,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, devoirs.is_evaluated,")
+        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
@@ -299,9 +303,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
                 .append("WHERE devoirs.owner = ? ")
-                .append("AND devoirs.id_classe is not null ")
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, devoirs.is_evaluated, ")
+                .append("AND (devoirs.id_classe is not null OR rel_devoirs_groupes.id_devoir = devoirs.id) ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");

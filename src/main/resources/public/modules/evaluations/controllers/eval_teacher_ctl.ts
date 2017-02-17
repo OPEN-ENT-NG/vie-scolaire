@@ -20,6 +20,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             createDevoir : function(params){
                 $scope.cleanRoot();
+                delete $scope.devoir;
                 $scope.createDevoir();
                 $scope.initFilter(true);
             },

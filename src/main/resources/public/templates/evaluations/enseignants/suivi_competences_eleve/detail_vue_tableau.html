@@ -47,7 +47,7 @@
             <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">
                 <td>[[evaluation.evaluation_libelle]]</td>
                 <td>[[evaluation.owner_name]]</td>
-                <td>[[getDateFormated(evaluation.created)]]</td>
+                <td>[[getDateFormated(evaluation.evaluation_date)]]</td>
                 <td>
                     <span class="competence-eval rounded"
                           ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0,

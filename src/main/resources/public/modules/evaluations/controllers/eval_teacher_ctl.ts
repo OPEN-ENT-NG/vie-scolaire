@@ -20,9 +20,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             createDevoir : function(params){
                 $scope.cleanRoot();
-                delete $scope.devoir;
                 $scope.createDevoir();
-                $scope.initFilter(true);
+                evaluations.enseignements.on('sync', function() {
+                    $scope.initFilter(true);
+                });
             },
 
             editDevoir : function (params) {
@@ -34,7 +35,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.name = devoirTmp.name;
                 $scope.devoir.owner =  devoirTmp.owner;
                 $scope.devoir.libelle =devoirTmp.libelle;
-
+                $scope.devoir.id_classe = devoirTmp.id_classe;
                 $scope.devoir.id_sousmatiere = devoirTmp.id_sousmatiere;
                 $scope.devoir.id_type = parseInt(devoirTmp.id_type);
                 $scope.devoir.id_matiere  = devoirTmp.id_matiere;
@@ -59,7 +60,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.competences.sync().then(() => {
                         $scope.createDevoir();
                         $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
-
 
                         evaluations.enseignements.on('sync', function() {
                         $scope.initFilter(true);
@@ -109,13 +109,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             if (checkIt) {
                                 parentToCheck[i].isSelected = true;
                                 parentToCheck[i].id = parentToCheck[i].id_competence;
-                                utils.safeApply($scope);
                             }
                             else {
                                 parentToCheck[i].isSelected = false;
                                 parentToCheck[i].id = parentToCheck[i].id_competence;
-                                utils.safeApply($scope);
                             }
+                            //depliement de l'enseignement pour les compétences sélectionnées du devoir à modifier
+                            var enseignementToOpen =$scope.devoir.enseignements.all.find(
+                                function (elem) { return elem.id === parentToCheck[i].data.id_enseignement});
+                            enseignementToOpen.open =true;
+
+                            //depliement des connaissances parent des compétences du devoir à modifier
+                            parentToCheck[i].data.open = true;
+                            utils.safeApply($scope);
                         }
                     });
                     template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
@@ -396,6 +402,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.initDevoir = function () {
             return new Devoir({
+                name : undefined,
                 date_publication  : new Date(),
                 date       : new Date(),
                 diviseur         : 20,
@@ -772,7 +779,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         //TODO Déplacer cette séquence dans la séquence du router
         $scope.createDevoir = function () {
-            if($scope.devoir === undefined) {
+            if($location.path() === "/devoir/create") {
                 $scope.devoir = $scope.initDevoir();
             }
                 //$scope.opened.lightbox = true;

@@ -1108,6 +1108,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (resolve && typeof(resolve) === 'function') {
                         resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
                     }
+                }else{
+                    if (resolve && typeof(resolve) === 'function') {
+                        resolve(evaluations.matieres)
+                    }
                 }
             });
         };

@@ -53,8 +53,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     private static final String attributeTypeClasse = "type_classe";
-    private static final String typeClasse_Classe = "classe";
-    private static final String typeClasse_Grp_Ens = "groupeEnseignement";
+    private static final String attributeCodeTypeClasse = "code_type_classe";
+    //private static final int typeClasse_Classe = 0;
+    private static final long typeClasse_GroupeEnseignement = 1;
+   // private static final String typeClasse_Grp_Ens = "groupeEnseignement";
+    private static final String attributeIdClasse = "id_classe";
+
 
     @Override
     public void createDevoir(final JsonObject devoir, final UserInfos user, final Handler<Either<String, JsonObject>> handler) {
@@ -93,7 +97,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                     ||  attr.equals("competencesRem")
                                     ||  attr.equals("competenceEvaluee")
                                     ||  attr.equals("competences")
-                                    || (attr.equals(attributeTypeClasse) && devoir.getValue(attr).toString().equalsIgnoreCase(typeClasse_Classe)))) {
+                                    ||  attr.equals(attributeTypeClasse)
+                                    ||  attr.equals(attributeCodeTypeClasse))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));
@@ -166,6 +171,22 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 .putString("action", "prepared"));
 
                     }
+
+                    // Ajoute une relation notes.rel_devoirs_groupes si la classe est un groupe
+                    if(null != devoir.getLong(attributeCodeTypeClasse)
+                            && devoir.getLong(attributeCodeTypeClasse).longValue() == typeClasse_GroupeEnseignement){
+                        JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
+                        String queryAddRelDevoirsGroupes = new String("INSERT INTO notes.rel_devoirs_groupes(id_groupe, id_devoir) VALUES (?, ?)");
+                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdClasse));
+                        paramsAddRelDevoirsGroupes.addNumber(devoirId);
+                        statements.add(new JsonObject()
+                                .putString("statement", queryAddRelDevoirsGroupes)
+                                .putArray("values", paramsAddRelDevoirsGroupes)
+                                .putString("action", "prepared"));
+                    }
+
+
+
                     //Exécution de la transaction avec roleBackw
 
                     Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {

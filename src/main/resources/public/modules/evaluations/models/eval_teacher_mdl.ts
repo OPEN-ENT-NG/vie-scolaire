@@ -201,6 +201,7 @@ export class Classe extends Model {
     id : number;
     name : string;
     type : string;
+    code_type : number;
     suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
     mapEleves : any;
 
@@ -239,7 +240,7 @@ export class Classe extends Model {
                                     this.eleves.push(data[i]);
                                 }
                             }
-                            this.mapEleves = {};
+
                             for (var i = 0; i < this.eleves.all.length; i++) {
                                 this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
                             }
@@ -507,12 +508,14 @@ export class Devoir extends Model implements IModel{
     toJSON () {
         let classe = evaluations.classes.findWhere({id : this.id_classe});
         let type = classe !== undefined ? classe.type : '';
+        let code_type =  classe !== undefined ? classe.code_type : -1;
         return {
             name            : this.name,
             owner           : this.owner,
             libelle         : this.libelle,
             id_classe        : this.id_classe,
             type_classe      : type,
+            code_type_classe : code_type,
             id_sousmatiere   : parseInt(this.id_sousmatiere),
             id_periode       : parseInt(this.id_periode),
             id_type          : parseInt(this.id_type),
@@ -1098,12 +1101,14 @@ export class Evaluations extends Model {
                 let c = _.findWhere(evaluations.structures.all[0].classes, {id : classe});
                 if (c !== undefined) {
                     c.type = lang.translate('viescolaire.utils.class');
+                    c.code_type = 0;
                     _classes.push(c);
                 }
             });
 
             http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
                 _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type = lang.translate('viescolaire.utils.groupeEnseignement'));
+                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.code_type = 1);
                 _.each(groupesEnseignements, (groupeEnseignement) => _classes.push(groupeEnseignement));
                 model.trigger('groupe.sync');
             });

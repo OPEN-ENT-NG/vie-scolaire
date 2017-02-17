@@ -9,7 +9,12 @@ export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
         if (classes.all.length > 0) {
             var libelleClasse = _.findWhere(classes.all, {id : idClasse}).name;
             if (libelleClasse !== undefined) {
-                return _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+                var listMatieresOfClasse = _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+                if(listMatieresOfClasse === undefined || listMatieresOfClasse.length == 0 ){
+                    return listeMatiere.all;
+                }else{
+                    return listMatieresOfClasse;
+                }
             }
         }
     }

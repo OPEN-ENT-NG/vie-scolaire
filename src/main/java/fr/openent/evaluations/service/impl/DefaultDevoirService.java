@@ -77,11 +77,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     JsonArray competences = devoir.getArray("competences");
                     final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
 
-                    StringBuilder queryParams = new StringBuilder();
-                    JsonArray params = new JsonArray();
+                    //Merge_user dans la transaction
+
+                    StringBuilder queryParamsForMerge = new StringBuilder();
+                    JsonArray paramsForMerge = new JsonArray();
+                    paramsForMerge.add(user.getUserId()).add(user.getUsername());
+
+                    StringBuilder queryForMerge = new StringBuilder()
+                            .append("SELECT " + schema + "merge_users(?,?)" );
+                    statements.add(new JsonObject()
+                            .putString("statement", queryForMerge.toString())
+                            .putArray("values", paramsForMerge)
+                            .putString("action", "prepared"));
 
 
                     //Ajout de la creation du devoir dans la pile de transaction
+                    StringBuilder queryParams = new StringBuilder();
+                    JsonArray params = new JsonArray();
                     StringBuilder valueParams = new StringBuilder();
                     queryParams.append("( id ");
                     valueParams.append("( ?");

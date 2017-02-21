@@ -55,9 +55,29 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     @Override
-    public void listMatieres(String id, Handler<Either<String, JsonArray>> result) {
-        String query = "MATCH (u:User {id:{id}}) return u.classesFieldOfStudy";
-        neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validResultHandler(result));
+    public void listMatieres(String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        if(poTitulairesIdList == null || poTitulairesIdList.size() == 0) {
+            params.putString("id", id);
+            query.append("MATCH (u:User {id:{id}}) ");
+        } else{
+            query.append("MATCH (u:User) WHERE u.id IN {userIdList} AND u.classesFieldOfStudy IS NOT null ");
+
+            JsonArray oUserIdList = new JsonArray();
+            oUserIdList.add(id);
+
+            for (Object oTitulaire:poTitulairesIdList) {
+                String sIdTitulaire = ((JsonObject)oTitulaire).getString("id_titulaire");
+                oUserIdList.add(sIdTitulaire);
+            }
+
+            params.putArray("userIdList", oUserIdList);
+        }
+        query.append("return u.classesFieldOfStudy");
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
     @Override

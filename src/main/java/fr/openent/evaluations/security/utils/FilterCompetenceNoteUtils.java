@@ -105,8 +105,6 @@ public class FilterCompetenceNoteUtils {
 
                     .append(")");
 
-        // TODO verifier utilité de certaines jointures
-
         // Ajout des params pour la partie de la requête où on vérifie si on est le propriétaire
         for (int i = 0; i < idNotes.size(); i++) {
             params.addNumber(idNotes.get(i));

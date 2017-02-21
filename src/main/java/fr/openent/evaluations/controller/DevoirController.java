@@ -163,6 +163,7 @@ public class DevoirController extends ControllerHelper {
                                                                 List<String> actions = new ArrayList<String>();
                                                                 actions.add(Viescolaire.DEVOIR_ACTION_UPDATE);
 
+                                                                // TODO ne partager le devoir seulement si le titulaire enseigne sur la classe du remplaçant
                                                                 shareService.userShare(user.getUserId(), userIdTitulaire, devoirWithId.getLong("id").toString(), actions, new Handler<Either<String, JsonObject>>() {
                                                                     @Override
                                                                     public void handle(Either<String, JsonObject> event) {

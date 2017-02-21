@@ -68,6 +68,8 @@ routes.define(function($routeProvider){
         .when('/releve', {action:'displayReleveNotes'})
         .when('/competences/eleve', {action : 'displaySuiviCompetencesEleve'})
         .when('/competences/classe', {action : 'displaySuiviCompetencesClasse'})
+        .when('/remplacements/list',{action:'listRemplacements'})
+        .when('/remplacement/create',{action:'createRemplacements'})
         .when('/',{action:'accueil'})
         .otherwise({
             redirectTo : '/'

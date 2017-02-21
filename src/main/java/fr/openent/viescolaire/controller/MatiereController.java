@@ -190,6 +190,113 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
+
+    private void listMatieres(JsonArray poTitulairesIdList, final HttpServerRequest request) {
+        matiereService.listMatieres(request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()){
+                    JsonArray resultats = event.right().getValue();
+
+                    // ensemble des matieres de l'utilsateur + de ses titulaires
+                    JsonArray matieres = new JsonArray();
+
+                    // ajout de tous les résultats dans une seule liste dem atieres
+                    for (Object res : resultats) {
+                        JsonArray matieresOfOneUser = ((JsonObject)res).getArray("u.classesFieldOfStudy");
+                        for (Object matiere : matieresOfOneUser) {
+                            if(!matieres.contains(matiere)) {
+                                matieres.add(matiere);
+                            }
+                        }
+                    }
+
+
+                    final JsonArray codeEtab = new JsonArray();
+                    JsonArray codeMatieres = new JsonArray();
+                    Pattern p = Pattern.compile("\\$");
+                    final ArrayList<String> correspondanceMatiere = new ArrayList<String>();
+                    final ArrayList<String> correspondanceEtablissement = new ArrayList<String>();
+                    final ArrayList<String> correspondanceClasse = new ArrayList<String>();
+                    for(int i = 0 ; i < matieres.size(); i++){
+                        String value = matieres.get(i).toString();
+                        String[] spliting = p.split(value);
+                        correspondanceMatiere.add(spliting[2]);
+                        correspondanceClasse.add(spliting[1]);
+                        correspondanceEtablissement.add(spliting[0]);
+                        if(!codeEtab.contains(spliting[0])){
+                            codeEtab.add(spliting[0]);
+                        }
+                        if(!codeMatieres.contains(spliting[2])) {
+                            codeMatieres.add(spliting[2]);
+                        }
+                    }
+                    matiereService.getCorrespondanceMatieres(codeMatieres, codeEtab, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            JsonArray r = event.right().getValue();
+                            JsonObject etabListe = new JsonObject();
+                            JsonObject matiereList = new JsonObject();
+
+                            JsonObject n = new JsonObject();
+                            JsonObject nInter = new JsonObject();
+
+                            final JsonArray reponse = new JsonArray();
+                            String[] ids = new String[correspondanceMatiere.size()];
+                            for(int i = 0 ; i < r.size(); i ++){
+                                n = r.get(i);
+                                nInter = n.getObject("n");
+                                n = nInter.getObject("data");
+                                if(n.containsField("academy")){
+                                    etabListe.putObject(n.getString("externalId"), n);
+                                }else{
+                                    matiereList.putObject(n.getString("externalId"), n);
+                                }
+                            }
+                            for(int i = 0 ; i < correspondanceMatiere.size(); i++) {
+                                JsonObject obj = matiereList.getObject(correspondanceMatiere.get(i));
+                                JsonObject o = new JsonObject();
+                                o = obj.copy();
+
+                                o.putString("libelleClasse", correspondanceClasse.get(i));
+                                o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
+                                reponse.add(o);
+                                ids[i]=o.getString("id");
+                            }
+                            sousMatiereService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                    if (event_ssmatiere.right().isRight()) {
+                                        JsonArray finalresponse = new JsonArray();
+                                        JsonArray res = event_ssmatiere.right().getValue();
+                                        for (int i = 0; i < reponse.size(); i++) {
+                                            JsonObject matiere = reponse.get(i);
+                                            String id = matiere.getString("id");
+                                            JsonArray ssms = new JsonArray();
+                                            for (int j = 0; j < res.size(); j++) {
+                                                JsonObject ssm = res.get(j);
+                                                if (ssm.getString("id_matiere").equals(id)) {
+                                                    ssms.addObject(ssm);
+                                                }
+                                            }
+                                            matiere.putArray("sous_matieres", ssms);
+                                            finalresponse.addObject(matiere);
+                                        }
+                                        Renders.renderJson(request, finalresponse);
+                                    } else {
+                                        leftToResponse(request, event_ssmatiere.left());
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    leftToResponse(request, event.left());
+                }
+            }
+        });
+    }
+
     // TODO A REFAIRE APRES LES BERNCHS DE PERF
     /**
      * Retourne les matières enseignées par un enseignant donné
@@ -203,96 +310,22 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    matiereService.listMatieres(request.params().get("idEnseignant"), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                JsonObject r = event.right().getValue().get(0);
-                                JsonArray matieres = r.getArray("u.classesFieldOfStudy");
 
-                                final JsonArray codeEtab = new JsonArray();
-                                JsonArray codeMatieres = new JsonArray();
-                                Pattern p = Pattern.compile("\\$");
-                                final ArrayList<String> correspondanceMatiere = new ArrayList<String>();
-                                final ArrayList<String> correspondanceEtablissement = new ArrayList<String>();
-                                final ArrayList<String> correspondanceClasse = new ArrayList<String>();
-                                for(int i = 0 ; i < matieres.size(); i++){
-                                    String value = matieres.get(i).toString();
-                                    String[] spliting = p.split(value);
-                                    correspondanceMatiere.add(spliting[2]);
-                                    correspondanceClasse.add(spliting[1]);
-                                    correspondanceEtablissement.add(spliting[0]);
-                                    if(!codeEtab.contains(spliting[0])){
-                                        codeEtab.add(spliting[0]);
-                                    }
-                                    if(!codeMatieres.contains(spliting[2])) {
-                                        codeMatieres.add(spliting[2]);
+                    utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event) {
+
+                                    if(event.isRight()) {
+
+                                        JsonArray oTitulairesIdList = event.right().getValue();
+
+                                        listMatieres(oTitulairesIdList, request);
+                                    } else {
+                                        leftToResponse(request, event.left());
                                     }
                                 }
-                                matiereService.getCorrespondanceMatieres(codeMatieres, codeEtab, new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> event) {
-                                        JsonArray r = event.right().getValue();
-                                        JsonObject etabListe = new JsonObject();
-                                        JsonObject matiereList = new JsonObject();
-
-                                        JsonObject n = new JsonObject();
-                                        JsonObject nInter = new JsonObject();
-
-                                        final JsonArray reponse = new JsonArray();
-                                        String[] ids = new String[correspondanceMatiere.size()];
-                                        for(int i = 0 ; i < r.size(); i ++){
-                                            n = r.get(i);
-                                            nInter = n.getObject("n");
-                                            n = nInter.getObject("data");
-                                            if(n.containsField("academy")){
-                                                etabListe.putObject(n.getString("externalId"), n);
-                                            }else{
-                                                matiereList.putObject(n.getString("externalId"), n);
-                                            }
-                                        }
-                                        for(int i = 0 ; i < correspondanceMatiere.size(); i++) {
-                                            JsonObject obj = matiereList.getObject(correspondanceMatiere.get(i));
-                                            JsonObject o = new JsonObject();
-                                            o = obj.copy();
-
-                                            o.putString("libelleClasse", correspondanceClasse.get(i));
-                                            o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
-                                            reponse.add(o);
-                                            ids[i]=o.getString("id");
-                                        }
-                                        sousMatiereService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
-                                            @Override
-                                            public void handle(Either<String, JsonArray> event_ssmatiere) {
-                                                if (event_ssmatiere.right().isRight()) {
-                                                    JsonArray finalresponse = new JsonArray();
-                                                    JsonArray res = event_ssmatiere.right().getValue();
-                                                    for (int i = 0; i < reponse.size(); i++) {
-                                                        JsonObject matiere = reponse.get(i);
-                                                        String id = matiere.getString("id");
-                                                        JsonArray ssms = new JsonArray();
-                                                        for (int j = 0; j < res.size(); j++) {
-                                                            JsonObject ssm = res.get(j);
-                                                            if (ssm.getString("id_matiere").equals(id)) {
-                                                                ssms.addObject(ssm);
-                                                            }
-                                                        }
-                                                        matiere.putArray("sous_matieres", ssms);
-                                                        finalresponse.addObject(matiere);
-                                                    }
-                                                    Renders.renderJson(request, finalresponse);
-                                                } else {
-                                                    leftToResponse(request, event_ssmatiere.left());
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }else{
-                                leftToResponse(request, event.left());
                             }
-                        }
-                    });
+                    );
                 }else{
                     unauthorized(request);
                 }

@@ -67,6 +67,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_COMPETENCES_NOTES_TABLE = "competences_notes";
     public static final String EVAL_ENSEIGNEMENTS_TABLE = "enseignements";
 	public static final String EVAL_DOMAINES_TABLE = "domaines";
+	public static final String EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE = "rel_professeurs_remplacants";
 
 	/**
 	 * Déclaration des router préfixs
@@ -80,7 +81,10 @@ public class Viescolaire extends BaseServer {
 	 */
 	public static final String SCHEMA_NOTES_CREATE = "eval_createNote";
 	public static final String SCHEMA_NOTES_UPDATE = "eval_updateNote";
+	public static final String SCHEMA_REL_PROFESSEURS_REMPLACANTS_CREATE = "eval_createRel_professeurs_remplacants";
+
 	public static final String SCHEMA_DEVOIRS_CREATE = "eval_createDevoir";
+
 	public static final String SCHEMA_COMPETENCES_DEVOIR = "eval_createCompetence";
 	public static final String SCHEMA_DEVOIRS_UPDATE = "eval_updateDevoir";
     public static final String SCHEMA_COMPETENCE_NOTE_CREATE = "eval_createCompetenceNote";
@@ -135,6 +139,7 @@ public class Viescolaire extends BaseServer {
 		 */
 		addController(new CompetenceController());
 		addController(new CompetenceNoteController());
+		addController(new RemplacementController());
 
 		// devoir table
 		SqlConf confDevoir = SqlConfs.createConf(DevoirController.class.getName());

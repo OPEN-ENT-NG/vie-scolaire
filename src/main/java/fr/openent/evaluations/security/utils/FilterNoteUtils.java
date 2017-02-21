@@ -77,8 +77,6 @@ public class FilterNoteUtils {
 
                     .append(")");
 
-        // TODO verifier utilité de certaines jointures
-
         // Ajout des params pour la partie de la requête où on vérifie si on est le propriétaire
         params.addNumber(idNote);
         params.addString(user.getUserId());

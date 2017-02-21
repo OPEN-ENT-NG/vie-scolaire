@@ -1307,9 +1307,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     var devoir = evaluations.devoirs.findWhere({id : evaluation.id_devoir});
                     if (devoir !== undefined) {
                         if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
-                            evaluation.save().then(() => {
+                            if(evaluation.data.id !== undefined && evaluation.id === undefined){
+                                evaluation.id = evaluation.data.id;
+                            }
+                            evaluation.save().then((res) => {
                                 evaluation.oldValeur = evaluation.valeur;
                                 evaluation.oldAppreciation = evaluation.appreciation;
+                                evaluation.id = res.id;
                                 if ($location.$$path === '/releve') {
                                     $scope.calculerMoyenneEleve(eleve);
                                     $scope.calculStatsDevoirReleve(evaluation.id_devoir);

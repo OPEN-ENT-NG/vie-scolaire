@@ -1,4 +1,5 @@
 CREATE SCHEMA notes;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- tables
 CREATE TABLE notes.users
@@ -29,12 +30,26 @@ CREATE TABLE notes.members
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE notes.dispense
+CREATE TABLE notes.cycle
 (
   id bigserial NOT NULL,
-  libelle character varying(255),
-  description text,
-  CONSTRAINT dispense_pk PRIMARY KEY (id)
+  libelle character varying,
+  CONSTRAINT cycle_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE notes.domaines
+(
+  id bigserial NOT NULL,
+  id_parent bigint,
+  id_cycle bigint,
+  codification character varying,
+  libelle character varying,
+  type character varying,
+  evaluated boolean NOT NULL DEFAULT false,
+  CONSTRAINT domaines_pk PRIMARY KEY (id),
+  CONSTRAINT fk_domaines_id_cycle FOREIGN KEY (id_cycle)
+  REFERENCES notes.cycle (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE TABLE notes.enseignements
@@ -48,33 +63,14 @@ CREATE TABLE notes.competences
 (
   id bigserial NOT NULL,
   nom text NOT NULL,
-  description text,
   id_parent integer,
   id_type integer NOT NULL,
-  id_enseignement integer,
-  owner character varying(36),
-  created timestamp without time zone,
-  modified timestamp without time zone,
-  CONSTRAINT competences_pk PRIMARY KEY (id),
-  CONSTRAINT fk_enseignements_id FOREIGN KEY (id_enseignement)
-  REFERENCES notes.enseignements (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION
+  id_cycle bigint DEFAULT 1,
+  CONSTRAINT competences_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE notes.etat
-(
-  id bigserial NOT NULL,
-  libelle character varying(255),
-  CONSTRAINT etat_pk PRIMARY KEY (id)
-);
+CREATE INDEX idx_compretences_idparent ON notes.competences USING btree (id_parent);
 
-
-CREATE TABLE notes.type_competences
-(
-  id bigserial NOT NULL,
-  nom character varying(255),
-  CONSTRAINT typecompetences_pk PRIMARY KEY (id)
-);
 
 CREATE TABLE notes.type
 (
@@ -90,25 +86,23 @@ CREATE TABLE notes.devoirs
   id bigserial NOT NULL,
   name character varying(255),
   owner character varying(36) NOT NULL,
-  created timestamp without time zone DEFAULT now() NOT NULL,
-  modified timestamp without time zone DEFAULT now() NOT NULL,
+  created timestamp without time zone NOT NULL DEFAULT now(),
+  modified timestamp without time zone NOT NULL DEFAULT now(),
   coefficient numeric,
   libelle character varying(255),
-  id_classe character varying(255) NOT NULL,
+  id_classe character varying(255),
   id_sousmatiere bigint,
   id_periode bigint NOT NULL,
   id_type bigint NOT NULL,
   id_etablissement character varying(36) NOT NULL,
-  id_etat bigint NOT NULL,
   diviseur integer NOT NULL,
   id_matiere character varying(255),
-  ramene_rsur boolean,
+  ramener_sur boolean,
   date_publication date,
   date date,
+  is_evaluated boolean DEFAULT true,
+  id_etat bigint,
   CONSTRAINT devoirs_pk PRIMARY KEY (id),
-  CONSTRAINT fk_etat_id FOREIGN KEY (id_etat)
-  REFERENCES notes.etat (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_periode_id FOREIGN KEY (id_periode)
   REFERENCES viesco.periode (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -123,16 +117,16 @@ CREATE TABLE notes.devoirs
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE notes.shares
+CREATE INDEX "fki_FK type" ON notes.devoirs USING btree(id_type);
+CREATE INDEX "fki_foreignPeriode" ON notes.devoirs USING btree (id_periode);
+
+CREATE TABLE notes.devoirs_shares
 (
   member_id character varying(36) NOT NULL,
   resource_id bigint NOT NULL,
   action character varying(255) NOT NULL,
-  CONSTRAINT share PRIMARY KEY (member_id, resource_id, action),
-  CONSTRAINT fk_member_id FOREIGN KEY (member_id)
-  REFERENCES notes.members (id) MATCH SIMPLE
-  ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_resource_id FOREIGN KEY (resource_id)
+  CONSTRAINT devoirs_shares_pk PRIMARY KEY (member_id, resource_id, action),
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (resource_id)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
   ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -143,7 +137,6 @@ CREATE TABLE notes.notes
   id_eleve character varying(255) NOT NULL,
   id_devoir bigint NOT NULL,
   valeur numeric NOT NULL,
-  id_dispense bigint,
   owner character varying(255),
   modified timestamp without time zone,
   created timestamp without time zone,
@@ -151,11 +144,11 @@ CREATE TABLE notes.notes
   CONSTRAINT notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT fk_dispense_id FOREIGN KEY (id_dispense)
-  REFERENCES notes.dispense (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION
+  ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+CREATE INDEX idx_notes_ideleve ON notes.notes USING btree (id_eleve);
+CREATE INDEX idx_notes_ideleve_iddevoir ON notes.notes USING btree (id_eleve, id_devoir);
 
 CREATE TABLE notes.competences_notes
 (
@@ -165,31 +158,78 @@ CREATE TABLE notes.competences_notes
   evaluation integer,
   owner character varying(36),
   id_eleve character(36),
-  created timestamp without time zone,
+  created timestamp without time zone DEFAULT now(),
   modified timestamp without time zone,
   CONSTRAINT competences_notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
   REFERENCES notes.competences (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION,
+  ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE NO ACTION
+  ON UPDATE NO ACTION ON DELETE CASCADE
 );
+CREATE INDEX competences_notes_id_devoir_id_eleve_idx ON notes.competences_notes USING btree(id_devoir, id_eleve);
 
 CREATE TABLE notes.competences_devoirs
 (
   id bigserial NOT NULL,
   id_devoir integer,
   id_competence integer,
-  owner character varying(36),
-  created timestamp without time zone,
-  modified timestamp without time zone,
   CONSTRAINT competences_devoirs_pk PRIMARY KEY (id),
   CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
   REFERENCES notes.competences (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
-  REFERENCES notes.devoirs (id) MATCH SIMPLE
+  CONSTRAINT fk_devoir_id FOREIGN KEY (id_devoir)
+  REFERENCES notes.devoirs (id) MATCH FULL
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE notes.rel_competences_domaines
+(
+  id_competence bigint,
+  id_domaine bigint,
+  CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
+  REFERENCES notes.competences (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_domaines_id FOREIGN KEY (id_domaine)
+  REFERENCES notes.domaines (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE notes.rel_devoirs_groupes
+(
+  id_groupe character varying(36) NOT NULL,
+  id_devoir bigint NOT NULL,
+  CONSTRAINT rel_devoirs_groupes_pk PRIMARY KEY (id_groupe, id_devoir),
+  CONSTRAINT fk_devoir_id FOREIGN KEY (id_devoir)
+  REFERENCES notes.devoirs (id) MATCH FULL
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE notes.rel_classe_cycle
+(
+  id_classe character varying(36),
+  id_cycle bigint
+);
+
+CREATE TABLE notes.rel_professeurs_remplacants
+(
+  id_titulaire character varying(36) NOT NULL,
+  id_remplacant character varying(36) NOT NULL,
+  date_debut timestamp without time zone NOT NULL,
+  date_fin timestamp without time zone NOT NULL,
+  id_etablissement character varying(36)
+);
+
+CREATE TABLE notes.rel_competences_enseignements
+(
+  id_competence bigint,
+  id_enseignement bigint,
+  CONSTRAINT fk_competence_id FOREIGN KEY (id_competence)
+  REFERENCES notes.competences (id) MATCH SIMPLE
+  ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_enseignement_id FOREIGN KEY (id_enseignement)
+  REFERENCES notes.enseignements (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -267,13 +307,3 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
-
--- index
-CREATE INDEX idx_compretences_idparent ON notes.competences USING btree(id_parent);
-CREATE INDEX competences_notes_id_devoir_id_eleve_idx ON notes.competences_notes USING btree(id_devoir, id_eleve);
-
-CREATE INDEX "fki_FK type" ON notes.devoirs USING btree(id_type);
-CREATE INDEX "fki_foreignEtat" ON notes.devoirs USING btree(id_etat);
-CREATE INDEX "fki_foreignPeriode" ON notes.devoirs USING btree(id_periode);
-
-CREATE INDEX "fki_foreignDispense" ON notes.notes USING btree(id_dispense);

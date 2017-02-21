@@ -72,11 +72,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     JsonArray competences = devoir.getArray("competences");
                     final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
 
-                    StringBuilder queryParams = new StringBuilder();
-                    JsonArray params = new JsonArray();
+                    //Merge_user dans la transaction
+
+                    StringBuilder queryParamsForMerge = new StringBuilder();
+                    JsonArray paramsForMerge = new JsonArray();
+                    paramsForMerge.add(user.getUserId()).add(user.getUsername());
+
+                    StringBuilder queryForMerge = new StringBuilder()
+                            .append("SELECT " + schema + "merge_users(?,?)" );
+                    statements.add(new JsonObject()
+                            .putString("statement", queryForMerge.toString())
+                            .putArray("values", paramsForMerge)
+                            .putString("action", "prepared"));
 
 
                     //Ajout de la creation du devoir dans la pile de transaction
+                    StringBuilder queryParams = new StringBuilder();
+                    JsonArray params = new JsonArray();
                     StringBuilder valueParams = new StringBuilder();
                     queryParams.append("( id ");
                     valueParams.append("( ?");
@@ -164,7 +176,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 .putString("action", "prepared"));
 
                     }
-                    //Exécution de la transaction avec roleBackw
+                    //Exécution de la transaction avec roleBack
 
                     Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
                         @Override
@@ -218,20 +230,30 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             JsonArray params = new JsonArray();
             StringBuilder query = new StringBuilder()
                     .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs WHERE ");
+            StringBuilder queryDelNote = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE ");
             for(int i = 0; i < competenceRem.size(); i++){
                 query.append("(id_devoir = ? AND  id_competence = ?)");
+                queryDelNote.append("(id_devoir = ? AND  id_competence = ?)");
                 params.addNumber(Integer.parseInt(id));
                 params.addNumber((Number) competenceRem.get(i));
                 if(i != competenceRem.size()-1){
                     query.append(" OR ");
+                    queryDelNote.append(" OR ");
                 }else{
                     query.append(";");
+                    queryDelNote.append(";");
                 }
             }
             statements.add(new JsonObject()
                     .putString("statement", query.toString())
                     .putArray("values", params)
                     .putString("action", "prepared"));
+            statements.add(new JsonObject()
+                    .putString("statement", queryDelNote.toString())
+                    .putArray("values", params)
+                    .putString("action", "prepared"));
+
         }
 
         StringBuilder queryParams = new StringBuilder();

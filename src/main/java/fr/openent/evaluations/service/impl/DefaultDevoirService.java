@@ -173,7 +173,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 .putString("action", "prepared"));
 
                     }
-                    //Exécution de la transaction avec roleBackw
+                    //Exécution de la transaction avec roleBack
 
                     Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
                         @Override
@@ -227,20 +227,30 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             JsonArray params = new JsonArray();
             StringBuilder query = new StringBuilder()
                     .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs WHERE ");
+            StringBuilder queryDelNote = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE ");
             for(int i = 0; i < competenceRem.size(); i++){
                 query.append("(id_devoir = ? AND  id_competence = ?)");
+                queryDelNote.append("(id_devoir = ? AND  id_competence = ?)");
                 params.addNumber(Integer.parseInt(id));
                 params.addNumber((Number) competenceRem.get(i));
                 if(i != competenceRem.size()-1){
                     query.append(" OR ");
+                    queryDelNote.append(" OR ");
                 }else{
                     query.append(";");
+                    queryDelNote.append(";");
                 }
             }
             statements.add(new JsonObject()
                     .putString("statement", query.toString())
                     .putArray("values", params)
                     .putString("action", "prepared"));
+            statements.add(new JsonObject()
+                    .putString("statement", queryDelNote.toString())
+                    .putArray("values", params)
+                    .putString("action", "prepared"));
+
         }
 
         StringBuilder queryParams = new StringBuilder();

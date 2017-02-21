@@ -200,6 +200,7 @@ CREATE TABLE notes.rel_devoirs_groupes
 (
   id_groupe character varying(36) NOT NULL,
   id_devoir bigint NOT NULL,
+  type_groupe int NOT NULL,
   CONSTRAINT rel_devoirs_groupes_pk PRIMARY KEY (id_groupe, id_devoir),
   CONSTRAINT fk_devoir_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH FULL

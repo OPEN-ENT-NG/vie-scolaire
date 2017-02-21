@@ -55,7 +55,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     private static final String attributeTypeClasse = "type_classe";
     private static final String attributeCodeTypeClasse = "code_type_classe";
     //private static final int typeClasse_Classe = 0;
-    private static final long typeClasse_GroupeEnseignement = 1;
+    private static final int typeClasse_GroupeEnseignement = 1;
    // private static final String typeClasse_Grp_Ens = "groupeEnseignement";
     private static final String attributeIdClasse = "id_classe";
 
@@ -280,14 +280,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         devoir.removeField("competences");
 
         for (String attr : devoir.getFieldNames()) {
-            if(attr.contains("date")){
-                queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
-                params.add(formatDate(devoir.getString(attr)).toString());
+            if(!(attr.equals(attributeTypeClasse)
+                    ||  attr.equals(attributeCodeTypeClasse))) {
+                if (attr.contains("date")) {
+                    queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
+                    params.add(formatDate(devoir.getString(attr)).toString());
 
-            }
-            else {
-                queryParams.append(attr).append(" = ?, ");
-                params.add(devoir.getValue(attr));
+                } else {
+                    queryParams.append(attr).append(" = ?, ");
+                    params.add(devoir.getValue(attr));
+                }
             }
         }
         StringBuilder query = new StringBuilder()

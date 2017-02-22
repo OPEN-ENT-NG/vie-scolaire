@@ -34,7 +34,7 @@
                 </div>
                 <section>
                     <label class="select">
-                        <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe as classe.name group by classe.type for classe in classes.all | orderBy:['type','name']">
+                        <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
                             <option value="" class="header-opt">[[translate('viescolaire.utils.class.groupe')]]</option>
                         </select>
                     </label>

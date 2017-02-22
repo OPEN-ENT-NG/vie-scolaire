@@ -165,7 +165,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
-            .append("WHERE devoirs.id_classe = ? ");
+            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (competences_notes.id_devoir = rel_devoirs_groupes.id_devoir AND rel_devoirs_groupes.id_groupe = ? ) ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(idPeriode);

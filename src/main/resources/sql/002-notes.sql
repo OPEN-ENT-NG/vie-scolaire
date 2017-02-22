@@ -207,10 +207,12 @@ CREATE TABLE notes.rel_devoirs_groupes
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE notes.rel_classe_cycle
+CREATE TABLE notes.rel_groupe_cycle
 (
-  id_classe character varying(36),
-  id_cycle bigint
+  id_groupe character varying(36),
+  id_cycle bigint,
+  type_groupe int NOT NULL,
+  CONSTRAINT rel_groupe_cycle_pk PRIMARY KEY (id_groupe,id_cycle)
 );
 
 CREATE TABLE notes.rel_professeurs_remplacants

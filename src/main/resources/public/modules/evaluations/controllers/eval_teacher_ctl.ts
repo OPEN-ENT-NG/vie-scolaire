@@ -30,12 +30,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.cleanRoot();
                 var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
                 $scope.devoir = $scope.initDevoir();
-                $scope.devoir.id_classe = devoirTmp.id_classe;
+                $scope.devoir.id_groupe = devoirTmp.id_groupe;
                 $scope.devoir.id = devoirTmp.id;
                 $scope.devoir.name = devoirTmp.name;
                 $scope.devoir.owner =  devoirTmp.owner;
                 $scope.devoir.libelle =devoirTmp.libelle;
-                $scope.devoir.id_classe = devoirTmp.id_classe;
                 $scope.devoir.id_sousmatiere = devoirTmp.id_sousmatiere;
                 $scope.devoir.id_type = parseInt(devoirTmp.id_type);
                 $scope.devoir.id_matiere  = devoirTmp.id_matiere;
@@ -441,7 +440,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return !(
                 $scope.devoir.controlledDate
                 && $scope.devoir.id_etablissement !== undefined
-                && $scope.devoir.id_classe !== undefined
+                && $scope.devoir.id_groupe !== undefined
                 && $scope.devoir.id_matiere !== undefined
                 && $scope.devoir.name !== undefined
                 && $scope.devoir.id_periode !== undefined
@@ -746,7 +745,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
         $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            evaluations.enseignements.sync($scope.devoir.id_classe);
+            evaluations.enseignements.sync($scope.devoir.id_groupes);
             evaluations.enseignements.on('sync', function () {
                 //suppression des compétences qui n'appartiennent pas au cycle
                 var currentIdCycle = null;
@@ -811,22 +810,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if($scope.devoir.id_type === undefined) {
                     $scope.devoir.id_type = getDefaultTypDevoir();
                 }
-                if($scope.devoir.id_classe === undefined) {
+                if($scope.devoir.id_groupe === undefined) {
                     if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                        $scope.devoir.id_classe = $scope.search.classe.id;
+                        $scope.devoir.id_groupe = $scope.search.classe.id;
                         $scope.devoir.id_matiere = $scope.search.matiere.id;
                         $scope.setClasseMatieres();
                         $scope.selectedMatiere();
                     } else {
                         // selection de la premiere classe par defaut
-                        $scope.devoir.id_classe = $scope.classes.all[0].id;
+                        $scope.devoir.id_groupe = $scope.classes.all[0].id;
                         // selection de la premiere matière associée à la classe
                         $scope.setClasseMatieres();
                     }
                 }
 
                 // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_classe);
+                evaluations.enseignements.sync($scope.devoir.id_groupe);
 
                 if ($location.path() === "/devoirs/list") {
                     $scope.devoir.id_type = $scope.search.type.id;
@@ -1087,7 +1086,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }else if ($location.path() === "/releve"){
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
-                            $scope.search.classe.id = $scope.devoir.id_classe;
+                            $scope.search.classe.id = $scope.devoir.id_groupe;
                             $scope.search.matiere.id = $scope.devoir.id_matiere;
                             $scope.search.periode.id = $scope.devoir.id_periode;
                             $scope.getReleve();
@@ -1128,7 +1127,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Set les matière en fonction de l'identifiant de la classe
          */
         $scope.setClasseMatieres = function () {
-            getClassesMatieres($scope.devoir.id_classe).then((matieres) => {
+            getClassesMatieres($scope.devoir.id_groupe).then((matieres) => {
                 $scope.devoir.matieresByClasse = matieres;
                 if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.id_matiere = $scope.devoir.matieresByClasse[0].id;
                 $scope.selectedMatiere();
@@ -1146,8 +1145,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Séquence de récupération d'un relevé de note
          */
         $scope.getReleve = function () {
-            if($scope.search.classe.id !== undefined && $scope.search.matiere.id !== undefined
-                && $scope.search.periode !== undefined && $scope.search.classe.id !== '*'
+            if($scope.search.classe !== undefined && $scope.search.classe.id !== undefined
+                && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
+                && $scope.search.periode !== undefined
+                && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
                 var p = {
                     idEtablissement : model.me.structures[0],

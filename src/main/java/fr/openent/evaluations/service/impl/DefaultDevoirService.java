@@ -32,6 +32,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -52,12 +54,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         return dateFormated;
     }
 
-    private static final String attributeTypeClasse = "type_classe";
-    private static final String attributeCodeTypeClasse = "code_type_classe";
+    private static final String attributeTypeGroupe = "type_groupe";
+    //private static final String attributeCodeTypeClasse = "code_type_classe";
     //private static final int typeClasse_Classe = 0;
     private static final int typeClasse_GroupeEnseignement = 1;
    // private static final String typeClasse_Grp_Ens = "groupeEnseignement";
-    private static final String attributeIdClasse = "id_classe";
+    private static final String attributeIdGroupe = "id_groupe";
 
 
     @Override
@@ -109,11 +111,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                     ||  attr.equals("competencesRem")
                                     ||  attr.equals("competenceEvaluee")
                                     ||  attr.equals("competences")
-                                    ||  attr.equals(attributeTypeClasse)
-                                    ||  attr.equals(attributeCodeTypeClasse)
-                                    ||  (attr.equals(attributeIdClasse)
-                                            && devoir.getLong(attributeCodeTypeClasse).longValue() == typeClasse_GroupeEnseignement
-                                    ))) {
+                                    ||  attr.equals(attributeTypeGroupe)
+                                    ||  (attr.equals(attributeIdGroupe)))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));
@@ -187,18 +186,19 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
                     }
 
-                    // Ajoute une relation notes.rel_devoirs_groupes si la classe est un groupe
-                    // Dans ce cas notes.devoirs.id_classe n'est pas renseignée
-                    if(null != devoir.getLong(attributeCodeTypeClasse)
-                            && devoir.getLong(attributeCodeTypeClasse).longValue() == typeClasse_GroupeEnseignement){
+                    // Ajoute une relation notes.rel_devoirs_groupes
+                    if(null != devoir.getLong(attributeTypeGroupe)){
                         JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
-                        String queryAddRelDevoirsGroupes = new String("INSERT INTO notes.rel_devoirs_groupes(id_groupe, id_devoir) VALUES (?, ?)");
-                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdClasse));
+                        String queryAddRelDevoirsGroupes = new String("INSERT INTO notes.rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
+                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
                         paramsAddRelDevoirsGroupes.addNumber(devoirId);
+                        paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
                         statements.add(new JsonObject()
                                 .putString("statement", queryAddRelDevoirsGroupes)
                                 .putArray("values", paramsAddRelDevoirsGroupes)
                                 .putString("action", "prepared"));
+                    }else{
+                        log.error("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante: " + devoirId);
                     }
 
 
@@ -226,7 +226,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
 
     }
-
+    protected static final Logger log = LoggerFactory.getLogger(DefaultDevoirService.class);
     @Override
     public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {
         JsonArray statements = new JsonArray();
@@ -280,8 +280,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         devoir.removeField("competences");
 
         for (String attr : devoir.getFieldNames()) {
-            if(!(attr.equals(attributeTypeClasse)
-                    ||  attr.equals(attributeCodeTypeClasse))) {
+            if(!(attr.equals(attributeTypeGroupe))) {
                 if (attr.contains("date")) {
                     queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
                     params.add(formatDate(devoir.getString(attr)).toString());
@@ -306,7 +305,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated,")
+        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
@@ -319,10 +318,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
                 .append("WHERE devoirs.owner = ? ")
-                .append("AND (devoirs.id_classe is not null OR rel_devoirs_groupes.id_devoir = devoirs.id) ")
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
+                .append("AND (rel_devoirs_groupes.id_devoir = devoirs.id) ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
-                .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
+                .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
         values.add(user.getUserId());
 
@@ -342,18 +341,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append(Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
                 .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes on rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe =? ")
                 .append("WHERE ")
                 .append("devoirs.id_etablissement = ? ")
-                .append("AND ")
-                .append("devoirs.id_classe = ? ")
                 .append("AND ")
                 .append("devoirs.id_matiere = ? ")
                 .append("AND ")
                 .append("devoirs.id_periode = ? ")
                 .append("ORDER BY devoirs.date ASC, devoirs.id ASC");
-
-        values.addString(idEtablissement);
         values.addString(idClasse);
+        values.addString(idEtablissement);
         values.addString(idMatiere);
         values.addNumber(idPeriode);
 
@@ -386,11 +383,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe " +
-                "FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
+        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, " + Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " +
                 "WHERE notes.id_devoir = devoirs.id " +
+                "AND rel_devoirs_groupes.id_devoir = devoirs.id " +
                 "AND devoirs.owner = ? " +
-                "GROUP by devoirs.id, devoirs.id_classe");
+                "GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));
     }

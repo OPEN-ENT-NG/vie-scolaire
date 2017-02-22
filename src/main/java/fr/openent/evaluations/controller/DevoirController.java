@@ -241,7 +241,52 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
+    @Get("/devoirs/evaluations/information")
+    @ApiDoc("Recupère la liste des compétences pour un devoir donné")
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    public void isEvaluatedDevoir(final HttpServerRequest request){
+        Long idDevoir;
+        try {
+             idDevoir = Long.parseLong(request.params().get("idDevoir"));
+        } catch(NumberFormatException e) {
+            log.error("Error : idPeriode must be a long object", e);
+            badRequest(request, e.getMessage());
+            return;
+        }
 
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        devoirsService.getevaluatedDevoir(idDevoir,handler);
+
+    }
+
+    @Get("/devoirs/evaluations/informations")
+    @ApiDoc("Recupère pour une liste de devoirs ne nombre de competences evaluer et de notes saisie")
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    public void areEvaluatedDevoirs(final HttpServerRequest request){
+        List<String> idDevoirsList = request.params().getAll("idDevoir");
+
+        if (idDevoirsList == null || idDevoirsList.size() == 0) {
+            log.error("Error : one id must be present");
+            badRequest(request);
+            return;
+        }
+
+        Long[] idDevoirsArray = new Long[idDevoirsList.size()] ;
+        try {
+            for (int i = 0; i < idDevoirsList.size(); i++) {
+                idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
+            }
+        } catch(NumberFormatException e) {
+            log.error("Error : id must be a long object", e);
+            badRequest(request);
+        }
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        devoirsService.getevaluatedDevoirs(idDevoirsArray,handler);
+
+    }
     /**
      * Met à jour un devoir
      * @param request
@@ -260,7 +305,6 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
-
 
     @Post("/devoirs/done")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)

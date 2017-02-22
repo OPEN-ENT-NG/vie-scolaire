@@ -183,6 +183,8 @@
   "evaluations.devoir.confirmation":"confirmer",
   "evaluations.devoir.annuler":"annuler",
   "evaluations.devoir.recaputilatif":"Récapitulatif",
+  "evaluations.devoir.recaputilatif.EvaluatedSkills":"Récapitulatif des devoirs avec compétences évaluées ",
+  "evaluations.devoir.recaputilatif.EvaluatedMarks":"Récapitulatif des devoirs notés",
   "evaluations.competences.overview":"Récapitulatif des compétences",
   "evaluation.classe.average":"Moyenne de la classe",
   "evaluation.domaine.average":"Moyenne du domaine",

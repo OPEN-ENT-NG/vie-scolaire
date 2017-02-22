@@ -369,7 +369,17 @@ export class Evaluation extends Model implements IModel{
 
 
 }
+export class EvaluationDevoir extends  Model {
+    nbreval : number;
+    id : string;
+    evaluation : number;
+    typeeval : string;
 
+    constructor(p? : any) {
+        super();
+    }
+
+}
 export class Devoir extends Model implements IModel{
     statistiques : any;
     eleves : Collection<Eleve>;
@@ -400,6 +410,7 @@ export class Devoir extends Model implements IModel{
     competencesAdd: any;
     competencesRem: any;
     percent: any;
+    evaluationDevoirs : Collection<EvaluationDevoir> ;
 
     get api () {
         return {
@@ -413,7 +424,8 @@ export class Devoir extends Model implements IModel{
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
-            deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes'
+            deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes',
+            isEvaluatedDevoir : '/viescolaire/evaluations/devoirs/evaluations/information?idDevoir='
         }
     }
 
@@ -421,6 +433,10 @@ export class Devoir extends Model implements IModel{
         super();
         var that = this;
         this.collection(Enseignement);
+
+        this.collection(EvaluationDevoir);
+
+
         this.collection(Competence, {
             sync : function () : Promise<any> {
                 return new Promise((resolve, reject) => {
@@ -516,7 +532,20 @@ export class Devoir extends Model implements IModel{
             });
         });
     }
+    isEvaluatedDevoir (idDevoir) : Promise<any> {
 
+        return new Promise((resolve, reject) => {
+            var that = this;
+            http().getJson(this.api.isEvaluatedDevoir+idDevoir).done(function(data){
+
+
+                that.evaluationDevoirs.load(data);
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
     update (addArray, remArray) : Promise<any> {
         return new Promise((resolve, reject) => {
             var devoirJSON = this.toJSON();
@@ -689,7 +718,8 @@ export class DevoirsCollection {
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/devoirs'
+            get : '/viescolaire/evaluations/devoirs',
+            areEvaluatedDevoirs : '/viescolaire/evaluations/devoirs/evaluations/informations?'
         }
     }
 
@@ -730,7 +760,26 @@ export class DevoirsCollection {
             if (type) evaluations.devoirs.all[i].type = type;
         }
     }
+    areEvaluatedDevoirs (idDevoirs) : Promise<any> {
 
+        return new Promise((resolve, reject) => {
+
+            var URLBuilder = "";
+
+            for (var i=0; i<idDevoirs.length; i++){
+                if(i==0)
+                    URLBuilder = "idDevoir="+idDevoirs[i];
+                else
+                    URLBuilder += "&idDevoir="+idDevoirs[i];
+            }
+            http().getJson(this.api.areEvaluatedDevoirs + URLBuilder  ).done(function(data){
+
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
     getPercentDone () : Promise<any> {
         return new Promise((resolve, reject) => {
             if (evaluations.synchronized.classes !== 0) {

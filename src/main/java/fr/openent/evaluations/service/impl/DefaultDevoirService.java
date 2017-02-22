@@ -430,4 +430,79 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getevaluatedDevoir(Long idDevoir, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        String TypeEvalNum = "TypeEvalNum";
+        String TypeEvalSkill = "TypeEvalSkill";
+        query.append("select count(n.id_eleve) NbrEval, n.id_eleve ID, n.valeur Evaluation, '"+TypeEvalNum+"' TypeEval " );
+        query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes n, "+ Viescolaire.EVAL_SCHEMA +".devoirs d ");
+        query.append("WHERE n.id_devoir = d.id ");
+        query.append("AND d.id = ? ");
+        query.append("Group BY (n.id_eleve, n.valeur) ");
+        query.append("UNION ");
+        query.append("select count(c.id_competence) NbrEval, concat(c.id_competence,'') ID, c.evaluation Evaluation,  '"+TypeEvalSkill+"' TypeEval ");
+        query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes c, "+ Viescolaire.EVAL_SCHEMA +".devoirs d ");
+        query.append("WHERE c.id_devoir = d.id ");
+        query.append("AND d.id = ? ");
+        query.append("and c.evaluation != -1 ");
+        query.append("Group BY(id_competence,evaluation) ");
+        query.append("order by (TypeEval) ");
+
+        values.addNumber(idDevoir);
+        values.addNumber(idDevoir);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+
+    @Override
+    public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler){
+
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+
+
+        query.append("SELECT case ");
+        query.append("when SkillEval.id is null then NumEval.id ");
+        query.append("when NumEval.id is null then SkillEval.id ");
+        query.append("else SkillEval.id ");
+        query.append("END id, ");
+        query.append("NbEvalSkill, NbEvalNum  FROM " );
+        query.append("(SELECT d.id, count(d.id) NbEvalSkill FROM notes.devoirs d " );
+        query.append("INNER  JOIN notes.competences_notes c ON d.id = c.id_devoir " );
+        query.append("AND d.id in ");
+        query.append("(");
+        for (int i=0; i<idDevoir.length-1 ; i++){
+            query.append("?,");
+        }
+        query.append("?) ");
+        query.append("Group by (d.id)  ) SkillEval ");
+        query.append("FULL JOIN (SELECT  d.id, count(d.id) NbEvalNum FROM notes.devoirs d ");
+        query.append("INNER  JOIN notes.notes n ON d.id = n.id_devoir ");
+        query.append("AND  d.id in ");
+        query.append("(");
+        for (int i=0; i<idDevoir.length-1 ; i++){
+            query.append("?,");
+        }
+        query.append("?) ");
+        query.append("Group by (d.id)  ) NumEval ON  SkillEval.id = NumEval.id ");
+
+
+
+
+        for (int i=0; i<idDevoir.length ; i++){
+            values.addNumber(idDevoir[i]);
+        }
+
+        for (int i=0; i<idDevoir.length ; i++){
+            values.addNumber(idDevoir[i]);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
 }

@@ -80,11 +80,23 @@ public interface DevoirService extends CrudService {
      */
     public void listDevoirs(String idEtablissement, Long idPeriode, String idUser,
                       Handler<Either<String, JsonArray>> handler);
-
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
      * @param user l'utilisateur connecté
      * @param handler handler portant le résultat de la requête
      */
     public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    /**
+     * verifie si le devoir est evalué ou pas
+     * @param idDevoir
+     * @param handler
+     */
+    public void getevaluatedDevoir(Long idDevoir, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * verifie si la liste des devoir est evalué ou pas
+     * @param idDevoir
+     * @param handler
+     */
+    public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler);
 }

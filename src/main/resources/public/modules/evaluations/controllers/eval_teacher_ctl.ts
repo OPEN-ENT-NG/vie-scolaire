@@ -285,13 +285,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             accOp : 0,
             evaluation : {
-                suppretion : false,
+                suppretionMsg1 : false,
+                suppretionMsg2 : false,
             }
         };
         $scope.text = "";
         $scope.selected = {
             devoirs : {
                 list : [],
+                listwithEvaluatedSkills :[],
+                listwithEvaluatedMarks : [],
                 all : false
             },
             eleve : null,
@@ -331,6 +334,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
         }
+        /**
+         * cette function permet d'extraire les competences evalué du devoir
+         * @param Skills : les competences du devoir
+         * @param Devoir : le devoir à examiner
+         * @returns {Array} of skills
+         */
         $scope.evaluationOfSkilles = function (Skills, Devoir) {
             let Myarray=[];
 
@@ -357,16 +366,115 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         };
 
-        $scope.confirmSuppretion = function (SelectedDevoirs) {
+        $scope.confirmSuppretion = function () {
             if ($scope.selected.devoirs.list.length > 0) {
-                $scope.opened.evaluation.suppretion = true;
+                $scope.opened.evaluation.suppretionMsg1 = true;
             }
         };
-        $scope.annulerSuppretion = function () {
-
-            $scope.text = "";
-            $scope.opened.evaluation.suppretion = false;
+        $scope.textSuppretionMsg2 = {
+            Text1 : "Des devoirs selectionné contiennent des notes et des compétences évaluées. ",
+            Text2 : "Des devoirs selectionné contiennent des notes.",
+            Text3 : "Des devoirs selectionné contiennent des compétences évaluées. ",
+            Text4 : "Les devoirs suivant contiénnent des compétences évaluées",
+            Text5 : "Les devoirs suivant contiénnent des Notes",
+            Text6 : "Les devoirs selectioné contiénnent des notes et des compétences évaluées. ",
+            TextFin :"confirmez-vous la suppression ?"
         };
+        $scope.firstConfirmationSuppDevoir = function () {
+            if($scope.selected.devoirs.list.length > 0) {
+                let idDevoir = [];
+                _.map($scope.selected.devoirs.list, function (devoir) {
+                    idDevoir.push(devoir.id);
+                });
+
+                //verification si le/les devoirs ne contiennes pas une compétence evalué
+                $scope.devoirs.areEvaluatedDevoirs(idDevoir).then((res) => {
+
+                    $scope.selected.devoirs.listwithEvaluatedSkills = [];
+                    $scope.selected.devoirs.listwithEvaluatedMarks = [];
+                    for (let i = 0; i < res.length; i++) {
+                        if (res[i].nbevalskill > 0 && res[i].nbevalskill != null) {
+                            $scope.selected.devoirs.listwithEvaluatedSkills.push(
+                                {
+                                    id: res[i].id,
+                                    nbevalskill: res[i].nbevalskill,
+                                    name: _.findWhere($scope.devoirs.all, {id: res[i].id}).name
+                                });
+
+                        }
+
+                        if (res[i].nbevalnum > 0 && res[i].nbevalnum != null) {
+                            $scope.selected.devoirs.listwithEvaluatedMarks.push({
+                                id: res[i].id,
+                                nbevalnum: res[i].nbevalnum,
+                                name: _.findWhere($scope.devoirs.all, {id: res[i].id}).name
+                            });
+
+                        }
+                    }
+                    $scope.opened.evaluation.suppretionMsg1 = false;
+                    if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+                        $scope.opened.evaluation.suppretionMsg2 = true;
+                    }
+                    utils.safeApply($scope);
+                });
+            }
+        };
+       /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
+            if (newValue===false && oldValue){
+                if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+                    $scope.opened.evaluation.suppretionMsg2 = true;
+                }
+            }
+
+        });*/
+        $scope.conditionAffichageText = function (NumText) {
+            if(NumText === 1){
+                if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length ) > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 2){
+                if($scope.selected.devoirs.listwithEvaluatedMarks.length  > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 3){
+                if($scope.selected.devoirs.listwithEvaluatedSkills.length > 16 && $scope.selected.devoirs.listwithEvaluatedMarks.length  === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 4){
+                if($scope.selected.devoirs.listwithEvaluatedSkills.length < 16 && $scope.selected.devoirs.listwithEvaluatedMarks.length  === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 5){
+                if($scope.selected.devoirs.listwithEvaluatedMarks.length < 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 6){
+                if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length) < 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+
+        };
+        $scope.annulerSuppretion = function () {
+            $scope.opened.evaluation.suppretionMsg2 = false;
+            $scope.opened.evaluation.suppretionMsg1 = false;
+        };
+
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
@@ -397,6 +505,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.selected = {
                 devoirs : {
                     list : [],
+                    listwithEvaluatedSkills :[{
+
+                    }],
+                    listwithEvaluatedMarks : [],
                     all : false
                 },
                 eleve : null,
@@ -932,7 +1044,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 );
             }
-            $scope.annulerSuppretion ();
+            $scope.opened.evaluation.suppretionMsg2 = false;
         };
 
         $scope.cancelUpdateDevoir = function () {
@@ -972,28 +1084,31 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
                     }
                 }
-                //si il y a des competences à supprimer
-                if ($scope.competencesSupp.length > 0) {
-                    //est ce que les competences sont evalué
-                    let competence;
-                    for(let i=0; i < $scope.competencesSupp.length ; i++){
-                        competence =  _.findWhere($scope.evaluatedCompetence,{id_competence: $scope.competencesSupp[i].id_competence });
-                        if(competence !== undefined){
-                            $scope.evaluatedCompetencesSupp.push($scope.competencesSupp[i]);
+                $scope.devoir.isEvaluatedDevoir($scope.devoir.id).then((res)=>{
+                    $scope.devoir.evaluationDevoirs;
+                    //si il y a des competences à supprimer
+
+                    if ($scope.competencesSupp.length > 0) {
+
+                        //est ce que les competences sont evalué
+                        let competence;
+                        for(let i=0; i < $scope.competencesSupp.length ; i++){
+                            competence =  _.findWhere($scope.devoir.evaluationDevoirs.all,{id: String($scope.competencesSupp[i].id_competence), typeeval: 'TypeEvalSkill' });
+                            if(competence !== undefined){
+                                $scope.evaluatedCompetencesSupp.push($scope.competencesSupp[i]);
+                            }
                         }
-                    }
-                    if( $scope.evaluatedCompetencesSupp.length > 0)
-                        $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
-                    else{
+                        if( $scope.evaluatedCompetencesSupp.length > 0)
+                            $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
+                        else{
+                            $scope.firstConfirmSuppSkill = true;
+                            $scope.secondConfirmSuppSkill = true;
+                        }
+                    }else{
                         $scope.firstConfirmSuppSkill = true;
                         $scope.secondConfirmSuppSkill = true;
                     }
-
-                }else {
-                    $scope.firstConfirmSuppSkill = true;
-                    $scope.secondConfirmSuppSkill = true;
-                }
-
+                });
 
 
             }else{
@@ -1022,7 +1137,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.$watch(function() { return $scope.secondConfirmSuppSkill; }, function (newValue, oldValue) {
             if (newValue){
                 if($scope.firstConfirmSuppSkill === true && $scope.secondConfirmSuppSkill === true && $scope.evaluatedDisabel === false) {
-                    if ($scope.oldIs_Evaluated === true && $scope.devoir.is_evaluated === false) {
+                    if ($scope.oldIs_Evaluated === true && $scope.devoir.is_evaluated === false && ( _.findWhere($scope.devoir.evaluationDevoirs.all,{ typeeval: 'TypeEvalNum' }) !== undefined ) ) {
                         $scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel = true;
                     } else
                         $scope.evaluatedDisabel = true;
@@ -1250,7 +1365,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.getLibelleClasse = function(idClasse) {
             if (idClasse == null || idClasse === "") return "";
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
+            if(libelle === undefined){
+             //   console.log(idClasse);
+            }else {
+                return libelle.name;
+            }
         };
 
         /**

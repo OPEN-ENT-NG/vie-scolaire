@@ -1367,7 +1367,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
             let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
             if(libelle === undefined){
-                console.log(idClasse);
+             //   console.log(idClasse);
             }else {
                 return libelle.name;
             }

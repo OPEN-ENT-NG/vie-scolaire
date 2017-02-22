@@ -457,37 +457,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
-    /*@Override
-    public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler){
 
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-
-
-        query.append("SELECT SkillEval.id, NbEvalSkill, NbEvalNum  FROM  ");
-
-        query.append("(SELECT d.id, count(d.id) NbEvalSkill FROM notes.devoirs d ");
-        query.append("INNER JOIN notes.competences_notes c ON d.id = c.id_devoir ");
-        query.append("Group by (d.id)  ) SkillEval, ");
-        query.append("(SELECT   d.id, count(d.id) NbEvalNum FROM notes.devoirs d ");
-        query.append("INNER JOIN notes.notes n ON d.id = n.id_devoir ");
-        query.append("Group by (d.id)  ) NumEval ");
-        query.append("Where SkillEval.id = NumEval.id ");
-        query.append("AND SkillEval.id in ");
-        query.append("(");
-        for (int i=0; i<idDevoir.length-1 ; i++){
-            query.append("?,");
-        }
-        query.append("?)");
-        for (int i=0; i<idDevoir.length ; i++){
-            values.addNumber(idDevoir[i]);
-        }
-
-
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }*/
     @Override
     public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler){
 

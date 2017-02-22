@@ -1479,8 +1479,8 @@ export class Remplacement extends Model implements IModel{
             libelle_titulaire : this.titulaire.displayName,
             id_remplacant: this.remplacant.id,
             libelle_remplacant : this.remplacant.displayName,
-            date_debut: this.date_debut,
-            date_fin: this.date_fin,
+            date_debut: utils.getFormatedDate(this.date_debut,"YYYY-MM-DD"),
+            date_fin: utils.getFormatedDate(this.date_fin,"YYYY-MM-DD"),
             id_etablissement : this.id_etablissement
         }
     }
@@ -1500,7 +1500,8 @@ export class GestionRemplacement extends Model implements IModel{
     get api () {
         return {
             deleteMultiple : '/viescolaire/evaluations/remplacements/delete', // TODO A coder
-            enseignants : '/directory/user/admin/list?structureId='+model.me.structures[0]+'&profile=Teacher',
+            //enseignants : '/directory/user/admin/list?structureId='+model.me.structures[0]+'&profile=Teacher',
+            enseignants : '/viescolaire/evaluations/user/list?structureId='+model.me.structures[0]+'&profile=Teacher',
             remplacements : '/viescolaire/evaluations/remplacements/list'
         }
     }

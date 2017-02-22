@@ -75,7 +75,7 @@ public class DefaultRemplacementService extends SqlCrudService implements Rempla
 
 
         // Ajout du remplacement
-        String remplacementQuery = "INSERT INTO "+ Viescolaire.EVAL_SCHEMA+ ".rel_professeurs_remplacants (id_titulaire, id_remplacant, date_debut, date_fin, id_etablissement) VALUES (?, ?, ?::timestamp, ?::timestamp, ?);";
+        String remplacementQuery = "INSERT INTO "+ Viescolaire.EVAL_SCHEMA+ ".rel_professeurs_remplacants (id_titulaire, id_remplacant, date_debut, date_fin, id_etablissement) VALUES (?, ?, to_timestamp(?,'YYYY-MM-DD'), to_timestamp(?,'YYYY-MM-DD'), ?);";
         s.prepared(remplacementQuery, new JsonArray().add(poRemplacement.getString("id_titulaire"))
                                                         .add(poRemplacement.getString("id_remplacant"))
                                                         .add(poRemplacement.getString("date_debut"))
@@ -96,8 +96,8 @@ public class DefaultRemplacementService extends SqlCrudService implements Rempla
         query.append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".rel_professeurs_remplacants ")
                 .append("WHERE id_titulaire = ? ")
                 .append("AND id_remplacant = ? ")
-                .append("AND date_debut = ?::timestamp ")
-                .append("AND date_fin = ?::timestamp ")
+                .append("AND date_debut = to_date(?,'YYYY-MM-DD') ")
+                .append("AND date_fin = to_date(?,'YYYY-MM-DD') ")
                 .append("AND id_etablissement = ? ");
 
         values.addString(id_titulaire);

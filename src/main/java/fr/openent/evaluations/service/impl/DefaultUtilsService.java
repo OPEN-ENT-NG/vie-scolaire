@@ -25,12 +25,14 @@ import fr.openent.evaluations.bean.NoteDevoir;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
@@ -189,6 +191,86 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler) {
         String query = "match (s:`Structure`) where s.id = {id} return s";
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void list(String structureId, String classId, String groupId,
+                          JsonArray expectedProfiles, String filterActivated, String nameFilter,
+                          UserInfos userInfos, Handler<Either<String, JsonArray>> results) {
+        JsonObject params = new JsonObject();
+        String filter = "";
+        String filterProfile = "WHERE 1=1 ";
+        String optionalMatch =
+                "OPTIONAL MATCH u-[:IN]->(:ProfileGroup)-[:DEPENDS]->(class:Class)-[:BELONGS]->(s) " +
+                        "OPTIONAL MATCH u-[:RELATED]->(parent: User) " +
+                        "OPTIONAL MATCH (child: User)-[:RELATED]->u " +
+                        "OPTIONAL MATCH u-[rf:HAS_FUNCTION]->fg-[:CONTAINS_FUNCTION*0..1]->(f:Function) ";
+        if (expectedProfiles != null && expectedProfiles.size() > 0) {
+            filterProfile += "AND p.name IN {expectedProfiles} ";
+            params.putArray("expectedProfiles", expectedProfiles);
+        }
+        if (classId != null && !classId.trim().isEmpty()) {
+            filter = "(n:Class {id : {classId}})<-[:DEPENDS]-(g:ProfileGroup)<-[:IN]-";
+            params.putString("classId", classId);
+        } else if (structureId != null && !structureId.trim().isEmpty()) {
+            filter = "(n:Structure {id : {structureId}})<-[:DEPENDS]-(g:ProfileGroup)<-[:IN]-";
+            params.putString("structureId", structureId);
+        } else if (groupId != null && !groupId.trim().isEmpty()) {
+            filter = "(n:Group {id : {groupId}})<-[:IN]-";
+            params.putString("groupId", groupId);
+        }
+        String condition = "";
+        String functionMatch = "WITH u MATCH (s:Structure)<-[:DEPENDS]-(pg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile), u-[:IN]->pg ";
+        /*if (!userInfos.getFunctions().containsKey(SUPER_ADMIN) &&
+                !userInfos.getFunctions().containsKey(ADMIN_LOCAL) &&
+                !userInfos.getFunctions().containsKey(CLASS_ADMIN)) {
+            results.handle(new Either.Left<String, JsonArray>("forbidden"));
+            return;
+        } else if (userInfos.getFunctions().containsKey(ADMIN_LOCAL)) {
+            UserInfos.Function f = userInfos.getFunctions().get(ADMIN_LOCAL);
+            List<String> scope = f.getScope();
+            if (scope != null && !scope.isEmpty()) {
+                condition = "AND s.id IN {scope} ";
+                params.putArray("scope", new JsonArray(scope.toArray()));
+            }
+        } else if(userInfos.getFunctions().containsKey(CLASS_ADMIN)){
+            UserInfos.Function f = userInfos.getFunctions().get(CLASS_ADMIN);
+            List<String> scope = f.getScope();
+            if (scope != null && !scope.isEmpty()) {
+                functionMatch = "WITH u MATCH (c:Class)<-[:DEPENDS]-(cpg:ProfileGroup)-[:DEPENDS]->(pg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile), u-[:IN]->pg ";
+                condition = "AND c.id IN {scope} ";
+                params.putArray("scope", new JsonArray(scope.toArray()));
+            }
+        }*/
+        if(nameFilter != null && !nameFilter.trim().isEmpty()){
+            condition += "AND u.displayName =~ {regex}  ";
+            params.putString("regex", "(?i)^.*?" + Pattern.quote(nameFilter.trim()) + ".*?$");
+        }
+        if(filterActivated != null){
+            if("inactive".equals(filterActivated)){
+                condition += "AND NOT(u.activationCode IS NULL)  ";
+            } else if("active".equals(filterActivated)){
+                condition += "AND u.activationCode IS NULL ";
+            }
+        }
+
+        String query =
+                "MATCH " + filter + "(u:User) " +
+                        functionMatch + filterProfile + condition + optionalMatch +
+                        "RETURN DISTINCT u.id as id, p.name as type, u.externalId as externalId, " +
+                        "u.activationCode as code, u.login as login, u.firstName as firstName, " +
+                        "u.lastName as lastName, u.displayName as displayName, u.source as source, u.attachmentId as attachmentId, " +
+                        "u.birthDate as birthDate, " +
+                        "extract(function IN u.functions | last(split(function, \"$\"))) as aafFunctions, " +
+                        "collect(distinct {id: s.id, name: s.name}) as structures, " +
+                        "collect(distinct {id: class.id, name: class.name}) as allClasses, " +
+                        "collect(distinct [f.externalId, rf.scope]) as functions, " +
+                        "CASE WHEN parent IS NULL THEN [] ELSE collect(distinct {id: parent.id, firstName: parent.firstName, lastName: parent.lastName}) END as parents, " +
+                        "CASE WHEN child IS NULL THEN [] ELSE collect(distinct {id: child.id, firstName: child.firstName, lastName: child.lastName, attachmentId : child.attachmentId }) END as children, " +
+                        "HEAD(COLLECT(distinct parent.externalId)) as parent1ExternalId, " + // Hack for GEPI export
+                        "HEAD(TAIL(COLLECT(distinct parent.externalId))) as parent2ExternalId " + // Hack for GEPI export
+                        "ORDER BY type DESC, displayName ASC ";
+        neo4j.execute(query, params,  Neo4jResult.validResultHandler(results));
     }
 
 }

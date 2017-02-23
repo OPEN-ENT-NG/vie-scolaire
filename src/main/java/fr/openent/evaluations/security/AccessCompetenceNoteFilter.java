@@ -48,7 +48,7 @@ public class AccessCompetenceNoteFilter implements ResourcesProvider {
                     List<Long> nList = new ArrayList<Long>();
                     List<String> ids = resourceRequest.params().getAll("id");
                     for (String s : ids) nList.add(Long.parseLong(s));
-                    new FilterCompetenceNoteUtils().validateCompetencesNotesOwner(nList, user.getUserId(), new Handler<Boolean>() {
+                    new FilterCompetenceNoteUtils().validateAccessCompetencesNotes(nList, user, new Handler<Boolean>() {
                         @Override
                         public void handle(Boolean isValid) {
                             resourceRequest.resume();

@@ -2,6 +2,13 @@ INSERT INTO notes.cycle (id, libelle) VALUES (1, 'Cycle 4');
 INSERT INTO notes.cycle (id, libelle) VALUES (2, 'Cycle 3');
 SELECT setval('notes.cycle_id_seq', 2, true);
 
+-- Données du référentiels des Compétences/Enseignements. Pour l'instant ce référentiel est en dur, mais il est convenu de le rendre paramétrable par établissement (le modèle ne le permet pas pour l'instant).
+-- Attention à l'internationalisation
+INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (1, 'Ecrit');
+INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (2, 'Oral');
+INSERT INTO viesco.type_sousmatiere (id, libelle) VALUES (3, 'TP');
+SELECT setval('viesco.type_sousmatiere_id_seq', 3, true);
+
 INSERT INTO notes.competences (id, nom, id_parent, id_type, id_cycle) VALUES (1, '1. Expérimenter, produire, créer', 0, 1, 2);
 INSERT INTO notes.competences (id, nom, id_parent, id_type, id_cycle) VALUES (6, '1. Expérimenter, produire, créer', 0, 1, 1);
 INSERT INTO notes.competences (id, nom, id_parent, id_type, id_cycle) VALUES (13, '2. Mettre en œuvre un projet', 0, 1, 2);

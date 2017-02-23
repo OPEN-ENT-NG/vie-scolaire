@@ -33,6 +33,8 @@ import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.List;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
@@ -53,6 +55,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
+
     public void createDevoir(final JsonObject devoir, final UserInfos user, final Handler<Either<String, JsonObject>> handler) {
         // Requête de recupération de l'id du devoir à créer
         final String queryNewDevoirId =
@@ -280,6 +283,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
+    /**
+     * Liste des devoirs de l'utilisateur
+     * @param user utilisateur l'utilisateur connecté
+     * @param handler handler portant le résultat de la requête
+     */
     public void listDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
@@ -295,12 +303,36 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
-                .append("WHERE devoirs.owner = ? ")
-                .append("AND devoirs.id_classe is not null ")
+                .append("WHERE devoirs.id_classe is not null ")
+
+                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+                        .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                                            .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                                            .append("WHERE id_remplacant = ? ")
+                                            .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                                            .append(") OR ")
+                        .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                                .append("WHERE resource_id = devoirs.id ")
+                                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                    .append(") ")
+
                 .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, devoirs.is_evaluated, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
+
+        // Ajout des params pour les devoirs dont on est le propriétaire
+        values.add(user.getUserId());
+
+        // Ajout des params pour la récupération des devoirs de mes tiulaires
+        values.add(user.getUserId());
+        for (int i = 0; i < user.getStructures().size(); i++) {
+            values.add(user.getStructures().get(i));
+        }
+
+        // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
         values.add(user.getUserId());
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -338,6 +370,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
+    @Deprecated // FIXME GERER LES DROITS ET PERMISSIONS COMME FAIT POUR LES ENSEIGNANTS
     public void listDevoirs(String idEtablissement, Long idPeriode, String idUser, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
@@ -360,15 +393,116 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbNotesDevoirs(String userId, Handler<Either<String, JsonArray>> handler) {
+    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe " +
-                "FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
-                "WHERE notes.id_devoir = devoirs.id " +
-                "AND devoirs.owner = ? " +
-                "GROUP by devoirs.id, devoirs.id_classe");
+        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
+                .append("WHERE notes.id_devoir = devoirs.id ")
 
-        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(userId), SqlResult.validResultHandler(handler));
+                .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+                        .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                                            .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                                            .append("WHERE id_remplacant = ? ")
+                                            .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                                            .append(") OR ")
+                        .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                                .append("WHERE resource_id = devoirs.id ")
+                                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                        .append(") ")
+                .append("GROUP by devoirs.id, devoirs.id_classe");
+
+        JsonArray values =  new JsonArray();
+
+        // Ajout des params pour les devoirs dont on est le propriétaire
+        values.add(user.getUserId());
+
+        // Ajout des params pour la récupération des devoirs de mes tiulaires
+        values.add(user.getUserId());
+        for (int i = 0; i < user.getStructures().size(); i++) {
+            values.add(user.getStructures().get(i));
+        }
+
+        // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+        values.add(user.getUserId());
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getevaluatedDevoir(Long idDevoir, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        String TypeEvalNum = "TypeEvalNum";
+        String TypeEvalSkill = "TypeEvalSkill";
+        query.append("select count(n.id_eleve) NbrEval, n.id_eleve ID, n.valeur Evaluation, '"+TypeEvalNum+"' TypeEval " );
+        query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes n, "+ Viescolaire.EVAL_SCHEMA +".devoirs d ");
+        query.append("WHERE n.id_devoir = d.id ");
+        query.append("AND d.id = ? ");
+        query.append("Group BY (n.id_eleve, n.valeur) ");
+        query.append("UNION ");
+        query.append("select count(c.id_competence) NbrEval, concat(c.id_competence,'') ID, c.evaluation Evaluation,  '"+TypeEvalSkill+"' TypeEval ");
+        query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes c, "+ Viescolaire.EVAL_SCHEMA +".devoirs d ");
+        query.append("WHERE c.id_devoir = d.id ");
+        query.append("AND d.id = ? ");
+        query.append("and c.evaluation != -1 ");
+        query.append("Group BY(id_competence,evaluation) ");
+        query.append("order by (TypeEval) ");
+
+        values.addNumber(idDevoir);
+        values.addNumber(idDevoir);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+
+    @Override
+    public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler){
+
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+
+
+        query.append("SELECT case ");
+        query.append("when SkillEval.id is null then NumEval.id ");
+        query.append("when NumEval.id is null then SkillEval.id ");
+        query.append("else SkillEval.id ");
+        query.append("END id, ");
+        query.append("NbEvalSkill, NbEvalNum  FROM " );
+        query.append("(SELECT d.id, count(d.id) NbEvalSkill FROM notes.devoirs d " );
+        query.append("INNER  JOIN notes.competences_notes c ON d.id = c.id_devoir " );
+        query.append("AND d.id in ");
+        query.append("(");
+        for (int i=0; i<idDevoir.length-1 ; i++){
+            query.append("?,");
+        }
+        query.append("?) ");
+        query.append("Group by (d.id)  ) SkillEval ");
+        query.append("FULL JOIN (SELECT  d.id, count(d.id) NbEvalNum FROM notes.devoirs d ");
+        query.append("INNER  JOIN notes.notes n ON d.id = n.id_devoir ");
+        query.append("AND  d.id in ");
+        query.append("(");
+        for (int i=0; i<idDevoir.length-1 ; i++){
+            query.append("?,");
+        }
+        query.append("?) ");
+        query.append("Group by (d.id)  ) NumEval ON  SkillEval.id = NumEval.id ");
+
+
+
+
+        for (int i=0; i<idDevoir.length ; i++){
+            values.addNumber(idDevoir[i]);
+        }
+
+        for (int i=0; i<idDevoir.length ; i++){
+            values.addNumber(idDevoir[i]);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
 }

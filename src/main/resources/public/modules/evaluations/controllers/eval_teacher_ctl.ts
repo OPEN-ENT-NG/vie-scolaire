@@ -1,6 +1,7 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
-import {Devoir, Evaluation, evaluations, ReleveNote} from '../models/eval_teacher_mdl';
+import {Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {Collection} from "../../entcore/modelDefinitions";
 import {lightbox} from "../../entcore/directives/lightbox";
 
 let moment = require('moment');
@@ -14,7 +15,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             accueil : function(params){
                 $scope.cleanRoot();
+
+                // Chefs d'établissement
+                $scope.isChefEtab = model.me.type === 'PERSEDUCNAT' &&
+                    model.me.functions !== undefined &&
+                    model.me.functions.DIR !== undefined &&
+                    model.me.functions.DIR.code === 'DIR';
+
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
+
+            },
+
+            listRemplacements : function(){
+                $scope.cleanRoot();
+                $scope.listRemplacements();
 
             },
 
@@ -271,13 +285,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             accOp : 0,
             evaluation : {
-                suppretion : false,
+                suppretionMsg1 : false,
+                suppretionMsg2 : false,
             }
         };
         $scope.text = "";
         $scope.selected = {
             devoirs : {
                 list : [],
+                listwithEvaluatedSkills :[],
+                listwithEvaluatedMarks : [],
                 all : false
             },
             eleve : null,
@@ -317,6 +334,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
         }
+        /**
+         * cette function permet d'extraire les competences evalué du devoir
+         * @param Skills : les competences du devoir
+         * @param Devoir : le devoir à examiner
+         * @returns {Array} of skills
+         */
         $scope.evaluationOfSkilles = function (Skills, Devoir) {
             let Myarray=[];
 
@@ -343,16 +366,115 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         };
 
-        $scope.confirmSuppretion = function (SelectedDevoirs) {
+        $scope.confirmSuppretion = function () {
             if ($scope.selected.devoirs.list.length > 0) {
-                $scope.opened.evaluation.suppretion = true;
+                $scope.opened.evaluation.suppretionMsg1 = true;
             }
         };
-        $scope.annulerSuppretion = function () {
-
-            $scope.text = "";
-            $scope.opened.evaluation.suppretion = false;
+        $scope.textSuppretionMsg2 = {
+            Text1 : "Des devoirs selectionné contiennent des notes et des compétences évaluées. ",
+            Text2 : "Des devoirs selectionné contiennent des notes.",
+            Text3 : "Des devoirs selectionné contiennent des compétences évaluées. ",
+            Text4 : "Les devoirs suivant contiénnent des compétences évaluées",
+            Text5 : "Les devoirs suivant contiénnent des Notes",
+            Text6 : "Les devoirs selectioné contiénnent des notes et des compétences évaluées. ",
+            TextFin :"confirmez-vous la suppression ?"
         };
+        $scope.firstConfirmationSuppDevoir = function () {
+            if($scope.selected.devoirs.list.length > 0) {
+                let idDevoir = [];
+                _.map($scope.selected.devoirs.list, function (devoir) {
+                    idDevoir.push(devoir.id);
+                });
+
+                //verification si le/les devoirs ne contiennes pas une compétence evalué
+                $scope.devoirs.areEvaluatedDevoirs(idDevoir).then((res) => {
+
+                    $scope.selected.devoirs.listwithEvaluatedSkills = [];
+                    $scope.selected.devoirs.listwithEvaluatedMarks = [];
+                    for (let i = 0; i < res.length; i++) {
+                        if (res[i].nbevalskill > 0 && res[i].nbevalskill != null) {
+                            $scope.selected.devoirs.listwithEvaluatedSkills.push(
+                                {
+                                    id: res[i].id,
+                                    nbevalskill: res[i].nbevalskill,
+                                    name: _.findWhere($scope.devoirs.all, {id: res[i].id}).name
+                                });
+
+                        }
+
+                        if (res[i].nbevalnum > 0 && res[i].nbevalnum != null) {
+                            $scope.selected.devoirs.listwithEvaluatedMarks.push({
+                                id: res[i].id,
+                                nbevalnum: res[i].nbevalnum,
+                                name: _.findWhere($scope.devoirs.all, {id: res[i].id}).name
+                            });
+
+                        }
+                    }
+                    $scope.opened.evaluation.suppretionMsg1 = false;
+                    if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+                        $scope.opened.evaluation.suppretionMsg2 = true;
+                    }
+                    utils.safeApply($scope);
+                });
+            }
+        };
+       /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
+            if (newValue===false && oldValue){
+                if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+                    $scope.opened.evaluation.suppretionMsg2 = true;
+                }
+            }
+
+        });*/
+        $scope.conditionAffichageText = function (NumText) {
+            if(NumText === 1){
+                if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length ) > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 2){
+                if($scope.selected.devoirs.listwithEvaluatedMarks.length  > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 3){
+                if($scope.selected.devoirs.listwithEvaluatedSkills.length > 16 && $scope.selected.devoirs.listwithEvaluatedMarks.length  === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 4){
+                if($scope.selected.devoirs.listwithEvaluatedSkills.length < 16 && $scope.selected.devoirs.listwithEvaluatedMarks.length  === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 5){
+                if($scope.selected.devoirs.listwithEvaluatedMarks.length < 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length === 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if(NumText === 6){
+                if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length) < 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+
+        };
+        $scope.annulerSuppretion = function () {
+            $scope.opened.evaluation.suppretionMsg2 = false;
+            $scope.opened.evaluation.suppretionMsg1 = false;
+        };
+
         $scope.releveNote = undefined;
         evaluations.devoirs.on('sync', function () {
             $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
@@ -383,6 +505,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.selected = {
                 devoirs : {
                     list : [],
+                    listwithEvaluatedSkills :[{
+
+                    }],
+                    listwithEvaluatedMarks : [],
                     all : false
                 },
                 eleve : null,
@@ -928,7 +1054,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 );
             }
-            $scope.annulerSuppretion ();
+            $scope.opened.evaluation.suppretionMsg2 = false;
         };
 
         $scope.cancelUpdateDevoir = function () {
@@ -968,28 +1094,31 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
                     }
                 }
-                //si il y a des competences à supprimer
-                if ($scope.competencesSupp.length > 0) {
-                    //est ce que les competences sont evalué
-                    let competence;
-                    for(let i=0; i < $scope.competencesSupp.length ; i++){
-                        competence =  _.findWhere($scope.evaluatedCompetence,{id_competence: $scope.competencesSupp[i].id_competence });
-                        if(competence !== undefined){
-                            $scope.evaluatedCompetencesSupp.push($scope.competencesSupp[i]);
+                $scope.devoir.isEvaluatedDevoir($scope.devoir.id).then((res)=>{
+                    $scope.devoir.evaluationDevoirs;
+                    //si il y a des competences à supprimer
+
+                    if ($scope.competencesSupp.length > 0) {
+
+                        //est ce que les competences sont evalué
+                        let competence;
+                        for(let i=0; i < $scope.competencesSupp.length ; i++){
+                            competence =  _.findWhere($scope.devoir.evaluationDevoirs.all,{id: String($scope.competencesSupp[i].id_competence), typeeval: 'TypeEvalSkill' });
+                            if(competence !== undefined){
+                                $scope.evaluatedCompetencesSupp.push($scope.competencesSupp[i]);
+                            }
                         }
-                    }
-                    if( $scope.evaluatedCompetencesSupp.length > 0)
-                        $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
-                    else{
+                        if( $scope.evaluatedCompetencesSupp.length > 0)
+                            $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
+                        else{
+                            $scope.firstConfirmSuppSkill = true;
+                            $scope.secondConfirmSuppSkill = true;
+                        }
+                    }else{
                         $scope.firstConfirmSuppSkill = true;
                         $scope.secondConfirmSuppSkill = true;
                     }
-
-                }else {
-                    $scope.firstConfirmSuppSkill = true;
-                    $scope.secondConfirmSuppSkill = true;
-                }
-
+                });
 
 
             }else{
@@ -1018,7 +1147,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.$watch(function() { return $scope.secondConfirmSuppSkill; }, function (newValue, oldValue) {
             if (newValue){
                 if($scope.firstConfirmSuppSkill === true && $scope.secondConfirmSuppSkill === true && $scope.evaluatedDisabel === false) {
-                    if ($scope.oldIs_Evaluated === true && $scope.devoir.is_evaluated === false) {
+                    if ($scope.oldIs_Evaluated === true && $scope.devoir.is_evaluated === false && ( _.findWhere($scope.devoir.evaluationDevoirs.all,{ typeeval: 'TypeEvalNum' }) !== undefined ) ) {
                         $scope.opened.lightboxs.updateDevoir.evaluatedSkillDisabel = true;
                     } else
                         $scope.evaluatedDisabel = true;
@@ -1246,7 +1375,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.getLibelleClasse = function(idClasse) {
             if (idClasse == null || idClasse === "") return "";
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
+            if(libelle === undefined){
+             //   console.log(idClasse);
+            }else {
+                return libelle.name;
+            }
         };
 
         /**
@@ -1609,5 +1743,204 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         };
 
+
+        /**
+         * Affiche la liste des remplacements en cours et initialise le
+         * formulaire de creation d'un remplacement
+         */
+        $scope.listRemplacements = function () {
+            $scope.gestionRemplacement = new GestionRemplacement();
+            // TODO gérer les établissements ?
+            $scope.gestionRemplacement.remplacements.sync();
+            $scope.gestionRemplacement.enseignants.sync();
+
+            $scope.gestionRemplacement.sortType     = 'date_debut'; // set the default sort type
+            $scope.gestionRemplacement.sortReverse  = false;  // set the default sort order
+
+            template.open('main', '../templates/evaluations/personnels/remplacements/eval_remp_chef_etab');
+        };
+
+        /**
+         * Sélectionne/Déselectionne tous les remplacemnts
+         */
+        $scope.selectAllRemplacements = function(){
+            if ($scope.gestionRemplacement.selectAll === false) {
+                // maj de la vue
+                $scope.selectElement($scope.gestionRemplacement.remplacements.all, false);
+
+                // vidage de la sélection
+                $scope.gestionRemplacement.selectedRemplacements = [];
+            } else {
+
+                // maj de la vue
+                $scope.selectElement($scope.gestionRemplacement.remplacements.all, true);
+
+                // ajout à la liste de sélection
+                $scope.gestionRemplacement.selectedRemplacements = _.where($scope.gestionRemplacement.remplacements.all, {selected : true});
+            }
+
+
+        };
+
+
+        /**
+         * Supprime les remplacments sélectionnés
+         */
+        $scope.deleteSelectedRemplacement = function() {
+
+            var iNbSupp = $scope.gestionRemplacement.selectedRemplacements.length;
+            var iCpteur = 0;
+
+            for(var i=0; i< iNbSupp ; ++i) {
+                var oRemplacement = $scope.gestionRemplacement.selectedRemplacements[i];
+
+                // suppression des remplacments en BDD
+                oRemplacement.remove().then(function(poRemplacementSupp) {
+
+                    $scope.gestionRemplacement.remplacements.remove(poRemplacementSupp);
+                    $scope.gestionRemplacement.selectedRemplacements
+
+                    iCpteur++;
+
+                    // si toutes les suppressions ont été faites on refresh la vue
+                    if(iNbSupp === iCpteur) {
+
+                        // fermeture popup
+                        $scope.gestionRemplacement.confirmation = false;
+
+                        // désélection de tous les remplacements
+                        $scope.gestionRemplacement.selectAll = false;
+
+                        // vidage de la liste des remplacements sélectionnés
+                        $scope.gestionRemplacement.selectedRemplacements = [];
+
+                        utils.safeApply($scope);
+                    }
+                });
+
+            }
+        };
+
+
+        /**
+         * Sélectionne/Déselectionne un remplacment
+         * @param poRemplacement le remplacement
+         */
+        $scope.selectRemplacement = function (poRemplacement) {
+            var index = _.indexOf($scope.gestionRemplacement.selectedRemplacements, poRemplacement);
+
+            // ajout dans la liste des remplacements sélectionnés s'il n'y est pas présent
+            if(index === -1){
+                $scope.gestionRemplacement.selectedRemplacements.push(poRemplacement);
+                poRemplacement.selected = true;
+            }else{
+                // retrait sinon
+                $scope.gestionRemplacement.selectedRemplacements = _.without($scope.gestionRemplacement.selectedRemplacements, poRemplacement);
+                poRemplacement.selected = false;
+            }
+
+            // coche de la checkbox de sélection de tous les remplacements s'ils on tous été sélectionnés (un à un)
+            $scope.gestionRemplacement.selectAll = $scope.gestionRemplacement.selectedRemplacements.length > 0 &&
+                                        ($scope.gestionRemplacement.selectedRemplacements.length === $scope.gestionRemplacement.remplacements.all.length);
+
+        };
+
+        /**
+         * Vérification de la cohérence de l'ajout du remplacement (verif remplacement déjà existant par exemple)
+         *
+         * @return true si aucune erreur, false sinon
+         */
+        $scope.controlerNewRemplacement = function () {
+            // var oRemplacements = [];
+
+            // _.each($scope.gestionRemplacement.remplacements.all, function (remp) {
+            //     if (oRemplacement.titulaire.id == $scope.gestionRemplacement.remplacement.titulaire.id) {
+            //         oRemplacements.push(remp);
+            //     }
+            // });
+
+            $scope.gestionRemplacement.showError = false;
+
+            for (var i=0; i< $scope.gestionRemplacement.remplacements.all.length; i++) {
+                var oRemplacement = $scope.gestionRemplacement.remplacements.all[i];
+                if (oRemplacement.titulaire.id == $scope.gestionRemplacement.remplacement.titulaire.id) {
+
+                    // la date de fin du nouveau  remplacement doit etre avant la date de debut d'un remplacement existant
+                    var isRemplacementApresExistant = moment($scope.gestionRemplacement.remplacement.date_fin).diff(moment(oRemplacement.date_debut), "days") < 0;
+
+                    // la date de fin d'un remplacement existant doit être avant la date de début d'un nouveau remplacement
+                    var isFinApresFinRemplacementExistant = moment(oRemplacement.date_fin).diff(moment($scope.gestionRemplacement.remplacement.date_debut), "days") < 0;
+
+                    // si l'une des 2 conditions n'est pas remplie le remplacement chevauche un remplacent existant
+                    if (!(isRemplacementApresExistant || isFinApresFinRemplacementExistant)) {
+                        $scope.gestionRemplacement.showError = true;
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        };
+
+
+        /**
+         * Enregistre un remplacemnt en base de données
+         */
+        $scope.saveNewRemplacement = function () {
+
+            // Vérification de la cohérence de l'ajout du remplacement (verif remplacement déjà existant par exemple)
+            var hasError = !$scope.controlerNewRemplacement();
+
+            if(hasError) {
+                return;
+            }
+
+            // TODO Recupere le bon établissement
+            $scope.gestionRemplacement.remplacement.id_etablissement = model.me.structures[0];
+
+            // Conversion des dates en string
+            /*$scope.gestionRemplacement.remplacement.date_debut = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_debut);
+            $scope.gestionRemplacement.remplacement.date_fin = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_fin);*/
+
+            // enregistrement du remplacement et refressh de la liste
+            $scope.gestionRemplacement.remplacement.create().then(function() {
+
+                // Mise à jour de la liste des remplacements
+                $scope.gestionRemplacement.remplacements.sync().then(function() {
+                    // Réinitialisation du formulaire d'ajout de remplacement
+                    $scope.gestionRemplacement.remplacement.date_debut = new Date();
+
+                    var today = new Date();
+                    today.setFullYear(today.getFullYear() + 1);
+                    $scope.gestionRemplacement.remplacement.date_fin = today;
+                    $scope.gestionRemplacement.remplacement.titulaire = undefined;
+                    $scope.gestionRemplacement.remplacement.remplacant = undefined;
+
+                    $scope.gestionRemplacement.selectAll = false;
+                    $scope.gestionRemplacement.selectedRemplacements = [];
+
+                    utils.safeApply($scope);
+                });
+
+
+            });
+        };
+
+
+        /**
+         * Controle la validité du formulaire de création d'un remplacement
+         * @returns {boolean} Validité du formulaire
+         */
+        $scope.controleNewRemplacementForm = function () {
+            return !(
+                $scope.gestionRemplacement.remplacement !== undefined
+                && $scope.gestionRemplacement.remplacement.titulaire !== undefined
+                && $scope.gestionRemplacement.remplacement.remplacant !== undefined
+                && $scope.gestionRemplacement.remplacement.titulaire.id !== $scope.gestionRemplacement.remplacement.remplacant.id
+                && $scope.gestionRemplacement.remplacement.date_debut !== undefined
+                && $scope.gestionRemplacement.remplacement.date_fin !== undefined
+                && (moment($scope.gestionRemplacement.remplacement.date_fin).diff(moment($scope.gestionRemplacement.remplacement.date_debut), "days") >= 0)
+            );
+        };
     }
 ]);

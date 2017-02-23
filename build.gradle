@@ -18,9 +18,6 @@ repositories {
     maven {
         url "http://maven.web-education.net/nexus/content/groups/public"
     }
-		maven{
-				url "http://10.83.199.36:8088/content/groups/public/"
-		}
 }
 
 task testJar(type: Jar) {

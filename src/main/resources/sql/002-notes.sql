@@ -1,5 +1,5 @@
 CREATE SCHEMA notes;
-CREATE EXTENSION IF NOT EXISTS unaccent;
+--CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- tables
 CREATE TABLE notes.users

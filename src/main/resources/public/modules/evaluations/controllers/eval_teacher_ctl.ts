@@ -18,9 +18,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 // Chefs d'établissement
                 $scope.isChefEtab = model.me.type === 'PERSEDUCNAT' &&
-                    model.me.functions.EDU !== undefined &&
-                    model.me.functions.EDU.subjects !== undefined &&
-                    _.where(model.me.functions.EDU.subjects, { subjectName: "EDUCATION  (CE ,CPE)" }).length > 0;
+                    model.me.functions !== undefined &&
+                    model.me.functions.DIR !== undefined &&
+                    model.me.functions.DIR.code === 'DIR';
 
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
 
@@ -1826,14 +1826,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @return true si aucune erreur, false sinon
          */
         $scope.controlerNewRemplacement = function () {
-            var oRemplacements = $scope.gestionRemplacement.remplacements.where({id_titulaire : $scope.gestionRemplacement.remplacement.titulaire.id});
-            oRemplacements = oRemplacements as Collection<Remplacement>;
+            // var oRemplacements = [];
+
+            // _.each($scope.gestionRemplacement.remplacements.all, function (remp) {
+            //     if (oRemplacement.titulaire.id == $scope.gestionRemplacement.remplacement.titulaire.id) {
+            //         oRemplacements.push(remp);
+            //     }
+            // });
 
             $scope.gestionRemplacement.showError = false;
 
-            if(oRemplacements.length > 0) {
-                for (var i=0; i< oRemplacements.length; i++) {
-                    var oRemplacement = oRemplacements[i];
+            for (var i=0; i< $scope.gestionRemplacement.remplacements.all.length; i++) {
+                var oRemplacement = $scope.gestionRemplacement.remplacements.all[i];
+                if (oRemplacement.titulaire.id == $scope.gestionRemplacement.remplacement.titulaire.id) {
 
                     // la date de fin du nouveau  remplacement doit etre avant la date de debut d'un remplacement existant
                     var isRemplacementApresExistant = moment($scope.gestionRemplacement.remplacement.date_fin).diff(moment(oRemplacement.date_debut), "days") < 0;
@@ -1842,7 +1847,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     var isFinApresFinRemplacementExistant = moment(oRemplacement.date_fin).diff(moment($scope.gestionRemplacement.remplacement.date_debut), "days") < 0;
 
                     // si l'une des 2 conditions n'est pas remplie le remplacement chevauche un remplacent existant
-                    if(!(isRemplacementApresExistant || isFinApresFinRemplacementExistant)) {
+                    if (!(isRemplacementApresExistant || isFinApresFinRemplacementExistant)) {
                         $scope.gestionRemplacement.showError = true;
                         return false;
                     }

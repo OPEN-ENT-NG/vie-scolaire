@@ -21,6 +21,7 @@ package fr.openent.evaluations.service;
 
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -95,4 +96,19 @@ public interface UtilsService {
      * @param handler handler comportant le resultat
      */
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Récupère la liste des utilisateurs selon les paramètres précisés
+     *
+     *
+     * @param structureId
+     * @param classId
+     * @param groupId
+     * @param types
+     * @param filterActive
+     * @param nameFilter
+     * @param user
+     * @param eitherHandler
+     */
+    public void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
 }

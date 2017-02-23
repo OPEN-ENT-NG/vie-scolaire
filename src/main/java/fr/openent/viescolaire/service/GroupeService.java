@@ -15,5 +15,12 @@ public interface GroupeService extends CrudService {
      * @param userId identifiant de l'utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    public void listGroupeEnseignementUser(String userId, Handler<Either<String, JsonArray>> handler);
+    public void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Liste les élèves pour un groupe d'ensignement donné
+     * @param groupeEnseignementId
+     * @param handler
+     */
+    public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile, Handler<Either<String, JsonArray>> handler);
 }

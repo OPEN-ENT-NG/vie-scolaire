@@ -6,6 +6,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.utils.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -23,12 +24,28 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
 
     @Override
-    public void listGroupeEnseignementUser(String userId, Handler<Either<String, JsonArray>> handler) {
+    public void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
 
         query.append("MATCH (u:User {id :{userId}})-[DEPENDS]->(g:FunctionalGroup) return g");
         values.putString("userId", userId);
+
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    }
+
+
+    @Override
+    public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject values = new JsonObject();
+        query.append("MATCH (g:FunctionalGroup {id : {groupeEnseignementId}})<-[:IN]-(users) ");
+        if(!StringUtils.isEmpty(profile)){
+            query.append("where users.profiles =[{profile}] ");
+            values.putString("profile", profile);
+        }
+        query.append( "RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, users.blocked as blocked, users.source as source ORDER BY lastName");
+        values.putString("groupeEnseignementId", groupeEnseignementId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }

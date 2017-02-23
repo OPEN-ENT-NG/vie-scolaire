@@ -112,7 +112,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                     ||  attr.equals("competenceEvaluee")
                                     ||  attr.equals("competences")
                                     ||  attr.equals(attributeTypeGroupe)
-                                    ||  (attr.equals(attributeIdGroupe)))) {
+                                    ||  attr.equals(attributeIdGroupe))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));
@@ -189,7 +189,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     // Ajoute une relation notes.rel_devoirs_groupes
                     if(null != devoir.getLong(attributeTypeGroupe)){
                         JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
-                        String queryAddRelDevoirsGroupes = new String("INSERT INTO notes.rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
+                        String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
                         paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
                         paramsAddRelDevoirsGroupes.addNumber(devoirId);
                         paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
@@ -280,7 +280,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         devoir.removeField("competences");
 
         for (String attr : devoir.getFieldNames()) {
-            if(!(attr.equals(attributeTypeGroupe))) {
+            if(!(attr.equals(attributeTypeGroupe)
+                    || attr.equals(attributeIdGroupe))) {
                 if (attr.contains("date")) {
                     queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
                     params.add(formatDate(devoir.getString(attr)).toString());
@@ -291,6 +292,22 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 }
             }
         }
+        //FIXME : A modifier lorsqu'on pourra rattacher un devoir à plusieurs groupes
+        // Modifie une relation notes.rel_devoirs_groupes
+        if(null != devoir.getString(attributeIdGroupe)){
+            String queryUpdateRelDevoirGroupe ="UPDATE "+ Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
+                    "SET id_groupe = ? " +
+                    "WHERE id_devoir = ? ";
+            JsonArray paramsUpdateRelDevoirGroupe = new JsonArray();
+            paramsUpdateRelDevoirGroupe.addString(devoir.getString(attributeIdGroupe));
+            paramsUpdateRelDevoirGroupe.addNumber(Integer.parseInt(id));
+            statements.add(new JsonObject()
+                    .putString("statement", queryUpdateRelDevoirGroupe)
+                    .putArray("values", paramsUpdateRelDevoirGroupe)
+                    .putString("action", "prepared"));
+        }
+
+
         StringBuilder query = new StringBuilder()
                 .append("UPDATE " + resourceTable +" SET " + queryParams.toString() + "modified = NOW() WHERE id = ? ");
         statements.add(new JsonObject()

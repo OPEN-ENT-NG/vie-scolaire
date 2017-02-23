@@ -213,7 +213,7 @@ export class Classe extends Model {
 
     get apiForGroupeEnseignement () {
         return {
-            sync: '/userbook/visible/users/' + this.id
+            sync: '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student'
         }
     }
 
@@ -235,12 +235,7 @@ export class Classe extends Model {
                         }.bind(this));
                     }else{
                         http().getJson(this.apiForGroupeEnseignement.sync).done(function (data) {
-                            for (var i = 0; i < data.length; i++) {
-                                if(data[i].type === 'Student'){
-                                    this.eleves.all.push(data[i]);
-                                }
-                            }
-
+                            this.eleves.load(data);
                             for (var i = 0; i < this.eleves.all.length; i++) {
                                 this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
                             }

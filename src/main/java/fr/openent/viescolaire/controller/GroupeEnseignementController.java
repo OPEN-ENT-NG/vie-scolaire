@@ -21,6 +21,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import java.util.ArrayList;
 
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
@@ -47,7 +48,7 @@ public class GroupeEnseignementController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if (user != null) {
-                    groupeService.listGroupeEnseignementUser(user.getUserId(), new Handler<Either<String, JsonArray>>() {
+                    groupeService.listGroupesEnseignementsByUserId(user.getUserId(), new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if(event.isRight()){
@@ -55,7 +56,7 @@ public class GroupeEnseignementController extends ControllerHelper {
                                 ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
                                 JsonObject groupeEnseignement = new JsonObject();
                                 JsonObject g = new JsonObject();
-                                final JsonArray groupesEnseignementJsonArray = new JsonArray();
+                                JsonArray groupesEnseignementJsonArray = new JsonArray();
 
                                 for(int i = 0; i < r.size(); i++){
                                     JsonObject o = r.get(i);
@@ -70,6 +71,35 @@ public class GroupeEnseignementController extends ControllerHelper {
                             }
                         }
                     });
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
+    /**
+     * Liste les groupes d'enseignement d'un utilisateur
+     * @param request
+     */
+    @Get("/groupe/enseignement/users/:groupId")
+    @ApiDoc("Liste les groupes dse utilisateurs d'un groupe d'enseignement")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getGroupesEnseignementUsers(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    final String groupId = request.params().get("groupId");
+                    if (groupId != null && !groupId.trim().isEmpty()) {
+                        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);;
+                        final String profile = request.params().get("type");
+                        groupeService.listUsersByGroupeEnseignementId(groupId, profile, handler);
+                    }else{
+                        log.error("Error getGroupesEnseignementUsers : groupId can't be null ");
+                        badRequest(request);
+                        return;
+                    }
                 } else {
                     unauthorized(request);
                 }

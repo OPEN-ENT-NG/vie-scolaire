@@ -56,6 +56,42 @@
 
         <div class="separator"/>
 
+
+        <section class="row twelve-mobile">
+            <!-- Matiére -->
+            <div class="three cell addDevoirTable__libelle twelve-mobile">
+                <i18n>viescolaire.utils.subject</i18n>
+                <i class="fa fa-asterisk obligatoire"></i>
+            </div>
+
+            <div class="nine cell twelve-mobile">
+                <label class="select eleven twelve-mobile">
+                    <select ng-model="evaluationLibre.id_matiere"  ng-options="matiere.id as matiere.name for matiere in EvaluationLibreCharge.matieres ">
+                        <option  value="" >[[translate('viescolaire.utils.subject')]]
+                        </option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <section class="row twelve-mobile">
+        <!-- Sous matiere -->
+            <div class="three cell addDevoirTable__libelle twelve-mobile">
+                <i18n>viescolaire.utils.undersubject</i18n>
+                <i class="fa fa-asterisk obligatoire"></i>
+            </div>
+
+            <div class="nine cell twelve-mobile">
+                <label class="select eleven twelve-mobile" ng-class="{disabled : EvaluationLibreCharge.sousmatiere.length === 0 ||  EvaluationLibreCharge.sousmatiere === undefined}">
+                    <select ng-model="evaluationLibre.id_sousmatiere"   ng-disabled=" EvaluationLibreCharge.sousmatiere.length === 0 ||  EvaluationLibreCharge.sousmatiere === undefined" ng-options=" sousmatiere.id as sousmatiere.libelle for sousmatiere in EvaluationLibreCharge.sousmatiere ">
+                        <option  value="">[[translate('viescolaire.utils.undersubject')]]
+                        </option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <div class="separator"/>
         <!-- Compétence évaluée -->
         <section class="row twelve-mobile">
             <div class="three cell addDevoirTable__libelle twelve-mobile">

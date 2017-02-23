@@ -3,8 +3,9 @@
  */
 
 import {ng, template, model} from 'entcore/entcore';
-import {SuiviCompetence, Devoir, CompetenceNote} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Devoir, CompetenceNote, evaluations} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+
 
 
 declare let _:any;
@@ -40,11 +41,16 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 id_classe: null,
                 id_periode: $scope.search.periode,
                 id_type: 1, // TODO modifier en optional foreign key
-                id_matiere: "", // TODO modifier en optional foreign key
-                id_sousmatiere: 1, // TODO modifier en optional foreign key
+                id_matiere: "",
+                id_sousmatiere: null,
                 competences: [],
                 controlledDate: false
             });
+            $scope.EvaluationLibreCharge= {
+                matieres : evaluations.matieres.all,
+                sousmatiere : []
+            };
+
 
             var competenceEvaluee = new CompetenceNote({
                 evaluation: -1,
@@ -56,7 +62,18 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             evaluationLibre.competenceEvaluee = competenceEvaluee;
             return evaluationLibre;
         };
-
+        $scope.$watch(function () {
+            if($scope.evaluationLibre != undefined)
+                return  $scope.evaluationLibre.id_matiere;
+        }, function (newValue) {
+            if(newValue != "" && newValue != undefined){
+                let mamatiere =  _.findWhere($scope.EvaluationLibreCharge.matieres,{id: $scope.evaluationLibre.id_matiere});
+                if(mamatiere != undefined)
+                    $scope.EvaluationLibreCharge.sousmatiere = mamatiere.sousMatieres.all;
+            }else if($scope.evaluationLibre.id_matiere === null ){
+                $scope.EvaluationLibreCharge.sousmatiere = []
+            }
+        });
         /**
          * Ouvre la fenêtre de création d'une évaluation libre
          */

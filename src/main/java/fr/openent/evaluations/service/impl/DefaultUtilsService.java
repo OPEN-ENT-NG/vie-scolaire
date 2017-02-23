@@ -144,8 +144,8 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
         if(diviseurM == null){
             diviseurM = 20;
         }
-        Double noteMin = new Double(0);
-        Double noteMax = new Double(diviseurM);
+        Double noteMax = new Double(0);
+        Double noteMin = new Double(diviseurM);
         Double notes = new Double(0);
         Double diviseur = new Double(0);
         for (NoteDevoir noteDevoir : listeNoteDevoirs) {
@@ -164,11 +164,11 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
                 diviseur = diviseur + (currDiviseur * currCoefficient);
             }
             if (statistiques) {
-                if (currNote > noteMin) {
-                    noteMin = currNote;
-                }
-                if (currNote < noteMax) {
+                if (currNote > noteMax) {
                     noteMax = currNote;
+                }
+                if (currNote < noteMin) {
+                    noteMin = currNote;
                 }
             }
         }
@@ -177,7 +177,7 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
         moyenne = Double.parseDouble(df.format(moyenne).replace(",", "."));
         JsonObject r = new JsonObject().putNumber("moyenne", moyenne);
         if (statistiques) {
-            r.putNumber("noteMin", noteMin).putNumber("noteMax", noteMax);
+            r.putNumber("noteMax", noteMax).putNumber("noteMin", noteMin);
         }
         return r;
     }

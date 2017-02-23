@@ -66,11 +66,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             if($scope.evaluationLibre != undefined)
                 return  $scope.evaluationLibre.id_matiere;
         }, function (newValue) {
-            if(newValue != "" && newValue != undefined){
+            if(newValue !== "" && newValue !== undefined && newValue !== null){
                 let mamatiere =  _.findWhere($scope.EvaluationLibreCharge.matieres,{id: $scope.evaluationLibre.id_matiere});
                 if(mamatiere != undefined)
                     $scope.EvaluationLibreCharge.sousmatiere = mamatiere.sousMatieres.all;
-            }else if($scope.evaluationLibre.id_matiere === null ){
+            }else if(newValue === null ){
                 $scope.EvaluationLibreCharge.sousmatiere = []
             }
         });

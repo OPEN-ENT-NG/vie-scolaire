@@ -420,14 +420,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             }
         };
-       /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
-            if (newValue===false && oldValue){
-                if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
-                    $scope.opened.evaluation.suppretionMsg2 = true;
-                }
-            }
+        /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
+         if (newValue===false && oldValue){
+         if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+         $scope.opened.evaluation.suppretionMsg2 = true;
+         }
+         }
 
-        });*/
+         });*/
         $scope.conditionAffichageText = function (NumText) {
             if(NumText === 1){
                 if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length ) > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
@@ -888,21 +888,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     //suppression des compétences qui n'appartiennent pas au cycle
                     var newCompentenceDevoir = [];
 
-                    if (evaluations.competencesDevoir.length > 0 &&
-                        evaluations.competencesDevoir[0].id_cycle === currentIdCycle) {
-                        newCompentenceDevoir = evaluations.competencesDevoir;
-                    }
-
-                    else {
-                        for (var o in $scope.competencesFilter) {
-                            if ($scope.competencesFilter[o].isSelected === true
-                                && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
-                                if ($scope.competencesFilter[o].data.id_parent !== 0) {
-                                    newCompentenceDevoir.push($scope.competencesFilter[o].data);
-                                }
+                    for (var o in $scope.competencesFilter) {
+                        if ($scope.competencesFilter[o].isSelected === true
+                            && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
+                            if ($scope.competencesFilter[o].data.id_parent !== 0) {
+                                newCompentenceDevoir.push($scope.competencesFilter[o].data);
                             }
                         }
                     }
+
                     evaluations.competencesDevoir = newCompentenceDevoir;
 
                     utils.safeApply($scope);
@@ -1377,7 +1371,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
             let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
             if(libelle === undefined){
-             //   console.log(idClasse);
+                //   console.log(idClasse);
             }else {
                 return libelle.name;
             }
@@ -1841,7 +1835,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             // coche de la checkbox de sélection de tous les remplacements s'ils on tous été sélectionnés (un à un)
             $scope.gestionRemplacement.selectAll = $scope.gestionRemplacement.selectedRemplacements.length > 0 &&
-                                        ($scope.gestionRemplacement.selectedRemplacements.length === $scope.gestionRemplacement.remplacements.all.length);
+                ($scope.gestionRemplacement.selectedRemplacements.length === $scope.gestionRemplacement.remplacements.all.length);
 
         };
 
@@ -1900,7 +1894,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             // Conversion des dates en string
             /*$scope.gestionRemplacement.remplacement.date_debut = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_debut);
-            $scope.gestionRemplacement.remplacement.date_fin = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_fin);*/
+             $scope.gestionRemplacement.remplacement.date_fin = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_fin);*/
 
             // enregistrement du remplacement et refressh de la liste
             $scope.gestionRemplacement.remplacement.create().then(function() {

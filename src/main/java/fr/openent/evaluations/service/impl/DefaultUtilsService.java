@@ -138,4 +138,37 @@ public class DefaultUtilsService implements fr.openent.evaluations.service.Utils
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
     }
 
+
+
+    /**
+     * Récupère le cycle de la classe dans la relation classe_cycle
+     * @param idClasse List Identifiant de classe.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    @Override
+    public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_classe, id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_classe_cycle ")
+                .append("WHERE id_classe IN (");
+
+        Integer classNbr = 0;
+        for(String id :  idClasse){
+            classNbr++;
+            params.addString(id);
+        }
+        for(Integer j=0; j<classNbr-1; j++ ){
+            query.append("? , ");
+        }
+        if(classNbr>0){
+            query.append("?)");
+        }
+        else{
+            query.append(")");
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
 }

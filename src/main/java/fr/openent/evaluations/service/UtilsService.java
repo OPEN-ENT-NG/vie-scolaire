@@ -76,4 +76,12 @@ public interface UtilsService {
      * @param handler handler comportant le resultat
      */
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler);
+
+
+    /**
+     * Récupère le cycle de la classe dans la relation classe_cycle
+     * @param idClasse Identifiant de l'établissement.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler);
 }

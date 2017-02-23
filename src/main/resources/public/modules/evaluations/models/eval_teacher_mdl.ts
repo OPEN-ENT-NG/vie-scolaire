@@ -1069,19 +1069,31 @@ export class Evaluations extends Model {
         });
         this.structures.on('synchronized', function () {
             var _classes = [];
+            var uri = '/viescolaire/evaluations/classe/cycle?';
             _.each(model.me.classes, function (classe) {
-                _classes.push(_.findWhere(evaluations.structures.all[0].classes, {id : classe}));
+                var _classe = _.findWhere(evaluations.structures.all[0].classes, {id: classe})
+                _classes.push(_classe);
+                uri += ('idClasses=' + classe + '&');
             });
-            evaluations.classes.load(_classes);
-            evaluations.synchronized.classes = evaluations.classes.all.length;
-            for (var i = 0; i < evaluations.classes.all.length; i++) {
-                evaluations.classes.all[i].eleves.sync().then(() => {
-                    evaluations.synchronized.classes--;
-                    if (evaluations.synchronized.classes === 0) {
-                        evaluations.classes.trigger('classes-sync');
+            http().getJson(uri).done((data) => {
+                for(let i= 0; i < _classes.length ; i++){
+                    for(let j=0; j< data.length; j++){
+                        if(_classes[i].id === data[j].id_classe){
+                            _classes[i].id_cycle = data[j].id_cycle;
+                        }
                     }
-                });
-            }
+                }
+                evaluations.classes.load(_classes);
+                evaluations.synchronized.classes = evaluations.classes.all.length;
+                for (var i = 0; i < evaluations.classes.all.length; i++) {
+                    evaluations.classes.all[i].eleves.sync().then(() => {
+                        evaluations.synchronized.classes--;
+                        if (evaluations.synchronized.classes === 0) {
+                            evaluations.classes.trigger('classes-sync');
+                        }
+                    });
+                }
+            });
         });
         this.structures.sync();
         this.devoirs.on('sync', function () {
@@ -1144,6 +1156,10 @@ export class SuiviCompetenceClasse extends Model implements IModel{
 
     }
 
+    addEvalLibre (eleve){
+
+
+    }
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);

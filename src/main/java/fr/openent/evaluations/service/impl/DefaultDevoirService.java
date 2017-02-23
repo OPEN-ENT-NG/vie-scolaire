@@ -187,7 +187,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     }
 
                     // Ajoute une relation notes.rel_devoirs_groupes
-                    if(null != devoir.getLong(attributeTypeGroupe)){
+                    if(null != devoir.getLong(attributeTypeGroupe)
+                            && devoir.getLong(attributeTypeGroupe)>-1){
                         JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
                         String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
                         paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
@@ -198,7 +199,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 .putArray("values", paramsAddRelDevoirsGroupes)
                                 .putString("action", "prepared"));
                     }else{
-                        log.error("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante: " + devoirId);
+                        log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + devoirId);
                     }
 
 
@@ -294,7 +295,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         }
         //FIXME : A modifier lorsqu'on pourra rattacher un devoir à plusieurs groupes
         // Modifie une relation notes.rel_devoirs_groupes
-        if(null != devoir.getString(attributeIdGroupe)){
+        if(null != devoir.getString(attributeIdGroupe)
+                && null != devoir.getLong(attributeTypeGroupe)
+                && devoir.getLong(attributeTypeGroupe)>-1){
             String queryUpdateRelDevoirGroupe ="UPDATE "+ Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
                     "SET id_groupe = ? " +
                     "WHERE id_devoir = ? ";
@@ -305,7 +308,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     .putString("statement", queryUpdateRelDevoirGroupe)
                     .putArray("values", paramsUpdateRelDevoirGroupe)
                     .putString("action", "prepared"));
+        }else{
+            log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre :  " + id);
         }
+
 
 
         StringBuilder query = new StringBuilder()

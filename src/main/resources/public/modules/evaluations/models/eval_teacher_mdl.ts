@@ -503,12 +503,20 @@ export class Devoir extends Model implements IModel{
 
     toJSON () {
         let classe = evaluations.classes.findWhere({id : this.id_groupe});
+        let  type_groupe = -1;
+        let  id_groupe = null;
+        if(classe !== undefined){
+            if(classe.type_groupe !== undefined){
+                type_groupe = classe.type_groupe;
+            }
+            id_groupe = this.id_groupe;
+        }
         return {
             name            : this.name,
             owner           : this.owner,
             libelle         : this.libelle,
-            id_groupe       : this.id_groupe,
-            type_groupe     : classe.type_groupe,
+            id_groupe       : id_groupe,
+            type_groupe     : type_groupe,
             id_sousmatiere   : parseInt(this.id_sousmatiere),
             id_periode       : parseInt(this.id_periode),
             id_type          : parseInt(this.id_type),

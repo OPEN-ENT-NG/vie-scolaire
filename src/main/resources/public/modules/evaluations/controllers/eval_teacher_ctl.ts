@@ -1459,6 +1459,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 evaluation.id = evaluation.data.id;
                             }
                             evaluation.save().then((res) => {
+                                evaluation.valid = true;
                                 evaluation.oldValeur = evaluation.valeur;
                                 evaluation.oldAppreciation = evaluation.appreciation;
                                 evaluation.id = res.id;

@@ -218,36 +218,31 @@ public class MatiereController extends ControllerHelper {
                         }
                     }
 
-
-
-
-
-
-                                final JsonArray codeEtab = new JsonArray();
-                                JsonArray codeMatieres = new JsonArray();
-                                Pattern p = Pattern.compile("\\$");
-                                final ArrayList<String> correspondanceMatiere = new ArrayList<String>();
-                                final ArrayList<String> correspondanceEtablissement = new ArrayList<String>();
-                                final ArrayList<String> correspondanceClasse = new ArrayList<String>();
-                                for(int i = 0 ; i < matieres.size(); i++){
-                                    String value = matieres.get(i).toString();
-                                    String[] spliting = p.split(value);
-                                    correspondanceMatiere.add(spliting[2]);
-                                    correspondanceClasse.add(spliting[1]);
-                                    correspondanceEtablissement.add(spliting[0]);
-                                    if(!codeEtab.contains(spliting[0])){
-                                        codeEtab.add(spliting[0]);
-                                    }
-                                    if(!codeMatieres.contains(spliting[2])) {
-                                        codeMatieres.add(spliting[2]);
-                                    }
-                                }
-                                matiereService.getCorrespondanceMatieres(codeMatieres, codeEtab, new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> event) {
-                                        JsonArray r = event.right().getValue();
-                                        JsonObject etabListe = new JsonObject();
-                                        JsonObject matiereList = new JsonObject();
+                    final JsonArray codeEtab = new JsonArray();
+                    JsonArray codeMatieres = new JsonArray();
+                    Pattern p = Pattern.compile("\\$");
+                    final ArrayList<String> correspondanceMatiere = new ArrayList<String>();
+                    final ArrayList<String> correspondanceEtablissement = new ArrayList<String>();
+                    final ArrayList<String> correspondanceClasse = new ArrayList<String>();
+                    for(int i = 0 ; i < matieres.size(); i++){
+                        String value = matieres.get(i).toString();
+                        String[] spliting = p.split(value);
+                        correspondanceMatiere.add(spliting[2]);
+                        correspondanceClasse.add(spliting[1]);
+                        correspondanceEtablissement.add(spliting[0]);
+                        if(!codeEtab.contains(spliting[0])){
+                            codeEtab.add(spliting[0]);
+                        }
+                        if(!codeMatieres.contains(spliting[2])) {
+                            codeMatieres.add(spliting[2]);
+                        }
+                    }
+                    matiereService.getCorrespondanceMatieres(codeMatieres, codeEtab, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            JsonArray r = event.right().getValue();
+                            JsonObject etabListe = new JsonObject();
+                            JsonObject matiereList = new JsonObject();
 
                             JsonObject n = new JsonObject();
                             JsonObject nInter = new JsonObject();

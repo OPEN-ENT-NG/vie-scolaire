@@ -1363,18 +1363,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
-         * @param idClasse identifiant de la classe
-         * @returns {any} libelle de la classe
-         */
-        $scope.getLibelleClasse = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.classes.all.length === 0) return;
-            let libelle = _.findWhere(evaluations.classes.all, {id : idClasse});
-            if(libelle === undefined){
-             //   console.log(idClasse);
-            }else {
-                return libelle.name;
+          * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
+          * @param idClasse identifiant de la classe
+          * @returns {any} libelle de la classe
+          */
+        $scope.getLibelleClasse = function(idClasse) {
+            if (idClasse == null || idClasse === "") return "";
+            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
+            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
+            if(libelle === undefined){
+                if(evaluations.classes.all.length === 0) return;
+                libelle = _.findWhere(evaluations.classes.all, { id: idClasse });
+
+            }
+            if(libelle !== undefined){
+                return libelle.name;
             }
         };
 

@@ -38,6 +38,7 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
+import org.entcore.common.utils.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -326,10 +327,16 @@ public class DevoirController extends ControllerHelper {
                                     for (int i = 0; i < values.size(); i++) {
                                         Double percent = new Double(0);
                                         JsonObject devoir = values.get(i);
-                                        String idClasse = devoir.getString("id_groupe");
-                                        Integer idDevoir = devoir.getInteger("id");
-                                        percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes")*100/classes.getInteger(idClasse))));
-                                        returns.putNumber(idDevoir.toString(), percent);
+                                        if(null != devoir
+                                                && null != devoir.getInteger("id")) {
+                                            String idClasse = devoir.getString("id_groupe");
+                                            Integer idDevoir = devoir.getInteger("id");
+                                            if (null != classes
+                                                    && null != classes.getInteger(idClasse)) {
+                                                percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes") * 100 / classes.getInteger(idClasse))));
+                                            }
+                                            returns.putNumber(idDevoir.toString(), percent);
+                                        }
                                     }
                                     Renders.renderJson(request, returns);
                                 } else {

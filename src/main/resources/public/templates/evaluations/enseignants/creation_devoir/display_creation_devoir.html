@@ -52,7 +52,7 @@
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile" ng-class="{disabled : devoir.id_etablissement === undefined}">
-                                            <select ng-model="devoir.id_classe" ng-change="setClasseMatieres();loadEnseignementsByClasse(classe.id);">
+                                            <select ng-model="devoir.id_classe" ng-change="setClasseMatieres();loadEnseignementsByClasse(devoir.id_classe);">
                                                 <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.id_classe === classe.id" value="[[classe.id]]">[[classe.name]]</option>
                                             </select>
                                         </label>

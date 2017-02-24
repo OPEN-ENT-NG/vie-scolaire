@@ -3,15 +3,21 @@
     <!--  Left side nav  -->
     <nav class="two cell vertical menu-accueil mobile-navigation zero-mobile">
         <ul>
-            <li><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
-            <li><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
-            <li><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
-            <li><a href="#/competences/classe"><i18n>evaluations.suivi.classe.title</i18n></a></li>
+            <li ng-if="!isChefEtab"><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
+            <li ng-if="!isChefEtab"><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
+            <li ng-if="!isChefEtab"><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
+            <li ng-if="!isChefEtab"><a href="#/competences/classe"><i18n>evaluations.suivi.classe.title</i18n></a></li>
+            <li ng-if="isChefEtab"><a href="#/remplacements/list"><i18n>evaluations.remplacants.title</i18n></a></li>
         </ul>
     </nav>
 
-    <!--  Content (main zone)  -->
-    <div class="ten cell main-content twelve-mobile">
+    <!--  Content (main zone)  Chef etablissement-->
+    <div ng-if="isChefEtab" class="ten cell main-content twelve-mobile">
+        <h2>Page d'accueil en construction</h2>
+    </div>
+
+    <!--  Content (main zone) Enseignant -->
+    <div ng-if="!isChefEtab" class="ten cell main-content twelve-mobile">
         <section class="eleven cell row headerAccueil">
             <div class="twelve cell ">
                 <header>

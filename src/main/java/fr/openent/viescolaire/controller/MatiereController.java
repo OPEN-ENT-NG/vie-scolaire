@@ -190,31 +190,38 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    // TODO A REFAIRE APRES LES BERNCHS DE PERF
-    /**
-     * Retourne les matières enseignées par un enseignant donné
-     * @param request
-     */
-    @Get("/matieres")
-    @ApiDoc("Retourne les matières enseignées par un enseignant donné")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void viewMatiere(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
+
+    private void listMatieres(JsonArray poTitulairesIdList, final HttpServerRequest request) {
+        matiereService.listMatieres(request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
             @Override
-            public void handle(UserInfos user){
-                if(user != null){
-                    matiereService.listMatieres(request.params().get("idEnseignant"), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                JsonObject r = event.right().getValue().get(0);
-                                JsonArray matieres = r.getArray("u.classesFieldOfStudy");
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()){
+                    JsonArray resultats = event.right().getValue();
 
-                                JsonArray matieresFromGroup = r.getArray("u.groupsFieldOfStudy");
+                    // ensemble des matieres de l'utilsateur + de ses titulaires
+                    JsonArray matieres = new JsonArray();
 
-                                for (int i = 0; i < matieresFromGroup.size(); i++) {
-                                    matieres.add(matieresFromGroup.get(i));
-                                }
+                    // ajout de tous les résultats dans une seule liste dem atieres
+                    for (Object res : resultats) {
+                        JsonArray matieresOfOneUser = ((JsonObject)res).getArray("u.classesFieldOfStudy");
+                        JsonArray groupsFieldOfStudyOfOneUser = ((JsonObject)res).getArray("u.groupsFieldOfStudy");
+                        for (Object matiere : matieresOfOneUser) {
+                            if(!matieres.contains(matiere)) {
+                                matieres.add(matiere);
+                            }
+                        }
+
+                        for (Object matiere : groupsFieldOfStudyOfOneUser) {
+                            if(!matieres.contains(matiere)) {
+                                matieres.add(matiere);
+                            }
+                        }
+                    }
+
+
+
+
+
 
                                 final JsonArray codeEtab = new JsonArray();
                                 JsonArray codeMatieres = new JsonArray();
@@ -242,63 +249,94 @@ public class MatiereController extends ControllerHelper {
                                         JsonObject etabListe = new JsonObject();
                                         JsonObject matiereList = new JsonObject();
 
-                                        JsonObject n = new JsonObject();
-                                        JsonObject nInter = new JsonObject();
+                            JsonObject n = new JsonObject();
+                            JsonObject nInter = new JsonObject();
 
-                                        final JsonArray reponse = new JsonArray();
-                                        String[] ids = new String[correspondanceMatiere.size()];
-                                        for(int i = 0 ; i < r.size(); i ++){
-                                            n = r.get(i);
-                                            nInter = n.getObject("n");
-                                            n = nInter.getObject("data");
-                                            if(n.containsField("academy")){
-                                                etabListe.putObject(n.getString("externalId"), n);
-                                            }else{
-                                                matiereList.putObject(n.getString("externalId"), n);
-                                            }
-                                        }
-                                        for(int i = 0 ; i < correspondanceMatiere.size(); i++) {
-                                            JsonObject obj = matiereList.getObject(correspondanceMatiere.get(i));
-                                            JsonObject o = new JsonObject();
-                                            o = obj.copy();
+                            final JsonArray reponse = new JsonArray();
+                            String[] ids = new String[correspondanceMatiere.size()];
+                            for(int i = 0 ; i < r.size(); i ++){
+                                n = r.get(i);
+                                nInter = n.getObject("n");
+                                n = nInter.getObject("data");
+                                if(n.containsField("academy")){
+                                    etabListe.putObject(n.getString("externalId"), n);
+                                }else{
+                                    matiereList.putObject(n.getString("externalId"), n);
+                                }
+                            }
+                            for(int i = 0 ; i < correspondanceMatiere.size(); i++) {
+                                JsonObject obj = matiereList.getObject(correspondanceMatiere.get(i));
+                                JsonObject o = new JsonObject();
+                                o = obj.copy();
 
-                                            o.putString("libelleClasse", correspondanceClasse.get(i));
-                                            o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
-                                            reponse.add(o);
-                                            ids[i]=o.getString("id");
-                                        }
-                                        sousMatiereService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
-                                            @Override
-                                            public void handle(Either<String, JsonArray> event_ssmatiere) {
-                                                if (event_ssmatiere.right().isRight()) {
-                                                    JsonArray finalresponse = new JsonArray();
-                                                    JsonArray res = event_ssmatiere.right().getValue();
-                                                    for (int i = 0; i < reponse.size(); i++) {
-                                                        JsonObject matiere = reponse.get(i);
-                                                        String id = matiere.getString("id");
-                                                        JsonArray ssms = new JsonArray();
-                                                        for (int j = 0; j < res.size(); j++) {
-                                                            JsonObject ssm = res.get(j);
-                                                            if (ssm.getString("id_matiere").equals(id)) {
-                                                                ssms.addObject(ssm);
-                                                            }
-                                                        }
-                                                        matiere.putArray("sous_matieres", ssms);
-                                                        finalresponse.addObject(matiere);
-                                                    }
-                                                    Renders.renderJson(request, finalresponse);
-                                                } else {
-                                                    leftToResponse(request, event_ssmatiere.left());
+                                o.putString("libelleClasse", correspondanceClasse.get(i));
+                                o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
+                                reponse.add(o);
+                                ids[i]=o.getString("id");
+                            }
+                            sousMatiereService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                    if (event_ssmatiere.right().isRight()) {
+                                        JsonArray finalresponse = new JsonArray();
+                                        JsonArray res = event_ssmatiere.right().getValue();
+                                        for (int i = 0; i < reponse.size(); i++) {
+                                            JsonObject matiere = reponse.get(i);
+                                            String id = matiere.getString("id");
+                                            JsonArray ssms = new JsonArray();
+                                            for (int j = 0; j < res.size(); j++) {
+                                                JsonObject ssm = res.get(j);
+                                                if (ssm.getString("id_matiere").equals(id)) {
+                                                    ssms.addObject(ssm);
                                                 }
                                             }
-                                        });
+                                            matiere.putArray("sous_matieres", ssms);
+                                            finalresponse.addObject(matiere);
+                                        }
+                                        Renders.renderJson(request, finalresponse);
+                                    } else {
+                                        leftToResponse(request, event_ssmatiere.left());
                                     }
-                                });
-                            }else{
-                                leftToResponse(request, event.left());
-                            }
+                                }
+                            });
                         }
                     });
+                }else{
+                    leftToResponse(request, event.left());
+                }
+            }
+        });
+    }
+
+    // TODO A REFAIRE APRES LES BERNCHS DE PERF
+    /**
+     * Retourne les matières enseignées par un enseignant donné
+     * @param request
+     */
+    @Get("/matieres")
+    @ApiDoc("Retourne les matières enseignées par un enseignant donné")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void viewMatiere(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
+            @Override
+            public void handle(UserInfos user){
+                if(user != null){
+
+                    utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event) {
+
+                                    if(event.isRight()) {
+
+                                        JsonArray oTitulairesIdList = event.right().getValue();
+
+                                        listMatieres(oTitulairesIdList, request);
+                                    } else {
+                                        leftToResponse(request, event.left());
+                                    }
+                                }
+                            }
+                    );
                 }else{
                     unauthorized(request);
                 }

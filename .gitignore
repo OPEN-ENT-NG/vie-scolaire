@@ -20,5 +20,3 @@ workspace.xml
 *.bat
 tslint.json
 .gitignore
-gradle
-build*.gradle

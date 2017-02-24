@@ -45,7 +45,7 @@ public class AccessEvaluationFilter implements ResourcesProvider {
                 }
                 try {
                     Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
-                    new FilterDevoirUtils().validateOwnerDevoir(idDevoir, user.getUserId(), new Handler<Boolean>() {
+                    new FilterDevoirUtils().validateAccessDevoir(idDevoir, user, new Handler<Boolean>() {
                         @Override
                         public void handle(Boolean isOwner) {
                             resourceRequest.resume();

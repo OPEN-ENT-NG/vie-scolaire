@@ -387,7 +387,17 @@ export class Evaluation extends Model implements IModel{
 
 
 }
+export class EvaluationDevoir extends  Model {
+    nbreval : number;
+    id : string;
+    evaluation : number;
+    typeeval : string;
 
+    constructor(p? : any) {
+        super();
+    }
+
+}
 export class Devoir extends Model implements IModel{
     statistiques : any;
     eleves : Collection<Eleve>;
@@ -419,6 +429,7 @@ export class Devoir extends Model implements IModel{
     competencesAdd: any;
     competencesRem: any;
     percent: any;
+    evaluationDevoirs : Collection<EvaluationDevoir> ;
 
     get api () {
         return {
@@ -432,7 +443,8 @@ export class Devoir extends Model implements IModel{
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
-            deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes'
+            deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes',
+            isEvaluatedDevoir : '/viescolaire/evaluations/devoirs/evaluations/information?idDevoir='
         }
     }
 
@@ -440,6 +452,10 @@ export class Devoir extends Model implements IModel{
         super();
         var that = this;
         this.collection(Enseignement);
+
+        this.collection(EvaluationDevoir);
+
+
         this.collection(Competence, {
             sync : function () : Promise<any> {
                 return new Promise((resolve, reject) => {
@@ -545,7 +561,20 @@ export class Devoir extends Model implements IModel{
             });
         });
     }
+    isEvaluatedDevoir (idDevoir) : Promise<any> {
 
+        return new Promise((resolve, reject) => {
+            var that = this;
+            http().getJson(this.api.isEvaluatedDevoir+idDevoir).done(function(data){
+
+
+                that.evaluationDevoirs.load(data);
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
     update (addArray, remArray) : Promise<any> {
         return new Promise((resolve, reject) => {
             var devoirJSON = this.toJSON();
@@ -718,7 +747,8 @@ export class DevoirsCollection {
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/devoirs'
+            get : '/viescolaire/evaluations/devoirs',
+            areEvaluatedDevoirs : '/viescolaire/evaluations/devoirs/evaluations/informations?'
         }
     }
 
@@ -759,7 +789,26 @@ export class DevoirsCollection {
             if (type) evaluations.devoirs.all[i].type = type;
         }
     }
+    areEvaluatedDevoirs (idDevoirs) : Promise<any> {
 
+        return new Promise((resolve, reject) => {
+
+            var URLBuilder = "";
+
+            for (var i=0; i<idDevoirs.length; i++){
+                if(i==0)
+                    URLBuilder = "idDevoir="+idDevoirs[i];
+                else
+                    URLBuilder += "&idDevoir="+idDevoirs[i];
+            }
+            http().getJson(this.api.areEvaluatedDevoirs + URLBuilder  ).done(function(data){
+
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
     getPercentDone () : Promise<any> {
         return new Promise((resolve, reject) => {
             if (evaluations.synchronized.classes !== 0) {
@@ -1442,6 +1491,183 @@ function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
             setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes, object, classe);
         }
     }
+}
+
+
+export class Enseignant extends Model{
+    id : string;
+    displayName : string;
+
+    constructor(p? : any) {
+        super();
+    }
+}
+
+export class Remplacement extends Model implements IModel{
+
+    // DATABASE FIELDS
+    titulaire : Enseignant;
+    remplacant : Enseignant;
+    date_debut : any;
+    date_fin : any;
+    id_etablissement : string;
+
+
+    // OTHER FIELDS
+    selected : boolean;
+
+
+    get api () {
+        return {
+            create : '/viescolaire/evaluations/remplacement/create',
+            update : '/viescolaire/evaluations/remplacement/update',
+            delete : '/viescolaire/evaluations/remplacement/delete'
+        }
+    }
+
+    constructor(p? : any) {
+        super();
+        this.selected = false;
+
+    }
+
+    create () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().postJson(this.api.create, this.toJSON()).done(function(data){
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
+    update () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().postJson(this.api.update, this.toJSON()).done(function(data){
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
+
+    remove () : Promise<any> {
+        var that = this;
+        return new Promise((resolve, reject) => {
+            http().delete(this.api.delete, this.toJSON()).done(function(data){
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(that);
+                }
+            })
+                .error(function () {
+                    reject(that);
+                });
+        });
+    }
+
+    toJSON() {
+        return {
+            id_titulaire: this.titulaire.id,
+            libelle_titulaire : this.titulaire.displayName,
+            id_remplacant: this.remplacant.id,
+            libelle_remplacant : this.remplacant.displayName,
+            date_debut: utils.getFormatedDate(this.date_debut,"YYYY-MM-DD"),
+            date_fin: utils.getFormatedDate(this.date_fin,"YYYY-MM-DD"),
+            id_etablissement : this.id_etablissement
+        }
+    }
+}
+
+export class GestionRemplacement extends Model implements IModel{
+    remplacements : Collection<Remplacement> | any; // liste des remplacements en cours
+    selectedRemplacements : Collection<Remplacement> | any; // liste des remplacements sélectionnés
+    remplacement : Remplacement; // remplacementen cours d'ajout
+    enseignants : Collection<Enseignant>; // liste des enseignants de l'établissment
+    sortType : string; // type de tri de la liste des remplaçants
+    sortReverse : boolean; // sens de tri de la liste des remplaçants
+    showError : boolean; // condition d'affichage d'un message d'erreur
+    confirmation : boolean; // condition d'affichage de la popup de confirmation
+    selectAll : boolean; // booleen de sélection de tous/aucun remplacement/s
+
+    get api () {
+        return {
+            deleteMultiple : '/viescolaire/evaluations/remplacements/delete', // TODO A coder
+            //enseignants : '/directory/user/admin/list?structureId='+model.me.structures[0]+'&profile=Teacher',
+            enseignants : '/viescolaire/evaluations/user/list?structureId='+model.me.structures[0]+'&profile=Teacher',
+            remplacements : '/viescolaire/evaluations/remplacements/list'
+        }
+    }
+
+    constructor(p? : any) {
+        super();
+        var that = this;
+
+        this.showError = false;
+        this.selectAll = false;
+        this.confirmation = false;
+        this.remplacement = new Remplacement();
+
+
+        this.remplacement.date_debut = new Date();
+
+        var today = new Date();
+        today.setFullYear(today.getFullYear() + 1);
+        this.remplacement.date_fin = today;
+
+        this.collection(Enseignant, {
+            sync : function () : Promise<any> {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.enseignants).done(function(res) {
+                        this.load(res);
+                        if(resolve && (typeof(resolve) === 'function')) {
+                            resolve();
+                        }
+                    }.bind(this));
+                });
+            }
+        });
+
+        this.collection(Remplacement, {
+            sync : function () : Promise<any> {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.remplacements).done(function(resRemplacements) {
+
+                        this.removeAll();
+
+                        for(var i=0; i<resRemplacements.length; i++) {
+                            var remplacementJson = resRemplacements[i];
+
+                            var remplacement = new Remplacement();
+                            remplacement.titulaire = new Enseignant();
+                            remplacement.titulaire.id = remplacementJson.id_titulaire;
+                            remplacement.titulaire.displayName = remplacementJson.libelle_titulaire;
+
+                            remplacement.remplacant = new Enseignant();
+                            remplacement.remplacant.id = remplacementJson.id_remplacant;
+                            remplacement.remplacant.displayName = remplacementJson.libelle_remplacant;
+
+
+                            remplacement.date_debut = remplacementJson.date_debut;
+                            remplacement.date_fin = remplacementJson.date_fin;
+                            remplacement.id_etablissement = remplacementJson.id_etablissement;
+
+                            this.all.push(remplacement);
+
+
+                        }
+
+                        if(resolve && (typeof(resolve) === 'function')) {
+                            resolve();
+                        }
+                    }.bind(this));
+                });
+            }
+        });
+
+        this.selectedRemplacements = [];
+    }
+
 }
 
 export let evaluations = new Evaluations();

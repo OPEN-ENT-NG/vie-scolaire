@@ -116,7 +116,7 @@
     </div>
 </section>
 
-<lightbox  show="opened.evaluation.suppretion" on-close="opened.evaluation.suppretion=false">
+<lightbox ng-if="selected.devoirs.list.length > 0 " show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
     <p><i18n>evaluations.devoir.information.suppression</i18n></p>
     <div ng-if="(selected.devoirs.list.length < 15)">
         <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
@@ -125,6 +125,52 @@
         </ul>
     </div>
     <p><i18n>evaluations.devoir.confirmation.question</i18n></p>
+    <button class="marginFive" ng-click="firstConfirmationSuppDevoir()">
+        <i18n>evaluations.devoir.confirmation</i18n>
+    </button>
+    <button class="marginFive" ng-click="annulerSuppretion()">
+        <i18n>evaluations.devoir.annuler</i18n>
+    </button>
+</lightbox>
+
+<lightbox ng-if="selected.devoirs.listwithEvaluatedMarks.length>0 || selected.devoirs.listwithEvaluatedSkills.length>0" show="opened.evaluation.suppretionMsg2" on-close="opened.evaluation.suppretionMsg2=false">
+    <p ng-if="conditionAffichageText(1)" >[[textSuppretionMsg2.Text1]]</p>
+    <p ng-if="conditionAffichageText(2)" >[[textSuppretionMsg2.Text2]]</p>
+    <p ng-if="conditionAffichageText(3)" >[[textSuppretionMsg2.Text3]]</p>
+    <div ng-if="conditionAffichageText(4)">
+        <p  >[[textSuppretionMsg2.Text4]]</p>
+        <div >
+            <p><i18n>evaluations.devoir.recaputilatif.EvaluatedSkills</i18n>:</p>
+            <ul>
+                <li ng-repeat="devoir in selected.devoirs.listwithEvaluatedSkills">[[devoir.name]]</li>
+            </ul>
+        </div>
+    </div>
+    <div ng-if="conditionAffichageText(5)">
+        <p  >[[textSuppretionMsg2.Text5]]</p>
+        <div >
+            <p><i18n>evaluations.devoir.recaputilatif.EvaluatedMarks</i18n>:</p>
+            <ul>
+                <li ng-repeat="devoir in selected.devoirs.listwithEvaluatedMarks">[[devoir.name]]</li>
+            </ul>
+        </div>
+    </div>
+    <div  ng-if="conditionAffichageText(6)" >
+        <p  >[[textSuppretionMsg2.Text6]]</p>
+        <div >
+            <p><i18n>evaluations.devoir.recaputilatif.EvaluatedSkills</i18n>:</p>
+            <ul>
+                <li ng-repeat="devoir in selected.devoirs.listwithEvaluatedSkills">[[devoir.name]]</li>
+            </ul>
+        </div>
+        <div >
+            <p><i18n>evaluations.devoir.recaputilatif.EvaluatedMarks</i18n>:</p>
+            <ul>
+                <li ng-repeat="devoir in selected.devoirs.listwithEvaluatedMarks">[[devoir.name]]</li>
+            </ul>
+        </div>
+    </div>
+    <p>[[textSuppretionMsg2.TextFin]]</p>
     <button class="marginFive" ng-click="deleteDevoir()">
         <i18n>evaluations.devoir.confirmation</i18n>
     </button>

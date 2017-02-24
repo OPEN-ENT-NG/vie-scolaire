@@ -23,9 +23,11 @@ import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
+import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -43,8 +45,10 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -61,12 +65,14 @@ public class DevoirController extends ControllerHelper {
     private final DefaultDevoirService devoirsService;
     private final DefaultCompetencesService defaultCompetencesService;
     private final CompetenceNoteService competencesNotesService;
+    private final UtilsService utilsService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         devoirsService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
         defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
         competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        utilsService = new DefaultUtilsService();
     }
 
     @Get("/devoirs")
@@ -75,11 +81,15 @@ public class DevoirController extends ControllerHelper {
     public void view(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(UserInfos user) {
+            public void handle(final UserInfos user) {
                 if(user != null){
-                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     if (request.params().size() == 1) {
+
                         devoirsService.listDevoirs(user, handler);
+
+
+
                     } else {
                         String idEtablissement = request.params().get("idEtablissement");
                         String idClasse = request.params().get("idClasse");
@@ -136,7 +146,46 @@ public class DevoirController extends ControllerHelper {
                                         @Override
                                         public void handle(Either<String, JsonObject> event) {
                                             if (event.isRight()) {
-                                                renderJson(request, event.right().getValue());
+                                                final JsonObject devoirWithId = event.right().getValue();
+                                                // recuperation des professeurs que l'utilisateur connecté remplacent
+                                                utilsService.getTitulaires(user.getUserId(), devoir.getString("id_etablissement"), new Handler<Either<String, JsonArray>>() {
+                                                    @Override
+                                                    public void handle(Either<String, JsonArray> event) {
+                                                        if (event.isRight()) {
+                                                            // si l'utilisateur connecté remplace bien un professeur
+                                                            // on partage à ce professeur (le titulaire) le devoir
+                                                            JsonArray values = event.right().getValue();
+
+                                                            if(values.size() > 0) {
+
+                                                                // TODO potentielement il peut y avoir plusieurs titulaires pour un remplaçant sur le même établissement
+                                                                String userIdTitulaire = ((JsonObject)values.get(0)).getString("id_titulaire");
+                                                                List<String> actions = new ArrayList<String>();
+                                                                actions.add(Viescolaire.DEVOIR_ACTION_UPDATE);
+
+                                                                // TODO ne partager le devoir seulement si le titulaire enseigne sur la classe du remplaçant
+                                                                shareService.userShare(user.getUserId(), userIdTitulaire, devoirWithId.getLong("id").toString(), actions, new Handler<Either<String, JsonObject>>() {
+                                                                    @Override
+                                                                    public void handle(Either<String, JsonObject> event) {
+                                                                        if (event.isRight()) {
+                                                                            renderJson(request, devoirWithId);
+                                                                        } else {
+                                                                            leftToResponse(request, event.left());
+                                                                        }
+
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                // sinon on renvoie la réponse, pas besoin de partage
+                                                                renderJson(request, devoirWithId);
+                                                            }
+                                                        }else {
+                                                            leftToResponse(request, event.left());
+                                                        }
+                                                    }
+                                                });
+
+
                                             } else {
                                                 badRequest(request);
                                             }
@@ -192,7 +241,52 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
+    @Get("/devoirs/evaluations/information")
+    @ApiDoc("Recupère la liste des compétences pour un devoir donné")
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    public void isEvaluatedDevoir(final HttpServerRequest request){
+        Long idDevoir;
+        try {
+             idDevoir = Long.parseLong(request.params().get("idDevoir"));
+        } catch(NumberFormatException e) {
+            log.error("Error : idPeriode must be a long object", e);
+            badRequest(request, e.getMessage());
+            return;
+        }
 
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        devoirsService.getevaluatedDevoir(idDevoir,handler);
+
+    }
+
+    @Get("/devoirs/evaluations/informations")
+    @ApiDoc("Recupère pour une liste de devoirs ne nombre de competences evaluer et de notes saisie")
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    public void areEvaluatedDevoirs(final HttpServerRequest request){
+        List<String> idDevoirsList = request.params().getAll("idDevoir");
+
+        if (idDevoirsList == null || idDevoirsList.size() == 0) {
+            log.error("Error : one id must be present");
+            badRequest(request);
+            return;
+        }
+
+        Long[] idDevoirsArray = new Long[idDevoirsList.size()] ;
+        try {
+            for (int i = 0; i < idDevoirsList.size(); i++) {
+                idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
+            }
+        } catch(NumberFormatException e) {
+            log.error("Error : id must be a long object", e);
+            badRequest(request);
+        }
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        devoirsService.getevaluatedDevoirs(idDevoirsArray,handler);
+
+    }
     /**
      * Met à jour un devoir
      * @param request
@@ -223,7 +317,7 @@ public class DevoirController extends ControllerHelper {
                     @Override
                     public void handle(JsonObject devoirs) {
                         final JsonObject classes = devoirs.getObject("datas");
-                        devoirsService.getNbNotesDevoirs(user.getUserId(), new Handler<Either<String, JsonArray>>() {
+                        devoirsService.getNbNotesDevoirs(user, new Handler<Either<String, JsonArray>>() {
                             @Override
                             public void handle(Either<String, JsonArray> event) {
                                 if (event.isRight()) {

@@ -205,15 +205,20 @@ public class MatiereController extends ControllerHelper {
                     for (Object res : resultats) {
                         JsonArray matieresOfOneUser = ((JsonObject)res).getArray("u.classesFieldOfStudy");
                         JsonArray groupsFieldOfStudyOfOneUser = ((JsonObject)res).getArray("u.groupsFieldOfStudy");
-                        for (Object matiere : matieresOfOneUser) {
-                            if(!matieres.contains(matiere)) {
-                                matieres.add(matiere);
+                        if(null != matieresOfOneUser
+                                && matieresOfOneUser.size()>0) {
+                            for (Object matiere : matieresOfOneUser) {
+                                if (!matieres.contains(matiere)) {
+                                    matieres.add(matiere);
+                                }
                             }
                         }
-
-                        for (Object matiere : groupsFieldOfStudyOfOneUser) {
-                            if(!matieres.contains(matiere)) {
-                                matieres.add(matiere);
+                        if(null != groupsFieldOfStudyOfOneUser
+                                && groupsFieldOfStudyOfOneUser.size()>0) {
+                            for (Object matiere : groupsFieldOfStudyOfOneUser) {
+                                if (!matieres.contains(matiere)) {
+                                    matieres.add(matiere);
+                                }
                             }
                         }
                     }

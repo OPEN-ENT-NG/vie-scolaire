@@ -1158,10 +1158,17 @@ export class Evaluations extends Model {
                 uri += ('idClasses=' + classe + '&');
             });
 
+
+
             http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
                 _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe_libelle = lang.translate('viescolaire.utils.groupeEnseignement'));
                 _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe = 1);
-                _.each(groupesEnseignements, (groupeEnseignement) => _classes.push(groupeEnseignement));
+                _.each(groupesEnseignements,function (groupeEnseignement) {
+                    uri += ('idClasses=' + groupeEnseignement.id + '&');
+                    _classes.push(groupeEnseignement);
+                });
+
+
 
                 http().getJson(uri).done((data) => {
                     for(let i= 0; i < _classes.length ; i++){

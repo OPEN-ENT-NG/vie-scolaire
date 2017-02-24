@@ -288,9 +288,9 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
         StringBuilder query =new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT id_classe, id_cycle ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_classe_cycle ")
-                .append("WHERE id_classe IN (");
+        query.append("SELECT id_groupe, id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle ")
+                .append("WHERE id_groupe IN (");
 
         Integer classNbr = 0;
         for(String id :  idClasse){

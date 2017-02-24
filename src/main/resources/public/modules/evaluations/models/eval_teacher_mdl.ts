@@ -1303,11 +1303,27 @@ export class SuiviCompetence extends Model implements IModel{
         });
     }
 }
-
+function getSlideValueConverted(moyenne) {
+    if( moyenne < 1.50 && moyenne >= 1  ){
+        return 1;
+    }else if (moyenne < 2.50 && moyenne >= 1.50 ){
+        return 2;
+    }else if (moyenne < 3.1 && moyenne >= 2.50 ){
+        return 3;
+    }else if (moyenne <= 4 && moyenne >= 3.1 ){
+        return 4;
+    }else{
+        return -1;
+    }
+}
 function setSliderOptions(poDomaine) {
     poDomaine.slider = {
-        value: parseFloat(poDomaine.moyenne),
+        value: getSlideValueConverted(parseFloat(poDomaine.moyenne)),
+
         options: {
+            ticksTooltip: function(value) {
+                return String(poDomaine.moyenne);
+            },
             disabled: parseFloat(poDomaine.moyenne) === -1,
             floor: 0,
             ceil: 4,
@@ -1316,6 +1332,7 @@ function setSliderOptions(poDomaine) {
             showTicksValues: false,
             showTicks: 1,
             showSelectionBar: true,
+            hideLimitLabels : true,
             getSelectionBarClass: function(value) {
                 if (value < 1.5)
                     return 'red';
@@ -1327,20 +1344,32 @@ function setSliderOptions(poDomaine) {
                     return 'green';
                 return 'grey';
             },
-            translate: function(value, sliderId, label) {
-                var l = '#label#';
+            getPointerColor : function(value){
+                if (value < 1)
+                    return '#d8e0f3';
+                if (value < 1.5)
+                    return '#E13A3A';
+                if (value < 2.5)
+                    return '#FF8500';
+                if (value < 3.1)
+                    return '#ECBE30';
+                if (value <= 4)
+                    return '#46BFAF';
 
-                if(value > 0) {
-                    l = l + ' '+value;
-                }
+                return '#d8e0f3';
+            },
+            translate: function(value, sliderId, label) {
+               var l = '#label#';
+               var val = poDomaine.moyenne;
 
                 if (label === 'model') {
-                    if(value > 0) {
-                        l = '<b>#label#' + ' ' + value + '</b>';
+                    if(value >= 1) {
+                        l = '<b>#label#</b>';
                     } else {
                         l = '<b>#label#</b>';
                     }
                 }
+
                 if (value == -1)
                     return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
                 if (value < 1)
@@ -1353,6 +1382,7 @@ function setSliderOptions(poDomaine) {
                     return l.replace('#label#', lang.translate('evaluations.competences.satisfying'));
                 if (value == 4)
                     return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
+
             }
 
         }

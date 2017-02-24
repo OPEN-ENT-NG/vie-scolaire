@@ -22,20 +22,23 @@ package fr.openent.evaluations.service.impl;
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.bean.NoteDevoir;
+import fr.openent.evaluations.service.UtilsService;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
-import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
+
 
 /**
  * Created by ledunoiss on 05/08/2016.
@@ -271,6 +274,39 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
                         "HEAD(TAIL(COLLECT(distinct parent.externalId))) as parent2ExternalId " + // Hack for GEPI export
                         "ORDER BY type DESC, displayName ASC ";
         neo4j.execute(query, params,  Neo4jResult.validResultHandler(results));
+    }
+
+
+
+    /**
+     * Récupère le cycle de la classe dans la relation classe_cycle
+     * @param idClasse List Identifiant de classe.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    @Override
+    public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_classe, id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_classe_cycle ")
+                .append("WHERE id_classe IN (");
+
+        Integer classNbr = 0;
+        for(String id :  idClasse){
+            classNbr++;
+            params.addString(id);
+        }
+        for(Integer j=0; j<classNbr-1; j++ ){
+            query.append("? , ");
+        }
+        if(classNbr>0){
+            query.append("?)");
+        }
+        else{
+            query.append(")");
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
 }

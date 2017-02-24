@@ -71,10 +71,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.allCompetences = devoirTmp.competences;
                 $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
                 $scope.devoir.competences.sync().then(() => {
-                        $scope.createDevoir();
-                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
+                    $scope.createDevoir();
+                    $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
 
-                        evaluations.enseignements.on('sync', function() {
+                    evaluations.enseignements.on('sync', function() {
                         $scope.initFilter(true);
 
                         //tableau des connaissances à cocher éventuellement
@@ -419,14 +419,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             }
         };
-       /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
-            if (newValue===false && oldValue){
-                if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
-                    $scope.opened.evaluation.suppretionMsg2 = true;
-                }
-            }
+        /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
+         if (newValue===false && oldValue){
+         if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+         $scope.opened.evaluation.suppretionMsg2 = true;
+         }
+         }
 
-        });*/
+         });*/
         $scope.conditionAffichageText = function (NumText) {
             if(NumText === 1){
                 if(($scope.selected.devoirs.listwithEvaluatedSkills.length + $scope.selected.devoirs.listwithEvaluatedMarks.length ) > 16 && $scope.selected.devoirs.listwithEvaluatedSkills.length !== 0 && $scope.selected.devoirs.listwithEvaluatedMarks.length!== 0){
@@ -871,60 +871,64 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
         $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            evaluations.enseignements.sync($scope.devoir.id_groupes);
-            evaluations.enseignements.on('sync', function () {
-                //suppression des compétences qui n'appartiennent pas au cycle
-                var currentIdCycle = null;
-                var newCompentenceDevoir = [];
-                for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
-                    if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
-                        $scope.enseignements.all[i].data.competences_1 !== null) {
-                        for (let j = 0; j < $scope.enseignements.all[i].data.competences_1.length && currentIdCycle == null; j++) {
-                            currentIdCycle = $scope.enseignements.all[i].data.competences_1[j].id_cycle;
-                        }
+            var newIdCycle = $scope.getClasseCycle(psIdClasse);
+            var currentIdCycle = null;
+            for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
+                if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
+                    $scope.enseignements.all[i].data.competences_1 !== null) {
+                    for (let j = 0; j < $scope.enseignements.all[i].data.competences_1.length && currentIdCycle == null; j++) {
+                        currentIdCycle = $scope.enseignements.all[i].data.competences_1[j].id_cycle;
                     }
                 }
-                if (currentIdCycle !== null) {
+            }
+            if (currentIdCycle !== null && currentIdCycle !== newIdCycle) {
+                evaluations.enseignements.sync($scope.devoir.id_groupes);
+                evaluations.enseignements.on('sync', function () {
+                    //suppression des compétences qui n'appartiennent pas au cycle
+                    var newCompentenceDevoir = [];
+
                     for (var o in $scope.competencesFilter) {
                         if ($scope.competencesFilter[o].isSelected === true
                             && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
-                            if($scope.competencesFilter[o].data.id_parent !== 0) {
+                            if ($scope.competencesFilter[o].data.id_parent !== 0) {
                                 newCompentenceDevoir.push($scope.competencesFilter[o].data);
                             }
                         }
                     }
+
                     evaluations.competencesDevoir = newCompentenceDevoir;
-                }
-                utils.safeApply($scope);
-            });
+
+                    utils.safeApply($scope);
+                });
+            }
         };
 
         /**
          * Séquence de création d'un devoir
          */
-        //TODO Déplacer cette séquence dans la séquence du router
+//TODO Déplacer cette séquence dans la séquence du router
         $scope.createDevoir = function () {
             if($location.path() === "/devoir/create") {
                 $scope.devoir = $scope.initDevoir();
             }
-                //$scope.opened.lightbox = true;
-                $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
-                // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
-                $scope.search.keyword = "";
-                // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
-                // evenement (depliement/repliement d'un compétence par exemple)
-                // on ne réaplique pas le filtre dans ce cas car on veut déplier l'élément sur lequel on a cliqué
-                $scope.$watch('search.keyword', function (newValue, oldValue) {
-                    $scope.search.haschange = (newValue !== oldValue);
-                }, true);
-                _.extend($scope.devoir.enseignements, $scope.enseignements);
+            //$scope.opened.lightbox = true;
+            $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
+            // resynchronisation de la liste pour eviter les problemes de references et de checkbox precedements cochees
+            $scope.search.keyword = "";
+            // si le mot clef de recherche n'a pas changé c'est qu'on rentre dans le filtre lors d'un autre
+            // evenement (depliement/repliement d'un compétence par exemple)
+            // on ne réaplique pas le filtre dans ce cas car on veut déplier l'élément sur lequel on a cliqué
+            $scope.$watch('search.keyword', function (newValue, oldValue) {
+                $scope.search.haschange = (newValue !== oldValue);
+            }, true);
+            _.extend($scope.devoir.enseignements, $scope.enseignements);
 
 
-                evaluations.competencesDevoir = [];
+            evaluations.competencesDevoir = [];
 
-                $scope.devoir.getLastSelectedCompetence().then(function (res)  {
-                    $scope.devoir.competencesLastDevoirList = res;
-                });
+            $scope.devoir.getLastSelectedCompetence().then(function (res)  {
+                $scope.devoir.competencesLastDevoirList = res;
+            });
 
                 //Séquence non exécutée lors de la modification d'un devoir
                 if($scope.devoir.id_periode !== undefined) {
@@ -953,24 +957,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 // Chargement des enseignements et compétences en fonction de la classe
                 evaluations.enseignements.sync($scope.devoir.id_groupe);
 
-                if ($location.path() === "/devoirs/list") {
-                    $scope.devoir.id_type = $scope.search.type.id;
-                    $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
-                }
+            if ($location.path() === "/devoirs/list") {
+                $scope.devoir.id_type = $scope.search.type.id;
+                $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
+            }
 
 
-                //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-                if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
-                    template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-                    utils.safeApply($scope);
-                }
+            //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+            if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
+                template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                utils.safeApply($scope);
+            }
 
 
         };
 
 
-        // on ecoute sur l'evenement checkConnaissances
-        // ie on doit ajouter/supprimer toutes les sous competences dans le recap
+// on ecoute sur l'evenement checkConnaissances
+// ie on doit ajouter/supprimer toutes les sous competences dans le recap
         $scope.$on('checkConnaissances', function(event, parentItem){
             parentItem.competences.each(function(e){
                 if($scope.competencesFilter[parentItem.id+"_"+parentItem.id_enseignement].isSelected === true) {
@@ -988,8 +992,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
         });
 
-        // on ecoute sur l'evenement checkParent
-        // ie on doit ajouter la sous competence selectionnee dans le recap
+// on ecoute sur l'evenement checkParent
+// ie on doit ajouter la sous competence selectionnee dans le recap
         $scope.$on('checkParent', function(event, parentItem, item){
             if($scope.competencesFilter[item.id+"_"+item.id_enseignement].isSelected === true) {
                 // check si on a pas deja ajoute pour eviter les doublons
@@ -1005,17 +1009,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         });
 
-        // create the timer variable
+// create the timer variable
         var timer;
 
-        // mouseenter event
+// mouseenter event
         $scope.showIt = function (item) {
             timer = $timeout(function () {
                 item.hoveringRecap = true;
             }, 350);
         };
 
-        // mouseleave event
+// mouseleave event
         $scope.hideIt = function (item) {
             $timeout.cancel(timer);
             item.hoveringRecap = false;
@@ -1244,10 +1248,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (resolve && typeof(resolve) === 'function') {
                         resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
                     }
-                }else{
-                    if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres)
-                    }
                 }
             });
         };
@@ -1382,6 +1382,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
+         * Retourne le Cycle de la classe correspondant à l'identifiant passé en paramètre
+         * @param idClasse identifiant de la classe
+         * @returns {any} cycle de la classe
+         */
+        $scope.getClasseCycle = function(idClasse) {
+            if (idClasse == null || idClasse === "") return "";
+            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
+            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).id_cycle;
+        };
+        /**
          * Retourne le libelle de la période correspondant à l'identifiant passé en paramètre
          * @param idPeriode identifiant de la période
          * @returns {any} libelle de la période
@@ -1453,6 +1463,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 evaluation.id = evaluation.data.id;
                             }
                             evaluation.save().then((res) => {
+                                evaluation.valid = true;
                                 evaluation.oldValeur = evaluation.valeur;
                                 evaluation.oldAppreciation = evaluation.appreciation;
                                 evaluation.id = res.id;
@@ -1475,12 +1486,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 } else {
                     if (evaluation.id !== undefined && evaluation.valeur === "") {
-                        evaluation.delete().then(() => {
+                        evaluation.delete().then((res) => {
                             if ($location.$$path === '/releve') {
                                 $scope.calculerMoyenneEleve(eleve);
                                 $scope.calculStatsDevoirReleve(evaluation.id_devoir);
                             } else {
+                                if(res.rows === 1) {
+                                    evaluation.id = undefined;
+                                    evaluation.data.id = undefined;
+                                }
                                 $scope.calculStatsDevoir();
+
                             }
                             utils.safeApply($scope);
                         });
@@ -1824,7 +1840,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             // coche de la checkbox de sélection de tous les remplacements s'ils on tous été sélectionnés (un à un)
             $scope.gestionRemplacement.selectAll = $scope.gestionRemplacement.selectedRemplacements.length > 0 &&
-                                        ($scope.gestionRemplacement.selectedRemplacements.length === $scope.gestionRemplacement.remplacements.all.length);
+                ($scope.gestionRemplacement.selectedRemplacements.length === $scope.gestionRemplacement.remplacements.all.length);
 
         };
 
@@ -1883,7 +1899,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             // Conversion des dates en string
             /*$scope.gestionRemplacement.remplacement.date_debut = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_debut);
-            $scope.gestionRemplacement.remplacement.date_fin = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_fin);*/
+             $scope.gestionRemplacement.remplacement.date_fin = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_fin);*/
 
             // enregistrement du remplacement et refressh de la liste
             $scope.gestionRemplacement.remplacement.create().then(function() {

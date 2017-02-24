@@ -1147,26 +1147,33 @@ export class Evaluations extends Model {
         });
         this.structures.on('synchronized', function () {
             var _classes = [];
+            var uri = '/viescolaire/evaluations/classe/cycle?';
             _.each(model.me.classes, function (classe) {
-                let c = _.findWhere(evaluations.structures.all[0].classes, {id : classe});
-                if (c !== undefined) {
-                    c.type_groupe_libelle = lang.translate('viescolaire.utils.class');
-                    c.type_groupe = 0;
-                    _classes.push(c);
+                var _classe = _.findWhere(evaluations.structures.all[0].classes, {id: classe})
+                if (_classe !== undefined) {
+                    _classe.type_groupe_libelle = lang.translate('viescolaire.utils.class');
+                    _classe.type_groupe = 0;
+                    _classes.push(_classe);
                 }
+                uri += ('idClasses=' + classe + '&');
             });
 
             http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
                 _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe_libelle = lang.translate('viescolaire.utils.groupeEnseignement'));
                 _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe = 1);
                 _.each(groupesEnseignements, (groupeEnseignement) => _classes.push(groupeEnseignement));
-                model.trigger('groupe.sync');
-            });
 
-            model.on('groupe.sync', () => {
+                http().getJson(uri).done((data) => {
+                    for(let i= 0; i < _classes.length ; i++){
+                        for(let j=0; j< data.length; j++){
+                            if(_classes[i].id === data[j].id_groupe){
+                                _classes[i].id_cycle = data[j].id_cycle;
+                            }
+                        }
+                    }
                 evaluations.classes.load(_classes);
                 evaluations.synchronized.classes = evaluations.classes.all.length;
-                for (let i = 0; i < evaluations.classes.all.length; i++) {
+                for (var i = 0; i < evaluations.classes.all.length; i++) {
                     evaluations.classes.all[i].eleves.sync().then(() => {
                         evaluations.synchronized.classes--;
                         if (evaluations.synchronized.classes === 0) {
@@ -1174,7 +1181,10 @@ export class Evaluations extends Model {
                         }
                     });
                 }
-            })
+            });
+                model.trigger('groupe.sync');
+            });
+
         });
         this.structures.sync();
         this.devoirs.on('sync', function () {
@@ -1237,6 +1247,10 @@ export class SuiviCompetenceClasse extends Model implements IModel{
 
     }
 
+    addEvalLibre (eleve){
+
+
+    }
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);

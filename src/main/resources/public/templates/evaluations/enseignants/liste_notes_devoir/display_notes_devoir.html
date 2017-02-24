@@ -50,10 +50,10 @@
                     <section>
                         <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>
                     </section>
-                    <section>
+                    <section ng-if="currentDevoir.is_evaluated">
                         <label><i18n class="bold">viescolaire.utils.coefficient</i18n> : [[currentDevoir.coefficient]]</label>
                     </section>
-                    <section>
+                    <section ng-if="currentDevoir.is_evaluated">
                         <label><span class="bold"><i18n>evaluations.test.grade.on</i18n></span> : [[currentDevoir.diviseur]]</label>
                     </section>
                 </div>
@@ -147,14 +147,14 @@
                                         <div ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
 
                                             <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
-                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0 && currentDevoir.is_evaluated">
+                                                   ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0 && currentDevoir.is_evaluated">
 
                                             <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
-                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index === 0 && !currentDevoir.is_evaluated">
+                                                   ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index === 0 && !currentDevoir.is_evaluated">
 
 
                                             <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
-                                                   ng-blur="calculerStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
+                                                   ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
                                         </div>
                                         <div ng-class="{'seven' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
                                              class="cell cell-indent expandable-content"

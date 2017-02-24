@@ -187,4 +187,26 @@ public class UtilsController extends ControllerHelper {
             }
         });
     }
+
+
+    /**
+     * Retourne retourne le cycle de la classe
+     * @param request
+     */
+    @Get("/classe/cycle")
+    @ApiDoc("Retourne le cycle de la classe")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void getCycle(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if(user != null){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    utilsService.getCycle(request.params().getAll("idClasses"), handler);
+                }else{
+                    unauthorized(request);
+                }
+            }
+        });
+    }
 }

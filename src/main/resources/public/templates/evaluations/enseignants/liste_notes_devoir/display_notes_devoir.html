@@ -50,10 +50,10 @@
                     <section>
                         <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>
                     </section>
-                    <section>
+                    <section ng-if="currentDevoir.is_evaluated">
                         <label><i18n class="bold">viescolaire.utils.coefficient</i18n> : [[currentDevoir.coefficient]]</label>
                     </section>
-                    <section>
+                    <section ng-if="currentDevoir.is_evaluated">
                         <label><span class="bold"><i18n>evaluations.test.grade.on</i18n></span> : [[currentDevoir.diviseur]]</label>
                     </section>
                 </div>

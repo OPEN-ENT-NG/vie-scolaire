@@ -3,6 +3,7 @@ import {Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Rempla
 import * as utils from '../utils/teacher';
 import {Collection} from "../../entcore/modelDefinitions";
 import {lightbox} from "../../entcore/directives/lightbox";
+import { $ } from '../../entcore/libs/jquery/jquery';
 
 let moment = require('moment');
 
@@ -81,7 +82,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         var parentToCheck = [];
 
                         for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
-                            for (var j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
+                            for (let j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
                                 if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
                                     + $scope.evaluations.enseignements.all[j].id] !== undefined) {
                                     //selection des competences du devoir
@@ -107,7 +108,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         //On coche la connaissance si elle n'a aucun fils sélectionné
                         for (var i = 0; i < parentToCheck.length; i++) {
                             var checkIt = true;
-                            for (var j in  $scope.competencesFilter) {
+                            for (let j in  $scope.competencesFilter) {
                                 if ($scope.competencesFilter.hasOwnProperty(j)) {
                                     var currComp = $scope.competencesFilter[j];
                                     if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
@@ -1176,9 +1177,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.devoir.competencesRem = [];
 
                     //recherche des competences a ajouter
-                    for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                    for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
                         var toAdd = true;
-                        for(var j =0; j < $scope.devoir.competences.all.length; j++) {
+                        for(let j =0; j < $scope.devoir.competences.all.length; j++) {
                             if ($scope.devoir.competences.all[j].id_competence
                                 === evaluations.competencesDevoir[i].id) {
                                 toAdd = false;
@@ -1190,9 +1191,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     //Recherche des competences a supprimer
-                    for(var j =0; j < $scope.devoir.competences.all.length; j++ ){
+                    for(let j =0; j < $scope.devoir.competences.all.length; j++ ){
                         var toDel = true;
-                        for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                        for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
                             if($scope.devoir.competences.all[j].id ===
                                 evaluations.competencesDevoir[i].id){
                                 toDel = false;
@@ -1594,6 +1595,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     for (var j = 0; j < $scope.releveNote.classe.eleves.all[i].evaluations.all.length; j++) {
                         if ($scope.releveNote.classe.eleves.all[i].evaluations.all[j].valeur !== ""
                             && $scope.releveNote.classe.eleves.all[i].evaluations.all[j].id_devoir === devoirId) {
+                            $scope.releveNote.classe.eleves.all[i].evaluations.all[j].is_evaluated = devoir.is_evaluated;
                             evals.push($scope.releveNote.classe.eleves.all[i].evaluations.all[j]);
                         }
                     }
@@ -1624,6 +1626,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (devoir !== undefined) $scope.informations.devoir = devoir;
             }
         };
+
 
         /**
          * Retourne les informations relatives à un élève
@@ -1736,13 +1739,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          */
         $scope.cleanRoot = function () {
-            var elem = document.getElementsByClassName("autocomplete");
-
-            for(let i=0; i<elem.length; i++){
-                elem[i].style.height="0px";
-            }
-
-        };
+          $('.autocomplete').css({height:'0px'});
+          };
 
 
         /**

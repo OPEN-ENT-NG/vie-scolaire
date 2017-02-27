@@ -1,5 +1,5 @@
 CREATE SCHEMA viesco;
---CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- Only one scripts table (not one per schema)
 CREATE TABLE viesco.scripts

@@ -23,6 +23,13 @@
          class="domaine-line">
         <div class="cell four twelve-mobile domaine-display">
             [[domaine.codification]] - [[domaine.libelle]]
+            <br/>
+            <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne]]</label>
+            <br/>
+            <div ng-if = "domaine.moyenne >= 1 && domaine.moyenne < 1.5"> <i18n>evaluations.competences.poor</i18n> </div>
+            <div ng-if = "domaine.moyenne >= 1.5 && domaine.moyenne < 2.5"> <i18n>evaluations.competences.fragile</i18n> </div>
+            <div ng-if = "domaine.moyenne >= 2.5 && domaine.moyenne < 3.1"> <i18n>evaluations.competences.satisfying</i18n> </div>
+            <div ng-if = "domaine.moyenne >= 3.1 && domaine.moyenne <= 4"> <i18n>evaluations.competences.proficiency</i18n> </div>
         </div>
         <div class="cell eight twelve-mobile">
             <rzslider rz-slider-model="domaine.slider.value"

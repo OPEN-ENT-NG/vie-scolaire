@@ -11,7 +11,7 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
         var output = devoirs;
         var tempTable = [];
         if (searchParams.classe !== '*' && searchParams.classe !== null) {
-            tempTable = _.where(output, {id_classe : searchParams.classe.id});
+            tempTable = _.where(output, {id_groupe : searchParams.classe.id});
             output = tempTable;
         }
         if (searchParams.matiere !== '*' && searchParams.matiere !== null) {

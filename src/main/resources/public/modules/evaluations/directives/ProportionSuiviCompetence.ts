@@ -2,7 +2,7 @@
  * Created by ledunoiss on 09/11/2016.
  */
 
-import {ng} from 'entcore/entcore';
+import {ng, appPrefix} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
 
 /**
@@ -17,10 +17,7 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
             user : '=',
             isClasse : '='
         },
-        template : '<div class="inline-block suivi-proportion" ng-repeat="prop in proportion" ' +
-        'ng-class="{green : prop.eval === 3, yellow : prop.eval === 2, orange: prop.eval === 1, red : prop.eval === 0, grey : prop.eval === -1}" ' +
-        'ng-style="{\'width\': prop.percent + \'%\'}" ' +
-        'tooltip="[[prop.percent.toFixed(0)]] [[translate(\'%\')]]"></div>',
+        templateUrl : "/"+appPrefix+"/public/components/cProportionSuiviCompetence.html",
         controller : ['$scope', function ($scope) {
 
             $scope.isClasse = $scope.isClasse !== undefined ? $scope.isClasse : false;
@@ -61,27 +58,44 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
                         return evaluation.owner === $scope.user.userId;
                     });
                 }
-                if ($scope.competencesEvaluations.length > 0 && !_.every($scope.competencesEvaluations, function (competence) { return competence.evaluation === -1})) {
+                if ($scope.competencesEvaluations.length > 0 /*&& !_.every($scope.competencesEvaluations, function (competence) { return competence.evaluation === -1})*/) {
                     var nbEleves = 0;
                     if ($scope.isClasse == true) {
                         var elevesMap = {};
-                        for (var i = 0; i < $scope.competencesEvaluations.length; i++) {
-                            if (!elevesMap.hasOwnProperty($scope.competencesEvaluations[i].id_eleve)) {
-                                elevesMap[$scope.competencesEvaluations[i].id_eleve] = $scope.competencesEvaluations[i];
-                                $scope.proportion[($scope.competencesEvaluations[i].evaluation) + 1].nb++;
+
+                        var nbCompetencesEvaluations = $scope.competencesEvaluations.length;
+
+                        for (var i = 0; i < nbCompetencesEvaluations; ++i) {
+
+                            var competencesEval = $scope.competencesEvaluations[i];
+
+                            if (!elevesMap.hasOwnProperty(competencesEval.id_eleve)) {
+                                elevesMap[competencesEval.id_eleve] = competencesEval;
+                                $scope.proportion[(competencesEval.evaluation) + 1].nb++;
                                 nbEleves++;
-                            } else if (parseInt(elevesMap[$scope.competencesEvaluations[i].id_eleve].evaluation) < parseInt($scope.competencesEvaluations[i].evaluation)) {
-                                $scope.proportion[(elevesMap[$scope.competencesEvaluations[i].id_eleve].evaluation) + 1].nb--;
-                                elevesMap[$scope.competencesEvaluations[i].id_eleve] = $scope.competencesEvaluations[i];
-                                $scope.proportion[parseInt($scope.competencesEvaluations[i].evaluation) + 1].nb++;
+                            } else if (parseInt(elevesMap[competencesEval.id_eleve].evaluation) < parseInt(competencesEval.evaluation)) {
+                                $scope.proportion[(elevesMap[competencesEval.id_eleve].evaluation) + 1].nb--;
+                                elevesMap[competencesEval.id_eleve] = competencesEval;
+                                $scope.proportion[parseInt(competencesEval.evaluation) + 1].nb++;
                             }
                         }
                     }
-                    for (var i = 0; i < $scope.proportion.length; i++) {
+
+                    var nbProportion = $scope.proportion.length;
+
+                    for (var i = 0; i < nbProportion; ++i) {
                         if ($scope.isClasse == true) {
-                            var nb = $scope.proportion[i].nb;
-                            $scope.proportion[i].percent = (nb / nbEleves) * 100;
-                            $scope.proportion[i].nb = nb;
+
+                            // si aucune competence evaluee on n'affiche pas la proportion
+                            if($scope.proportion[0].percent === 100) {
+                                $scope.proportion[0].percent = 0;
+                                $scope.proportion[0].nb = 0;
+                            } else {
+                                var nb = $scope.proportion[i].nb;
+                                $scope.proportion[i].percent = (nb / nbEleves) * 100;
+                                $scope.proportion[i].nb = nb;
+                            }
+
                         } else {
                             var nb = _.where($scope.competencesEvaluations, {evaluation : parseInt($scope.proportion[i].eval)});
                             $scope.proportion[i].percent = (nb.length / $scope.competencesEvaluations.length) * 100;
@@ -91,7 +105,7 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
                 }
             };
 
-            $scope.calculProportion();
+           $scope.calculProportion();
         }]
     };
 });

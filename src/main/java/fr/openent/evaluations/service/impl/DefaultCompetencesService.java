@@ -49,13 +49,13 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
                 .append("WHERE competences.id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +
-                        ".rel_classe_cycle WHERE id_classe = ?) ")
+                        ".rel_groupe_cycle WHERE id_groupe = ?) ")
                 .append("AND NOT EXISTS ( ")
                     .append("SELECT 1 ")
                     .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences AS competencesChildren ")
                     .append("WHERE competencesChildren.id_parent = competences.id ")
                     .append("AND competences.id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +
-                            ".rel_classe_cycle WHERE id_classe = ?) ")
+                            ".rel_groupe_cycle WHERE id_groupe = ?) ")
                 .append(")");
 
         JsonArray params = new JsonArray();
@@ -178,7 +178,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ");
 
                 if (idClasse != null) {
-                    query.append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".rel_classe_cycle ON (rel_classe_cycle.id_cycle = competences.id_cycle) ");
+                    query.append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".rel_groupe_cycle ON (rel_groupe_cycle.id_cycle = competences.id_cycle) ");
                 }
 
                 query.append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
@@ -186,7 +186,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                 .append("WHERE competences."+ filter);
 
         if (idClasse != null) {
-            query.append(" AND rel_classe_cycle.id_classe = ?");
+            query.append(" AND rel_groupe_cycle.id_groupe = ?");
             params.addString(idClasse);
         }
 

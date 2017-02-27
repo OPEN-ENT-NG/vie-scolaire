@@ -45,7 +45,7 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines ");
                 query.append("WHERE id_parent = 0 ");
                 query.append("AND id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +"" +
-                        ".rel_classe_cycle WHERE id_classe = ?) ");
+                        ".rel_groupe_cycle WHERE id_groupe = ?) ");
             query.append("UNION ");
                 query.append("SELECT sg.niveau + 1  as niveau , dom.id, dom.id_parent, dom.libelle, dom.codification, dom.evaluated, sg.pathinfo||dom.id ");
                 query.append("FROM "+ Viescolaire.EVAL_SCHEMA +".domaines dom , search_graph sg ");

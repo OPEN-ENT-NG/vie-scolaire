@@ -46,14 +46,14 @@
                                 <!-- Classe -->
                                 <section class="row twelve-mobile ">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
-                                        <i18n>viescolaire.utils.class</i18n>
+                                        <i18n>viescolaire.utils.class.groupe</i18n>
                                         <i class="fa fa-asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile" ng-class="{disabled : devoir.id_etablissement === undefined}">
-                                            <select ng-model="devoir.id_classe" ng-change="setClasseMatieres();loadEnseignementsByClasse(devoir.id_classe);">
-                                                <option ng-repeat="classe in classes |unique:'name'" ng-selected="devoir.id_classe === classe.id" value="[[classe.id]]">[[classe.name]]</option>
+                                            <select ng-model="devoir.id_groupe" ng-change="setClasseMatieres();loadEnseignementsByClasse(classe.id);" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
+
                                             </select>
                                         </label>
                                     </div>
@@ -69,7 +69,7 @@
                                     <div class="three cell twelve-mobile">
                                         <label class="select twelve-mobile" ng-class="{disabled : matieresFiltered.length == 0}">
                                             <select ng-model="devoir.id_matiere" ng-disabled="matieresFiltered.length == 0" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
-                                                <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.id_classe:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.id_matiere" value="[[matiere.id]]">[[matiere.name]]</option>
+                                                <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.id_groupe:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.id_matiere" value="[[matiere.id]]">[[matiere.name]]</option>
                                             </select>
                                         </label>
                                     </div>
@@ -332,7 +332,7 @@
                 <!-- Classe devoir-->
                 <section>
                     <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.class</i18n>
-                        <div class="twelve-mobile inline-block six">[[getLibelleClasse(devoir.id_classe)]]</div>
+                        <div class="twelve-mobile inline-block six">[[getLibelleClasse(devoir.id_groupe)]]</div>
                     </div>
                 </section>
 

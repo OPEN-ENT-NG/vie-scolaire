@@ -109,14 +109,14 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append(" notes.valeur, notes.id ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
-                .append("left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir and notes.id_eleve = ?")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir and notes.id_eleve = ? ")
+                .append("INNER join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ")
                 .append("WHERE devoirs.id_etablissement = ? ")
-                .append("AND devoirs.id_classe = ? ")
                 .append("AND devoirs.id_matiere = ? ")
                 .append("AND devoirs.id_periode = ? ")
                 .append("ORDER BY devoirs.date ASC, devoirs.id ASC;");
 
-        values.addString(userId).addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
+        values.addString(userId).addString(classeId).addString(etablissementId).addString(matiereId).addNumber(periodeId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -129,12 +129,12 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
+                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ?) " +
                 "WHERE devoirs.id_etablissement = ? " +
-                "AND devoirs.id_classe = ? " +
                 "AND devoirs.id_matiere = ? " +
-                "AND devoirs.id_periode = ?" +
+                "AND devoirs.id_periode = ? " +
                 "ORDER BY devoirs.date ASC ;");
-        values.addString(etablissementId).addString(classeId).addString(matiereId).addNumber(periodeId);
+        values.addString(classeId).addString(etablissementId).addString(matiereId).addNumber(periodeId);
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

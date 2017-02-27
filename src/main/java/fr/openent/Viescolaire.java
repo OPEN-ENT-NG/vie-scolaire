@@ -124,6 +124,7 @@ public class Viescolaire extends BaseServer {
 		addController(new ClasseController());
 		addController(new PeriodeController());
 		addController(new MatiereController());
+		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
 		/*

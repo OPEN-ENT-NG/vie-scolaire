@@ -371,14 +371,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
         $scope.textSuppretionMsg2 = {
-            Text1 : "Des devoirs selectionné contiennent des notes et des compétences évaluées. ",
-            Text2 : "Des devoirs selectionné contiennent des notes.",
-            Text3 : "Des devoirs selectionné contiennent des compétences évaluées. ",
-            Text4 : "Les devoirs suivant contiénnent des compétences évaluées",
-            Text5 : "Les devoirs suivant contiénnent des Notes",
-            Text6 : "Les devoirs selectioné contiénnent des notes et des compétences évaluées. ",
-            TextFin :"confirmez-vous la suppression ?"
+            Text1 : lang.translate('evaluations.devoir.recaputilatif.suppression.text1'),
+            Text2 : lang.translate('evaluations.devoir.recaputilatif.suppression.text2'),
+            Text3 : lang.translate('evaluations.devoir.recaputilatif.suppression.text3'),
+            Text4 : lang.translate('evaluations.devoir.recaputilatif.suppression.text4'),
+            Text5 : lang.translate('evaluations.devoir.recaputilatif.suppression.text5'),
+            Text6 : lang.translate('evaluations.devoir.recaputilatif.suppression.text6'),
+            TextFin : lang.translate('evaluations.devoir.recaputilatif.suppression.confirmation')
         };
+
+
         $scope.firstConfirmationSuppDevoir = function () {
             if($scope.selected.devoirs.list.length > 0) {
                 let idDevoir = [];

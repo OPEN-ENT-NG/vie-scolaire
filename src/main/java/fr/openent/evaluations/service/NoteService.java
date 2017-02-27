@@ -37,7 +37,7 @@ public interface NoteService extends CrudService {
      * @param user utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    public void createNote(JsonObject note, UserInfos user,Handler<Either<String, JsonObject>> handler);
+    public void createNote(final JsonObject note, final UserInfos user,final Handler<Either<String, JsonObject>> handler);
 
     /**
      * Recupère la liste des Notes en fonction d'un identifiant de devoir donné.

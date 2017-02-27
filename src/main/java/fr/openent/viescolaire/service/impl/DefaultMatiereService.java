@@ -75,7 +75,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
             params.putArray("userIdList", oUserIdList);
         }
-        query.append("return u.classesFieldOfStudy");
+        query.append("return u.classesFieldOfStudy,u.groupsFieldOfStudy");
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }

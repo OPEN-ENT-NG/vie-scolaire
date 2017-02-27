@@ -8,7 +8,7 @@
     "libelle": {
       "type": "string"
     },
-    "id_classe": {
+    "id_groupe": {
       "type": ["string","null"]
     },
     "id_sousmatiere": {
@@ -41,7 +41,7 @@
   },
   "required": [
     "name",
-    "id_classe",
+    "id_groupe",
     "id_periode",
     "id_type",
     "id_etablissement",

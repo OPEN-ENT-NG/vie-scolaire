@@ -204,13 +204,24 @@ public class MatiereController extends ControllerHelper {
                     // ajout de tous les résultats dans une seule liste dem atieres
                     for (Object res : resultats) {
                         JsonArray matieresOfOneUser = ((JsonObject)res).getArray("u.classesFieldOfStudy");
-                        for (Object matiere : matieresOfOneUser) {
-                            if(!matieres.contains(matiere)) {
-                                matieres.add(matiere);
+                        JsonArray groupsFieldOfStudyOfOneUser = ((JsonObject)res).getArray("u.groupsFieldOfStudy");
+                        if(null != matieresOfOneUser
+                                && matieresOfOneUser.size()>0) {
+                            for (Object matiere : matieresOfOneUser) {
+                                if (!matieres.contains(matiere)) {
+                                    matieres.add(matiere);
+                                }
+                            }
+                        }
+                        if(null != groupsFieldOfStudyOfOneUser
+                                && groupsFieldOfStudyOfOneUser.size()>0) {
+                            for (Object matiere : groupsFieldOfStudyOfOneUser) {
+                                if (!matieres.contains(matiere)) {
+                                    matieres.add(matiere);
+                                }
                             }
                         }
                     }
-
 
                     final JsonArray codeEtab = new JsonArray();
                     JsonArray codeMatieres = new JsonArray();

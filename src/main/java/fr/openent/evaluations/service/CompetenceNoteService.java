@@ -108,4 +108,12 @@ public interface CompetenceNoteService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String,JsonArray>> handler);
+
+    /**
+     * Récupère la table de correspendance entre (Moyenne Note - Evaluation competence) d'un cycle et etablissment donné
+     * @param idEtablissement
+     * @param idCycle
+     * @param handler
+
+    public void getConverssionNoteCompetence(String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler);*/
 }

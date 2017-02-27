@@ -165,7 +165,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
-            .append("WHERE devoirs.id_classe = ? ");
+            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (competences_notes.id_devoir = rel_devoirs_groupes.id_devoir AND rel_devoirs_groupes.id_groupe = ? ) ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(idPeriode);
@@ -174,4 +174,14 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+   /* @Override
+    public void getConverssionNoteCompetence(String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler){
+        JsonArray values = new JsonArray();
+        StringBuilder query = new StringBuilder()
+                .append("Select valmin, valmax, libelle, ordre, couleur from notes.echelle_converssion_niv_note echelle ");
+                        "INNER JOIN  notes.niveau_competences niv on niv.id = echelle.id_niveau\n" +
+                        "AND niv.id_cycle = 1\n" +
+                        "AND echelle.id_structure = '47f2327b-1e6c-423c-a69a-f057fa67286a'")
+    }*/
 }

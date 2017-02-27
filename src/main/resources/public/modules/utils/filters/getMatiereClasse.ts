@@ -7,9 +7,17 @@ export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
     return function (matieres, idClasse, classes, search, listeMatiere) {
         if (idClasse === '*' || idClasse === undefined) return matieres;
         if (classes.all.length > 0) {
-            var libelleClasse = _.findWhere(classes.all, {id : idClasse}).name;
-            if (libelleClasse !== undefined) {
-                return _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+            var currentClasse = _.findWhere(classes.all, {id : idClasse});
+            if(currentClasse !== undefined) {
+                var libelleClasse =currentClasse.name;
+                if (libelleClasse !== undefined) {
+                    var listMatieresOfClasse = _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+                    if(listMatieresOfClasse === undefined || listMatieresOfClasse.length == 0 ){
+                        return listeMatiere.all;
+                    }else{
+                        return listMatieresOfClasse;
+                    }
+                }
             }
         }
     }

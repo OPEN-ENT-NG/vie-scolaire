@@ -1,5 +1,5 @@
 CREATE SCHEMA notes;
---CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- tables
 CREATE TABLE notes.users
@@ -90,7 +90,6 @@ CREATE TABLE notes.devoirs
   modified timestamp without time zone NOT NULL DEFAULT now(),
   coefficient numeric,
   libelle character varying(255),
-  id_classe character varying(255),
   id_sousmatiere bigint,
   id_periode bigint NOT NULL,
   id_type bigint NOT NULL,

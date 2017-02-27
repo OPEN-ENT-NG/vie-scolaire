@@ -109,10 +109,16 @@ export class ReleveNote extends  Model implements IModel{
                                 _evals.push(_e);
                             }
                             else {
-                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
+                                    oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
+                                    ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
+                                    is_evaluated : devoir.is_evaluated}));
                             }
                         } else {
-                            _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                            _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
+                                oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
+                                ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
+                                is_evaluated : devoir.is_evaluated}));
                         }
                     });
                     eleve.evaluations.load(_evals);

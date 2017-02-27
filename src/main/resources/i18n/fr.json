@@ -43,6 +43,7 @@
   "seemore":"Voir la suite",
   "student":"Eleve",
   "average":"Moyenne",
+  "average.calculated":"Moyenne calculée",
   "evaluations.devoir.updateDevoir.firstConfirmSupp.part1": "Des compétences évaluées seront supprimées.",
   "evaluations.devoir.updateDevoir.firstConfirmSupp.part2" : "Souhaitez vous continuer ?",
   "evaluations.devoir.updateDevoir.secondConfirmSupp.part1" : "Confirmez-vous le choix de retirer une ou plusieurs compétences évaluées ?",

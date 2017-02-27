@@ -1212,7 +1212,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync();
                 $scope.id = res.id;
-                evaluations.devoirs.on('sync', function () {
+                evaluations.devoirs.on('sync', function (res) {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
                         if(res!= undefined) {
                             $location.path("/devoir/" + res.id);

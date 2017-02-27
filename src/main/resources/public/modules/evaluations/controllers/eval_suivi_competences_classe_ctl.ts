@@ -54,7 +54,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function (state) {
-
+            $scope.Display = {EvaluatedCompetences : true};
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== "") {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
@@ -205,6 +205,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
         $scope.incrementClasse = function (num) {
+            $scope.Display = {EvaluatedCompetences : true};
             var index = searchIndex($scope.classes.all, $scope.search.classe);
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.classes.all.length) {
@@ -215,7 +216,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         };
 
 
-        $scope.Display = {EvaluatedCompetences : false};
+        $scope.Display = {EvaluatedCompetences : true};
         $scope.ClasseFilterNotEvaluated = function (MaCompetence) {
             if($scope.Display.EvaluatedCompetences === true){
                 let _t = MaCompetence.competencesEvaluations;

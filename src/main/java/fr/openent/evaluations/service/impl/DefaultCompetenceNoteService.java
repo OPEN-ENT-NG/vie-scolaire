@@ -26,6 +26,7 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -157,15 +158,23 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
 
 
     @Override
-    public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray().addString(idClasse);
+    public void getCompetencesNotesClasse(List<String> idEleves, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
             .append("SELECT competences_notes.id_eleve AS id_eleve, competences.id as id_competence, max(competences_notes.evaluation) as evaluation,rel_competences_domaines.id_domaine, competences_notes.owner ")
             .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
             .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (competences_notes.id_devoir = rel_devoirs_groupes.id_devoir AND rel_devoirs_groupes.id_groupe = ? ) ");
+            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id AND competences_notes.id_eleve IN (");
+
+        for (int i=0; i<idEleves.size()-1 ; i++){
+            query.append("?,");
+            values.addString(idEleves.get(i));
+        }
+        query.append("?)) ");
+        values.addString(idEleves.get(idEleves.size()-1));
+
+        query.append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ");
+
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(idPeriode);

@@ -88,19 +88,24 @@
                         <tr ng-repeat="eleve in releveNote.classe.eleves.all">
                             <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
                             <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
-                                <input ng-if='!evaluation.is_evaluated' ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
-                                       class="input-note"
-                                       type="text"
-                                       style="width: 5em;margin: 0 auto;"
-                                       disabled="disabled"
-                                       max="20" min="0" step="0.01">
-                                <input ng-if='evaluation.is_evaluated' ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
+                                <input ng-if="evaluation.is_evaluated"
+                                       ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
                                        style="width: 5em;margin: 0 auto;"
                                        ng-model="evaluation.valeur"
                                        ng-blur="saveNoteDevoirEleve(evaluation, $event, eleve)"
+                                       ng-disabled="false"
                                        max="20" min="0" step="0.01">
+                                <input ng-if="!evaluation.is_evaluated"
+                                       ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
+                                       class="input-note"
+                                       type="text"
+                                       style="width: 5em;margin: 0 auto;"
+                                       ng-blur=" "
+                                       ng-disabled="true"
+                                       max="20" min="0" step="0.01">
+
                             </td>
                             <!--ng-init="initNoteReleve(evaluation)"-->
                             <td  class="colMoyenne" data-label="Moyenne">

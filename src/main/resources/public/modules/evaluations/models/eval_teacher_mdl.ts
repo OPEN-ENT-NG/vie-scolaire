@@ -1237,7 +1237,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                 return new Promise((resolve, reject) => {
                     var url = that.api.getArbreDomaines + classe.id;
                     http().getJson(url).done((resDomaines) => {
-                        var url = that.api.getCompetencesNotesClasse + classe.id;
+                        var url = that.api.getCompetencesNotesClasse + classe.id+"/"+ classe.type_groupe;
                         if (periode !== null && periode !== undefined && periode !== '*') {
                             url += "?idPeriode="+periode.id;
                         }

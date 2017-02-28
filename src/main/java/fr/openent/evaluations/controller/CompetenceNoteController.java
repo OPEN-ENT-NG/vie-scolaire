@@ -24,20 +24,26 @@ import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
 import fr.openent.evaluations.security.AccessSuiviCompetenceFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
+import fr.openent.viescolaire.service.GroupeService;
+import fr.openent.viescolaire.service.impl.DefaultGroupeService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
+import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
+import org.entcore.directory.services.ClassService;
+import org.entcore.directory.services.impl.DefaultClassService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
@@ -48,10 +54,15 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
 public class CompetenceNoteController extends ControllerHelper {
 
     private final CompetenceNoteService competencesNotesService;
+    private ClassService classService;
+    private final GroupeService groupeService;
+
 
     public CompetenceNoteController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        classService = new DefaultClassService(eb);
+        groupeService = new DefaultGroupeService();
     }
 
     /**
@@ -201,14 +212,16 @@ public class CompetenceNoteController extends ControllerHelper {
         }
     }
 
-    @Get("/competence/notes/classe/:idClasse")
+    @Get("/competence/notes/classe/:idClasse/:typeClasse")
     @ApiDoc("Retourne les compétences notes pour une classee. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetenceNoteClasse (final HttpServerRequest request) {
-        if (request.params().contains("idClasse")) {
+        final Long idPeriode;
+        if (request.params().contains("idClasse")
+                && request.params().contains("typeClasse")) {
             String idClasse = request.params().get("idClasse");
-            Long idPeriode;
+            Integer typeClasse = Integer.valueOf(request.params().get("typeClasse"));
             if (request.params().contains("idPeriode")) {
                 try {
                     idPeriode = Long.parseLong(request.params().get("idPeriode"));
@@ -221,11 +234,62 @@ public class CompetenceNoteController extends ControllerHelper {
                 idPeriode = null;
             }
 
-            competencesNotesService.getCompetencesNotesClasse(idClasse, idPeriode, arrayResponseHandler(request));
+            // On va récupérer les élèves de la classe
+            List<String> vArrayProfils = new ArrayList<String>();
+            vArrayProfils.add(mProfileStudent);
+            JsonArray types = new JsonArray(vArrayProfils.toArray());
+
+            // Récupération des compétences notes d'une classe
+            if(typeClasse == 0) {
+                classService.findUsers(idClasse, types, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> eventEleves) {
+                        callCompetencesNotesService(eventEleves, idPeriode, request);
+                    }
+                });
+            }
+
+            // Récupération des compétences notes d'un groupe d'enseignement
+            if(typeClasse == 1){
+                groupeService.listUsersByGroupeEnseignementId(idClasse, mProfileStudent, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> eventEleves) {
+                        callCompetencesNotesService(eventEleves, idPeriode, request);
+                    }
+                });
+            }
+
         } else {
             Renders.badRequest(request, "Invalid parameters");
         }
     }
+
+    /**
+     * Appel de la méthode competencesNotesService.getCompetencesNotesClasse
+     * à partir des éléments en paramètre
+     * @param eventEleves
+     * @param idPeriode
+     * @param request
+     */
+    private void callCompetencesNotesService(Either<String, JsonArray> eventEleves, Long idPeriode, HttpServerRequest request) {
+        if (null != eventEleves && eventEleves.isRight()) {
+            List<String> idEleves = new ArrayList<String>();
+            JsonArray usersJSONArray = eventEleves.right().getValue();
+            for (Object o : usersJSONArray) {
+                if (!(o instanceof JsonObject)) continue;
+                JsonObject j = (JsonObject) o;
+                String id = j.getString("id");
+                log.debug(id);
+                idEleves.add(id);
+            }
+            if (null != idEleves
+                    && !idEleves.isEmpty()) {
+                competencesNotesService.getCompetencesNotesClasse(idEleves, idPeriode, arrayResponseHandler(request));
+            }
+        }
+    }
+
+    private static final String mProfileStudent = "Student";
 
     @Post("/competence/notes")
     @ApiDoc("Créer une liste de compétences notes pour un devoir donné")

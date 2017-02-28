@@ -103,11 +103,11 @@ public interface CompetenceNoteService extends CrudService {
 
     /**
      * Récupère toutes les compétences notes d'une classe
-     * @param idClasse identifiant de la classe
+     * @param idEleves identifiant de la classe
      * @param idPeriode identifiant de la période
      * @param handler handler portant le résultat de la requête
      */
-    public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String,JsonArray>> handler);
+    public void getCompetencesNotesClasse(List<String> idEleves, Long idPeriode, Handler<Either<String,JsonArray>> handler);
 
     /**
      * Récupère la table de correspendance entre (Moyenne Note - Evaluation competence) d'un cycle et etablissment donné

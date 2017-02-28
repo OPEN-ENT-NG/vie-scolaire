@@ -99,7 +99,8 @@ export class ReleveNote extends  Model implements IModel{
             this.on('format', function () {
                 _.each(that.classe.eleves.all, function (eleve) {
                     var _evals = [];
-                    if(that._tmp && that._tmp.length !== 0) var _t = _.where(that._tmp, {id_eleve : eleve.id});
+                    var _t;
+                    if(that._tmp && that._tmp.length !== 0)  _t = _.where(that._tmp, {id_eleve : eleve.id});
                     _.each(that.devoirs.all, function (devoir) {
                         if (_t && _t.length !== 0) {
                             var _e = _.findWhere(_t, {id_devoir : devoir.id});
@@ -759,27 +760,33 @@ export class DevoirsCollection {
     }
 
     constructor () {
-        this.sync = function () {
-            http().getJson(this.api.get).done(function (res) {
-                this.load(res);
-                if (evaluations.synchronized.matieres) {
-                    evaluations.devoirs.synchronizeDevoirMatiere();
-                } else {
-                    evaluations.matieres.on('sync', function () {
+        this.sync =  function () {
+            new Promise((resolve, reject) => {
+
+                http().getJson(this.api.get).done(function (res) {
+                    this.load(res);
+                    if (evaluations.synchronized.matieres) {
                         evaluations.devoirs.synchronizeDevoirMatiere();
-                    });
-                }
-                if (evaluations.synchronized.types) {
-                    evaluations.devoirs.synchronizedDevoirType();
-                } else {
-                    evaluations.types.on('sync', function () {
+                    } else {
+                        evaluations.matieres.on('sync', function () {
+                            evaluations.devoirs.synchronizeDevoirMatiere();
+                        });
+                    }
+                    if (evaluations.synchronized.types) {
                         evaluations.devoirs.synchronizedDevoirType();
-                    });
-                }
-                evaluations.devoirs.trigger('sync');
-            }.bind(this));
-            this.percentDone = false;
-        }
+                    } else {
+                        evaluations.types.on('sync', function () {
+                            evaluations.devoirs.synchronizedDevoirType();
+                        });
+                    }
+                    evaluations.devoirs.trigger('sync');
+                    if (resolve && (typeof(resolve) === 'function')) {
+                        resolve(res);
+                    }
+                }.bind(this));
+                this.percentDone = false;
+            });
+        };
     }
 
     synchronizeDevoirMatiere () {
@@ -855,6 +862,7 @@ export class Periode extends Model {
 
 export class Enseignement extends Model {
     competences : Collection<Competence>;
+    id;
 
     constructor () {
         super();

@@ -3,7 +3,6 @@ import {Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Rempla
 import * as utils from '../utils/teacher';
 import {Collection} from "../../entcore/modelDefinitions";
 import {lightbox} from "../../entcore/directives/lightbox";
-import { $ } from '../../entcore/libs/jquery/jquery';
 
 let moment = require('moment');
 
@@ -1210,9 +1209,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
-                evaluations.devoirs.sync();
+                evaluations.devoirs.sync().then((res) => {
                 $scope.id = res.id;
-                evaluations.devoirs.on('sync', function (res) {
                     if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
                         if(res!= undefined) {
                             $location.path("/devoir/" + res.id);
@@ -1739,8 +1737,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          */
         $scope.cleanRoot = function () {
-          $('.autocomplete').css({height:'0px'});
-          };
+            var elem = document.getElementsByClassName("autocomplete");
+
+            for(let i=0; i<elem.length; i++){
+                elem[i].style.height="0px";
+            }
+
+        };
 
 
         /**

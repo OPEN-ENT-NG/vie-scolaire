@@ -1734,7 +1734,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          */
         $scope.cleanRoot = function () {
-            var elem = document.getElementsByClassName("autocomplete");
+            var elem = angular.element(".autocomplete");
 
             for(let i=0; i<elem.length; i++){
                 elem[i].style.height="0px";

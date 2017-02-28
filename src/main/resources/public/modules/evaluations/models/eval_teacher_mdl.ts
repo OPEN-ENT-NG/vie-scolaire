@@ -761,7 +761,7 @@ export class DevoirsCollection {
 
     constructor () {
         this.sync =  function () {
-            new Promise((resolve, reject) => {
+             return new Promise((resolve, reject) => {
 
                 http().getJson(this.api.get).done(function (res) {
                     this.load(res);

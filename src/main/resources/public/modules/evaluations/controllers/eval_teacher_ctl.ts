@@ -1209,16 +1209,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
-                evaluations.devoirs.sync().then((res) => {
-                $scope.id = res.id;
-                    if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
-                        if(res!= undefined) {
+                evaluations.devoirs.sync().then(() => {
+                    if ($location.path() === "/devoirs/list" || $location.path() === "/devoir/create") {
+                        if (res !== undefined) {
                             $location.path("/devoir/" + res.id);
                         }
-                        else {
-                            $scope.goTo("/devoir/"+$scope.id);
-                        }
-                    }else if ($location.path() === "/releve"){
+
+                    } else if ($location.path() === "/releve") {
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
                             $scope.search.classe.id = $scope.devoir.id_groupe;
                             $scope.search.matiere.id = $scope.devoir.id_matiere;
@@ -1228,10 +1225,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.releveNote.devoirs.sync();
                         }
                     }
-                    else  if($location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
-                        $location.path("/devoir/"+$scope.devoir.id);
+                    else if ($location.path() === "/devoir/" + $scope.devoir.id + "/edit") {
+                        $location.path("/devoir/" + $scope.devoir.id);
                     }
-                    $scope.opened.lightbox=false;
+                    $scope.opened.lightbox = false;
                     utils.safeApply($scope);
                 });
             });

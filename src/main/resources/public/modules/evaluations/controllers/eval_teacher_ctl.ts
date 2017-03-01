@@ -1241,10 +1241,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         var getClassesMatieres = function (idClasse) {
             return new Promise((resolve, reject) => {
-                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
                 if (libelleClasse !== undefined) {
                     if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
+                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse.name}))
                     }
                 }
             });

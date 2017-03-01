@@ -107,7 +107,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         //On coche la connaissance si elle n'a aucun fils sélectionné
                         for (var i = 0; i < parentToCheck.length; i++) {
                             var checkIt = true;
-                            for (var j in  $scope.competencesFilter) {
+                            for (let j in  $scope.competencesFilter) {
                                 if ($scope.competencesFilter.hasOwnProperty(j)) {
                                     var currComp = $scope.competencesFilter[j];
                                     if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
@@ -1270,6 +1270,46 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
+
+        $scope.openLeftMenu = function openLeftMenu(psMenu, pbAfficherMenu) {
+
+            pbAfficherMenu = !pbAfficherMenu;
+
+            if(psMenu === "openedDevoirInfo") {
+                $scope.openedDevoirInfo = pbAfficherMenu;
+            }else if(psMenu === "openedStudentInfo") {
+                $scope.openedStudentInfo = pbAfficherMenu;
+            }else  if(psMenu === "opened.criteres") {
+                $scope.opened.criteres = pbAfficherMenu;
+            }else {
+                console.error("Parametre psMenu inconnu : psMenu="+psMenu);
+            }
+
+
+            // Dans le cas du relevé de notes, on replie les 2 autres menus dans
+            // un problème d'espace vertical
+            if ($location.$$path === '/releve') {
+
+                if(pbAfficherMenu) {
+                    if(psMenu === "openedDevoirInfo") {
+                        $scope.openedStudentInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "openedStudentInfo") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "opened.criteres") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.openedStudentInfo = false;
+                    }
+                }
+            }
+        };
+
+
         /**
          * Séquence de récupération d'un relevé de note
          */
@@ -1321,6 +1361,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.releveNote = rn;
                     utils.safeApply($scope);
                 }
+
+                $scope.openedStudentInfo = false;
             }
         };
 
@@ -1620,6 +1662,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             else if (obj instanceof Evaluation) {
                 var devoir = $scope.releveNote.devoirs.findWhere({id : obj.id_devoir});
                 if (devoir !== undefined) $scope.informations.devoir = devoir;
+            }
+
+            if ($location.$$path === '/releve') {
+                $scope.openLeftMenu("openedDevoirInfo", false);
             }
         };
 

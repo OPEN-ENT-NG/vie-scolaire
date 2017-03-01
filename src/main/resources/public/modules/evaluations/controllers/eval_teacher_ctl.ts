@@ -56,7 +56,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.date_publication = new Date(devoirTmp.date_publication);
                 $scope.devoir.id_etablissement = devoirTmp.id_etablissement;
                 $scope.devoir.diviseur = devoirTmp.diviseur;
-                $scope.devoir.coefficient = devoirTmp.coefficient;
+                $scope.devoir.coefficient = parseInt(devoirTmp.coefficient);
                 $scope.devoir.date = new Date(devoirTmp.date);
                 $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
                 $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
@@ -1244,10 +1244,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         var getClassesMatieres = function (idClasse) {
             return new Promise((resolve, reject) => {
-                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
+                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
                 if (libelleClasse !== undefined) {
                     if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
+                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse.name}))
                     }
                 }
             });

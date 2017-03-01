@@ -62,6 +62,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             evaluationLibre.competenceEvaluee = competenceEvaluee;
             return evaluationLibre;
         };
+
+
+
+
         $scope.$watch(function () {
             if($scope.evaluationLibre != undefined)
                 return  $scope.evaluationLibre.id_matiere;
@@ -74,6 +78,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.EvaluationLibreCharge.sousmatiere = []
             }
         });
+
         /**
          * Ouvre la fenêtre de création d'une évaluation libre
          */
@@ -220,7 +225,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             }
                         }
                     });
+                    $scope.suiviCompetence.getConversionTabel(model.me.structures[0],$scope.search.classe.id).then(
+                        function(data){
+                            return $scope.suiviCompetence.tableConversions;
 
+                        }
+
+                    );
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
 
                     $scope.template.close('suivi-competence-content');
@@ -263,6 +274,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.initSuivi();
             }
         });
+
+
+
+
 
         $scope.pOFilterEval = {
             limitTo: 2

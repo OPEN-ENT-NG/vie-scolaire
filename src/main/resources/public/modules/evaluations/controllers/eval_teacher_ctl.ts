@@ -873,7 +873,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
         $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            var newIdCycle = $scope.getClasseCycle(psIdClasse);
+            var newIdCycle = $scope.getClasseData(psIdClasse, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
                 if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
@@ -932,32 +932,32 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.competencesLastDevoirList = res;
             });
 
-                //Séquence non exécutée lors de la modification d'un devoir
-                if($scope.devoir.id_periode !== undefined) {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.devoir.id_periode = defaultPeriode.id;
-                        utils.safeApply($scope);
-                    });
+            //Séquence non exécutée lors de la modification d'un devoir
+            if($scope.devoir.id_periode !== undefined) {
+                setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.devoir.id_periode = defaultPeriode.id;
+                    utils.safeApply($scope);
+                });
+            }
+            if($scope.devoir.id_type === undefined) {
+                $scope.devoir.id_type = getDefaultTypDevoir();
+            }
+            if($scope.devoir.id_groupe === undefined) {
+                if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                    $scope.devoir.id_groupe = $scope.search.classe.id;
+                    $scope.devoir.id_matiere = $scope.search.matiere.id;
+                    $scope.setClasseMatieres();
+                    $scope.selectedMatiere();
+                } else {
+                    // selection de la premiere classe par defaut
+                    $scope.devoir.id_groupe = $scope.classes.all[0].id;
+                    // selection de la premiere matière associée à la classe
+                    $scope.setClasseMatieres();
                 }
-                if($scope.devoir.id_type === undefined) {
-                    $scope.devoir.id_type = getDefaultTypDevoir();
-                }
-                if($scope.devoir.id_groupe === undefined) {
-                    if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                        $scope.devoir.id_groupe = $scope.search.classe.id;
-                        $scope.devoir.id_matiere = $scope.search.matiere.id;
-                        $scope.setClasseMatieres();
-                        $scope.selectedMatiere();
-                    } else {
-                        // selection de la premiere classe par defaut
-                        $scope.devoir.id_groupe = $scope.classes.all[0].id;
-                        // selection de la premiere matière associée à la classe
-                        $scope.setClasseMatieres();
-                    }
-                }
+            }
 
-                // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_groupe);
+            // Chargement des enseignements et compétences en fonction de la classe
+            evaluations.enseignements.sync($scope.devoir.id_groupe);
 
             if ($location.path() === "/devoirs/list") {
                 $scope.devoir.id_type = $scope.search.type.id;
@@ -1237,15 +1237,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         /**
          * Récupère les matières enseignées sur la classe donnée
          * @param idClasse Identifiant de la classe
-         * @param callback Callback de retour la fonction
+         * @returns {Promise<T>} Promesse de retour
          */
-        var getClassesMatieres = function (idClasse) {
+        let getClassesMatieres = function (idClasse) {
             return new Promise((resolve, reject) => {
-                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
-                if (libelleClasse !== undefined) {
-                    if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
+                let classe = $scope.classes.findWhere({id : idClasse});
+                if (classe !== undefined) {
+                    if (resolve && typeof resolve === 'function') {
+                        resolve($scope.matieres.filter((matiere) => {
+                            return (matiere.libelleClasses.indexOf(classe.externalId) !== -1)
+                        }));
                     }
+                } else {
+                    reject();
                 }
             });
         };
@@ -1360,35 +1364,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
-        /**
-          * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
-          * @param idClasse identifiant de la classe
-          * @returns {any} libelle de la classe
-          */
-        $scope.getLibelleClasse = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
-            if(libelle === undefined){
-                if(evaluations.classes.all.length === 0) return;
-                libelle = _.findWhere(evaluations.classes.all, { id: idClasse });
-
-            }
-            if(libelle !== undefined){
-                return libelle.name;
-            }
-        };
 
         /**
-         * Retourne le Cycle de la classe correspondant à l'identifiant passé en paramètre
+         * Retourne la données de la classe passé en paramètre
          * @param idClasse identifiant de la classe
-         * @returns {any} cycle de la classe
+         * @param key clé à renvoyer
+         * @returns {any} la valeur de la clé passée en paramètre
          */
-        $scope.getClasseCycle = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).id_cycle;
+        $scope.getClasseData = (idClasse, key) => {
+            if (idClasse == null || idClasse === '' || $scope.classes.all.length === 0) return '';
+            let classe = $scope.classes.findWhere({id : idClasse});
+            if (classe !== undefined && classe.hasOwnProperty(key)) {
+                return classe[key];
+            } else {
+                return '';
+            }
         };
+
         /**
          * Retourne le libelle de la période correspondant à l'identifiant passé en paramètre
          * @param idPeriode identifiant de la période
@@ -1734,12 +1726,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          */
         $scope.cleanRoot = function () {
-            var elem = document.getElementsByClassName("autocomplete");
+            let elem = document.getElementsByClassName("autocomplete");
 
             for(let i=0; i<elem.length; i++){
                 elem[i].style.height="0px";
             }
-
         };
 
 

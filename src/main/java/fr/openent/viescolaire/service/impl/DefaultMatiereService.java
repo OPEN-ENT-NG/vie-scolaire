@@ -59,11 +59,14 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
+        query.append("MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-");
+        final String returnQuery = " return s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, r.classes as libelleClasses, r.groups as libelleGroupes";
+
         if(poTitulairesIdList == null || poTitulairesIdList.size() == 0) {
             params.putString("id", id);
-            query.append("MATCH (u:User {id:{id}}) ");
+            query.append("(u:User{id:{id}}) ");
         } else{
-            query.append("MATCH (u:User) WHERE u.id IN {userIdList} AND u.classesFieldOfStudy IS NOT null ");
+            query.append("(u:User) WHERE u.id IN {userIdList} ");
 
             JsonArray oUserIdList = new JsonArray();
             oUserIdList.add(id);
@@ -75,7 +78,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
             params.putArray("userIdList", oUserIdList);
         }
-        query.append("return u.classesFieldOfStudy,u.groupsFieldOfStudy");
+        query.append(returnQuery);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }

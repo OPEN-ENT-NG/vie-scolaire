@@ -20,9 +20,9 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.service.UtilsService;
+import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
@@ -33,7 +33,6 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -43,7 +42,7 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
 /**
  * Created by ledunoiss on 05/08/2016.
  */
-public class DefaultUtilsService  implements fr.openent.evaluations.service.UtilsService {
+public class DefaultUtilsService  implements UtilsService {
     private final Neo4j neo4j = Neo4j.getInstance();
 
     @Override
@@ -198,8 +197,8 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
 
     @Override
     public void list(String structureId, String classId, String groupId,
-                          JsonArray expectedProfiles, String filterActivated, String nameFilter,
-                          UserInfos userInfos, Handler<Either<String, JsonArray>> results) {
+                     JsonArray expectedProfiles, String filterActivated, String nameFilter,
+                     UserInfos userInfos, Handler<Either<String, JsonArray>> results) {
         JsonObject params = new JsonObject();
         String filter = "";
         String filterProfile = "WHERE 1=1 ";
@@ -224,27 +223,7 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
         }
         String condition = "";
         String functionMatch = "WITH u MATCH (s:Structure)<-[:DEPENDS]-(pg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile), u-[:IN]->pg ";
-        /*if (!userInfos.getFunctions().containsKey(SUPER_ADMIN) &&
-                !userInfos.getFunctions().containsKey(ADMIN_LOCAL) &&
-                !userInfos.getFunctions().containsKey(CLASS_ADMIN)) {
-            results.handle(new Either.Left<String, JsonArray>("forbidden"));
-            return;
-        } else if (userInfos.getFunctions().containsKey(ADMIN_LOCAL)) {
-            UserInfos.Function f = userInfos.getFunctions().get(ADMIN_LOCAL);
-            List<String> scope = f.getScope();
-            if (scope != null && !scope.isEmpty()) {
-                condition = "AND s.id IN {scope} ";
-                params.putArray("scope", new JsonArray(scope.toArray()));
-            }
-        } else if(userInfos.getFunctions().containsKey(CLASS_ADMIN)){
-            UserInfos.Function f = userInfos.getFunctions().get(CLASS_ADMIN);
-            List<String> scope = f.getScope();
-            if (scope != null && !scope.isEmpty()) {
-                functionMatch = "WITH u MATCH (c:Class)<-[:DEPENDS]-(cpg:ProfileGroup)-[:DEPENDS]->(pg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile), u-[:IN]->pg ";
-                condition = "AND c.id IN {scope} ";
-                params.putArray("scope", new JsonArray(scope.toArray()));
-            }
-        }*/
+
         if(nameFilter != null && !nameFilter.trim().isEmpty()){
             condition += "AND u.displayName =~ {regex}  ";
             params.putString("regex", "(?i)^.*?" + Pattern.quote(nameFilter.trim()) + ".*?$");
@@ -276,7 +255,41 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
         neo4j.execute(query, params,  Neo4jResult.validResultHandler(results));
     }
 
+    /**
+     * Récupère la liste des classes de l'utilisateur
+     * @param idClasses identifiant des classes
+     * @param idGroupes identifiant des groupes
+     * @param handler handler portant le résultat de la requête
+     */
+    @Override
+    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH (g:Class) WHERE g.id IN {structures} return g " +
+                "UNION ALL " +
+                "MATCH (g:FunctionalGroup) WHERE g.id IN {groups} return g";
+        JsonObject params = new JsonObject()
+                .putArray("structures", new JsonArray(idClasses.toArray()))
+                .putArray("groups", new JsonArray(idGroupes.toArray()));
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
+    }
 
+    @Override
+    public JsonObject mapListNumber(JsonArray list, String key, String value) {
+        JsonObject values = new JsonObject();
+        JsonObject o;
+        for (int i = 0; i < list.size(); i++) {
+            o = list.get(i);
+            values.putNumber(o.getString(key), o.getNumber(value));
+        }
+        return values;
+    }
+
+    @Override
+    public JsonArray saUnion(JsonArray recipient, JsonArray list) {
+        for (int i = 0; i < list.size(); i++) {
+            recipient.addString((String) list.get(i));
+        }
+        return recipient;
+    }
 
     /**
      * Récupère le cycle de la classe dans la relation classe_cycle
@@ -290,21 +303,10 @@ public class DefaultUtilsService  implements fr.openent.evaluations.service.Util
 
         query.append("SELECT id_groupe, id_cycle ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle ")
-                .append("WHERE id_groupe IN (");
+                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()));
 
-        Integer classNbr = 0;
         for(String id :  idClasse){
-            classNbr++;
             params.addString(id);
-        }
-        for(Integer j=0; j<classNbr-1; j++ ){
-            query.append("? , ");
-        }
-        if(classNbr>0){
-            query.append("?)");
-        }
-        else{
-            query.append(")");
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }

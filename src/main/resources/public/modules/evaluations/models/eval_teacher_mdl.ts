@@ -1145,6 +1145,14 @@ export class Evaluations extends Model {
                            : lang.translate('viescolaire.utils.groupeEnseignement'));
                    });
                    evaluations.classes.load(res);
+                    for (var i = 0; i < evaluations.classes.all.length; i++) {
+                        evaluations.classes.all[i].eleves.sync().then(() => {
+                            evaluations.synchronized.classes--;
+                            if (evaluations.synchronized.classes === 0) {
+                                evaluations.classes.trigger('classes-sync');
+                            }
+                        });
+                    }
                 });
             }
         });

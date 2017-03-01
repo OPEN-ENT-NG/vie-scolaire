@@ -202,7 +202,10 @@ public class UtilsController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    utilsService.getCycle(request.params().getAll("idClasses"), handler);
+                    if(null != request.params().getAll("idClasses")
+                            && request.params().getAll("idClasses").size()>0){
+                        utilsService.getCycle(request.params().getAll("idClasses"), handler);
+                    }
                 }else{
                     unauthorized(request);
                 }

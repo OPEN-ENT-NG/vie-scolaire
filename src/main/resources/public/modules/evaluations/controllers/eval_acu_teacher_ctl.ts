@@ -47,7 +47,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
          */
         $scope.getDevoirsInformations = function (idClasse : string, information : string) : any[] {
             if (!evaluations.devoirs.percentDone) return;
-            let devoirs = _.where($scope.devoirs, {id_classe : idClasse});
+            let devoirs = _.where($scope.devoirs, {id_groupe : idClasse});
             devoirs = _.filter(devoirs, devoir => (devoir.percent !== undefined && devoir.percent !== 100));
             return _.pluck(devoirs, information);
         };

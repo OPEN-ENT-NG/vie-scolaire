@@ -1,5 +1,5 @@
 CREATE SCHEMA notes;
---CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- tables
 CREATE TABLE notes.users
@@ -90,7 +90,6 @@ CREATE TABLE notes.devoirs
   modified timestamp without time zone NOT NULL DEFAULT now(),
   coefficient numeric,
   libelle character varying(255),
-  id_classe character varying(255),
   id_sousmatiere bigint,
   id_periode bigint NOT NULL,
   id_type bigint NOT NULL,
@@ -200,16 +199,19 @@ CREATE TABLE notes.rel_devoirs_groupes
 (
   id_groupe character varying(36) NOT NULL,
   id_devoir bigint NOT NULL,
+  type_groupe int NOT NULL,
   CONSTRAINT rel_devoirs_groupes_pk PRIMARY KEY (id_groupe, id_devoir),
   CONSTRAINT fk_devoir_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH FULL
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE notes.rel_classe_cycle
+CREATE TABLE notes.rel_groupe_cycle
 (
-  id_classe character varying(36),
-  id_cycle bigint
+  id_groupe character varying(36),
+  id_cycle bigint,
+  type_groupe int NOT NULL,
+  CONSTRAINT rel_groupe_cycle_pk PRIMARY KEY (id_groupe,id_cycle)
 );
 
 CREATE TABLE notes.rel_professeurs_remplacants

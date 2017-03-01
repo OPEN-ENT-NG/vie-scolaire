@@ -32,6 +32,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.List;
 
@@ -53,6 +55,14 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         dateFormated.append(date.split("/")[0]);
         return dateFormated;
     }
+
+    private static final String attributeTypeGroupe = "type_groupe";
+    //private static final String attributeCodeTypeClasse = "code_type_classe";
+    //private static final int typeClasse_Classe = 0;
+    private static final int typeClasse_GroupeEnseignement = 1;
+   // private static final String typeClasse_Grp_Ens = "groupeEnseignement";
+    private static final String attributeIdGroupe = "id_groupe";
+
 
     @Override
 
@@ -103,7 +113,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                             if(!(attr.equals("competencesAdd")
                                     ||  attr.equals("competencesRem")
                                     ||  attr.equals("competenceEvaluee")
-                                    ||  attr.equals("competences"))) {
+                                    ||  attr.equals("competences")
+                                    ||  attr.equals(attributeTypeGroupe)
+                                    ||  attr.equals(attributeIdGroupe))) {
                                 queryParams.append(" , ").append(attr);
                                 valueParams.append(" , ? ");
                                 params.add(devoir.getValue(attr));
@@ -176,6 +188,25 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 .putString("action", "prepared"));
 
                     }
+
+                    // Ajoute une relation notes.rel_devoirs_groupes
+                    if(null != devoir.getLong(attributeTypeGroupe)
+                            && devoir.getLong(attributeTypeGroupe)>-1){
+                        JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
+                        String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
+                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
+                        paramsAddRelDevoirsGroupes.addNumber(devoirId);
+                        paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
+                        statements.add(new JsonObject()
+                                .putString("statement", queryAddRelDevoirsGroupes)
+                                .putArray("values", paramsAddRelDevoirsGroupes)
+                                .putString("action", "prepared"));
+                    }else{
+                        log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + devoirId);
+                    }
+
+
+
                     //Exécution de la transaction avec roleBack
 
                     Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
@@ -199,7 +230,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
 
     }
-
+    protected static final Logger log = LoggerFactory.getLogger(DefaultDevoirService.class);
     @Override
     public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {
         JsonArray statements = new JsonArray();
@@ -263,16 +294,39 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         devoir.removeField("competences");
 
         for (String attr : devoir.getFieldNames()) {
-            if(attr.contains("date")){
-                queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
-                params.add(formatDate(devoir.getString(attr)).toString());
+            if(!(attr.equals(attributeTypeGroupe)
+                    || attr.equals(attributeIdGroupe))) {
+                if (attr.contains("date")) {
+                    queryParams.append(attr).append(" =to_date(?,'YYYY-MM-DD'), ");
+                    params.add(formatDate(devoir.getString(attr)).toString());
 
-            }
-            else {
-                queryParams.append(attr).append(" = ?, ");
-                params.add(devoir.getValue(attr));
+                } else {
+                    queryParams.append(attr).append(" = ?, ");
+                    params.add(devoir.getValue(attr));
+                }
             }
         }
+        //FIXME : A modifier lorsqu'on pourra rattacher un devoir à plusieurs groupes
+        // Modifie une relation notes.rel_devoirs_groupes
+        if(null != devoir.getString(attributeIdGroupe)
+                && null != devoir.getLong(attributeTypeGroupe)
+                && devoir.getLong(attributeTypeGroupe)>-1){
+            String queryUpdateRelDevoirGroupe ="UPDATE "+ Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
+                    "SET id_groupe = ? " +
+                    "WHERE id_devoir = ? ";
+            JsonArray paramsUpdateRelDevoirGroupe = new JsonArray();
+            paramsUpdateRelDevoirGroupe.addString(devoir.getString(attributeIdGroupe));
+            paramsUpdateRelDevoirGroupe.addNumber(Integer.parseInt(id));
+            statements.add(new JsonObject()
+                    .putString("statement", queryUpdateRelDevoirGroupe)
+                    .putArray("values", paramsUpdateRelDevoirGroupe)
+                    .putString("action", "prepared"));
+        }else{
+            log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre :  " + id);
+        }
+
+
+
         StringBuilder query = new StringBuilder()
                 .append("UPDATE " + resourceTable +" SET " + queryParams.toString() + "modified = NOW() WHERE id = ? ");
         statements.add(new JsonObject()
@@ -292,7 +346,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, devoirs.is_evaluated,")
+        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
@@ -303,24 +357,25 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs on devoirs.id = competences_devoirs.id_devoir ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
-                .append("WHERE devoirs.id_classe is not null ")
+                .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
+                .append("WHERE (rel_devoirs_groupes.id_devoir = devoirs.id) ")
 
-                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                        .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
-                                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                                            .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                                            .append("WHERE id_remplacant = ? ")
-                                            .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
-                                            .append(") OR ")
-                        .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                                .append("WHERE resource_id = devoirs.id ")
-                                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
-                    .append(") ")
+                .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                                        .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                                        .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                                        .append("WHERE id_remplacant = ? ")
+                                        .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                                        .append(") OR ")
+                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                            .append("WHERE resource_id = devoirs.id ")
+                            .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                .append(") ")
 
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, devoirs.id_classe, devoirs.is_evaluated, ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
-                .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
+                .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
 
         // Ajout des params pour les devoirs dont on est le propriétaire
@@ -351,18 +406,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append(Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
                 .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes on rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe =? ")
                 .append("WHERE ")
                 .append("devoirs.id_etablissement = ? ")
-                .append("AND ")
-                .append("devoirs.id_classe = ? ")
                 .append("AND ")
                 .append("devoirs.id_matiere = ? ")
                 .append("AND ")
                 .append("devoirs.id_periode = ? ")
                 .append("ORDER BY devoirs.date ASC, devoirs.id ASC");
-
-        values.addString(idEtablissement);
         values.addString(idClasse);
+        values.addString(idEtablissement);
         values.addString(idMatiere);
         values.addNumber(idPeriode);
 
@@ -396,23 +449,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, devoirs.id_classe ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
+        query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE notes.id_devoir = devoirs.id ")
-
+                .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                        .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
-                                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                                            .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                                            .append("WHERE id_remplacant = ? ")
-                                            .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
-                                            .append(") OR ")
-                        .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                                .append("WHERE resource_id = devoirs.id ")
-                                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
-                        .append(") ")
-                .append("GROUP by devoirs.id, devoirs.id_classe");
+                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                                                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                                                .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                                                .append("WHERE id_remplacant = ? ")
+                                                .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                                                .append(") OR ")
+                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                            .append("WHERE resource_id = devoirs.id ")
+                            .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                    .append(") ")
+                .append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
 
         JsonArray values =  new JsonArray();
 

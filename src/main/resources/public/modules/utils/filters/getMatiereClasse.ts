@@ -11,7 +11,12 @@ export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
             if(currentClasse !== undefined) {
                 var libelleClasse =currentClasse.name;
                 if (libelleClasse !== undefined) {
-                    return _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+                    var listMatieresOfClasse = _.where(listeMatiere.all, {libelleClasse: libelleClasse});
+                    if(listMatieresOfClasse === undefined || listMatieresOfClasse.length == 0 ){
+                        return listeMatiere.all;
+                    }else{
+                        return listMatieresOfClasse;
+                    }
                 }
             }
         }

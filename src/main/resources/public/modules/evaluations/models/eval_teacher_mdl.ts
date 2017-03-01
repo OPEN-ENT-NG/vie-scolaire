@@ -1326,11 +1326,11 @@ export class SuiviCompetence extends Model implements IModel{
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
                                     // affichage du 1er domaine uniquement par défaut
-                                    var bPremierDomaine = (i == 0);
-                                    if(bPremierDomaine) {
+                                    // var bPremierDomaine = (i == 0);
+                                    // if(bPremierDomaine) {
                                         domaine.visible = true;
                                         domaine.setVisibleSousDomaines(true);
-                                    }
+                                    // }
 
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, null);

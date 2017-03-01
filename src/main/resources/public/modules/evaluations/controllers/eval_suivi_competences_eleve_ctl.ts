@@ -376,6 +376,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
         $scope.incrementEleve = function (num) {
+            $scope.selected.grey = true;
             var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
@@ -540,7 +541,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.initChartsEval();
         });
 
-        $scope.selected.grey = false;
+        $scope.selected.grey = true;
 
         $scope.FilterNotEvaluated = function (MaCompetence) {
             if($scope.selected.grey === true){

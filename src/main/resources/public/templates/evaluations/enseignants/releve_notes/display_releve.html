@@ -86,22 +86,18 @@
                         <tbody>
                         <tr ng-repeat="eleve in releveNote.classe.eleves.all">
                             <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
-                            <td class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
+                            <td ng-class="{'nav-input' : evaluation.is_evaluated}" class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
                                 <input ng-if="evaluation.is_evaluated"
                                        ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
-                                       style="width: 5em;margin: 0 auto;"
                                        ng-model="evaluation.valeur"
                                        ng-blur="saveNoteDevoirEleve(evaluation, $event, eleve)"
                                        ng-disabled="false"
                                        max="20" min="0" step="0.01">
                                 <input ng-if="!evaluation.is_evaluated"
-                                       ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
-                                       style="width: 5em;margin: 0 auto;"
-                                       ng-model="evaluation.valeur"
                                        ng-disabled="true"
                                        max="20" min="0" step="0.01">
                             </td>
@@ -114,16 +110,20 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="marginTopFive"></div>
-                <div class="responsive-table marginTopFive">
-                    <table class="tableReleve tableRelevePadding" c-naviga-table>
+                <div class="responsive-table">
+                    <table id="tableReleveStats" class="tableReleve tableRelevePadding" c-naviga-table>
                         <tbody>
                             <tr class="moyenneClasse">
                                 <td class="col1 text-overflow"><i18n>viescolaire.classe.moyenne</i18n></td>
                                 <td class="colDevoir" ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
-                                    <div class="input-note">
+                                    <div ng-if="devoir.is_evaluated" class="input-note">
                                         [[devoir.statistiques.moyenne]]
                                     </div>
+                                    <input ng-if="!devoir.is_evaluated"
+                                           class="input-note"
+                                           type="text"
+                                           ng-disabled="true"
+                                           max="20" min="0" step="0.01">
                                 </td>
                                 <td class="colMoyenne" data-label="Moyenne"></td>
                             </tr>
@@ -131,9 +131,14 @@
                                 <td class="col1 text-overflow"><i18n>viescolaire.classe.note.min</i18n></td>
                                 <td class="colDevoir"
                                     ng-repeat="devoir in releveNote.devoirs.all" data-label="[[devoir.name]]">
-                                    <div class="input-note">
+                                    <div ng-if="devoir.is_evaluated" class="input-note">
                                         [[devoir.statistiques.noteMin]]
                                     </div>
+                                    <input ng-if="!devoir.is_evaluated"
+                                           class="input-note"
+                                           type="text"
+                                           ng-disabled="true"
+                                           max="20" min="0" step="0.01">
                                 </td>
                                 <td class="colMoyenne" data-label="Moyenne"></td>
                             </tr>
@@ -141,9 +146,14 @@
                                 <td class="col1 text-overflow"><i18n>viescolaire.classe.note.max</i18n></td>
                                 <td class="colDevoir"  ng-repeat="devoir in releveNote.devoirs.all"
                                     data-label="[[devoir.name]]">
-                                    <div class="input-note">
+                                    <div ng-if="devoir.is_evaluated" class="input-note">
                                         [[devoir.statistiques.noteMax]]
                                     </div>
+                                    <input ng-if="!devoir.is_evaluated"
+                                           class="input-note"
+                                           type="text"
+                                           ng-disabled="true"
+                                           max="20" min="0" step="0.01">
                                 </td>
                                 <td class="colMoyenne" data-label="Moyenne"></td>
                             </tr>
@@ -153,7 +163,7 @@
               </div>
             </content>
             <content ng-show="releveNote.devoirs.all.length === 0">
-                <h1 style="color: grey;"><i18n>evaluations.no.summary</i18n>.</h1>
+                <article class="card tableReleves"><i18n>evaluations.no.summary</i18n>.</article>
             </content>
         </section>
 

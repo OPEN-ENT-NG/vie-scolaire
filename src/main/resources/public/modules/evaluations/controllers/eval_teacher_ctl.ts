@@ -190,6 +190,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();
+                // Affichage des criteres par défaut quand on arrive sur le releve
+                $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
@@ -579,6 +581,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_type !== undefined
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
+                && ($scope.devoir.is_evaluated || $scope.evaluations.competencesDevoir.length > 0)
             );
         };
 
@@ -1323,8 +1326,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     idPeriode : parseInt($scope.search.periode.id),
                     idMatiere : $scope.search.matiere.id
                 };
-                var rn = evaluations.releveNotes.findWhere(p);
-                if (rn === undefined) {
+                // var rn = evaluations.releveNotes.findWhere(p);
+                // if (rn === undefined) {
                     if(evaluations.synchronized.classes !== 0) {
                         evaluations.classes.on('classes-sync', function () {
                             var releve = new ReleveNote(p);
@@ -1355,10 +1358,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             utils.safeApply($scope);
                         });
                     });
-                } else {
-                    $scope.releveNote = rn;
-                    utils.safeApply($scope);
-                }
+                // } else {
+                //     $scope.releveNote = rn;
+                //     utils.safeApply($scope);
+                // }
 
                 $scope.openedStudentInfo = false;
             }

@@ -5,15 +5,6 @@ let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 
-export class Structure extends Model {
-    classes : any;
-
-    constructor (o? : any) {
-        super();
-        if (o) this.updateData(o);
-        this.collection(Classe);
-    }
-}
 export class ReleveNote extends  Model implements IModel{
     synchronized : any;
     periode : Periode;
@@ -1074,7 +1065,6 @@ export class Evaluations extends Model {
     matieres : Collection<Matiere>;
     releveNotes : Collection<ReleveNote>;
     classes : Collection<Classe>;
-    structures : Collection<Structure>;
 
     synchronized : any;
     competencesDevoir : any[];
@@ -1146,68 +1136,19 @@ export class Evaluations extends Model {
         this.matieres.sync();
         this.collection(Periode, {sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]});
         this.collection(ReleveNote);
-        this.collection(Classe);
-        this.collection(Structure, {
+        this.collection(Classe, {
             sync : function () {
-                var nb = 0;
-                _.each(model.me.structures, function (structureId) {
-                    http().getJson('/userbook/structure/' + structureId).done(function (structure) {
-                        evaluations.structures.all.push(structure);
-                        nb++;
-                        if (nb === model.me.structures.length) evaluations.structures.trigger('synchronized')
-                    });
+                http().getJson('/viescolaire/evaluations/classes').done((res) => {
+                   _.map(res, (classe) => {
+                       return (classe.type_groupe_libelle = classe.type_groupe === 0
+                           ? lang.translate('viescolaire.utils.class')
+                           : lang.translate('viescolaire.utils.groupeEnseignement'));
+                   });
+                   evaluations.classes.load(res);
                 });
             }
         });
-        this.structures.on('synchronized', function () {
-            var _classes = [];
-            var uri = '/viescolaire/evaluations/classe/cycle?';
-            _.each(model.me.classes, function (classe) {
-                var _classe = _.findWhere(evaluations.structures.all[0].classes, {id: classe})
-                if (_classe !== undefined) {
-                    _classe.type_groupe_libelle = lang.translate('viescolaire.utils.class');
-                    _classe.type_groupe = 0;
-                    _classes.push(_classe);
-                }
-                uri += ('idClasses=' + classe + '&');
-            });
-
-
-
-            http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
-                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe_libelle = lang.translate('viescolaire.utils.groupeEnseignement'));
-                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe = 1);
-                _.each(groupesEnseignements,function (groupeEnseignement) {
-                    uri += ('idClasses=' + groupeEnseignement.id + '&');
-                    _classes.push(groupeEnseignement);
-                });
-
-
-
-                http().getJson(uri).done((data) => {
-                    for(let i= 0; i < _classes.length ; i++){
-                        for(let j=0; j< data.length; j++){
-                            if(_classes[i].id === data[j].id_groupe){
-                                _classes[i].id_cycle = data[j].id_cycle;
-                            }
-                        }
-                    }
-                evaluations.classes.load(_classes);
-                evaluations.synchronized.classes = evaluations.classes.all.length;
-                for (var i = 0; i < evaluations.classes.all.length; i++) {
-                    evaluations.classes.all[i].eleves.sync().then(() => {
-                        evaluations.synchronized.classes--;
-                        if (evaluations.synchronized.classes === 0) {
-                            evaluations.classes.trigger('classes-sync');
-                        }
-                    });
-                }
-            });
-                model.trigger('groupe.sync');
-            });
-
-        });
-        this.structures.sync();
+        this.classes.sync();
         this.devoirs.on('sync', function () {
             evaluations.synchronized.devoirs = true;
         });
@@ -1337,11 +1278,11 @@ export class SuiviCompetence extends Model implements IModel{
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
                                     // affichage du 1er domaine uniquement par défaut
-                                    var bPremierDomaine = (i == 0);
-                                    if(bPremierDomaine) {
+                                    // var bPremierDomaine = (i == 0);
+                                    // if(bPremierDomaine) {
                                         domaine.visible = true;
                                         domaine.setVisibleSousDomaines(true);
-                                    }
+                                    // }
 
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, null);
@@ -1479,7 +1420,8 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
                 });
             }
 
-            if (_t && _t.length > 0) {
+            if (_t && _t.length > 0
+                && _t.evaluation > -1) {
                 // TODO récupérer la vrai valeur numérique :
                 // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
                 poMaxEvaluationsDomaines.push(_.max(_t, function (_t) {

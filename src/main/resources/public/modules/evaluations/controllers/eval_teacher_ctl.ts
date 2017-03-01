@@ -190,6 +190,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();
+                // Affichage des criteres par défaut quand on arrive sur le releve
+                $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
@@ -579,6 +581,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_type !== undefined
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
+                && ($scope.devoir.is_evaluated || $scope.evaluations.competencesDevoir.length > 0)
             );
         };
 
@@ -873,7 +876,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
         $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            var newIdCycle = $scope.getClasseCycle(psIdClasse);
+            var newIdCycle = $scope.getClasseData(psIdClasse, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
                 if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
@@ -932,32 +935,32 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.competencesLastDevoirList = res;
             });
 
-                //Séquence non exécutée lors de la modification d'un devoir
-                if($scope.devoir.id_periode !== undefined) {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.devoir.id_periode = defaultPeriode.id;
-                        utils.safeApply($scope);
-                    });
+            //Séquence non exécutée lors de la modification d'un devoir
+            if($scope.devoir.id_periode !== undefined) {
+                setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.devoir.id_periode = defaultPeriode.id;
+                    utils.safeApply($scope);
+                });
+            }
+            if($scope.devoir.id_type === undefined) {
+                $scope.devoir.id_type = getDefaultTypDevoir();
+            }
+            if($scope.devoir.id_groupe === undefined) {
+                if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                    $scope.devoir.id_groupe = $scope.search.classe.id;
+                    $scope.devoir.id_matiere = $scope.search.matiere.id;
+                    $scope.setClasseMatieres();
+                    $scope.selectedMatiere();
+                } else {
+                    // selection de la premiere classe par defaut
+                    $scope.devoir.id_groupe = $scope.classes.all[0].id;
+                    // selection de la premiere matière associée à la classe
+                    $scope.setClasseMatieres();
                 }
-                if($scope.devoir.id_type === undefined) {
-                    $scope.devoir.id_type = getDefaultTypDevoir();
-                }
-                if($scope.devoir.id_groupe === undefined) {
-                    if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                        $scope.devoir.id_groupe = $scope.search.classe.id;
-                        $scope.devoir.id_matiere = $scope.search.matiere.id;
-                        $scope.setClasseMatieres();
-                        $scope.selectedMatiere();
-                    } else {
-                        // selection de la premiere classe par defaut
-                        $scope.devoir.id_groupe = $scope.classes.all[0].id;
-                        // selection de la premiere matière associée à la classe
-                        $scope.setClasseMatieres();
-                    }
-                }
+            }
 
-                // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_groupe);
+            // Chargement des enseignements et compétences en fonction de la classe
+            evaluations.enseignements.sync($scope.devoir.id_groupe);
 
             if ($location.path() === "/devoirs/list") {
                 $scope.devoir.id_type = $scope.search.type.id;
@@ -1237,15 +1240,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         /**
          * Récupère les matières enseignées sur la classe donnée
          * @param idClasse Identifiant de la classe
-         * @param callback Callback de retour la fonction
+         * @returns {Promise<T>} Promesse de retour
          */
-        var getClassesMatieres = function (idClasse) {
+        let getClassesMatieres = function (idClasse) {
             return new Promise((resolve, reject) => {
-                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
-                if (libelleClasse !== undefined) {
-                    if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse.name}))
+                let classe = $scope.classes.findWhere({id : idClasse});
+                if (classe !== undefined) {
+                    if (resolve && typeof resolve === 'function') {
+                        resolve($scope.matieres.filter((matiere) => {
+                            return (matiere.libelleClasses.indexOf(classe.externalId) !== -1)
+                        }));
                     }
+                } else {
+                    reject();
                 }
             });
         };
@@ -1268,6 +1275,46 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
+
+        $scope.openLeftMenu = function openLeftMenu(psMenu, pbAfficherMenu) {
+
+            pbAfficherMenu = !pbAfficherMenu;
+
+            if(psMenu === "openedDevoirInfo") {
+                $scope.openedDevoirInfo = pbAfficherMenu;
+            }else if(psMenu === "openedStudentInfo") {
+                $scope.openedStudentInfo = pbAfficherMenu;
+            }else  if(psMenu === "opened.criteres") {
+                $scope.opened.criteres = pbAfficherMenu;
+            }else {
+                console.error("Parametre psMenu inconnu : psMenu="+psMenu);
+            }
+
+
+            // Dans le cas du relevé de notes, on replie les 2 autres menus dans
+            // un problème d'espace vertical
+            if ($location.$$path === '/releve') {
+
+                if(pbAfficherMenu) {
+                    if(psMenu === "openedDevoirInfo") {
+                        $scope.openedStudentInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "openedStudentInfo") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "opened.criteres") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.openedStudentInfo = false;
+                    }
+                }
+            }
+        };
+
+
         /**
          * Séquence de récupération d'un relevé de note
          */
@@ -1283,8 +1330,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     idPeriode : parseInt($scope.search.periode.id),
                     idMatiere : $scope.search.matiere.id
                 };
-                var rn = evaluations.releveNotes.findWhere(p);
-                if (rn === undefined) {
+                // var rn = evaluations.releveNotes.findWhere(p);
+                // if (rn === undefined) {
                     if(evaluations.synchronized.classes !== 0) {
                         evaluations.classes.on('classes-sync', function () {
                             var releve = new ReleveNote(p);
@@ -1315,10 +1362,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             utils.safeApply($scope);
                         });
                     });
-                } else {
-                    $scope.releveNote = rn;
-                    utils.safeApply($scope);
-                }
+                // } else {
+                //     $scope.releveNote = rn;
+                //     utils.safeApply($scope);
+                // }
+
+                $scope.openedStudentInfo = false;
             }
         };
 
@@ -1360,35 +1409,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
-        /**
-          * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
-          * @param idClasse identifiant de la classe
-          * @returns {any} libelle de la classe
-          */
-        $scope.getLibelleClasse = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
-            if(libelle === undefined){
-                if(evaluations.classes.all.length === 0) return;
-                libelle = _.findWhere(evaluations.classes.all, { id: idClasse });
-
-            }
-            if(libelle !== undefined){
-                return libelle.name;
-            }
-        };
 
         /**
-         * Retourne le Cycle de la classe correspondant à l'identifiant passé en paramètre
+         * Retourne la données de la classe passé en paramètre
          * @param idClasse identifiant de la classe
-         * @returns {any} cycle de la classe
+         * @param key clé à renvoyer
+         * @returns {any} la valeur de la clé passée en paramètre
          */
-        $scope.getClasseCycle = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).id_cycle;
+        $scope.getClasseData = (idClasse, key) => {
+            if (idClasse == null || idClasse === '' || $scope.classes.all.length === 0) return '';
+            let classe = $scope.classes.findWhere({id : idClasse});
+            if (classe !== undefined && classe.hasOwnProperty(key)) {
+                return classe[key];
+            } else {
+                return '';
+            }
         };
+
         /**
          * Retourne le libelle de la période correspondant à l'identifiant passé en paramètre
          * @param idPeriode identifiant de la période
@@ -1620,6 +1657,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 var devoir = $scope.releveNote.devoirs.findWhere({id : obj.id_devoir});
                 if (devoir !== undefined) $scope.informations.devoir = devoir;
             }
+
+            if ($location.$$path === '/releve') {
+                $scope.openLeftMenu("openedDevoirInfo", false);
+            }
         };
 
 
@@ -1739,7 +1780,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             for(let i=0; i<elem.length; i++){
                 elem[i].style.height="0px";
             }
-
         };
 
 

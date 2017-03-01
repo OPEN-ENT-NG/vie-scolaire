@@ -42,6 +42,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import javax.sound.sampled.Control;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -196,109 +197,42 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
-                    JsonArray resultats = event.right().getValue();
+                    final JsonArray resultats = event.right().getValue();
 
-                    // ensemble des matieres de l'utilsateur + de ses titulaires
-                    JsonArray matieres = new JsonArray();
+                    final List<String> ids = new ArrayList<String>();
 
-                    // ajout de tous les résultats dans une seule liste dem atieres
+                    final JsonArray reponseJA = new JsonArray();
+
                     for (Object res : resultats) {
-                        JsonArray matieresOfOneUser = ((JsonObject)res).getArray("u.classesFieldOfStudy");
-                        JsonArray groupsFieldOfStudyOfOneUser = ((JsonObject)res).getArray("u.groupsFieldOfStudy");
-                        if(null != matieresOfOneUser
-                                && matieresOfOneUser.size()>0) {
-                            for (Object matiere : matieresOfOneUser) {
-                                if (!matieres.contains(matiere)) {
-                                    matieres.add(matiere);
-                                }
-                            }
-                        }
-                        if(null != groupsFieldOfStudyOfOneUser
-                                && groupsFieldOfStudyOfOneUser.size()>0) {
-                            for (Object matiere : groupsFieldOfStudyOfOneUser) {
-                                if (!matieres.contains(matiere)) {
-                                    matieres.add(matiere);
-                                }
-                            }
-                        }
+                        final JsonObject r = (JsonObject) res;
+                        r.putArray("libelleClasses", utilsService.saUnion(r.getArray("libelleClasses"), r.getArray("libelleGroupes")));
+                        r.removeField("libelleGroupes");
+                        reponseJA.addObject(r);
+                        ids.add(r.getString("id"));
                     }
-
-                    final JsonArray codeEtab = new JsonArray();
-                    JsonArray codeMatieres = new JsonArray();
-                    Pattern p = Pattern.compile("\\$");
-                    final ArrayList<String> correspondanceMatiere = new ArrayList<String>();
-                    final ArrayList<String> correspondanceEtablissement = new ArrayList<String>();
-                    final ArrayList<String> correspondanceClasse = new ArrayList<String>();
-                    for(int i = 0 ; i < matieres.size(); i++){
-                        String value = matieres.get(i).toString();
-                        String[] spliting = p.split(value);
-                        correspondanceMatiere.add(spliting[2]);
-                        correspondanceClasse.add(spliting[1]);
-                        correspondanceEtablissement.add(spliting[0]);
-                        if(!codeEtab.contains(spliting[0])){
-                            codeEtab.add(spliting[0]);
-                        }
-                        if(!codeMatieres.contains(spliting[2])) {
-                            codeMatieres.add(spliting[2]);
-                        }
-                    }
-                    matiereService.getCorrespondanceMatieres(codeMatieres, codeEtab, new Handler<Either<String, JsonArray>>() {
+                    sousMatiereService.getSousMatiereById(ids.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
                         @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            JsonArray r = event.right().getValue();
-                            JsonObject etabListe = new JsonObject();
-                            JsonObject matiereList = new JsonObject();
-
-                            JsonObject n = new JsonObject();
-                            JsonObject nInter = new JsonObject();
-
-                            final JsonArray reponse = new JsonArray();
-                            String[] ids = new String[correspondanceMatiere.size()];
-                            for(int i = 0 ; i < r.size(); i ++){
-                                n = r.get(i);
-                                nInter = n.getObject("n");
-                                n = nInter.getObject("data");
-                                if(n.containsField("academy")){
-                                    etabListe.putObject(n.getString("externalId"), n);
-                                }else{
-                                    matiereList.putObject(n.getString("externalId"), n);
-                                }
-                            }
-                            for(int i = 0 ; i < correspondanceMatiere.size(); i++) {
-                                JsonObject obj = matiereList.getObject(correspondanceMatiere.get(i));
-                                JsonObject o = new JsonObject();
-                                o = obj.copy();
-
-                                o.putString("libelleClasse", correspondanceClasse.get(i));
-                                o.putString("idEtablissement", etabListe.getObject(correspondanceEtablissement.get(i)).getString("id"));
-                                reponse.add(o);
-                                ids[i]=o.getString("id");
-                            }
-                            sousMatiereService.getSousMatiereById(ids, new Handler<Either<String, JsonArray>>() {
-                                @Override
-                                public void handle(Either<String, JsonArray> event_ssmatiere) {
-                                    if (event_ssmatiere.right().isRight()) {
-                                        JsonArray finalresponse = new JsonArray();
-                                        JsonArray res = event_ssmatiere.right().getValue();
-                                        for (int i = 0; i < reponse.size(); i++) {
-                                            JsonObject matiere = reponse.get(i);
-                                            String id = matiere.getString("id");
-                                            JsonArray ssms = new JsonArray();
-                                            for (int j = 0; j < res.size(); j++) {
-                                                JsonObject ssm = res.get(j);
-                                                if (ssm.getString("id_matiere").equals(id)) {
-                                                    ssms.addObject(ssm);
-                                                }
-                                            }
-                                            matiere.putArray("sous_matieres", ssms);
-                                            finalresponse.addObject(matiere);
+                        public void handle(Either<String, JsonArray> event_ssmatiere) {
+                            if (event_ssmatiere.right().isRight()) {
+                                JsonArray finalresponse = new JsonArray();
+                                JsonArray res = event_ssmatiere.right().getValue();
+                                for (int i = 0; i < reponseJA.size(); i++) {
+                                    JsonObject matiere = reponseJA.get(i);
+                                    String id = matiere.getString("id");
+                                    JsonArray ssms = new JsonArray();
+                                    for (int j = 0; j < res.size(); j++) {
+                                        JsonObject ssm = res.get(j);
+                                        if (ssm.getString("id_matiere").equals(id)) {
+                                            ssms.addObject(ssm);
                                         }
-                                        Renders.renderJson(request, finalresponse);
-                                    } else {
-                                        leftToResponse(request, event_ssmatiere.left());
                                     }
+                                    matiere.putArray("sous_matieres", ssms);
+                                    finalresponse.addObject(matiere);
                                 }
-                            });
+                                Renders.renderJson(request, finalresponse);
+                            } else {
+                                leftToResponse(request, event_ssmatiere.left());
+                            }
                         }
                     });
                 }else{
@@ -308,7 +242,6 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    // TODO A REFAIRE APRES LES BERNCHS DE PERF
     /**
      * Retourne les matières enseignées par un enseignant donné
      * @param request
@@ -321,15 +254,11 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-
                     utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
                                 @Override
                                 public void handle(Either<String, JsonArray> event) {
-
                                     if(event.isRight()) {
-
                                         JsonArray oTitulairesIdList = event.right().getValue();
-
                                         listMatieres(oTitulairesIdList, request);
                                     } else {
                                         leftToResponse(request, event.left());

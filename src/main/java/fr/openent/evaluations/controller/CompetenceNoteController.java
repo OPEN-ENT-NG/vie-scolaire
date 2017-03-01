@@ -221,7 +221,7 @@ public class CompetenceNoteController extends ControllerHelper {
             String idEtab = request.params().get("idEtab");
             String idClasse = request.params().get("idClasse");
 
-            competencesNotesService.getConverssionNoteCompetence(idEtab, idClasse, arrayResponseHandler(request));
+            competencesNotesService.getConversionNoteCompetence(idEtab, idClasse, arrayResponseHandler(request));
 
 
         } else {

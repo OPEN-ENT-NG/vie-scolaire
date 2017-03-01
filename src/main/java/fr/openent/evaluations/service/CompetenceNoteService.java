@@ -115,5 +115,5 @@ public interface CompetenceNoteService extends CrudService {
      * @param idCycle
      * @param handler
      **/
-    public void getConverssionNoteCompetence(String idEtablissement,  String idclasse, Handler<Either<String,JsonArray>> handler);
+    public void getConversionNoteCompetence(String idEtablissement, String idclasse, Handler<Either<String,JsonArray>> handler);
 }

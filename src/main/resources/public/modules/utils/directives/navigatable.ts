@@ -23,13 +23,13 @@ export let navigatable = ng.directive('cNavigaTable', function(){
                 switch(key){
                     case keys.arrow.left:{
                         if (input.selectionStart === 0) {
-                            moveTo = td.prev('td:has(input,textarea)');
+                            moveTo = td.prevAll('td.nav-input')[0]
                         }
                         break;
                     }
                     case keys.arrow.right:{
                         if (input.selectionEnd == input.value.length) {
-                            moveTo = td.next('td:has(input,textarea)');
+                            moveTo = td.nextAll('td.nav-input')[0];
                         }
                         break;
                     }
@@ -51,12 +51,23 @@ export let navigatable = ng.directive('cNavigaTable', function(){
                         break;
                     }
                 }
-                if (moveTo && moveTo.length) {
-                    event.preventDefault();
-                    moveTo.find('input,textarea').each(function (i, input) {
-                        input.focus();
-                        input.select();
-                    });
+                if (moveTo) {
+                    if(moveTo.length) {
+                        event.preventDefault();
+                        moveTo.find('input,textarea').each(function (i, input) {
+                            input.focus();
+                            input.select();
+                        });
+                    } else {
+                        var input = moveTo.getElementsByClassName("input-note")[0];
+                        if(input) {
+                            input.focus();
+                            input.select()
+                        }
+
+                    }
+
+
                 }
             });
         }

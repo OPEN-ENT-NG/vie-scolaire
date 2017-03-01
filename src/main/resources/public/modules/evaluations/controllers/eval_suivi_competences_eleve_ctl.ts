@@ -225,7 +225,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             }
                         }
                     });
-                    $scope.suiviCompetence.getConversionTabel(model.me.structures[0],$scope.search.classe.id).then(
+                    $scope.suiviCompetence.getConversionTable(model.me.structures[0],$scope.search.classe.id).then(
                         function(data){
                             return $scope.suiviCompetence.tableConversions;
 

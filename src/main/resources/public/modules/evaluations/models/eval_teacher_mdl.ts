@@ -1386,7 +1386,7 @@ export class SuiviCompetence extends Model implements IModel{
         return false;
     }
 
-    getConversionTabel(idetab,idClasse) : Promise<any> {
+    getConversionTable(idetab, idClasse) : Promise<any> {
         return new Promise((resolve, reject) => {
             var that = this;
             http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data){

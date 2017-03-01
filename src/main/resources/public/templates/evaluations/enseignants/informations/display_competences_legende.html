@@ -56,5 +56,25 @@
 </ul-->
 <div ng-if="template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')
             && route.current.$$route.originalPath !== '/competences/classe'" class="padding-five">
+    <ul class="conversion-legend bfc">
+        <li class="row" ng-repeat="Conversion in suiviCompetence.tableConversions.all track by $index">
 
+            <div class="inline-block">
+                <span class="maxval">[[Conversion.valmax.toFixed(2)]]</span>
+                <span class="last-minval" ng-if="$index === suiviCompetence.tableConversions.all.length - 1">[[Conversion.valmin.toFixed(2)]]</span>
+            </div>
+            <div class="[[Conversion.couleur]] inline-block legend-line">
+                <span ng-if="$index === 0" class="tick first-tick"></span>
+                <span class="tick"></span>
+            </div>
+            <div class="inline-block">
+                <span class="libelle">
+                    [[Conversion.libelle]]
+                </span>
+            </div>
+        </li>
+    </ul>
+            <!--<div class="" ng-class="Conversion.couleur" ng-repeat="Conversion in suiviCompetence.tableConversions.all">-->
+                <!--[[Conversion.libelle]]-->
+            <!--</div>-->
 </div>

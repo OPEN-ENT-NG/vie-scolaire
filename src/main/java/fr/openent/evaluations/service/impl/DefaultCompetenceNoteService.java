@@ -192,7 +192,8 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
                 .append("INNER JOIN  notes.echelle_conversion_niv_note echelle on niv.id = echelle.id_niveau ")
                 .append("INNER JOIN  notes.rel_groupe_cycle CC on cc.id_cycle = niv.id_cycle ")
                 .append("AND cc.id_groupe = ? ")
-                .append("AND echelle.id_structure = ? ");
+                .append("AND echelle.id_structure = ? ")
+                .append("ORDER BY ordre DESC");
         values.addString(idClasse);
         values.addString(idEtablissement);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

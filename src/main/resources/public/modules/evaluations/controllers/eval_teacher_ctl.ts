@@ -81,7 +81,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         var parentToCheck = [];
 
                         for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
-                            for (var j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
+                            for (let j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
                                 if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
                                     + $scope.evaluations.enseignements.all[j].id] !== undefined) {
                                     //selection des competences du devoir
@@ -371,14 +371,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
         $scope.textSuppretionMsg2 = {
-            Text1 : "Des devoirs selectionné contiennent des notes et des compétences évaluées. ",
-            Text2 : "Des devoirs selectionné contiennent des notes.",
-            Text3 : "Des devoirs selectionné contiennent des compétences évaluées. ",
-            Text4 : "Les devoirs suivant contiénnent des compétences évaluées",
-            Text5 : "Les devoirs suivant contiénnent des Notes",
-            Text6 : "Les devoirs selectioné contiénnent des notes et des compétences évaluées. ",
-            TextFin :"confirmez-vous la suppression ?"
+            Text1 : lang.translate('evaluations.devoir.recaputilatif.suppression.text1'),
+            Text2 : lang.translate('evaluations.devoir.recaputilatif.suppression.text2'),
+            Text3 : lang.translate('evaluations.devoir.recaputilatif.suppression.text3'),
+            Text4 : lang.translate('evaluations.devoir.recaputilatif.suppression.text4'),
+            Text5 : lang.translate('evaluations.devoir.recaputilatif.suppression.text5'),
+            Text6 : lang.translate('evaluations.devoir.recaputilatif.suppression.text6'),
+            TextFin : lang.translate('evaluations.devoir.recaputilatif.suppression.confirmation')
         };
+
+
         $scope.firstConfirmationSuppDevoir = function () {
             if($scope.selected.devoirs.list.length > 0) {
                 let idDevoir = [];
@@ -1174,9 +1176,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.devoir.competencesRem = [];
 
                     //recherche des competences a ajouter
-                    for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                    for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
                         var toAdd = true;
-                        for(var j =0; j < $scope.devoir.competences.all.length; j++) {
+                        for(let j =0; j < $scope.devoir.competences.all.length; j++) {
                             if ($scope.devoir.competences.all[j].id_competence
                                 === evaluations.competencesDevoir[i].id) {
                                 toAdd = false;
@@ -1188,9 +1190,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     //Recherche des competences a supprimer
-                    for(var j =0; j < $scope.devoir.competences.all.length; j++ ){
+                    for(let j =0; j < $scope.devoir.competences.all.length; j++ ){
                         var toDel = true;
-                        for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
+                        for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
                             if($scope.devoir.competences.all[j].id ===
                                 evaluations.competencesDevoir[i].id){
                                 toDel = false;
@@ -1207,17 +1209,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
-                evaluations.devoirs.sync();
-                $scope.id = res.id;
-                evaluations.devoirs.on('sync', function (res) {
-                    if($location.path() === "/devoirs/list" || $location.path() === "/devoir/create"){
-                        if(res!= undefined) {
+                evaluations.devoirs.sync().then(() => {
+                    if ($location.path() === "/devoirs/list" || $location.path() === "/devoir/create") {
+                        if (res !== undefined) {
                             $location.path("/devoir/" + res.id);
                         }
-                        else {
-                            $scope.goTo("/devoir/"+$scope.id);
-                        }
-                    }else if ($location.path() === "/releve"){
+
+                    } else if ($location.path() === "/releve") {
                         if ($scope.releveNote === undefined || !$scope.releveNote) {
                             $scope.search.classe.id = $scope.devoir.id_groupe;
                             $scope.search.matiere.id = $scope.devoir.id_matiere;
@@ -1227,10 +1225,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.releveNote.devoirs.sync();
                         }
                     }
-                    else  if($location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
-                        $location.path("/devoir/"+$scope.devoir.id);
+                    else if ($location.path() === "/devoir/" + $scope.devoir.id + "/edit") {
+                        $location.path("/devoir/" + $scope.devoir.id);
                     }
-                    $scope.opened.lightbox=false;
+                    $scope.opened.lightbox = false;
                     utils.safeApply($scope);
                 });
             });
@@ -1634,6 +1632,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     for (var j = 0; j < $scope.releveNote.classe.eleves.all[i].evaluations.all.length; j++) {
                         if ($scope.releveNote.classe.eleves.all[i].evaluations.all[j].valeur !== ""
                             && $scope.releveNote.classe.eleves.all[i].evaluations.all[j].id_devoir === devoirId) {
+                            $scope.releveNote.classe.eleves.all[i].evaluations.all[j].is_evaluated = devoir.is_evaluated;
                             evals.push($scope.releveNote.classe.eleves.all[i].evaluations.all[j]);
                         }
                     }
@@ -1668,6 +1667,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.openLeftMenu("openedDevoirInfo", false);
             }
         };
+
 
         /**
          * Retourne les informations relatives à un élève
@@ -1780,7 +1780,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          */
         $scope.cleanRoot = function () {
-            var elem = document.getElementsByClassName("autocomplete");
+            var elem = angular.element(".autocomplete");
 
             for(let i=0; i<elem.length; i++){
                 elem[i].style.height="0px";

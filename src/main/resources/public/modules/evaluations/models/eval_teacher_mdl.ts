@@ -99,7 +99,8 @@ export class ReleveNote extends  Model implements IModel{
             this.on('format', function () {
                 _.each(that.classe.eleves.all, function (eleve) {
                     var _evals = [];
-                    if(that._tmp && that._tmp.length !== 0) var _t = _.where(that._tmp, {id_eleve : eleve.id});
+                    var _t;
+                    if(that._tmp && that._tmp.length !== 0)  _t = _.where(that._tmp, {id_eleve : eleve.id});
                     _.each(that.devoirs.all, function (devoir) {
                         if (_t && _t.length !== 0) {
                             var _e = _.findWhere(_t, {id_devoir : devoir.id});
@@ -109,10 +110,16 @@ export class ReleveNote extends  Model implements IModel{
                                 _evals.push(_e);
                             }
                             else {
-                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
+                                    oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
+                                    ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
+                                    is_evaluated : devoir.is_evaluated}));
                             }
                         } else {
-                            _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "", oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id, ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient}));
+                            _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
+                                oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
+                                ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
+                                is_evaluated : devoir.is_evaluated}));
                         }
                     });
                     eleve.evaluations.load(_evals);
@@ -753,27 +760,33 @@ export class DevoirsCollection {
     }
 
     constructor () {
-        this.sync = function () {
-            http().getJson(this.api.get).done(function (res) {
-                this.load(res);
-                if (evaluations.synchronized.matieres) {
-                    evaluations.devoirs.synchronizeDevoirMatiere();
-                } else {
-                    evaluations.matieres.on('sync', function () {
+        this.sync =  function () {
+             return new Promise((resolve, reject) => {
+
+                http().getJson(this.api.get).done(function (res) {
+                    this.load(res);
+                    if (evaluations.synchronized.matieres) {
                         evaluations.devoirs.synchronizeDevoirMatiere();
-                    });
-                }
-                if (evaluations.synchronized.types) {
-                    evaluations.devoirs.synchronizedDevoirType();
-                } else {
-                    evaluations.types.on('sync', function () {
+                    } else {
+                        evaluations.matieres.on('sync', function () {
+                            evaluations.devoirs.synchronizeDevoirMatiere();
+                        });
+                    }
+                    if (evaluations.synchronized.types) {
                         evaluations.devoirs.synchronizedDevoirType();
-                    });
-                }
-                evaluations.devoirs.trigger('sync');
-            }.bind(this));
-            this.percentDone = false;
-        }
+                    } else {
+                        evaluations.types.on('sync', function () {
+                            evaluations.devoirs.synchronizedDevoirType();
+                        });
+                    }
+                    evaluations.devoirs.trigger('sync');
+                    if (resolve && (typeof(resolve) === 'function')) {
+                        resolve(res);
+                    }
+                }.bind(this));
+                this.percentDone = false;
+            });
+        };
     }
 
     synchronizeDevoirMatiere () {
@@ -849,6 +862,7 @@ export class Periode extends Model {
 
 export class Enseignement extends Model {
     competences : Collection<Competence>;
+    id;
 
     constructor () {
         super();
@@ -1223,7 +1237,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                 return new Promise((resolve, reject) => {
                     var url = that.api.getArbreDomaines + classe.id;
                     http().getJson(url).done((resDomaines) => {
-                        var url = that.api.getCompetencesNotesClasse + classe.id;
+                        var url = that.api.getCompetencesNotesClasse + classe.id+"/"+ classe.type_groupe;
                         if (periode !== null && periode !== undefined && periode !== '*') {
                             url += "?idPeriode="+periode.id;
                         }

@@ -190,8 +190,8 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         StringBuilder query = new StringBuilder()
                 .append("Select valmin, valmax, libelle, ordre, couleur from notes.niveau_competences  niv ")
                 .append("INNER JOIN  notes.echelle_converssion_niv_note echelle on niv.id = echelle.id_niveau ")
-                .append("INNER JOIN  notes.rel_classe_cycle CC on cc.id_cycle = niv.id_cycle ")
-                .append("AND cc.id_classe = ? ")
+                .append("INNER JOIN  notes.rel_groupe_cycle CC on cc.id_cycle = niv.id_cycle ")
+                .append("AND cc.id_groupe = ? ")
                 .append("AND echelle.id_structure = ? ");
         values.addString(idClasse);
         values.addString(idEtablissement);

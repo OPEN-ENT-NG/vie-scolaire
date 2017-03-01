@@ -201,6 +201,22 @@ public class CompetenceNoteController extends ControllerHelper {
         }
     }
 
+    @Get("/competence/notes/bilan/conversion")
+    @ApiDoc("Retourne les valeurs de converssion entre (Moyenne Note - Evaluation competence) d'un cycle et etablissment donné")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetenceNoteConverssion (final HttpServerRequest request) {
+        if (request.params().contains("idEtab") && request.params().contains("idClasse")  ) {
+            String idEtab = request.params().get("idEtab");
+            String idClasse = request.params().get("idClasse");
+
+            competencesNotesService.getConverssionNoteCompetence(idEtab, idClasse, arrayResponseHandler(request));
+
+
+        } else {
+            Renders.badRequest(request, "Invalid parameters");
+        }
+    }
     @Get("/competence/notes/classe/:idClasse")
     @ApiDoc("Retourne les compétences notes pour une classee. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
     @SecuredAction(value = "", type = ActionType.RESOURCE)

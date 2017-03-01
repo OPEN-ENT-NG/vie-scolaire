@@ -160,12 +160,12 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     public void getCompetencesNotesClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray().addString(idClasse);
         StringBuilder query = new StringBuilder()
-            .append("SELECT competences_notes.id_eleve AS id_eleve, competences.id as id_competence, max(competences_notes.evaluation) as evaluation,rel_competences_domaines.id_domaine, competences_notes.owner ")
-            .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
-            .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
-            .append("WHERE devoirs.id_classe = ? ");
+                .append("SELECT competences_notes.id_eleve AS id_eleve, competences.id as id_competence, max(competences_notes.evaluation) as evaluation,rel_competences_domaines.id_domaine, competences_notes.owner ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
+                .append("WHERE devoirs.id_classe = ? ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(idPeriode);
@@ -175,13 +175,17 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
-   /* @Override
-    public void getConverssionNoteCompetence(String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler){
+    @Override
+    public void getConverssionNoteCompetence(String idEtablissement, String idClasse, Handler<Either<String,JsonArray>> handler){
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
-                .append("Select valmin, valmax, libelle, ordre, couleur from notes.echelle_converssion_niv_note echelle ");
-                        "INNER JOIN  notes.niveau_competences niv on niv.id = echelle.id_niveau\n" +
-                        "AND niv.id_cycle = 1\n" +
-                        "AND echelle.id_structure = '47f2327b-1e6c-423c-a69a-f057fa67286a'")
-    }*/
+                .append("Select valmin, valmax, libelle, ordre, couleur from notes.niveau_competences  niv ")
+                .append("INNER JOIN  notes.echelle_converssion_niv_note echelle on niv.id = echelle.id_niveau ")
+                .append("INNER JOIN  notes.rel_classe_cycle CC on cc.id_cycle = niv.id_cycle ")
+                .append("AND cc.id_classe = ? ")
+                .append("AND echelle.id_structure = ? ");
+        values.addString(idClasse);
+        values.addString(idEtablissement);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

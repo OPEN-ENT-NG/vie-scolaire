@@ -1428,8 +1428,7 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
                 });
             }
 
-            if (_t && _t.length > 0
-                && _t.evaluation > -1) {
+            if (_t && _t.length > 0) {
                 // TODO récupérer la vrai valeur numérique :
                 // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
                 poMaxEvaluationsDomaines.push(_.max(_t, function (_t) {

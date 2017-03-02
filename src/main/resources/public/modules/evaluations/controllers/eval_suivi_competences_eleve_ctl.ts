@@ -47,7 +47,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 controlledDate: false
             });
             $scope.EvaluationLibreCharge= {
-                matieres : evaluations.matieres.all,
+                matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: model.me.structures[0]})] ,
                 sousmatiere : []
             };
 

@@ -418,7 +418,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.opened.evaluation.suppretionMsg1 = false;
                     if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
                         $scope.opened.evaluation.suppretionMsg2 = true;
+                    }else{
+                        $scope.deleteDevoir();
                     }
+
                     utils.safeApply($scope);
                 });
             }
@@ -875,8 +878,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Charge les enseignements et les compétences en fonction de la classe.
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
-        $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            var newIdCycle = $scope.getClasseData(psIdClasse, 'id_cycle');
+        $scope.loadEnseignementsByClasse = function (classe_Id) {
+            classe_Id = $scope.devoir.id_groupe
+            var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
                 if ($scope.enseignements.all[i].data.competences_1 !== undefined &&

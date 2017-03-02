@@ -1145,6 +1145,7 @@ export class Evaluations extends Model {
                            : lang.translate('viescolaire.utils.groupeEnseignement'));
                    });
                    evaluations.classes.load(res);
+                    evaluations.synchronized.classes = evaluations.classes.all.length;
                     for (var i = 0; i < evaluations.classes.all.length; i++) {
                         evaluations.classes.all[i].eleves.sync().then(() => {
                             evaluations.synchronized.classes--;

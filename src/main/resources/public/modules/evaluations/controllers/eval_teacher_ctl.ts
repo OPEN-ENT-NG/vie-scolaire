@@ -418,7 +418,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.opened.evaluation.suppretionMsg1 = false;
                     if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
                         $scope.opened.evaluation.suppretionMsg2 = true;
+                    }else{
+                        $scope.deleteDevoir();
                     }
+
                     utils.safeApply($scope);
                 });
             }

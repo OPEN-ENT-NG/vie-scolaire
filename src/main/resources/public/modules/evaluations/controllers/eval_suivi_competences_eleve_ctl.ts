@@ -202,6 +202,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function () {
+            $scope.selected.grey = true;
             if ($scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
                 delete $scope.suiviCompetence;
@@ -247,6 +248,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.updateSuiviEleve = (Eleve) => {
+            $scope.selected.grey = true;
             let path = '/competences/eleve';
             let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classEleve.id};
             $scope.goTo(path, idOfpath);

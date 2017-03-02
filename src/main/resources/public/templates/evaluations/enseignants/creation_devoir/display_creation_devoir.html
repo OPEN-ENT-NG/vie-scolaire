@@ -52,7 +52,7 @@
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile" ng-class="{disabled : devoir.id_etablissement === undefined}">
-                                            <select ng-model="devoir.id_groupe" ng-change="setClasseMatieres();loadEnseignementsByClasse(devoir.id_groupe);" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all track by classe.id | orderBy:['type_groupe_libelle','name']">
+                                            <select ng-model="devoir.id_groupe" ng-change="setClasseMatieres();loadEnseignementsByClasse(classe.id);" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
 
                                             </select>
                                         </label>
@@ -199,7 +199,7 @@
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
                                             <select ng-model="devoir.id_periode"
-                                                ng-options="periode.id as periode.libelle for periode in periodes.all">
+                                                    ng-options="periode.id as periode.libelle for periode in periodes.all">
                                             </select>
                                         </label>
                                     </div>

@@ -879,6 +879,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
         $scope.loadEnseignementsByClasse = function (classe_Id) {
+            classe_Id = $scope.devoir.id_groupe
             var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {

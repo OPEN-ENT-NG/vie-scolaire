@@ -1450,15 +1450,19 @@ function setSliderOptions(poDomaine,tableConversions) {
 
         }
     };
-    let maConvertion =   _.reject(tableConversions, function (object) {
 
-        if(object.valmin > poDomaine.moyenne || object.valmax <= poDomaine.moyenne){
-            return object;
+
+    let maConvertion =  undefined;
+    for(let i= 0 ; i < tableConversions.length ; i++){
+        if((tableConversions[i].valmin <= poDomaine.moyenne && tableConversions[i].valmax > poDomaine.moyenne) && tableConversions[i].ordre !== tableConversions.length ){
+            maConvertion = tableConversions[i];
+        }else if((tableConversions[i].valmin <= poDomaine.moyenne && tableConversions[i].valmax >= poDomaine.moyenne) && tableConversions[i].ordre === tableConversions.length ){
+            maConvertion = tableConversions[i];
         }
-    });
+    }
 
     // si ça ne rentre dans aucune case
-    if(maConvertion === undefined || maConvertion.length === 0 ){
+    if(maConvertion === undefined ){
         poDomaine.slider.value = -1 ;
         poDomaine.slider.options.getSelectionBarClass = function(){ return '#d8e0f3';};
         poDomaine.slider.options.translate = function(value,sliderId,label){
@@ -1471,7 +1475,7 @@ function setSliderOptions(poDomaine,tableConversions) {
         };
 
     }else{
-        poDomaine.slider.value = maConvertion[0].ordre ;
+        poDomaine.slider.value = maConvertion.ordre ;
         poDomaine.slider.options.getSelectionBarClass = function(value){
             let ConvertionOfValue = _.find(tableConversions,{ordre: value});
             if(ConvertionOfValue !== undefined)

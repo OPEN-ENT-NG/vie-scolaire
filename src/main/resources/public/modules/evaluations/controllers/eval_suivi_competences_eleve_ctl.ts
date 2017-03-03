@@ -127,7 +127,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                         utils.safeApply($scope);
                     });
                 });
-
+                $scope.initSliderBFC();
+                utils.safeApply($scope);
 
             });
         };
@@ -226,13 +227,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             }
                         }
                     });
-                    $scope.suiviCompetence.getConversionTable(model.me.structures[0],$scope.search.classe.id).then(
-                        function(data){
-                            return $scope.suiviCompetence.tableConversions;
-
-                        }
-
-                    );
+                    $scope.initSliderBFC();
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
 
                     $scope.template.close('suivi-competence-content');
@@ -246,7 +241,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
 
         };
-
+        $scope.initSliderBFC = function () {
+            $scope.suiviCompetence.getConversionTable(model.me.structures[0],$scope.search.classe.id).then(
+                function(data){
+                    return $scope.suiviCompetence.tableConversions;
+                }
+            );
+        };
         $scope.updateSuiviEleve = (Eleve) => {
             $scope.selected.grey = true;
             let path = '/competences/eleve';

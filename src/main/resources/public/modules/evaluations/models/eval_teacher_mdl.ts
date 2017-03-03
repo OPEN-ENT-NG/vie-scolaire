@@ -1205,20 +1205,24 @@ export class Evaluations extends Model {
         this.matieres.sync();
         this.collection(Periode, {sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]});
         this.collection(ReleveNote);
+        const libelle = {
+            CLASSE : 'Classe',
+            GROUPE : "Groupe d'enseignement"
+        };
         this.collection(Classe, {
             sync : function () {
                 http().getJson('/viescolaire/evaluations/classes').done((res) => {
-                   _.map(res, (classe) => {
-                       let libelleClasse;
-                       if(classe.type_groupe_libelle = classe.type_groupe === 0){
-                           libelleClasse = lang.translate('viescolaire.utils.class');
-                       } else {
-                           libelleClasse = lang.translate('viescolaire.utils.groupeEnseignement');
-                       }
-                       classe.type_groupe_libelle = libelleClasse;
-                       return classe;
-                   });
-                   evaluations.classes.load(res);
+                    _.map(res, (classe) => {
+                        let libelleClasse;
+                        if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                            libelleClasse = libelle.CLASSE;
+                        } else {
+                            libelleClasse =  libelle.GROUPE;
+                        }
+                        classe.type_groupe_libelle = libelleClasse;
+                        return classe;
+                    });
+                    evaluations.classes.load(res);
                     evaluations.synchronized.classes = evaluations.classes.all.length;
                     for (var i = 0; i < evaluations.classes.all.length; i++) {
                         evaluations.classes.all[i].eleves.sync().then(() => {
@@ -1363,8 +1367,8 @@ export class SuiviCompetence extends Model implements IModel{
                                     // affichage du 1er domaine uniquement par défaut
                                     // var bPremierDomaine = (i == 0);
                                     // if(bPremierDomaine) {
-                                        domaine.visible = true;
-                                        domaine.setVisibleSousDomaines(true);
+                                    domaine.visible = true;
+                                    domaine.setVisibleSousDomaines(true);
                                     // }
 
                                     that.domaines.all.push(domaine);

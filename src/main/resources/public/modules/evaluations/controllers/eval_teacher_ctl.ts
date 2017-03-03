@@ -1645,6 +1645,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.currentDevoir.eleves.all[i].evaluation.ramener_sur = $scope.currentDevoir.ramener_sur;
                 }
             }
+
             $scope.currentDevoir.calculStats(evals).then(() => {
                 utils.safeApply($scope);
             });
@@ -1667,6 +1668,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                 }
+                devoir.eleves = $scope.releveNote.classe.eleves;
                 devoir.calculStats(evals).then(() => {
                     utils.safeApply($scope);
                 });

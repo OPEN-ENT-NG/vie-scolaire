@@ -752,7 +752,7 @@ export class DevoirsCollection {
 
     constructor () {
         this.sync =  function () {
-             return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
 
                 http().getJson(this.api.get).done(function (res) {
                     this.load(res);
@@ -1138,18 +1138,22 @@ export class Evaluations extends Model {
         this.collection(ReleveNote);
         this.collection(Classe, {
             sync : function () {
+                const libelle = {
+                    CLASSE : lang.translate('viescolaire.utils.class'),
+                    GROUPE : lang.translate('viescolaire.utils.groupeEnseignement')
+                };
                 http().getJson('/viescolaire/evaluations/classes').done((res) => {
-                   _.map(res, (classe) => {
-                       let libelleClasse;
-                       if(classe.type_groupe_libelle = classe.type_groupe === 0){
-                           libelleClasse = lang.translate('viescolaire.utils.class');
-                       } else {
-                           libelleClasse = lang.translate('viescolaire.utils.groupeEnseignement');
-                       }
-                       classe.type_groupe_libelle = libelleClasse;
-                       return classe;
-                   });
-                   evaluations.classes.load(res);
+                    _.map(res, (classe) => {
+                        let libelleClasse;
+                        if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                            libelleClasse = libelle.CLASSE;
+                        } else {
+                            libelleClasse =  libelle.GROUPE;
+                        }
+                        classe.type_groupe_libelle = libelleClasse;
+                        return classe;
+                    });
+                    evaluations.classes.load(res);
                     evaluations.synchronized.classes = evaluations.classes.all.length;
                     for (var i = 0; i < evaluations.classes.all.length; i++) {
                         evaluations.classes.all[i].eleves.sync().then(() => {
@@ -1204,8 +1208,8 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                                     // affichage du 1er domaine uniquement par défaut
                                     // var bPremierDomaine = (i == 0);
                                     // if(bPremierDomaine) {
-                                        domaine.visible = true;
-                                        domaine.setVisibleSousDomaines(true);
+                                    domaine.visible = true;
+                                    domaine.setVisibleSousDomaines(true);
                                     // }
 
                                     that.domaines.all.push(domaine);
@@ -1294,8 +1298,8 @@ export class SuiviCompetence extends Model implements IModel{
                                     // affichage du 1er domaine uniquement par défaut
                                     // var bPremierDomaine = (i == 0);
                                     // if(bPremierDomaine) {
-                                        domaine.visible = true;
-                                        domaine.setVisibleSousDomaines(true);
+                                    domaine.visible = true;
+                                    domaine.setVisibleSousDomaines(true);
                                     // }
 
                                     that.domaines.all.push(domaine);

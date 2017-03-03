@@ -1,0 +1,48 @@
+package fr.openent.evaluations.security;
+
+import org.entcore.common.http.filter.ResourcesProvider;
+import fr.openent.evaluations.security.utils.FilterAppreciationUtils;
+import fr.wseduc.webutils.http.Binding;
+import org.entcore.common.user.UserInfos;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
+
+/**
+ * Created by anabah on 02/03/2017.
+ */
+public class AccessAppreciationFilter implements ResourcesProvider {
+
+    protected static final Logger log = LoggerFactory.getLogger(AccessAppreciationFilter.class);
+
+    @Override
+    public void authorize(final HttpServerRequest resourceRequest, Binding binding, UserInfos user, final Handler<Boolean> handler) {
+        switch (user.getType()) {
+            case "Teacher": {
+                resourceRequest.pause();
+
+                Long idAppreciation;
+                try {
+                    idAppreciation = Long.parseLong(resourceRequest.params().get("idAppreciation"));
+                } catch (NumberFormatException e) {
+                    log.error("Error : idAppreciation must be a long object", e);
+                    handler.handle(false);
+                    return;
+                }
+
+                new FilterAppreciationUtils().validateAccessAppreciation(idAppreciation, user, new Handler<Boolean>() {
+                    @Override
+                    public void handle(Boolean isValid) {
+                        resourceRequest.resume();
+                        handler.handle(isValid);
+                    }
+                });
+            }
+            break;
+            default: {
+                handler.handle(false);
+            }
+        }
+    }
+}

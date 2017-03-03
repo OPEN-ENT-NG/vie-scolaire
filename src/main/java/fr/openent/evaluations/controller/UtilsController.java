@@ -117,8 +117,11 @@ public class UtilsController extends ControllerHelper {
                 }
                 for(int i = 0; i < l.size(); i++){
                     JsonObject o = l.get(i);
-                    notes.add(new NoteDevoir(Double.parseDouble(o.getNumber("valeur").toString()),
-                            o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
+                    String note = o.getNumber("valeur").toString();
+                    if(note != null) {
+                        notes.add(new NoteDevoir(Double.parseDouble(note),
+                                o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
+                    }
                 }
                 JsonObject moyenne = new JsonObject();
                 if (notes.size() > 0) {

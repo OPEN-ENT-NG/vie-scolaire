@@ -68,6 +68,7 @@ public class Viescolaire extends BaseServer {
     public static final String EVAL_ENSEIGNEMENTS_TABLE = "enseignements";
 	public static final String EVAL_DOMAINES_TABLE = "domaines";
 	public static final String EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE = "rel_professeurs_remplacants";
+	public static final String EVAL_APPRECIATIONS_TABLE = "appreciations";
 
 	/**
 	 * Déclaration des router préfixs
@@ -101,6 +102,9 @@ public class Viescolaire extends BaseServer {
 
 	public final static String DEVOIR_ACTION_UPDATE = "fr-openent-evaluations-controller-DevoirController|updateDevoir";
 
+	public final static String SCHEMA_APPRECIATIONS_CREATE = "eval_createAppreciation";
+	public final static String SCHEMA_APPRECIATIONS_UPDATE = "eval_updateAppreciation";
+
 	@Override
 	public void start() {
 		super.start();
@@ -127,6 +131,7 @@ public class Viescolaire extends BaseServer {
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
+
 		/*
 			CONTROLEURS ABSENCES
 		 */
@@ -162,6 +167,7 @@ public class Viescolaire extends BaseServer {
 		addController(new DomaineController());
 		addController(new ExportPDFController(eb, notification));
 		addController(new NoteController());
+		addController(new AppreciationController());
 		addController(new UtilsController());
 
 		addController(new ReferentielController());

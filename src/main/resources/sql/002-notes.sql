@@ -150,7 +150,6 @@ CREATE TABLE notes.notes
 CREATE INDEX idx_notes_ideleve ON notes.notes USING btree (id_eleve);
 CREATE INDEX idx_notes_ideleve_iddevoir ON notes.notes USING btree (id_eleve, id_devoir);
 
--- Table: notes.appreciations
 CREATE TABLE notes.appreciations
 (
   id bigserial NOT NULL,
@@ -164,17 +163,13 @@ CREATE TABLE notes.appreciations
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE,
-  CONSTRAINT eleveappreciation_per_devoir UNIQUE (id_devoir, id_eleve)
-)
-WITH (
-  OIDS=FALSE
+  CONSTRAINT eleve_appreciation_per_devoir UNIQUE (id_devoir, id_eleve)
 );
+
 CREATE INDEX idx_appreciations_ideleve  ON notes.appreciations  USING btree  (id_eleve COLLATE pg_catalog."default");
 
 CREATE INDEX idx_appreciations_ideleve_iddevoir  ON notes.appreciations  USING btree
   (id_eleve COLLATE pg_catalog."default", id_devoir);
-
--- End
 
 CREATE TABLE notes.competences_notes
 (

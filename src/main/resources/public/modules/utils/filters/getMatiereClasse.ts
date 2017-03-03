@@ -30,7 +30,7 @@ export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
                 if (matieresClasse.length > 0) {
                      return matieresClasse;
                 }
-                return matieres.all;
+                return matieres;
             }
         }
     }

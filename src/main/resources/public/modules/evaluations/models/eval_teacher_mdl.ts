@@ -1140,9 +1140,14 @@ export class Evaluations extends Model {
             sync : function () {
                 http().getJson('/viescolaire/evaluations/classes').done((res) => {
                    _.map(res, (classe) => {
-                       return (classe.type_groupe_libelle = classe.type_groupe === 0
-                           ? lang.translate('viescolaire.utils.class')
-                           : lang.translate('viescolaire.utils.groupeEnseignement'));
+                       let libelleClasse;
+                       if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                           libelleClasse = lang.translate('viescolaire.utils.class');
+                       } else {
+                           libelleClasse = lang.translate('viescolaire.utils.groupeEnseignement');
+                       }
+                       classe.type_groupe_libelle = libelleClasse;
+                       return classe;
                    });
                    evaluations.classes.load(res);
                     evaluations.synchronized.classes = evaluations.classes.all.length;

@@ -84,7 +84,7 @@
   "viescolaire.utils.to":"au",
   "viescolaire.utils.teacher" : "Enseignant",
   "viescolaire.utils.student":"elève",
-  "viescolaire.utils.date":"date",
+  "viescolaire.utils.date":"Date",
   "viescolaire.utils.reason":"motif",
   "viescolaire.utils.justad":"just. ad.",
   "viescolaire.absences.sansmotifs":"Non justifiées",

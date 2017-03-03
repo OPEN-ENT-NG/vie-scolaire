@@ -71,15 +71,14 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
                 .append(" as appreciation FROM " + table_appreciation +
                         "\n LEFT JOIN " + table_note)
                 .append( "\n ON ( " + appreciation_id_devoir + " = " + note_id_devoir + " AND " )
-                .append(appreciation_id_eleve + " = " + note_id_eleve + " )  WHERE notes.notes.id_devoir = ?  UNION ")
+                .append(appreciation_id_eleve + " = " + note_id_eleve + " ) UNION ")
 
                 .append("\n SELECT " +  note_id_devoir +" as id_devoir, " +note_id_eleve + ", " + note_id + " as id, ")
                 .append(note_valeur + " as valeur, null, null FROM " + table_note + " WHERE NOT EXISTS ( ")
                 .append("\n SELECT 1 FROM " + table_appreciation + " WHERE "+ note_id_devoir +" = " + appreciation_id_devoir)
                 .append(" AND " + note_id_eleve + " = " + appreciation_id_eleve + " ) " +
-                        " AND  notes.notes.id_devoir = ? ORDER BY 1, 2")
-                .append(") AS res, notes.devoirs WHERE res.id_devoir = devoirs.id ");
-        values.add(devoirId);
+                        "ORDER BY 1, 2")
+                .append(") AS res, notes.devoirs WHERE res.id_devoir = devoirs.id AND devoirs.id = ? ");
         values.add(devoirId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));

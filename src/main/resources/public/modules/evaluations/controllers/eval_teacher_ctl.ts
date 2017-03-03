@@ -941,7 +941,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
 
             //Séquence non exécutée lors de la modification d'un devoir
-            if($scope.devoir.id_periode !== undefined) {
+            if($scope.devoir.id_periode === undefined) {
                 setCurrentPeriode().then((defaultPeriode) => {
                     $scope.devoir.id_periode = defaultPeriode.id;
                     utils.safeApply($scope);

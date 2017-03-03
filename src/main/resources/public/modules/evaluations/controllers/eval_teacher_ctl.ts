@@ -1491,12 +1491,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
+            if (evaluation.data.id_appreciation !== undefined && evaluation.id_appreciation === undefined) {
+                evaluation.id_appreciation = evaluation.data.id_appreciation;
+            }
             if(evaluation.oldAppreciation !== undefined
                 && evaluation.oldAppreciation !== evaluation.appreciation
                 && evaluation.appreciation !== '') {
                 evaluation.saveAppreciation().then((res) => {
                     evaluation.oldAppreciation = evaluation.appreciation;
-                    evaluation.id_appreciation = res.id;
+                    if(res.id !== undefined) {
+                        evaluation.id_appreciation = res.id;
+                        evaluation.data.id_appreciation = res.id;
+                    }
                     utils.safeApply($scope);
                 });
             }
@@ -1512,19 +1518,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
 
                 else {
+                    if (evaluation.data.id !== undefined && evaluation.id === undefined) {
+                        evaluation.id = evaluation.data.id;
+                    }
                     if ((evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur)
                         || evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
                         if (evaluation.valeur !== "" && evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
                             var devoir = evaluations.devoirs.findWhere({id: evaluation.id_devoir});
                             if (devoir !== undefined) {
                                 if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
-                                    if (evaluation.data.id !== undefined && evaluation.id === undefined) {
-                                        evaluation.id = evaluation.data.id;
-                                    }
                                     evaluation.save().then((res) => {
                                         evaluation.valid = true;
                                         evaluation.oldValeur = evaluation.valeur;
-                                        evaluation.id = res.id;
+                                        if(res.id !== undefined){
+                                            evaluation.id = res.id;
+                                            evaluation.data.id = res.id;
+                                        }
+
                                         if ($location.$$path === '/releve') {
                                             $scope.calculerMoyenneEleve(eleve);
                                             $scope.calculStatsDevoirReleve(evaluation.id_devoir);

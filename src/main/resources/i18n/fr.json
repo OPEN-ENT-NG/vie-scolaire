@@ -52,7 +52,7 @@
   "viescolaire.classe.moyenne" :"Moyenne de la classe",
   "viescolaire.classe.note.min":"Note min",
   "viescolaire.classe.note.max":"Note max",
-  "viescolaire.eleve.recherche":"Recherche Eleve",
+  "viescolaire.eleve.recherche":"Recherche Elève",
   "viescolaire.viescolaire.title":"Vie scolaire",
   "viescolaire.viescolaire.saisir.appel":"Saisir un appel",
   "viescolaire.viescolaire.appels.oublies":"Appels oubliés",
@@ -253,5 +253,5 @@
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
   "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
   "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
-  "open.devoir" : "Ouvrir le devoir"
+  "open.devoir" : "Ouvrir l'évaluation"
 }

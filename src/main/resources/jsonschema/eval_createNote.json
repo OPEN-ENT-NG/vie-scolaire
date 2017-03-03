@@ -11,9 +11,6 @@
     },
     "valeur": {
       "type": "number"
-    },
-    "appreciation" : {
-      "type" : ["string", "null"]
     }
   },
   "required": [

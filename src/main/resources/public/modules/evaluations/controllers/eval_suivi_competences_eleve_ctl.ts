@@ -39,7 +39,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 owner: model.me.userId,
                 is_evaluated: false,
                 id_classe: null,
-                id_periode: $scope.search.periode,
+                id_periode: $scope.search.periode.id,
                 id_type: 1, // TODO modifier en optional foreign key
                 id_matiere: "",
                 id_sousmatiere: null,
@@ -48,7 +48,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             });
             $scope.EvaluationLibreCharge= {
                 matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: model.me.structures[0]})] ,
-                sousmatiere : []
+                sousmatiere : [],
+                periode : $scope.search.periode
             };
 
 
@@ -109,13 +110,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.saveNewEvaluationLibre = function () {
             $scope.evaluationLibre.date = $scope.getDateFormated($scope.evaluationLibre.dateDevoir);
             $scope.evaluationLibre.date_publication = $scope.getDateFormated($scope.evaluationLibre.datePublication);
-            $scope.evaluationLibre.id_periode = $scope.evaluationLibre.id_periode.id;
-            $scope.evaluationLibre.create().then(function (res) {
-                // fermeture popup
-                $scope.opened.lightboxEvalLibre = false;
+            $scope.evaluationLibre.id_periode = $scope.EvaluationLibreCharge.periode.id;
 
-                // message de succes
-                $scope.messages.successEvalLibre = true;
+            // fermeture popup
+            $scope.opened.lightboxEvalLibre = false;
+
+            // message de succes
+            $scope.messages.successEvalLibre = true;
+            $scope.evaluationLibre.create().then(function (res) {
+
 
                 // refresh du suivi élève
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
@@ -124,6 +127,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
                         $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                         $scope.initChartsEval();
+
                         utils.safeApply($scope);
                     });
                 });
@@ -229,7 +233,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     });
                     $scope.initSliderBFC();
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
-
                     $scope.template.close('suivi-competence-content');
                     utils.safeApply($scope);
                     $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');

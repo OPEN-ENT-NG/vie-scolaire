@@ -139,15 +139,40 @@ CREATE TABLE notes.notes
   owner character varying(255),
   modified timestamp without time zone,
   created timestamp without time zone,
-  appreciation text,
   CONSTRAINT notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+
 CREATE INDEX idx_notes_ideleve ON notes.notes USING btree (id_eleve);
 CREATE INDEX idx_notes_ideleve_iddevoir ON notes.notes USING btree (id_eleve, id_devoir);
+
+-- Table: notes.appreciations
+CREATE TABLE notes.appreciations
+(
+  id bigserial NOT NULL,
+  id_eleve character varying(255) NOT NULL,
+  id_devoir bigint NOT NULL,
+  valeur text NOT NULL,
+  owner character varying(255),
+  modified timestamp without time zone,
+  created timestamp without time zone,
+  CONSTRAINT appreciations_pk PRIMARY KEY (id),
+  CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
+      REFERENCES notes.devoirs (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+CREATE INDEX idx_appreciations_ideleve  ON notes.appreciations  USING btree  (id_eleve COLLATE pg_catalog."default");
+
+CREATE INDEX idx_appreciations_ideleve_iddevoir  ON notes.appreciations  USING btree
+  (id_eleve COLLATE pg_catalog."default", id_devoir);
+
+-- End
 
 CREATE TABLE notes.competences_notes
 (

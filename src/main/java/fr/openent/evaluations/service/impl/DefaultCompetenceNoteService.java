@@ -184,13 +184,18 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
-   /* @Override
-    public void getConverssionNoteCompetence(String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler){
+    @Override
+    public void getConversionNoteCompetence(String idEtablissement, String idClasse, Handler<Either<String,JsonArray>> handler){
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
-                .append("Select valmin, valmax, libelle, ordre, couleur from notes.echelle_converssion_niv_note echelle ");
-                        "INNER JOIN  notes.niveau_competences niv on niv.id = echelle.id_niveau\n" +
-                        "AND niv.id_cycle = 1\n" +
-                        "AND echelle.id_structure = '47f2327b-1e6c-423c-a69a-f057fa67286a'")
-    }*/
+                .append("Select valmin, valmax, libelle, ordre, couleur from notes.niveau_competences  niv ")
+                .append("INNER JOIN  notes.echelle_conversion_niv_note echelle on niv.id = echelle.id_niveau ")
+                .append("INNER JOIN  notes.rel_groupe_cycle CC on cc.id_cycle = niv.id_cycle ")
+                .append("AND cc.id_groupe = ? ")
+                .append("AND echelle.id_structure = ? ")
+                .append("ORDER BY ordre DESC");
+        values.addString(idClasse);
+        values.addString(idEtablissement);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

@@ -69,7 +69,7 @@
                                     <div class="three cell twelve-mobile">
                                         <label class="select twelve-mobile" ng-class="{disabled : matieresFiltered.length == 0}">
                                             <select ng-model="devoir.id_matiere" ng-disabled="matieresFiltered.length == 0" ng-disabled="devoir.idEtablissement === undefined" ng-change="selectedMatiere()">
-                                                <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.id_groupe:classes:search:matieres) | unique:'name'" ng-selected="matiere.id === devoir.id_matiere" value="[[matiere.id]]">[[matiere.name]]</option>
+                                                <option ng-repeat="matiere in matieresFiltered = (matieres.all | getMatiereClasse:devoir.id_groupe:classes:search) | unique:'name'" ng-selected="matiere.id === devoir.id_matiere" value="[[matiere.id]]">[[matiere.name]]</option>
                                             </select>
                                         </label>
                                     </div>
@@ -199,7 +199,7 @@
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
                                             <select ng-model="devoir.id_periode"
-                                                ng-options="periode.id as periode.libelle for periode in periodes.all">
+                                                    ng-options="periode.id as periode.libelle for periode in periodes.all">
                                             </select>
                                         </label>
                                     </div>
@@ -332,7 +332,7 @@
                 <!-- Classe devoir-->
                 <section>
                     <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.class</i18n>
-                        <div class="twelve-mobile inline-block six">[[getLibelleClasse(devoir.id_groupe)]]</div>
+                        <div class="twelve-mobile inline-block six">[[getClasseData(devoir.id_groupe, 'name')]]</div>
                     </div>
                 </section>
 

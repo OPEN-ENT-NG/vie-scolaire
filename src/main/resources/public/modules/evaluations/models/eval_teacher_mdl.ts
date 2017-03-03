@@ -5,15 +5,6 @@ let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 
-export class Structure extends Model {
-    classes : any;
-
-    constructor (o? : any) {
-        super();
-        if (o) this.updateData(o);
-        this.collection(Classe);
-    }
-}
 export class ReleveNote extends  Model implements IModel{
     synchronized : any;
     periode : Periode;
@@ -1143,7 +1134,6 @@ export class Evaluations extends Model {
     matieres : Collection<Matiere>;
     releveNotes : Collection<ReleveNote>;
     classes : Collection<Classe>;
-    structures : Collection<Structure>;
 
     synchronized : any;
     competencesDevoir : any[];
@@ -1215,53 +1205,20 @@ export class Evaluations extends Model {
         this.matieres.sync();
         this.collection(Periode, {sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]});
         this.collection(ReleveNote);
-        this.collection(Classe);
-        this.collection(Structure, {
+        this.collection(Classe, {
             sync : function () {
-                var nb = 0;
-                _.each(model.me.structures, function (structureId) {
-                    http().getJson('/userbook/structure/' + structureId).done(function (structure) {
-                        evaluations.structures.all.push(structure);
-                        nb++;
-                        if (nb === model.me.structures.length) evaluations.structures.trigger('synchronized')
-                    });
-                });
-            }
-        });
-        this.structures.on('synchronized', function () {
-            var _classes = [];
-            var uri = '/viescolaire/evaluations/classe/cycle?';
-            _.each(model.me.classes, function (classe) {
-                var _classe = _.findWhere(evaluations.structures.all[0].classes, {id: classe})
-                if (_classe !== undefined) {
-                    _classe.type_groupe_libelle = lang.translate('viescolaire.utils.class');
-                    _classe.type_groupe = 0;
-                    _classes.push(_classe);
-                }
-                uri += ('idClasses=' + classe + '&');
-            });
-
-
-
-            http().getJson('/viescolaire/groupe/enseignement/user/'+model.me.userId).done(function(groupesEnseignements){
-                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe_libelle = lang.translate('viescolaire.utils.groupeEnseignement'));
-                _.map(groupesEnseignements, (groupeEnseignement) => groupeEnseignement.type_groupe = 1);
-                _.each(groupesEnseignements,function (groupeEnseignement) {
-                    uri += ('idClasses=' + groupeEnseignement.id + '&');
-                    _classes.push(groupeEnseignement);
-                });
-
-
-
-                http().getJson(uri).done((data) => {
-                    for(let i= 0; i < _classes.length ; i++){
-                        for(let j=0; j< data.length; j++){
-                            if(_classes[i].id === data[j].id_groupe){
-                                _classes[i].id_cycle = data[j].id_cycle;
-                            }
-                        }
-                    }
-                    evaluations.classes.load(_classes);
+                http().getJson('/viescolaire/evaluations/classes').done((res) => {
+                   _.map(res, (classe) => {
+                       let libelleClasse;
+                       if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                           libelleClasse = lang.translate('viescolaire.utils.class');
+                       } else {
+                           libelleClasse = lang.translate('viescolaire.utils.groupeEnseignement');
+                       }
+                       classe.type_groupe_libelle = libelleClasse;
+                       return classe;
+                   });
+                   evaluations.classes.load(res);
                     evaluations.synchronized.classes = evaluations.classes.all.length;
                     for (var i = 0; i < evaluations.classes.all.length; i++) {
                         evaluations.classes.all[i].eleves.sync().then(() => {
@@ -1272,11 +1229,9 @@ export class Evaluations extends Model {
                         });
                     }
                 });
-                model.trigger('groupe.sync');
-            });
-
+            }
         });
-        this.structures.sync();
+        this.classes.sync();
         this.devoirs.on('sync', function () {
             evaluations.synchronized.devoirs = true;
         });
@@ -1361,26 +1316,37 @@ export class SuiviCompetenceClasse extends Model implements IModel{
     }
 }
 
+export class TableConversion extends  Model {
+    valmin : number;
+    valmax : number;
+    libelle : string;
+    ordre : number;
+    couleur : string;
 
+    constructor(p? : any) {
+        super();
+    }
+}
 export class SuiviCompetence extends Model implements IModel{
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
     classe : Classe;
-
+    tableConversions : Collection<TableConversion>;
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
-            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/'
+            getArbreDomaines : '/viescolaire/evaluations/domaines/classe/',
+            getCompetenceNoteConverssion : '/viescolaire/evaluations/competence/notes/bilan/conversion'
         }
     }
-
+    that = this;
     constructor (eleve : Eleve, periode : any, classe : Classe) {
         super();
         this.periode = periode;
         this.classe = classe;
         var that = this;
-
+        this.collection(TableConversion);
         this.collection(Domaine, {
             sync: function () {
                 return new Promise((resolve, reject) => {
@@ -1395,11 +1361,11 @@ export class SuiviCompetence extends Model implements IModel{
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
                                     // affichage du 1er domaine uniquement par défaut
-                                    var bPremierDomaine = (i == 0);
-                                    if(bPremierDomaine) {
+                                    // var bPremierDomaine = (i == 0);
+                                    // if(bPremierDomaine) {
                                         domaine.visible = true;
                                         domaine.setVisibleSousDomaines(true);
-                                    }
+                                    // }
 
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, null);
@@ -1428,7 +1394,7 @@ export class SuiviCompetence extends Model implements IModel{
 
             // recherche de toutes les évaluations du domaine et ses sous domaines
             // (uniquement les max de chaque compétence)
-            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray, false);
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray,this.tableConversions.all, false);
         }
     }
 
@@ -1444,100 +1410,86 @@ export class SuiviCompetence extends Model implements IModel{
         return false;
     }
 
+    getConversionTable(idetab, idClasse) : Promise<any> {
+        return new Promise((resolve, reject) => {
+            var that = this;
+            http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data){
+                that.tableConversions.load(data);
 
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
             resolve();
         });
     }
 }
-function getSlideValueConverted(moyenne) {
-    if( moyenne < 1.50 && moyenne >= 1  ){
-        return 1;
-    }else if (moyenne < 2.50 && moyenne >= 1.50 ){
-        return 2;
-    }else if (moyenne < 3.1 && moyenne >= 2.50 ){
-        return 3;
-    }else if (moyenne <= 4 && moyenne >= 3.1 ){
-        return 4;
-    }else{
-        return -1;
-    }
-}
-function setSliderOptions(poDomaine) {
-    poDomaine.slider = {
-        value: getSlideValueConverted(parseFloat(poDomaine.moyenne)),
 
+
+function setSliderOptions(poDomaine,tableConversions) {
+
+    poDomaine.slider = {
         options: {
             ticksTooltip: function(value) {
                 return String(poDomaine.moyenne);
             },
             disabled: parseFloat(poDomaine.moyenne) === -1,
-            floor: 0,
-            ceil: 4,
+            floor: _.min(tableConversions, function(Conversions){ return Conversions.ordre; }).ordre - 1,
+            ceil: _.max(tableConversions, function(Conversions){ return Conversions.ordre; }).ordre,
             step: 0.01,
             precision: 2,
             showTicksValues: false,
             showTicks: 1,
             showSelectionBar: true,
             hideLimitLabels : true,
-            getSelectionBarClass: function(value) {
-                if (value < 1.5)
-                    return 'red';
-                if (value < 2.5)
-                    return 'orange';
-                if (value < 3.1)
-                    return 'yellow';
-                if (value <= 4)
-                    return 'green';
-                return 'grey';
-            },
-            getPointerColor : function(value){
-                if (value < 1)
-                    return '#d8e0f3';
-                if (value < 1.5)
-                    return '#E13A3A';
-                if (value < 2.5)
-                    return '#FF8500';
-                if (value < 3.1)
-                    return '#ECBE30';
-                if (value <= 4)
-                    return '#46BFAF';
 
-                return '#d8e0f3';
-            },
-            translate: function(value, sliderId, label) {
-                var l = '#label#';
-                var val = poDomaine.moyenne;
-
-                if (label === 'model') {
-                    if(value >= 1) {
-                        l = '<b>#label#</b>';
-                    } else {
-                        l = '<b>#label#</b>';
-                    }
-                }
-
-                if (value == -1)
-                    return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
-                if (value < 1)
-                    return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
-                if (value < 2)
-                    return l.replace('#label#', lang.translate('evaluations.competences.poor'));
-                if (value < 3)
-                    return l.replace('#label#', lang.translate('evaluations.competences.fragile'));
-                if (value < 4)
-                    return l.replace('#label#', lang.translate('evaluations.competences.satisfying'));
-                if (value == 4)
-                    return l.replace('#label#', lang.translate('evaluations.competences.proficiency'));
-
-            }
 
         }
     };
+    let maConvertion =   _.reject(tableConversions, function (object) {
+
+        if(object.valmin > poDomaine.moyenne || object.valmax <= poDomaine.moyenne){
+            return object;
+        }
+    });
+
+    // si ça ne rentre dans aucune case
+    if(maConvertion === undefined || maConvertion.length === 0 ){
+        poDomaine.slider.value = -1 ;
+        poDomaine.slider.options.getSelectionBarClass = function(){ return '#d8e0f3';};
+        poDomaine.slider.options.translate = function(value,sliderId,label){
+            let l = '#label#';
+            if (label === 'model') {
+
+                l = '<b>#label#</b>';
+            }
+            return l.replace('#label#', lang.translate('evaluations.competence.unevaluated'));
+        };
+
+    }else{
+        poDomaine.slider.value = maConvertion[0].ordre ;
+        poDomaine.slider.options.getSelectionBarClass = function(value){
+            let ConvertionOfValue = _.find(tableConversions,{ordre: value});
+            if(ConvertionOfValue !== undefined)
+                return ConvertionOfValue.couleur;};
+        poDomaine.slider.options.translate = function(value,sliderId,label){
+            let l = '#label#';
+            if (label === 'model') {
+
+                l = '<b>#label#</b>';
+            }
+            let libelle = _.find(tableConversions,{ordre: value});
+            if(libelle !== undefined)
+                return l.replace('#label#', lang.translate(libelle.libelle));
+        };
+    }
 };
 
-function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEvaluations) {
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations) {
     // si le domaine est évalué, on ajoute les max de chacunes de ses competences
     if(poDomaine.evaluated) {
         for (var i = 0; i < poDomaine.competences.all.length; i++) {
@@ -1568,7 +1520,7 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEva
             if(!poDomaine.evaluated) {
                 poMaxEvaluationsDomaines = [];
             }
-            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines, pbMesEvaluations);
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations);
         }
     }
 
@@ -1579,7 +1531,7 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines, pbMesEva
         poDomaine.moyenne = -1;
     }
 
-    setSliderOptions(poDomaine);
+    setSliderOptions(poDomaine,tableConversions);
 }
 
 function findCompetenceRec (piIdCompetence, poDomaine) {

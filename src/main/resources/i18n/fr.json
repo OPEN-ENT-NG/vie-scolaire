@@ -143,7 +143,7 @@
   "evaluations.test.grade.on":"Note sur",
   "evaluations.no.grade" : "Aucune évaluation trouvée pour",
   "evaluations.test.is.evaluated":"Activer l'évaluation numérique ?",
-  "evaluations.test.grade.publication.date":"Date de publication de la note de l'évaluation",
+  "evaluations.test.grade.publication.date":"Date de publication de l'évaluation",
   "evaluations.test.grade.publication.date.shortlibelle":"Date de publication de la note",
   "evaluations.test.grade.report.average":"Ramener les notes /20 de l'évaluation lors du calcul de la moyenne",
   "evaluations.test.grade.report.average.shortlibelle":"Ramener les notes /20",

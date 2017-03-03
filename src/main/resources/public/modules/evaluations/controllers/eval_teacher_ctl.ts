@@ -56,7 +56,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.date_publication = new Date(devoirTmp.date_publication);
                 $scope.devoir.id_etablissement = devoirTmp.id_etablissement;
                 $scope.devoir.diviseur = devoirTmp.diviseur;
-                $scope.devoir.coefficient = devoirTmp.coefficient;
+                $scope.devoir.coefficient = parseInt(devoirTmp.coefficient);
                 $scope.devoir.date = new Date(devoirTmp.date);
                 $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
                 $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
@@ -190,6 +190,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();
+                // Affichage des criteres par défaut quand on arrive sur le releve
+                $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
@@ -416,7 +418,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.opened.evaluation.suppretionMsg1 = false;
                     if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
                         $scope.opened.evaluation.suppretionMsg2 = true;
+                    }else{
+                        $scope.deleteDevoir();
                     }
+
                     utils.safeApply($scope);
                 });
             }
@@ -579,6 +584,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_type !== undefined
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
+                && ($scope.devoir.is_evaluated || $scope.evaluations.competencesDevoir.length > 0)
             );
         };
 
@@ -872,8 +878,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Charge les enseignements et les compétences en fonction de la classe.
          * @param psIdClasse identifiant de la classe sélectionnée.
          */
-        $scope.loadEnseignementsByClasse = function (psIdClasse) {
-            var newIdCycle = $scope.getClasseCycle(psIdClasse);
+        $scope.loadEnseignementsByClasse = function (classe_Id) {
+            classe_Id = $scope.devoir.id_groupe
+            var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
                 if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
@@ -1237,15 +1244,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         /**
          * Récupère les matières enseignées sur la classe donnée
          * @param idClasse Identifiant de la classe
-         * @param callback Callback de retour la fonction
+         * @returns {Promise<T>} Promesse de retour
          */
-        var getClassesMatieres = function (idClasse) {
+        let getClassesMatieres = function (idClasse) {
             return new Promise((resolve, reject) => {
-                var libelleClasse = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).name;
-                if (libelleClasse !== undefined) {
-                    if (resolve && typeof(resolve) === 'function') {
-                        resolve(evaluations.matieres.where({libelleClasse: libelleClasse}))
+                let classe = $scope.classes.findWhere({id : idClasse});
+                if (classe !== undefined) {
+                    if (resolve && typeof resolve === 'function') {
+                        resolve($scope.matieres.filter((matiere) => {
+                            return (matiere.libelleClasses.indexOf(classe.externalId) !== -1)
+                        }));
                     }
+                } else {
+                    reject();
                 }
             });
         };
@@ -1268,6 +1279,46 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
+
+        $scope.openLeftMenu = function openLeftMenu(psMenu, pbAfficherMenu) {
+
+            pbAfficherMenu = !pbAfficherMenu;
+
+            if(psMenu === "openedDevoirInfo") {
+                $scope.openedDevoirInfo = pbAfficherMenu;
+            }else if(psMenu === "openedStudentInfo") {
+                $scope.openedStudentInfo = pbAfficherMenu;
+            }else  if(psMenu === "opened.criteres") {
+                $scope.opened.criteres = pbAfficherMenu;
+            }else {
+                console.error("Parametre psMenu inconnu : psMenu="+psMenu);
+            }
+
+
+            // Dans le cas du relevé de notes, on replie les 2 autres menus dans
+            // un problème d'espace vertical
+            if ($location.$$path === '/releve') {
+
+                if(pbAfficherMenu) {
+                    if(psMenu === "openedDevoirInfo") {
+                        $scope.openedStudentInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "openedStudentInfo") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.opened.criteres = false;
+                    }
+
+                    if(psMenu === "opened.criteres") {
+                        $scope.openedDevoirInfo = false;
+                        $scope.openedStudentInfo = false;
+                    }
+                }
+            }
+        };
+
+
         /**
          * Séquence de récupération d'un relevé de note
          */
@@ -1283,8 +1334,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     idPeriode : parseInt($scope.search.periode.id),
                     idMatiere : $scope.search.matiere.id
                 };
-                var rn = evaluations.releveNotes.findWhere(p);
-                if (rn === undefined) {
+                // var rn = evaluations.releveNotes.findWhere(p);
+                // if (rn === undefined) {
                     if(evaluations.synchronized.classes !== 0) {
                         evaluations.classes.on('classes-sync', function () {
                             var releve = new ReleveNote(p);
@@ -1315,10 +1366,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             utils.safeApply($scope);
                         });
                     });
-                } else {
-                    $scope.releveNote = rn;
-                    utils.safeApply($scope);
-                }
+                // } else {
+                //     $scope.releveNote = rn;
+                //     utils.safeApply($scope);
+                // }
+
+                $scope.openedStudentInfo = false;
             }
         };
 
@@ -1360,35 +1413,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
-        /**
-          * Retourne le libelle de la classe correspondant à l'identifiant passé en paramètre
-          * @param idClasse identifiant de la classe
-          * @returns {any} libelle de la classe
-          */
-        $scope.getLibelleClasse = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            let libelle = _.findWhere(evaluations.structures.all[0].classes, {id : idClasse});
-            if(libelle === undefined){
-                if(evaluations.classes.all.length === 0) return;
-                libelle = _.findWhere(evaluations.classes.all, { id: idClasse });
-
-            }
-            if(libelle !== undefined){
-                return libelle.name;
-            }
-        };
 
         /**
-         * Retourne le Cycle de la classe correspondant à l'identifiant passé en paramètre
+         * Retourne la données de la classe passé en paramètre
          * @param idClasse identifiant de la classe
-         * @returns {any} cycle de la classe
+         * @param key clé à renvoyer
+         * @returns {any} la valeur de la clé passée en paramètre
          */
-        $scope.getClasseCycle = function(idClasse) {
-            if (idClasse == null || idClasse === "") return "";
-            if(evaluations.structures.all.length === 0 || evaluations.structures.all[0].classes.length === 0) return;
-            return _.findWhere(evaluations.structures.all[0].classes, {id : idClasse}).id_cycle;
+        $scope.getClasseData = (idClasse, key) => {
+            if (idClasse == null || idClasse === '' || $scope.classes.all.length === 0) return '';
+            let classe = $scope.classes.findWhere({id : idClasse});
+            if (classe !== undefined && classe.hasOwnProperty(key)) {
+                return classe[key];
+            } else {
+                return '';
+            }
         };
+
         /**
          * Retourne le libelle de la période correspondant à l'identifiant passé en paramètre
          * @param idPeriode identifiant de la période
@@ -1640,6 +1681,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 var devoir = $scope.releveNote.devoirs.findWhere({id : obj.id_devoir});
                 if (devoir !== undefined) $scope.informations.devoir = devoir;
             }
+
+            if ($location.$$path === '/releve') {
+                $scope.openLeftMenu("openedDevoirInfo", false);
+            }
         };
 
 
@@ -1759,7 +1804,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             for(let i=0; i<elem.length; i++){
                 elem[i].style.height="0px";
             }
-
         };
 
 

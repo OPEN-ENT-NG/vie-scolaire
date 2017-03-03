@@ -259,6 +259,35 @@ CREATE TABLE notes.rel_competences_enseignements
   REFERENCES notes.enseignements (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+CREATE TABLE notes.niveau_competences
+(
+  id bigserial NOT NULL UNIQUE,
+  libelle character varying(36) NOT NULL,
+  ordre integer NOT NULL,
+  couleur character varying(36),
+  id_cycle bigint NOT NULL,
+  CONSTRAINT id PRIMARY KEY (id),
+  CONSTRAINT id_cycle FOREIGN KEY (id_cycle)
+  REFERENCES notes.cycle (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE notes.echelle_conversion_niv_note
+(
+  id bigserial NOT NULL UNIQUE,
+  valmin real NOT NULL,
+  valmax real,
+  id_structure character varying(36),
+  id_niveau bigint NOT NULL,
+  CONSTRAINT pk_id PRIMARY KEY (id),
+  CONSTRAINT id_niveau FOREIGN KEY (id_niveau)
+  REFERENCES notes.niveau_competences (id) MATCH SIMPLE
+  ON UPDATE RESTRICT ON DELETE RESTRICT
+);
+
+
 
 -- functions and triggers
 CREATE OR REPLACE FUNCTION notes.insert_users_members() RETURNS trigger AS

@@ -215,4 +215,60 @@ public class UtilsController extends ControllerHelper {
             }
         });
     }
+
+    @Get("/classes")
+    @ApiDoc("Retourne les classes de l'utilisateur")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getClasses(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null) {
+                    utilsService.listClasses(user.getClasses(), user.getGroupsIds(), new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                JsonArray recipient = event.right().getValue();
+                                JsonObject classe, object;
+                                final JsonArray classes = new JsonArray();
+                                List<String> idGroupes = new ArrayList<>();
+                                for (int i = 0; i < recipient.size(); i++) {
+                                    classe = recipient.get(i);
+                                    classe = classe.getObject("g");
+                                    object = classe.getObject("metadata");
+                                    classe = classe.getObject("data");
+                                    classe.putNumber("type_groupe", object.getArray("labels").contains("Class") ? 0 : 1);
+                                    idGroupes.add(classe.getString("id"));
+                                    classes.addObject(classe);
+                                }
+
+                                if (idGroupes.size() > 0) {
+                                    utilsService.getCycle(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> event) {
+                                            if (event.isRight()) {
+                                                JsonArray returnedList = new JsonArray();
+                                                JsonObject object;
+                                                JsonObject cycles = utilsService.mapListNumber(event.right().getValue(), "id_groupe", "id_cycle");
+                                                for (int i = 0; i < classes.size(); i++) {
+                                                    object = classes.get(i);
+                                                    object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));
+                                                    returnedList.addObject(object);
+                                                }
+                                                renderJson(request, returnedList);
+                                            } else {
+                                                badRequest(request);
+                                            }
+                                        }
+                                    });
+                                }
+                            } else {
+                                badRequest(request);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

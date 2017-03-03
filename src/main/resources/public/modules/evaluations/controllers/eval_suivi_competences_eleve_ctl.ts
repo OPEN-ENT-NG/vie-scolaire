@@ -47,7 +47,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 controlledDate: false
             });
             $scope.EvaluationLibreCharge= {
-                matieres : evaluations.matieres.all,
+                matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: model.me.structures[0]})] ,
                 sousmatiere : []
             };
 
@@ -62,6 +62,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             evaluationLibre.competenceEvaluee = competenceEvaluee;
             return evaluationLibre;
         };
+
+
+
+
         $scope.$watch(function () {
             if($scope.evaluationLibre != undefined)
                 return  $scope.evaluationLibre.id_matiere;
@@ -74,6 +78,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.EvaluationLibreCharge.sousmatiere = []
             }
         });
+
         /**
          * Ouvre la fenêtre de création d'une évaluation libre
          */
@@ -197,6 +202,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function () {
+            $scope.selected.grey = true;
             if ($scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
                 delete $scope.suiviCompetence;
@@ -220,7 +226,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             }
                         }
                     });
+                    $scope.suiviCompetence.getConversionTable(model.me.structures[0],$scope.search.classe.id).then(
+                        function(data){
+                            return $scope.suiviCompetence.tableConversions;
 
+                        }
+
+                    );
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
 
                     $scope.template.close('suivi-competence-content');
@@ -236,6 +248,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.updateSuiviEleve = (Eleve) => {
+            $scope.selected.grey = true;
             let path = '/competences/eleve';
             let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classEleve.id};
             $scope.goTo(path, idOfpath);
@@ -263,6 +276,10 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.initSuivi();
             }
         });
+
+
+
+
 
         $scope.pOFilterEval = {
             limitTo: 2
@@ -376,6 +393,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
         $scope.incrementEleve = function (num) {
+            $scope.selected.grey = true;
             var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
@@ -540,7 +558,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.initChartsEval();
         });
 
-        $scope.selected.grey = false;
+        $scope.selected.grey = true;
 
         $scope.FilterNotEvaluated = function (MaCompetence) {
             if($scope.selected.grey === true){

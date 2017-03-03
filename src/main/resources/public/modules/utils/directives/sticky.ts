@@ -37,14 +37,14 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                 // Resize callback
                 var $onResize = function () {
                     if ($scope.$root && !$scope.$root.$$phase) {
-                        $scope.$apply(onResize);
+                        $scope.$apply();
                     } else {
                         onResize();
                     }
                 };
 
                 angular.element($elem).ready(() => {
-                    $scope.$apply(onResize);
+                    $scope.$apply();
                 });
 
                 // Define options
@@ -269,7 +269,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
 
                         // It's possible to page down page and skip the 'stickElement'.
                         // In that case we should create a placeholder so the offsets don't get off.
-                        createPlaceholder();
+                                                createPlaceholder();
 
                         $elem
                             .css('z-index', 10)

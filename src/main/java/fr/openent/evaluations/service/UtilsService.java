@@ -119,4 +119,29 @@ public interface UtilsService {
      * @param eitherHandler
      */
     public void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
+
+    /**
+     * Récupère la liste des classes de l'utilisateur
+     * @param idClasses identifiant des classes
+     * @param idGroupes identifiant des groupes
+     * @param handler handler portant le résultat de la requête
+     */
+    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Map une JsonArray en un JsonObject contenant une clé et une valeur
+     * @param list liste à mapper
+     * @param key clé
+     * @param value valeur
+     * @return Un object Json contenant les clés et les valeurs
+     */
+    public JsonObject mapListNumber(JsonArray list, String key, String value);
+
+    /**
+     * Réalise une union de deux JsonArray de String
+     * @param recipient Tableau d'accueil
+     * @param list Tableau à transférer
+     * @return Un JsonArray contenant les deux tableau
+     */
+    public JsonArray saUnion(JsonArray recipient, JsonArray list);
 }

@@ -1205,12 +1205,12 @@ export class Evaluations extends Model {
         this.matieres.sync();
         this.collection(Periode, {sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]});
         this.collection(ReleveNote);
+        const libelle = {
+            CLASSE : 'Classe',
+            GROUPE : "Groupe d'enseignement"
+        };
         this.collection(Classe, {
             sync : function () {
-                const libelle = {
-                    CLASSE : lang.translate('viescolaire.utils.class'),
-                    GROUPE : lang.translate('viescolaire.utils.groupeEnseignement')
-                };
                 http().getJson('/viescolaire/evaluations/classes').done((res) => {
                     _.map(res, (classe) => {
                         let libelleClasse;

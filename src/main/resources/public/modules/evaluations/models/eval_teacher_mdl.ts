@@ -1534,7 +1534,7 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
 
     // mise à jour de la moyenne
     if (poMaxEvaluationsDomaines.length > 0) {
-        poDomaine.moyenne = utils.average(poMaxEvaluationsDomaines);
+        poDomaine.moyenne = utils.average(_.without(poMaxEvaluationsDomaines,0) );
     } else {
         poDomaine.moyenne = -1;
     }

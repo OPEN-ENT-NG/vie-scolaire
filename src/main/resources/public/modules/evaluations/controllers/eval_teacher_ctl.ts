@@ -313,12 +313,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             evaluations.classes.on('classes-sync', () => {
                 for (let i = 0; i < evaluations.classes.all.length; i++) {
                     let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                        return _.extend(eleve,{
-                                classEleve : evaluations.classes.all[i]
-                            }
-                        );
+                        if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+                            return _.extend(eleve,{
+                                    classEleve : evaluations.classes.all[i]
+                                }
+                            );}
                     });
-                    $scope.eleves = _.union($scope.eleves, elevesOfclass);
+                    $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
                 }
 
 
@@ -326,12 +327,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         } else {
             for (let i = 0; i < evaluations.classes.all.length; i++) {
                 let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                    return _.extend(eleve,{
-                            classEleve : evaluations.classes.all[i]
-                        }
-                    );
+                    if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+                        return _.extend(eleve,{
+                                classEleve : evaluations.classes.all[i]
+                            }
+                        );}
                 });
-                $scope.eleves = _.union($scope.eleves, elevesOfclass);
+                $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
             }
 
         }
@@ -878,7 +880,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Charge les enseignements et les compétences en fonction de la classe.
          */
         $scope.loadEnseignementsByClasse = function () {
-           var  classe_Id = $scope.devoir.id_groupe;
+            var  classe_Id = $scope.devoir.id_groupe;
             var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
             var currentIdCycle = null;
             for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
@@ -1335,36 +1337,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 };
                 // var rn = evaluations.releveNotes.findWhere(p);
                 // if (rn === undefined) {
-                    if(evaluations.synchronized.classes !== 0) {
-                        evaluations.classes.on('classes-sync', function () {
-                            var releve = new ReleveNote(p);
-                            evaluations.releveNotes.push(releve);
-                            $scope.releveNote = releve;
-                            $scope.releveNote.sync().then(() => {
-                                $scope.releveNote.synchronized.releve = true;
-                                $scope.releveNote.calculStatsDevoirs().then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope);
-                                });
+                if(evaluations.synchronized.classes !== 0) {
+                    evaluations.classes.on('classes-sync', function () {
+                        var releve = new ReleveNote(p);
+                        evaluations.releveNotes.push(releve);
+                        $scope.releveNote = releve;
+                        $scope.releveNote.sync().then(() => {
+                            $scope.releveNote.synchronized.releve = true;
+                            $scope.releveNote.calculStatsDevoirs().then(() => {
                                 utils.safeApply($scope);
                             });
-                        });
-                        return;
-                    }
-                    var releve = new ReleveNote(p);
-                    evaluations.releveNotes.push(releve);
-                    $scope.releveNote = releve;
-                    $scope.releveNote.sync().then(() => {
-                        $scope.releveNote.synchronized.releve = true;
-                        $scope.releveNote.calculStatsDevoirs().then(() => {
-                            utils.safeApply($scope);
-                        });
-                        $scope.releveNote.calculMoyennesEleves().then(() => {
+                            $scope.releveNote.calculMoyennesEleves().then(() => {
+                                utils.safeApply($scope);
+                            });
                             utils.safeApply($scope);
                         });
                     });
+                    return;
+                }
+                var releve = new ReleveNote(p);
+                evaluations.releveNotes.push(releve);
+                $scope.releveNote = releve;
+                $scope.releveNote.sync().then(() => {
+                    $scope.releveNote.synchronized.releve = true;
+                    $scope.releveNote.calculStatsDevoirs().then(() => {
+                        utils.safeApply($scope);
+                    });
+                    $scope.releveNote.calculMoyennesEleves().then(() => {
+                        utils.safeApply($scope);
+                    });
+                });
                 // } else {
                 //     $scope.releveNote = rn;
                 //     utils.safeApply($scope);
@@ -1491,12 +1493,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
+            if (evaluation.data.id_appreciation !== undefined && evaluation.id_appreciation === undefined) {
+                evaluation.id_appreciation = evaluation.data.id_appreciation;
+            }
             if(evaluation.oldAppreciation !== undefined
                 && evaluation.oldAppreciation !== evaluation.appreciation
                 && evaluation.appreciation !== '') {
                 evaluation.saveAppreciation().then((res) => {
                     evaluation.oldAppreciation = evaluation.appreciation;
-                    evaluation.id_appreciation = res.id;
+                    if(res.id !== undefined) {
+                        evaluation.id_appreciation = res.id;
+                        evaluation.data.id_appreciation = res.id;
+                    }
                     utils.safeApply($scope);
                 });
             }
@@ -1512,19 +1520,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
 
                 else {
+                    if (evaluation.data.id !== undefined && evaluation.id === undefined) {
+                        evaluation.id = evaluation.data.id;
+                    }
                     if ((evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur)
                         || evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
                         if (evaluation.valeur !== "" && evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
                             var devoir = evaluations.devoirs.findWhere({id: evaluation.id_devoir});
                             if (devoir !== undefined) {
                                 if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
-                                    if (evaluation.data.id !== undefined && evaluation.id === undefined) {
-                                        evaluation.id = evaluation.data.id;
-                                    }
                                     evaluation.save().then((res) => {
                                         evaluation.valid = true;
                                         evaluation.oldValeur = evaluation.valeur;
-                                        evaluation.id = res.id;
+                                        if(res.id !== undefined){
+                                            evaluation.id = res.id;
+                                            evaluation.data.id = res.id;
+                                        }
+
                                         if ($location.$$path === '/releve') {
                                             $scope.calculerMoyenneEleve(eleve);
                                             $scope.calculStatsDevoirReleve(evaluation.id_devoir);

@@ -24,17 +24,17 @@
         <div class="cell four twelve-mobile domaine-display">
             [[domaine.codification]] - [[domaine.libelle]]
             <br/>
-            <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne]]</label>
+            <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne.toFixed(2)]]</label>
             <br/>
-            <div ng-if = "domaine.moyenne >= 1 && domaine.moyenne < 1.5"> <i18n>evaluations.competences.poor</i18n> </div>
-            <div ng-if = "domaine.moyenne >= 1.5 && domaine.moyenne < 2.5"> <i18n>evaluations.competences.fragile</i18n> </div>
-            <div ng-if = "domaine.moyenne >= 2.5 && domaine.moyenne < 3.1"> <i18n>evaluations.competences.satisfying</i18n> </div>
-            <div ng-if = "domaine.moyenne >= 3.1 && domaine.moyenne <= 4"> <i18n>evaluations.competences.proficiency</i18n> </div>
+            <div ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
+                <div ng-if = "domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax && $index !== suiviCompetence.tableConversions.all.length - 1"> [[Conversion.libelle]]</div>
+                <div ng-if = " $index === suiviCompetence.tableConversions.all.length - 1 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax">[[Conversion.libelle]] </div>
+            </div>
         </div>
         <div class="cell eight twelve-mobile">
             <rzslider
-                      rz-slider-model="domaine.slider.value"
-                      rz-slider-options="domaine.slider.options"></rzslider>
+                    rz-slider-model="domaine.slider.value"
+                    rz-slider-options="domaine.slider.options"></rzslider>
         </div>
     </div>
 </script>

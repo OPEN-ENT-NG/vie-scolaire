@@ -1491,7 +1491,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
-            if(evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
+            if(evaluation.oldAppreciation !== undefined
+                && evaluation.oldAppreciation !== evaluation.appreciation
+                && evaluation.appreciation !== '') {
                 evaluation.saveAppreciation().then((res) => {
                     evaluation.oldAppreciation = evaluation.appreciation;
                     evaluation.id_appreciation = res.id;

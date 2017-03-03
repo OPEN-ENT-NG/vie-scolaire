@@ -314,7 +314,7 @@ export class Evaluation extends Model implements IModel{
             delete : '/viescolaire/evaluations/note?idNote=' + this.id,
             createAppreciation : '/viescolaire/evaluations/appreciation',
             updateAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation,
-            deleteAppreciation : '/viescolaire/evaluations/note?idAppreciation=' + this.id_appreciation
+            deleteAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation
         }
     }
 
@@ -435,7 +435,7 @@ export class Evaluation extends Model implements IModel{
 
     deleteAppreciation () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().deleteAppreciation(this.api.deleteAppreciation).done(function (data) {
+            http().delete(this.api.deleteAppreciation).done(function (data) {
                 if(resolve && typeof(resolve) === 'function'){
                     resolve(data);
                 }

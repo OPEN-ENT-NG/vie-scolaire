@@ -142,7 +142,8 @@ CREATE TABLE notes.notes
   CONSTRAINT notes_pk PRIMARY KEY (id),
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE CASCADE
+  ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT elevenote_per_devoir UNIQUE (id_devoir, id_eleve)
 );
 
 
@@ -162,7 +163,8 @@ CREATE TABLE notes.appreciations
   CONSTRAINT appreciations_pk PRIMARY KEY (id),
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
       REFERENCES notes.devoirs (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT eleveappreciation_per_devoir UNIQUE (id_devoir, id_eleve)
 )
 WITH (
   OIDS=FALSE

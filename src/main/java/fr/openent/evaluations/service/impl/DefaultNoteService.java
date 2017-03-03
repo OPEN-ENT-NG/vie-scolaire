@@ -49,11 +49,37 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     public void listNotesParDevoir(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
+        //tables
+        String table_appreciation = Viescolaire.EVAL_SCHEMA + "." +Viescolaire.EVAL_APPRECIATIONS_TABLE;
+        String table_note         = Viescolaire.EVAL_SCHEMA + "." +Viescolaire.EVAL_NOTES_TABLE;
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, notes.appreciation ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
-                .append("WHERE notes.id_devoir = ? " +
-                        "AND notes.id_devoir = devoirs.id");
+        //colonne note
+        String note_id        = table_note + ".id";
+        String note_id_eleve  = table_note + ".id_eleve";
+        String note_id_devoir = table_note + ".id_devoir";
+        String note_valeur    = table_note + ".valeur";
+
+        //colonne appreciation
+        String appreciation_id        = table_appreciation + ".id";
+        String appreciation_valeur    = table_appreciation +".valeur";
+        String appreciation_id_eleve  = table_appreciation + ".id_eleve";
+        String appreciation_id_devoir = table_appreciation + ".id_devoir";
+
+        query.append("SELECT res.*,devoirs.date, devoirs.coefficient, devoirs.ramener_sur  ")
+                .append(" FROM ( SELECT "+ appreciation_id_devoir +" as id_devoir, " + appreciation_id_eleve+", " + note_id + " as id, ")
+                .append(note_valeur + " as valeur, " + appreciation_id +" as id_appreciation, " + appreciation_valeur)
+                .append(" as appreciation FROM " + table_appreciation +
+                        "\n LEFT JOIN " + table_note)
+                .append( "\n ON ( " + appreciation_id_devoir + " = " + note_id_devoir + " AND " )
+                .append(appreciation_id_eleve + " = " + note_id_eleve + " )  WHERE notes.notes.id_devoir = ?  UNION ")
+
+                .append("\n SELECT " +  note_id_devoir +" as id_devoir, " +note_id_eleve + ", " + note_id + " as id, ")
+                .append(note_valeur + " as valeur, null, null FROM " + table_note + " WHERE NOT EXISTS ( ")
+                .append("\n SELECT 1 FROM " + table_appreciation + " WHERE "+ note_id_devoir +" = " + appreciation_id_devoir)
+                .append(" AND " + note_id_eleve + " = " + appreciation_id_eleve + " ) " +
+                        " AND  notes.notes.id_devoir = ? ORDER BY 1, 2")
+                .append(") AS res, notes.devoirs WHERE res.id_devoir = devoirs.id ");
+        values.add(devoirId);
         values.add(devoirId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -129,7 +155,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
-                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ?) " +
+                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
                 "WHERE devoirs.id_etablissement = ? " +
                 "AND devoirs.id_matiere = ? " +
                 "AND devoirs.id_periode = ? " +

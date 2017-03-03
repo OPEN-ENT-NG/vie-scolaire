@@ -932,32 +932,32 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.competencesLastDevoirList = res;
             });
 
-                //Séquence non exécutée lors de la modification d'un devoir
-                if($scope.devoir.id_periode !== undefined) {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.devoir.id_periode = defaultPeriode.id;
-                        utils.safeApply($scope);
-                    });
+            //Séquence non exécutée lors de la modification d'un devoir
+            if($scope.devoir.id_periode !== undefined) {
+                setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.devoir.id_periode = defaultPeriode.id;
+                    utils.safeApply($scope);
+                });
+            }
+            if($scope.devoir.id_type === undefined) {
+                $scope.devoir.id_type = getDefaultTypDevoir();
+            }
+            if($scope.devoir.id_groupe === undefined) {
+                if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                    $scope.devoir.id_groupe = $scope.search.classe.id;
+                    $scope.devoir.id_matiere = $scope.search.matiere.id;
+                    $scope.setClasseMatieres();
+                    $scope.selectedMatiere();
+                } else {
+                    // selection de la premiere classe par defaut
+                    $scope.devoir.id_groupe = $scope.classes.all[0].id;
+                    // selection de la premiere matière associée à la classe
+                    $scope.setClasseMatieres();
                 }
-                if($scope.devoir.id_type === undefined) {
-                    $scope.devoir.id_type = getDefaultTypDevoir();
-                }
-                if($scope.devoir.id_groupe === undefined) {
-                    if ($scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
-                        $scope.devoir.id_groupe = $scope.search.classe.id;
-                        $scope.devoir.id_matiere = $scope.search.matiere.id;
-                        $scope.setClasseMatieres();
-                        $scope.selectedMatiere();
-                    } else {
-                        // selection de la premiere classe par defaut
-                        $scope.devoir.id_groupe = $scope.classes.all[0].id;
-                        // selection de la premiere matière associée à la classe
-                        $scope.setClasseMatieres();
-                    }
-                }
+            }
 
-                // Chargement des enseignements et compétences en fonction de la classe
-                evaluations.enseignements.sync($scope.devoir.id_groupe);
+            // Chargement des enseignements et compétences en fonction de la classe
+            evaluations.enseignements.sync($scope.devoir.id_groupe);
 
             if ($location.path() === "/devoirs/list") {
                 $scope.devoir.id_type = $scope.search.type.id;
@@ -1451,58 +1451,78 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.saveNoteDevoirEleve = function (evaluation, $event, eleve) {
             var reg = /^[0-9]+(\.[0-9]{1,2})?$/;
-            if ((evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur)
-                || evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
-                if (evaluation.valeur !== "" &&  evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
-                    var devoir = evaluations.devoirs.findWhere({id : evaluation.id_devoir});
-                    if (devoir !== undefined) {
-                        if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
-                            if(evaluation.data.id !== undefined && evaluation.id === undefined){
-                                evaluation.id = evaluation.data.id;
-                            }
-                            evaluation.save().then((res) => {
-                                evaluation.valid = true;
-                                evaluation.oldValeur = evaluation.valeur;
-                                evaluation.oldAppreciation = evaluation.appreciation;
-                                evaluation.id = res.id;
-                                if ($location.$$path === '/releve') {
-                                    $scope.calculerMoyenneEleve(eleve);
-                                    $scope.calculStatsDevoirReleve(evaluation.id_devoir);
-                                } else {
-                                    $scope.calculStatsDevoir();
-                                }
-                                $scope.opened.lightbox = false;
-                                delete $scope.selected.eleve;
-                                utils.safeApply($scope);
-                            });
-                        } else {
-                            notify.error(lang.translate("error.note.outbound")+devoir.diviseur);
-                            evaluation.valid = false;
-                            $event.target.focus();
-                            return;
+            if(evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
+                evaluation.saveAppreciation().then((res) => {
+                    evaluation.oldAppreciation = evaluation.appreciation;
+                    evaluation.id_appreciation = res.id;
+                    utils.safeApply($scope);
+                });
+            }
+            else {
+                if (evaluation.id_appreciation !== undefined && evaluation.appreciation === "") {
+                    evaluation.deleteAppreciation().then((res) => {
+                        if (res.rows === 1) {
+                            evaluation.id_appreciation = undefined;
+                            evaluation.data.id_appreciation = undefined;
                         }
-                    }
-                } else {
-                    if (evaluation.id !== undefined && evaluation.valeur === "") {
-                        evaluation.delete().then((res) => {
-                            if ($location.$$path === '/releve') {
-                                $scope.calculerMoyenneEleve(eleve);
-                                $scope.calculStatsDevoirReleve(evaluation.id_devoir);
-                            } else {
-                                if(res.rows === 1) {
-                                    evaluation.id = undefined;
-                                    evaluation.data.id = undefined;
-                                }
-                                $scope.calculStatsDevoir();
+                        utils.safeApply($scope);
+                    });
+                }
 
+                else {
+                    if ((evaluation.oldValeur !== undefined && evaluation.oldValeur !== evaluation.valeur)
+                        || evaluation.oldAppreciation !== undefined && evaluation.oldAppreciation !== evaluation.appreciation) {
+                        if (evaluation.valeur !== "" && evaluation.valeur && reg.test(evaluation.valeur) && evaluation.valeur !== null) {
+                            var devoir = evaluations.devoirs.findWhere({id: evaluation.id_devoir});
+                            if (devoir !== undefined) {
+                                if (parseFloat(evaluation.valeur) <= devoir.diviseur && parseFloat(evaluation.valeur) >= 0) {
+                                    if (evaluation.data.id !== undefined && evaluation.id === undefined) {
+                                        evaluation.id = evaluation.data.id;
+                                    }
+                                    evaluation.save().then((res) => {
+                                        evaluation.valid = true;
+                                        evaluation.oldValeur = evaluation.valeur;
+                                        evaluation.id = res.id;
+                                        if ($location.$$path === '/releve') {
+                                            $scope.calculerMoyenneEleve(eleve);
+                                            $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                                        } else {
+                                            $scope.calculStatsDevoir();
+                                        }
+                                        $scope.opened.lightbox = false;
+                                        delete $scope.selected.eleve;
+                                        utils.safeApply($scope);
+                                    });
+                                } else {
+                                    notify.error(lang.translate("error.note.outbound") + devoir.diviseur);
+                                    evaluation.valid = false;
+                                    $event.target.focus();
+                                    return;
+                                }
                             }
-                            utils.safeApply($scope);
-                        });
-                    } else {
-                        if (evaluation.valeur !== "") {
-                            notify.error(lang.translate("error.note.invalid"));
-                            evaluation.valid = false;
-                            $event.target.focus();
+                        } else {
+                            if (evaluation.id !== undefined && evaluation.valeur === "") {
+                                evaluation.delete().then((res) => {
+                                    if ($location.$$path === '/releve') {
+                                        $scope.calculerMoyenneEleve(eleve);
+                                        $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                                    } else {
+                                        if (res.rows === 1) {
+                                            evaluation.id = undefined;
+                                            evaluation.data.id = undefined;
+                                        }
+                                        $scope.calculStatsDevoir();
+
+                                    }
+                                    utils.safeApply($scope);
+                                });
+                            } else {
+                                if (evaluation.valeur !== "") {
+                                    notify.error(lang.translate("error.note.invalid"));
+                                    evaluation.valid = false;
+                                    $event.target.focus();
+                                }
+                            }
                         }
                     }
                 }

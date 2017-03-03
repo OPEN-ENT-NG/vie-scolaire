@@ -307,6 +307,7 @@ export class Evaluation extends Model implements IModel{
     id : number;
     id_eleve : string;
     id_devoir : number;
+    id_appreciation : number;
     valeur : any;
     appreciation : any;
     coefficient : number;
@@ -319,7 +320,10 @@ export class Evaluation extends Model implements IModel{
         return {
             create : '/viescolaire/evaluations/note',
             update : '/viescolaire/evaluations/note?idNote=' + this.id,
-            delete : '/viescolaire/evaluations/note?idNote=' + this.id
+            delete : '/viescolaire/evaluations/note?idNote=' + this.id,
+            createAppreciation : '/viescolaire/evaluations/appreciation',
+            updateAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation,
+            deleteAppreciation : '/viescolaire/evaluations/note?idAppreciation=' + this.id_appreciation
         }
     }
 
@@ -336,9 +340,11 @@ export class Evaluation extends Model implements IModel{
         o.id_devoir = parseInt(this.id_devoir);
         o.valeur   = parseFloat(this.valeur);
         if (this.appreciation) o.appreciation = this.appreciation;
+        //delete o.appreciation;
         delete o.competenceNotes;
         return o;
     }
+
 
     save () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
@@ -354,9 +360,25 @@ export class Evaluation extends Model implements IModel{
         });
     }
 
+    saveAppreciation () : Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            if (!this.id_appreciation) {
+                this.createAppreciation().then((data) => {
+                    resolve(data);
+                });
+            } else {
+                this.updateAppreciation().then((data) =>  {
+                    resolve(data);
+                });
+            }
+        });
+    }
     create () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            http().postJson(this.api.create, this.toJSON()).done(function (data) {
+            let _noteData = this.toJSON();
+            delete _noteData.appreciation;
+            delete _noteData.id_appreciation;
+            http().postJson(this.api.create, _noteData).done(function (data) {
                 if(resolve && (typeof(resolve) === 'function')) {
                     resolve(data);
                 }
@@ -366,7 +388,10 @@ export class Evaluation extends Model implements IModel{
 
     update () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            http().putJson(this.api.update, this.toJSON()).done(function (data) {
+            let _noteData = this.toJSON();
+            delete _noteData.appreciation;
+            delete _noteData.id_appreciation;
+            http().putJson(this.api.update, _noteData).done(function (data) {
                 if(resolve && (typeof(resolve) === 'function')) {
                     resolve(data);
                 }
@@ -377,6 +402,49 @@ export class Evaluation extends Model implements IModel{
     delete () : Promise<any> {
         return new Promise((resolve, reject) => {
             http().delete(this.api.delete).done(function (data) {
+                if(resolve && typeof(resolve) === 'function'){
+                    resolve(data);
+                }
+            });
+        });
+    }
+    createAppreciation () : Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            var _appreciation = {
+                id_devoir : this.id_devoir,
+                id_eleve  : this.id_eleve,
+                valeur    : this.appreciation
+            };
+            http().postJson(this.api.createAppreciation, _appreciation).done ( function (data) {
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            }) ;
+
+        });
+
+    }
+
+    updateAppreciation () : Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            var _appreciation = {
+                id : this.id_appreciation,
+                id_devoir : this.id_devoir,
+                id_eleve  : this.id_eleve,
+                valeur    : this.appreciation
+            };
+            http().putJson(this.api.updateAppreciation, _appreciation).done(function (data) {
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+
+        });
+    }
+
+    deleteAppreciation () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().deleteAppreciation(this.api.deleteAppreciation).done(function (data) {
                 if(resolve && typeof(resolve) === 'function'){
                     resolve(data);
                 }
@@ -446,6 +514,7 @@ export class Devoir extends Model implements IModel{
             getCompetencesDevoir : '/viescolaire/evaluations/competences/devoir/',
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
+            getAppreciationDevoir: '/viescolaire/evaluations/appreciation/' + this.id + '/appreciations',
             getStatsDevoir : '/viescolaire/evaluations/moyenne?stats=true',
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
@@ -761,7 +830,7 @@ export class DevoirsCollection {
 
     constructor () {
         this.sync =  function () {
-             return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
 
                 http().getJson(this.api.get).done(function (res) {
                     this.load(res);
@@ -1192,17 +1261,17 @@ export class Evaluations extends Model {
                             }
                         }
                     }
-                evaluations.classes.load(_classes);
-                evaluations.synchronized.classes = evaluations.classes.all.length;
-                for (var i = 0; i < evaluations.classes.all.length; i++) {
-                    evaluations.classes.all[i].eleves.sync().then(() => {
-                        evaluations.synchronized.classes--;
-                        if (evaluations.synchronized.classes === 0) {
-                            evaluations.classes.trigger('classes-sync');
-                        }
-                    });
-                }
-            });
+                    evaluations.classes.load(_classes);
+                    evaluations.synchronized.classes = evaluations.classes.all.length;
+                    for (var i = 0; i < evaluations.classes.all.length; i++) {
+                        evaluations.classes.all[i].eleves.sync().then(() => {
+                            evaluations.synchronized.classes--;
+                            if (evaluations.synchronized.classes === 0) {
+                                evaluations.classes.trigger('classes-sync');
+                            }
+                        });
+                    }
+                });
                 model.trigger('groupe.sync');
             });
 
@@ -1249,8 +1318,8 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                                     // affichage du 1er domaine uniquement par défaut
                                     // var bPremierDomaine = (i == 0);
                                     // if(bPremierDomaine) {
-                                        domaine.visible = true;
-                                        domaine.setVisibleSousDomaines(true);
+                                    domaine.visible = true;
+                                    domaine.setVisibleSousDomaines(true);
                                     // }
 
                                     that.domaines.all.push(domaine);
@@ -1438,8 +1507,8 @@ function setSliderOptions(poDomaine) {
                 return '#d8e0f3';
             },
             translate: function(value, sliderId, label) {
-               var l = '#label#';
-               var val = poDomaine.moyenne;
+                var l = '#label#';
+                var val = poDomaine.moyenne;
 
                 if (label === 'model') {
                     if(value >= 1) {

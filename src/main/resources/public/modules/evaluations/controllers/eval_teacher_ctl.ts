@@ -894,18 +894,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 evaluations.enseignements.sync(classe_Id);
                 evaluations.enseignements.on('sync', function () {
                     //suppression des compétences qui n'appartiennent pas au cycle
-                    var newCompentenceDevoir = [];
-
-                    for (var o in $scope.competencesFilter) {
-                        if ($scope.competencesFilter[o].isSelected === true
-                            && $scope.competencesFilter[o].data.id_cycle === currentIdCycle) {
-                            if ($scope.competencesFilter[o].data.id_parent !== 0) {
-                                newCompentenceDevoir.push($scope.competencesFilter[o].data);
-                            }
-                        }
-                    }
-
-                    evaluations.competencesDevoir = newCompentenceDevoir;
+                    $scope.initFilter(true);
+                    evaluations.competencesDevoir = [];
 
                     utils.safeApply($scope);
                 });

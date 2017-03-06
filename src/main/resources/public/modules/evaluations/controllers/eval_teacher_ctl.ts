@@ -1498,7 +1498,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             if(evaluation.oldAppreciation !== undefined
                 && evaluation.oldAppreciation !== evaluation.appreciation
-                && evaluation.appreciation !== '') {
+                && evaluation.appreciation !== undefined && evaluation.appreciation !== '') {
                 evaluation.saveAppreciation().then((res) => {
                     evaluation.oldAppreciation = evaluation.appreciation;
                     if(res.id !== undefined) {

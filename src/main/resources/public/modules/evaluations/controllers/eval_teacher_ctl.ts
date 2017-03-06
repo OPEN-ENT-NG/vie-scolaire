@@ -1092,7 +1092,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if( $location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
                 //les compétences à supprimer
                 for( let i=0; i < $scope.allCompetences.all.length ; i++){
-                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id: $scope.allCompetences.all[i].id_competence } );
+                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id_competence: $scope.allCompetences.all[i].id_competence } );
                     if(maCompetence === undefined ){
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
                     }
@@ -1198,6 +1198,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     //Recherche des competences a supprimer
+                    /*
                     for(let j =0; j < $scope.devoir.competences.all.length; j++ ){
                         var toDel = true;
                         for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
@@ -1210,7 +1211,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         if(toDel){
                             $scope.devoir.competencesRem.push($scope.devoir.competences.all[j].id);
                         }
-                    }
+                    }*/
+                    $scope.devoir.competencesRem = $scope.competencesSupp;
+
 
 
                 }

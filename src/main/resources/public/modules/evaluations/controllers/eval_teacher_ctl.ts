@@ -194,11 +194,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
+                if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
                     || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
                     $scope.releveNote = undefined;
                 }
-                if ($scope.search.classe !== '*' && $scope.search.matiere.id !== '*' && $scope.search.periode !== '*') {
+                if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
                     $scope.getReleve();
                 }
 
@@ -1328,7 +1328,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getReleve = function () {
             if($scope.search.classe !== null && $scope.search.classe !== undefined && $scope.search.classe.id !== undefined
-                && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
+                && $scope.search.matiere !== null && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {

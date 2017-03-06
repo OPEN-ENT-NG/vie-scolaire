@@ -31,8 +31,8 @@
         </section>
         <section>
             <article class="five cell box-accueil twelve-mobile">
-                <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n></h2>
                 <div class="content-box-accueil">
+                    <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n></h2>
                     <div class="content-box-accueil--table">
                         <div class="content-box-accueil--table--header row">
                             <div class="four cell">
@@ -46,7 +46,7 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in devoirs" class="row">
+                            <div ng-repeat="devoir in devoirs | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]">
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -69,7 +69,7 @@
             <article class="five cell box-accueil twelve-mobile">
                 <div class="titre-widget">
                     <h2 class="inline-block">
-                        <i18n>evaluations.mes.evaluations.non.terminees</i18n>:
+                        <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>:
                     </h2>
                     <label class="select right-magnet">
                         <select ng-model="charts.uncomplete" ng-options="classe.id as classe.name for classe in classes.all">

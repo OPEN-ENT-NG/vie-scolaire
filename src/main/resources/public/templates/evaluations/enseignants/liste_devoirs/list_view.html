@@ -28,7 +28,7 @@
         <div class="two cell cell-indent four-mobile">
             <i18n>viescolaire.utils.date</i18n>
         </div>
-        <div class="one cell cell-indent three-mobile">
+        <div tooltip="Classe / Groupe" class="one cell cell-indent three-mobile ellipsis">
             <i18n>viescolaire.utils.class.groupe</i18n>
         </div>
         <div class="three cell cell-indent three-mobile">
@@ -71,7 +71,7 @@
                         [[devoir.name]]
                     </div>
                     <div class="one cell cell-indent expandable-content zero-mobile">
-                        [[devoir.coefficient]]
+                        [[(devoir.is_evaluated === true) ? devoir.coefficient : 'N/A']]
                     </div>
                     <div class="two cell cell-indent expandable-content zero-mobile">
                         [[devoir.nbcompetences]]

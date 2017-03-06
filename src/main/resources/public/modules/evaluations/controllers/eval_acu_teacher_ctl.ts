@@ -29,7 +29,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         }
 
         for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
-            if($scope.evaluations.devoirs.all[i].percent != 100){
+            if($scope.evaluations.devoirs.all[i].is_evaluated && $scope.evaluations.devoirs.all[i].percent != 100){
                 $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
                 utils.safeApply($scope);
             }

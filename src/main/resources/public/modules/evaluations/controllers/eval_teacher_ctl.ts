@@ -72,10 +72,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
                 $scope.devoir.competences.sync().then(() => {
                     $scope.createDevoir();
-                    $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
-
                     evaluations.enseignements.on('sync', function() {
                         $scope.initFilter(true);
+                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
 
                         //tableau des connaissances à cocher éventuellement
                         var parentToCheck = [];
@@ -1197,25 +1196,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.devoir.competencesAdd.push(evaluations.competencesDevoir[i].id);
                         }
                     }
-                    //Recherche des competences a supprimer
-                    /*
-                    for(let j =0; j < $scope.devoir.competences.all.length; j++ ){
-                        var toDel = true;
-                        for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
-                            if($scope.devoir.competences.all[j].id ===
-                                evaluations.competencesDevoir[i].id){
-                                toDel = false;
-                                break;
-                            }
-                        }
-                        if(toDel){
-                            $scope.devoir.competencesRem.push($scope.devoir.competences.all[j].id);
-                        }
-                    }*/
-                    $scope.devoir.competencesRem = $scope.competencesSupp;
+                    //Remplissage des competences a supprimer
 
+                    for(let j =0; j < $scope.competencesSupp.length; j++ ){
 
-
+                        $scope.devoir.competencesRem.push($scope.competencesSupp[j].id_competence);
+                    }
                 }
                 utils.safeApply($scope);
             }

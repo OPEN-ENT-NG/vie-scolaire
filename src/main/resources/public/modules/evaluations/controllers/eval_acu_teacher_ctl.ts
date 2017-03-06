@@ -60,6 +60,13 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.chartOptions = {
                 classes : {},
                 options : {
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItems, data) {
+                                return tooltipItems.yLabel+"%";
+                            }
+                        }
+                    },
                     scales: {
                         yAxes: [{
                             ticks: {

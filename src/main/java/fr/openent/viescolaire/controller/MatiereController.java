@@ -198,43 +198,47 @@ public class MatiereController extends ControllerHelper {
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
                     final JsonArray resultats = event.right().getValue();
+                    if (resultats.size() > 0) {
 
-                    final List<String> ids = new ArrayList<String>();
+                        final List<String> ids = new ArrayList<String>();
 
-                    final JsonArray reponseJA = new JsonArray();
+                        final JsonArray reponseJA = new JsonArray();
 
-                    for (Object res : resultats) {
-                        final JsonObject r = (JsonObject) res;
-                        r.putArray("libelleClasses", utilsService.saUnion(r.getArray("libelleClasses"), r.getArray("libelleGroupes")));
-                        r.removeField("libelleGroupes");
-                        reponseJA.addObject(r);
-                        ids.add(r.getString("id"));
-                    }
-                    sousMatiereService.getSousMatiereById(ids.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event_ssmatiere) {
-                            if (event_ssmatiere.right().isRight()) {
-                                JsonArray finalresponse = new JsonArray();
-                                JsonArray res = event_ssmatiere.right().getValue();
-                                for (int i = 0; i < reponseJA.size(); i++) {
-                                    JsonObject matiere = reponseJA.get(i);
-                                    String id = matiere.getString("id");
-                                    JsonArray ssms = new JsonArray();
-                                    for (int j = 0; j < res.size(); j++) {
-                                        JsonObject ssm = res.get(j);
-                                        if (ssm.getString("id_matiere").equals(id)) {
-                                            ssms.addObject(ssm);
-                                        }
-                                    }
-                                    matiere.putArray("sous_matieres", ssms);
-                                    finalresponse.addObject(matiere);
-                                }
-                                Renders.renderJson(request, finalresponse);
-                            } else {
-                                leftToResponse(request, event_ssmatiere.left());
-                            }
+                        for (Object res : resultats) {
+                            final JsonObject r = (JsonObject) res;
+                            r.putArray("libelleClasses", utilsService.saUnion(r.getArray("libelleClasses"), r.getArray("libelleGroupes")));
+                            r.removeField("libelleGroupes");
+                            reponseJA.addObject(r);
+                            ids.add(r.getString("id"));
                         }
-                    });
+                        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                if (event_ssmatiere.right().isRight()) {
+                                    JsonArray finalresponse = new JsonArray();
+                                    JsonArray res = event_ssmatiere.right().getValue();
+                                    for (int i = 0; i < reponseJA.size(); i++) {
+                                        JsonObject matiere = reponseJA.get(i);
+                                        String id = matiere.getString("id");
+                                        JsonArray ssms = new JsonArray();
+                                        for (int j = 0; j < res.size(); j++) {
+                                            JsonObject ssm = res.get(j);
+                                            if (ssm.getString("id_matiere").equals(id)) {
+                                                ssms.addObject(ssm);
+                                            }
+                                        }
+                                        matiere.putArray("sous_matieres", ssms);
+                                        finalresponse.addObject(matiere);
+                                    }
+                                    Renders.renderJson(request, finalresponse);
+                                } else {
+                                    leftToResponse(request, event_ssmatiere.left());
+                                }
+                            }
+                        });
+                    } else {
+                        Renders.renderJson(request, resultats);
+                    }
                 }else{
                     leftToResponse(request, event.left());
                 }

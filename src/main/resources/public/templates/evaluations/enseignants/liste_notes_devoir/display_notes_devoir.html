@@ -189,8 +189,8 @@
                                         </div>
                                         <div  ng-if="currentDevoir.competences.all.length > 7" class="cell cell-input add-appreciation" >
                                             <!--<i class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="addAppreciation(eleve)"></i>-->
-                                            <i ng-if="eleve.evaluation.appreciation !== undefined && eleve.evaluation.appreciation.trim() !== ''" class="appreciation icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.edit')]]" ng-click="expandAppreciation($index, true)"></i>
-                                            <i ng-if="eleve.evaluation.appreciation === undefined || eleve.evaluation.appreciation.trim() === ''" class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
+                                            <i ng-if="eleve.evaluation.appreciation !== null && eleve.evaluation.appreciation !== undefined && eleve.evaluation.appreciation.trim() !== ''" class="appreciation icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.edit')]]" ng-click="expandAppreciation($index, true)"></i>
+                                            <i ng-if="eleve.evaluation.appreciation === null || eleve.evaluation.appreciation === undefined || eleve.evaluation.appreciation.trim() === ''" class="icon-chat" tooltip="[[translate('viescolaire.utils.appreciation.add')]]" ng-click="expandAppreciation($index, true)"></i>
                                         </div>
                                         <div ng-class="{nine : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
                                              class="cell cell-input " ng-if="currentDevoir.competences.all.length < 8">

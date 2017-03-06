@@ -65,7 +65,7 @@
                         [[getDateFormated(devoir.date)]]
                     </div>
                     <div class="one cell cell-indent expandable-content three-mobile">
-                        [[getClasseData(devoir.id_groupe, 'name')]]
+                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? '&nbsp;'  : getClasseData(devoir.id_groupe, 'name')]]
                     </div>
                     <div class="three cell cell-indent expandable-content three-mobile">
                         [[devoir.name]]

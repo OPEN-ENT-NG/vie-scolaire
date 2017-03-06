@@ -72,10 +72,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
                 $scope.devoir.competences.sync().then(() => {
                     $scope.createDevoir();
-                    $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
-
                     evaluations.enseignements.on('sync', function() {
                         $scope.initFilter(true);
+                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
 
                         //tableau des connaissances à cocher éventuellement
                         var parentToCheck = [];
@@ -194,11 +193,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                if ($scope.releveNote !== undefined && ($scope.search.matiere.id !== $scope.releveNote.idMatiere
+                if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
                     || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
                     $scope.releveNote = undefined;
                 }
-                if ($scope.search.classe !== '*' && $scope.search.matiere.id !== '*' && $scope.search.periode !== '*') {
+                if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
                     $scope.getReleve();
                 }
 
@@ -1197,25 +1196,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.devoir.competencesAdd.push(evaluations.competencesDevoir[i].id);
                         }
                     }
-                    //Recherche des competences a supprimer
-                    /*
-                    for(let j =0; j < $scope.devoir.competences.all.length; j++ ){
-                        var toDel = true;
-                        for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
-                            if($scope.devoir.competences.all[j].id ===
-                                evaluations.competencesDevoir[i].id){
-                                toDel = false;
-                                break;
-                            }
-                        }
-                        if(toDel){
-                            $scope.devoir.competencesRem.push($scope.devoir.competences.all[j].id);
-                        }
-                    }*/
-                    $scope.devoir.competencesRem = $scope.competencesSupp;
+                    //Remplissage des competences a supprimer
 
+                    for(let j =0; j < $scope.competencesSupp.length; j++ ){
 
-
+                        $scope.devoir.competencesRem.push($scope.competencesSupp[j].id_competence);
+                    }
                 }
                 utils.safeApply($scope);
             }
@@ -1328,7 +1314,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getReleve = function () {
             if($scope.search.classe !== null && $scope.search.classe !== undefined && $scope.search.classe.id !== undefined
-                && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
+                && $scope.search.matiere !== null && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
@@ -1369,6 +1355,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.releveNote.calculMoyennesEleves().then(() => {
                         utils.safeApply($scope);
                     });
+                    utils.safeApply($scope);
                 });
                 // } else {
                 //     $scope.releveNote = rn;

@@ -1366,6 +1366,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.releveNote.calculMoyennesEleves().then(() => {
                         utils.safeApply($scope);
                     });
+                    utils.safeApply($scope);
                 });
                 // } else {
                 //     $scope.releveNote = rn;

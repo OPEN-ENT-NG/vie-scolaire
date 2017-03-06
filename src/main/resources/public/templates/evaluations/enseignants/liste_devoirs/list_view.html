@@ -71,7 +71,7 @@
                         [[devoir.name]]
                     </div>
                     <div class="one cell cell-indent expandable-content zero-mobile">
-                        [[devoir.coefficient]]
+                        [[(devoir.is_evaluated === true) ? devoir.coefficient : 'N/A']]
                     </div>
                     <div class="two cell cell-indent expandable-content zero-mobile">
                         [[devoir.nbcompetences]]

@@ -113,7 +113,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             let path = '/devoir/create';
             $scope.goTo(path);
         };
-
+        $scope.FilterGroupEmpty = (item) => {
+            return item.id_groupe !== '';
+        };
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){
                 let path = '/devoir/'+ $scope.chartOptions.classes[$scope.charts.uncomplete].id[points[0]._index];

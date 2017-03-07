@@ -88,7 +88,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.chartOptions.classes[$scope.classes.all[i].id] = {
                     names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
                     percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
-                    // id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+                    id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
                 }
             }
             $scope.$apply();
@@ -115,8 +115,10 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         $scope.SaisieNote = (points, evt) =>{
-
-                console.log(points, evt);
+            if(points.length>0 && points !== undefined ){
+                let path = '/devoir/'+ $scope.chartOptions.classes[$scope.charts.uncomplete].id[points[0]._index];
+                $scope.goTo(path);
+            }
 
         }
     }

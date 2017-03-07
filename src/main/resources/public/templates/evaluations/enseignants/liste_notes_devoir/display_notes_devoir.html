@@ -75,7 +75,7 @@
             <div class="marginFive card">
                 <div class="fiche student-info" ng-class="{opened : openedStudentInfo === true}">
                     <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
-                    <container class="left tailleMax" template="leftSide-userInfo"></container>
+                    <container class="cell tailleMax" template="leftSide-userInfo"></container>
                 </div>
             </div>
         </aside>
@@ -91,26 +91,26 @@
                                     <span></span>
                                 </label>
                             </div>
-                            <div class="two indent-fifteen inline-block cell-indent left">
+                            <div class="two indent-fifteen inline-block cell-indent cell">
                                 <i18n>viescolaire.utils.student</i18n>
                             </div>
-                            <div ng-if="!currentDevoir.is_evaluated" class="header-grade-disable one inline-block cell-indent left" tooltip="L' évaluation numérique est désactivée">
+                            <div ng-if="!currentDevoir.is_evaluated" class="header-grade-disable one inline-block cell-indent cell" tooltip="L' évaluation numérique est désactivée">
                                 <i18n>evaluations.grade</i18n>
                             </div>
-                            <div ng-if="currentDevoir.is_evaluated" class="one inline-block cell-indent left">
+                            <div ng-if="currentDevoir.is_evaluated" class="one inline-block cell-indent cell">
                                 <i18n>evaluations.grade</i18n>
                             </div>
                             <div ng-class="{'six' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
-                                 class="inline-block cell-indent competence-text-overflow left" ng-if="currentDevoir.competences.all.length > 0">
+                                 class="inline-block cell-indent competence-text-overflow cell" ng-if="currentDevoir.competences.all.length > 0">
                                 <i18n style="padding-left: 20px;">evaluations.test.competences</i18n>
                                 <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                                 <span id="competence-detail" tooltip=""></span>
                             </div>
-                            <div class="inline-block cell-indent left nine" ng-if="currentDevoir.competences.all.length === 0">
+                            <div class="inline-block cell-indent cell nine" ng-if="currentDevoir.competences.all.length === 0">
                                 <i18n>viescolaire.utils.appreciation</i18n>
                             </div>
                             <div ng-class="{'two' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
-                                 class="inline-block cell-indent left" ng-if="currentDevoir.competences.all.length > 0">
+                                 class="inline-block cell-indent cell" ng-if="currentDevoir.competences.all.length > 0">
                                 <i18n>viescolaire.utils.appreciation</i18n>
                             </div>
                         </div>

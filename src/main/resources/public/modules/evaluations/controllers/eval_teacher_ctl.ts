@@ -1324,10 +1324,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.releveNote.sync().then(() => {
                             $scope.releveNote.synchronized.releve = true;
                             $scope.releveNote.calculStatsDevoirs().then(() => {
-                                utils.safeApply($scope);
-                            });
-                            $scope.releveNote.calculMoyennesEleves().then(() => {
-                                utils.safeApply($scope);
+                               $scope.releveNote.calculMoyennesEleves().then(() => {
+                                   utils.safeApply($scope);
+                               });
+                               utils.safeApply($scope);
                             });
                             utils.safeApply($scope);
                         });
@@ -1340,9 +1340,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.releveNote.sync().then(() => {
                     $scope.releveNote.synchronized.releve = true;
                     $scope.releveNote.calculStatsDevoirs().then(() => {
-                        utils.safeApply($scope);
-                    });
-                    $scope.releveNote.calculMoyennesEleves().then(() => {
+                        $scope.releveNote.calculMoyennesEleves().then(() => {
+                            utils.safeApply($scope);
+                        });
                         utils.safeApply($scope);
                     });
                     utils.safeApply($scope);

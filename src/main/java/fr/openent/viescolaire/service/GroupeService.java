@@ -23,4 +23,11 @@ public interface GroupeService extends CrudService {
      * @param handler
      */
     public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * get name of classe or groupe
+     * @param idGroupe id of classe or groupe
+     * @param handler
+     */
+    public void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler);
 }

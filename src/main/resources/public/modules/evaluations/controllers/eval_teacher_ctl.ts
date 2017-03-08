@@ -1,5 +1,8 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
-import {Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement} from '../models/eval_teacher_mdl';
+import {
+    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement,
+    OtherClasse, OtherClasses
+} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {Collection} from "../../entcore/modelDefinitions";
 import {lightbox} from "../../entcore/directives/lightbox";
@@ -231,7 +234,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         });
 
 
-
         $scope.evaluations = evaluations;
         $scope.competencesSearchKeyWord = "";
         $scope.devoirs = evaluations.devoirs;
@@ -256,7 +258,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             idEleve : '*',
             name : ''
         };
-
+        $scope.OtherClasses = new OtherClasses();
         $scope.informations = {};
         $scope.messages = {
             successEvalLibre : false
@@ -1983,7 +1985,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             });
         };
+        $scope.disabledDevoir=[];
+        $scope.getNameInOtherClasses = (idClasse,idDevoir) => {
+            let myClasse = _.findWhere($scope.OtherClasses.all,{id: idClasse});
+            $scope.disabledDevoir[idDevoir]= true;
 
+            if(myClasse === undefined){
+                myClasse = new OtherClasse();
+                myClasse.getClasse(idClasse).then((data) =>{
+                   $scope.OtherClasses.all.push(data[0]);
+                    return data[0].name;
+                    });
+            }else{
+               return myClasse.name;
+            }
+            utils.safeApply($scope);
+        };
 
         /**
          * Controle la validité du formulaire de création d'un remplacement

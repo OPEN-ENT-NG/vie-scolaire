@@ -193,6 +193,40 @@ export class ReleveNote extends  Model implements IModel{
         });
     }
 }
+export class OtherClasse extends Model{
+    id : number;
+    name : string;
+
+    get api () {
+        return {
+            nameOfGroupe: '/viescolaire/class/group/'
+        }
+    }
+    constructor(p? : any) {
+        super();
+    }
+    getClasse(idClasse) : Promise<any> {
+
+        return new Promise((resolve, reject) => {
+            var that = this;
+            http().getJson(this.api.nameOfGroupe+idClasse).done(function(data){
+                that.id = data.id;
+                that.name = data.name;
+                if (resolve && (typeof (resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
+}
+export class OtherClasses extends Model {
+    all : OtherClasse[];
+    constructor(p? : any) {
+        super();
+        this.all = [];
+    }
+
+}
 
 export class Classe extends Model {
     eleves : Collection<Eleve>;

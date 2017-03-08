@@ -1,5 +1,5 @@
 import { ng } from 'entcore/entcore';
-
+import * as utils from '../../evaluations/utils/teacher';
 
 export let sticky = ng.directive('sticky', ['$window', '$timeout', function($window, $timeout) {
         return {
@@ -37,14 +37,14 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                 // Resize callback
                 var $onResize = function () {
                     if ($scope.$root && !$scope.$root.$$phase) {
-                        $scope.$apply();
+                        utils.safeApply($scope);
                     } else {
                         onResize();
                     }
                 };
 
                 angular.element($elem).ready(() => {
-                    $scope.$apply();
+                    utils.safeApply($scope);
                 });
 
                 // Define options

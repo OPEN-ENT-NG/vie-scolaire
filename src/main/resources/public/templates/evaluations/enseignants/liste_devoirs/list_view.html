@@ -52,20 +52,20 @@
     <div class="expandable-liste card"  bottom-scroll="pOFilterEval.limitTo = pOFilterEval.limitTo + 5" >
         <div class="expandable twelve"
              ng-repeat="devoir in devoirs.all | customSearchFilters:search | limitTo:pOFilterEval.limitTo"
-             ng-class="{'opened shadow': openedDevoir === $index}" >
-            <div class="row">
+             ng-class="{'opened shadow': openedDevoir === $index, 'DisabledDevoir': disabledDevoir[devoir.id]}" >
+            <div class="row" >
                 <div class="one cell cell-check expandable-content two-mobile">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="devoir.selected" ng-change="selectDevoir(devoir)">
                         <span></span>
                     </label>
                 </div>
-                <a ng-href="#/devoir/[[devoir.id]]">
+                <a ng-href="#/devoir/[[devoir.id]]" >
                     <div class="two cell cell-indent expandable-content four-mobile">
                         [[getDateFormated(devoir.date)]]
                     </div>
                     <div class="one cell cell-indent expandable-content three-mobile">
-                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? '&nbsp;'  : getClasseData(devoir.id_groupe, 'name')]]
+                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? getNameInOtherClasses(devoir.id_groupe,devoir.id)  : getClasseData(devoir.id_groupe, 'name')]]
                     </div>
                     <div class="three cell cell-indent expandable-content three-mobile">
                         [[devoir.name]]

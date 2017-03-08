@@ -106,4 +106,19 @@ public class GroupeEnseignementController extends ControllerHelper {
             }
         });
     }
+
+    /**
+     * get name of groupe or classe
+     * @param request
+     */
+    @Get("/class/group/:groupId")
+    @ApiDoc("get the name of a groupe or classe ")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getNameOfGroupeClasse(final HttpServerRequest request) {
+
+        String idGroupe = request.params().get("groupId");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        groupeService.getNameOfGroupeClasse(idGroupe, handler);
+    }
 }

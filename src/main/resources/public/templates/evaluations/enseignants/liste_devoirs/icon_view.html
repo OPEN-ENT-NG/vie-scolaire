@@ -31,7 +31,7 @@
                 <div class="devoir-icons-description expandable-content"  ng-if="devoir.libelle.length <= 30">[[devoir.libelle]]</div>
                 <footer>
                     <div class="devoir-icons-class expandable-content">[[getClasseData(devoir.id_groupe, 'name')]]</div>
-                    <div class="devoir-icons-coef expandable-content">
+                    <div class="devoir-icons-coef expandable-content" ng-if="devoir.is_evaluated === true">
                         <i18n>evaluations.test.coefficient</i18n> : [[devoir.coefficient]]
                     </div>
                 </footer>

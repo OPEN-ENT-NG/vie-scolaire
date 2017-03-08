@@ -135,10 +135,7 @@ export class ReleveNote extends  Model implements IModel{
                     };
                     _.each(that.classe.eleves.all, function (eleve) {
                         var _e = eleve.evaluations.findWhere({id_devoir: devoir.id});
-                        console.log("-------------------------");
-                        console.log("valeur" + _e.valeur);
-                        console.log("data_valeur" + _e.data.valeur);
-                        console.log("-------------------------");
+
                         if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
                     });
                     if (_o.evaluations.length > 0) _datas.push(_o);

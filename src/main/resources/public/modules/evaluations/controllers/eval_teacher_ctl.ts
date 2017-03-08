@@ -1722,10 +1722,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param id identifiant de la compétence
          */
         $scope.highlightCompetence = function (id, bool) {
-            var competence = $scope.currentDevoir.competences.findWhere({id_competence : id});
-            if (competence && competence !== undefined) {
-                competence.hovered = bool;
-            }
+
+            $scope.currentDevoir.competences.forEach((competence) => {
+                if (competence && competence !== undefined && competence.id_competence === id) {
+                    competence.hovered = bool;
+                }
+                else  if (competence && competence !== undefined && competence.id_competence !== id) {
+                    competence.hovered = false;
+                }
+            });
             return;
         };
 

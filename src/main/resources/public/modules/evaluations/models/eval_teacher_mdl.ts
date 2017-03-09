@@ -114,47 +114,52 @@ export class ReleveNote extends  Model implements IModel{
                         }
                     });
                     eleve.evaluations.load(_evals);
+
                 });
+                this.trigger('noteOK');
                 resolve();
             });
         });
     }
 
     calculStatsDevoirs() : Promise<any> {
+
         return new Promise((resolve, reject) => {
-            var that = this;
-            var _datas = [];
-            _.each(that.devoirs.all, function (devoir) {
-                var _o = {
-                    id : String(devoir.id),
-                    evaluations : []
-                };
-                _.each(that.classe.eleves.all, function (eleve) {
-                    var _e = eleve.evaluations.findWhere({id_devoir : devoir.id});
-                    if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
+            this.on('noteOK', function () {
+                var that = this;
+                var _datas = [];
+                _.each(that.devoirs.all, function (devoir) {
+                    var _o = {
+                        id: String(devoir.id),
+                        evaluations: []
+                    };
+                    _.each(that.classe.eleves.all, function (eleve) {
+                        var _e = eleve.evaluations.findWhere({id_devoir: devoir.id});
+
+                        if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
+                    });
+                    if (_o.evaluations.length > 0) _datas.push(_o);
                 });
-                if(_o.evaluations.length > 0) _datas.push(_o);
-            });
-            if (_datas.length > 0 ) {
-                http().postJson('/viescolaire/evaluations/moyennes?stats=true', {data : _datas}).done(function (res) {
-                    _.each(res, function (devoir) {
-                        var nbEleves = that.classe.eleves.all.length;
-                        var nbN = _.findWhere(_datas, { id : devoir.id });
-                        var d = that.devoirs.findWhere({id : parseInt(devoir.id)});
-                        if (d !== undefined) {
-                            d.statistiques = devoir;
-                            if (nbN !== undefined) {
-                                d.statistiques.percentDone = Math.round((nbN.evaluations.length/nbEleves)*100);
-                                if(resolve && typeof(resolve) === 'function'){
-                                    resolve();
+                if (_datas.length > 0) {
+                    http().postJson('/viescolaire/evaluations/moyennes?stats=true', {data: _datas}).done(function (res) {
+                        _.each(res, function (devoir) {
+                            var nbEleves = that.classe.eleves.all.length;
+                            var nbN = _.findWhere(_datas, {id: devoir.id});
+                            var d = that.devoirs.findWhere({id: parseInt(devoir.id)});
+                            if (d !== undefined) {
+                                d.statistiques = devoir;
+                                if (nbN !== undefined) {
+                                    d.statistiques.percentDone = Math.round((nbN.evaluations.length / nbEleves) * 100);
+                                    if (resolve && typeof(resolve) === 'function') {
+                                        resolve();
+                                    }
                                 }
                             }
-                        }
+                        });
                     });
-                });
-            }
+                }
+            });
         });
-
     }
 
     calculMoyennesEleves() : Promise<any> {

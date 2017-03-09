@@ -47,7 +47,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
          */
         $scope.getDevoirsInformations = function (idClasse : string, information : string) : any[] {
             if (!evaluations.devoirs.percentDone) return;
-            let devoirs = _.where($scope.devoirs, {id_groupe : idClasse});
+            let devoirs = _.where(evaluations.devoirs.all, {id_groupe : idClasse});
             devoirs = _.filter(devoirs, devoir => (devoir.percent !== undefined && devoir.percent !== 100));
             return _.pluck(devoirs, information);
         };
@@ -84,14 +84,20 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 colors : ['#4bafd5', '#46bfaf', '#ecbe30', '#FF8500', '#e13a3a', '#b930a2', '#763294', '#1a22a2']
             };
 
-            for (let i = 0; i < $scope.classes.all.length; i++) {
-                $scope.chartOptions.classes[$scope.classes.all[i].id] = {
-                    names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
-                    percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
-                    id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+            evaluations.devoirs.getPercentDone().then(()=>{
+                for (let i = 0; i < $scope.classes.all.length; i++) {
+                    $scope.chartOptions.classes[$scope.classes.all[i].id] = {
+                        names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
+                        percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
+                        id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+                    };
+                    console.log('name : '+$scope.chartOptions.classes[$scope.classes.all[i].id].names+'\n'+
+                    'percent : '+$scope.chartOptions.classes[$scope.classes.all[i].id].percents+'\n'+
+                    'id : '+$scope.chartOptions.classes[$scope.classes.all[i].id].id+'\n');
                 }
-            }
-            $scope.$apply();
+                utils.safeApply($scope);
+            });
+            utils.safeApply($scope);
         };
 
 

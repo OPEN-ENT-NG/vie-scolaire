@@ -284,6 +284,16 @@ public class DefaultUtilsService  implements UtilsService {
     }
 
     @Override
+    public JsonObject mapListString (JsonArray list, String key, String value) {
+        JsonObject values = new JsonObject();
+        JsonObject o;
+        for (int i = 0; i < list.size(); i++) {
+            o = list.get(i);
+            values.putString(o.getString(key), o.getString(value));
+        }
+        return values;
+    }
+    @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
             recipient.addString((String) list.get(i));
@@ -301,9 +311,11 @@ public class DefaultUtilsService  implements UtilsService {
         StringBuilder query =new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT id_groupe, id_cycle ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle ")
-                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()));
+        query.append("SELECT id_groupe, id_cycle, libelle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle,  ")
+                .append( Viescolaire.EVAL_SCHEMA +".cycle ")
+                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()))
+                .append(" AND id_cycle = cycle.id");
 
         for(String id :  idClasse){
             params.addString(id);

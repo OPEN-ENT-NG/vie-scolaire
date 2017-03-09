@@ -138,6 +138,15 @@ public interface UtilsService {
     public JsonObject mapListNumber(JsonArray list, String key, String value);
 
     /**
+     * Map une JsonArray en un JsonObject contenant une clé et une valeur
+     * @param list liste à mapper
+     * @param key clé
+     * @param value valeur
+     * @return Un object Json contenant les clés et les valeurs
+     */
+    public JsonObject mapListString(JsonArray list, String key, String value);
+
+    /**
      * Réalise une union de deux JsonArray de String
      * @param recipient Tableau d'accueil
      * @param list Tableau à transférer

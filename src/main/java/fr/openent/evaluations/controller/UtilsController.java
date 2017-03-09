@@ -250,9 +250,11 @@ public class UtilsController extends ControllerHelper {
                                                 JsonArray returnedList = new JsonArray();
                                                 JsonObject object;
                                                 JsonObject cycles = utilsService.mapListNumber(event.right().getValue(), "id_groupe", "id_cycle");
+                                                JsonObject cycleLibelle = utilsService.mapListString(event.right().getValue(), "id_groupe", "libelle");
                                                 for (int i = 0; i < classes.size(); i++) {
                                                     object = classes.get(i);
                                                     object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));
+                                                    object.putString("libelle_cycle", cycleLibelle.getString(object.getString("id")));
                                                     returnedList.addObject(object);
                                                 }
                                                 renderJson(request, returnedList);

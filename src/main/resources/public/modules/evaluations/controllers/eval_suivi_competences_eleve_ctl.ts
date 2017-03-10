@@ -139,9 +139,16 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
         /**
          * Controle que la date de publication du devoir n'est pas inférieur à la date du devoir.
+         * Et que la date de creation est comprise dans la période
          */
         $scope.controleDate = function () {
-            $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.date_publication).diff(moment($scope.evaluationLibre.date), "days") >= 0);
+            let current_periode = $scope.periodes.findWhere({id: $scope.EvaluationLibreCharge.periode.id});
+            let start_datePeriode = current_periode.timestamp_dt;
+            let end_datePeriode = current_periode.timestamp_fn;
+
+            $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
+                && (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
+                && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
         };
 
         /**

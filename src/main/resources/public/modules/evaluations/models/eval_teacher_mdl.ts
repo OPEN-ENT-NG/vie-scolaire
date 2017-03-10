@@ -1344,8 +1344,6 @@ export class SuiviCompetenceClasse extends Model implements IModel{
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
             if(comp !== undefined && comp !== false) {
                 return comp;
-            } else {
-                continue;
             }
         }
         return false;
@@ -1446,8 +1444,6 @@ export class SuiviCompetence extends Model implements IModel{
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i]);
             if(comp !== undefined && comp !== false) {
                 return comp;
-            } else {
-                continue;
             }
         }
         return false;
@@ -1592,11 +1588,12 @@ function findCompetenceRec (piIdCompetence, poDomaine) {
     // recherche dans les sous-domaines
     if(poDomaine.domaines) {
         for(var i=0; i<poDomaine.domaines.all.length; i++) {
-            return findCompetenceRec(piIdCompetence, poDomaine.domaines.all[i]);
+            let comp = findCompetenceRec(piIdCompetence, poDomaine.domaines.all[i]);
+            if(comp !== undefined){
+                return comp;
+            }
         }
     }
-
-    return false;
 }
 
 function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {

@@ -1303,7 +1303,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i].competences);
-            if(comp !== undefined && comp !== false) {
+            if(comp !== undefined) {
                 return comp;
             }
         }
@@ -1403,7 +1403,7 @@ export class SuiviCompetence extends Model implements IModel{
     findCompetence (idCompetence) {
         for(var i=0; i<this.domaines.all.length; i++) {
             var comp = findCompetenceRec(idCompetence, this.domaines.all[i]);
-            if(comp !== undefined && comp !== false) {
+            if(comp !== undefined) {
                 return comp;
             }
         }

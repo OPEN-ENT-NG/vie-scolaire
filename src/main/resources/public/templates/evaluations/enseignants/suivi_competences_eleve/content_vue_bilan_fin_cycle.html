@@ -27,8 +27,8 @@
             <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne.toFixed(2)]]</label>
             <br/>
             <div ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
-                <div ng-if = "domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax && $index !== suiviCompetence.tableConversions.all.length - 1"> [[Conversion.libelle]]</div>
-                <div ng-if = " $index === suiviCompetence.tableConversions.all.length - 1 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax">[[Conversion.libelle]] </div>
+                <div ng-if = " $index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax">[[Conversion.libelle]]</div>
+                <div ng-if = " $index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax">[[Conversion.libelle]]</div>
             </div>
         </div>
         <div class="cell eight twelve-mobile">

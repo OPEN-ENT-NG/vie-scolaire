@@ -198,7 +198,7 @@
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
-                                            <select ng-model="devoir.id_periode"
+                                            <select ng-model="devoir.id_periode" ng-change="controleDate()"
                                                     ng-options="periode.id as periode.libelle for periode in periodes.all">
                                             </select>
                                         </label>

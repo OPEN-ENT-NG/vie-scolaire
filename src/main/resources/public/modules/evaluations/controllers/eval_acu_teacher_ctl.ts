@@ -58,7 +58,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
          */
         $scope.initCharts = function () {
             $scope.chartOptions = {
+
                 classes : {},
+
                 options : {
                     tooltips: {
                         callbacks: {
@@ -83,18 +85,22 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 },
                 colors : ['#4bafd5', '#46bfaf', '#ecbe30', '#FF8500', '#e13a3a', '#b930a2', '#763294', '#1a22a2']
             };
-
+            let selectedClasse = false ;
             evaluations.devoirs.getPercentDone().then(()=>{
+                $scope.classes.all = _.sortBy($scope.classes.all, 'name');
                 for (let i = 0; i < $scope.classes.all.length; i++) {
                     $scope.chartOptions.classes[$scope.classes.all[i].id] = {
                         names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
                         percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
                         id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
                     };
-                    console.log('name : '+$scope.chartOptions.classes[$scope.classes.all[i].id].names+'\n'+
-                    'percent : '+$scope.chartOptions.classes[$scope.classes.all[i].id].percents+'\n'+
-                    'id : '+$scope.chartOptions.classes[$scope.classes.all[i].id].id+'\n');
+                    if($scope.chartOptions.classes[$scope.classes.all[i].id].percents.length > 0 && selectedClasse === false ){
+                        $scope.charts.uncomplete = $scope.classes.all[i].id;
+                        selectedClasse = true;
+                    }
+
                 }
+
                 utils.safeApply($scope);
             });
             utils.safeApply($scope);

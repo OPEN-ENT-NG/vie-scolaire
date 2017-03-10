@@ -307,7 +307,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             competences : {
                 list : [],
                 all : false
-            }
+            },
+            chartClasse : false,
         };
         $scope.eleves = [];
         if (evaluations.synchronized.classes !== 0) {

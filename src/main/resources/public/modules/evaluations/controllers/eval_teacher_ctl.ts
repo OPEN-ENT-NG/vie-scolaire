@@ -1092,7 +1092,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if( $location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
                 //les compétences à supprimer
                 for( let i=0; i < $scope.allCompetences.all.length ; i++){
-                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id_competence: $scope.allCompetences.all[i].id_competence } );
+                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id : $scope.allCompetences.all[i].id_competence } );
+
                     if(maCompetence === undefined ){
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
                     }

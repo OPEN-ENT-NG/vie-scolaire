@@ -61,8 +61,11 @@
                     <span ng-if="domaine.moyenne === -1">
                         <b><i18n>evaluations.competence.unevaluated.abreviation</i18n></b>
                     </span>
-                <span ng-if="domaine.moyenne > -1">
-                        <b>[[domaine.moyenne | number:2]]</b>
+                    <span ng-if="domaine.moyenne > -1">
+                         <div ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
+                            <div ng-if = " $index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax"><b>[[Conversion.libelle]]</b></div>
+                            <div ng-if = " $index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax"><b>[[Conversion.libelle]]<b></div>
+                        </div>
                     </span>
             </div>
         </div>

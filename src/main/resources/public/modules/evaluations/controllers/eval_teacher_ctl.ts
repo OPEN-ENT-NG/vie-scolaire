@@ -555,9 +555,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         /**
          * Controle que la date de publication du devoir n'est pas inférieur à la date du devoir.
+         *          et que la date du devoir est comprise dans la période
          */
         $scope.controleDate = function () {
-            $scope.devoir.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") >= 0);
+            let current_periode = $scope.periodes.findWhere({id: $scope.devoir.id_periode});
+            let start_datePeriode = current_periode.timestamp_dt;
+            let end_datePeriode = current_periode.timestamp_fn;
+
+
+            $scope.devoir.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
+                && (moment($scope.devoir.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
+                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
         };
 
         $scope.selectDevoir = function (devoir) {
@@ -1084,7 +1092,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if( $location.path() === "/devoir/"+$scope.devoir.id+"/edit"){
                 //les compétences à supprimer
                 for( let i=0; i < $scope.allCompetences.all.length ; i++){
-                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id_competence: $scope.allCompetences.all[i].id_competence } );
+                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id : $scope.allCompetences.all[i].id_competence } );
+
                     if(maCompetence === undefined ){
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
                     }

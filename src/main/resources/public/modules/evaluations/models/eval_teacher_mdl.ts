@@ -168,7 +168,7 @@ export class ReleveNote extends  Model implements IModel{
             var _datas = [];
             _.each(this.classe.eleves.all, function (eleve) {
                 var _t = eleve.evaluations.filter(function (evaluation) {
-                    return evaluation.valeur !== "" && evaluation.valeur !== null && evaluation.valeur !== undefined;
+                    return evaluation.valeur !== "" && evaluation.valeur !== null && evaluation.valeur !== undefined && evaluation.is_evaluated === true;
                 });
                 if (_t.length > 0) {
                     var _evals = [];

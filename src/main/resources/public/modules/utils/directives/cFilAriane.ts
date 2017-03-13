@@ -8,13 +8,42 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
         templateUrl: "/"+appPrefix+"/public/components/ariane.html",
         restrict : "E",
         link : function($scope, element, attrs){
+            /**boolean si vrai alors l'état d'avant était création de devoir
+             * @type {boolean}
+             */
+            $scope.checkIfIsTodelete ;
+            /**
+             * les URLS suprimé du fil d'ariane just après les avoir quitter
+             * @type {[string]}
+             */
+            $scope.ToDelete = [
+                 "/devoir/create"
+            ];
             $scope.ariane = [];
             $scope.ariane.push({stateName : appPrefix+".title", url : $route.routes.null.redirectTo });
             $rootScope.$on("$routeChangeSuccess", function($currentRoute, $previousRoute, $location){
                 if($route.current.originalPath === $route.routes.null.redirectTo || $route.current.action === undefined){
                     $scope.ariane.splice(1, $scope.ariane.length-1);
                 }else{
-                    var o = _.findWhere($scope.ariane, {url : $route.current.originalPath});
+                    /**
+                     * si l'état précédent est à suprimé
+                     */
+                    if( $scope.checkIfIsTodelete === true){
+                        $scope.ariane.splice($scope.ariane.length-1, 1);
+                        $scope.checkIfIsTodelete = undefined;
+                    }
+                    /**
+                     * si l'état actuelle est à suprimé
+                     */
+                    if( _.contains($scope.ToDelete, $route.current.originalPath) ){
+                        $scope.checkIfIsTodelete = true;
+                    }
+
+                    /**
+                     * si l'état existe déja
+                     * @type {Eleve|T|any}
+                     */
+                    var o = _.findWhere($scope.ariane, {stateName: "ariane."+appPrefix+"."+$route.current.action,});
                     if(o!== undefined){
                         var i = $scope.ariane.indexOf(o);
                     }else{

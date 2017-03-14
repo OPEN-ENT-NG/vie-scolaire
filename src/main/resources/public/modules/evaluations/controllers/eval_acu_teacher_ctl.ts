@@ -9,11 +9,53 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
     '$scope', 'route', 'model',
     function ($scope, route, model) {
         $scope.evaluations = evaluations;
-        // $scope.search = {
-        //     periode : "*"
-        // };
-        $scope.devoirs= [];
+        $scope.search = {
+            matiere: '*',
+            periode : undefined,
+            classe : '*',
+            sousmatiere : '*',
+            type : '*',
+            idEleve : '*',
+            name : ''
+        };
 
+        evaluations.periodes.on('sync', function () {
+            setCurrentPeriode().then((defaultPeriode) => {
+                $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                utils.safeApply($scope);
+            });
+        });
+
+        $scope.periodes = evaluations.periodes;
+        $scope.periodes.sync();
+
+
+        /**
+         * Retourne la période courante
+         * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
+         */
+        var setCurrentPeriode = function () : Promise<any> {
+            return new Promise((resolve, reject) => {
+                var formatStr = "DD/MM/YYYY";
+                var momentCurrDate = moment(moment().format(formatStr), formatStr);
+                $scope.currentPeriodeId = -1;
+                for (var i = 0; i < evaluations.periodes.all.length; i++) {
+                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
+                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
+                    if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
+                        $scope.currentPeriodeId = evaluations.periodes.all[i].id;
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve(evaluations.periodes.all[i]);
+                        }
+                    }
+                }
+                if (resolve && typeof (resolve) === 'function') {
+                    resolve($scope.currentPeriodeId);
+                }
+            });
+        };
+
+         $scope.devoirs= [];
 
         $scope.showAutocomplete= false;
         $scope.charts = {
@@ -135,6 +177,55 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
         };
 
+
+        /**
+         * Séquence de récupération d'un relevé de note
+         */
+        $scope.getReleve = function () {
+            if($scope.search.periode !== undefined && $scope.search.periode !== '*') {
+                var p = {
+                    idPeriode : parseInt($scope.search.periode.id)
+                };
+
+                if(evaluations.synchronized.classes !== 0) {
+                    evaluations.classes.on('classes-sync', function () {
+                        var releve = new ReleveNote(p);
+                        evaluations.releveNotes.push(releve);
+                        $scope.releveNote = releve;
+                        $scope.releveNote.sync().then(() => {
+                            $scope.releveNote.synchronized.releve = true;
+                            $scope.releveNote.calculStatsDevoirs().then(() => {
+                                $scope.releveNote.calculMoyennesEleves().then(() => {
+                                    utils.safeApply($scope);
+                                });
+                                utils.safeApply($scope);
+                            });
+                            utils.safeApply($scope);
+                        });
+                    });
+                    return;
+                }
+                var releve = new ReleveNote(p);
+                evaluations.releveNotes.push(releve);
+                $scope.releveNote = releve;
+                $scope.releveNote.sync().then(() => {
+                    $scope.releveNote.synchronized.releve = true;
+                    $scope.releveNote.calculStatsDevoirs().then(() => {
+                        $scope.releveNote.calculMoyennesEleves().then(() => {
+                            utils.safeApply($scope);
+                        });
+                        utils.safeApply($scope);
+                    });
+                    utils.safeApply($scope);
+                });
+                // } else {
+                //     $scope.releveNote = rn;
+                //     utils.safeApply($scope);
+                // }
+
+                $scope.openedStudentInfo = false;
+            }
+        };
 
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){

@@ -1574,7 +1574,18 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
         poDomaine.moyenne = -1;
     }
 
-    setSliderOptions(poDomaine,tableConversions);
+    setSliderOptions(poDomaine,tableConversions)
+
+    // Chefs d'établissement
+    let isChefEtab = model.me.type === 'PERSEDUCNAT' &&
+        model.me.functions !== undefined &&
+        model.me.functions.DIR !== undefined &&
+        model.me.functions.DIR.code === 'DIR';
+
+    //Si l'utilisateur n'est pas un chef d'établissement il ne peut pas modifier le slider
+    if(!isChefEtab){
+        poDomaine.slider.options.readOnly = true;
+    }
 }
 
 function findCompetenceRec (piIdCompetence, poDomaine) {

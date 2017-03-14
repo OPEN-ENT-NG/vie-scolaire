@@ -19,8 +19,32 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
             $scope.ToDelete = [
                  "/devoir/create"
             ];
+            if($scope.ariane === undefined && $route.current.originalPath !== $route.routes.null.redirectTo ){
+                var initFilNonAcceuil = true;
+            }
             $scope.ariane = [];
+
+            var getSize = function(obj) {
+                var size = 0, key;
+                for (key in obj) {
+                    if (obj.hasOwnProperty(key)) size++;
+                }
+                return size;
+            };
+
             $scope.ariane.push({stateName : appPrefix+".title", url : $route.routes.null.redirectTo });
+            if(initFilNonAcceuil === true){
+                var state = {
+                    stateName : "ariane."+appPrefix+"."+$route.current.action,
+                    url : ""
+                };
+                if(getSize($route.current.params) > 0){
+                    state.url = $route.current.originalPath.replace($route.current.regexp.exec($route.current.originalPath)[1], $route.current.params[$route.current.regexp.exec($route.current.originalPath)[1].substring(1)]);
+                }else{
+                    state.url = $route.current.originalPath;
+                }
+                $scope.ariane.push(state);
+            }
             $rootScope.$on("$routeChangeSuccess", function($currentRoute, $previousRoute, $location){
                 if($route.current.originalPath === $route.routes.null.redirectTo || $route.current.action === undefined){
                     $scope.ariane.splice(1, $scope.ariane.length-1);
@@ -74,13 +98,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                 return lang.translate(i18nKey);
             };
 
-            var getSize = function(obj) {
-                var size = 0, key;
-                for (key in obj) {
-                    if (obj.hasOwnProperty(key)) size++;
-                }
-                return size;
-            };
+
         }
 
     };

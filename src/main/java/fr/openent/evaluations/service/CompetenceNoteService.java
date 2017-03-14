@@ -110,6 +110,15 @@ public interface CompetenceNoteService extends CrudService {
     public void getCompetencesNotesClasse(List<String> idEleves, Long idPeriode, Handler<Either<String,JsonArray>> handler);
 
     /**
+     * Récupère toutes les compétences notes d'une classe
+     * @param idEleves identifiant des élèves de la classe
+     * @param idPeriode identifiant de la période
+     * @param handler handler portant le résultat de la requête
+     * @param idDomaines filtre sur les domaines
+     */
+    public void getCompetencesNotesDomaineClasse(List<String> idEleves, Long idPeriode,List<String> idDomaines, Handler<Either<String,JsonArray>> handler);
+
+    /**
      * Récupère la table de correspendance entre (Moyenne Note - Evaluation competence) d'un cycle et etablissment donné
      * @param idEtablissement identifiant de l'établissement
      * @param idclasse identifiant de la classe

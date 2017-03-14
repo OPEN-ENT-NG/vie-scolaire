@@ -280,6 +280,61 @@ public class CompetenceNoteController extends ControllerHelper {
         }
     }
 
+    @Get("/competence/notes/classe/:idClasse/:typeClasse/:idDomaine")
+    @ApiDoc("Retourne les compétences notes pour une classee et un Domaine. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessSuiviCompetenceFilter.class)
+    public void getCompetenceNoteDomaineClasse (final HttpServerRequest request) {
+        final Long idPeriode;
+        if (request.params().contains("idClasse")
+                && request.params().contains("typeClasse")
+                && request.params().contains("idDomaine")) {
+            final List<String> idDomaines  = request.params().getAll("idDomaine");
+            String idClasse    = request.params().get("idClasse");
+            Integer typeClasse = Integer.valueOf(request.params().get("typeClasse"));
+            if (request.params().contains("idPeriode")) {
+                try {
+                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                } catch (NumberFormatException e) {
+                    log.error("Error : idPeriode must be a long object", e);
+                    badRequest(request, e.getMessage());
+                    return;
+                }
+            } else {
+                idPeriode = null;
+            }
+
+            // On va récupérer les élèves de la classe
+            List<String> vArrayProfils = new ArrayList<String>();
+            vArrayProfils.add(mProfileStudent);
+            JsonArray types = new JsonArray(vArrayProfils.toArray());
+
+            // Récupération des compétences notes d'une classe
+            if(typeClasse == 0) {
+                classService.findUsers(idClasse, types, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> eventEleves) {
+                        callCompetencesNotesDomaineService(eventEleves, idPeriode, idDomaines, request);
+                    }
+                });
+            }
+
+            // Récupération des compétences notes d'un groupe d'enseignement
+            if(typeClasse == 1){
+                groupeService.listUsersByGroupeEnseignementId(idClasse, mProfileStudent, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> eventEleves) {
+                        callCompetencesNotesDomaineService(eventEleves, idPeriode, idDomaines, request);
+                    }
+                });
+            }
+
+        } else {
+            Renders.badRequest(request, "Invalid parameters");
+        }
+    }
+
+
     /**
      * Appel de la méthode competencesNotesService.getCompetencesNotesClasse
      * à partir des éléments en paramètre
@@ -301,6 +356,32 @@ public class CompetenceNoteController extends ControllerHelper {
             if (null != idEleves
                     && !idEleves.isEmpty()) {
                 competencesNotesService.getCompetencesNotesClasse(idEleves, idPeriode, arrayResponseHandler(request));
+            }
+        }
+    }
+
+    /**
+     * Appel de la méthode competencesNotesService.getCompetencesNotesDomaineClasse
+     * à partir des éléments en paramètre
+     * @param eventEleves
+     * @param idPeriode
+     * @param idDomaines
+     * @param request
+     */
+    private void callCompetencesNotesDomaineService(Either<String, JsonArray> eventEleves, Long idPeriode, List<String> idDomaines, HttpServerRequest request) {
+        if (null != eventEleves && eventEleves.isRight()) {
+            List<String> idEleves = new ArrayList<String>();
+            JsonArray usersJSONArray = eventEleves.right().getValue();
+            for (Object o : usersJSONArray) {
+                if (!(o instanceof JsonObject)) continue;
+                JsonObject j = (JsonObject) o;
+                String id = j.getString("id");
+                log.debug(id);
+                idEleves.add(id);
+            }
+            if (null != idEleves
+                    && !idEleves.isEmpty()) {
+                competencesNotesService.getCompetencesNotesDomaineClasse(idEleves, idPeriode, idDomaines, arrayResponseHandler(request));
             }
         }
     }

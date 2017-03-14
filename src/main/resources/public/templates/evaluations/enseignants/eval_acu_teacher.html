@@ -29,6 +29,49 @@
                 <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
             </div>
         </section>
+
+
+        <section>
+            <article class="five cell box-accueil twelve-mobile">
+                <div class="content-box-accueil">
+                    <h2><i18n>evaluations.mes.evaluations.par.peridoe</i18n></h2>
+                    <!--<label class="select">-->
+                        <!--<select ng-model="search.periode" ng-options="periode.libelle for periode in periodes.all">-->
+                            <!--<option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>-->
+                        <!--</select>-->
+                    <!--</label>-->
+                    <div class="content-box-accueil--table">
+                        <div class="content-box-accueil--table--header row">
+                            <div class="four cell">
+                                <h5><i18n>date</i18n></h5>
+                            </div>
+                            <div class="five cell">
+                                <h5><i18n>viescolaire.notes.title</i18n></h5>
+                            </div>
+                            <div class="three cell">
+                                <h5><i18n>viescolaire.utils.class</i18n></h5>
+                            </div>
+                        </div>
+                        <div class="content-box-accueil--table--content">
+                            <div ng-repeat="devoir in evaluations.devoirs.all | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
+                                <a ng-href="#/devoir/[[devoir.id]]" >
+                                    <div class="four cell">
+                                        [[getDateFormated(devoir.date)]]
+                                    </div>
+                                    <div class="five cell">
+                                        [[devoir.name]]
+                                    </div>
+                                    <div class="three cell">
+                                        [[getClasseData(devoir.id_groupe, 'name')]]
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
         <section>
             <article class="five cell box-accueil twelve-mobile">
                 <div class="content-box-accueil">

@@ -23,12 +23,14 @@
          class="domaine-line">
         <div class="cell four twelve-mobile domaine-display">
             [[domaine.codification]] - [[domaine.libelle]]
-            <br/>
-            <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne.toFixed(2)]]</label>
-            <br/>
-            <div ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
-                <div ng-if = " $index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax">[[Conversion.libelle]]</div>
-                <div ng-if = " $index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax">[[Conversion.libelle]]</div>
+            <div ng-if="isChefEtab">
+                <br/>
+                <label ng-if="domaine.moyenne !== -1" ><i18n>average.calculated</i18n> : [[domaine.moyenne.toFixed(2)]]</label>
+                <br/>
+                <div ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
+                    <div ng-if = " $index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax">[[Conversion.libelle]]</div>
+                    <div ng-if = " $index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax">[[Conversion.libelle]]</div>
+                </div>
             </div>
         </div>
         <div class="cell eight twelve-mobile">

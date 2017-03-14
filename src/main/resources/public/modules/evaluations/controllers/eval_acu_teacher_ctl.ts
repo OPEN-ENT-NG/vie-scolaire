@@ -9,6 +9,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
     '$scope', 'route', 'model',
     function ($scope, route, model) {
         $scope.evaluations = evaluations;
+        // $scope.search = {
+        //     periode : "*"
+        // };
         $scope.devoirs= [];
 
 

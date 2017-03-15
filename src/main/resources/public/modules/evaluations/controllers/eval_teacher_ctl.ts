@@ -1309,8 +1309,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
-
-
+       
         /**
          * Séquence de récupération d'un relevé de note
          */
@@ -1552,6 +1551,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                     if ($location.$$path === '/releve') {
                                         $scope.calculerMoyenneEleve(eleve);
                                         $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                                        if (res.rows === 1) {
+                                            evaluation.id = undefined;
+                                            evaluation.data.id = undefined;
+                                        }
                                     } else {
                                         if (res.rows === 1) {
                                             evaluation.id = undefined;

@@ -316,7 +316,7 @@ export class Eleve extends Model implements IModel{
             if (this.evaluations.all.length > 0) {
                 var _datas = [];
                 for (var i = 0; i < this.evaluations.all.length; i++) {
-                    if (this.evaluations.all[i].valeur !== "") _datas.push(this.evaluations.all[i].formatMoyenne());
+                    if (this.evaluations.all[i].valeur !== "" && this.evaluations.all[i].is_evaluated === true ) _datas.push(this.evaluations.all[i].formatMoyenne());
                 }
                 if (_datas.length > 0) {
                     http().postJson( this.api.getMoyenne, {notes : _datas}).done(function (res) {

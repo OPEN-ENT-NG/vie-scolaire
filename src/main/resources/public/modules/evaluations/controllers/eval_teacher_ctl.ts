@@ -1540,7 +1540,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                     });
                                 } else {
                                     notify.error(lang.translate("error.note.outbound") + devoir.diviseur);
+                                    evaluation.valeur = evaluation.oldValeur;
                                     evaluation.valid = false;
+                                    utils.safeApply($scope);
                                     $event.target.focus();
                                     return;
                                 }

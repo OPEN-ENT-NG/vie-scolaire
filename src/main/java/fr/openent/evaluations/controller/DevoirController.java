@@ -311,43 +311,45 @@ public class DevoirController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Calcul le pourcentage réalisé pour chaque devoir")
     public void getPercentDone (final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-                    @Override
-                    public void handle(JsonObject devoirs) {
-                        final JsonObject classes = devoirs.getObject("datas");
-                        devoirsService.getNbNotesDevoirs(user, new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event) {
-                                if (event.isRight()) {
-                                    JsonObject returns = new JsonObject();
-                                    JsonArray values = event.right().getValue();
-                                    for (int i = 0; i < values.size(); i++) {
-                                        Double percent = new Double(0);
-                                        JsonObject devoir = values.get(i);
-                                        if(null != devoir
-                                                && null != devoir.getInteger("id")) {
-                                            String idClasse = devoir.getString("id_groupe");
-                                            Integer idDevoir = devoir.getInteger("id");
-                                            if (null != classes
-                                                    && null != classes.getInteger(idClasse)) {
-                                                percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes") * 100 / classes.getInteger(idClasse))));
-                                            }
-                                            returns.putNumber(idDevoir.toString(), percent);
-                                        }
-                                    }
-                                    Renders.renderJson(request, returns);
-                                } else {
-                                    leftToResponse(request,event.left());
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        // TODO MN-301 : MODIFIER LA REQUETE DE RECUPERATION
+        renderJson(request, new JsonArray());
+//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+//            @Override
+//            public void handle(final UserInfos user) {
+//                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+//                    @Override
+//                    public void handle(JsonObject devoirs) {
+//                        final JsonObject classes = devoirs.getObject("datas");
+//                        devoirsService.getNbNotesDevoirs(user, new Handler<Either<String, JsonArray>>() {
+//                            @Override
+//                            public void handle(Either<String, JsonArray> event) {
+//                                if (event.isRight()) {
+//                                    JsonObject returns = new JsonObject();
+//                                    JsonArray values = event.right().getValue();
+//                                    for (int i = 0; i < values.size(); i++) {
+//                                        Double percent = new Double(0);
+//                                        JsonObject devoir = values.get(i);
+//                                        if(null != devoir
+//                                                && null != devoir.getInteger("id")) {
+//                                            String idClasse = devoir.getString("id_groupe");
+//                                            Integer idDevoir = devoir.getInteger("id");
+//                                            if (null != classes
+//                                                    && null != classes.getInteger(idClasse)) {
+//                                                percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes") * 100 / classes.getInteger(idClasse))));
+//                                            }
+//                                            returns.putNumber(idDevoir.toString(), percent);
+//                                        }
+//                                    }
+//                                    Renders.renderJson(request, returns);
+//                                } else {
+//                                    leftToResponse(request,event.left());
+//                                }
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        });
     }
     /**
      *  Supprimer un devoir

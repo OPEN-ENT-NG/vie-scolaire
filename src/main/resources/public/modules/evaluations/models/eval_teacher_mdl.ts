@@ -1,5 +1,6 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
+import forEach = require("core-js/fn/array/for-each");
 
 let moment = require('moment');
 let $ = require('jquery');
@@ -244,13 +245,8 @@ export class Classe extends Model {
 
     get api () {
         return {
-            sync: '/directory/class/' + this.id + '/users?type=Student'
-        }
-    }
-
-    get apiForGroupeEnseignement () {
-        return {
-            sync: '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student'
+            syncClasse: '/directory/class/' + this.id + '/users?type=Student',
+            syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student'
         }
     }
 
@@ -259,26 +255,16 @@ export class Classe extends Model {
         if (o !== undefined) this.updateData(o);
         this.collection(Eleve, {
             sync : () : Promise<any> => {
-                var that = this;
                 return new Promise((resolve, reject) => {
                     this.mapEleves = {};
-                    if (this.type_groupe === 0) {
-                        http().getJson(this.api.sync).done(function (data) {
-                            this.eleves.load(data);
-                            for (var i = 0; i < this.eleves.all.length; i++) {
-                                this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
-                            }
-                            resolve();
-                        }.bind(this));
-                    }else{
-                        http().getJson(this.apiForGroupeEnseignement.sync).done(function (data) {
-                            this.eleves.load(data);
-                            for (var i = 0; i < this.eleves.all.length; i++) {
-                                this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
-                            }
-                            resolve();
-                        }.bind(this));
-                    }
+                    let url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasse;
+                    http().getJson(url).done((data) => {
+                        this.eleves.load(data);
+                        for (var i = 0; i < this.eleves.all.length; i++) {
+                            this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
+                        }
+                        resolve();
+                    });
                 });
             }
         });
@@ -303,7 +289,6 @@ export class Eleve extends Model implements IModel{
 
     constructor () {
         super();
-        var that = this;
         this.collection(Evaluation);
         this.collection(SuiviCompetence);
     }
@@ -1262,14 +1247,16 @@ export class Evaluations extends Model {
                         return classe;
                     });
                     evaluations.classes.load(res);
+
+
                     evaluations.synchronized.classes = evaluations.classes.all.length;
                     for (var i = 0; i < evaluations.classes.all.length; i++) {
-                        evaluations.classes.all[i].eleves.sync().then(() => {
+                        // evaluations.classes.all[i].eleves.sync().then(() => {
                             evaluations.synchronized.classes--;
                             if (evaluations.synchronized.classes === 0) {
                                 evaluations.classes.trigger('classes-sync');
                             }
-                        });
+                        // });
                     }
                 });
             }
@@ -1279,7 +1266,6 @@ export class Evaluations extends Model {
             evaluations.synchronized.devoirs = true;
         });
     }
-
 }
 
 export class SuiviCompetenceClasse extends Model implements IModel{
@@ -1535,7 +1521,7 @@ function setSliderOptions(poDomaine,tableConversions) {
 function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations) {
     // si le domaine est évalué, on ajoute les max de chacunes de ses competences
     if(poDomaine.evaluated) {
-        for (var i = 0; i < poDomaine.competences.all.length; i++) {
+        for (let i = 0; i < poDomaine.competences.all.length; i++) {
             var competencesEvaluations = poDomaine.competences.all[i].competencesEvaluations;
             var _t = competencesEvaluations;
 

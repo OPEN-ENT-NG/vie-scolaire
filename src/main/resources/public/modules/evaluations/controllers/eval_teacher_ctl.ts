@@ -310,35 +310,42 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             chartClasse : false,
         };
-        $scope.eleves = [];
-        if (evaluations.synchronized.classes !== 0) {
-            evaluations.classes.on('classes-sync', () => {
-                for (let i = 0; i < evaluations.classes.all.length; i++) {
-                    let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                        if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
-                            return _.extend(eleve,{
-                                    classEleve : evaluations.classes.all[i]
-                                }
-                            );}
-                    });
-                    $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
-                }
 
-
-            });
-        } else {
-            for (let i = 0; i < evaluations.classes.all.length; i++) {
-                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                    if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
-                        return _.extend(eleve,{
-                                classEleve : evaluations.classes.all[i]
-                            }
-                        );}
-                });
-                $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
+        $scope.synchronizeStudents = (idClasse) => {
+            let _classe = evaluations.classes.findWhere({id : idClasse});
+            if (_classe !== undefined && _classe.eleves.empty()) {
+              _classe.eleves.sync();
             }
-
-        }
+        };
+        // $scope.eleves = [];
+        // if (evaluations.synchronized.classes !== 0) {
+        //     evaluations.classes.on('classes-sync', () => {
+        //         for (let i = 0; i < evaluations.classes.all.length; i++) {
+        //             let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+        //                 if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+        //                     return _.extend(eleve,{
+        //                             classEleve : evaluations.classes.all[i]
+        //                         }
+        //                     );}
+        //             });
+        //             $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
+        //         }
+        //
+        //
+        //     });
+        // } else {
+        //     for (let i = 0; i < evaluations.classes.all.length; i++) {
+        //         let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+        //             if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+        //                 return _.extend(eleve,{
+        //                         classEleve : evaluations.classes.all[i]
+        //                     }
+        //                 );}
+        //         });
+        //         $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
+        //     }
+        //
+        // }
         /**
          * cette function permet d'extraire les competences evalué du devoir
          * @param Skills : les competences du devoir

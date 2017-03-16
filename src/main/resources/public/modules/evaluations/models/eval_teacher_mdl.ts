@@ -329,6 +329,7 @@ export class Evaluation extends Model implements IModel{
     ramener_sur : boolean;
     competenceNotes : Collection<CompetenceNote>;
     oldValeur : any;
+    is_evaluated  : boolean;
     oldAppreciation : any;
 
     get api () {

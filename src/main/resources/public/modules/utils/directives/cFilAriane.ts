@@ -52,7 +52,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                     /**
                      * si l'état précédent est à suprimé
                      */
-                    if( $scope.checkIfIsTodelete === true){
+                    if( $scope.checkIfIsTodelete === true && $scope.ariane.length > 1 ){
                         $scope.ariane.splice($scope.ariane.length-1, 1);
                         $scope.checkIfIsTodelete = undefined;
                     }

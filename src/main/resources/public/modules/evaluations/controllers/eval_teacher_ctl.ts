@@ -163,32 +163,47 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
-                $scope.openedDetails = true;
-                $scope.openedStatistiques = true;
-                $scope.openedStudentInfo = true;
-                if ($scope.currentDevoir !== undefined) {
-                    $scope.currentDevoir.competences.sync().then(() => {
-                        utils.safeApply($scope);
-                    });
-                    $scope.currentDevoir.eleves.sync().then(() => {
-                        $scope.$broadcast('initHeaderColumn');
-                        var _evals = [];
-                        for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
-                            if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== null
-                                && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined
-                                && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== "") {
-                                _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
-                            }
-                        }
-                        utils.safeApply($scope);
-                        $scope.currentDevoir.calculStats(_evals).then(() => {
+
+                let syncStudents = () => {
+                    $scope.openedDetails = true;
+                    $scope.openedStatistiques = true;
+                    $scope.openedStudentInfo = true;
+                    if ($scope.currentDevoir !== undefined) {
+                        $scope.currentDevoir.competences.sync().then(() => {
                             utils.safeApply($scope);
                         });
-                    });
+                        $scope.currentDevoir.eleves.sync().then(() => {
+                            $scope.$broadcast('initHeaderColumn');
+                            var _evals = [];
+                            for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
+                                if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== null
+                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined
+                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== "") {
+                                    _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
+                                }
+                            }
+                            utils.safeApply($scope);
+                            $scope.currentDevoir.calculStats(_evals).then(() => {
+                                utils.safeApply($scope);
+                            });
+                        });
+                    }
+
+                    template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
+                    utils.safeApply($scope);
+                };
+
+                let _classe = evaluations.classes.findWhere({id : $scope.currentDevoir.id_groupe});
+                if (_classe !== undefined) {
+                    if (_classe.eleves.all.length === 0 ) {
+                        _classe.eleves.sync().then(() => {
+                            syncStudents();
+                        })
+                    } else {
+                        syncStudents();
+                    }
                 }
 
-                template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
-                utils.safeApply($scope);
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();

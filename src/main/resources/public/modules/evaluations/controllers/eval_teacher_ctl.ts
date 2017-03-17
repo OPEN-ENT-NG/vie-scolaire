@@ -12,8 +12,8 @@ let moment = require('moment');
 declare let _:any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
-    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout',
-    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout) {
+    '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
+    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
         route({
 
             accueil : function(params){
@@ -140,6 +140,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     });
                     template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                    $scope.displayCreationDevoir = true;
                     utils.safeApply($scope);
                 });
             },
@@ -247,6 +248,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.sortReverse  = false;  // set the default sort order
             }
         });
+
+
 
 
         $scope.evaluations = evaluations;
@@ -2043,7 +2046,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             utils.safeApply($scope);
         };
+        $rootScope.$on("$locationChangeSuccess", function ($event, $nextRoute, $oldRoute) {
+            console.log('old : '+$oldRoute);
+            console.log('nex : '+$nextRoute);
+            if( $oldRoute === $nextRoute && ($route.current.originalPath === '/devoir/:idDevoir/edit' || $route.current.originalPath === '/devoir/:idDevoir/edit/')  ){
+                $scope.$watch(function() { return $scope.displayCreationDevoir; }, function (newValue, oldValue) {
+                    if (newValue){
+                        $scope.goTo('');
+                        console.log('redirect');
+                        utils.safeApply($scope);
+                    }
+                });
 
+            }
+            utils.safeApply($scope);
+        });
         /**
          * Controle la validité du formulaire de création d'un remplacement
          * @returns {boolean} Validité du formulaire

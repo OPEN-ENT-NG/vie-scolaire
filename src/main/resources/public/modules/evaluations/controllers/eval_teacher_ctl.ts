@@ -2047,8 +2047,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         };
         $rootScope.$on("$locationChangeSuccess", function ($event, $nextRoute, $oldRoute) {
-            console.log('old : '+$oldRoute);
-            console.log('nex : '+$nextRoute);
             if( $oldRoute === $nextRoute && ($route.current.originalPath === '/devoir/:idDevoir/edit' || $route.current.originalPath === '/devoir/:idDevoir/edit/')  ){
                 $scope.$watch(function() { return $scope.displayCreationDevoir; }, function (newValue, oldValue) {
                     if (newValue){

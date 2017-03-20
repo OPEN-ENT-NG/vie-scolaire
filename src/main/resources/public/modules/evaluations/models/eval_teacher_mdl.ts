@@ -1297,16 +1297,16 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                         }
                         http().getJson(url).done((resCompetencesNotes) => {
                             if(resDomaines) {
-                                for(var i=0; i<resDomaines.length; i++) {
+                                for(let i=0; i<resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
 
-                                    // affichage du 1er domaine uniquement par défaut
-                                    // var bPremierDomaine = (i == 0);
-                                    // if(bPremierDomaine) {
                                     domaine.visible = true;
-                                    domaine.setVisibleSousDomaines(true);
-                                    // }
-
+                                    if(domaine !== null && domaine !== undefined) {
+                                        for (let j = 0; j < domaine.domaines.all.length; j++) {
+                                            var oSousDomaine = domaine.domaines.all[j];
+                                            oSousDomaine.visible = true;
+                                        }
+                                    }
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, classe);
                                 }

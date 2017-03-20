@@ -34,12 +34,13 @@
         <section>
             <article class="five cell box-accueil twelve-mobile">
                 <div class="content-box-accueil">
-                    <h2><i18n>evaluations.mes.evaluations.par.peridoe</i18n></h2>
-                    <!--<label class="select">-->
-                        <!--<select ng-model="search.periode" ng-options="periode.libelle for periode in periodes.all">-->
-                            <!--<option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>-->
-                        <!--</select>-->
-                    <!--</label>-->
+                    <div class="titre-widget">
+                        <h2 class="inline-block"><i18n>evaluations.mes.evaluations.par.peridoe</i18n>&nbsp;:</h2>
+                        <label class="select right-magnet">
+                            <select ng-model="search.periode" ng-options="periode.libelle for periode in periodes.all">
+                            </select>
+                        </label>
+                    </div>
                     <div class="content-box-accueil--table">
                         <div class="content-box-accueil--table--header row">
                             <div class="four cell">
@@ -53,7 +54,7 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in evaluations.devoirs.all | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
+                            <div ng-repeat="devoir in evaluations.devoirs.all | customSearchFilters:search | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -62,7 +63,7 @@
                                         [[devoir.name]]
                                     </div>
                                     <div class="three cell">
-                                        [[getClasseData(devoir.id_groupe, 'name')]]
+                                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? getNameInOtherClasses(devoir.id_groupe,devoir.id)  : getClasseData(devoir.id_groupe, 'name')]]
                                     </div>
                                 </a>
                             </div>
@@ -112,7 +113,7 @@
             <article class="five cell box-accueil twelve-mobile">
                 <div class="titre-widget">
                     <h2 class="inline-block">
-                        <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>:
+                        <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>&nbsp;:
                     </h2>
                     <label class="select right-magnet">
                         <select ng-model="charts.uncomplete" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">

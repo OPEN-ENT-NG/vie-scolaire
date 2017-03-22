@@ -395,6 +395,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
 
 
+    /**** METHODE INUTILISEE
     @Override
     public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -420,7 +421,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         values.addNumber(idPeriode);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }
+    }*/
 
     @Override
     @Deprecated // FIXME GERER LES DROITS ET PERMISSIONS COMME FAIT POUR LES ENSEIGNANTS

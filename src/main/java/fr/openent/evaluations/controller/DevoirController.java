@@ -88,29 +88,8 @@ public class DevoirController extends ControllerHelper {
                     if (request.params().size() == 2) {
                         String idEtablissement = request.params().get("idEtablissement");
                         devoirsService.listDevoirs(user,idEtablissement, handler);
-
-
-
                     } else {
-                        String idEtablissement = request.params().get("idEtablissement");
-                        String idClasse = request.params().get("idClasse");
-                        String idMatiere = request.params().get("idMatiere");
-
-                        Long idPeriode;
-                        try {
-                            idPeriode = Long.parseLong(request.params().get("idPeriode"));
-                        } catch(NumberFormatException e) {
-                            log.error("Error : idPeriode must be a long object", e);
-                            badRequest(request, e.getMessage());
-                            return;
-                        }
-
-                        if (idEtablissement != "undefined" && idClasse != "undefined"
-                                && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
-                            devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
-                        } else {
-                            Renders.badRequest(request, "Invalid parameters");
-                        }
+                        Renders.badRequest(request, "Invalid parameters : identifiant de l'établissement Manquant");
                     }
                 }else{
                     unauthorized(request);

@@ -227,6 +227,55 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
         };
 
+        /**
+         * Séquence de récupération d'un relevé de note
+         */
+        $scope.getReleve = function () {
+            if($scope.search.periode !== undefined && $scope.search.periode !== '*') {
+                var p = {
+                    idPeriode : parseInt($scope.search.periode.id)
+                };
+
+                if(evaluations.synchronized.classes !== 0) {
+                    evaluations.classes.on('classes-sync', function () {
+                        var releve = new ReleveNote(p);
+                        evaluations.releveNotes.push(releve);
+                        $scope.releveNote = releve;
+                        $scope.releveNote.sync().then(() => {
+                            $scope.releveNote.synchronized.releve = true;
+                            $scope.releveNote.calculStatsDevoirs().then(() => {
+                                $scope.releveNote.calculMoyennesEleves().then(() => {
+                                    utils.safeApply($scope);
+                                });
+                                utils.safeApply($scope);
+                            });
+                            utils.safeApply($scope);
+                        });
+                    });
+                    return;
+                }
+                var releve = new ReleveNote(p);
+                evaluations.releveNotes.push(releve);
+                $scope.releveNote = releve;
+                $scope.releveNote.sync().then(() => {
+                    $scope.releveNote.synchronized.releve = true;
+                    $scope.releveNote.calculStatsDevoirs().then(() => {
+                        $scope.releveNote.calculMoyennesEleves().then(() => {
+                            utils.safeApply($scope);
+                        });
+                        utils.safeApply($scope);
+                    });
+                    utils.safeApply($scope);
+                });
+                // } else {
+                //     $scope.releveNote = rn;
+                //     utils.safeApply($scope);
+                // }
+
+                $scope.openedStudentInfo = false;
+            }
+        };
+
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){
                 let path = '/devoir/'+ $scope.chartOptions.classes[$scope.charts.uncomplete].id[points[0]._index];

@@ -8,77 +8,89 @@ declare let _:any;
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
     '$scope', 'route', 'model',
     function ($scope, route, model) {
-        $scope.evaluations = evaluations;
-        $scope.search = {
-            matiere: '*',
-            periode : undefined,
-            classe : '*',
-            sousmatiere : '*',
-            type : '*',
-            idEleve : '*',
-            name : ''
-        };
 
-        evaluations.periodes.on('sync', function () {
-            setCurrentPeriode().then((defaultPeriode) => {
-                $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                utils.safeApply($scope);
+        $scope.initControler = function () {
+            $scope.evaluations = evaluations;
+            $scope.search = {
+                matiere: '*',
+                periode : undefined,
+                classe : '*',
+                sousmatiere : '*',
+                type : '*',
+                idEleve : '*',
+                name : ''
+            };
+
+            evaluations.periodes.on('sync', function () {
+                setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                    utils.safeApply($scope);
+                });
             });
-        });
 
-        $scope.periodes = evaluations.periodes;
-        $scope.periodes.sync();
+            $scope.periodes = evaluations.periodes;
+
+            // Récupération des structures
+            $scope.structures = evaluations.structures;
 
 
-        /**
-         * Retourne la période courante
-         * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
-         */
-        var setCurrentPeriode = function () : Promise<any> {
-            return new Promise((resolve, reject) => {
-                var formatStr = "DD/MM/YYYY";
-                var momentCurrDate = moment(moment().format(formatStr), formatStr);
-                $scope.currentPeriodeId = -1;
-                for (var i = 0; i < evaluations.periodes.all.length; i++) {
-                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
-                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
-                    if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
-                        $scope.currentPeriodeId = evaluations.periodes.all[i].id;
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve(evaluations.periodes.all[i]);
+            $scope.periodes.sync();
+
+
+            /**
+             * Retourne la période courante
+             * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
+             */
+            var setCurrentPeriode = function () : Promise<any> {
+                return new Promise((resolve, reject) => {
+                    var formatStr = "DD/MM/YYYY";
+                    var momentCurrDate = moment(moment().format(formatStr), formatStr);
+                    $scope.currentPeriodeId = -1;
+                    for (var i = 0; i < evaluations.periodes.all.length; i++) {
+                        var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
+                        var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
+                        if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
+                            $scope.currentPeriodeId = evaluations.periodes.all[i].id;
+                            if (resolve && typeof (resolve) === 'function') {
+                                resolve(evaluations.periodes.all[i]);
+                            }
                         }
                     }
-                }
-                if (resolve && typeof (resolve) === 'function') {
-                    resolve($scope.currentPeriodeId);
-                }
-            });
-        };
+                    if (resolve && typeof (resolve) === 'function') {
+                        resolve($scope.currentPeriodeId);
+                    }
+                });
+            };
 
-         $scope.devoirs= [];
+            $scope.devoirs= [];
 
-        $scope.showAutocomplete= false;
-        $scope.charts = {
-            uncomplete : model.me.classes[0]
-        };
-        if (evaluations.synchronized.classes !== 0) {
-            evaluations.classes.on('classes-sync', () => {
+            $scope.showAutocomplete= false;
+            $scope.charts = {
+                uncomplete : model.me.classes[0]
+            };
+            if (evaluations.synchronized.classes !== 0) {
+                evaluations.classes.on('classes-sync', () => {
+                    $scope.evaluations.devoirs.getPercentDone().then(() => {
+                        $scope.initCharts();
+                    });
+                });
+            } else {
                 $scope.evaluations.devoirs.getPercentDone().then(() => {
                     $scope.initCharts();
                 });
-            });
-        } else {
-            $scope.evaluations.devoirs.getPercentDone().then(() => {
-                $scope.initCharts();
-            });
-        }
-
-        for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
-            if($scope.evaluations.devoirs.all[i].is_evaluated && $scope.evaluations.devoirs.all[i].percent != 100){
-                $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
-                utils.safeApply($scope);
             }
-        }
+
+            for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
+                if($scope.evaluations.devoirs.all[i].is_evaluated && $scope.evaluations.devoirs.all[i].percent != 100){
+                    $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
+                    utils.safeApply($scope);
+                }
+            }
+        };
+
+
+        $scope.initControler();
+
         $scope.getDateFormated = function (date) {
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
@@ -161,6 +173,16 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             let path = '/competences/eleve';
             let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
             $scope.goTo(path,idOfpath);
+        };
+
+        /**
+        * Changement établissemnt
+        * @param Eleve
+        */
+        $scope.changeEtablissement = () => {
+            evaluations.sync().then(()=>{
+                $scope.initControler();
+            });
         };
 
         /**

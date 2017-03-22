@@ -85,9 +85,9 @@ public class DevoirController extends ControllerHelper {
             public void handle(final UserInfos user) {
                 if(user != null){
                     final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    if (request.params().size() == 1) {
-
-                        devoirsService.listDevoirs(user, handler);
+                    if (request.params().size() == 2) {
+                        String idEtablissement = request.params().get("idEtablissement");
+                        devoirsService.listDevoirs(user,idEtablissement, handler);
 
 
 

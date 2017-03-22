@@ -342,7 +342,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
      * @param user utilisateur l'utilisateur connecté
      * @param handler handler portant le résultat de la requête
      */
-    public void listDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
+    public void listDevoirs(UserInfos user,String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -359,13 +359,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
                 .append("WHERE (rel_devoirs_groupes.id_devoir = devoirs.id) ")
-
+                .append("AND (devoirs.id_etablissement = ? )")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (de l'établissement passé en paramètre)
                                         .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
                                         .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
                                         .append("WHERE id_remplacant = ? ")
-                                        .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                                        .append("AND rel_professeurs_remplacants.id_etablissement = ? ")
                                         .append(") OR ")
                     .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
                             .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
@@ -378,14 +378,14 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
 
-        // Ajout des params pour les devoirs dont on est le propriétaire
+
+        // Ajout des params pour les devoirs dont on est le propriétaire sur l'établissement
+        values.addString(idEtablissement);
         values.add(user.getUserId());
 
         // Ajout des params pour la récupération des devoirs de mes tiulaires
         values.add(user.getUserId());
-        for (int i = 0; i < user.getStructures().size(); i++) {
-            values.add(user.getStructures().get(i));
-        }
+        values.addString(idEtablissement);
 
         // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
         values.add(user.getUserId());

@@ -9,6 +9,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
     '$scope', 'route', 'model',
     function ($scope, route, model) {
 
+        // Méthode d'initialisation ou de réinitialisation du Controler : notamment lors du changement d'établissement
         $scope.initControler = function () {
             $scope.evaluations = evaluations;
             $scope.search = {
@@ -29,11 +30,8 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             });
 
             $scope.periodes = evaluations.periodes;
-
             // Récupération des structures
             $scope.structures = evaluations.structures;
-
-
             $scope.periodes.sync();
 
 
@@ -88,7 +86,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
         };
 
-
+        // Initialisation du Controler
         $scope.initControler();
 
         $scope.getDateFormated = function (date) {
@@ -176,7 +174,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         /**
-        * Changement établissemnt
+        * Changement établissemnt : réinitial
         * @param Eleve
         */
         $scope.changeEtablissement = () => {

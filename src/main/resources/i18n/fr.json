@@ -201,6 +201,7 @@
   "evaluations.grade.min":"Note min",
   "evaluations.grade.max":"Note max",
   "evaluations.grade":"Résultat",
+  "viescolaire.utils.annee" : "Année",
   "viescolaire.utils.select.all" : "Tout sélectionner",
   "viescolaire.utils.deselect.all" : "Tout désélectionner",
   "viescolaire.utils.legend" : "Légende",

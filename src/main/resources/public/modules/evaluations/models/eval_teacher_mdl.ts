@@ -1197,6 +1197,7 @@ export class Evaluations extends Model{
             this.collection(Type, {
                 sync : function () {
                     http().getJson('/viescolaire/evaluations/types?idEtablissement='+this.model.structure.id).done(function (res) {
+                        this.load(res);
                         evaluations.synchronized.types = true;
                     }.bind(this));
                 }

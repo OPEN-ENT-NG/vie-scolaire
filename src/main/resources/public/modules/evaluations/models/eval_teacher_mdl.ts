@@ -1293,7 +1293,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotesClasse + classe.id+"/"+ classe.type_groupe;
                         if (periode !== null && periode !== undefined && periode !== '*') {
-                            url += "?idPeriode="+periode.id;
+                            if(periode.id !== undefined)url += "?idPeriode="+periode.id;
                         }
                         http().getJson(url).done((resCompetencesNotes) => {
                             if(resDomaines) {
@@ -1374,7 +1374,7 @@ export class SuiviCompetence extends Model implements IModel{
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotes + eleve.id;
                         if (periode !== null && periode !== undefined && periode !== '*') {
-                            url += "?idPeriode=" + periode.id;
+                            if(periode.id !== undefined)url += "?idPeriode=" + periode.id;
                         }
                         http().getJson(url).done((resCompetencesNotes) => {
                             if (resDomaines) {

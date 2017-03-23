@@ -1418,7 +1418,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {number} identifiant du type de devoir par défaut
          */
         var getDefaultTypDevoir = function(){
-            return (evaluations.types.findWhere({default_type : true})).id;
+            let typeDefault = ($scope.types.findWhere({default_type : true}));
+            if(typeDefault === undefined){
+                typeDefault = ($scope.evaluations.types.findWhere({default_type : true}))
+            }
+            return typeDefault.id;
         };
 
         /**

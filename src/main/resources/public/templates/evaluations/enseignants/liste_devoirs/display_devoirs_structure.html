@@ -77,8 +77,8 @@
 
                     <section>
                         <label class="select">
-                            <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
-                                <option value="" >[[translate('viescolaire.utils.annee')]]</option>
+                            <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodesList">
+                                <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                             </select>
                         </label>
                     </section>

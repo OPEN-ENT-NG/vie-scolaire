@@ -147,6 +147,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             listDevoirs : function(params){
                 $scope.cleanRoot();
+                $scope.periodesList = $scope.periodes.all;
+                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
                 template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                 if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
@@ -262,6 +264,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.releveNote = null;
         $scope.periodes = evaluations.periodes;
         $scope.periodes.sync();
+        $scope.periodesWithYear= _.extendedDiagnostics
         $scope.classes = evaluations.classes;
         $scope.types = evaluations.types;
         $scope.filter = $filter;
@@ -1397,20 +1400,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
-       
+
+
         /**
          * Séquence de récupération d'un relevé de note
          */
         $scope.getReleve = function () {
+            let currentPeriode = $scope.search.periode;
             if($scope.search.classe !== null && $scope.search.classe !== undefined && $scope.search.classe.id !== undefined
                 && $scope.search.matiere !== null && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
+                if($scope.search.periode !== null && $scope.search.periode.id === undefined){
+                    currentPeriode = null;
+                }
+
                 var p = {
                     idEtablissement : model.me.structures[0],
                     idClasse : $scope.search.classe.id,
-                    idPeriode : parseInt($scope.search.periode.id),
+                    idPeriode : parseInt(currentPeriode.id),
                     idMatiere : $scope.search.matiere.id
                 };
                 // var rn = evaluations.releveNotes.findWhere(p);
@@ -1452,6 +1461,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 // }
 
                 $scope.openedStudentInfo = false;
+                utils.safeApply($scope);
             }
         };
 

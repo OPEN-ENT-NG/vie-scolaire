@@ -126,7 +126,7 @@ public interface UtilsService {
      * @param idGroupes identifiant des groupes
      * @param handler handler portant le résultat de la requête
      */
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler);
+    public void listClasses(String idEtablissement, List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur

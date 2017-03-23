@@ -262,13 +262,14 @@ public class DefaultUtilsService  implements UtilsService {
      * @param handler handler portant le résultat de la requête
      */
     @Override
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (g:Class) WHERE g.id IN {structures} return g " +
+    public void listClasses(String idEtablissement, List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {structures} AND s.id = {idEtablissement} return g " +
                 "UNION ALL " +
-                "MATCH (g:FunctionalGroup) WHERE g.id IN {groups} return g";
+                "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
         JsonObject params = new JsonObject()
                 .putArray("structures", new JsonArray(idClasses.toArray()))
-                .putArray("groups", new JsonArray(idGroupes.toArray()));
+                .putArray("groups", new JsonArray(idGroupes.toArray()))
+                .putString("idEtablissement", idEtablissement);
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 

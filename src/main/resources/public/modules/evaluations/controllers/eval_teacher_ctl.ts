@@ -1438,8 +1438,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any} la valeur de la clé passée en paramètre
          */
         $scope.getClasseData = (idClasse, key) => {
-            if (idClasse == null || idClasse === '' || $scope.classes.all.length === 0) return '';
+            if (idClasse == null || idClasse === '' || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)) return '';
             let classe = $scope.classes.findWhere({id : idClasse});
+            if (classe === undefined){
+                classe = $scope.evaluations.classes.findWhere({id : idClasse});
+            }
             if (classe !== undefined && classe.hasOwnProperty(key)) {
                 return classe[key];
             } else {

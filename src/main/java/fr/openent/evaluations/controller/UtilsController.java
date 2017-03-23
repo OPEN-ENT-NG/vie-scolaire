@@ -223,8 +223,9 @@ public class UtilsController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                if (user != null) {
-                    utilsService.listClasses(user.getClasses(), user.getGroupsIds(), new Handler<Either<String, JsonArray>>() {
+                if (user != null && request.params().size() == 2) {
+                    String idEtablissement = request.params().get("idEtablissement");
+                    utilsService.listClasses(idEtablissement, user.getClasses(), user.getGroupsIds(), new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {
@@ -269,6 +270,8 @@ public class UtilsController extends ControllerHelper {
                             }
                         }
                     });
+                } else {
+                    badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
                 }
             }
         });

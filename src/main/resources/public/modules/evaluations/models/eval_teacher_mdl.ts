@@ -1258,7 +1258,7 @@ export class Evaluations extends Model{
             };
             this.collection(Classe, {
                 sync : function () {
-                    http().getJson('/viescolaire/evaluations/classes').done((res) => {
+                    http().getJson('/viescolaire/evaluations/classes?idEtablissement=' + this.model.structure.id).done((res) => {
                         _.map(res, (classe) => {
                             let libelleClasse;
                             if(classe.type_groupe_libelle = classe.type_groupe === 0){

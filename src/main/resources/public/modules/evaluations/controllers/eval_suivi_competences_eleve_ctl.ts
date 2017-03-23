@@ -182,6 +182,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * sous domaines.
          *
          */
+        /* Methode plus utilisée
         $scope.afficherDomaineSuivant = function () {
             for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
                 var domaine = $scope.suiviCompetence.domaines.all[i];
@@ -194,14 +195,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     }
                 }
             }
-        };
+        };*/
 
         /**
          *
          * Méthode qui n'affiche que le 1er domaine
          *
          */
-        /*$scope.initAffichageDomaines = function () {
+        /* Methode plus utilisée
+        $scope.initAffichageDomaines = function () {
             for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
                 var domaine = $scope.suiviCompetence.domaines.all[i];
                 var bPremierDomaine = (i == 0);

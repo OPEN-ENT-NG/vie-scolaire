@@ -36,6 +36,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * sous domaines.
          *
          */
+        /* Methode plus utilsiée
         $scope.afficherDomaineSuivant = function () {
             for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
                 var domaine = $scope.suiviCompetence.domaines.all[i];
@@ -48,7 +49,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     }
                 }
             }
-        };
+        };*/
 
         /**
          * Créer une suivi de compétence

@@ -108,13 +108,40 @@
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
-            <!-- TODO DUPLIQUER -->
+            <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"
+                    ng-click="opened.lightboxs.duplication = true;">
+                <i18n><span class="no-style">evaluations.toaster.duplication</span></i18n>
+            </button>
             <button class="cell ng-scope" ng-click="confirmSuppretion()">
                 <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
         </div>
     </div>
 </section>
+
+<lightbox ng-if="selected.devoirs.list.length === 1" on-close="annulerDuplication();" show="opened.lightboxs.duplication">
+    <p><i18n>evaluations.lightbox.duplication.top</i18n></p>
+    <p><i18n>evaluations.lightbox.duplication.mid</i18n></p>
+    <p>[[selected.devoirs.list[0].name]]</p>
+    <p><i18n>evaluations.lightbox.duplication.bot</i18n></p>
+    <div ng-repeat="classe in getClassesByIdCycle()">
+        <div class="row">
+            <div class="one cell cell-check expandable-content two-mobile">
+                <label class="checkbox">
+                    <input type="checkbox" ng-checked="isSelected(classe.id)" ng-model="bool" ng-change="selectClasse(classe.id)">
+                    <span></span>
+                </label>
+            </div>
+            <span>[[classe.name]]</span>
+        </div>
+    </div>
+    <button class="marginFive" ng-disabled="selected.classes.length === 0" ng-click="confirmerDuplication();">
+        <i18n>evaluations.devoir.confirmation</i18n>
+    </button>
+    <button class="marginFive" ng-click="annulerDuplication();">
+        <i18n>evaluations.devoir.annuler</i18n>
+    </button>
+</lightbox>
 
 <lightbox ng-if="selected.devoirs.list.length > 0 " show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
     <p><i18n>evaluations.devoir.information.suppression</i18n></p>

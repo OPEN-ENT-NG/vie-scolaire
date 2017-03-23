@@ -327,6 +327,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 all : false
             },
             chartClasse : false,
+            classes : [],
         };
 
         $scope.synchronizeStudents = (idClasse) => {
@@ -335,6 +336,66 @@ export let evaluationsController = ng.controller('EvaluationsController', [
               _classe.eleves.sync();
             }
         };
+
+        $scope.confirmerDuplication = () => {
+            $scope.devoir = _.extend({},$scope.selected.devoirs.list[0]);
+            $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
+
+            if($scope.devoir.libelle === null)
+                delete $scope.devoir.libelle;
+            $scope.devoir.owner = model.me.userId;
+
+            $scope.devoir.competences.sync().then(() => {
+
+                $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
+                delete $scope.devoir.id;
+
+                for (let i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
+                    $scope.evaluations.competencesDevoir[i].id = $scope.evaluations.competencesDevoir[i].id_competence;
+                    $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
+                }
+
+                for (let _classeId of $scope.selected.classes) {
+                    $scope.devoir.id_groupe = _classeId;
+                    $scope.saveNewDevoir();
+                }
+
+                $scope.resetSelected();
+                $scope.opened.lightboxs.duplication = false;
+                $location.path("/devoirs/list");
+            });
+        };
+
+        $scope.annulerDuplication = () => {
+            $scope.selected.classes = [];
+            $scope.opened.lightboxs.duplication = false;
+        };
+
+        $scope.getClassesByIdCycle = () => {
+            let currentIdGroup = $scope.selected.devoirs.list[0].id_groupe;
+            let targetIdCycle = _.find($scope.classes.all,{id:currentIdGroup}).id_cycle;
+            return _.filter($scope.classes.all, function(classe) {
+                return (classe.id_cycle === targetIdCycle && classe.id !== currentIdGroup);
+            });
+        };
+
+        /**
+         * Ajoute la classe qui vient
+         * @param classe La classe actuellement sélectionnée
+         */
+        $scope.selectClasse = function (selectedClasseId) {
+            let _index = _.indexOf($scope.selected.classes, selectedClasseId);
+            if(_index === -1){
+                $scope.selected.classes.push(selectedClasseId);
+            }else{
+                delete $scope.selected.classes[_index];
+            }
+        };
+
+        $scope.isSelected = function(id) {
+            return _.indexOf($scope.selected.classes, id) !== -1;
+        }
+
         // $scope.eleves = [];
         // if (evaluations.synchronized.classes !== 0) {
         //     evaluations.classes.on('classes-sync', () => {
@@ -387,6 +448,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 return Myarray;
             }
         };
+
         $scope.afficherRecap = function () {
             if($scope.opened.accOp === 1 ){
                 $scope.opened.accOp = 0;
@@ -554,7 +616,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 competences : {
                     list : [],
                     all : false
-                }
+                },
+                classes : []
             };
         };
 
@@ -1234,7 +1297,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
                 evaluations.devoirs.sync().then(() => {
-                    if ($location.path() === "/devoirs/list" || $location.path() === "/devoir/create") {
+                    if ($location.path() === "/devoir/create") {
                         if (res !== undefined) {
                             $location.path("/devoir/" + res.id);
                         }

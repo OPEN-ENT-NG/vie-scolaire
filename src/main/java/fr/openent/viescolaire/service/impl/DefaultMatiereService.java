@@ -55,7 +55,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     @Override
-    public void listMatieres(String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {
+    public void listMatieres(String structureId , String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
@@ -64,9 +64,9 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         if(poTitulairesIdList == null || poTitulairesIdList.size() == 0) {
             params.putString("id", id);
-            query.append("(u:User{id:{id}}) ");
+            query.append("(u:User{id:{id}}) where s.id = {structureId}");
         } else{
-            query.append("(u:User) WHERE u.id IN {userIdList} ");
+            query.append("(u:User) WHERE u.id IN {userIdList} AND s.id = {structureId} ");
 
             JsonArray oUserIdList = new JsonArray();
             oUserIdList.add(id);
@@ -78,6 +78,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
             params.putArray("userIdList", oUserIdList);
         }
+        params.putString("structureId", structureId);
         query.append(returnQuery);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));

@@ -12,7 +12,7 @@ export class ReleveNote extends  Model implements IModel{
     matiere : Matiere;
     classe : Classe;
     devoirs : Collection<Devoir>;
-
+    structure : Structure;
     idClasse: string;
     idMatiere: string;
     idPeriode: number;
@@ -34,6 +34,7 @@ export class ReleveNote extends  Model implements IModel{
             evaluations : false,
             releve : false
         };
+        this.structure = evaluations.structure;
         this.periode = evaluations.periodes.findWhere({id : this.idPeriode});
         this.matiere = evaluations.matieres.findWhere({id : this.idMatiere});
         var c = evaluations.classes.findWhere({id : this.idClasse});
@@ -82,7 +83,7 @@ export class ReleveNote extends  Model implements IModel{
                 that.synchronized.classe = true;
                 callFormating();
             }
-            http().getJson('/viescolaire/evaluations/releve?idEtablissement='+model.me.structures[0]+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode)
+            http().getJson('/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode)
                 .done(function (res) {
                     that._tmp = res;
                     that.synchronized.evaluations = true;
@@ -1240,7 +1241,7 @@ export class Evaluations extends Model{
             this.enseignements.sync();
             this.collection(Matiere, {
                 sync : function () {
-                    http().getJson('/viescolaire/matieres?idEnseignant=' + model.me.userId).done(function (res) {
+                    http().getJson('/viescolaire/matieres?idEnseignant=' + model.me.userId+'&idEtablissement='+ this.model.structure.id).done(function (res) {
                         this.load(res);
                         this.each(function (matiere) {
                             matiere.sousMatieres.load(matiere.sous_matieres);

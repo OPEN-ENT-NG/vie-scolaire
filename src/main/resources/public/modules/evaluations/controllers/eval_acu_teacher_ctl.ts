@@ -182,7 +182,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         * Changement établissemnt : réinitial
         * @param Eleve
         */
-        $scope.changeEtablissement = () => {
+        $scope.changeEtablissementAccueil = () => {
             evaluations.sync().then(()=>{
                 $scope.initControler(true);
             });

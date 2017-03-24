@@ -40,7 +40,7 @@ public interface MatiereService extends CrudService {
     public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
 
     //TODO A SUPPRIMER
-    public void listMatieres(String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result);
+    public void listMatieres(String structureId, String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result);
 
     /**
      *

@@ -23,7 +23,7 @@
                 <header>
                     <button class="marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
                     <label class="select right-magnet" ng-if="evaluations.structures.all.length > 1">
-                        <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in structures.all track by structure.id"  ng-change="changeEtablissement()"></select>
+                        <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in structures.all track by structure.id"  ng-change="changeEtablissementAccueil()"></select>
                     </label>
                 </header>
             </div>

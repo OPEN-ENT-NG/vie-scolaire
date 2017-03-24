@@ -423,7 +423,6 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
 
 
-    /**** METHODE INUTILISEE
     @Override
     public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

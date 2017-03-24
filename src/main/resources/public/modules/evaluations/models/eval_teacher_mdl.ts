@@ -7,6 +7,9 @@ let $ = require('jquery');
 declare let _:any;
 
 export class Structure extends Model implements IModel{
+    id: string;
+    libelle: string;
+    type: string;
     eleves : Collection<Eleve>;
     devoirs : Devoirs;
     classes : Collection<Classe>;
@@ -17,7 +20,7 @@ export class Structure extends Model implements IModel{
         return  {
             getEleves : '/viescolaire/etab/eleves/',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
-            getClasses: '/viescolaire/evaluations/classes'
+            getClasses: '/viescolaire/evaluations/classes?idEtablissement='
         }
     }
 
@@ -47,10 +50,13 @@ export class Structure extends Model implements IModel{
         });
     }
     syncDevoirs () :  Promise<any> {
-        this.collection(Devoir, new DevoirsCollection());
-        this.devoirs.sync().then((data) =>{
-            this.synchronized.devoirs = true;
-            this.devoirs.trigger('devoirs-sync');
+        return new Promise((resolve, reject) => {
+            this.collection(Devoir, new DevoirsCollection(this.id));
+            this.devoirs.sync().then((data) =>{
+                this.synchronized.devoirs = true;
+                this.devoirs.trigger('devoirs-sync');
+                resolve();
+            });
         });
     }
 
@@ -61,7 +67,7 @@ export class Structure extends Model implements IModel{
                 CLASSE : 'Classe',
                 GROUPE : "Groupe d'enseignement"
             };
-            http().getJson(this.api.getClasses).done((res) => {
+            http().getJson(this.api.getClasses+this.id).done((res) => {
                 _.map(res, (classe) => {
                     let libelleClasse;
                     if(classe.type_groupe_libelle = classe.type_groupe === 0){
@@ -312,7 +318,6 @@ export class OtherClasse extends Model{
 }
 export class OtherClasses extends Model {
     all: OtherClasse[];
-
     constructor(p?: any) {
         super();
         this.all = [];
@@ -320,10 +325,10 @@ export class OtherClasses extends Model {
 
 }
 function isChefEtab () {
-  return  model.me.type === 'PERSEDUCNAT' &&
-    model.me.functions !== undefined &&
-    model.me.functions.DIR !== undefined &&
-    model.me.functions.DIR.code === 'DIR';
+    return  model.me.type === 'PERSEDUCNAT' &&
+        model.me.functions !== undefined &&
+        model.me.functions.DIR !== undefined &&
+        model.me.functions.DIR.code === 'DIR';
 }
 export class Classe extends Model {
     eleves : Collection<Eleve>;
@@ -339,7 +344,7 @@ export class Classe extends Model {
             syncClasse: '/directory/class/' + this.id + '/users?type=Student',
             syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student',
             syncClasseChefEtab : '/viescolaire/classes/'+this.id+'/users'
-    }
+        }
     }
 
     constructor (o? : any) {
@@ -351,9 +356,9 @@ export class Classe extends Model {
                     this.mapEleves = {};
                     let url;
                     if(isChefEtab()){
-                         url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasseChefEtab;
+                        url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasseChefEtab;
                     }else {
-                         url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasse;
+                        url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasse;
                     }
                     http().getJson(url).done((data) => {
                         this.eleves.load(data);
@@ -376,8 +381,6 @@ export class Eleve extends Model implements IModel{
     id : string;
     firstName: string;
     lastName: string;
-    level: string;
-    classes: string;
     suiviCompetences : Collection<SuiviCompetence>;
 
     get api() {
@@ -1273,114 +1276,136 @@ export class Evaluations extends Model{
         };
     }
 
-    sync () {
-        this.collection(Type, {
-            sync : function () {
-                http().getJson('/viescolaire/evaluations/types?idEtablissement='+model.me.structures[0]).done(function (res) {
-                    this.load(res);
-                    evaluations.synchronized.types = true;
-                }.bind(this));
-            }
-        });
-        this.types.sync();
-        this.collection(Devoir, new DevoirsCollection());
-        this.devoirs.sync();
-        this.collection(Enseignement, {
-            // sync : '/viescolaire/evaluations/enseignements'
-            sync : function  (idClasse?:any) {
-                var uri = '/viescolaire/evaluations/enseignements';
-                if (idClasse !== undefined) {
-                    uri += '?idClasse='+idClasse;
+    sync () : Promise<any> {
+        return new Promise((resolve, reject) => {
+
+            // On charge les établissements de l'utilisateur
+            let structuresTemp = [];
+            this.collection(Structure);
+            for (var i = 0; i < model.me.structures.length; i++) {
+                let structure = new Structure();
+                structure.id = model.me.structures[i];
+                structure.libelle = model.me.structureNames[i];
+                structuresTemp.push(structure);
+
+                // Par défaut on initialise l'établissement avec le premier établissement de l'utilisateur
+                if (i == 0 && (this.structure === undefined || this.structure === null)){
+                    this.structure = structure;
                 }
-                http().getJson(uri).done(function (res) {
-                    this.load(res);
-                    var that = this;
-                    this.each(function (enseignement) {
-                        enseignement.competences.load(enseignement['competences_1']);
-                        _.map(enseignement.competences.all, function(competence) {
-                            return competence.composer = enseignement;
+            }
+            this.structures.load(structuresTemp);
+
+            // On charge les types d'évaluation par établissement
+            this.collection(Type, {
+                sync : function () {
+                    http().getJson('/viescolaire/evaluations/types?idEtablissement='+this.model.structure.id).done(function (res) {
+                        this.load(res);
+                        evaluations.synchronized.types = true;
+                    }.bind(this));
+                }
+            });
+            this.types.sync();
+
+
+            this.collection(Devoir, new DevoirsCollection(this.structure.id));
+            this.devoirs.sync();
+            this.collection(Enseignement, {
+                // sync : '/viescolaire/evaluations/enseignements'
+                sync : function  (idClasse?:any) {
+                    var uri = '/viescolaire/evaluations/enseignements';
+                    if (idClasse !== undefined) {
+                        uri += '?idClasse='+idClasse;
+                    }
+                    http().getJson(uri).done(function (res) {
+                        this.load(res);
+                        var that = this;
+                        this.each(function (enseignement) {
+                            enseignement.competences.load(enseignement['competences_1']);
+                            _.map(enseignement.competences.all, function(competence) {
+                                return competence.composer = enseignement;
+                            });
+                            enseignement.competences.each(function (competence) {
+                                if (competence['competences_2'].length > 0) {
+                                    competence.competences.load(competence['competences_2']);
+                                    _.map(competence.competences.all, function (sousCompetence) {
+                                        return sousCompetence.composer = competence;
+                                    });
+                                }
+                                delete competence['competences_2'];
+                            });
+                            delete enseignement['competences_1'];
                         });
-                        enseignement.competences.each(function (competence) {
-                            if (competence['competences_2'].length > 0) {
-                                competence.competences.load(competence['competences_2']);
-                                _.map(competence.competences.all, function (sousCompetence) {
-                                    return sousCompetence.composer = competence;
-                                });
+                    }.bind(this));
+                }
+            });
+            this.enseignements.sync();
+            this.collection(Matiere, {
+                sync : function () {
+
+
+                    if(isChefEtab()){
+                        http().getJson('/viescolaire/matieres').done(function (res) {
+                            this.load(res);
+                        }.bind(this));
+                    }else {
+                        http().getJson('/viescolaire/matieres?idEnseignant=' + model.me.userId+'&idEtablissement='+ this.model.structure.id).done(function (res) {
+                            this.load(res);
+                            this.each(function (matiere) {
+                                matiere.sousMatieres.load(matiere.sous_matieres);
+                                evaluations.synchronized.matieres = true;
+                                delete matiere.sous_matieres;
+                            });
+                        }.bind(this));
+                    }
+                }
+            });
+            this.matieres.sync();
+            this.collection(Periode, {
+                sync : function () {
+                    http().getJson('/viescolaire/evaluations/periodes?idEtablissement=' + this.model.structure.id).done(function (res) {
+                        this.load(res);
+                        this.trigger('sync');
+                    }.bind(this));
+                }
+            });
+            this.periodes.sync();
+            this.collection(ReleveNote);
+            const libelle = {
+                CLASSE : 'Classe',
+                GROUPE : "Groupe d'enseignement"
+            };
+            this.collection(Classe, {
+                sync : function () {
+                    http().getJson('/viescolaire/evaluations/classes?idEtablissement=' + this.model.structure.id).done((res) => {
+                        _.map(res, (classe) => {
+                            let libelleClasse;
+                            if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                                libelleClasse = libelle.CLASSE;
+                            } else {
+                                libelleClasse =  libelle.GROUPE;
                             }
-                            delete competence['competences_2'];
+                            classe.type_groupe_libelle = libelleClasse;
+                            return classe;
                         });
-                        delete enseignement['competences_1'];
-                    });
-                }.bind(this));
-            }
-        });
-        this.enseignements.sync();
-        this.collection(Matiere, {
-            sync : function () {
+                        evaluations.classes.load(res);
 
 
-                if(isChefEtab()){
-                    http().getJson('/viescolaire/matieres').done(function (res) {
-                        this.load(res);
-                    }.bind(this));
-                }else {
-                    http().getJson('/viescolaire/matieres?idEnseignant=' + model.me.userId).done(function (res) {
-                        this.load(res);
-                        this.each(function (matiere) {
-                            matiere.sousMatieres.load(matiere.sous_matieres);
-                            evaluations.synchronized.matieres = true;
-                            delete matiere.sous_matieres;
-                        });
-                    }.bind(this));
-                }
-            }
-        });
-        this.matieres.sync();
-        this.collection(Periode, {
-            sync : function () {
-                http().getJson('/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]).done(function (res) {
-                    this.load(res);
-                    this.trigger('sync');
-                }.bind(this));
-                }
-        });
-        this.periodes.sync();
-        this.collection(ReleveNote);
-        const libelle = {
-            CLASSE : 'Classe',
-            GROUPE : "Groupe d'enseignement"
-        };
-        this.collection(Classe, {
-            sync : function () {
-                http().getJson('/viescolaire/evaluations/classes?idEtablissement=' + this.model.structure.id).done((res) => {
-                    _.map(res, (classe) => {
-                        let libelleClasse;
-                        if(classe.type_groupe_libelle = classe.type_groupe === 0){
-                            libelleClasse = libelle.CLASSE;
-                        } else {
-                            libelleClasse =  libelle.GROUPE;
-                        }
-                        classe.type_groupe_libelle = libelleClasse;
-                        return classe;
-                    });
-                    evaluations.classes.load(res);
-
-
-                    evaluations.synchronized.classes = evaluations.classes.all.length;
-                    for (let i = 0; i < evaluations.classes.all.length; i++) {
-                        // evaluations.classes.all[i].eleves.sync().then(() => {
+                        evaluations.synchronized.classes = evaluations.classes.all.length;
+                        for (let i = 0; i < evaluations.classes.all.length; i++) {
+                            // evaluations.classes.all[i].eleves.sync().then(() => {
                             evaluations.synchronized.classes--;
                             if (evaluations.synchronized.classes === 0) {
                                 evaluations.classes.trigger('classes-sync');
                             }
-                        // });
-                    }
-                });
-            }
-        });
-        this.classes.sync();
-        this.devoirs.on('sync', function () {
-            evaluations.synchronized.devoirs = true;resolve();
+                            // });
+                        }
+                    });
+                }
+            });
+            this.classes.sync();
+            this.devoirs.on('sync', function () {
+                evaluations.synchronized.devoirs = true;
+                resolve();
             });
         });
     }
@@ -1895,17 +1920,6 @@ export class GestionRemplacement extends Model implements IModel{
         this.selectedRemplacements = [];
     }
 
-}
-
-export class Structure extends Model {
-    id: string;
-    libelle: string;
-    type: string;
-
-    constructor() {
-        super();
-
-    }
 }
 
 

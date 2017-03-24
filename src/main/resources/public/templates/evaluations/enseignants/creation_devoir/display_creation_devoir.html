@@ -188,9 +188,14 @@
                                 </div>
 
                                 <div class="separator" />
-
+                                <section ng-if="endSaisie" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>end.saisie</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Période -->
+
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.periode</i18n>
                                         <i class="fa fa-asterisk obligatoire"></i>
@@ -293,12 +298,14 @@
         </div>
 
         <div class="twelve cell">
-            <input class="button-add-devoir " type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+            <input class="button-add-devoir " type="button" ng-click="beforSaveDevoir()"
+                   ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
         </div>
 
     </div>
 
-    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="beforSaveDevoir()"
+           ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
 
 
     <!-- PARTIE RECAPITULATIF -->

@@ -705,11 +705,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             let current_periode = $scope.periodes.findWhere({id: $scope.devoir.id_periode});
             let start_datePeriode = current_periode.timestamp_dt;
             let end_datePeriode = current_periode.timestamp_fn;
-
+            let date_saisie = current_periode.date_fin_saisie;
+            if(moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0){
+               $scope.endSaisie = false;
+               utils.safeApply($scope);
+            }
+            else{
+                $scope.endSaisie = true;
+                utils.safeApply($scope);
+            }
 
             $scope.devoir.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
                 && (moment($scope.devoir.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
+                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
+                && (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
         };
 
         $scope.selectDevoir = function (devoir) {

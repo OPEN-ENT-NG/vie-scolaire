@@ -263,5 +263,7 @@
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
   "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
   "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
-  "open.devoir" : "Ouvrir l'évaluation"
+  "open.devoir" : "Ouvrir l'évaluation",
+  "save.devoir" : "Enregistrer l'évaluation",
+  "end.saisie" : "Il n'est plus possible de créer un devoir sur cette période"
 }

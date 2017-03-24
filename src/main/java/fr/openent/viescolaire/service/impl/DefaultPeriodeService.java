@@ -45,7 +45,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT periode.id, periode.id_etablissement as id_etablissement, periode.libelle, periode.timestamp_dt, periode.timestamp_fn ")
+        query.append("SELECT periode.id, periode.id_etablissement as id_etablissement, periode.libelle, periode.timestamp_dt, periode.timestamp_fn, periode.date_fin_saisie ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".periode ")
                 .append("WHERE periode.id_etablissement = ? ")
                 .append("ORDER BY periode.timestamp_dt ASC");

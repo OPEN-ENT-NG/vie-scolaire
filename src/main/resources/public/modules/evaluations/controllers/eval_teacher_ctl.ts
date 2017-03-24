@@ -147,8 +147,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             listDevoirs : function(params){
                 $scope.cleanRoot();
-                $scope.periodesList = $scope.periodes.all;
-                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                //rajout de la periode Annee
+                $scope.periodes.sync();
+                $scope.periodes.on('sync', function () {
+                    if($scope.periodesList === undefined ){
+                        $scope.periodesList = [];
+                        _.map($scope.periodes.all, function (periode) {
+                            $scope.periodesList.push(periode);
+                        });
+                        $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                    }
+                });
+
+
                 template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                 if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();

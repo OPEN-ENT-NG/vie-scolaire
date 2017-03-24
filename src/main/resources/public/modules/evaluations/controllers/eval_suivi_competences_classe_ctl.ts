@@ -11,8 +11,18 @@ declare let _:any;
 export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClasseCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route',
     function ($scope, route, $rootScope, $location, $filter, $route) {
-        $scope.periodesList = $scope.periodes.all;
-        $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+        //rajout de la periode Annee
+        $scope.periodes.sync();
+        $scope.periodes.on('sync', function () {
+            if($scope.periodesList === undefined ){
+                $scope.periodesList = [];
+                _.map($scope.periodes.all, function (periode) {
+                    $scope.periodesList.push(periode);
+                });
+                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+            }
+        });
+
 
         template.open('container', '../templates/layouts/2_10_layout');
         template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');

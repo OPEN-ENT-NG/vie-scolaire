@@ -1228,7 +1228,15 @@ export class Evaluations extends Model {
             }
         });
         this.matieres.sync();
-        this.collection(Periode, {sync : '/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]});
+        this.collection(Periode, {
+            sync : function () {
+                http().getJson('/viescolaire/evaluations/periodes?idEtablissement=' + model.me.structures[0]).done(function (res) {
+                    this.load(res);
+                    this.trigger('sync');
+                }.bind(this));
+                }
+        });
+        this.periodes.sync();
         this.collection(ReleveNote);
         const libelle = {
             CLASSE : 'Classe',

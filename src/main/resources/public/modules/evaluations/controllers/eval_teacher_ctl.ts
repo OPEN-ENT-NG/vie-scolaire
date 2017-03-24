@@ -1,7 +1,7 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {
     Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement,
-    OtherClasse, OtherClasses
+    OtherClasse, OtherClasses, Structure
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {Collection} from "../../entcore/modelDefinitions";

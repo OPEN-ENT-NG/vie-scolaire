@@ -274,7 +274,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.updateSuiviEleve = (Eleve) => {
             $scope.selected.grey = true;
             let path = '/competences/eleve';
-            let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classEleve.id};
+            let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classes[0]};
             $scope.goTo(path, idOfpath);
             $scope.initSuivi();
 

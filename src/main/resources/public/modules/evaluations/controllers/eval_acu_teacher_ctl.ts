@@ -159,7 +159,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
          */
         $scope.openSuiviEleve = (Eleve) => {
             let path = '/competences/eleve';
-            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classEleve.id};
+            let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.classes[0]};
             $scope.goTo(path,idOfpath);
         };
 

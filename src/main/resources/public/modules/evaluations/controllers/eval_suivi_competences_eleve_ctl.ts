@@ -284,13 +284,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
                 delete $scope.suiviCompetence;
-
-
             } else {
+
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
                 $scope.displayFromEleve = true;
                 utils.safeApply($scope);
-
             }
         };
 

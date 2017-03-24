@@ -248,6 +248,7 @@ public class MatiereController extends ControllerHelper {
 
     /**
      * Retourne les matières enseignées par un enseignant donné
+     * Ou les matiére de l'établissement, si (Chef ETab).
      * @param request
      */
     @Get("/matieres")
@@ -258,18 +259,23 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
-                                @Override
-                                public void handle(Either<String, JsonArray> event) {
-                                    if(event.isRight()) {
-                                        JsonArray oTitulairesIdList = event.right().getValue();
-                                        listMatieres(oTitulairesIdList, request);
-                                    } else {
-                                        leftToResponse(request, event.left());
+                    if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        matiereService.listMatieresEtab(user, handler);
+                    }else{
+                        utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonArray> event) {
+                                        if(event.isRight()) {
+                                            JsonArray oTitulairesIdList = event.right().getValue();
+                                            listMatieres(oTitulairesIdList, request);
+                                        } else {
+                                            leftToResponse(request, event.left());
+                                        }
                                     }
                                 }
-                            }
-                    );
+                        );
+                    }
                 }else{
                     unauthorized(request);
                 }

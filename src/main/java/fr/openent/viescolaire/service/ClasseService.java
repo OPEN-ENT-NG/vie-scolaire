@@ -21,6 +21,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
@@ -34,4 +35,13 @@ public interface ClasseService extends CrudService {
      * @param handler Handler portant le résultat de la requête.
      */
     public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère toutes les classes d'une classe donné en fonction de son id Neo4j.
+
+     * @param idClasse
+     * @param handler
+     */
+    public void getEleveClasse( String idClasse, Handler<Either<String, JsonArray>> handler);
+
 }

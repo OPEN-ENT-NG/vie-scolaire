@@ -99,4 +99,12 @@ public interface DevoirService extends CrudService {
      * @param handler
      */
     public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Liste des devoirs pour un établissement.
+     *
+     * @param user
+     * @param handler
+     */
+    public void listDevoirsEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler);
 }

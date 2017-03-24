@@ -57,6 +57,8 @@ public class UtilsController extends ControllerHelper {
         utilsService = new DefaultUtilsService();
     }
 
+
+
     /**
      * Retourne tous les types de devoir par etablissement
      * @param request
@@ -224,7 +226,7 @@ public class UtilsController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if (user != null) {
-                    utilsService.listClasses(user.getClasses(), user.getGroupsIds(), new Handler<Either<String, JsonArray>>() {
+                    utilsService.listClasses(user, new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {

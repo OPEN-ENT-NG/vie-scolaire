@@ -61,6 +61,7 @@ public class AccessCompetenceNoteFilter implements ResourcesProvider {
                     Renders.badRequest(resourceRequest, "Error : idNote must be a long object");
                 }
             }
+
             break;
             default: {
                 handler.handle(false);

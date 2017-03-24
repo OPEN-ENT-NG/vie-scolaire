@@ -17,7 +17,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
              * @type {[string]}
              */
             $scope.ToDelete = [
-                 "/devoir/create"
+                "/devoir/create"
             ];
             if($scope.ariane === undefined && $route.current.originalPath !== $route.routes.null.redirectTo ){
                 var initFilNonAcceuil = true;
@@ -81,7 +81,17 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                             url : ""
                         };
                         if(getSize($route.current.params) > 0){
-                            state.url = $route.current.originalPath.replace($route.current.regexp.exec($route.current.originalPath)[1], $route.current.params[$route.current.regexp.exec($route.current.originalPath)[1].substring(1)]);
+                            state.url = $route.current.originalPath+'?';
+                            for(let i=0; i <= getSize($route.current.params); i++) {
+                                if (i === 0) {
+                                    let key = Object.keys($route.current.params)[i];
+                                    state.url += key+ '=' + $route.current.params[key];
+                                } else {
+                                    let key = Object.keys($route.current.params)[i];
+                                    state.url +=  '&'+key+'='+$route.current.params[key];
+                                }
+                            }
+
                         }else{
                             state.url = $route.current.originalPath;
                         }

@@ -83,6 +83,18 @@ public class AccessReleveFilter implements ResourcesProvider {
                         });
             }
             break;
+            case "Personnel" : {
+                resourceRequest.pause();
+
+               if(user.getFunctions().containsKey("DIR")){
+
+                   handler.handle(true);
+                   resourceRequest.resume();
+               }else{
+                   handler.handle(false);
+               }
+            }
+            break;
             default: {
                 handler.handle(false);
             }

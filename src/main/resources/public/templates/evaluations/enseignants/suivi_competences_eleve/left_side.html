@@ -43,7 +43,7 @@
             </select>
         </label>
     </section>
-    <section ng-show="!template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')">
+    <section ng-show="!template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle') && !isChefEtab()">
         <div>
             <label>
                 <input type="radio" ng-change="suiviCompetence.setMoyenneCompetences(suiviFilter.mine)"
@@ -69,6 +69,6 @@
     <div ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_eleve.html'"></div>
 </div>
 <div ng-if="!template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_fin_cycle')
-    || isChefEtab" class="cell card twelve criterion notes-help">
+    || isChefEtab()" class="cell card twelve criterion notes-help">
     <div class="legend" ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_competences_legende.html'"></div>
 </div>

@@ -22,6 +22,7 @@ package fr.openent.evaluations.service;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -122,11 +123,10 @@ public interface UtilsService {
 
     /**
      * Récupère la liste des classes de l'utilisateur
-     * @param idClasses identifiant des classes
-     * @param idGroupes identifiant des groupes
+     *
      * @param handler handler portant le résultat de la requête
      */
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler);
+    public void listClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur
@@ -153,4 +153,6 @@ public interface UtilsService {
      * @return Un JsonArray contenant les deux tableau
      */
     public JsonArray saUnion(JsonArray recipient, JsonArray list);
+
+
 }

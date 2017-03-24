@@ -25,6 +25,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -53,7 +54,23 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
+    @Override
+    public void listMatieresEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonObject values = new JsonObject();
+        JsonArray EtabListe = new JsonArray();
 
+        for(int i = 0 ; i < user.getStructures().size(); i++){
+            EtabListe.addString(user.getStructures().get(i).toString());
+        }
+        values.putArray("idEtabs", EtabListe);
+
+        query.append("MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure) ")
+                .append("where s.id IN {idEtabs} ")
+                .append("RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name ");
+
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    }
     @Override
     public void listMatieres(String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();

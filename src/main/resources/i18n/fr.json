@@ -199,6 +199,8 @@
   "evaluations.lightbox.duplication.mid":"Evaluation sélectionnée :",
   "evaluations.lightbox.duplication.bot":"Classes et groupes où dupliquer l'évaluation :",
   "evaluations.toaster.duplication":"Dupliquer",
+  "evaluations.devoir.information.enconstruction":"Cette page est en cours de construction",
+  "evaluations.devoir.ok":"Ok",
   "evaluations.competences.overview":"Récapitulatif des compétences",
   "evaluation.classe.average":"Moyenne de la classe",
   "evaluation.domaine.average":"Niveau de maîtrise du domaine",

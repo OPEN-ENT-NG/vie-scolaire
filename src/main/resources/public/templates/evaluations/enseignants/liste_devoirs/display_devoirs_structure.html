@@ -16,6 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+<div ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_construction_page.html'"></div>
 
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
@@ -25,7 +26,8 @@
             <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view') }"
                ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
-        <button class="marginFive" ng-click="goTo('/devoir/create');"><i18n>evaluations.test.new</i18n></button>
+        <button ng-show="!isChefEtab()" class="marginFive" ng-click="goTo('/devoir/create');"><i18n>evaluations.test.new</i18n></button>
+        <button ng-show="isChefEtab()" class="marginFive" ng-click="displayInConstruction();"><i18n>evaluations.test.new</i18n></button>
         <div class="microbox-wrapper zero">
             <div class="microbox-content">
                 <i class="close-2x"></i>
@@ -104,8 +106,12 @@
 <section class="toggle-buttons" ng-class="{ hide: selected.devoirs.list.length == 0 }">
     <div class="toggle">
         <div class="row">
-            <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"
+            <button ng-show="selected.devoirs.list.length === 1 && !isChefEtab()" class="cell ng-scope"
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
+                <i18n><span class="no-style">evaluations.test.edit</span></i18n>
+            </button>
+            <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
+                    ng-click="displayInConstruction();">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
             <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"

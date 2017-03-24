@@ -84,34 +84,40 @@ public class DevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    if (request.params().size() == 1) {
+                    if(user.getType().equals("Personnel") && user.getFunctions().containsKey("DIR")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        devoirsService.listDevoirsEtab(user, handler);
+                    }else{
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        if (request.params().size() == 1) {
 
-                        devoirsService.listDevoirs(user, handler);
+                            devoirsService.listDevoirs(user, handler);
 
 
 
-                    } else {
-                        String idEtablissement = request.params().get("idEtablissement");
-                        String idClasse = request.params().get("idClasse");
-                        String idMatiere = request.params().get("idMatiere");
-
-                        Long idPeriode;
-                        try {
-                            idPeriode = Long.parseLong(request.params().get("idPeriode"));
-                        } catch(NumberFormatException e) {
-                            log.error("Error : idPeriode must be a long object", e);
-                            badRequest(request, e.getMessage());
-                            return;
-                        }
-
-                        if (idEtablissement != "undefined" && idClasse != "undefined"
-                                && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
-                            devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
                         } else {
-                            Renders.badRequest(request, "Invalid parameters");
+                            String idEtablissement = request.params().get("idEtablissement");
+                            String idClasse = request.params().get("idClasse");
+                            String idMatiere = request.params().get("idMatiere");
+
+                            Long idPeriode;
+                            try {
+                                idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                            } catch(NumberFormatException e) {
+                                log.error("Error : idPeriode must be a long object", e);
+                                badRequest(request, e.getMessage());
+                                return;
+                            }
+
+                            if (idEtablissement != "undefined" && idClasse != "undefined"
+                                    && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
+                                devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                            } else {
+                                Renders.badRequest(request, "Invalid parameters");
+                            }
                         }
                     }
+
                 }else{
                     unauthorized(request);
                 }
@@ -207,13 +213,13 @@ public class DevoirController extends ControllerHelper {
 
 
     /**
-     * Liste des devoirs publiés pour un établissement et une période donnée.
+     * Liste des devoirs publiés par l'utilisateur pour un établissement et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
      *
      * @param request
      */
     @Get("/devoirs/periode/:idPeriode")
-    @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
+    @ApiDoc("Liste des devoirs publiés par l'utilisateur pour un établissement et une période donnée.")
     @SecuredAction(value = "", type= ActionType.RESOURCE)
     @ResourceFilter(AccessPeriodeFilter.class)
     public void listDevoirsPeriode (final HttpServerRequest request){

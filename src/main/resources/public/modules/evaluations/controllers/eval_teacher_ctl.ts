@@ -20,11 +20,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.cleanRoot();
 
                 // Chefs d'établissement
-                $scope.isChefEtab = model.me.type === 'PERSEDUCNAT' &&
-                    model.me.functions !== undefined &&
-                    model.me.functions.DIR !== undefined &&
-                    model.me.functions.DIR.code === 'DIR';
 
+                if($scope.Structure === undefined){$scope.Structure = new Structure();}
+                //si les Eleves ne sont pas sync
+                if( $scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false){
+                    $scope.Structure.syncEleves(model.me.structures[0]).then((data) => {
+                        // console.log("Eleve Sync (/)");
+                    });
+
+                }
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
 
             },
@@ -147,23 +151,47 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             listDevoirs : function(params){
                 $scope.cleanRoot();
-                //rajout de la periode Annee
-                $scope.periodes.sync();
-                $scope.periodes.on('sync', function () {
-                    if($scope.periodesList === undefined ){
-                        $scope.periodesList = [];
-                        _.map($scope.periodes.all, function (periode) {
-                            $scope.periodesList.push(periode);
+                let openTamplates = () => {
+                    //rajout de la periode Annee
+                    $scope.periodes.sync();
+                    $scope.periodes.on('sync', function () {
+                        if($scope.periodesList === undefined ){
+                            $scope.periodesList = [];
+                            _.map($scope.periodes.all, function (periode) {
+                                $scope.periodesList.push(periode);
+                            });
+                            $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                        }
+                    });
+
+                    template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
+                    template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
+                    utils.safeApply($scope);
+                };
+
+                if($scope.isChefEtab() ){
+                    $scope.modificationDevoir = false;
+                    if($scope.Structure === undefined )
+                        $scope.Structure = new Structure();
+                    if(!$scope.Structure.synchronized.classes) {
+                        $scope.Structure.syncClasses();
+                        $scope.Structure.classes.on('classes-sync', () => {
+                            $scope.Structure.syncDevoirs();
+                           // console.log("Classes sync (/)");
+                            $scope.Structure.devoirs.on("devoirs-sync", () => {
+                               // console.log("Devoirs sync (/)");
+                                openTamplates();
+                            });
                         });
-                        $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                    }else{
+                        openTamplates();
                     }
-                });
+                }else{
 
+                    if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
+                    openTamplates();
+                }
 
-                template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
-                template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
-                if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
-                utils.safeApply($scope);
             },
             viewNotesDevoir : function(params){
                 $scope.cleanRoot();
@@ -238,20 +266,28 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displaySuiviCompetencesEleve : function (params) {
                 $scope.cleanRoot();
+                let display = () => {
+                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
+                    if ($scope.informations.eleve === undefined) {
+                        $scope.informations.eleve = null;
+                    }
+                    $scope.sortType = 'title'; // set the default sort type
+                    $scope.sortReverse = false;  // set the default sort order
+                };
                 if( params.idEleve != undefined && params.idClasse != undefined ){
                     //console.log(params.idEleve);
                     // console.log(params.idClasse);
                     $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
-                    $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
-                    if($scope.displayFromClass)  $scope.displayFromClass= false;
-                    $scope.displayFromClass = true;
+                    $scope.search.classe.eleves.sync().then(() =>{
+                        $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                        if($scope.displayFromClass)  $scope.displayFromClass= false;
+                        $scope.displayFromClass = true;
+                        display();
+                    });
+                }else{
+                    display();
                 }
-                template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
-                if($scope.informations.eleve === undefined){
-                    $scope.informations.eleve = null;
-                }
-                $scope.sortType     = 'title'; // set the default sort type
-                $scope.sortReverse  = false;  // set the default sort order
+
 
             },
             displaySuiviCompetencesClasse : function () {
@@ -264,7 +300,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
 
-
+         $scope.isChefEtab =() =>{
+            return model.me.type === 'PERSEDUCNAT' &&
+                model.me.functions !== undefined &&
+                model.me.functions.DIR !== undefined &&
+                model.me.functions.DIR.code === 'DIR';
+        }
         $scope.evaluations = evaluations;
         $scope.competencesSearchKeyWord = "";
         $scope.devoirs = evaluations.devoirs;
@@ -289,6 +330,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             type : '*',
             idEleve : '*',
             name : ''
+
         };
         $scope.OtherClasses = new OtherClasses();
         $scope.informations = {};
@@ -347,7 +389,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.synchronizeStudents = (idClasse) => {
             let _classe = evaluations.classes.findWhere({id : idClasse});
             if (_classe !== undefined && _classe.eleves.empty()) {
-              _classe.eleves.sync();
+                _classe.eleves.sync();
             }
         };
 
@@ -1411,8 +1453,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
-
-
+        /**
+         *Afficher une lightbox 'page en cours de construction'
+         */
+        $scope.displayInConstruction = () => {
+           $scope.modificationDevoir = true;
+           utils.safeApply($scope);
+        };
+        /**
+         *Fermer une lightbox 'page en cours de construction'
+         */
+        $scope.closeInConstruction = () => {
+            $scope.modificationDevoir = false;
+            utils.safeApply($scope);
+        };
         /**
          * Séquence de récupération d'un relevé de note
          */
@@ -1443,10 +1497,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.releveNote.sync().then(() => {
                             $scope.releveNote.synchronized.releve = true;
                             $scope.releveNote.calculStatsDevoirs().then(() => {
-                               $scope.releveNote.calculMoyennesEleves().then(() => {
-                                   utils.safeApply($scope);
-                               });
-                               utils.safeApply($scope);
+                                $scope.releveNote.calculMoyennesEleves().then(() => {
+                                    utils.safeApply($scope);
+                                });
+                                utils.safeApply($scope);
                             });
                             utils.safeApply($scope);
                         });

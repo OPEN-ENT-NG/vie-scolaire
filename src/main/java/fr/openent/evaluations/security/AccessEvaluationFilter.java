@@ -58,6 +58,15 @@ public class AccessEvaluationFilter implements ResourcesProvider {
                 }
             }
             break;
+            case "Personnel" : {
+                resourceRequest.pause();
+                if (!resourceRequest.params().contains("idDevoir")) {
+                    handler.handle(false);
+                }
+                resourceRequest.resume();
+                handler.handle(true);
+            }
+            break;
             default : {
                 handler.handle(false);
             }

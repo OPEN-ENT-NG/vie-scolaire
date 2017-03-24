@@ -257,18 +257,29 @@ public class DefaultUtilsService  implements UtilsService {
 
     /**
      * Récupère la liste des classes de l'utilisateur
-     * @param idClasses identifiant des classes
-     * @param idGroupes identifiant des groupes
+     * @param user
      * @param handler handler portant le résultat de la requête
      */
     @Override
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (g:Class) WHERE g.id IN {structures} return g " +
-                "UNION ALL " +
-                "MATCH (g:FunctionalGroup) WHERE g.id IN {groups} return g";
-        JsonObject params = new JsonObject()
-                .putArray("structures", new JsonArray(idClasses.toArray()))
-                .putArray("groups", new JsonArray(idGroupes.toArray()));
+    public void listClasses(UserInfos user, Handler<Either<String, JsonArray>> handler) {
+        String query;
+        JsonObject params = new JsonObject();
+        if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id IN {structures} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id IN {structures} return g";
+            params.putArray("structures", new JsonArray(user.getStructures().toArray()));
+
+        }
+        else {
+            query = "MATCH (g:Class) WHERE g.id IN {structures} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup) WHERE g.id IN {groups} return g";
+
+            params.putArray("structures", new JsonArray(user.getClasses().toArray()))
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()));
+
+        }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 

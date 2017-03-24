@@ -20,6 +20,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessAuthorozed;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -28,6 +29,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.BaseController;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -35,6 +37,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -57,6 +60,27 @@ public class ClasseController extends BaseController {
             public void handle(UserInfos user) {
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                 classeService.getClasseEtablissement(user.getStructures().get(0), handler);
+            }
+        });
+    }
+
+    @Get("/classes/:idClasse/users")
+    @ApiDoc("Recupere tous les élèves d'une Classe.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getEleveClasse(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
+            @Override
+            public void handle(UserInfos user){
+                if(user != null){
+                    if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        String idClasse = request.params().get("idClasse");
+                        classeService.getEleveClasse(idClasse, handler);
+                    }
+                }else{
+                    unauthorized(request);
+                }
             }
         });
     }

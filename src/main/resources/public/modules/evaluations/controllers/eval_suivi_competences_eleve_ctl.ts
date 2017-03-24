@@ -13,6 +13,17 @@ declare let _:any;
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
+        //rajout de la periode Annee
+        $scope.periodes.sync();
+        $scope.periodes.on('sync', function () {
+            if($scope.periodesList === undefined ){
+                $scope.periodesList = [];
+                _.map($scope.periodes.all, function (periode) {
+                    $scope.periodesList.push(periode);
+                });
+                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+            }
+        });
 
 
         template.open('container', '../templates/layouts/2_10_layout');
@@ -263,7 +274,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.updateSuiviEleve = (Eleve) => {
             $scope.selected.grey = true;
             let path = '/competences/eleve';
-            let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classEleve.id};
+            let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classes[0]};
             $scope.goTo(path, idOfpath);
             $scope.initSuivi();
 
@@ -273,13 +284,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.search.eleve = "";
                 delete $scope.informations.eleve;
                 delete $scope.suiviCompetence;
-
-
             } else {
+
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
                 $scope.displayFromEleve = true;
                 utils.safeApply($scope);
-
             }
         };
 

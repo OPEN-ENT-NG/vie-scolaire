@@ -34,6 +34,17 @@ public class AccessSuiviCompetenceFilter implements ResourcesProvider {
         switch (user.getType()) {
             case "Teacher" : {
                 handler.handle(true);
+                resourceRequest.resume();
+            }
+            break;
+            case "Personnel" : {
+                resourceRequest.pause();
+                if(user.getFunctions().containsKey("DIR")){
+                    resourceRequest.resume();
+                    handler.handle(true);
+                }else{
+                    handler.handle(false);
+                }
             }
             break;
             default: {

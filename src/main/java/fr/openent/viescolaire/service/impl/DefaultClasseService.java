@@ -22,11 +22,15 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.viescolaire.service.ClasseService;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -35,7 +39,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
-
+    private final Neo4j neo4j = Neo4j.getInstance();
     @Override
     public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -48,5 +52,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         params.addString(idEtablissement);
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+    @Override
+    public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        query.append("Match (c:Class{id: {idClasse} }) with c ")
+                .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
+                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes");
+
+        neo4j.execute(query.toString(), new JsonObject().putString("idClasse", idClasse), Neo4jResult.validResultHandler(handler));
+
     }
 }

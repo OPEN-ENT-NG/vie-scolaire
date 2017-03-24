@@ -70,6 +70,17 @@ public class AccessPeriodeFilter implements ResourcesProvider {
                         });
             }
             break;
+            case "Personnel" : {
+                resourceRequest.pause();
+
+                if(user.getFunctions().containsKey("DIR")){
+                    resourceRequest.resume();
+                    handler.handle(true);
+                }else{
+                    handler.handle(false);
+                }
+            }
+            break;
             default: {
                 handler.handle(false);
             }

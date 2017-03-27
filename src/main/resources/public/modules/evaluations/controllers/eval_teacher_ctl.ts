@@ -457,6 +457,60 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
         };
 
+        /**
+         * Changement établissemnt : réinitial
+         * @param Eleve
+         */
+        $scope.changeEtablissement = () => {
+            $scope.evaluations.sync().then(()=>{
+                $scope.evaluations = evaluations;
+
+                evaluations.periodes.on('sync', function () {
+                    setCurrentPeriode().then((defaultPeriode) => {
+                        $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                        utils.safeApply($scope);
+                    });
+                });
+                // On réinitialise les éléments de rech
+                $scope.search = {
+                    matiere: '*',
+                    periode : undefined,
+                    classe : '*',
+                    sousmatiere : '*',
+                    type : '*',
+                    idEleve : '*',
+                    name : ''
+                };
+
+                $scope.periodes = evaluations.periodes;
+                $scope.periodes.sync();
+                $scope.classes = evaluations.classes;
+                $scope.devoirs = evaluations.devoirs;
+                $scope.matieres = evaluations.matieres;
+                utils.safeApply($scope);
+            });
+        };
+
+
+        $scope.updateEtabInfo = () =>{
+            $scope.evaluations.sync().then(()=>{
+                $scope.evaluations = evaluations;
+
+                evaluations.periodes.on('sync', function () {
+                    setCurrentPeriode().then((defaultPeriode) => {
+                        $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                        utils.safeApply($scope);
+                    });
+                });
+                $scope.periodes = evaluations.periodes;
+                $scope.periodes.sync();
+                $scope.classes = evaluations.classes;
+                $scope.devoirs = evaluations.devoirs;
+                $scope.matieres = evaluations.matieres;
+                utils.safeApply($scope);
+            });
+        };
+
         $scope.annulerDuplication = () => {
             $scope.selected.classes = [];
             $scope.opened.lightboxs.duplication = false;

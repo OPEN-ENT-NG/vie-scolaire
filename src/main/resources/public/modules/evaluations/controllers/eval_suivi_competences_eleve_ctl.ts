@@ -156,10 +156,21 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             let current_periode = $scope.periodes.findWhere({id: $scope.EvaluationLibreCharge.periode.id});
             let start_datePeriode = current_periode.timestamp_dt;
             let end_datePeriode = current_periode.timestamp_fn;
+            let date_saisie = current_periode.date_fin_saisie;
+
+            if (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0) {
+                $scope.endSaisieFree = false;
+                utils.safeApply($scope);
+            }
+            else {
+                $scope.endSaisieFree = true;
+                utils.safeApply($scope);
+            }
 
             $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
                 && (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
+                && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
+                && (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
         };
 
         /**
@@ -194,19 +205,19 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *
          */
         /* Methode plus utilisée
-        $scope.afficherDomaineSuivant = function () {
-            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-                var domaine = $scope.suiviCompetence.domaines.all[i];
-                if (i > 0) {
-                    var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
-                    if (domainePrec.visible && !domaine.visible) {
-                        domaine.visible = true;
-                        domaine.setVisibleSousDomaines(true);
-                        return;
-                    }
-                }
-            }
-        };*/
+         $scope.afficherDomaineSuivant = function () {
+         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+         var domaine = $scope.suiviCompetence.domaines.all[i];
+         if (i > 0) {
+         var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
+         if (domainePrec.visible && !domaine.visible) {
+         domaine.visible = true;
+         domaine.setVisibleSousDomaines(true);
+         return;
+         }
+         }
+         }
+         };*/
 
         /**
          *
@@ -214,14 +225,14 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *
          */
         /* Methode plus utilisée
-        $scope.initAffichageDomaines = function () {
-            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-                var domaine = $scope.suiviCompetence.domaines.all[i];
-                var bPremierDomaine = (i == 0);
-                domaine.visible = bPremierDomaine;
-                domaine.setVisibleSousDomaines(bPremierDomaine);
-            }
-        };*/
+         $scope.initAffichageDomaines = function () {
+         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+         var domaine = $scope.suiviCompetence.domaines.all[i];
+         var bPremierDomaine = (i == 0);
+         domaine.visible = bPremierDomaine;
+         domaine.setVisibleSousDomaines(bPremierDomaine);
+         }
+         };*/
 
         /**
          * Créer une suivi de compétence

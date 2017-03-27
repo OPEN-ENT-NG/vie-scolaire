@@ -110,7 +110,7 @@ export class ReleveNote extends  Model implements IModel{
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/releve?idEtablissement='+model.me.structures[0]+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode
+            get : '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode
         }
     }
 
@@ -1845,7 +1845,7 @@ export class GestionRemplacement extends Model implements IModel{
     get api () {
         return {
             deleteMultiple : '/viescolaire/evaluations/remplacements/delete', // TODO A coder
-            //enseignants : '/directory/user/admin/list?structureId='+model.me.structures[0]+'&profile=Teacher',
+            //enseignants : '/directory/user/admin/list?structureId='+TBD+'&profile=Teacher',
             enseignants : '/viescolaire/evaluations/user/list?structureId='+model.me.structures[0]+'&profile=Teacher',
             remplacements : '/viescolaire/evaluations/remplacements/list'
         }

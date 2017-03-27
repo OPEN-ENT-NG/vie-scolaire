@@ -108,6 +108,11 @@
 
 
         <div class="separator"/>
+        <section ng-if="endSaisieFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>end.saisie</i18n>
+            </div>
+        </section>
 
         <section class="row twelve-mobile">
             <!-- Période -->
@@ -117,6 +122,7 @@
             </div>
 
             <div class="nine cell twelve-mobile">
+
                 <label class="select four twelve-mobile">
                     <select ng-model="EvaluationLibreCharge.periode" ng-change="controleDate()" ng-options="periode.libelle for periode in periodes.all">
                         <option  value="" ng-if = "EvaluationLibreCharge.periode === undefined || EvaluationLibreCharge.periode === null || EvaluationLibreCharge.periode===''">[[translate('viescolaire.utils.periode')]]

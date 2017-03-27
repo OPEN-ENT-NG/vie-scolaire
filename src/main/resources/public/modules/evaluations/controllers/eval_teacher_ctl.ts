@@ -177,9 +177,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.Structure.syncClasses();
                         $scope.Structure.classes.on('classes-sync', () => {
                             $scope.Structure.syncDevoirs();
-                           // console.log("Classes sync (/)");
+                            // console.log("Classes sync (/)");
                             $scope.Structure.devoirs.on("devoirs-sync", () => {
-                               // console.log("Devoirs sync (/)");
+                                // console.log("Devoirs sync (/)");
                                 openTamplates();
                             });
                         });
@@ -300,7 +300,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
 
-         $scope.isChefEtab =() =>{
+        $scope.isChefEtab =() =>{
             return model.me.type === 'PERSEDUCNAT' &&
                 model.me.functions !== undefined &&
                 model.me.functions.DIR !== undefined &&
@@ -607,7 +607,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.confirmSuppretion = function () {
             if ($scope.selected.devoirs.list.length > 0) {
-                $scope.opened.evaluation.suppretionMsg1 = true;
+                 $scope.devoirsUncancelable = [];
+                _.map($scope.selected.devoirs.list, function (devoir) {
+                    let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
+                    let date_saisie = current_periode.date_fin_saisie;
+                    let current_date = new Date();
+                    // si la date de fin de saisie de la periode du devoir est dépassée
+                    // le devoir n'est plus supprimable
+                    if (moment(date_saisie).diff(moment(current_date), "days") < 0) {
+                        $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
+                        devoir.selected = false;
+                        $scope.devoirsUncancelable.push(devoir);
+                        utils.safeApply($scope);
+                    }
+                });
+                if ($scope.selected.devoirs.list.length > 0){
+                    $scope.opened.evaluation.suppretionMsg1 = true;
+                }
+               utils.safeApply($scope);
             }
         };
         $scope.textSuppretionMsg2 = {
@@ -617,18 +634,27 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             Text4 : lang.translate('evaluations.devoir.recaputilatif.suppression.text4'),
             Text5 : lang.translate('evaluations.devoir.recaputilatif.suppression.text5'),
             Text6 : lang.translate('evaluations.devoir.recaputilatif.suppression.text6'),
+            TexTUncancelable : lang.translate('evaluations.devoir.recaputilatif.suppression.Uncacelable'),
             TextFin : lang.translate('evaluations.devoir.recaputilatif.suppression.confirmation')
         };
 
 
         $scope.firstConfirmationSuppDevoir = function () {
             if($scope.selected.devoirs.list.length > 0) {
+
                 let idDevoir = [];
                 _.map($scope.selected.devoirs.list, function (devoir) {
-                    idDevoir.push(devoir.id);
+                    let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
+                    let date_saisie = current_periode.date_fin_saisie;
+                    let current_date = new Date();
+                    // si la date de fin de saisie de la periode du devoir est dépassée
+                    // le devoir n'est plus supprimable
+                    if (moment(date_saisie).diff(moment(current_date), "days") >= 0){
+                        idDevoir.push(devoir.id);
+                    }
                 });
 
-                //verification si le/les devoirs ne contiennes pas une compétence evalué
+                //verification si le/les devoirs ne contiennent pas une compétence evaluée
                 $scope.devoirs.areEvaluatedDevoirs(idDevoir).then((res) => {
 
                     $scope.selected.devoirs.listwithEvaluatedSkills = [];
@@ -654,7 +680,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                     $scope.opened.evaluation.suppretionMsg1 = false;
-                    if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
+                    if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0
+                        || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
                         $scope.opened.evaluation.suppretionMsg2 = true;
                     }else{
                         $scope.deleteDevoir();
@@ -796,11 +823,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             let current_periode = $scope.periodes.findWhere({id: $scope.devoir.id_periode});
             let start_datePeriode = current_periode.timestamp_dt;
             let end_datePeriode = current_periode.timestamp_fn;
-
+            let date_saisie = current_periode.date_fin_saisie;
+            if (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0) {
+                $scope.endSaisie = false;
+                utils.safeApply($scope);
+            }
+            else {
+                $scope.endSaisie = true;
+                utils.safeApply($scope);
+            }
 
             $scope.devoir.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
                 && (moment($scope.devoir.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
+                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
+                && (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
         };
 
         $scope.selectDevoir = function (devoir) {
@@ -1548,8 +1584,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *Afficher une lightbox 'page en cours de construction'
          */
         $scope.displayInConstruction = () => {
-           $scope.modificationDevoir = true;
-           utils.safeApply($scope);
+            $scope.modificationDevoir = true;
+            utils.safeApply($scope);
         };
         /**
          *Fermer une lightbox 'page en cours de construction'
@@ -2274,11 +2310,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if(myClasse === undefined){
                 myClasse = new OtherClasse();
                 myClasse.getClasse(idClasse).then((data) =>{
-                   $scope.OtherClasses.all.push(data[0]);
+                    $scope.OtherClasses.all.push(data[0]);
                     return data[0].name;
-                    });
+                });
             }else{
-               return myClasse.name;
+                return myClasse.name;
             }
             utils.safeApply($scope);
         };

@@ -24,7 +24,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if($scope.Structure === undefined){$scope.Structure = new Structure();}
                 //si les Eleves ne sont pas sync
                 if( $scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false){
-                    $scope.Structure.syncEleves(model.me.structures[0]).then((data) => {
+                    $scope.Structure.syncEleves($scope.evaluations.structure.id).then((data) => {
                         // console.log("Eleve Sync (/)");
                     });
 
@@ -493,6 +493,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
         $scope.updateEtabInfo = () =>{
+            // On récupère l'établissement sélectionné
+            $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement})
             $scope.evaluations.sync().then(()=>{
                 $scope.evaluations = evaluations;
 
@@ -776,7 +778,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 date       : new Date(),
                 diviseur         : 20,
                 coefficient      : 1,
-                id_etablissement  : model.me.structures[0],
+                id_etablissement  : $scope.evaluations.structure.id,
                 ramener_sur       : false,
                 id_etat           : 1,
                 owner            : model.me.userId,
@@ -1571,7 +1573,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
 
                 var p = {
-                    idEtablissement : model.me.structures[0],
+                    idEtablissement : $scope.evaluations.structure.id,
                     idClasse : $scope.search.classe.id,
                     idPeriode : parseInt(currentPeriode.id),
                     idMatiere : $scope.search.matiere.id
@@ -2235,7 +2237,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
             // TODO Recupere le bon établissement
-            $scope.gestionRemplacement.remplacement.id_etablissement = model.me.structures[0];
+            $scope.gestionRemplacement.remplacement.id_etablissement = $scope.evaluations.structure.id;
 
             // Conversion des dates en string
             /*$scope.gestionRemplacement.remplacement.date_debut = $scope.getDateFormated($scope.gestionRemplacement.remplacement.date_debut);

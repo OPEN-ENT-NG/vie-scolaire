@@ -608,22 +608,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.confirmSuppretion = function () {
             if ($scope.selected.devoirs.list.length > 0) {
                  $scope.devoirsUncancelable = [];
-                _.map($scope.selected.devoirs.list, function (devoir) {
-                    let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
-                    let date_saisie = current_periode.date_fin_saisie;
-                    let current_date = new Date();
-                    // si la date de fin de saisie de la periode du devoir est dépassée
-                    // le devoir n'est plus supprimable
-                    if (moment(date_saisie).diff(moment(current_date), "days") < 0) {
-                        $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
-                        devoir.selected = false;
-                        $scope.devoirsUncancelable.push(devoir);
-                        utils.safeApply($scope);
-                    }
-                });
-                if ($scope.selected.devoirs.list.length > 0){
-                    $scope.opened.evaluation.suppretionMsg1 = true;
-                }
+                 if(!$scope.isChefEtab()) {
+                     _.map($scope.selected.devoirs.list, function (devoir) {
+                         let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
+                         let date_saisie = current_periode.date_fin_saisie;
+                         let current_date = new Date();
+                         // si la date de fin de saisie de la periode du devoir est dépassée
+                         // le devoir n'est plus supprimable
+                         if (moment(date_saisie).diff(moment(current_date), "days") < 0) {
+                             $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
+                             devoir.selected = false;
+                             $scope.devoirsUncancelable.push(devoir);
+                             utils.safeApply($scope);
+                         }
+
+                     });
+                 }
+                $scope.opened.evaluation.suppretionMsg1 = true;
+
                utils.safeApply($scope);
             }
         };

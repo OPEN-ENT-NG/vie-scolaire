@@ -150,9 +150,26 @@
 </lightbox>
 
 <lightbox ng-if="selected.devoirs.list.length > 0 " show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
-    <p><i18n>evaluations.devoir.information.suppression</i18n></p>
-    <div ng-if="(selected.devoirs.list.length < 15)">
-        <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
+    <p ng-if="devoirsUncancelable.length > 0 ">
+        <i18n>evaluations.devoir.recaputilatif.suppression.Uncacelable</i18n>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
+              class="no-style ng-scope">:</span>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)>= 12"
+              class="no-style ng-scope">.</span>
+    </p>
+    <div ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12  ">
+        <ul>
+            <li ng-repeat="devoir in devoirsUncancelable">[[devoir.name]]</li>
+        </ul>
+    </div>
+    <p ng-if="selected.devoirs.list.length > 0">
+        <i18n>evaluations.devoir.information.suppression</i18n>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
+              class="no-style ng-scope">:</span>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)>= 12"
+              class="no-style ng-scope">.</span>
+    </p>
+    <div ng-if="(selected.devoirs.list.length + devoirsUncancelable.length) < 12">
         <ul>
             <li ng-repeat="devoir in selected.devoirs.list">[[devoir.name]]</li>
         </ul>

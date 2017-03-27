@@ -146,14 +146,13 @@
                                         </div>
                                         <div ng-if="currentDevoir.is_evaluated" ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
 
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0 && currentDevoir.is_evaluated">
 
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index === 0 && !currentDevoir.is_evaluated">
 
-
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
                                         </div>
                                         <div ng-if="!currentDevoir.is_evaluated" ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
@@ -194,7 +193,10 @@
                                         </div>
                                         <div ng-class="{nine : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
                                              class="cell cell-input " ng-if="currentDevoir.competences.all.length < 8">
-                                            <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
+                                            <input type="text" class="eleven input-appreciation" name="appreciation"
+                                                   ng-disabled="endSaisie"
+                                                   ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)"
+                                                   ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
                                         </div>
                                     </div>
                                 </div>
@@ -210,6 +212,7 @@
                                                    ng-model="eleve.evaluation.appreciation"
                                                    ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event);expandAppreciation($index, true, $event);"
                                                    ng-focus="getEleveInfo(eleve);expandAppreciation($index, false);"
+                                                   ng-disabled="endSaisie"
                                                    style="font-style: oblique;">
                                         </div>
                                     </div>

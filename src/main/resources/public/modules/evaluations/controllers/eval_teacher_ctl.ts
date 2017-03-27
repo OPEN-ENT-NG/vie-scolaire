@@ -205,7 +205,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
+                let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
+                let date_saisie = current_periode.date_fin_saisie;
 
+                if (moment(date_saisie).diff(moment($scope.currentDevoir.date), "days") >= 0) {
+                    $scope.endSaisie = false;
+                    utils.safeApply($scope);
+                }
+                else {
+                    $scope.endSaisie = true;
+                    utils.safeApply($scope);
+                }
+                $scope.currentDevoir.endSaisie = $scope.endSaisie;
                 let syncStudents = () => {
                     $scope.openedDetails = true;
                     $scope.openedStatistiques = true;

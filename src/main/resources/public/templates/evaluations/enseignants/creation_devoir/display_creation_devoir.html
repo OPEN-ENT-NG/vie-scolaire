@@ -35,8 +35,8 @@
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
-                                        <label class="select eight cell twelve-mobile">
-                                            <select ng-model="devoir.id_etablissement" ng-change="updateEtabInfo()">
+                                        <label class="select eight cell twelve-mobile" ng-class="{disabled : devoir.id !== undefined}">
+                                            <select ng-model="devoir.id_etablissement" ng-change="updateEtabInfo()" ng-disabled="devoir.id !== undefined">
                                                 <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
                                             </select>
                                         </label>

@@ -624,9 +624,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                      });
                  }
-                if ($scope.selected.devoirs.list.length > 0){
-                    $scope.opened.evaluation.suppretionMsg1 = true;
-                }
+                $scope.opened.evaluation.suppretionMsg1 = true;
+
                utils.safeApply($scope);
             }
         };

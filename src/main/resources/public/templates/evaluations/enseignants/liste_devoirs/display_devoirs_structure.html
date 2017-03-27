@@ -153,7 +153,8 @@
     </button>
 </lightbox>
 
-<lightbox ng-if="selected.devoirs.list.length > 0 " show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
+<lightbox ng-if="selected.devoirs.list.length > 0 || devoirsUncancelable.length > 0"
+          show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
     <p ng-if="devoirsUncancelable.length > 0 ">
         <i18n>evaluations.devoir.recaputilatif.suppression.Uncacelable</i18n>
         <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
@@ -178,8 +179,11 @@
             <li ng-repeat="devoir in selected.devoirs.list">[[devoir.name]]</li>
         </ul>
     </div>
-    <p><i18n>evaluations.devoir.confirmation.question</i18n></p>
-    <button class="marginFive" ng-click="firstConfirmationSuppDevoir()">
+    <p ng-if="selected.devoirs.list.length > 0 ">
+        <i18n>evaluations.devoir.confirmation.question</i18n>
+    </p>
+    <button  ng-if="selected.devoirs.list.length > 0 "
+            class="marginFive" ng-click="firstConfirmationSuppDevoir()">
         <i18n>evaluations.devoir.confirmation</i18n>
     </button>
     <button class="marginFive" ng-click="annulerSuppretion()">

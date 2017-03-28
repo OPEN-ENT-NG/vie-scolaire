@@ -240,8 +240,6 @@ public class NoteController extends ControllerHelper{
     @ResourceFilter(AccessReleveFilter.class)
     public void getNoteElevePeriode(final HttpServerRequest request){
 
-
-
         if(request.params().size() == 6) {
             if(request.params().get("idEleve") != "undefined"
                     && request.params().get("idEtablissement") != "undefined"
@@ -288,5 +286,17 @@ public class NoteController extends ControllerHelper{
                         arrayResponseHandler(request));
             }
         }
+        else if(request.params().size() == 4) {
+            if(request.params().get("idEtablissement") != "undefined"
+                    && request.params().get("idClasse") != "undefined"
+                    && request.params().get("idMatiere") != "undefined"){
+
+                notesService.getNotesReleve(request.params().get("idEtablissement"),
+                        request.params().get("idClasse"),
+                        request.params().get("idMatiere"),
+                        null,
+                        arrayResponseHandler(request));
+            }
+            }
+        }
     }
-}

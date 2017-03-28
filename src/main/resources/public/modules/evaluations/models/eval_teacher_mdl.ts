@@ -141,7 +141,22 @@ export class ReleveNote extends  Model implements IModel{
                         console.log(this);
                     });
                 } else {
-                    var _devoirs = evaluations.devoirs.where({id_periode : this.composer.idPeriode, id_groupe : this.composer.idClasse, id_matiere : this.composer.idMatiere, id_etablissement: this.composer.idEtablissement});
+                    var _devoirs=[];
+                    if(this.composer.idPeriode !== undefined) {
+                        _devoirs = evaluations.devoirs.where({
+                            id_periode: this.composer.idPeriode,
+                            id_groupe: this.composer.idClasse,
+                            id_matiere: this.composer.idMatiere,
+                            id_etablissement: this.composer.idEtablissement
+                        });
+                    }
+                    else {
+                        _devoirs = evaluations.devoirs.where({
+                            id_groupe: this.composer.idClasse,
+                            id_matiere: this.composer.idMatiere,
+                            id_etablissement: this.composer.idEtablissement
+                        });
+                    }
                     if (_devoirs.length > 0) {
                         this.load(_devoirs);
                         that.trigger('format');
@@ -173,7 +188,11 @@ export class ReleveNote extends  Model implements IModel{
                 that.synchronized.classe = true;
                 callFormating();
             }
-            http().getJson('/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode)
+            let url = '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere;
+            if(this.periode !== undefined && this.periode !== null && this.periode.id !== undefined){
+                url += '&idPeriode='+this.idPeriode;
+            }
+            http().getJson(url)
                 .done(function (res) {
                     that._tmp = res;
                     that.synchronized.evaluations = true;

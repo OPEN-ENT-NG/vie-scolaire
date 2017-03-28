@@ -52,8 +52,7 @@ public class AccessReleveFilter implements ResourcesProvider {
                 //On check si tous les paramètres sont bien présents
                 if (!resourceRequest.params().contains("idEtablissement") &&
                         !resourceRequest.params().contains("idClasse") &&
-                        !resourceRequest.params().contains("idMatiere") &&
-                        !resourceRequest.params().contains("idPeriode")) {
+                        !resourceRequest.params().contains("idMatiere")) {
                     handler.handle(false);
                 }
 
@@ -65,22 +64,34 @@ public class AccessReleveFilter implements ResourcesProvider {
 
 
                 Long idPeriode;
-                try {
-                    idPeriode = Long.parseLong(params.get("idPeriode"));
-                } catch(NumberFormatException e) {
-                    log.error("Error : idPeriode must be a long object", e);
-                    handler.handle(false);
-                    return;
-                }
+                if (params.get("idPeriode") != null) {
+                    try {
+                        idPeriode = Long.parseLong(params.get("idPeriode"));
+                    } catch (NumberFormatException e) {
+                        log.error("Error : idPeriode must be a long object", e);
+                        handler.handle(false);
+                        return;
+                    }
 
-                new FilterPeriodeUtils().validateStructure(params.get("idEtablissement"),
-                        idPeriode, new Handler<Boolean>() {
-                            @Override
-                            public void handle(Boolean isValid) {
-                                resourceRequest.resume();
-                                handler.handle(isValid);
-                            }
-                        });
+                    new FilterPeriodeUtils().validateStructure(params.get("idEtablissement"),
+                            idPeriode, new Handler<Boolean>() {
+                                @Override
+                                public void handle(Boolean isValid) {
+                                    resourceRequest.resume();
+                                    handler.handle(isValid);
+                                }
+                            });
+                }
+                else {
+                    new FilterPeriodeUtils().validateStructure(params.get("idEtablissement"),
+                            null, new Handler<Boolean>() {
+                                @Override
+                                public void handle(Boolean isValid) {
+                                    resourceRequest.resume();
+                                    handler.handle(isValid);
+                                }
+                            });
+                }
             }
             break;
             case "Personnel" : {

@@ -260,6 +260,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();
+                //rajout de la periode Annee
+                $scope.periodes.sync();
+                $scope.periodes.on('sync', function () {
+                    if($scope.periodesList === undefined ){
+                        $scope.periodesList = [];
+                        _.map($scope.periodes.all, function (periode) {
+                            $scope.periodesList.push(periode);
+                        });
+                        $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                    }
+                });
                 // Affichage des criteres par défaut quand on arrive sur le releve
                 $scope.openLeftMenu("opened.criteres", false);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
@@ -1617,16 +1628,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.search.periode !== undefined
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
-                if($scope.search.periode !== null && $scope.search.periode.id === undefined){
-                    currentPeriode = null;
-                }
 
                 var p = {
                     idEtablissement : $scope.evaluations.structure.id,
                     idClasse : $scope.search.classe.id,
-                    idPeriode : parseInt(currentPeriode.id),
+                    idPeriode : undefined,
                     idMatiere : $scope.search.matiere.id
                 };
+
+                if(currentPeriode !== null){
+                    p.idPeriode = currentPeriode.id;
+                }
+
                 // var rn = evaluations.releveNotes.findWhere(p);
                 // if (rn === undefined) {
                 if(evaluations.synchronized.classes !== 0) {

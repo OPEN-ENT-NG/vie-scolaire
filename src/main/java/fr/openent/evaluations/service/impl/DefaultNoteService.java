@@ -151,15 +151,19 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
+
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
                 "WHERE devoirs.id_etablissement = ? " +
-                "AND devoirs.id_matiere = ? " +
-                "AND devoirs.id_periode = ? " +
-                "ORDER BY devoirs.date ASC ;");
-        values.addString(classeId).addString(etablissementId).addString(matiereId).addNumber(periodeId);
+                "AND devoirs.id_matiere = ? " );
+        values.addString(classeId).addString(etablissementId).addString(matiereId);
+        if(periodeId != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(periodeId);
+        }
+        query.append("ORDER BY devoirs.date ASC ;");
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

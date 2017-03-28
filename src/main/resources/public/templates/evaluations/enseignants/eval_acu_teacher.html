@@ -124,7 +124,7 @@
                         <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>&nbsp;:
                     </h2>
                     <label class="select right-magnet">
-                        <select ng-model="charts.uncomplete" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name'] "
+                        <select class="padding-select-accueil" ng-model="charts.uncomplete" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name'] "
                                 >
 
                         </select>

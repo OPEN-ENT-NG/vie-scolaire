@@ -17,19 +17,25 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
             if($scope.periodesList === undefined ){
-                $scope.periodesList = [];
+                $scope.periodesList = {
+                    "type": "select",
+                    "name": "Service",
+                    "value": $scope.periodeParDefault(),
+                    "values": []
+                };
                 _.map($scope.periodes.all, function (periode) {
-                    $scope.periodesList.push(periode);
+                    $scope.periodesList.values.push(periode);
                 });
-                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
             }
+            template.open('container', '../templates/layouts/2_10_layout');
+            template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
+            template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
+            template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
         });
 
 
-        template.open('container', '../templates/layouts/2_10_layout');
-        template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
-        template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
-        template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
+
         $scope.route = $route;
 
         $scope.opened.lightboxEvalLibre = false;
@@ -158,7 +164,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             let end_datePeriode = current_periode.timestamp_fn;
             let date_saisie = current_periode.date_fin_saisie;
 
-            if (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0) {
+            if (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0) {
                 $scope.endSaisieFree = false;
                 utils.safeApply($scope);
             }

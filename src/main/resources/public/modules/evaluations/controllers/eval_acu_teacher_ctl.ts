@@ -8,7 +8,6 @@ declare let _:any;
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
     '$scope', 'route', 'model',
     function ($scope, route, model) {
-
         // Méthode d'initialisation ou de réinitialisation du Controler : notamment lors du changement d'établissement
         $scope.initControler = function (isChangementEtablissement) {
             $scope.evaluations = evaluations;
@@ -298,6 +297,25 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 // }
 
                 $scope.openedStudentInfo = false;
+            }
+        };
+        /**
+         * Return la periode scolaire courante
+         * @returns {any}
+         */
+        $scope.periodeParDefault = function () {
+            let PeriodeParD = new Date().toISOString();
+            let PeriodeSet = false;
+            //let  PeriodeParD = new Date().getFullYear() +"-"+ new Date().getMonth() +1 +"-" +new Date().getDate();
+
+            for (let i = 0; i < $scope.periodes.all.length; i++) {
+                if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
+                    PeriodeSet = true;
+                    return $scope.periodes.all[i];
+                }
+            }
+            if (PeriodeSet === false) {
+                return $scope.textPeriode;
             }
         };
 

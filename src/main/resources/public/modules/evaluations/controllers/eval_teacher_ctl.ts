@@ -20,7 +20,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.cleanRoot();
 
                 // Chefs d'établissement
-
                 if($scope.Structure === undefined){$scope.Structure = new Structure();}
                 //si les Eleves ne sont pas sync
                 if( $scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false){
@@ -30,7 +29,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 }
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
-
+                utils.safeApply($scope);
             },
 
             listRemplacements : function(){
@@ -155,18 +154,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     //rajout de la periode Annee
                     $scope.periodes.sync();
                     $scope.periodes.on('sync', function () {
+                        $scope.search.periode = $scope.periodeParDefault();
                         if($scope.periodesList === undefined ){
-                            $scope.periodesList = [];
+                            $scope.periodesList = {
+                                "type": "select",
+                                "name": "Service",
+                                "value":  $scope.periodeParDefault(),
+                                "values": []
+                            };
                             _.map($scope.periodes.all, function (periode) {
-                                $scope.periodesList.push(periode);
+                                $scope.periodesList.values.push(periode);
                             });
-                            $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
                         }
+                        utils.safeApply($scope);
                     });
-
                     template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                     template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
-                    utils.safeApply($scope);
                 };
 
                 if($scope.isChefEtab() ){
@@ -263,28 +267,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 //rajout de la periode Annee
                 $scope.periodes.sync();
                 $scope.periodes.on('sync', function () {
-                    if($scope.periodesList === undefined ){
-                        $scope.periodesList = [];
+                    $scope.search.periode = $scope.periodeParDefault();
+                    if ($scope.periodesList === undefined) {
+                        $scope.periodesList = {
+                            "type": "select",
+                            "name": "Service",
+                            "value":  $scope.periodeParDefault(),
+                            "values": []
+                        };
                         _.map($scope.periodes.all, function (periode) {
-                            $scope.periodesList.push(periode);
+                            $scope.periodesList.values.push(periode);
                         });
-                        $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                        $scope.periodesList.values.push({
+                            libelle: $scope.translate('viescolaire.utils.annee'),
+                            id: undefined
+                        });
                     }
+                    // Affichage des criteres par défaut quand on arrive sur le releve
+                    $scope.openLeftMenu("opened.criteres", false);
+                    if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
+                    if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+                    if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
+                        || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
+                        $scope.releveNote = undefined;
+                    }
+                    if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
+                        $scope.getReleve();
+                    }
+                    utils.safeApply($scope);
                 });
-                // Affichage des criteres par défaut quand on arrive sur le releve
-                $scope.openLeftMenu("opened.criteres", false);
-                if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
-                if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
-                    || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
-                    $scope.releveNote = undefined;
-                }
-                if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
-                    $scope.getReleve();
-                }
-
                 template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
-                utils.safeApply($scope);
             },
             displaySuiviCompetencesEleve : function (params) {
                 $scope.cleanRoot();
@@ -629,26 +641,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.confirmSuppretion = function () {
             if ($scope.selected.devoirs.list.length > 0) {
-                 $scope.devoirsUncancelable = [];
-                 if(!$scope.isChefEtab()) {
-                     _.map($scope.selected.devoirs.list, function (devoir) {
-                         let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
-                         let date_saisie = current_periode.date_fin_saisie;
-                         let current_date = new Date();
-                         // si la date de fin de saisie de la periode du devoir est dépassée
-                         // le devoir n'est plus supprimable
-                         if (moment(date_saisie).diff(moment(current_date), "days") < 0) {
-                             $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
-                             devoir.selected = false;
-                             $scope.devoirsUncancelable.push(devoir);
-                             utils.safeApply($scope);
-                         }
+                $scope.devoirsUncancelable = [];
+                if(!$scope.isChefEtab()) {
+                    _.map($scope.selected.devoirs.list, function (devoir) {
+                        let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
+                        let date_saisie = current_periode.date_fin_saisie;
+                        let current_date = new Date();
+                        // si la date de fin de saisie de la periode du devoir est dépassée
+                        // le devoir n'est plus supprimable
+                        if (moment(date_saisie).diff(moment(current_date), "days") < 0) {
+                            $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
+                            devoir.selected = false;
+                            $scope.devoirsUncancelable.push(devoir);
+                            utils.safeApply($scope);
+                        }
 
-                     });
-                 }
+                    });
+                }
                 $scope.opened.evaluation.suppretionMsg1 = true;
 
-               utils.safeApply($scope);
+                utils.safeApply($scope);
             }
         };
         $scope.textSuppretionMsg2 = {
@@ -2357,6 +2369,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             utils.safeApply($scope);
         });
+
+        /**
+         * Return la periode scolaire courante
+         * @returns {any}
+         */
+        $scope.periodeParDefault = function () {
+            let PeriodeParD = new Date().toISOString();
+            let PeriodeSet = false;
+
+            for (let i = 0; i < $scope.periodes.all.length; i++) {
+                if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
+                    PeriodeSet = true;
+                    return $scope.periodes.all[i];
+                }
+            }
+            if (PeriodeSet === false) {
+                return $scope.textPeriode;
+            }
+        };
+
         /**
          * Controle la validité du formulaire de création d'un remplacement
          * @returns {boolean} Validité du formulaire

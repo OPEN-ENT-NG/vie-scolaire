@@ -15,18 +15,24 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
             if($scope.periodesList === undefined ){
-                $scope.periodesList = [];
+                $scope.periodesList = {
+                    "type": "select",
+                    "name": "Service",
+                    "value":  $scope.periodeParDefault(),
+                    "values": []
+                };
                 _.map($scope.periodes.all, function (periode) {
-                    $scope.periodesList.push(periode);
+                    $scope.periodesList.values.push(periode);
                 });
-                $scope.periodesList.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
             }
+            template.open('container', '../templates/layouts/2_10_layout');
+            template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
+            template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
+
         });
 
 
-        template.open('container', '../templates/layouts/2_10_layout');
-        template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
-        template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
 
         delete $scope.informations.eleve;
         $scope.route = $route;
@@ -213,6 +219,25 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             return _.indexOf(array, obj);
         };
 
+        /**
+         * Return la periode scolaire courante
+         * @returns {any}
+         */
+        $scope.periodeParDefault = function () {
+            let PeriodeParD = new Date().toISOString();
+            let PeriodeSet = false;
+            //let  PeriodeParD = new Date().getFullYear() +"-"+ new Date().getMonth() +1 +"-" +new Date().getDate();
+
+            for (let i = 0; i < $scope.periodes.all.length; i++) {
+                if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
+                    PeriodeSet = true;
+                    return $scope.periodes.all[i];
+                }
+            }
+            if (PeriodeSet === false) {
+                return $scope.textPeriode;
+            }
+        };
 
         /**
          * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index

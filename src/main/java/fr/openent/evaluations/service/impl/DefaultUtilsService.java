@@ -271,11 +271,12 @@ public class DefaultUtilsService  implements UtilsService {
             params.putString("idEtablissement", idEtablissement);
         }
         else {
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {classes} AND s.id = {idEtablissement} return g " +
                     "UNION ALL " +
                     "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
             params = new JsonObject();
-            params.putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+            params.putArray("classes", new JsonArray(user.getClasses().toArray()))
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
                     .putString("idEtablissement", idEtablissement);
         }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));

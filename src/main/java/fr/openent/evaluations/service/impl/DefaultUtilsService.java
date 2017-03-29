@@ -265,18 +265,17 @@ public class DefaultUtilsService  implements UtilsService {
         String query;
         JsonObject params = new JsonObject();
         if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id IN {structures} return g " +
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
                     "UNION ALL " +
-                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id IN {structures} return g";
-            params.putArray("structures", new JsonArray(user.getStructures().toArray()));
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";
+            params.putString("idEtablissement", idEtablissement);
         }
         else {
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {structures} AND s.id = {idEtablissement} return g " +
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
                     "UNION ALL " +
                     "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
             params = new JsonObject();
-            params.putArray("structures", new JsonArray(user.getClasses().toArray()))
-                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+            params.putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
                     .putString("idEtablissement", idEtablissement);
         }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));

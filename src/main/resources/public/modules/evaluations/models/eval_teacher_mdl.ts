@@ -60,14 +60,14 @@ export class Structure extends Model implements IModel{
         });
     }
 
-    syncClasses () : Promise<any>{
+    syncClasses (idEtab) : Promise<any>{
         return new Promise((resolve, reject) => {
             var that = this;
             const libelle = {
                 CLASSE : 'Classe',
                 GROUPE : "Groupe d'enseignement"
             };
-            http().getJson(this.api.getClasses+this.id).done((res) => {
+            http().getJson(this.api.getClasses+idEtab).done((res) => {
                 _.map(res, (classe) => {
                     let libelleClasse;
                     if(classe.type_groupe_libelle = classe.type_groupe === 0){

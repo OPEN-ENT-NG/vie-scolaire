@@ -174,7 +174,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if($scope.Structure === undefined )
                         $scope.Structure = new Structure();
                     if(!$scope.Structure.synchronized.classes) {
-                        $scope.Structure.syncClasses();
+                        $scope.Structure.syncClasses($scope.evaluations.structure.id);
                         $scope.Structure.classes.on('classes-sync', () => {
                             $scope.Structure.syncDevoirs();
                             // console.log("Classes sync (/)");

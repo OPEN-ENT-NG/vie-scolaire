@@ -44,7 +44,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 date: today,
                 diviseur: 20,
                 coefficient: 1,
-                id_etablissement: model.me.structures[0],
+                id_etablissement: $scope.evaluations.structure.id,
                 ramener_sur: false,
                 id_etat: 1,
                 owner: model.me.userId,
@@ -58,7 +58,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 controlledDate: false
             });
             $scope.EvaluationLibreCharge= {
-                matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: model.me.structures[0]})] ,
+                matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: $scope.evaluations.structure.id})] ,
                 sousmatiere : [],
                 periode : $scope.search.periode
             };
@@ -276,7 +276,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
         };
         $scope.initSliderBFC = function () {
-            $scope.suiviCompetence.getConversionTable(model.me.structures[0],$scope.search.classe.id).then(
+            $scope.suiviCompetence.getConversionTable($scope.evaluations.structure.id,$scope.search.classe.id).then(
                 function(data){
                     return $scope.suiviCompetence.tableConversions;
                 }

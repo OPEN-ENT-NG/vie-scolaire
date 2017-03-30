@@ -72,7 +72,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function (state) {
-            $scope.Display = {EvaluatedCompetences : true};
+            $scope.Display = {EvaluatedCompetences : false};
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== "") {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
@@ -97,7 +97,11 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     utils.safeApply($scope);
                     template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_classe/content_vue_suivi_classe');
                     utils.safeApply($scope);
-
+                    template.watch("suivi-competence-content", function() {
+                        $scope.suiviCompetence.domaines.on("domainesLoaded",() => {
+                            $scope.refreshCompetencesNote();
+                        });
+                    });
                 });
             }
         };
@@ -242,7 +246,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
         $scope.incrementClasse = function (num) {
-            $scope.Display = {EvaluatedCompetences : true};
+            $scope.Display = {EvaluatedCompetences : false};
             var index = searchIndex($scope.classes.all, $scope.search.classe);
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.classes.all.length) {
@@ -253,7 +257,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         };
 
 
-        $scope.Display = {EvaluatedCompetences : true};
+        $scope.Display = {EvaluatedCompetences : false};
         $scope.ClasseFilterNotEvaluated = function (MaCompetence) {
             if($scope.Display.EvaluatedCompetences === true){
                 let _t = MaCompetence.competencesEvaluations;
@@ -275,8 +279,67 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             }
         }
 
+        function isElementVisible(elementToBeChecked)
+        {
+            var TopView = angular.element(window).scrollTop();
+            var BotView = TopView + angular.element(window).height();
+            var Element = angular.element('#'+ elementToBeChecked,document);
+            if (Element === undefined){
+                Element = document.getElementById(elementToBeChecked);
+            }
+            if (Element.offset() === undefined){ return false;}
+            var TopElement = Element.offset().top;
+            var BotElement = TopElement + Element.height();
+            return ((BotElement <= BotView) && (TopElement >= TopView));
+
+        }
+
+        $scope.refreshCompetencesNote = function ( ) {
+            let idDomaines = [];
+            console.log("------- Competence --------");
+            console.dir($scope.suiviCompetence.domaines_tab);
+            for(let i=0; i< $scope.suiviCompetence.domaines_tab.length; i++){
+                let domaine = $scope.suiviCompetence.domaines_tab[i];
+                if(!domaine.isLoaded && isElementVisible(domaine.id)){
+                    idDomaines.push(domaine);
+                }
+            }
+
+            if(idDomaines.length > 0) {
+                $scope.suiviCompetence.domaines.updateNoteDomaines(idDomaines);
+                $scope.suiviCompetence.domaines.on('notesLoaded', function () {
+                    $scope.$broadcast('majProportions');
+                    $scope.suiviFilter.idDomaines = idDomaines;
+                    utils.safeApply($scope);
+                })
+            }
+        }
 
 
+        /**
+         *
+         */
+        function refreshCompetencesNoteOnscroll () {
+            angular.element(window).onscroll = function () {
+                $scope.refreshCompetencesNote();
+            }
+        };
+
+        $scope.refreshCompetencesNoteOnInit= function() {
+
+            var interval = setInterval(function() {
+                for (let i = 0; i < $scope.suiviCompetence.domaines_tab.length; i++) {
+                    let domaine = $scope.suiviCompetence.domaines_tab[i];
+                    if (domaine.is_evaluated && isElementVisible(domaine.id)) {
+                        $scope.suiviCompetence.trigger("pageLoaded");
+                        clearInterval(interval);
+                    }
+                }
+            }, 100);
+            $scope.suiviCompetence.on('pageLoaded', function (){
+                $scope.refreshCompetencesNote();
+            })
+        }
 
     }
 ]);

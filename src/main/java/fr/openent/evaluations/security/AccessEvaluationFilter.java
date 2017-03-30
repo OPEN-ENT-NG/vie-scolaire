@@ -44,12 +44,12 @@ public class AccessEvaluationFilter implements ResourcesProvider {
                     handler.handle(false);
                 }
                 try {
-                    Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
-                    new FilterDevoirUtils().validateAccessDevoir(idDevoir, user, new Handler<Boolean>() {
+                    final Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
+                    new FilterDevoirUtils().validateAccessDevoir(idDevoir, user, resourceRequest.method().contains("PUT"), new Handler<Boolean>() {
                         @Override
-                        public void handle(Boolean isOwner) {
+                        public void handle(Boolean isValid) {
                             resourceRequest.resume();
-                            handler.handle(isOwner);
+                            handler.handle(isValid);
                         }
                     });
                 } catch (NumberFormatException e) {

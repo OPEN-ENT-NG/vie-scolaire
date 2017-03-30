@@ -195,10 +195,10 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
 
         for (int i=0; i<idDomaines.size()-1 ; i++){
             query.append("?,");
-            values.addString(idDomaines.get(i));
+            values.addNumber(Integer.valueOf(idDomaines.get(i)));
         }
-        query.append("?) ");
-        values.addString(idDomaines.get(idEleves.size()-1));
+        query.append("?)) ");
+        values.addNumber(Integer.valueOf(idDomaines.get(idDomaines.size()-1)));
 
          query.append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id AND competences_notes.id_eleve IN (");
 

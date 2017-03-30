@@ -280,15 +280,14 @@ public class CompetenceNoteController extends ControllerHelper {
         }
     }
 
-    @Get("/competence/notes/classe/:idClasse/:typeClasse/:idDomaine")
+    @Get("/competence/notes/domaines/classe/:idClasse/:typeClasse")
     @ApiDoc("Retourne les compétences notes pour une classee et un Domaine. Filtre possible sur la période avec l'ajout du paramètre idPeriode")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessSuiviCompetenceFilter.class)
     public void getCompetenceNoteDomaineClasse (final HttpServerRequest request) {
         final Long idPeriode;
         if (request.params().contains("idClasse")
-                && request.params().contains("typeClasse")
-                && request.params().contains("idDomaine")) {
+                && request.params().contains("typeClasse")) {
             final List<String> idDomaines  = request.params().getAll("idDomaine");
             String idClasse    = request.params().get("idClasse");
             Integer typeClasse = Integer.valueOf(request.params().get("typeClasse"));

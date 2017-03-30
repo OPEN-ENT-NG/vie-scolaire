@@ -324,6 +324,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             displaySuiviCompetencesClasse : function () {
                 $scope.cleanRoot();
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
+                $scope.allRefreshed = false;
                 $scope.sortType     = 'title'; // set the default sort type
                 $scope.sortReverse  = false;  // set the default sort order
             }
@@ -2416,5 +2417,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && (moment($scope.gestionRemplacement.remplacement.date_fin).diff(moment($scope.gestionRemplacement.remplacement.date_debut), "days") >= 0)
             );
         };
+
+
     }
 ]);

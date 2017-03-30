@@ -14,18 +14,16 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         //rajout de la periode Annee
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
-            if($scope.periodesList === undefined ){
-                $scope.periodesList = {
-                    "type": "select",
-                    "name": "Service",
-                    "value":  $scope.periodeParDefault(),
-                    "values": []
-                };
-                _.map($scope.periodes.all, function (periode) {
-                    $scope.periodesList.values.push(periode);
-                });
-                $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
-            }
+            $scope.periodesList = {
+                "type": "select",
+                "name": "Service",
+                "value":  $scope.periodeParDefault(),
+                "values": []
+            };
+            _.map($scope.periodes.all, function (periode) {
+                $scope.periodesList.values.push(periode);
+            });
+            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
             template.open('container', '../templates/layouts/2_10_layout');
             template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
             template.open('content', '../templates/evaluations/enseignants/suivi_competences_classe/content');
@@ -56,19 +54,19 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          *
          */
         /* Methode plus utilsiée
-        $scope.afficherDomaineSuivant = function () {
-            for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-                var domaine = $scope.suiviCompetence.domaines.all[i];
-                if( i> 0) {
-                    var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
-                    if(domainePrec.visible && !domaine.visible) {
-                        domaine.visible = true;
-                        domaine.setVisibleSousDomaines(true);
-                        return;
-                    }
-                }
-            }
-        };*/
+         $scope.afficherDomaineSuivant = function () {
+         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
+         var domaine = $scope.suiviCompetence.domaines.all[i];
+         if( i> 0) {
+         var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
+         if(domainePrec.visible && !domaine.visible) {
+         domaine.visible = true;
+         domaine.setVisibleSousDomaines(true);
+         return;
+         }
+         }
+         }
+         };*/
 
         /**
          * Créer une suivi de compétence
@@ -280,5 +278,5 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
 
 
 
-}
+    }
 ]);

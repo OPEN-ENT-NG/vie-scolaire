@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import {ng, appPrefix} from 'entcore/entcore';
+import {ng, appPrefix, idiom as lang} from 'entcore/entcore';
 import {lightbox} from "../../entcore/directives/lightbox";
 
 export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
@@ -66,8 +66,10 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                 lightbox : false
             };
             $scope.confirme = function(evaluation){
-                // des élèves et des compétences sélectionnées
-                if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
+                if($scope.devoir.endSaisie){
+                    $scope.text= lang.translate('evaluations.devoir.uncancelable');
+                } // des élèves et des compétences sélectionnées
+                else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
                     $scope.text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.";
 
                     // des élèves et aucune compétence sélectionnée

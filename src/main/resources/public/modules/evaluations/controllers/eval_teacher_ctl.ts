@@ -155,18 +155,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.periodes.sync();
                     $scope.periodes.on('sync', function () {
                         $scope.search.periode = $scope.periodeParDefault();
-                        if($scope.periodesList === undefined ){
-                            $scope.periodesList = {
-                                "type": "select",
-                                "name": "Service",
-                                "value":  $scope.periodeParDefault(),
-                                "values": []
-                            };
-                            _.map($scope.periodes.all, function (periode) {
-                                $scope.periodesList.values.push(periode);
-                            });
-                            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
-                        }
+                        $scope.periodesList = {
+                            "type": "select",
+                            "name": "Service",
+                            "value":  $scope.periodeParDefault(),
+                            "values": []
+                        };
+                        _.map($scope.periodes.all, function (periode) {
+                            $scope.periodesList.values.push(periode);
+                        });
+                        $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
                         utils.safeApply($scope);
                     });
                     template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
@@ -269,21 +267,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.periodes.sync();
                 $scope.periodes.on('sync', function () {
                     $scope.search.periode = $scope.periodeParDefault();
-                    if ($scope.periodesList === undefined) {
-                        $scope.periodesList = {
-                            "type": "select",
-                            "name": "Service",
-                            "value":  $scope.periodeParDefault(),
-                            "values": []
-                        };
-                        _.map($scope.periodes.all, function (periode) {
-                            $scope.periodesList.values.push(periode);
-                        });
-                        $scope.periodesList.values.push({
-                            libelle: $scope.translate('viescolaire.utils.annee'),
-                            id: undefined
-                        });
-                    }
+                    $scope.periodesList = {
+                        "type": "select",
+                        "name": "Service",
+                        "value":  $scope.periodeParDefault(),
+                        "values": []
+                    };
+                    _.map($scope.periodes.all, function (periode) {
+                        $scope.periodesList.values.push(periode);
+                    });
+                    $scope.periodesList.values.push({
+                        libelle: $scope.translate('viescolaire.utils.annee'),
+                        id: undefined
+                    });
                     // Affichage des criteres par défaut quand on arrive sur le releve
                     $scope.openLeftMenu("opened.criteres", false);
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
@@ -2371,6 +2367,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         });
 
+        /**
+         * Cherche si la période de fin de saisie est dépassée pour un devoir donné
+         * @param devoir
+         */
+        $scope.checkEndSaisie = function (devoir) {
+            let current_periode = $scope.periodes.findWhere({id: devoir.id_periode});
+            let date_saisie = current_periode.date_fin_saisie;
+            let current_date = new Date();
+
+            if (moment(date_saisie).diff(moment(current_date), "days") >= 0 || $scope.isChefEtab()) {
+                return false;
+            }
+            else
+                return true;
+        }
         /**
          * Return la periode scolaire courante
          * @returns {any}

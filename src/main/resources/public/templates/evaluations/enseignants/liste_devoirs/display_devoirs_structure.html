@@ -112,7 +112,9 @@
 <section class="toggle-buttons" ng-class="{ hide: selected.devoirs.list.length == 0 }">
     <div class="toggle">
         <div class="row">
-            <button ng-show="selected.devoirs.list.length === 1 && !isChefEtab()" class="cell ng-scope"
+            <button ng-show="selected.devoirs.list.length === 1 && !isChefEtab()
+                                && !checkEndSaisie(selected.devoirs.list[0])"
+                    class="cell ng-scope"
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
@@ -158,7 +160,7 @@
 <lightbox ng-if="selected.devoirs.list.length > 0 || devoirsUncancelable.length > 0"
           show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
     <p ng-if="devoirsUncancelable.length > 0 ">
-        <i18n>evaluations.devoir.recaputilatif.suppression.Uncacelable</i18n>
+        <i18n>evaluations.devoir.recaputilatif.suppression.uncancelable</i18n>
         <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
               class="no-style ng-scope">:</span>
         <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)>= 12"

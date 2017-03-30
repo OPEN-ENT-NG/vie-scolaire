@@ -16,18 +16,16 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         //rajout de la periode Annee
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
-            if($scope.periodesList === undefined ){
-                $scope.periodesList = {
-                    "type": "select",
-                    "name": "Service",
-                    "value": $scope.periodeParDefault(),
-                    "values": []
-                };
-                _.map($scope.periodes.all, function (periode) {
-                    $scope.periodesList.values.push(periode);
-                });
-                $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
-            }
+            $scope.periodesList = {
+                "type": "select",
+                "name": "Service",
+                "value": $scope.periodeParDefault(),
+                "values": []
+            };
+            _.map($scope.periodes.all, function (periode) {
+                $scope.periodesList.values.push(periode);
+            });
+            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
             template.open('container', '../templates/layouts/2_10_layout');
             template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
             template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');

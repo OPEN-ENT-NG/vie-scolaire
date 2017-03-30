@@ -212,7 +212,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
                 let date_saisie = current_periode.date_fin_saisie;
 
-                if (moment(date_saisie).diff(moment($scope.currentDevoir.date), "days") >= 0) {
+                if (moment(date_saisie).diff(moment($scope.currentDevoir.date), "days") >= 0
+                    || $scope.isChefEtab()) {
                     $scope.endSaisie = false;
                     utils.safeApply($scope);
                 }

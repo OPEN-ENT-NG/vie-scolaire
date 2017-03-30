@@ -24,6 +24,7 @@ import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
@@ -119,4 +120,82 @@ public class DefaultUserService implements UserService {
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
+    @Override
+    public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler) {
+        SqlStatementsBuilder statements = new SqlStatementsBuilder();
+        for (Object u : users) {
+            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u)) continue;
+            final JsonObject user = (JsonObject) u;
+            // Insert user in the right table
+            String uQuery =
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type) " +
+                    "VALUES (?, ?, ?);";
+            JsonArray uParams = new JsonArray()
+                    .addString(user.getString("id"))
+                    .addString(user.getString("displayName"))
+                    .addString(user.getString("type"));
+
+            statements.prepared(uQuery, uParams);
+
+            if (user.containsField("classIds") && user.getArray("classIds").size() > 0) {
+               formatGroups(user.getArray("classIds"), user.getString("id"), statements, Viescolaire.CLASSE_TYPE);
+            }
+
+            if (user.containsField("groupIds") && user.getArray("groupIds").size() > 0) {
+                formatGroups(user.getArray("groupIds"), user.getString("id"), statements, Viescolaire.GROUPE_TYPE);
+            }
+
+            if (user.containsField("structureIds") && user.getArray("structureIds").size() > 0) {
+                formatStructure(user.getArray("structureIds"), user.getString("id"), statements);
+            }
+        }
+        Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
+    }
+
+    /**
+     * Inject creation request in SqlStatementBuilder for every class in ids
+     * @param ids class ids list
+     * @param userId user id
+     * @param statements Sql statement builder
+     * @param type Group type
+     */
+    private static void formatGroups (JsonArray ids, String userId, SqlStatementsBuilder statements, Integer type) {
+        for (int i = 0; i < ids.size(); i++) {
+            String query =
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp(id_groupe, id_user, type_groupe) " +
+                    "VALUES (?, ?, ?);";
+            JsonArray params = new JsonArray()
+                    .addString(ids.get(i).toString())
+                    .addString(userId)
+                    .addNumber(type);
+            statements.prepared(query, params);
+        }
+    }
+
+    /**
+     * Return if the user is a valid profile user
+     * @param user user object
+     * @return true | false if the profile is a valid profile
+     */
+    private static boolean validProfile (JsonObject user) {
+        return user.getString("type").equals("Teacher") || user.getString("type").equals("Student");
+    }
+
+    /**
+     * Inject creation request in SqlStatementBuilder for every stucture in ids
+     * @param ids structure ids list
+     * @param userId user id
+     * @param statements Sql statement builder
+     */
+    private static void formatStructure (JsonArray ids, String userId, SqlStatementsBuilder statements) {
+        for (int i = 0; i < ids.size(); i++) {
+            String query =
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp(id_structure, id_user) " +
+                            "VALUES (?, ?);";
+            JsonArray params = new JsonArray()
+                    .addString(ids.get(i).toString())
+                    .addString(userId);
+            statements.prepared(query, params);
+        }
+    }
 }

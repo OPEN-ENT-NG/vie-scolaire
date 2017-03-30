@@ -24,6 +24,7 @@ import fr.openent.absences.controller.EvenementController;
 import fr.openent.absences.controller.MotifController;
 import fr.openent.evaluations.controller.*;
 import fr.openent.viescolaire.controller.*;
+import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import fr.wseduc.webutils.email.EmailSender;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
@@ -33,9 +34,6 @@ import org.entcore.common.sql.SqlConf;
 import org.entcore.common.sql.SqlConfs;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.json.JsonArray;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Viescolaire extends BaseServer {
 
@@ -56,6 +54,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_PERIODE_TABLE = "periode";
 	public final static String VSCO_MATIERE_TABLE = "matiere";
 	public final static String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
+	public final static String VSCO_PERSONNES_SUPP_TABLE = "personnes_supp";
 
 	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
@@ -104,6 +103,9 @@ public class Viescolaire extends BaseServer {
 
 	public final static String SCHEMA_APPRECIATIONS_CREATE = "eval_createAppreciation";
 	public final static String SCHEMA_APPRECIATIONS_UPDATE = "eval_updateAppreciation";
+
+	public static final Integer CLASSE_TYPE = 0;
+	public static final Integer GROUPE_TYPE = 1;
 
 	@Override
 	public void start() {
@@ -172,17 +174,7 @@ public class Viescolaire extends BaseServer {
 
 		addController(new ReferentielController());
 
-		//TODO awaiting an admin console
-		//waiting for automatic script, launch after one mitute
-		/*
-		vertx.setTimer(60000, new Handler<Long>() {
-			@Override
-			public void handle(Long aLong) {
-				//init datas linked with a structure id.
-				new InitDataService().initData();
-		}
-		});
-		*/
+		setRepositoryEvents(new VieScolaireRepositoryEvents());
 	}
 
 }

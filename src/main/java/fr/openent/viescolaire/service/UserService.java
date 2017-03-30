@@ -24,6 +24,7 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.json.impl.Json;
 
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -37,5 +38,7 @@ public interface UserService {
     public void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
 }

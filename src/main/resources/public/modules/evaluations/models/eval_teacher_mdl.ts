@@ -204,24 +204,36 @@ export class ReleveNote extends  Model implements IModel{
                     var _t;
                     if(that._tmp && that._tmp.length !== 0)  _t = _.where(that._tmp, {id_eleve : eleve.id});
                     _.each(that.devoirs.all, function (devoir) {
+                        let devoirPeriode = evaluations.periodes.findWhere({id: devoir.id_periode});
+                        let endSaisie = undefined;
+                        let date_saisie = devoirPeriode.date_fin_saisie;
+                        let current_date = new Date();
+                        if (moment(date_saisie).diff(moment(current_date), "days") >= 0) {
+                           endSaisie = false;
+                        }
+                        else {
+                            endSaisie = true;
+                        }
                         if (_t && _t.length !== 0) {
                             var _e = _.findWhere(_t, {id_devoir : devoir.id});
+
                             if (_e) {
                                 _e.oldValeur = _e.valeur;
                                 _e.oldAppreciation = _e.appreciation !== undefined ? _e.appreciation : '';
+                                _e.endSaisie = endSaisie;
                                 _evals.push(_e);
                             }
                             else {
                                 _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
                                     oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
                                     ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
-                                    is_evaluated : devoir.is_evaluated}));
+                                    is_evaluated : devoir.is_evaluated, endSaisie : endSaisie}));
                             }
                         } else {
                             _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
                                 oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
                                 ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
-                                is_evaluated : devoir.is_evaluated}));
+                                is_evaluated : devoir.is_evaluated, endSaisie : endSaisie}));
                         }
                     });
                     eleve.evaluations.load(_evals);
@@ -1064,6 +1076,7 @@ export class Periode extends Model {
     id : number;
     timestamp_dt : any;
     timestamp_fn : any;
+    date_fin_saisie : any;
 }
 
 export class Enseignement extends Model {

@@ -1632,6 +1632,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Séquence de récupération d'un relevé de note
          */
         $scope.getReleve = function () {
+            if($scope.selected.devoirs.list !== undefined){
+                for(let i =0 ; i< $scope.selected.devoirs.list.length; i++){
+                    $scope.selected.devoirs.list[i].selected = false;
+                }
+                $scope.selected.devoirs.list = [];
+            }
             let currentPeriode = $scope.search.periode;
             if($scope.search.classe !== null && $scope.search.classe !== undefined && $scope.search.classe.id !== undefined
                 && $scope.search.matiere !== null && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined

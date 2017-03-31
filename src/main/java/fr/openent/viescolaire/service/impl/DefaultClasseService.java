@@ -58,7 +58,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         query.append("Match (c:Class{id: {idClasse} }) with c ")
                 .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
-                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes");
+                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
 
         neo4j.execute(query.toString(), new JsonObject().putString("idClasse", idClasse), Neo4jResult.validResultHandler(handler));
 

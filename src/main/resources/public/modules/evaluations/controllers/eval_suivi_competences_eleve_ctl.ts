@@ -136,7 +136,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
 
                 // refresh du suivi élève
-                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
+                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.sync().then(() => {
                         $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
@@ -250,21 +250,25 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
-                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe);
+                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
                 $scope.suiviCompetence.sync().then(() => {
-                    $scope.suiviCompetence.domaines.all = [];
-                    $scope.suiviCompetence.domaines.sync().then(() => {
-                        $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
+                    // On récupère d'abord les bilans de fin de cycle enregistrés par le chef d'établissement
+                    $scope.suiviCompetence.bilanFinDeCycles.all =[];
+                    $scope.suiviCompetence.bilanFinDeCycles.sync().then(() => {
+                        $scope.suiviCompetence.domaines.all = [];
+                        $scope.suiviCompetence.domaines.sync().then(() => {
+                                $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
 
-                        if ($scope.opened.detailCompetenceSuivi) {
+                                if ($scope.opened.detailCompetenceSuivi) {
 
-                            $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
-                            if ($scope.detailCompetence) {
-                                $scope.openDetailCompetence($scope.detailCompetence);
-                            } else {
-                                $scope.backToSuivi();
-                            }
-                        }
+                                    $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
+                                    if ($scope.detailCompetence) {
+                                        $scope.openDetailCompetence($scope.detailCompetence);
+                                    } else {
+                                        $scope.backToSuivi();
+                                    }
+                                }
+                        });
                     });
                     $scope.initSliderBFC();
                     $scope.informations.eleve.suiviCompetences.push($scope.suiviCompetence);
@@ -273,8 +277,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
                     if ($scope.displayFromClass) delete $scope.displayFromClass;
                     utils.safeApply($scope);
-
-
                 });
             }
 

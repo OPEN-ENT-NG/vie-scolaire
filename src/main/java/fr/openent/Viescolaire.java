@@ -35,6 +35,9 @@ import org.entcore.common.sql.SqlConfs;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Viescolaire extends BaseServer {
 
 	/**
@@ -68,6 +71,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_DOMAINES_TABLE = "domaines";
 	public static final String EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE = "rel_professeurs_remplacants";
 	public static final String EVAL_APPRECIATIONS_TABLE = "appreciations";
+	public static final String EVAL_BFC_TABLE = "bilan_fin_cycle";
 
 	/**
 	 * Déclaration des router préfixs
@@ -107,6 +111,9 @@ public class Viescolaire extends BaseServer {
 	public static final Integer CLASSE_TYPE = 0;
 	public static final Integer GROUPE_TYPE = 1;
 
+	public final static String SCHEMA_BFC_CREATE = "eval_createBFC";
+	public final static String SCHEMA_BFC_UPDATE = "eval_updateBFC";
+
 	@Override
 	public void start() {
 		super.start();
@@ -133,6 +140,7 @@ public class Viescolaire extends BaseServer {
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
+
 
 		/*
 			CONTROLEURS ABSENCES
@@ -171,7 +179,7 @@ public class Viescolaire extends BaseServer {
 		addController(new NoteController());
 		addController(new AppreciationController());
 		addController(new UtilsController());
-
+		addController(new BFCController());
 		addController(new ReferentielController());
 
 		setRepositoryEvents(new VieScolaireRepositoryEvents());

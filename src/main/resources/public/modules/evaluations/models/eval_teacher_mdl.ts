@@ -70,7 +70,7 @@ export class Structure extends Model implements IModel{
             http().getJson(this.api.getClasses+idEtab).done((res) => {
                 _.map(res, (classe) => {
                     let libelleClasse;
-                    if(classe.type_groupe_libelle = classe.type_groupe === 0){
+                    if(classe.type_groupe === 0){
                         libelleClasse = libelle.CLASSE;
                     } else {
                         libelleClasse =  libelle.GROUPE;
@@ -1106,6 +1106,97 @@ function setVisibleSousDomainesRec (poDomaines, pbVisible) {
     }
 }
 
+export class BilanFinDeCycle extends Model {
+    id : number;
+    id_eleve : string;
+    id_domaine : number;
+    id_etablissement : string;
+    owner : string;
+    valeur : number;
+
+    constructor(p? : any) {
+        super();
+        if(p !== undefined){
+            this.id = p.id;
+            this.id_eleve = p.id_eleve;
+            this.id_domaine = p.id_domaine;
+            this.id_etablissement = p.id_etablissement;
+            this.owner = p.owner;
+            this.valeur = p.valeur;
+        }
+    }
+
+    get api () {
+        return {
+            createBFC : '/viescolaire/evaluations/bfc',
+            updateBFC : '/viescolaire/evaluations/bfc?id=' + this.id,
+            deleteBFC : '/viescolaire/evaluations/bfc?id=' + this.id
+        }
+    }
+
+    saveBilanFinDeCycle () : Promise<BilanFinDeCycle> {
+        return new Promise((resolve, reject) => {
+            if (!this.id) {
+                this.createBilanFinDeCycle().then((data) => {
+                    resolve(data);
+                });
+            } else {
+                this.updateBilanFinDeCycle().then((data) =>  {
+                    resolve(data);
+                });
+            }
+        });
+    }
+
+    createBilanFinDeCycle () : Promise<BilanFinDeCycle> {
+        return new Promise((resolve, reject) => {
+            var _bilanFinDeCycle = {
+                id_eleve : this.id_eleve,
+                id_domaine : this.id_domaine,
+                id_etablissement : this.id_etablissement,
+                owner : this.owner,
+                valeur : this.valeur
+            };
+            http().postJson(this.api.createBFC, _bilanFinDeCycle).done ( function (data) {
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            }) ;
+
+        });
+
+    }
+
+    updateBilanFinDeCycle () : Promise<BilanFinDeCycle> {
+        return new Promise((resolve, reject) => {
+            var _bilanFinDeCycle = {
+                id : this.id,
+                id_eleve : this.id_eleve,
+                id_domaine : this.id_domaine,
+                id_etablissement : this.id_etablissement,
+                owner : this.owner,
+                valeur : this.valeur
+            };
+            http().putJson(this.api.updateBFC, _bilanFinDeCycle).done(function (data) {
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+
+        });
+    }
+
+    deleteBilanFinDeCycle () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().delete(this.api.deleteBFC).done(function (data) {
+                if(resolve && typeof(resolve) === 'function'){
+                    resolve(data);
+                }
+            });
+        });
+    }
+}
+
 export class Domaine extends Model {
     domaines : Collection<Domaine>;
     competences : Collection<Competence>;
@@ -1113,11 +1204,15 @@ export class Domaine extends Model {
     niveau : number;
     id_parent : number;
     moyenne : number;
+    bfc : BilanFinDeCycle;
     libelle : string;
     codification : string;
     composer : any;
     evaluated : boolean;
     visible : boolean;
+    id_eleve : string;
+    id_chef_etablissement : string;
+    id_etablissement : string;
 
 
     /**
@@ -1522,20 +1617,22 @@ export class TableConversion extends  Model {
     }
 }
 export class SuiviCompetence extends Model implements IModel{
-    domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
+    domaines : Collection<Domaine>;
     periode : Periode;
     classe : Classe;
+    bilanFinDeCycles : Collection<BilanFinDeCycle>;
     tableConversions : Collection<TableConversion>;
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
             getArbreDomaines : '/viescolaire/evaluations/domaines/classe/',
+            getDomainesBFC : '/viescolaire/evaluations/bfc/eleve/',
             getCompetenceNoteConverssion : '/viescolaire/evaluations/competence/notes/bilan/conversion'
         }
     }
     that = this;
-    constructor (eleve : Eleve, periode : any, classe : Classe) {
+    constructor (eleve : Eleve, periode : any, classe : Classe, structure :Structure) {
         super();
         this.periode = periode;
         this.classe = classe;
@@ -1554,6 +1651,15 @@ export class SuiviCompetence extends Model implements IModel{
                             if (resDomaines) {
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
+                                    if(that.bilanFinDeCycles !== undefined && that.bilanFinDeCycles.all.length>0){
+                                        let tempBFC = _.findWhere(that.bilanFinDeCycles.all, {id_domaine : domaine.id});
+                                        if(tempBFC !== undefined){
+                                            domaine.bfc = tempBFC;
+                                        }
+                                    }
+                                    domaine.id_eleve = eleve.id;
+                                    domaine.id_chef_etablissement = model.me.userId;
+                                    domaine.id_etablissement = structure.id;
                                     that.domaines.all.push(domaine);
                                     setCompetenceNotes(domaine, resCompetencesNotes, this, null);
                                 }
@@ -1562,6 +1668,26 @@ export class SuiviCompetence extends Model implements IModel{
                                 resolve();
                             }
                         });
+                    });
+                });
+            }
+        });
+
+        this.collection(BilanFinDeCycle, {
+            sync: function () {
+                return new Promise((resolve, reject) => {
+                    var url = that.api.getDomainesBFC + eleve.id +'?idEtablissement=' + structure.id;
+                    http().getJson(url).done((resBFC) => {
+                        if (resBFC) {
+                            for (var i = 0; i < resBFC.length; i++) {
+                                var BFC = new BilanFinDeCycle(resBFC[i]);
+                                that.bilanFinDeCycles.all.push(BFC);
+
+                            }
+                        }
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve();
+                        }
                     });
                 });
             }
@@ -1581,7 +1707,7 @@ export class SuiviCompetence extends Model implements IModel{
 
             // recherche de toutes les évaluations du domaine et ses sous domaines
             // (uniquement les max de chaque compétence)
-            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray,this.tableConversions.all, false);
+            getMaxEvaluationsDomaines(oDomaine, oEvaluationsArray,this.tableConversions.all, false,this.bilanFinDeCycles);
         }
     }
 
@@ -1617,6 +1743,29 @@ export class SuiviCompetence extends Model implements IModel{
 
 function setSliderOptions(poDomaine,tableConversions) {
 
+    poDomaine.myChangeSliderListener = function(sliderId) {
+        // Au changement du Slider on détermine si on est dans le cas d'un ajout d'un bfc ou d'une modification
+        // Si c'est un ajout on créee l'objet BFC()
+        let bfc = poDomaine.bfc;
+        if(bfc === undefined){
+            bfc = new BilanFinDeCycle();
+            bfc.id_domaine = poDomaine.id;
+            bfc.id_etablissement = poDomaine.id_etablissement;
+            bfc.id_eleve = poDomaine.id_eleve;
+        }
+        bfc.owner = poDomaine.id_chef_etablissement;
+        bfc.valeur = poDomaine.slider.value;
+        bfc.saveBilanFinDeCycle().then((res) => {
+            if(res !== undefined && res.id !== undefined){
+                if(bfc.id === undefined){
+                    bfc.id = res.id;
+                }
+                poDomaine.bfc = bfc;
+                poDomaine.lastSliderUpdated = bfc.valeur;
+            }
+        });
+    };
+
     poDomaine.slider = {
         options: {
             ticksTooltip: function(value) {
@@ -1631,17 +1780,26 @@ function setSliderOptions(poDomaine,tableConversions) {
             showTicks: 1,
             showSelectionBar: true,
             hideLimitLabels : true,
-
+            id : poDomaine.id,
+            onEnd: poDomaine.myChangeSliderListener
 
         }
     };
 
 
+
     let maConvertion =  undefined;
+    let moyenneTemp = undefined;
+    // si Une valeur a été modifiée par le chef d'établissement alors on prend cette valeur
+    if(poDomaine.bfc !== undefined && poDomaine.bfc.valeur !== undefined){
+        moyenneTemp = poDomaine.bfc.valeur;
+    }else{
+        moyenneTemp = poDomaine.moyenne;
+    }
     for(let i= 0 ; i < tableConversions.length ; i++){
-        if((tableConversions[i].valmin <= poDomaine.moyenne && tableConversions[i].valmax > poDomaine.moyenne) && tableConversions[i].ordre !== tableConversions.length ){
+        if((tableConversions[i].valmin <= moyenneTemp && tableConversions[i].valmax > moyenneTemp) && tableConversions[i].ordre !== tableConversions.length ){
             maConvertion = tableConversions[i];
-        }else if((tableConversions[i].valmin <= poDomaine.moyenne && tableConversions[i].valmax >= poDomaine.moyenne) && tableConversions[i].ordre === tableConversions.length ){
+        }else if((tableConversions[i].valmin <= moyenneTemp && tableConversions[i].valmax >= moyenneTemp) && tableConversions[i].ordre === tableConversions.length ){
             maConvertion = tableConversions[i];
         }
     }
@@ -1678,7 +1836,7 @@ function setSliderOptions(poDomaine,tableConversions) {
     }
 };
 
-function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations) {
+function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations,bfcsParDomaine) {
     // si le domaine est évalué, on ajoute les max de chacunes de ses competences
     if(poDomaine.evaluated) {
         for (let i = 0; i < poDomaine.competences.all.length; i++) {
@@ -1709,7 +1867,18 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
             if(!poDomaine.evaluated) {
                 poMaxEvaluationsDomaines = [];
             }
-            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations);
+
+            // On ajoute les informations utiles au sous-domaine
+            poDomaine.domaines.all[i].id_eleve = poDomaine.id_eleve;
+            poDomaine.domaines.all[i].id_etablissement = poDomaine.id_etablissement;
+            poDomaine.domaines.all[i].id_chef_etablissement= poDomaine.id_chef_etablissement;
+            if(bfcsParDomaine !== undefined && bfcsParDomaine.all.length>0){
+                let tempBFC = _.findWhere(bfcsParDomaine.all, {id_domaine : poDomaine.domaines.all[i].id});
+                if(tempBFC !== undefined){
+                    poDomaine.domaines.all[i].bfc = tempBFC;
+                }
+            }
+            getMaxEvaluationsDomaines(poDomaine.domaines.all[i], poMaxEvaluationsDomaines,tableConversions, pbMesEvaluations,bfcsParDomaine);
         }
     }
 

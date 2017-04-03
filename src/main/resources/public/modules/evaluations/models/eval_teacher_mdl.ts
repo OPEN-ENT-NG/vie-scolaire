@@ -1754,16 +1754,28 @@ function setSliderOptions(poDomaine,tableConversions) {
             bfc.id_eleve = poDomaine.id_eleve;
         }
         bfc.owner = poDomaine.id_chef_etablissement;
-        bfc.valeur = poDomaine.slider.value;
-        bfc.saveBilanFinDeCycle().then((res) => {
-            if(res !== undefined && res.id !== undefined){
-                if(bfc.id === undefined){
-                    bfc.id = res.id;
-                }
-                poDomaine.bfc = bfc;
-                poDomaine.lastSliderUpdated = bfc.valeur;
+        // Si la valeur modifiée est égale à la moyenne calculée, on ne fait rien ou on supprime la valeur
+        if(poDomaine.slider.value === poDomaine.moyenne){
+            if(bfc.id !== undefined){
+                poDomaine.bfc.deleteBilanFinDeCycle().then((res) => {
+                    if (res.rows === 1) {
+                        poDomaine.bfc = undefined;
+                        poDomaine.lastSliderUpdated =  this.domaine.moyenne;
+                    }
+                });
             }
-        });
+        }else{
+            bfc.valeur = poDomaine.slider.value;
+            bfc.saveBilanFinDeCycle().then((res) => {
+                if(res !== undefined && res.id !== undefined){
+                    if(bfc.id === undefined){
+                        bfc.id = res.id;
+                    }
+                    poDomaine.bfc = bfc;
+                    poDomaine.lastSliderUpdated = bfc.valeur;
+                }
+            });
+        }
     };
 
     poDomaine.slider = {

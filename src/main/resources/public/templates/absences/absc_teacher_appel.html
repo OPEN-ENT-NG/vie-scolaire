@@ -12,7 +12,8 @@
     <!--  Menu de gauche  -->
     <nav class="two cell">
         <div class="pannel-in-cell">
-            <label class="fa fa-calendar fa-2x pointer appel__calendar">
+            <label class="pointer appel__calendar">
+                <i class="calendar"></i>
                 <date-picker class="pointer" ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
             </label>
             <div class="appel__journee-calendar" ng-if="creneaus.all.length > 0">

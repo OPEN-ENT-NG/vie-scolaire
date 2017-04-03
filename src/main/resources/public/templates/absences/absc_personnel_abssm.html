@@ -6,7 +6,7 @@
         </div>
         <ul class="selectable-list abscSM-content--SMSelectable-list">
             <li ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs"
-                ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="fa fa-exclamation-circle"></i>
+                ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="warning"></i>
                 <i18n>viescolaire.absences.ariane.AbsencesSansMotifs</i18n>
             </li>
         </ul>
@@ -16,17 +16,17 @@
                     <div class="cell cell-indent three"
                          ng-click="pOSortParameters.sortType = 'eleve_nom'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
                         <i18n>viescolaire.utils.student</i18n>
-                        <i class="fa fa-caret-down"
+                        <i class="sort-desc"
                            ng-show="pOSortParameters.sortType == 'eleve_nom' && !pOSortParameters.sortReverse"></i>
-                        <i class="fa fa-caret-up"
+                        <i class="sort-asc"
                            ng-show="pOSortParameters.sortType == 'eleve_nom' && pOSortParameters.sortReverse"></i>
                     </div>
                     <div class="cell cell-indent three"
                          ng-click="pOSortParameters.sortType = 'cours_date'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
                         <i18n>viescolaire.utils.date</i18n>
-                        <i class="fa fa-caret-down"
+                        <i class="sort-desc"
                            ng-show="pOSortParameters.sortType == 'cours_date' && !pOSortParameters.sortReverse"></i>
-                        <i class="fa fa-caret-up"
+                        <i class="sort-asc"
                            ng-show="pOSortParameters.sortType == 'cours_date' && pOSortParameters.sortReverse"></i>
                     </div>
                     <div class="cell cell-indent four">

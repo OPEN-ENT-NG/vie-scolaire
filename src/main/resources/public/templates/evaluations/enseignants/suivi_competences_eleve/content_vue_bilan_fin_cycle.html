@@ -31,6 +31,7 @@
                             <div ng-if = " ($index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax) || ($index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax)">[[Conversion.libelle]] ([[domaine.moyenne.toFixed(2)]])</div>
                         </div>
                         <div ng-if = " domaine.bfc !== undefined">
+                            <div ng-if = " ($index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax) || ($index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax)"><i class="refresh" aria-hidden="true" ng-click="deleteBFC()" tooltip="<i18n>evaluation.domaine.average.refresh</i18n>[[Conversion.libelle]] ([[domaine.moyenne.toFixed(2)]])"></i></div>
                             <div ng-if = " ($index !== 0 && domaine.bfc.valeur >= Conversion.valmin && domaine.bfc.valeur <  Conversion.valmax) || ($index === 0 && domaine.bfc.valeur >= Conversion.valmin && domaine.bfc.valeur <= Conversion.valmax)">[[Conversion.libelle]] ([[domaine.bfc.valeur.toFixed(2)]])</div>
                         </div>
 

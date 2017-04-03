@@ -195,13 +195,25 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.opened.detailCompetenceSuivi = false;
-        this.refreshSlider = function () {
+        $scope.refreshSlider = function () {
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             });
         };
 
 
+        /**
+         * Supprime un BFC créé par un chef d'établissement
+         */
+        $scope.deleteBFC = function () {
+            this.domaine.bfc.deleteBilanFinDeCycle().then((res) => {
+                if (res.rows === 1) {
+                    this.domaine.bfc = undefined;
+                    this.domaine.slider.value =  this.domaine.moyenne;
+                }
+                utils.safeApply($scope);
+            });
+        }
         /**
          *
          * Affiche le domaine suivant (de niveau 0) et ses

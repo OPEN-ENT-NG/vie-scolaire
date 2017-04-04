@@ -14,19 +14,55 @@ declare let _:any;
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
     function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
+        $scope.opened = {
+            devoir : -1,
+            note : -1,
+            criteres : true,
+            details : true,
+            statistiques : true,
+            studentInfo : true,
+            devoirInfo : true,
+            lightbox : false,
+            lightboxEvalLibre : false,
+            lightboxs : {
+                updateDevoir : {
+                    firstConfirmSupp : false,
+                    secondConfirmSupp : false,
+                    evaluatedSkillDisabel : false
+                },
+                no : {
+                    structure : false
+                },
+                createDevoir : {
+                    firstConfirmSupp : false,
+                    secondConfirmSupp : false
+                }
+            },
+            accOp : 0,
+            evaluation : {
+                suppretionMsg1 : false,
+                suppretionMsg2 : false,
+            }
+        };
         route({
 
-            accueil : function(params){
-                $scope.cleanRoot();
+            accueil : function(params) {
+                if ($scope.evaluations.structure !== undefined) {
 
-                // Chefs d'établissement
-                if($scope.Structure === undefined){$scope.Structure = new Structure();}
-                //si les Eleves ne sont pas sync
-                if( $scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false){
-                    $scope.Structure.syncEleves($scope.evaluations.structure.id).then((data) => {
-                        // console.log("Eleve Sync (/)");
-                    });
+                    $scope.cleanRoot();
 
+                    // Chefs d'établissement
+                    if ($scope.Structure === undefined) {
+                        $scope.Structure = new Structure();
+                    }
+                    //si les Eleves ne sont pas sync
+                    if ($scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false) {
+                        $scope.Structure.syncEleves($scope.evaluations.structure.id).then((data) => {
+                            // console.log("Eleve Sync (/)");
+                        });
+                    }
+                }else{
+                    $scope.opened.lightboxs.no.structure = true;
                 }
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
                 utils.safeApply($scope);
@@ -347,7 +383,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.releveNotes = evaluations.releveNotes;
         $scope.releveNote = null;
         $scope.periodes = evaluations.periodes;
-        $scope.periodes.sync();
+        if($scope.periodes !== undefined){
+            $scope.periodes.sync();
+        }else{
+            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.")
+        }
         $scope.periodesWithYear= _.extendedDiagnostics
         $scope.classes = evaluations.classes;
         $scope.types = evaluations.types;
@@ -370,33 +410,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             successEvalLibre : false
         };
         $scope.me = model.me;
-        $scope.opened = {
-            devoir : -1,
-            note : -1,
-            criteres : true,
-            details : true,
-            statistiques : true,
-            studentInfo : true,
-            devoirInfo : true,
-            lightbox : false,
-            lightboxEvalLibre : false,
-            lightboxs : {
-                updateDevoir : {
-                    firstConfirmSupp : false,
-                    secondConfirmSupp : false,
-                    evaluatedSkillDisabel : false
-                },
-                createDevoir : {
-                    firstConfirmSupp : false,
-                    secondConfirmSupp : false
-                }
-            },
-            accOp : 0,
-            evaluation : {
-                suppretionMsg1 : false,
-                suppretionMsg2 : false,
-            }
-        };
         $scope.text = "";
         $scope.selected = {
             devoirs : {
@@ -781,15 +794,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.releveNote = undefined;
-        evaluations.devoirs.on('sync', function () {
-            $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
-                return [item.id, item.name]
-            }));
-        });
+        if($scope.devoirs !== undefined){
+            evaluations.devoirs.on('sync', function () {
+                $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function(item) {
+                    return [item.id, item.name]
+                }));
+            });
+        }else{
+            console.log("Devoirs indéfinies, l'établissement ne doit pas être actif.")
+        }
 
-        evaluations.classes.on('classes-sync', function () {
-            utils.safeApply($scope);
-        });
+        if($scope.classes !== undefined) {
+            evaluations.classes.on('classes-sync', function () {
+                utils.safeApply($scope);
+            });
+        }else{
+            console.log("Classes indéfinies, l'établissement ne doit pas être actif.")
+        }
 
         $scope.goTo = function(path,id){
             $location.path(path);
@@ -799,12 +820,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         };
 
-        evaluations.periodes.on('sync', function () {
-            setCurrentPeriode().then((defaultPeriode) => {
-                $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                utils.safeApply($scope);
+        if($scope.periodes !== undefined) {
+            evaluations.periodes.on('sync', function () {
+                setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+                    utils.safeApply($scope);
+                });
             });
-        });
+        } else {
+            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.")
+        }
 
         $scope.resetSelected = function () {
             $scope.selected = {

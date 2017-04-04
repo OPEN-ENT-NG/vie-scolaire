@@ -91,7 +91,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         // Initialisation du Controler
-        $scope.initControler(false);
+        if(evaluations.structure !== undefined){
+            $scope.initControler(false);
+        }else{
+            console.log("Aucun établissement actif pour l'utilisateur");
+        }
 
         $scope.getDateFormated = function (date) {
             return utils.getFormatedDate(date, "DD/MM/YYYY");

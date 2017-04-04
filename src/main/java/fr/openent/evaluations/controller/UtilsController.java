@@ -218,6 +218,28 @@ public class UtilsController extends ControllerHelper {
         });
     }
 
+
+    /**
+     * Retourne retourne le cycle de la classe
+     * @param request
+     */
+    @Get("/user/structures/actives")
+    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void getIdsStructuresInactives(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if(user != null){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    utilsService.getActivesIDsStructures(user, handler);
+                }else{
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'utilisateur")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)

@@ -100,6 +100,14 @@ public interface UtilsService {
 
 
     /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler);
+
+
+    /**
      * Récupère le cycle de la classe dans la relation classe_cycle
      * @param idClasse Identifiant de l'établissement.
      * @param handler Handler portant le résultat de la requête.

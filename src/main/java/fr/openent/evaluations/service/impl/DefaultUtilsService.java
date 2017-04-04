@@ -195,6 +195,27 @@ public class DefaultUtilsService  implements UtilsService {
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
     }
 
+    /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_etablissement ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".etablissements_actifs  ")
+                .append("WHERE id_etablissement IN " + Sql.listPrepared(userInfos.getStructures().toArray()))
+                .append(" AND actif = TRUE");
+
+        for(String idStructure :  userInfos.getStructures()){
+            params.addString(idStructure);
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
     @Override
     public void list(String structureId, String classId, String groupId,
                      JsonArray expectedProfiles, String filterActivated, String nameFilter,

@@ -1765,7 +1765,7 @@ function setSliderOptions(poDomaine,tableConversions) {
                 poDomaine.bfc.deleteBilanFinDeCycle().then((res) => {
                     if (res.rows === 1) {
                         poDomaine.bfc = undefined;
-                        poDomaine.lastSliderUpdated =  this.domaine.moyenne;
+                        poDomaine.lastSliderUpdated =  poDomaine.moyenne;
                     }
                     model.trigger('apply');
                 });

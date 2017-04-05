@@ -357,7 +357,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
             },
-            displaySuiviCompetencesClasse : function () {
+            displaySuiviCompetencesClasse : function (params) {
                 $scope.cleanRoot();
                 template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
                 $scope.allRefreshed = false;

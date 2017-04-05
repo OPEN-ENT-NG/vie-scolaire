@@ -14,6 +14,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
     function ($scope, route, $rootScope, $location, $filter, $route, $timeout) {
         //rajout de la periode Annee
+        if($scope.periodes === undefined){
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
             $scope.periodesList = {
@@ -32,11 +33,34 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
         });
 
+        }
+        else{
+                $scope.periodesList = {
+                    "type": "select",
+                    "name": "Service",
+                    "value": $scope.periodeParDefault(),
+                    "values": []
+                };
+                _.map($scope.periodes.all, function (periode) {
+                    $scope.periodesList.values.push(periode);
+                });
+                if($scope.displayFromClass){
+                    $scope.periodesList.value = $scope.search.periode;
+                }
+            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+            template.open('container', '../templates/layouts/2_10_layout');
+            template.open('left-side', '../templates/evaluations/enseignants/suivi_competences_eleve/left_side');
+            template.open('content', '../templates/evaluations/enseignants/suivi_competences_eleve/content');
+            template.open('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve');
+
+        }
+
 
 
         $scope.route = $route;
 
         $scope.opened.lightboxEvalLibre = false;
+
 
         /**
          * Initialise d'une évaluation libre.

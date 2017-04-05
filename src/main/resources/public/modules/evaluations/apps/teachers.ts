@@ -67,7 +67,7 @@ routes.define(function($routeProvider){
         .when('/devoir/:devoirId', {action:'viewNotesDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
         .when('/competences/eleve', {action : 'displaySuiviCompetencesEleve'})
-        .when('/competences/classe', {action : 'displaySuiviCompetencesClasse'})
+        .when('/competences/classe/:idClasse/:idPeriode', {action : 'displaySuiviCompetencesClasse'})
         .when('/remplacements/list',{action:'listRemplacements'})
         .when('/remplacement/create',{action:'createRemplacements'})
         .when('/',{action:'accueil'})

@@ -108,6 +108,17 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                 return lang.translate(i18nKey);
             };
 
+            $scope.$on('change-params', function (event, updatedUrl) {
+                var o = _.findWhere($scope.ariane, {stateName: "ariane."+appPrefix+"."+$route.current.action,});
+                if(o!== undefined){
+                    var i = $scope.ariane.indexOf(o);
+                }else{
+                    i=-1;
+                }
+                if(i !== -1) {
+                    o.url = updatedUrl;
+                }
+                });
 
         }
 

@@ -1779,6 +1779,7 @@ function setSliderOptions(poDomaine,tableConversions) {
                 });
             }
         }else{
+            // Sinon on ajoute ou on modifie la valeur du BFC
             bfc.valeur = poDomaine.slider.value;
             bfc.saveBilanFinDeCycle().then((res) => {
                 if(res !== undefined && res.id !== undefined){
@@ -1790,6 +1791,7 @@ function setSliderOptions(poDomaine,tableConversions) {
                 }
             });
         }
+        model.trigger('apply');
     };
 
     poDomaine.slider = {

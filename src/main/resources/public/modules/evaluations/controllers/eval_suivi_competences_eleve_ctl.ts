@@ -225,7 +225,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             });
         };
 
-
         /**
          * Supprime un BFC créé par un chef d'établissement
          */
@@ -237,7 +236,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 }
                 utils.safeApply($scope);
             });
-        }
+        };
         /**
          *
          * Affiche le domaine suivant (de niveau 0) et ses

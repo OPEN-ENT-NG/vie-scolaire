@@ -386,7 +386,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         if($scope.periodes !== undefined){
             $scope.periodes.sync();
         }else{
-            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.")
+            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.");
         }
         $scope.periodesWithYear= _.extendedDiagnostics
         $scope.classes = evaluations.classes;
@@ -801,7 +801,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }));
             });
         }else{
-            console.log("Devoirs indéfinies, l'établissement ne doit pas être actif.")
+            console.log("Devoirs indéfinies, l'établissement ne doit pas être actif.");
         }
 
         if($scope.classes !== undefined) {
@@ -809,7 +809,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             });
         }else{
-            console.log("Classes indéfinies, l'établissement ne doit pas être actif.")
+            console.log("Classes indéfinies, l'établissement ne doit pas être actif.");
         }
 
         $scope.goTo = function(path,id){
@@ -828,7 +828,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             });
         } else {
-            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.")
+            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.");
         }
 
         $scope.resetSelected = function () {

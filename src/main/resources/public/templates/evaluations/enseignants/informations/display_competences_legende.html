@@ -18,7 +18,8 @@
   -->
 
 <div class="header">
-    <h2 ng-if="template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')">
+    <h2 ng-if="template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')
+                || route.current.$$route.originalPath.startsWith('/competences/classe')">
         <i18n>viescolaire.utils.legend</i18n>
     </h2>
 

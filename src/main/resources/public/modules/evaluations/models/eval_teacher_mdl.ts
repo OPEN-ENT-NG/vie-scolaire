@@ -1776,6 +1776,7 @@ function setSliderOptions(poDomaine,tableConversions) {
                         poDomaine.bfc = undefined;
                         poDomaine.lastSliderUpdated =  this.domaine.moyenne;
                     }
+                    model.trigger('apply');
                 });
             }
         }else{
@@ -1788,10 +1789,10 @@ function setSliderOptions(poDomaine,tableConversions) {
                     }
                     poDomaine.bfc = bfc;
                     poDomaine.lastSliderUpdated = bfc.valeur;
+                    model.trigger('apply');
                 }
             });
         }
-        model.trigger('apply');
     };
 
     poDomaine.slider = {

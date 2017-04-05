@@ -20,14 +20,15 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
 import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.NoteService;
 import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
-import fr.openent.evaluations.service.impl.DefaultCompetencesService;
-import fr.openent.evaluations.service.impl.DefaultDevoirService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.evaluations.service.impl.*;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -38,18 +39,17 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.entcore.common.utils.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonElement;
 import org.vertx.java.core.json.JsonObject;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -64,16 +64,16 @@ public class DevoirController extends ControllerHelper {
      * Déclaration des services
      */
     private final DefaultDevoirService devoirsService;
-    private final DefaultCompetencesService defaultCompetencesService;
-    private final CompetenceNoteService competencesNotesService;
     private final UtilsService utilsService;
+    private final ClasseService classesService;
+    private final NoteService notesService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         devoirsService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
-        defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
-        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        classesService = new DefaultClasseService();
         utilsService = new DefaultUtilsService();
+        notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
     }
 
     @Get("/devoirs")
@@ -121,6 +121,7 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
+
     /**
      * Créer un devoir avec les paramètres passés en post.
      * @param request
@@ -146,7 +147,7 @@ public class DevoirController extends ControllerHelper {
                                 @Override
                                 public void handle(final JsonObject devoir) {
 
-                                     devoirsService.createDevoir(devoir, user, new Handler<Either<String, JsonObject>>() {
+                                    devoirsService.createDevoir(devoir, user, new Handler<Either<String, JsonObject>>() {
                                         @Override
                                         public void handle(Either<String, JsonObject> event) {
                                             if (event.isRight()) {
@@ -208,7 +209,6 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
-
     /**
      * Liste des devoirs publiés par l'utilisateur pour un établissement et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
@@ -245,6 +245,7 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
+
     @Get("/devoirs/evaluations/information")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
     @ResourceFilter(AccessEvaluationFilter.class)
@@ -252,7 +253,7 @@ public class DevoirController extends ControllerHelper {
     public void isEvaluatedDevoir(final HttpServerRequest request){
         Long idDevoir;
         try {
-             idDevoir = Long.parseLong(request.params().get("idDevoir"));
+            idDevoir = Long.parseLong(request.params().get("idDevoir"));
         } catch(NumberFormatException e) {
             log.error("Error : idPeriode must be a long object", e);
             badRequest(request, e.getMessage());
@@ -291,6 +292,7 @@ public class DevoirController extends ControllerHelper {
         devoirsService.getevaluatedDevoirs(idDevoirsArray,handler);
 
     }
+
     /**
      * Met à jour un devoir
      * @param request
@@ -314,46 +316,79 @@ public class DevoirController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Calcul le pourcentage réalisé pour chaque devoir")
     public void getPercentDone (final HttpServerRequest request) {
-        // TODO MN-301 : MODIFIER LA REQUETE DE RECUPERATION
-        renderJson(request, new JsonArray());
-//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-//            @Override
-//            public void handle(final UserInfos user) {
-//                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-//                    @Override
-//                    public void handle(JsonObject devoirs) {
-//                        final JsonObject classes = devoirs.getObject("datas");
-//                        devoirsService.getNbNotesDevoirs(user, new Handler<Either<String, JsonArray>>() {
-//                            @Override
-//                            public void handle(Either<String, JsonArray> event) {
-//                                if (event.isRight()) {
-//                                    JsonObject returns = new JsonObject();
-//                                    JsonArray values = event.right().getValue();
-//                                    for (int i = 0; i < values.size(); i++) {
-//                                        Double percent = new Double(0);
-//                                        JsonObject devoir = values.get(i);
-//                                        if(null != devoir
-//                                                && null != devoir.getInteger("id")) {
-//                                            String idClasse = devoir.getString("id_groupe");
-//                                            Integer idDevoir = devoir.getInteger("id");
-//                                            if (null != classes
-//                                                    && null != classes.getInteger(idClasse)) {
-//                                                percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes") * 100 / classes.getInteger(idClasse))));
-//                                            }
-//                                            returns.putNumber(idDevoir.toString(), percent);
-//                                        }
-//                                    }
-//                                    Renders.renderJson(request, returns);
-//                                } else {
-//                                    leftToResponse(request,event.left());
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user != null) {
+                    RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(JsonObject devoirs) {
+
+                            final HashMap<Long, String> idDevoirToGroupe = new HashMap<>();
+                            final HashMap<String, Integer> nbElevesByGroupe = new HashMap<>();
+                            final HashMap<Long, Integer> nbNotesByDevoir = new HashMap<>();
+                            JsonArray idDevoirs = devoirs.getArray("idDevoirs");
+
+                            final JsonArray result = new JsonArray();
+
+                            devoirsService.getNbNotesDevoirs(user, idDevoirs , new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event) {
+                                    if (event.isRight()) {
+                                        if(event.right().getValue() != null) {
+                                            JsonArray resultNbNotesDevoirs = event.right().getValue();
+
+                                            JsonArray idGroupes = new JsonArray();
+
+                                            for (int i = 0; i < resultNbNotesDevoirs.size(); i++) {
+                                                JsonObject o = resultNbNotesDevoirs.get(i);
+
+                                                if (null != o && !idGroupes.contains(o.getString("id_groupe"))) {
+                                                    idGroupes.add(o.getString("id_groupe"));
+                                                }
+                                                idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+                                                nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
+                                            }
+
+                                            classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                                @Override
+                                                public void handle(Either<String, JsonArray> event) {
+                                                    if (event.isRight()) {
+                                                        JsonArray resultNbElevesGroupes = event.right().getValue();
+
+                                                        for (int i = 0; i < resultNbElevesGroupes.size(); i++) {
+                                                            JsonObject o = resultNbElevesGroupes.get(i);
+                                                            nbElevesByGroupe.put(o.getString("id_groupe"), o.getInteger("nb"));
+                                                        }
+                                                        for (Map.Entry devoirToGroupe : idDevoirToGroupe.entrySet()) {
+                                                            JsonObject o = new JsonObject();
+                                                            o.putNumber("id", (Number)devoirToGroupe.getKey());
+                                                            o.putNumber("percent", nbNotesByDevoir.get(devoirToGroupe.getKey()) * 100 / nbElevesByGroupe.get(devoirToGroupe.getValue()));
+                                                            result.add(o);
+                                                        }
+                                                        Renders.renderJson(request, result);
+                                                    } else {
+                                                        leftToResponse(request, event.left());
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        leftToResponse(request, event.left());
+                                    }
+                                }
+                            });
+
+
+
+
+                        }
+                    });
+                }
+            }
+        });
     }
+
     /**
      *  Supprimer un devoir
      */

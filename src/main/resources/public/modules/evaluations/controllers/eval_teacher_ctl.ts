@@ -226,7 +226,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 }else{
 
-                    if (!evaluations.devoirs.percentDone) evaluations.devoirs.getPercentDone();
+                    evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id'));
                     openTamplates();
                 }
 
@@ -588,35 +588,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return _.indexOf($scope.selected.classes, id) !== -1;
         }
 
-        // $scope.eleves = [];
-        // if (evaluations.synchronized.classes !== 0) {
-        //     evaluations.classes.on('classes-sync', () => {
-        //         for (let i = 0; i < evaluations.classes.all.length; i++) {
-        //             let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-        //                 if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
-        //                     return _.extend(eleve,{
-        //                             classEleve : evaluations.classes.all[i]
-        //                         }
-        //                     );}
-        //             });
-        //             $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
-        //         }
-        //
-        //
-        //     });
-        // } else {
-        //     for (let i = 0; i < evaluations.classes.all.length; i++) {
-        //         let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-        //             if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
-        //                 return _.extend(eleve,{
-        //                         classEleve : evaluations.classes.all[i]
-        //                     }
-        //                 );}
-        //         });
-        //         $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
-        //     }
-        //
-        // }
+        $scope.eleves = [];
+        if (evaluations.synchronized.classes !== 0) {
+            evaluations.classes.on('classes-sync', () => {
+                for (let i = 0; i < evaluations.classes.all.length; i++) {
+                    let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                        if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+                            return _.extend(eleve,{
+                                    classEleve : evaluations.classes.all[i]
+                                }
+                            );}
+                    });
+                    $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
+                }
+
+
+            });
+        } else {
+            for (let i = 0; i < evaluations.classes.all.length; i++) {
+                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+                    if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
+                        return _.extend(eleve,{
+                                classEleve : evaluations.classes.all[i]
+                            }
+                        );}
+                });
+                $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
+            }
+
+        }
+
         /**
          * cette function permet d'extraire les competences evalué du devoir
          * @param Skills : les competences du devoir
@@ -2010,7 +2011,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
             $scope.currentDevoir.calculStats(evals).then(() => {
-                utils.safeApply($scope);
+                $scope.evaluations.devoirs.getPercentDone($scope.currentDevoir.id).then(() => {
+                    utils.safeApply($scope);
+                })
             });
         };
 

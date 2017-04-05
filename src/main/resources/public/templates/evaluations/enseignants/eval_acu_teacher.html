@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in devoirs | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
+                            <div ng-repeat="devoir in devoirsNotDone | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -124,7 +124,7 @@
                         <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>&nbsp;:
                     </h2>
                     <label class="select right-magnet">
-                        <select class="padding-select-accueil" ng-model="charts.uncomplete" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name'] "
+                        <select class="padding-select-accueil" ng-change="loadChart(chartOptions.selectedClasse);" ng-model="chartOptions.selectedClasse" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in devoirsClasses | orderBy:['type_groupe_libelle','name'] "
                                 >
 
                         </select>
@@ -132,8 +132,8 @@
                 </div>
                 <div class="content-box-accueil">
                     <canvas class="chart chart-bar"
-                            chart-data="chartOptions.classes[charts.uncomplete].percents"
-                            chart-labels="chartOptions.classes[charts.uncomplete].names"
+                            chart-data="chartOptions.classes[chartOptions.selectedClasse].percents"
+                            chart-labels="chartOptions.classes[chartOptions.selectedClasse].names"
                             chart-options="chartOptions.options"
                             chart-colors="chartOptions.colors"
                             chart-click="SaisieNote">

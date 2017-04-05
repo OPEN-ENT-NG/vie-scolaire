@@ -20,6 +20,7 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import fr.openent.evaluations.service.DevoirService;
 import fr.wseduc.webutils.http.Renders;
@@ -35,6 +36,7 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
@@ -421,8 +423,6 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
     }
 
-
-
     @Override
     public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -474,13 +474,14 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
+    public void getNbNotesDevoirs(UserInfos user, JsonArray idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE notes.id_devoir = devoirs.id ")
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
+                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs.toArray()) + " ")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
                 .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
                 .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
@@ -496,6 +497,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
 
         JsonArray values =  new JsonArray();
+
+        //Ajout des id désirés
+        for (int i = 0; i < idDevoirs.size(); i++) {
+            values.add(idDevoirs.get(i));
+        }
 
         // Ajout des params pour les devoirs dont on est le propriétaire
         values.add(user.getUserId());

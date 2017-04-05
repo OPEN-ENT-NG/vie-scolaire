@@ -209,7 +209,7 @@ export class ReleveNote extends  Model implements IModel{
                         let date_saisie = devoirPeriode.date_fin_saisie;
                         let current_date = new Date();
                         if (moment(date_saisie).diff(moment(current_date), "days") >= 0) {
-                           endSaisie = false;
+                            endSaisie = false;
                         }
                         else {
                             endSaisie = true;
@@ -1002,7 +1002,6 @@ export class DevoirsCollection {
                         resolve(res);
                     }
                 }.bind(this));
-                this.percentDone = false;
             });
         };
     }
@@ -1040,31 +1039,23 @@ export class DevoirsCollection {
             });
         });
     }
-    getPercentDone () : Promise<any> {
+
+    getPercentDone (idDevoirs?) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if (evaluations.synchronized.classes !== 0) {
-                evaluations.classes.on('classes-sync', function () {
-                    evaluations.devoirs.getPercentDone();
-                });
-                return;
-            }
-            if (this.all.length > 0 ) {
-                var _datas = {};
-                for (var i = 0; i < evaluations.classes.all.length; i++) {
-                    _datas[evaluations.classes.all[i].id] = evaluations.classes.all[i].eleves.all.length;
-                }
-                http().postJson('/viescolaire/evaluations/devoirs/done', {'datas' : _datas})
-                    .done((res) => {
-                        for (var i = 0; i < this.all.length; i++) {
-                            this.all[i].percent = res[this.all[i].id];
+            if(idDevoirs){
+                if(idDevoirs.length > 0 && evaluations.synchronized.devoirs) {
+                    http().postJson('/viescolaire/evaluations/devoirs/done', {'idDevoirs' : idDevoirs}).done((res) => {
+                        for (let id of idDevoirs) {
+                            let calculatedPercent = _.findWhere(res, {id : id});
+                            _.find(this.all, {id : id}).percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
                         }
                         model.trigger('apply');
-                        this.percentDone = true;
                         resolve();
                     })
-                    .error(() => {
-                        reject();
-                    });
+                        .error(() => {
+                            reject();
+                        });
+                }
             }
         });
     }

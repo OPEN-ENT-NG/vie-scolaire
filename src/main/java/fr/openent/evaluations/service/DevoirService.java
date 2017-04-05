@@ -19,6 +19,7 @@
 
 package fr.openent.evaluations.service;
 
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
@@ -83,9 +84,11 @@ public interface DevoirService extends CrudService {
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
      * @param user l'utilisateur connecté
+     * @param idGroupes La liste des devoirs désirés
      * @param handler handler portant le résultat de la requête
      */
-    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(UserInfos user, JsonArray idGroupes, Handler<Either<String, JsonArray>> handler);
+
     /**
      * verifie si le devoir est evalué ou pas
      * @param idDevoir

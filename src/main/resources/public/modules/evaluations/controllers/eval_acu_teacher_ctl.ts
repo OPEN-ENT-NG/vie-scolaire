@@ -13,13 +13,42 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.evaluations = evaluations;
             $scope.search = {
                 matiere: '*',
-                periode : undefined,
-                classe : '*',
-                sousmatiere : '*',
-                type : '*',
-                idEleve : '*',
-                name : ''
+                periode: undefined,
+                classe: '*',
+                sousmatiere: '*',
+                type: '*',
+                idEleve: '*',
+                name: ''
             };
+            $scope.chartOptions = {
+                classes: {},
+                options: {
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItems, data) {
+                                return tooltipItems.yLabel + "%";
+                            }
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                size: 0,
+                                max: 100,
+                                min: 0,
+                                stepSize: 20,
+                            },
+                        }],
+                        xAxes: [{
+                            display: false,
+                        }]
+                    }
+                },
+                colors: ['#4bafd5', '#46bfaf', '#ecbe30', '#FF8500', '#e13a3a', '#b930a2', '#763294', '#1a22a2']
+            };
+            $scope.showAutocomplete = false;
+            $scope.devoirsNotDone = [];
+            $scope.devoirsClasses = [];
 
             evaluations.periodes.on('sync', function () {
                 setCurrentPeriode().then((defaultPeriode) => {
@@ -35,7 +64,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
 
 
             // Changement établissement
-            if(isChangementEtablissement === true) {
+            if (isChangementEtablissement === true) {
                 $scope.classes = evaluations.classes;
             }
 
@@ -43,7 +72,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
              * Retourne la période courante
              * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
              */
-            var setCurrentPeriode = function () : Promise<any> {
+            var setCurrentPeriode = function (): Promise<any> {
                 return new Promise((resolve, reject) => {
                     var formatStr = "DD/MM/YYYY";
                     var momentCurrDate = moment(moment().format(formatStr), formatStr);
@@ -51,7 +80,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                     for (var i = 0; i < evaluations.periodes.all.length; i++) {
                         var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
                         var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
-                        if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
+                        if (momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                             $scope.currentPeriodeId = evaluations.periodes.all[i].id;
                             if (resolve && typeof (resolve) === 'function') {
                                 resolve(evaluations.periodes.all[i]);
@@ -64,29 +93,38 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 });
             };
 
-            $scope.devoirs= [];
-
-            $scope.showAutocomplete= false;
-            $scope.charts = {
-                uncomplete : model.me.classes[0]
-            };
-            if (evaluations.synchronized.classes !== 0) {
-                evaluations.classes.on('classes-sync', () => {
-                    $scope.evaluations.devoirs.getPercentDone().then(() => {
-                        $scope.initCharts();
+            $scope.getDevoirsNotDone = function (idDevoirs?) {
+                return new Promise((resolve, reject) => {
+                    if (!idDevoirs) {
+                        idDevoirs = _.pluck(_.where(evaluations.devoirs.all, {is_evaluated: true}), 'id');
+                    }
+                    evaluations.devoirs.getPercentDone(idDevoirs).then(() => {
+                        resolve(_.filter(evaluations.devoirs.all, (devoir) => {
+                            return (devoir.percent < 100 && _.contains(idDevoirs, devoir.id));
+                        }));
                     });
                 });
-            } else {
-                $scope.evaluations.devoirs.getPercentDone().then(() => {
-                    $scope.initCharts();
+            };
+
+            $scope.initChartListNotDone = function () {
+                $scope.getDevoirsNotDone().then((devoirs) => {
+                    $scope.devoirsNotDone = devoirs;
+                    $scope.devoirsClasses = _.filter(evaluations.classes.all, (classe) => {
+                        return (_.find(evaluations.devoirs.all, {'id_groupe' : classe.id, is_evaluated : true}));
+                    })
+                    $scope.chartOptions.selectedClasse = _.first(_.sortBy(_.filter(evaluations.classes.all, (classe) => {
+                        return _.contains(_.pluck(evaluations.devoirs.all, 'id_groupe'), classe.id);
+                    }), 'name')).id;
+                    $scope.loadChart($scope.chartOptions.selectedClasse);
                 });
             }
 
-            for(let i=0; i< $scope.evaluations.devoirs.all.length; i++){
-                if($scope.evaluations.devoirs.all[i].is_evaluated && $scope.evaluations.devoirs.all[i].percent != 100){
-                    $scope.devoirs.push($scope.evaluations.devoirs.all[i]);
-                    utils.safeApply($scope);
-                }
+            if (!evaluations.synchronized.devoirs) {
+                evaluations.devoirs.on('sync', () => {
+                    $scope.initChartListNotDone()
+                });
+            } else{
+                $scope.initChartListNotDone();
             }
         };
 
@@ -101,75 +139,21 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             return utils.getFormatedDate(date, "DD/MM/YYYY");
         };
 
-
-        /**
-         * Retourne un tableau contenant les informations des devoirs pour une classe donnée et un critère donné
-         * @param idClasse identifiant de la classe
-         * @param information critère
-         * @returns {any[]} tableau contenant les informations
-         */
-        $scope.getDevoirsInformations = function (idClasse : string, information : string) : any[] {
-            if (!evaluations.devoirs.percentDone) return;
-            let devoirs = _.where(evaluations.devoirs.all, {id_groupe : idClasse});
-            devoirs = _.filter(devoirs, devoir => (devoir.percent !== undefined && devoir.percent !== 100));
-            return _.pluck(devoirs, information);
-        };
-
-
-        /**
-         * Initialise les graphiques
-         */
-        $scope.initCharts = function () {
-            $scope.chartOptions = {
-
-                classes : {},
-
-                options : {
-                    tooltips: {
-                        callbacks: {
-                            label: function(tooltipItems, data) {
-                                return tooltipItems.yLabel+"%";
-                            }
-                        }
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                size: 0,
-                                max: 100,
-                                min: 0,
-                                stepSize: 20,
-                            },
-                        }],
-                        xAxes: [{
-                            display:false,
-                        }]
-                    }
-                },
-                colors : ['#4bafd5', '#46bfaf', '#ecbe30', '#FF8500', '#e13a3a', '#b930a2', '#763294', '#1a22a2']
-            };
-            let selectedClasse = false ;
-            evaluations.devoirs.getPercentDone().then(()=>{
-                $scope.classes.all = _.sortBy($scope.classes.all, 'name');
-                for (let i = 0; i < $scope.classes.all.length; i++) {
-                    $scope.chartOptions.classes[$scope.classes.all[i].id] = {
-                        names : $scope.getDevoirsInformations($scope.classes.all[i].id, 'name'),
-                        percents : $scope.getDevoirsInformations($scope.classes.all[i].id, 'percent'),
-                        id :  $scope.getDevoirsInformations($scope.classes.all[i].id, 'id')
+        $scope.loadChart = function (idClasse) {
+            let idDevoirs = _.pluck(_.where(evaluations.devoirs.all, {id_groupe: idClasse}), 'id');
+            $scope.getDevoirsNotDone(idDevoirs).then((devoirs) => {
+                if (devoirs) {
+                    $scope.chartOptions.classes[idClasse] = {
+                        names: _.pluck(devoirs, 'name'),
+                        percents: _.pluck(devoirs, 'percent'),
+                        id: _.pluck(devoirs, 'id')
                     };
-                    if($scope.chartOptions.classes[$scope.classes.all[i].id].percents.length > 0 && selectedClasse === false ){
-                        $scope.charts.uncomplete = $scope.classes.all[i].id;
-                        selectedClasse = true;
-                    }
-
                 }
 
                 utils.safeApply($scope);
             });
             utils.safeApply($scope);
         };
-
-
 
         /**
          * ouvrir le suivi d'un eleve (utilisé dans la barre de recherche)
@@ -246,10 +230,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                     });
                     utils.safeApply($scope);
                 });
-                // } else {
-                //     $scope.releveNote = rn;
-                //     utils.safeApply($scope);
-                // }
 
                 $scope.openedStudentInfo = false;
             }

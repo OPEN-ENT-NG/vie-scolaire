@@ -1,4 +1,4 @@
-package fr.openent.evaluations.security.utils;
+package fr.openent.evaluations.security;
 
 import fr.wseduc.webutils.http.Binding;
 import org.entcore.common.http.filter.ResourcesProvider;

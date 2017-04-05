@@ -1,7 +1,7 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.security.utils.AccessBFCFilter;
+import fr.openent.evaluations.security.AccessBFCFilter;
 import fr.openent.evaluations.service.BFCService;
 import fr.openent.evaluations.service.impl.DefaultBFCService;
 import fr.wseduc.rs.*;

@@ -232,7 +232,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             this.domaine.bfc.deleteBilanFinDeCycle().then((res) => {
                 if (res.rows === 1) {
                     this.domaine.bfc = undefined;
-                    this.domaine.slider.value =  this.domaine.moyenne;
+                    this.domaine.slider.value =  parseInt(Math.round(this.domaine.moyenne));
                 }
                 utils.safeApply($scope);
             });

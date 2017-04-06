@@ -504,8 +504,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
         query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
-                .append("WHERE notes.id_devoir = devoirs.id ")
+                .append("WHERE "+ Viescolaire.EVAL_SCHEMA +".id_devoir = devoirs.id ")
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
+                .append("AND NOT EXISTS( SELECT 1 FROM "+ Viescolaire.VSCO_SCHEMA +".personnes_supp WHERE personnes_supp.id_user = notes.id_eleve) ") // On ne prend pas en compte les élèves supprimés
                 .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs.toArray()) + " ")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
                 .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)

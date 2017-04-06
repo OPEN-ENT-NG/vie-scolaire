@@ -53,7 +53,7 @@
             && route.current.$$route.originalPath.startsWith('/competences/eleve')" class="padding-five">
     <ul class="conversion-legend bfc">
         <li class="row" ng-repeat="Conversion in suiviCompetence.tableConversions.all track by $index">
-            <div class="inline-block" class="legende-bfc-left">
+            <div class="inline-block legende-bfc-left">
                 <span class="maxval">[[Conversion.valmax.toFixed(2)]]</span>
                 <span class="last-minval" ng-if="$index === suiviCompetence.tableConversions.all.length - 1">[[Conversion.valmin.toFixed(2)]]</span>
             </div>
@@ -61,7 +61,7 @@
                 <span ng-if="$index === 0" class="tick first-tick"></span>
                 <span class="tick"></span>
             </div>
-            <div class="inline-block" class="legende-bfc-left">
+            <div class="inline-block legende-bfc-left">
                 <span class="libelle ellipsis cell conversion-libelle">
                     [[Conversion.libelle]]
                 </span>

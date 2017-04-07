@@ -17,11 +17,9 @@
  *
  */
 
-/**
- * Created by ledunoiss on 12/09/2016.
- */
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
+var tslint = require('gulp-tslint');
 var webpack = require('webpack-stream');
 var bower = require('gulp-bower');
 var merge = require('merge2');
@@ -214,4 +212,33 @@ gulp.task('build-mod', function () {
            console.log('FIN INSTALL'.green.bold);
        });
     });
+});
+
+gulp.task('ts::lint::watch', function () {
+    return watch(['./src/main/ressources/public/modules/absences/*.ts',
+            '!./src/main/ressources/public/modules/**/*___jb_tmp___',
+            '!./src/main/ressources/public/modules/**/*___jb_old___'],
+        function () {
+            return gulp.src(['./src/main/ressources/public/modules/absences/*.ts',
+                '!./src/main/ressources/public/modules/**/*___jb_tmp___',
+                '!./src/main/ressources/public/modules/**/*___jb_old___'])
+                .pipe(tslint({
+                    formatter: "prose"
+                }))
+                .pipe(tslint.report({
+                    reportLimit: 2
+                }));
+        });
+});
+
+gulp.task('ts::lint', function () {
+    return gulp.src(['./src/main/ressources/public/modules/absences/*.ts',
+        '!./src/main/ressources/public/modules/**/*___jb_tmp___',
+        '!./src/main/ressources/public/modules/**/*___jb_old___'])
+        .pipe(tslint({
+            formatter: "prose"
+        }))
+        .pipe(tslint.report({
+            reportLimit: 2
+        }));
 });

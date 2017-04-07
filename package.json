@@ -1,25 +1,9 @@
 {
   "name": "VieScolaire",
-  "version": "0.4.0",
+  "version": "0.2.0",
   "main": "gulpfile.js",
   "dependencies": {
-    "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire"
-  },
-  "author": "",
-  "license": "AGPL-3.0",
-  "bugs": {
-    "url": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire/issues"
-  },
-  "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
-  "devDependencies": {
-    "@types/node": "^7.0.5",
+    "@types/core-js": "^0.9.35",
     "bower": "^1.7.9",
     "colors": "^1.1.2",
     "core-js": "^2.4.1",
@@ -35,8 +19,28 @@
     "gulp-watch": "^4.3.5",
     "merge2": "^1.0.2",
     "source-map-loader": "^0.1.5",
+    "toolkit": "git+https://git@github.com/entcore/toolkit.git#dev",
+    "axios": "^0.15.2",
     "typescript": "2.1.1",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire"
+  },
+  "author": "",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire/issues"
+  },
+  "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
+  "devDependencies": {
+    "@types/core-js": "^0.9.35",
+    "@types/node": "^7.0.5",
+    "gulp-tslint": "^7.1.0"
   }
 }

@@ -19,11 +19,11 @@
 
 package fr.openent;
 
-import fr.openent.absences.controller.AppelController;
-import fr.openent.absences.controller.EvenementController;
-import fr.openent.absences.controller.MotifController;
+import fr.openent.absences.controller.*;
 import fr.openent.evaluations.controller.*;
+import fr.openent.evaluations.controller.UtilsController;
 import fr.openent.viescolaire.controller.*;
+import fr.openent.viescolaire.controller.EleveController;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import fr.wseduc.webutils.email.EmailSender;
 import org.entcore.common.email.EmailFactory;
@@ -45,7 +45,7 @@ public class Viescolaire extends BaseServer {
 	 */
 	public final static String VSCO_SCHEMA = "viesco";
 	public final static String EVAL_SCHEMA = "notes";
-	public final static String ABSC_SCHEMA = "abs";
+	public final static String ABSC_SCHEMA = "presences";
 
 	/**
 	 * Déclaration des tables
@@ -77,7 +77,7 @@ public class Viescolaire extends BaseServer {
 	 * Déclaration des router préfixs
 	 */
 	public final static String VSCO_PATHPREFIX = "/viescolaire";
-	public final static String ABSC_PATHPREFIX = "/viescolaire/absences";
+	public final static String ABSC_PATHPREFIX = "/viescolaire/presences";
 	public final static String EVAL_PATHPREFIX = "/viescolaire/evaluations";
 
 	/**
@@ -151,7 +151,7 @@ public class Viescolaire extends BaseServer {
 		addController(new MotifController());
 		addController(new AppelController());
 		addController(new EvenementController());
-
+        addController(new fr.openent.absences.controller.UtilsController());
 		/*
 			CONTROLEURS NOTES
 		 */

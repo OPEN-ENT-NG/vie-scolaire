@@ -1,3 +1,3 @@
 export class syncedCollection {
-    synced : boolean
+    synced: boolean;
 }

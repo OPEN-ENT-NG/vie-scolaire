@@ -4,8 +4,6 @@ import {
     OtherClasse, OtherClasses, Structure
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
-import {Collection} from "../../entcore/modelDefinitions";
-import {lightbox} from "../../entcore/directives/lightbox";
 
 let moment = require('moment');
 
@@ -235,11 +233,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.cleanRoot();
                 window.scrollTo(0, 0);
                 $scope.resetSelected();
-                if(evaluations.devoirs.all.length === 0){
-                    $location.path("/releve");
-                    utils.safeApply($scope);
-                    $location.replace();
-                }
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
@@ -295,7 +288,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         syncStudents();
                     }
                 }
-
             },
             displayReleveNotes : function(params) {
                 $scope.cleanRoot();
@@ -2119,6 +2111,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             });
             return;
+        };
+
+        $scope.isValidClasse = (idClasse) => {
+            return $scope.classes.findWhere({id : idClasse}) !== undefined;
         };
 
         /**

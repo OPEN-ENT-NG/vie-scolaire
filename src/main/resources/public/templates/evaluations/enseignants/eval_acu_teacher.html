@@ -62,7 +62,8 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in evaluations.devoirs.all | customSearchFilters:search | orderBy:'date':true" class="row">
+                            <div
+                                    ng-repeat="devoir in evaluations.devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]

@@ -303,6 +303,12 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
         };
 
+        $scope.filterValidClasse = () => {
+            return (item) => {
+                return $scope.isValidClasse(item.id_groupe);
+            }
+        };
+
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){
                 let path = '/devoir/'+ $scope.chartOptions.classes[$scope.charts.uncomplete].id[points[0]._index];

@@ -20,7 +20,7 @@
     "merge2": "^1.0.2",
     "source-map-loader": "^0.1.5",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#dev",
-    "axios" : "^0.15.2",
+    "axios": "^0.15.2",
     "typescript": "2.1.1",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.1.0"
@@ -40,6 +40,7 @@
   "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
   "devDependencies": {
     "@types/core-js": "^0.9.35",
-    "@types/node": "^7.0.5"
+    "@types/node": "^7.0.5",
+    "gulp-tslint": "^7.1.0"
   }
 }

@@ -1,8 +1,7 @@
 /**
  * Created by ledunoiss on 19/02/2016.
  */
-import {notify, idiom as lang, template, routes, model, ng } from 'entcore/entcore';
-import {vieScolaire, Appel, Classe, Eleve, Enseignant, Evenement, Justificatif, Matiere, Motif, Responsable, VieScolaire} from '../models/absc_personnel_mdl';
+import {ng } from 'entcore/entcore';
 
 let moment = require('moment');
 declare let _: any;

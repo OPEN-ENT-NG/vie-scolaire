@@ -110,4 +110,13 @@ public interface DevoirService extends CrudService {
      * @param handler
      */
     public void listDevoirsEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Retourne la liste des toutes les classes qui font ou ont fait l'objet d'un devoir par
+     * l'utilisateur.
+     * @param user Utilisateur en cours
+     * @param structureId Identifiant de la structure
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getClassesIdsDevoir(UserInfos user, String structureId, Handler<Either<String, JsonArray>> handler);
 }

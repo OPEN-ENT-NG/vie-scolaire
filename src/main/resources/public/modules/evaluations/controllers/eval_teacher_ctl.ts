@@ -1,7 +1,6 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {
-    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement,
-    OtherClasse, OtherClasses, Structure
+    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement, Structure
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
@@ -406,7 +405,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             name : ''
 
         };
-        $scope.OtherClasses = new OtherClasses();
         $scope.informations = {};
         $scope.messages = {
             successEvalLibre : false
@@ -435,7 +433,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.synchronizeStudents = (idClasse) => {
             let _classe = evaluations.classes.findWhere({id : idClasse});
-            if (_classe !== undefined && _classe.eleves.empty()) {
+            if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
                 _classe.eleves.sync();
             }
         };
@@ -1780,7 +1778,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any} la valeur de la clé passée en paramètre
          */
         $scope.getClasseData = (idClasse, key) => {
-            if (idClasse == null || idClasse === ''
+            if ($scope.classes === undefined || idClasse == null || idClasse === ''
                     || ($scope.classes === undefined || $scope.evaluations.classes === undefined)
                     || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)){
                 return '';
@@ -2128,7 +2126,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.isValidClasse = (idClasse) => {
-            return $scope.classes.findWhere({id : idClasse}) !== undefined;
+            if ($scope.classes !== undefined) {
+                return $scope.classes.findWhere({id : idClasse, remplacement: false}) !== undefined;
+            }
+        };
+
+        $scope.filterValidClasse = () => {
+            return (item) => {
+                return $scope.isValidClasse(item.id_groupe || item.id);
+            }
         };
 
         /**
@@ -2386,21 +2392,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
         };
         $scope.disabledDevoir=[];
-        $scope.getNameInOtherClasses = (idClasse,idDevoir) => {
-            let myClasse = _.findWhere($scope.OtherClasses.all,{id: idClasse});
-            $scope.disabledDevoir[idDevoir]= true;
-
-            if(myClasse === undefined){
-                myClasse = new OtherClasse();
-                myClasse.getClasse(idClasse).then((data) =>{
-                    $scope.OtherClasses.all.push(data[0]);
-                    return data[0].name;
-                });
-            }else{
-                return myClasse.name;
-            }
-            utils.safeApply($scope);
-        };
         $rootScope.$on("$locationChangeSuccess", function ($event, $nextRoute, $oldRoute) {
             if( $oldRoute === $nextRoute && ($route.current.originalPath === '/devoir/:idDevoir/edit' || $route.current.originalPath === '/devoir/:idDevoir/edit/')  ){
                 $scope.$watch(function() { return $scope.displayCreationDevoir; }, function (newValue, oldValue) {

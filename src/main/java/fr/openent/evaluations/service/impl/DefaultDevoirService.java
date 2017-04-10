@@ -424,6 +424,31 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
+    public void getClassesIdsDevoir(UserInfos user, String structureId, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT distinct(rel_devoirs_groupes.id_groupe) " +
+                "FROM notes.devoirs " +
+                "inner join notes.rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id) " +
+                "AND (devoirs.id_etablissement = ? ) " +
+                "AND (devoirs.owner = ? " +
+                "OR devoirs.owner IN (SELECT DISTINCT id_titulaire " +
+                "FROM notes.rel_professeurs_remplacants " +
+                "INNER JOIN notes.devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement " +
+                "WHERE id_remplacant = ? " +
+                "AND rel_professeurs_remplacants.id_etablissement = ?) " +
+                "OR ? IN (SELECT member_id " +
+                "FROM notes.devoirs_shares " +
+                "WHERE resource_id = devoirs.id " +
+                "AND action = '"+ Viescolaire.DEVOIR_ACTION_UPDATE +"'))";
+        JsonArray params = new JsonArray()
+                .addString(structureId)
+                .addString(user.getUserId())
+                .addString(user.getUserId())
+                .addString(structureId)
+                .addString(user.getUserId());
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
     public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();

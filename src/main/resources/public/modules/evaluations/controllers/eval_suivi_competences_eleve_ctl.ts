@@ -325,11 +325,12 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
         $scope.updateSuiviEleve = (Eleve) => {
             $scope.selected.grey = true;
-            let path = '/competences/eleve';
-            let idOfpath = {idEleve: Eleve.id, idClasse: Eleve.classes[0]};
-            $scope.goTo(path, idOfpath);
-            $scope.initSuivi();
-
+            $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': Eleve.idClasse} );
+            $scope.search.classe.eleves.sync().then(() =>{
+                $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': Eleve.id});
+                $scope.selectSuivi($scope.route.current.$$route.originalPath);
+                utils.safeApply($scope);
+            });
         };
         $scope.initSuivi = () => {
             if ($scope.displayFromClass !== true) {
@@ -337,7 +338,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 delete $scope.informations.eleve;
                 delete $scope.suiviCompetence;
             } else {
-
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);
                 $scope.displayFromEleve = true;
                 utils.safeApply($scope);

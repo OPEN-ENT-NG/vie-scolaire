@@ -54,10 +54,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.Structure = new Structure();
                     }
                     //si les Eleves ne sont pas sync
-                    if ($scope.isChefEtab() && $scope.Structure.synchronized.Eleve !== false) {
-                        $scope.Structure.syncEleves($scope.evaluations.structure.id).then((data) => {
-                            // console.log("Eleve Sync (/)");
-                        });
+                    if ( $scope.Structure.synchronized.Eleve !== false) {
+                        if($scope.isChefEtab() ) {
+                            evaluations.on('eleves-sync', function () {
+                            $scope.Structure.eleves.all = evaluations.eleves;
+                                utils.safeApply($scope);
+                            });
+                        }
+                        else{
+                            evaluations.on('eleves-sync', function () {
+                                $scope.eleves = evaluations.eleves;
+                                utils.safeApply($scope);
+                            });
+
+                        }
                     }
                 }else{
                     $scope.opened.lightboxs.no.structure = true;
@@ -1770,7 +1780,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any} la valeur de la clé passée en paramètre
          */
         $scope.getClasseData = (idClasse, key) => {
-            if (idClasse == null || idClasse === '' || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)) return '';
+            if (idClasse == null || idClasse === ''
+                    || ($scope.classes === undefined || $scope.evaluations.classes === undefined)
+                    || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)){
+                return '';
+            }
             let classe = $scope.classes.findWhere({id : idClasse});
             if (classe === undefined){
                 classe = $scope.evaluations.classes.findWhere({id : idClasse});

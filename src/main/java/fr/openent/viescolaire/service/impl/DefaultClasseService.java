@@ -80,4 +80,20 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonObject params =  new JsonObject();
+        query.append("MATCH (s:Structure {id:'"+idEtablissement+"'})<-[BELONGS]-(c:Class)<-[DEPENDS]")
+                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) ");
+        if(isTeacher){
+            query.append(" WHERE c.id IN {idClasse}");
+            params.putArray("idClasse", idClasse);
+        }
+        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, c.id as idClasse ORDER BY displayName");
+
+        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
+
+    }
 }

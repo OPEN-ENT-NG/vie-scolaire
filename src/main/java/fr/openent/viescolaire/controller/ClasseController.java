@@ -35,6 +35,9 @@ import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
+
+import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -79,6 +82,29 @@ public class ClasseController extends BaseController {
                         classeService.getEleveClasse(idClasse, handler);
                     }
                 }else{
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
+    @Get("/eleves")
+    @ApiDoc("Recupere tous les élèves d'une liste de classes.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getElevesClasse(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null) {
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        List<String> idClasse = request.params().getAll("idClasse");
+                        JsonArray idClasseArray = new JsonArray(idClasse.toArray());
+                        Boolean isTeacher = user.getType().equals("Teacher");
+                        String idEtablissement = request.params().get("idEtablissement");
+
+                        classeService.getEleveClasses(idEtablissement,idClasseArray,isTeacher, handler);
+                } else {
                     unauthorized(request);
                 }
             }

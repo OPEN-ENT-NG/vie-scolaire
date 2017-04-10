@@ -18,7 +18,7 @@ export class Structure extends Model implements IModel{
 
     get api () {
         return  {
-            getEleves : '/viescolaire/etab/eleves/',
+            getEleves : '/viescolaire/evaluations/eleves?idEtablissement=',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
             getClasses: '/viescolaire/evaluations/classes?idEtablissement='
         }
@@ -41,10 +41,14 @@ export class Structure extends Model implements IModel{
         return new Promise((resolve, reject) => {
             var that = this;
             http().getJson(this.api.getEleves+idEtab).done(function(data){
-                that.eleves.load(data);
+                let res = [];
+                for(let i=0; i< data.length ; i++){
+                    res.push(new Eleve(data[i]));
+                }
+                that.eleves.load(res);
                 that.synchronized.Eleve = true;
                 if (resolve && (typeof (resolve) === 'function')) {
-                    resolve(data);
+                    resolve(res);
                 }
             });
         });
@@ -413,6 +417,8 @@ export class Eleve extends Model implements IModel{
     firstName: string;
     lastName: string;
     suiviCompetences : Collection<SuiviCompetence>;
+    displayName: string;
+    idClasse: string;
 
     get api() {
         return {
@@ -420,13 +426,16 @@ export class Eleve extends Model implements IModel{
         }
     }
 
-    constructor () {
+    constructor (o?: any) {
         super();
+        if (o) {
+            this.updateData(o);
+        }
         this.collection(Evaluation);
         this.collection(SuiviCompetence);
     }
     toString () {
-        return this.firstName+" "+this.lastName;
+        return this.hasOwnProperty("displayName") ? this.displayName : this.firstName+" "+this.lastName;
     }
 
     getMoyenne () : Promise<any> {
@@ -1383,6 +1392,7 @@ export class Evaluations extends Model{
     synchronized : any;
     competencesDevoir : any[];
     structures : Collection<Structure>;
+    eleves : any;
 
     constructor () {
         super();
@@ -1516,21 +1526,33 @@ export class Evaluations extends Model{
                                         return classe;
                                     });
                                     evaluations.classes.load(res);
-
-
-                                    evaluations.synchronized.classes = evaluations.classes.all.length;
-                                    for (let i = 0; i < evaluations.classes.all.length; i++) {
-                                        // evaluations.classes.all[i].eleves.sync().then(() => {
-                                        evaluations.synchronized.classes--;
-                                        if (evaluations.synchronized.classes === 0) {
-                                            evaluations.classes.trigger('classes-sync');
-                                        }
-                                        // });
-                                    }
+                                    evaluations.classes.trigger('classes-sync');
                                 });
                             }
                         });
                         this.classes.sync();
+                        let that = this;
+                        evaluations.classes.on('classes-sync', function () {
+                            //chargement des élèves Pour les enseignants ou personnel de l'établissement
+                            let url = '/viescolaire/eleves?idEtablissement='+this.model.structure.id;
+                            //filtre par classe pour les enseignants
+                            if((model.me.type === 'ENSEIGNANT')){
+                            evaluations.classes.forEach((classe) => {
+                                url += '&idClasse=' + classe.id;
+                            });
+                            }
+                            if(model.me.type === 'PERSEDUCNAT'
+                            || model.me.type === 'ENSEIGNANT') {
+                                http().getJson(url).done((res) => {
+                                    evaluations.eleves = [];
+                                    for (let i = 0; i < res.length; i++) {
+                                        evaluations.eleves.push(new Eleve(res[i]))
+                                    }
+                                    evaluations.trigger('eleves-sync');
+                                });
+                            }
+                        });
+
                         this.devoirs.on('sync', function () {
                             evaluations.synchronized.devoirs = true;
                             resolve();

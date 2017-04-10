@@ -393,7 +393,8 @@ public class DevoirController extends ControllerHelper {
      *  Supprimer un devoir
      */
     @Delete("/devoir")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
     @ApiDoc("Supprime un devoir")
     public void remove(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {

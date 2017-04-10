@@ -700,7 +700,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     let current_date = new Date();
                     // si la date de fin de saisie de la periode du devoir est dépassée
                     // le devoir n'est plus supprimable
-                    if (moment(date_saisie).diff(moment(current_date), "days") >= 0){
+                    if($scope.isChefEtab()){
+                        idDevoir.push(devoir.id);
+                    }
+                    else if (moment(date_saisie).diff(moment(current_date), "days") >= 0 ){
                         idDevoir.push(devoir.id);
                     }
                 });

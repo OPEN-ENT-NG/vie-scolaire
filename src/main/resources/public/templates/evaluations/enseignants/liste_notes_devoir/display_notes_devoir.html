@@ -48,10 +48,12 @@
                     <section><span class="bold"><i18n>viescolaire.utils.class</i18n></span> : [[getClasseData(currentDevoir.id_groupe, 'name')]]</section>
 
                     <section>
-                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[currentDevoir.matiere.name]]</label>
+                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[getLibelleMatiere(currentDevoir.id_matiere)]]</label>
                     </section>
-                    <section ng-show="currentDevoir._sousmatiere_libelle !== null && currentDevoir._sousmatiere_libelle !== undefined && currentDevoir._sousmatiere_libelle !== ''">
-                        <label><i18n class="bold">viescolaire.utils.undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
+                    <section ng-show="currentDevoir.id_sousmatiere!== null">
+                        <label>
+                            <i18n class="bold">viescolaire.utils.undersubject</i18n> : [[getLibelleSousMatiere(currentDevoir.id_sousmatiere)]]
+                        </label>
                     </section>
                     <section>
                         <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>

@@ -502,24 +502,28 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbNotesDevoirs(UserInfos user, JsonArray idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
+        boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
+
         query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE notes.id_devoir = devoirs.id ")
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
-                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs.toArray()) + " ")
-                .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
-                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                .append("WHERE id_remplacant = ? ")
-                .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
-                .append(") OR ")
-                .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                .append("WHERE resource_id = devoirs.id ")
-                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
-                .append(") ")
-                .append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
+                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs.toArray()) + " ");
+        if(!isChefEtab) {
+            query.append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                    .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                    .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                    .append("WHERE id_remplacant = ? ")
+                    .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                    .append(") OR ")
+                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                    .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                    .append("WHERE resource_id = devoirs.id ")
+                    .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE + "')")
+                    .append(") ");
+        }
+        query.append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
 
         JsonArray values =  new JsonArray();
 
@@ -527,18 +531,19 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         for (int i = 0; i < idDevoirs.size(); i++) {
             values.add(idDevoirs.get(i));
         }
+        if(!isChefEtab) {
+            // Ajout des params pour les devoirs dont on est le propriétaire
+            values.add(user.getUserId());
 
-        // Ajout des params pour les devoirs dont on est le propriétaire
-        values.add(user.getUserId());
+            // Ajout des params pour la récupération des devoirs de mes tiulaires
+            values.add(user.getUserId());
+            for (int i = 0; i < user.getStructures().size(); i++) {
+                values.add(user.getStructures().get(i));
+            }
 
-        // Ajout des params pour la récupération des devoirs de mes tiulaires
-        values.add(user.getUserId());
-        for (int i = 0; i < user.getStructures().size(); i++) {
-            values.add(user.getStructures().get(i));
+            // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+            values.add(user.getUserId());
         }
-
-        // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-        values.add(user.getUserId());
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

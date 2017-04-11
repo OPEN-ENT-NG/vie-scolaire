@@ -285,6 +285,7 @@ public class DefaultUtilsService  implements UtilsService {
     public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler) {
         String query;
         JsonObject params = new JsonObject();
+        // Dans le cas du chef d'établissement, on récupère toutes les classes
         if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
             query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
                     "UNION ALL " +

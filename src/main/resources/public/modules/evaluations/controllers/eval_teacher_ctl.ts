@@ -224,7 +224,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.Structure.syncDevoirs();
                             // console.log("Classes sync (/)");
                             $scope.Structure.devoirs.on("devoirs-sync", () => {
-                                // console.log("Devoirs sync (/)");
+                                evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
+                                    utils.safeApply($scope);
+                                });
                                 openTamplates();
                             });
                         });

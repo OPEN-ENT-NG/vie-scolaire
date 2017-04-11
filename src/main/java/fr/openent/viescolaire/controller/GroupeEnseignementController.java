@@ -79,7 +79,7 @@ public class GroupeEnseignementController extends ControllerHelper {
     }
 
     /**
-     * Liste les groupes d'enseignement d'un utilisateur
+     * Liste les utilisateurs d'un groupe d'enseignement d'enseignement
      * @param request
      */
     @Get("/groupe/enseignement/users/:groupId")

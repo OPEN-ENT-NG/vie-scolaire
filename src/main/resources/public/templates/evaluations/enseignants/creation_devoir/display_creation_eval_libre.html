@@ -113,6 +113,11 @@
                 <i18n>end.saisie</i18n>
             </div>
         </section>
+        <section ng-if="endSaisieUserDeleted" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>end.saisie.user.deleted</i18n>[[getDateFormated(search.eleve.dateDeSuppression)]]
+            </div>
+        </section>
 
         <section class="row twelve-mobile">
             <!-- Période -->

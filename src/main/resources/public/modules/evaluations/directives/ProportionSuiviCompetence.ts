@@ -71,15 +71,17 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
                         for (var i = 0; i < nbCompetencesEvaluations; ++i) {
 
                             var competencesEval = $scope.competencesEvaluations[i];
-
-                            if (!elevesMap.hasOwnProperty(competencesEval.id_eleve)) {
-                                elevesMap[competencesEval.id_eleve] = competencesEval;
-                                $scope.proportion[(competencesEval.evaluation) + 1].nb++;
-                                nbEleves++;
-                            } else if (parseInt(elevesMap[competencesEval.id_eleve].evaluation) < parseInt(competencesEval.evaluation)) {
-                                $scope.proportion[(elevesMap[competencesEval.id_eleve].evaluation) + 1].nb--;
-                                elevesMap[competencesEval.id_eleve] = competencesEval;
-                                $scope.proportion[parseInt(competencesEval.evaluation) + 1].nb++;
+                            //On ne prend pas en compte les élèves supprimés dans le calcul de proportion
+                            if(!competencesEval.is_eleve_supprime) {
+                                if (!elevesMap.hasOwnProperty(competencesEval.id_eleve)) {
+                                    elevesMap[competencesEval.id_eleve] = competencesEval;
+                                    $scope.proportion[(competencesEval.evaluation) + 1].nb++;
+                                    nbEleves++;
+                                } else if (parseInt(elevesMap[competencesEval.id_eleve].evaluation) < parseInt(competencesEval.evaluation)) {
+                                    $scope.proportion[(elevesMap[competencesEval.id_eleve].evaluation) + 1].nb--;
+                                    elevesMap[competencesEval.id_eleve] = competencesEval;
+                                    $scope.proportion[parseInt(competencesEval.evaluation) + 1].nb++;
+                                }
                             }
                         }
                     }

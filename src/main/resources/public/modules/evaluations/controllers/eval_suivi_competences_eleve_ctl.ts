@@ -186,19 +186,30 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             let end_datePeriode = current_periode.timestamp_fn;
             let date_saisie = current_periode.date_fin_saisie;
 
-            if (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0) {
-                $scope.endSaisieFree = false;
+            // Si l'élève est supprimée et que la date du devoir est > à la date de supression on empêche la suppression
+            if($scope.search.eleve !== undefined
+                && $scope.search.eleve.dateDeSuppression !== undefined
+                && moment($scope.evaluationLibre.dateDevoir).diff(moment($scope.search.eleve.dateDeSuppression), "days") >=0){
+                $scope.endSaisieUserDeleted = true;
+                $scope.evaluationLibre.controlledDate =false;
                 utils.safeApply($scope);
-            }
-            else {
-                $scope.endSaisieFree = true;
-                utils.safeApply($scope);
-            }
+            }else{
+                $scope.endSaisieUserDeleted = false;
+                //On vérifie que la date de fin de saisie de la période est supèrieure à la date du devoir
+                if (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0) {
+                    $scope.endSaisieFree = false;
+                    utils.safeApply($scope);
+                }
+                else {
+                    $scope.endSaisieFree = true;
+                    utils.safeApply($scope);
+                }
 
-            $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
-                && (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
-                && (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
+                $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
+                    && (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
+                    && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
+                    && (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
+            }
         };
 
         /**
@@ -278,7 +289,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          */
         $scope.selectSuivi = function () {
             $scope.selected.grey = true;
-            if ($scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
+            if ($scope.search.classe.eleves === undefined
+                || $scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
                 delete $scope.suiviCompetence;
                 return;

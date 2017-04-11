@@ -39,6 +39,15 @@ public interface UserService {
 
     public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Récupère la liste des personnes supprimées du groupe passée en paramètre
+     * @param typeGroupe
+     * @param idGroupe
+     * @param handler
+     */
+
+    public void getUserDeletedByClasse(String idGroupe, String typeGroupe,String idPeriode, Handler<Either<String, JsonArray>> handler);
+
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
 }

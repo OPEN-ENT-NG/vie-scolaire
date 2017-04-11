@@ -269,5 +269,6 @@
   "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
   "open.devoir" : "Ouvrir l'évaluation",
   "save.devoir" : "Enregistrer l'évaluation",
-  "end.saisie" : "Il n'est plus possible de créer une évaluation sur cette période"
+  "end.saisie" : "Il n'est plus possible de créer une évaluation sur cette période",
+  "end.saisie.user.deleted" : "Il n'est plus possible de créer une évaluation à cette date car l'utilisateur a été supprimé le : "
 }

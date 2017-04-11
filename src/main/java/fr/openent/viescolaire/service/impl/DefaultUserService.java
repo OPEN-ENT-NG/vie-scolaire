@@ -26,6 +26,7 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
+import org.entcore.common.utils.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -60,6 +61,48 @@ public class DefaultUserService implements UserService {
         query.append(" WHERE fk4j_user_id = ?;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addString(user.getUserId()), SqlResult.validUniqueResultHandler(handler));
+    }
+
+    /**
+     * Récupère la liste des personnes supprimées du groupe passée en paramètre
+     * @param typeGroupe
+     * @param idGroupe
+     * @param handler
+     */
+    @Override
+    public void getUserDeletedByClasse(String idGroupe, String typeGroupe, String idPeriode,Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder()
+                .append("SELECT personnes_supp.* ")
+                .append("FROM ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp ");
+
+        if(null != idPeriode
+                && !StringUtils.isEmpty(idPeriode)){
+            query.append(",").append(Viescolaire.VSCO_SCHEMA).append(".periode ");
+        }
+
+        query.append("WHERE EXISTS ( ")
+                .append("SELECT 1 ")
+                .append("FROM ").append(Viescolaire.VSCO_SCHEMA).append(".rel_groupes_personne_supp ")
+                .append("WHERE ")
+                .append("rel_groupes_personne_supp.id_user = personnes_supp.id_user ")
+                .append("AND rel_groupes_personne_supp.id_groupe = ? ")
+                .append("AND rel_groupes_personne_supp.type_groupe = ? ")
+                .append(") ");
+        if(null != idPeriode
+                && !StringUtils.isEmpty(idPeriode)){
+            query.append("AND periode.timestamp_dt < personnes_supp.date_suppression AND periode.id = ? ");
+        }
+        query.append("ORDER BY personnes_supp.display_name ");
+
+
+        JsonArray params = new JsonArray();
+        params.addString(idGroupe);
+        params.addNumber(Integer.parseInt(typeGroupe));
+        if(null != idPeriode
+                && !StringUtils.isEmpty(idPeriode)){
+            params.addNumber(Integer.parseInt(idPeriode));
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
     @Override

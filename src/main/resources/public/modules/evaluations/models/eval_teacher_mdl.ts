@@ -328,6 +328,7 @@ export class Classe extends Model {
     id : number;
     name : string;
     type_groupe : number;
+    id_periode: number;
     type_groupe_libelle : string;
     suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
     mapEleves : any;
@@ -337,6 +338,7 @@ export class Classe extends Model {
         return {
             syncClasse: '/directory/class/' + this.id + '/users?type=Student',
             syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student',
+            syncUsersDeleted : '/viescolaire/user/deleted/classe/' + this.id + '?type_groupe=' + this.type_groupe,
             syncClasseChefEtab : '/viescolaire/classes/'+this.id+'/users'
         }
     }
@@ -359,7 +361,21 @@ export class Classe extends Model {
                         for (var i = 0; i < this.eleves.all.length; i++) {
                             this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
                         }
-                        resolve();
+                        let urlSyncUsersDeleted = this.api.syncUsersDeleted ;
+                        if(this.id_periode!== undefined){
+                            urlSyncUsersDeleted = this.api.syncUsersDeleted + '&periode=' + this.id_periode;
+                        }
+                        http().getJson(urlSyncUsersDeleted).done(function(usersDeleted) {
+                            for (let i = 0; i < usersDeleted.length; i++) {
+                                let tempUser = new Eleve();
+                                tempUser.displayName = usersDeleted[i].display_name;
+                                tempUser.id = usersDeleted[i].id_user;
+                                tempUser.dateDeSuppression = usersDeleted[i].date_suppression;
+                                this.eleves.push(tempUser);
+                                this.mapEleves[tempUser.id] = tempUser;
+                            }
+                            resolve();
+                        }.bind(this));
                     });
                 });
             }
@@ -375,8 +391,9 @@ export class Eleve extends Model implements IModel{
     id : string;
     firstName: string;
     lastName: string;
-    suiviCompetences : Collection<SuiviCompetence>;
     displayName: string;
+    dateDeSuppression: string;
+    suiviCompetences : Collection<SuiviCompetence>;
     idClasse: string;
 
     get api() {
@@ -1268,6 +1285,7 @@ export class CompetenceNote extends Model implements IModel {
     id_competence: number;
     evaluation: number;
     id_eleve: string;
+    is_eleve_supprime: boolean;
 
     get api() {
         return {
@@ -1288,7 +1306,8 @@ export class CompetenceNote extends Model implements IModel {
             id_devoir: this.id_devoir,
             id_competence: this.id_competence,
             evaluation: this.evaluation,
-            id_eleve: this.id_eleve
+            id_eleve: this.id_eleve,
+            is_eleve_supprime : this.is_eleve_supprime
         }
     }
 
@@ -1950,10 +1969,34 @@ function setCompetenceNotes(poDomaine, poCompetencesNotes, object, classe) {
                 for (var i = 0; i < classe.eleves.all.length; i++) {
                     var mine = _.findWhere(competence.competencesEvaluations, {id_eleve : classe.eleves.all[i].id, owner : model.me.userId});
                     var others = _.filter(competence.competencesEvaluations, function (evaluation) { return evaluation.owner !== model.me.userId; });
-                    if (mine === undefined)
-                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id, owner : model.me.userId}));
-                    if (others.length === 0)
-                        competence.competencesEvaluations.push(new CompetenceNote({evaluation : -1, id_competence: competence.id, id_eleve : classe.eleves.all[i].id}));
+                    let isEleveSupprime = false;
+                    if(classe.eleves.all[i].dateDeSuppression !== undefined){
+                        isEleveSupprime = true;
+                    }
+
+                    if (mine === undefined) {
+                        competence.competencesEvaluations.push(new CompetenceNote({
+                            evaluation: -1,
+                            id_competence: competence.id,
+                            id_eleve: classe.eleves.all[i].id,
+                            owner: model.me.userId,
+                            is_eleve_supprime: isEleveSupprime
+                        }));
+                    }else{
+                        mine.is_eleve_supprime = isEleveSupprime;
+                    }
+                    if (others.length === 0) {
+                        competence.competencesEvaluations.push(new CompetenceNote({
+                            evaluation: -1,
+                            id_competence: competence.id,
+                            id_eleve: classe.eleves.all[i].id,
+                            is_eleve_supprime: isEleveSupprime
+                        }));
+                    }else{
+                        for (var j = 0; j < others.length; j++) {
+                            others[j].is_eleve_supprime = isEleveSupprime;
+                        }
+                    }
                 }
             }
         });

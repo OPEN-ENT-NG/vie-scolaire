@@ -36,6 +36,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+
 /**
  * Created by ledunoiss on 08/11/2016.
  */
@@ -47,6 +49,34 @@ public class UserController extends ControllerHelper {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         userService = new DefaultUserService();
     }
+
+
+    @Get("/user/deleted/classe/:groupid")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Retourne les informations du référentiel VieScolaire relatives à l'utilisateur")
+    public void getUsersDeletedByClasse(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    final String groupId = request.params().get("groupId");
+                    final String type_groupe = request.params().get("type_groupe");
+                    final String idPeriode = request.params().get("periode");
+                    if (type_groupe != null && !type_groupe.trim().isEmpty()) {
+                        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        userService.getUserDeletedByClasse(groupId,type_groupe,idPeriode, handler);
+                    }else{
+                        log.error("Error getUsersDeletedByClasse : type_groupe can't be null ");
+                        badRequest(request);
+                        return;
+                    }
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
 
     @Get("/user")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)

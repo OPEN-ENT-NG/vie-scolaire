@@ -346,6 +346,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     //console.log(params.idEleve);
                     // console.log(params.idClasse);
                     $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
+                    if($scope.search.periode !== undefined){
+                        $scope.search.classe.id_periode = $scope.search.periode.id;
+                    }
                     $scope.search.classe.eleves.sync().then(() =>{
                         $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
                         if($scope.displayFromClass)  $scope.displayFromClass= false;
@@ -431,8 +434,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             classes : [],
         };
 
-        $scope.synchronizeStudents = (idClasse) => {
+        $scope.synchronizeStudents = (idClasse,idPeriode) => {
             let _classe = evaluations.classes.findWhere({id : idClasse});
+            _classe.id_periode = idPeriode;
             if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
                 _classe.eleves.sync();
             }

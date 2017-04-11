@@ -20,12 +20,23 @@
     <dic class="dominos">
         <div class="item" ng-repeat="eleve in informations.classe.eleves.all | filter:FilterColor">
             <section ng-click="displaySuiviEleve(eleve);" class="domino" ng-class="getEvaluationResult(eleve.id)">
-                <div class="top">
-                    <img src="/userbook/avatar/[[eleve.id]]" alt="[[eleve.firstName + ' ' + eleve.lastName]]">
+                <div ng-if="eleve.dateDeSuppression === undefined">
+                    <div class="top">
+                        <img src="/userbook/avatar/[[eleve.id]]" alt="[[eleve.firstName + ' ' + eleve.lastName]]">
+                    </div>
+                    <div tooltip="[[eleve.firstName + ' ' + eleve.lastName]]" class="bottom">
+                        <h4>[[eleve.firstName + ' ' + eleve.lastName]]</h4>
+                    </div>
                 </div>
-                <div tooltip="[[eleve.firstName + ' ' + eleve.lastName]]" class="bottom">
-                    <h4>[[eleve.firstName + ' ' + eleve.lastName]]</h4>
+                <div ng-if="eleve.dateDeSuppression !== undefined" class="user-deleted">
+                    <div class="top">
+                        <img src="/userbook/avatar/[[eleve.id]]" alt="[[eleve.displayName]]">
+                    </div>
+                    <div tooltip="[[eleve.displayName]]" class="bottom">
+                        <h4>[[eleve.displayName]]</h4>
+                    </div>
                 </div>
+
             </section>
         </div>
     </dic>

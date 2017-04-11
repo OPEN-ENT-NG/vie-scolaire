@@ -303,9 +303,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
         };
 
+        //permet de basculer sur l' écran de saisie de note en cliquant sur le diagramme
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){
-                let path = '/devoir/'+ $scope.chartOptions.classes[$scope.charts.uncomplete].id[points[0]._index];
+                let path = '/devoir/'+
+                    $scope.chartOptions.classes[$scope.chartOptions.selectedClasse].id[points[0]._index];
                 $scope.goTo(path);
             }
 

@@ -118,10 +118,12 @@
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
-            <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
+           <!--
+           <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
                     ng-click="displayInConstruction();">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
+            -->
             <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"
                     ng-click="opened.lightboxs.duplication = true;">
                 <i18n><span class="no-style">evaluations.toaster.duplication</span></i18n>

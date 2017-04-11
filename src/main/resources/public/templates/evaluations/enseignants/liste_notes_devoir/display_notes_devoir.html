@@ -21,6 +21,7 @@
 
         <input type="button" ng-click="goTo('/devoir/[[currentDevoir.id]]/edit')" i18n-value="evaluations.test.edit"
                ng-disabled="endSaisie"
+               ng-if="!isChefEtab()"
                class="right-magnet" ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,
                                         'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
         <section ng-if="endSaisie" class="row twelve-mobile ng-scope">

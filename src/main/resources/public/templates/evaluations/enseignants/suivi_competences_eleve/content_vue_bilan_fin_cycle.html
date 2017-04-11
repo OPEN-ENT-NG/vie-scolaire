@@ -23,8 +23,7 @@
          class="domaine-line">
         <div class="cell four twelve-mobile domaine-display">
             [[domaine.codification]] - [[domaine.libelle]]
-            <div ng-if="isChefEtab() && domaine.moyenne !== -1">
-                <br/>
+            <div ng-if="isChefEtab() && domaine.moyenne !== -1" class="domaine-maitrise">
                 <label>
                     <div class="maitrise-bfc" ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
                         <div ng-if = " domaine.bfc !== undefined">

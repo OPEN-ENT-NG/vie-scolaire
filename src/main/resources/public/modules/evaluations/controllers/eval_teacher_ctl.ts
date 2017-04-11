@@ -404,8 +404,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
-            name : ''
-
+            name : '',
+            duplication: ''
         };
         $scope.informations = {};
         $scope.messages = {
@@ -441,38 +441,25 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.confirmerDuplication = () => {
-            $scope.devoir = _.extend({},$scope.selected.devoirs.list[0]);
-            $scope.devoir.coefficient = parseInt($scope.devoir.coefficient);
-
-            if($scope.devoir.libelle === null)
-                delete $scope.devoir.libelle;
-            $scope.devoir.owner = model.me.userId;
-
-            $scope.devoir.competences.sync().then(() => {
-
-                $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
-                delete $scope.devoir.id;
-
-                for (let i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
-                    $scope.evaluations.competencesDevoir[i].id = $scope.evaluations.competencesDevoir[i].id_competence;
-                    $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
-                }
-
-                for (let _classeId of $scope.selected.classes) {
-                    $scope.devoir.id_groupe = _classeId;
-                    $scope.saveNewDevoir();
-                }
-
-                $scope.resetSelected();
-                $scope.opened.lightboxs.duplication = false;
-                $location.path("/devoirs/list");
-            });
+            if ($scope.selected.devoirs.list.length === 1) {
+                let devoir: Devoir = $scope.selected.devoirs.list[0];
+                devoir.duplicate($scope.selected.classes)
+                    .then(() => {
+                        $scope.devoirs.sync().then(() => {
+                            $scope.resetSelected();
+                            $scope.opened.lightboxs.duplication = false;
+                           utils.safeApply($scope);
+                        });
+                    })
+                    .catch(() => {
+                        notify.error(lang.translate('evaluation.duplicate.devoir.error'));
+                    })
+            }
         };
 
 
         /**
          * Changement établissemnt : réinitial
-         * @param Eleve
          */
         $scope.changeEtablissement = () => {
             $scope.evaluations.sync().then(()=>{
@@ -503,41 +490,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             });
         };
-
-        /**
-         * Changement établissemnt : réinitial
-         * @param Eleve
-         */
-        $scope.changeEtablissement = () => {
-            $scope.evaluations.sync().then(()=>{
-                $scope.evaluations = evaluations;
-
-                evaluations.periodes.on('sync', function () {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                        utils.safeApply($scope);
-                    });
-                });
-                // On réinitialise les éléments de rech
-                $scope.search = {
-                    matiere: '*',
-                    periode : undefined,
-                    classe : '*',
-                    sousmatiere : '*',
-                    type : '*',
-                    idEleve : '*',
-                    name : ''
-                };
-
-                $scope.periodes = evaluations.periodes;
-                $scope.periodes.sync();
-                $scope.classes = evaluations.classes;
-                $scope.devoirs = evaluations.devoirs;
-                $scope.matieres = evaluations.matieres;
-                utils.safeApply($scope);
-            });
-        };
-
 
         $scope.updateEtabInfo = () =>{
             // On récupère l'établissement sélectionné
@@ -565,30 +517,44 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.opened.lightboxs.duplication = false;
         };
 
-        $scope.getClassesByIdCycle = () => {
+        $scope.getClassesByIdCycle = (type_groupe?: number) => {
             let currentIdGroup = $scope.selected.devoirs.list[0].id_groupe;
-            let targetIdCycle = _.find($scope.classes.all,{id:currentIdGroup}).id_cycle;
+            let targetIdCycle = _.find($scope.classes.all, {id:currentIdGroup}).id_cycle;
             return _.filter($scope.classes.all, function(classe) {
-                return (classe.id_cycle === targetIdCycle && classe.id !== currentIdGroup);
+                return type_groupe !== undefined ?
+                    (classe.id_cycle === targetIdCycle && classe.id !== currentIdGroup && type_groupe === classe.type_groupe) :
+                    (classe.id_cycle === targetIdCycle && classe.id !== currentIdGroup);
             });
+        };
+
+        $scope.filterSearchDuplication = () => {
+            return function (classe) {
+                if ($scope.search.duplication === '') return true;
+                else return classe.name.indexOf($scope.search.duplication) !== -1;
+            };
         };
 
         /**
          * Ajoute la classe qui vient
-         * @param classe La classe actuellement sélectionnée
+         * @param selectedClasseId Identifiant de la classe sélectionnée
          */
-        $scope.selectClasse = function (selectedClasseId) {
-            let _index = _.indexOf($scope.selected.classes, selectedClasseId);
-            if(_index === -1){
-                $scope.selected.classes.push(selectedClasseId);
+        $scope.selectClasse = function (selectedClasseId: string) {
+            let classe = $scope.classes.findWhere({id : selectedClasseId});
+            if(classe !== undefined){
+                $scope.selected.classes.push({
+                    id : selectedClasseId,
+                    type_groupe : classe.type_groupe
+                });
             }else{
-                delete $scope.selected.classes[_index];
+                $scope.selected.classes = _.reject($scope.selected.classes, (classe) => {
+                   return classe.id === selectedClasseId;
+                });
             }
         };
 
         $scope.isSelected = function(id) {
             return _.indexOf($scope.selected.classes, id) !== -1;
-        }
+        };
 
         $scope.eleves = [];
         if (evaluations.synchronized.classes !== 0) {

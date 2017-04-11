@@ -43,6 +43,25 @@ public interface DevoirService extends CrudService {
     public void createDevoir(final JsonObject devoir, UserInfos user,final Handler<Either<String, JsonObject>> handler);
 
     /**
+     * Créer le statement SQL de création d'un devoir.
+     * @param idDevoir Identifiant du devoir
+     * @param devoir devoir
+     * @param user utilisateur courant
+     * @return Statements SQL
+     */
+    public JsonArray createStatement(Long idDevoir, JsonObject devoir, UserInfos user);
+
+    /**
+     * Duplique le devoir passé en paramètre sur la liste de classes passée en paramètre
+     * @param idDevoir identifiant du devoir à dupliquer
+     * @param devoir devoir à dupliquer
+     * @param classes liste des classes
+     * @param user utilisateur courant
+     * @param handler handler portant le résultat de la requête
+     */
+    public void duplicateDevoir(Long idDevoir, JsonObject devoir, JsonArray classes, UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Met à jour un devoir
      * @param id Identifian du devoir
      * @param devoir Devoir à mettre à jour

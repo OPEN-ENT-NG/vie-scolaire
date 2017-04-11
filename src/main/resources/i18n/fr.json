@@ -41,6 +41,7 @@
   "share.search.title":"Rechercher des utilisateurs et des groupes",
   "share.search.placeholder":"Ex : Sabine, Dupont, Enseignants de l'école...",
   "seemore":"Voir la suite",
+  "search.groups": "Rechercher une classe ou un groupe d'enseignement...",
   "student":"Eleve",
   "average":"Moyenne",
   "average.calculated":"Moyenne calculée",
@@ -160,6 +161,7 @@
   "evaluations.test.ramenersur.true":"Oui",
   "evaluations.test.ramenersur.false":"Non",
   "evaluations.test.duplicate":"Dupliquer",
+  "evaluations.test.duplication.title": "Duplication d'une évaluation",
   "evaluations.test.delete":"Supprimer",
   "evaluations.test.percent":"Avancement",
   "evaluations.test.edit":"Modifier l' évaluation",
@@ -267,6 +269,7 @@
   "evaluations.criteres.titre.bouton.ouvrir" : "Sélectionner vos critères",
   "evaluations.criteres.titre.bouton.fermer" : "Fermer la sélection",
   "evaluation.delete.devoir.error" : "Une erreur est survenue lors de la suppression d'un/des devoir(s)",
+  "evaluation.duplicate.devoir.error" : "Une erreur est survenue lors de la duplication du devoir",
   "open.devoir" : "Ouvrir l'évaluation",
   "save.devoir" : "Enregistrer l'évaluation",
   "end.saisie" : "Il n'est plus possible de créer une évaluation sur cette période"

@@ -628,6 +628,7 @@ export class Devoir extends Model implements IModel{
             create : '/viescolaire/evaluations/devoir',
             update : '/viescolaire/evaluations/devoir?idDevoir=',
             delete : '/viescolaire/evaluations/devoir?idDevoir=',
+            duplicate : '/viescolaire/evaluations/devoir/' + this.id + '/duplicate',
             getCompetencesDevoir : '/viescolaire/evaluations/competences/devoir/',
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
@@ -754,6 +755,19 @@ export class Devoir extends Model implements IModel{
             });
         });
     }
+
+    duplicate (classes?: string[]): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (classes.length > 0) {
+                http().postJson(this.api.duplicate, {classes: classes}).done((res) => {
+                   resolve();
+                });
+            } else {
+                reject();
+            }
+        });
+    }
+
     isEvaluatedDevoir (idDevoir) : Promise<any> {
 
         return new Promise((resolve, reject) => {

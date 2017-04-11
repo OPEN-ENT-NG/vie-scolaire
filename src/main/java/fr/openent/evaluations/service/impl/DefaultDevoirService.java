@@ -20,14 +20,10 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
-import fr.openent.evaluations.service.DevoirService;
-import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
@@ -36,8 +32,8 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
-import java.text.DecimalFormat;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -51,11 +47,19 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     public StringBuilder formatDate (String date) {
-        StringBuilder dateFormated = new StringBuilder();
-        dateFormated.append(date.split("/")[2]).append('-');
-        dateFormated.append(date.split("/")[1]).append('-');
-        dateFormated.append(date.split("/")[0]);
-        return dateFormated;
+        Pattern p = Pattern.compile("[0-9]*-[0-9]*-[0-9]*.*");
+        Matcher m = p.matcher(date);
+        if (!m.matches()) {
+            StringBuilder dateFormated = new StringBuilder();
+            dateFormated.append(date.split("/")[2]).append('-');
+            dateFormated.append(date.split("/")[1]).append('-');
+            dateFormated.append(date.split("/")[0]);
+            return dateFormated;
+        } else {
+            return new StringBuilder(date);
+        }
+
+
     }
 
     private static final String attributeTypeGroupe = "type_groupe";
@@ -78,139 +82,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             public void handle(Either<String, JsonObject> event) {
 
                 if (event.isRight()) {
-                    //Récupération de l'id du devoir à créer
                     final Long devoirId = event.right().getValue().getLong("id");
-                    JsonArray statements = new JsonArray();
-                    JsonArray competences = devoir.getArray("competences");
-                    final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
-
-                    //Merge_user dans la transaction
-
-                    StringBuilder queryParamsForMerge = new StringBuilder();
-                    JsonArray paramsForMerge = new JsonArray();
-                    paramsForMerge.add(user.getUserId()).add(user.getUsername());
-
-                    StringBuilder queryForMerge = new StringBuilder()
-                            .append("SELECT " + schema + "merge_users(?,?)" );
-                    statements.add(new JsonObject()
-                            .putString("statement", queryForMerge.toString())
-                            .putArray("values", paramsForMerge)
-                            .putString("action", "prepared"));
-
-
-                    //Ajout de la creation du devoir dans la pile de transaction
-                    StringBuilder queryParams = new StringBuilder();
-                    JsonArray params = new JsonArray();
-                    StringBuilder valueParams = new StringBuilder();
-                    queryParams.append("( id ");
-                    valueParams.append("( ?");
-                    params.addNumber(devoirId);
-                    for (String attr : devoir.getFieldNames()) {
-                        if(attr.contains("date")){
-                            queryParams.append(" , ").append(attr);
-                            valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
-                            params.add(formatDate(devoir.getString(attr)).toString());
-                        }
-                        else{
-                            if(!(attr.equals("competencesAdd")
-                                    ||  attr.equals("competencesRem")
-                                    ||  attr.equals("competenceEvaluee")
-                                    ||  attr.equals("competences")
-                                    ||  attr.equals(attributeTypeGroupe)
-                                    ||  attr.equals(attributeIdGroupe))) {
-                                queryParams.append(" , ").append(attr);
-                                valueParams.append(" , ? ");
-                                params.add(devoir.getValue(attr));
-                            }
-                        }
-                    }
-                    queryParams.append(" )");
-                    valueParams.append(" ) ");
-                    queryParams.append(" VALUES ").append(valueParams.toString());
-                    StringBuilder query = new StringBuilder()
-                            .append("INSERT INTO " + resourceTable + queryParams.toString());
-                    statements.add(new JsonObject()
-                            .putString("statement", query.toString())
-                            .putArray("values", params)
-                            .putString("action", "prepared"));
-
-
-                    //Ajout de chaque compétence dans la pile de transaction
-                    if (devoir.containsField("competences") &&
-                            devoir.getArray("competences").size() > 0) {
-
-                        JsonArray paramsComp = new JsonArray();
-                        StringBuilder queryComp = new StringBuilder()
-                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
-                                        +".competences_devoirs (id_devoir, id_competence) VALUES ");
-                        for(int i = 0; i < competences.size(); i++){
-                            queryComp.append("(?, ?)");
-                            paramsComp.addNumber(devoirId);
-                            paramsComp.addNumber((Number) competences.get(i));
-                            if(i != competences.size()-1){
-                                queryComp.append(",");
-                            }else{
-                                queryComp.append(";");
-                            }
-                        }
-                        statements.add(new JsonObject()
-                                .putString("statement", queryComp.toString())
-                                .putArray("values", paramsComp)
-                                .putString("action", "prepared"));
-                    }
-
-                    // ajoute de l'évaluation de la compéténce (cas évaluation libre)
-                    if(oCompetenceNote != null) {
-                        JsonArray paramsCompLibre = new JsonArray();
-                        StringBuilder valueParamsLibre = new StringBuilder();
-                        oCompetenceNote.putString("owner", user.getUserId());
-                        StringBuilder queryCompLibre = new StringBuilder()
-                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes ");
-                        queryCompLibre.append("( id_devoir ");
-                        valueParamsLibre.append("( ?");
-                        paramsCompLibre.addNumber(devoirId);
-                        for (String attr : oCompetenceNote.getFieldNames()) {
-                            if(attr.contains("date")){
-                                queryCompLibre.append(" , ").append(attr);
-                                valueParamsLibre.append(" , to_timestamp(?,'YYYY-MM-DD') ");
-                                paramsCompLibre.add(formatDate(oCompetenceNote.getString(attr)).toString());
-                            }
-                            else{
-                                queryCompLibre.append(" , ").append(attr);
-                                valueParamsLibre.append(" , ? ");
-                                paramsCompLibre.add(oCompetenceNote.getValue(attr));
-                            }
-                        }
-                        queryCompLibre.append(" )");
-                        valueParamsLibre.append(" ) ");
-                        queryCompLibre.append(" VALUES ").append(valueParamsLibre.toString());
-                        statements.add(new JsonObject()
-                                .putString("statement", queryCompLibre.toString())
-                                .putArray("values", paramsCompLibre)
-                                .putString("action", "prepared"));
-
-                    }
-
-                    // Ajoute une relation notes.rel_devoirs_groupes
-                    if(null != devoir.getLong(attributeTypeGroupe)
-                            && devoir.getLong(attributeTypeGroupe)>-1){
-                        JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
-                        String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
-                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
-                        paramsAddRelDevoirsGroupes.addNumber(devoirId);
-                        paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
-                        statements.add(new JsonObject()
-                                .putString("statement", queryAddRelDevoirsGroupes)
-                                .putArray("values", paramsAddRelDevoirsGroupes)
-                                .putString("action", "prepared"));
-                    }else{
-                        log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + devoirId);
-                    }
-
-
+                    //Récupération de l'id du devoir à créer
+                    JsonArray statements = createStatement(devoirId, devoir, user);
 
                     //Exécution de la transaction avec roleBack
-
                     Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
                         @Override
                         public void handle(Message<JsonObject> event) {
@@ -228,10 +104,213 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 }
             }
         }));
-
-
-
     }
+
+    @Override
+    public JsonArray createStatement(Long idDevoir, JsonObject devoir, UserInfos user) {
+        JsonArray statements = new JsonArray();
+        JsonArray competences = devoir.getArray("competences");
+
+        //Merge_user dans la transaction
+
+        StringBuilder queryParamsForMerge = new StringBuilder();
+        JsonArray paramsForMerge = new JsonArray();
+        paramsForMerge.add(user.getUserId()).add(user.getUsername());
+
+        StringBuilder queryForMerge = new StringBuilder()
+                .append("SELECT " + schema + "merge_users(?,?)" );
+        statements.add(new JsonObject()
+                .putString("statement", queryForMerge.toString())
+                .putArray("values", paramsForMerge)
+                .putString("action", "prepared"));
+
+
+        //Ajout de la creation du devoir dans la pile de transaction
+        StringBuilder queryParams = new StringBuilder();
+        JsonArray params = new JsonArray();
+        StringBuilder valueParams = new StringBuilder();
+        queryParams.append("( id ");
+        valueParams.append("( ?");
+        params.addNumber(idDevoir);
+        for (String attr : devoir.getFieldNames()) {
+            if(attr.contains("date")){
+                queryParams.append(" , ").append(attr);
+                valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
+                params.add(formatDate(devoir.getString(attr)).toString());
+            }
+            else{
+                if(!(attr.equals("competencesAdd")
+                        ||  attr.equals("competencesRem")
+                        ||  attr.equals("competenceEvaluee")
+                        ||  attr.equals("competences")
+                        ||  attr.equals(attributeTypeGroupe)
+                        ||  attr.equals(attributeIdGroupe))) {
+                    queryParams.append(" , ").append(attr);
+                    valueParams.append(" , ? ");
+                    params.add(devoir.getValue(attr));
+                }
+            }
+        }
+        queryParams.append(" )");
+        valueParams.append(" ) ");
+        queryParams.append(" VALUES ").append(valueParams.toString());
+        StringBuilder query = new StringBuilder()
+                .append("INSERT INTO " + resourceTable + queryParams.toString());
+        statements.add(new JsonObject()
+                .putString("statement", query.toString())
+                .putArray("values", params)
+                .putString("action", "prepared"));
+
+
+        //Ajout de chaque compétence dans la pile de transaction
+        if (devoir.containsField("competences") &&
+                devoir.getArray("competences").size() > 0) {
+
+            JsonArray paramsComp = new JsonArray();
+            StringBuilder queryComp = new StringBuilder()
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
+                            +".competences_devoirs (id_devoir, id_competence) VALUES ");
+            for(int i = 0; i < competences.size(); i++){
+                queryComp.append("(?, ?)");
+                paramsComp.addNumber(idDevoir);
+                paramsComp.addNumber((Number) competences.get(i));
+                if(i != competences.size()-1){
+                    queryComp.append(",");
+                }else{
+                    queryComp.append(";");
+                }
+            }
+            statements.add(new JsonObject()
+                    .putString("statement", queryComp.toString())
+                    .putArray("values", paramsComp)
+                    .putString("action", "prepared"));
+        }
+
+        // ajoute de l'évaluation de la compéténce (cas évaluation libre)
+        if(devoir.containsField("competenceEvaluee")
+                && devoir.getArray("competenceEvaluee").size() > 0) {
+            final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
+            JsonArray paramsCompLibre = new JsonArray();
+            StringBuilder valueParamsLibre = new StringBuilder();
+            oCompetenceNote.putString("owner", user.getUserId());
+            StringBuilder queryCompLibre = new StringBuilder()
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes ");
+            queryCompLibre.append("( id_devoir ");
+            valueParamsLibre.append("( ?");
+            paramsCompLibre.addNumber(idDevoir);
+            for (String attr : oCompetenceNote.getFieldNames()) {
+                if(attr.contains("date")){
+                    queryCompLibre.append(" , ").append(attr);
+                    valueParamsLibre.append(" , to_timestamp(?,'YYYY-MM-DD') ");
+                    paramsCompLibre.add(formatDate(oCompetenceNote.getString(attr)).toString());
+                }
+                else{
+                    queryCompLibre.append(" , ").append(attr);
+                    valueParamsLibre.append(" , ? ");
+                    paramsCompLibre.add(oCompetenceNote.getValue(attr));
+                }
+            }
+            queryCompLibre.append(" )");
+            valueParamsLibre.append(" ) ");
+            queryCompLibre.append(" VALUES ").append(valueParamsLibre.toString());
+            statements.add(new JsonObject()
+                    .putString("statement", queryCompLibre.toString())
+                    .putArray("values", paramsCompLibre)
+                    .putString("action", "prepared"));
+
+        }
+
+        // Ajoute une relation notes.rel_devoirs_groupes
+        if(null != devoir.getLong(attributeTypeGroupe)
+                && devoir.getLong(attributeTypeGroupe)>-1){
+            JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
+            String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
+            paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
+            paramsAddRelDevoirsGroupes.addNumber(idDevoir);
+            paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
+            statements.add(new JsonObject()
+                    .putString("statement", queryAddRelDevoirsGroupes)
+                    .putArray("values", paramsAddRelDevoirsGroupes)
+                    .putString("action", "prepared"));
+        }else{
+            log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + idDevoir);
+        }
+        return statements;
+    }
+
+    @Override
+    public void duplicateDevoir(Long idDevoir, final JsonObject devoir, final JsonArray classes, final UserInfos user, final Handler<Either<String, JsonArray>> handler) {
+        final JsonArray ids = new JsonArray();
+        String queryNewDevoirId;
+        final Integer[] counter = {0};
+        final Integer[] errors = {0};
+        for (int i = 0; i < classes.size(); i++) {
+            queryNewDevoirId = "SELECT nextval('" + Viescolaire.EVAL_SCHEMA + ".devoirs_id_seq') as id";
+            sql.raw(queryNewDevoirId, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
+                @Override
+                public void handle(Either<String, JsonObject> event) {
+                    counter[0]++;
+                    if (event.isRight()) {
+                        JsonObject o = event.right().getValue();
+                        ids.addNumber(o.getNumber("id"));
+                        if (counter[0] == classes.size()) {
+                            insertDuplication(ids, devoir, classes, user, errors[0], handler);
+                        }
+                    } else {
+                        errors[0]++;
+                    }
+                }
+            }));
+        }
+    }
+
+    private JsonObject formatDevoirForDuplication (JsonObject devoir) {
+        JsonObject o = new JsonObject(devoir.toMap());
+        o.removeField("owner");
+        o.removeField("created");
+        o.removeField("modified");
+        o.removeField("id");
+        try {
+            o.putNumber("coefficient", Long.parseLong(o.getString("coefficient")));
+        } catch (ClassCastException e) {
+            log.error("An error occured when casting devoir object to duplication format");
+        }
+        if (o.getString("libelle") == null) {
+            o.removeField("libelle");
+        }
+        if (o.getString("id_sousmatiere") == null) {
+            o.removeField("id_sousmatiere");
+        }
+        return o;
+    }
+
+    private void insertDuplication(JsonArray ids, JsonObject devoir, JsonArray classes, UserInfos user, Integer errors, Handler<Either<String, JsonArray>> handler) {
+        if (errors == 0 && ids.size() == classes.size()) {
+            JsonObject o, g;
+            JsonArray statements = new JsonArray();
+            for (int i = 0; i < ids.size(); i++) {
+                try {
+                    g = classes.get(i);
+                    o = formatDevoirForDuplication(devoir);
+                    o.putString("id_groupe", g.getString("id"));
+                    o.putNumber("type_groupe", g.getNumber("type_groupe"));
+                    o.putString("owner", user.getUserId());
+                    JsonArray tempStatements = this.createStatement(Long.parseLong(ids.get(i).toString()), o, user);
+                    for (int j = 0; j < tempStatements.size(); j++) {
+                        statements.add(tempStatements.get(j));
+                    }
+                } catch (ClassCastException e) {
+                    log.error("Next id devoir must be a long Object");
+                }
+
+            }
+            Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
+        } else {
+            log.error("An error occured when collecting ids in duplication sequence.");
+            handler.handle(new Either.Left<String, JsonArray>("An error occured when collecting ids in duplication sequence."));
+        }
+    }
+
     protected static final Logger log = LoggerFactory.getLogger(DefaultDevoirService.class);
     @Override
     public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {

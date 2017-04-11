@@ -20,13 +20,15 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
-import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.CompetencesService;
 import fr.openent.evaluations.service.NoteService;
 import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.*;
+import fr.openent.evaluations.service.impl.DefaultCompetencesService;
+import fr.openent.evaluations.service.impl.DefaultDevoirService;
+import fr.openent.evaluations.service.impl.DefaultNoteService;
+import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.*;
@@ -43,7 +45,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonElement;
 import org.vertx.java.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -51,9 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Created by ledunoiss on 04/08/2016.
@@ -67,6 +66,7 @@ public class DevoirController extends ControllerHelper {
     private final UtilsService utilsService;
     private final ClasseService classesService;
     private final NoteService notesService;
+    private final CompetencesService competencesService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
@@ -74,6 +74,7 @@ public class DevoirController extends ControllerHelper {
         classesService = new DefaultClasseService();
         utilsService = new DefaultUtilsService();
         notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
+        competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
     }
 
     @Get("/devoirs")
@@ -407,5 +408,65 @@ public class DevoirController extends ControllerHelper {
                 }
             }
         });
+    }
+
+    @Post("/devoir/:idDevoir/duplicate")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Duplique un devoir pour une liste de classe donnée")
+    public void duplicateDevoir (final HttpServerRequest request) {
+        if (!request.params().contains("idDevoir")) {
+            badRequest(request);
+        } else {
+            UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+                @Override
+                public void handle(final UserInfos user) {
+                    RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(final JsonObject body) {
+                            try {
+                                final Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                                devoirsService.retrieve(idDevoir.toString(), new Handler<Either<String, JsonObject>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonObject> result) {
+                                        if (result.isRight()) {
+                                            final JsonObject devoir = result.right().getValue();
+                                            competencesService.getDevoirCompetences(idDevoir, new Handler<Either<String, JsonArray>>() {
+                                                @Override
+                                                public void handle(Either<String, JsonArray> result) {
+                                                    if (result.isRight()) {
+                                                        JsonArray competences = result.right().getValue();
+                                                        if (competences.size() > 0) {
+                                                            JsonArray idCompetences = new JsonArray();
+                                                            JsonObject o = new JsonObject();
+                                                            for (int i = 0; i < competences.size(); i++) {
+                                                                o = competences.get(i);
+                                                                if (o.containsField("id")) {
+                                                                    idCompetences.addNumber(o.getNumber("id_competence"));
+                                                                }
+                                                            }
+                                                            devoir.putArray("competences", idCompetences);
+                                                        }
+                                                        devoirsService.duplicateDevoir(idDevoir, devoir, body.getArray("classes"), user, arrayResponseHandler(request));
+                                                    } else {
+                                                        log.error("An error occured when collecting competences for devoir id " + idDevoir);
+                                                        renderError(request);
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            log.error("An error occured when collecting devoir data for id " + idDevoir);
+                                            renderError(request);
+                                        }
+                                    }
+                                });
+                            } catch (ClassCastException e) {
+                                log.error("idDevoir parameter must be a long object.");
+                                renderError(request);
+                            }
+                        }
+                    });
+                }
+            });
+        }
     }
 }

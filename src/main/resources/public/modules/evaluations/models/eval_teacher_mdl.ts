@@ -268,6 +268,7 @@ export class ReleveNote extends  Model implements IModel{
                                 d.statistiques = devoir;
                                 if (nbN !== undefined) {
                                     d.statistiques.percentDone = Math.round((nbN.evaluations.length / nbEleves) * 100);
+                                    d.percent = d.statistiques.percentDone;
                                     if (resolve && typeof(resolve) === 'function') {
                                         resolve();
                                     }
@@ -842,6 +843,7 @@ export class Devoir extends Model implements IModel{
                     http().postJson(this.api.getStatsDevoir, {"notes" : _datas}).done(function (res) {
                         this.statistiques = res;
                         this.statistiques.percentDone = Math.round((_datas.length/this.eleves.all.length)*100);
+                        this.percent = this.statistiques.percentDone;
                         if(resolve && typeof(resolve) === 'function'){
                             resolve();
                         }

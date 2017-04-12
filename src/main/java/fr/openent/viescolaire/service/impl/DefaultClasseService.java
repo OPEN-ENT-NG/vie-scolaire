@@ -72,8 +72,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
 
-        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] AND f.id IN {idClasse} RETURN f.id as id_groupe, count(u) as nb " +
-                        "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} RETURN f.id as id_groupe, count(u) as nb");
+        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] AND f.id IN {idClasse} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb " +
+                        "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb");
 
         values.putArray("idClasse", idGroupes);
         values.putArray("idGroupe", idGroupes);

@@ -286,7 +286,7 @@ export class ReleveNote extends  Model implements IModel{
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere+'&idPeriode='+this.idPeriode
+            get : '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere,
         }
     }
 
@@ -303,12 +303,8 @@ export class ReleveNote extends  Model implements IModel{
         this.structure = evaluations.structure;
         this.periode = evaluations.structure.periodes.findWhere({id : this.idPeriode});
         this.matiere = evaluations.structure.matieres.findWhere({id : this.idMatiere});
-        var c = evaluations.structure.classes.findWhere({id : this.idClasse});
+        let c = _.findWhere(evaluations.structure.classes.all, {id : this.idClasse});
         this.classe = new Classe({id : c.id, name: c.name });
-        var _e = $.extend(true, {}, evaluations.structure.classes.findWhere({id : this.idClasse}).eleves.all);
-        this.classe.eleves.load($.map(_e, function (el) {
-            return el;
-        }));
 
         this.collection(Devoir, {
             sync : function () {
@@ -338,53 +334,61 @@ export class ReleveNote extends  Model implements IModel{
         });
     }
 
-    sync () : Promise<any> {
+    syncClasse () : Promise<any> {
         return new Promise((resolve, reject) => {
-            var that = this;
-            var callFormating = function () {
-                if(that.synchronized.devoirs && that.synchronized.classe && that.synchronized.evaluations) that.trigger('format');
-            };
-            this.devoirs.on('sync', function () {
-                if (!that.synchronized.devoirs) {
-                    that.synchronized.devoirs = true;
-                    callFormating();
-                }
-            });
-            this.devoirs.sync();
-            this.classe.eleves.on('sync', function () {
-                that.synchronized.classe = true;
-                callFormating();
-            });
-            if (this.classe.eleves.all.length > 0) {
-                that.synchronized.classe = true;
-                callFormating();
-            }
-            let url = '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere;
-            if(this.periode !== undefined && this.periode !== null && this.periode.id !== undefined){
-                url += '&idPeriode='+this.idPeriode;
+            let c = _.findWhere(evaluations.classes.all, {id : this.idClasse});
+            this.classe.eleves.load($.extend(true, [], c.eleves.all));
+            this.synchronized.classe = true;
+            resolve();
+        });
+    }
+
+    syncEvaluations () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            let that = this;
+            let url = this.api.get;
+            if(that.periode !== undefined && that.periode !== null && that.periode.id !== undefined) {
+                url += '&idPeriode='+that.idPeriode;
             }
             http().getJson(url)
                 .done(function (res) {
                     that._tmp = res;
                     that.synchronized.evaluations = true;
-                    callFormating();
+                    resolve();
                 });
+        });
+    }
+
+    syncDevoirs () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.devoirs.sync();
+            this.synchronized.devoirs = true;
+            resolve();
+        });
+    }
+
+    sync () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            var that = this;
+
             this.on('format', function () {
-                _.each(that.classe.eleves.all, function (eleve) {
+                let _notes;
+                let _devoirs;
+                let _eleves;
+                if(that._tmp) {
+                    _notes = that._tmp.notes;
+                    _devoirs = that._tmp.devoirs;
+                    _eleves = that._tmp.eleves;
+                }
+                _.each(that.classe.eleves.all, (eleve) => {
                     var _evals = [];
-                    var _t;
-                    if(that._tmp && that._tmp.length !== 0)  _t = _.where(that._tmp, {id_eleve : eleve.id});
-                    _.each(that.devoirs.all, function (devoir) {
+                    let _t = _.where(_notes, {id_eleve: eleve.id});
+                    _.each(that.devoirs.all, (devoir) => {
                         let devoirPeriode = evaluations.structure.periodes.findWhere({id: devoir.id_periode});
                         let endSaisie = undefined;
                         let date_saisie = devoirPeriode.date_fin_saisie;
                         let current_date = new Date();
-                        if (moment(date_saisie).diff(moment(current_date), "days") >= 0) {
-                            endSaisie = false;
-                        }
-                        else {
-                            endSaisie = true;
-                        }
+                        endSaisie = moment(date_saisie).diff(moment(current_date), "days") < 0;
                         if (_t && _t.length !== 0) {
                             var _e = _.findWhere(_t, {id_devoir : devoir.id});
 
@@ -410,86 +414,40 @@ export class ReleveNote extends  Model implements IModel{
                     eleve.evaluations.load(_evals);
 
                 });
+                _.each(_devoirs, (devoir) => {
+                    let d = _.findWhere(that.devoirs.all, {id: devoir.id});
+                    if (d) {
+                        d.statistiques = devoir;
+                        //TODO Compatibilité avec getPercentDone()
+                        // d.statistiques.percentDone = evaluations.devoirs.getPercentDone(id);
+                        //d.percent = d.statistiques.percentDone;
+                    }
+                });
+                _.each(_eleves, (eleve) => {
+                    let e = _.findWhere(that.classe.eleves.all, {id: eleve.id});
+                    if (e) {
+                        e.moyenne = eleve.moyenne;
+                    }
+                });
                 this.trigger('noteOK');
                 resolve();
             });
-        });
-    }
 
-    calculStatsDevoirs() : Promise<any> {
+            var callFormating = function () {
+                if(that.synchronized.devoirs && that.synchronized.classe && that.synchronized.evaluations) that.trigger('format');
+            };
 
-        return new Promise((resolve, reject) => {
-            this.on('noteOK', function () {
-                var that = this;
-                var _datas = [];
-                _.each(that.devoirs.all, function (devoir) {
-                    var _o = {
-                        id: String(devoir.id),
-                        evaluations: []
-                    };
-                    _.each(that.classe.eleves.all, function (eleve) {
-                        var _e = eleve.evaluations.findWhere({id_devoir: devoir.id});
-
-                        if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
-                    });
-                    if (_o.evaluations.length > 0) _datas.push(_o);
-                });
-                if (_datas.length > 0) {
-                    http().postJson('/viescolaire/evaluations/moyennes?stats=true', {data: _datas}).done(function (res) {
-                        _.each(res, function (devoir) {
-                            var nbEleves = that.classe.eleves.all.length;
-                            var nbN = _.findWhere(_datas, {id: devoir.id});
-                            var d = that.devoirs.findWhere({id: parseInt(devoir.id)});
-                            if (d !== undefined) {
-                                d.statistiques = devoir;
-                                if (nbN !== undefined) {
-                                    d.statistiques.percentDone = Math.round((nbN.evaluations.length / nbEleves) * 100);
-                                    d.percent = d.statistiques.percentDone;
-                                    if (resolve && typeof(resolve) === 'function') {
-                                        resolve();
-                                    }
-                                }
-                            }
-                        });
-                    });
-                }
+            this.syncEvaluations().then(() => {
+                callFormating();
             });
-        });
-    }
 
-    calculMoyennesEleves() : Promise<any> {
-        return new Promise((resolve, reject) => {
-            var that = this;
-            var _datas = [];
-            _.each(this.classe.eleves.all, function (eleve) {
-                var _t = eleve.evaluations.filter(function (evaluation) {
-                    return evaluation.valeur !== "" && evaluation.valeur !== null && evaluation.valeur !== undefined && evaluation.is_evaluated === true;
-                });
-                if (_t.length > 0) {
-                    var _evals = [];
-                    for (var i = 0; i < _t.length; i++) {
-                        _evals.push(_t[i].formatMoyenne());
-                    }
-                    var _o = {
-                        id: eleve.id,
-                        evaluations: _evals
-                    };
-                    _datas.push(_o);
-                }
+            this.syncDevoirs().then(() => {
+                callFormating();
             });
-            if (_datas.length > 0) {
-                http().postJson('/viescolaire/evaluations/moyennes', {data: _datas}).done(function (res) {
-                    _.each(res, function (eleve) {
-                        var e = that.classe.eleves.findWhere({id: eleve.id});
-                        if (e !== undefined) {
-                            e.moyenne = eleve.moyenne;
-                            if (resolve && typeof(resolve) === 'function') {
-                                resolve();
-                            }
-                        }
-                    });
-                });
-            }
+
+            this.syncClasse().then(() => {
+                callFormating();
+            });
         });
     }
 }
@@ -536,6 +494,7 @@ export class Classe extends Model {
                         for (var i = 0; i < this.eleves.all.length; i++) {
                             this.mapEleves[this.eleves.all[i].id] = this.eleves.all[i];
                         }
+                        this.trigger('sync');
                         resolve();
                     });
                 });
@@ -558,7 +517,7 @@ export class Eleve extends Model implements IModel{
 
     get api() {
         return {
-            getMoyenne : '/viescolaire/evaluations/moyenne'
+            getMoyenne : '/viescolaire/evaluations/eleve/'+this.id+'/moyenne?'
         }
     }
 
@@ -574,15 +533,16 @@ export class Eleve extends Model implements IModel{
         return this.hasOwnProperty("displayName") ? this.displayName : this.firstName+" "+this.lastName;
     }
 
-    getMoyenne () : Promise<any> {
+    getMoyenne (devoirs?) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if (this.evaluations.all.length > 0) {
-                var _datas = [];
-                for (var i = 0; i < this.evaluations.all.length; i++) {
-                    if (this.evaluations.all[i].valeur !== "" && this.evaluations.all[i].is_evaluated === true ) _datas.push(this.evaluations.all[i].formatMoyenne());
-                }
-                if (_datas.length > 0) {
-                    http().postJson( this.api.getMoyenne, {notes : _datas}).done(function (res) {
+            if (devoirs) {
+                let idDevoirsURL = "";
+                _.each(_.pluck(devoirs,'id'), (id) => {
+                    idDevoirsURL += "devoirs="+id+"&";
+                });
+                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length-1);
+                if (idDevoirsURL) {
+                    http().getJson(this.api.getMoyenne+idDevoirsURL).done(function (res) {
                         if (_.has(res, "moyenne")) {
                             this.moyenne = res.moyenne;
                             if(resolve && typeof(resolve) === 'function'){
@@ -810,7 +770,7 @@ export class Devoir extends Model implements IModel{
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
             getAppreciationDevoir: '/viescolaire/evaluations/appreciation/' + this.id + '/appreciations',
-            getStatsDevoir : '/viescolaire/evaluations/moyenne?stats=true',
+            getStatsDevoir : '/viescolaire/evaluations/devoir/'+this.id+'/moyenne?stats=true',
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
@@ -1008,24 +968,16 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    calculStats (evaluations : any) : Promise<any> {
+    calculStats () : Promise<any> {
         return new Promise((resolve, reject) => {
-            if (evaluations.length > 0) {
-                var _datas = [];
-                for (var i = 0; i < evaluations.length; i++) {
-                    _datas.push(evaluations[i].formatMoyenne());
+            http().getJson(this.api.getStatsDevoir).done(function (res) {
+                this.statistiques = res;
+                //TODO Compatibilité avec getPercentDone()
+                //this.statistiques.percentDone = Math.round((evaluations.length/this.eleves.all.length)*100);
+                if(resolve && typeof(resolve) === 'function'){
+                    resolve();
                 }
-                if (_datas.length > 0) {
-                    http().postJson(this.api.getStatsDevoir, {"notes" : _datas}).done(function (res) {
-                        this.statistiques = res;
-                        this.statistiques.percentDone = Math.round((_datas.length/this.eleves.all.length)*100);
-                        this.percent = this.statistiques.percentDone;
-                        if(resolve && typeof(resolve) === 'function'){
-                            resolve();
-                        }
-                    }.bind(this));
-                }
-            }
+            }.bind(this));
         });
     }
 
@@ -1180,6 +1132,7 @@ export class DevoirsCollection {
             if (type) evaluations.devoirs.all[i].type = type;
         }
     }
+
     areEvaluatedDevoirs (idDevoirs) : Promise<any> {
         return new Promise((resolve, reject) => {
             var URLBuilder = "";

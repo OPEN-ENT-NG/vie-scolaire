@@ -128,10 +128,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             console.log("Aucun établissement actif pour l'utilisateur");
         }
 
-        $scope.getDateFormated = function (date) {
-            return utils.getFormatedDate(date, "DD/MM/YYYY");
-        };
-
         $scope.loadChart = function (idClasse) {
             let idDevoirs = _.pluck($scope.devoirs.where({id_groupe: idClasse}), 'id');
             $scope.getDevoirsNotDone(idDevoirs).then((devoirs) => {

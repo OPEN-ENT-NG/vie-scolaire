@@ -138,4 +138,11 @@ public interface DevoirService extends CrudService {
      * @param handler handler portant le résultat de la requête.
      */
     public void getClassesIdsDevoir(UserInfos user, String structureId, Handler<Either<String, JsonArray>> handler);
-}
+
+    /**
+     * Récupère les notes du devoirs dans la base et en calcule la moyenne
+     * @param idDevoir Devoir dont on souhaite avoir la moyenne
+     * @return Un objet contenant la moyenne
+     */
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<JsonObject> handler);
+ }

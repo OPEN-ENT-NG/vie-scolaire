@@ -685,7 +685,7 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             case 8:
                                 this.cmbLab = jElem;
                                 break;
-                            case 9:
+                            case 10:
                                 this.ticks = jElem;
                                 break;
                         }
@@ -1783,7 +1783,7 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             newValue = this.roundStep(newValue);
                     }
                     if(newValue !== 0){
-                    this.positionTrackingHandle(newValue);
+                        this.positionTrackingHandle(newValue);
                     }
                 },
 
@@ -1904,7 +1904,9 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                     $timeout(function () {
                         var newValue = self.roundStep(self.sanitizeValue(action));
                         if (!self.options.draggableRangeOnly) {
-                            self.positionTrackingHandle(newValue);
+                            if(newValue !== 0){
+                                self.positionTrackingHandle(newValue);
+                            }
                         }
                         else {
                             var difference = self.highValue - self.lowValue,
@@ -1924,7 +1926,9 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                                     newMaxValue = newMinValue + difference;
                                 }
                             }
-                            self.positionTrackingBar(newMinValue, newMaxValue);
+                            if(newValue !== 0){
+                                this.positionTrackingHandle(newValue);
+                            }
                         }
                     });
                 },

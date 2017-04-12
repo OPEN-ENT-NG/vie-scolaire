@@ -411,8 +411,9 @@ public class DevoirController extends ControllerHelper {
     }
 
     @Post("/devoir/:idDevoir/duplicate")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    @ApiDoc("Duplique un devoir pour une liste de classe donnée")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @ApiDoc("Duplique un devoir pour une liste de classes donnée")
     public void duplicateDevoir (final HttpServerRequest request) {
         if (!request.params().contains("idDevoir")) {
             badRequest(request);

@@ -41,350 +41,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 suppretionMsg2 : false,
             }
         };
-        route({
-
-            accueil : function(params) {
-                if ($scope.evaluations.structure !== undefined) {
-
-                    $scope.cleanRoot();
-
-                    // Chefs d'établissement
-                    if ($scope.Structure === undefined) {
-                        $scope.Structure = new Structure();
-                    }
-                    //si les Eleves ne sont pas sync
-                    if ( $scope.Structure.synchronized.Eleve !== false) {
-                        if($scope.isChefEtab() ) {
-                            evaluations.on('eleves-sync', function () {
-                            $scope.Structure.eleves.all = evaluations.eleves;
-                                utils.safeApply($scope);
-                            });
-                        }
-                        else{
-                            evaluations.on('eleves-sync', function () {
-                                $scope.eleves = evaluations.eleves;
-                                utils.safeApply($scope);
-                            });
-
-                        }
-                    }
-                }else{
-                    $scope.opened.lightboxs.no.structure = true;
-                }
-                template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
-                utils.safeApply($scope);
-            },
-
-            listRemplacements : function(){
-                $scope.cleanRoot();
-                $scope.listRemplacements();
-
-            },
-
-            createDevoir : function(params){
-                $scope.cleanRoot();
-                $scope.createDevoir();
-                evaluations.enseignements.on('sync', function() {
-                    $scope.initFilter(true);
-                });
-            },
-
-            editDevoir : function (params) {
-                $scope.cleanRoot();
-                var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
-                $scope.devoir = $scope.initDevoir();
-                $scope.devoir.id_groupe = devoirTmp.id_groupe;
-                $scope.devoir.id = devoirTmp.id;
-                $scope.devoir.name = devoirTmp.name;
-                $scope.devoir.owner =  devoirTmp.owner;
-                $scope.devoir.libelle =devoirTmp.libelle;
-                $scope.devoir.id_sousmatiere = devoirTmp.id_sousmatiere;
-                $scope.devoir.id_type = parseInt(devoirTmp.id_type);
-                $scope.devoir.id_matiere  = devoirTmp.id_matiere;
-                $scope.devoir.id_etat  = parseInt(devoirTmp.id_etat);
-                $scope.devoir.date_publication = new Date(devoirTmp.date_publication);
-                $scope.devoir.id_etablissement = devoirTmp.id_etablissement;
-                $scope.devoir.diviseur = devoirTmp.diviseur;
-                $scope.devoir.coefficient = parseInt(devoirTmp.coefficient);
-                $scope.devoir.date = new Date(devoirTmp.date);
-                $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
-                $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
-                $scope.oldIs_Evaluated = devoirTmp.is_evaluated;
-                $scope.devoir.dateDevoir = new Date($scope.devoir.date);
-                $scope.devoir.datePublication = new Date($scope.devoir.date_publication);
-                $scope.devoir.id_periode = devoirTmp.id_periode;
-                $scope.devoir.controlledDate = true;
-                $scope.firstConfirmSuppSkill = false;
-                $scope.secondConfirmSuppSkill = false;
-                $scope.evaluatedDisabel = false;
-                $scope.allCompetences = devoirTmp.competences;
-                $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
-                $scope.devoir.competences.sync().then(() => {
-                    $scope.createDevoir();
-                    evaluations.enseignements.on('sync', function() {
-                        $scope.initFilter(true);
-                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
-
-                        //tableau des connaissances à cocher éventuellement
-                        var parentToCheck = [];
-
-                        for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
-                            for (let j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
-                                if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
-                                    + $scope.evaluations.enseignements.all[j].id] !== undefined) {
-                                    //selection des competences du devoir
-                                    $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence
-                                    + '_' + $scope.evaluations.enseignements.all[j].id].isSelected = true;
-
-                                    $scope.evaluations.competencesDevoir[i].id
-                                        = $scope.evaluations.competencesDevoir[i].id_competence;
-                                    $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
-
-                                    //remplissage des connaissances parent  à cocher éventuellement
-                                    var parentCo = $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
-                                    + '_' + $scope.evaluations.enseignements.all[j].id];
-                                    if (parentToCheck.indexOf(parentCo) === -1 && parentCo !== undefined) {
-                                        parentToCheck.push(parentCo);
-                                    }
-
-                                    utils.safeApply($scope);
-                                }
-                            }
-                        }
-
-                        //On coche la connaissance si elle n'a aucun fils sélectionné
-                        for (var i = 0; i < parentToCheck.length; i++) {
-                            var checkIt = true;
-                            for (let j in  $scope.competencesFilter) {
-                                if ($scope.competencesFilter.hasOwnProperty(j)) {
-                                    var currComp = $scope.competencesFilter[j];
-                                    if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
-                                        checkIt = currComp.isSelected;
-                                    }
-                                    // si on rencontre un fils non selectionné on arrête de chercher
-                                    if (!checkIt) {
-                                        break;
-                                    }
-                                }
-                            }
-                            if (checkIt) {
-                                parentToCheck[i].isSelected = true;
-                                parentToCheck[i].id = parentToCheck[i].id_competence;
-                            }
-                            else {
-                                parentToCheck[i].isSelected = false;
-                                parentToCheck[i].id = parentToCheck[i].id_competence;
-                            }
-                            //depliement de l'enseignement pour les compétences sélectionnées du devoir à modifier
-                            var enseignementToOpen =$scope.devoir.enseignements.all.find(
-                                function (elem) { return elem.id === parentToCheck[i].data.id_enseignement});
-                            enseignementToOpen.open =true;
-
-                            //depliement des connaissances parent des compétences du devoir à modifier
-                            parentToCheck[i].data.open = true;
-                            utils.safeApply($scope);
-                        }
-                    });
-                    template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-                    $scope.displayCreationDevoir = true;
-                    utils.safeApply($scope);
-                });
-            },
-
-            listDevoirs : function(params){
-                $scope.cleanRoot();
-                let openTamplates = () => {
-                    //rajout de la periode Annee
-                    $scope.periodes.sync();
-                    $scope.periodes.on('sync', function () {
-                        $scope.search.periode = $scope.periodeParDefault();
-                        $scope.periodesList = {
-                            "type": "select",
-                            "name": "Service",
-                            "value":  $scope.periodeParDefault(),
-                            "values": []
-                        };
-                        _.map($scope.periodes.all, function (periode) {
-                            $scope.periodesList.values.push(periode);
-                        });
-                        $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
-                        utils.safeApply($scope);
-                    });
-                    template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
-                    template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
-                };
-
-                if($scope.isChefEtab() ){
-                    $scope.modificationDevoir = false;
-                    if($scope.Structure === undefined )
-                        $scope.Structure = new Structure();
-                    if(!$scope.Structure.synchronized.classes) {
-                        $scope.Structure.syncClasses($scope.evaluations.structure.id);
-                        $scope.Structure.classes.on('classes-sync', () => {
-                            $scope.Structure.syncDevoirs();
-                            // console.log("Classes sync (/)");
-                            $scope.Structure.devoirs.on("devoirs-sync", () => {
-                                evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                openTamplates();
-                            });
-                        });
-                    }else{
-                        openTamplates();
-                    }
-                }else{
-
-                    evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id'));
-                    openTamplates();
-                }
-
-            },
-            viewNotesDevoir : function(params){
-                $scope.cleanRoot();
-                window.scrollTo(0, 0);
-                $scope.resetSelected();
-                if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
-                if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
-                let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
-                let date_saisie = current_periode.date_fin_saisie;
-
-                if (moment(date_saisie).diff(moment($scope.currentDevoir.date), "days") >= 0
-                    || $scope.isChefEtab()) {
-                    $scope.endSaisie = false;
-                    utils.safeApply($scope);
-                }
-                else {
-                    $scope.endSaisie = true;
-                    utils.safeApply($scope);
-                }
-                $scope.currentDevoir.endSaisie = $scope.endSaisie;
-                let syncStudents = () => {
-                    $scope.openedDetails = true;
-                    $scope.openedStatistiques = true;
-                    $scope.openedStudentInfo = true;
-                    if ($scope.currentDevoir !== undefined) {
-                        $scope.currentDevoir.competences.sync().then(() => {
-                            utils.safeApply($scope);
-                        });
-                        $scope.currentDevoir.eleves.sync().then(() => {
-                            $scope.$broadcast('initHeaderColumn');
-                            var _evals = [];
-                            for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
-                                if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== null
-                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined
-                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== "") {
-                                    _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
-                                }
-                            }
-                            utils.safeApply($scope);
-                            $scope.currentDevoir.calculStats(_evals).then(() => {
-                                utils.safeApply($scope);
-                            });
-                        });
-                    }
-
-                    template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
-                    utils.safeApply($scope);
-                };
-
-                let _classe = evaluations.classes.findWhere({id : $scope.currentDevoir.id_groupe});
-                if (_classe !== undefined) {
-                    if (_classe.eleves.all.length === 0 ) {
-                        _classe.eleves.sync().then(() => {
-                            syncStudents();
-                        })
-                    } else {
-                        syncStudents();
-                    }
-                }
-            },
-            displayReleveNotes : function(params) {
-                $scope.cleanRoot();
-                //rajout de la periode Annee
-                $scope.periodes.sync();
-                $scope.periodes.on('sync', function () {
-                    $scope.search.periode = $scope.periodeParDefault();
-                    $scope.periodesList = {
-                        "type": "select",
-                        "name": "Service",
-                        "value":  $scope.periodeParDefault(),
-                        "values": []
-                    };
-                    _.map($scope.periodes.all, function (periode) {
-                        $scope.periodesList.values.push(periode);
-                    });
-                    $scope.periodesList.values.push({
-                        libelle: $scope.translate('viescolaire.utils.annee'),
-                        id: undefined
-                    });
-                    // Affichage des criteres par défaut quand on arrive sur le releve
-                    $scope.openLeftMenu("opened.criteres", false);
-                    if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
-                    if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                    if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
-                        || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
-                        $scope.releveNote = undefined;
-                    }
-                    if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
-                        $scope.getReleve();
-                    }
-                    utils.safeApply($scope);
-                });
-                template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
-            },
-            displaySuiviCompetencesEleve : function (params) {
-                $scope.cleanRoot();
-                let display = () => {
-                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
-                    if ($scope.informations.eleve === undefined) {
-                        $scope.informations.eleve = null;
-                    }
-                    $scope.sortType = 'title'; // set the default sort type
-                    $scope.sortReverse = false;  // set the default sort order
-                };
-                if( params.idEleve != undefined && params.idClasse != undefined ){
-                    $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
-                    $scope.search.classe.eleves.sync().then(() =>{
-                        $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
-                        if($scope.displayFromClass)  $scope.displayFromClass= false;
-                        $scope.displayFromClass = true;
-                        display();
-                    });
-                }else{
-                    display();
-                }
-
-
-            },
-            displaySuiviCompetencesClasse : function (params) {
-                $scope.cleanRoot();
-                let display = () => {
-                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
-                    $scope.allRefreshed = false;
-                    $scope.sortType     = 'title'; // set the default sort type
-                    $scope.sortReverse  = false;  // set the default sort order
-                };
-                if (params.idClasse != undefined) {
-                    let classe: Classe = evaluations.classes.findWhere({ id: params.idClasse });
-                    $scope.search.classe = classe;
-                    if (classe !== undefined) {
-                        if (classe.eleves.empty()) classe.eleves.sync();
-                        if (params.idPeriode !== undefined) {
-                            $scope.search.periode = evaluations.periodes.findWhere({id : parseInt(params.idPeriode)});
-                        } else {
-                            $scope.search.periode = $scope.getPeriodeAnnee();
-                        }
-                        display();
-                    }
-                } else {
-                    display();
-                }
-            }
-        });
-
-
 
         $scope.isChefEtab =() =>{
             return model.me.type === 'PERSEDUCNAT' &&
@@ -448,11 +104,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             classes : [],
         };
 
-        $scope.synchronizeStudents = (idClasse) => {
+        $scope.synchronizeStudents =(idClasse) : boolean => {
             let _classe = evaluations.classes.findWhere({id : idClasse});
             if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
                 _classe.eleves.sync();
+                return true;
             }
+            return false;
         };
 
         $scope.confirmerDuplication = () => {
@@ -477,6 +135,31 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
+         * Retourne la période courante
+         * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
+         */
+        $scope.setCurrentPeriode = function () : Promise<any> {
+            return new Promise((resolve, reject) => {
+                var formatStr = "DD/MM/YYYY";
+                var momentCurrDate = moment(moment().format(formatStr), formatStr);
+                $scope.currentPeriodeId = -1;
+                for (var i = 0; i < evaluations.periodes.all.length; i++) {
+                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
+                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
+                    if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
+                        $scope.currentPeriodeId = evaluations.periodes.all[i].id;
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve(evaluations.periodes.all[i]);
+                        }
+                    }
+                }
+                if (resolve && typeof (resolve) === 'function') {
+                    resolve($scope.currentPeriodeId);
+                }
+            });
+        };
+
+        /**
          * Changement établissemnt : réinitial
          */
         $scope.changeEtablissement = () => {
@@ -484,7 +167,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.evaluations = evaluations;
 
                 evaluations.periodes.on('sync', function () {
-                    setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.setCurrentPeriode().then((defaultPeriode) => {
                         $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
                         utils.safeApply($scope);
                     });
@@ -516,7 +199,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.evaluations = evaluations;
 
                 evaluations.periodes.on('sync', function () {
-                    setCurrentPeriode().then((defaultPeriode) => {
+                    $scope.setCurrentPeriode().then((defaultPeriode) => {
                         $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
                         utils.safeApply($scope);
                     });
@@ -815,7 +498,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         if($scope.periodes !== undefined) {
             evaluations.periodes.on('sync', function () {
-                setCurrentPeriode().then((defaultPeriode) => {
+                $scope.setCurrentPeriode().then((defaultPeriode) => {
                     $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
                     utils.safeApply($scope);
                 });
@@ -1265,7 +948,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             //Séquence non exécutée lors de la modification d'un devoir
             if($scope.devoir.id_periode === undefined) {
-                setCurrentPeriode().then((defaultPeriode) => {
+                $scope.setCurrentPeriode().then((defaultPeriode) => {
                     $scope.devoir.id_periode = defaultPeriode.id;
                     utils.safeApply($scope);
                 });
@@ -1674,43 +1357,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     p.idPeriode = currentPeriode.id;
                 }
 
-                // var rn = evaluations.releveNotes.findWhere(p);
-                // if (rn === undefined) {
-                if(evaluations.synchronized.classes !== 0) {
-                    evaluations.classes.on('classes-sync', function () {
-                        var releve = new ReleveNote(p);
-                        evaluations.releveNotes.push(releve);
-                        $scope.releveNote = releve;
-                        $scope.releveNote.sync().then(() => {
-                            $scope.releveNote.synchronized.releve = true;
-                            $scope.releveNote.calculStatsDevoirs().then(() => {
-                                $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                utils.safeApply($scope);
-                            });
-                            utils.safeApply($scope);
-                        });
-                    });
-                    return;
-                }
-                var releve = new ReleveNote(p);
-                evaluations.releveNotes.push(releve);
-                $scope.releveNote = releve;
-                $scope.releveNote.sync().then(() => {
-                    $scope.releveNote.synchronized.releve = true;
-                    $scope.releveNote.calculStatsDevoirs().then(() => {
-                        $scope.releveNote.calculMoyennesEleves().then(() => {
-                            utils.safeApply($scope);
-                        });
+                let syncReleveNote = () => {
+                    let releve = new ReleveNote(p);
+                    evaluations.releveNotes.push(releve);
+                    $scope.releveNote = releve;
+                    $scope.releveNote.sync().then(() => {
+                        $scope.releveNote.synchronized.releve = true;
                         utils.safeApply($scope);
                     });
-                    utils.safeApply($scope);
-                });
-                // } else {
-                //     $scope.releveNote = rn;
-                //     utils.safeApply($scope);
-                // }
+                };
+
+                if($scope.synchronizeStudents($scope.search.classe.id))
+                    $scope.search.classe.on('sync', syncReleveNote);
+                else
+                    syncReleveNote();
 
                 $scope.openedStudentInfo = false;
                 utils.safeApply($scope);
@@ -1890,8 +1550,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                         }
 
                                         if ($location.$$path === '/releve') {
-                                            $scope.calculerMoyenneEleve(eleve);
-                                            $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                                            $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
+                                            $scope.calculStatsDevoirReleve($scope.releveNote.devoirs.findWhere({id : evaluation.id_devoir}));
                                         } else {
                                             $scope.calculStatsDevoir();
                                         }
@@ -1912,8 +1572,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             if (evaluation.id !== undefined && evaluation.valeur === "") {
                                 evaluation.delete().then((res) => {
                                     if ($location.$$path === '/releve') {
-                                        $scope.calculerMoyenneEleve(eleve);
-                                        $scope.calculStatsDevoirReleve(evaluation.id_devoir);
+                                        $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
+                                        $scope.calculStatsDevoirReleve($scope.releveNote.devoirs.findWhere({id : evaluation.id_devoir}));
                                         if (res.rows === 1) {
                                             evaluation.id = undefined;
                                             evaluation.data.id = undefined;
@@ -1977,8 +1637,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Calcul la moyenne pour un élève
          * @param eleve élève
          */
-        $scope.calculerMoyenneEleve = function(eleve) {
-            eleve.getMoyenne().then(() => {
+        $scope.calculerMoyenneEleve = function(eleve, devoirs) {
+            eleve.getMoyenne(devoirs).then(() => {
                 utils.safeApply($scope);
             });
         };
@@ -1998,18 +1658,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             var evals = [];
             for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
                 if ($scope.currentDevoir.eleves.all[i].evaluation !== undefined &&
-                    $scope.currentDevoir.eleves.all[i].evaluation.valeur !== '' &&
-                    $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined &&
-                    $scope.currentDevoir.eleves.all[i].evaluation.valeur !== null) {
-                    evals.push($scope.currentDevoir.eleves.all[i].evaluation);
+                    $scope.currentDevoir.eleves.all[i].evaluation.valeur) {
                     $scope.currentDevoir.eleves.all[i].evaluation.ramener_sur = $scope.currentDevoir.ramener_sur;
                 }
             }
 
-            $scope.currentDevoir.calculStats(evals).then(() => {
-                $scope.evaluations.devoirs.getPercentDone($scope.currentDevoir.id).then(() => {
+            $scope.currentDevoir.calculStats().then(() => {
                     utils.safeApply($scope);
-                })
             });
         };
 
@@ -2017,21 +1672,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Calcul les statistiques du devoir dont l'identifiant est passé en paramètre
          * @param devoirId identifiant du devoir
          */
-        $scope.calculStatsDevoirReleve = function (devoirId) {
-            var devoir = $scope.releveNote.devoirs.findWhere({id : devoirId});
+        $scope.calculStatsDevoirReleve = function (devoir) {
             if (devoir !== undefined) {
-                var evals = [];
-                for (var i = 0; i < $scope.releveNote.classe.eleves.all.length; i++) {
-                    for (var j = 0; j < $scope.releveNote.classe.eleves.all[i].evaluations.all.length; j++) {
-                        if ($scope.releveNote.classe.eleves.all[i].evaluations.all[j].valeur !== ""
-                            && $scope.releveNote.classe.eleves.all[i].evaluations.all[j].id_devoir === devoirId) {
-                            $scope.releveNote.classe.eleves.all[i].evaluations.all[j].is_evaluated = devoir.is_evaluated;
-                            evals.push($scope.releveNote.classe.eleves.all[i].evaluations.all[j]);
-                        }
-                    }
-                }
-                devoir.eleves = $scope.releveNote.classe.eleves;
-                devoir.calculStats(evals).then(() => {
+                devoir.calculStats().then(() => {
                     utils.safeApply($scope);
                 });
             }
@@ -2070,31 +1713,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.getEleveInfo = function (eleve) {
             if (template.isEmpty('leftSide-userInfo')) template.open('leftSide-userInfo', '../templates/evaluations/enseignants/informations/display_eleve');
             $scope.informations.eleve = eleve;
-        };
-
-        /**
-         * Retourne la période courante
-         * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
-         */
-        var setCurrentPeriode = function () : Promise<any> {
-            return new Promise((resolve, reject) => {
-                var formatStr = "DD/MM/YYYY";
-                var momentCurrDate = moment(moment().format(formatStr), formatStr);
-                $scope.currentPeriodeId = -1;
-                for (var i = 0; i < evaluations.periodes.all.length; i++) {
-                    var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
-                    var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
-                    if(momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
-                        $scope.currentPeriodeId = evaluations.periodes.all[i].id;
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve(evaluations.periodes.all[i]);
-                        }
-                    }
-                }
-                if (resolve && typeof (resolve) === 'function') {
-                    resolve($scope.currentPeriodeId);
-                }
-            });
         };
 
         /**
@@ -2445,6 +2063,347 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             );
         };
 
+        route({
 
+            accueil : function(params) {
+                if ($scope.evaluations.structure !== undefined) {
+
+                    $scope.cleanRoot();
+
+                    // Chefs d'établissement
+                    if ($scope.Structure === undefined) {
+                        $scope.Structure = new Structure();
+                    }
+                    //si les Eleves ne sont pas sync
+                    if ( $scope.Structure.synchronized.Eleve !== false) {
+                        if($scope.isChefEtab() ) {
+                            evaluations.on('eleves-sync', function () {
+                                $scope.Structure.eleves.all = evaluations.eleves;
+                                utils.safeApply($scope);
+                            });
+                        }
+                        else{
+                            evaluations.on('eleves-sync', function () {
+                                $scope.eleves = evaluations.eleves;
+                                utils.safeApply($scope);
+                            });
+
+                        }
+                    }
+                }else{
+                    $scope.opened.lightboxs.no.structure = true;
+                }
+                template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
+                utils.safeApply($scope);
+            },
+
+            listRemplacements : function(){
+                $scope.cleanRoot();
+                $scope.listRemplacements();
+
+            },
+
+            createDevoir : function(params){
+                $scope.cleanRoot();
+                $scope.createDevoir();
+                evaluations.enseignements.on('sync', function() {
+                    $scope.initFilter(true);
+                });
+            },
+
+            editDevoir : function (params) {
+                $scope.cleanRoot();
+                var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                $scope.devoir = $scope.initDevoir();
+                $scope.devoir.id_groupe = devoirTmp.id_groupe;
+                $scope.devoir.id = devoirTmp.id;
+                $scope.devoir.name = devoirTmp.name;
+                $scope.devoir.owner =  devoirTmp.owner;
+                $scope.devoir.libelle =devoirTmp.libelle;
+                $scope.devoir.id_sousmatiere = devoirTmp.id_sousmatiere;
+                $scope.devoir.id_type = parseInt(devoirTmp.id_type);
+                $scope.devoir.id_matiere  = devoirTmp.id_matiere;
+                $scope.devoir.id_etat  = parseInt(devoirTmp.id_etat);
+                $scope.devoir.date_publication = new Date(devoirTmp.date_publication);
+                $scope.devoir.id_etablissement = devoirTmp.id_etablissement;
+                $scope.devoir.diviseur = devoirTmp.diviseur;
+                $scope.devoir.coefficient = parseInt(devoirTmp.coefficient);
+                $scope.devoir.date = new Date(devoirTmp.date);
+                $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
+                $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
+                $scope.oldIs_Evaluated = devoirTmp.is_evaluated;
+                $scope.devoir.dateDevoir = new Date($scope.devoir.date);
+                $scope.devoir.datePublication = new Date($scope.devoir.date_publication);
+                $scope.devoir.id_periode = devoirTmp.id_periode;
+                $scope.devoir.controlledDate = true;
+                $scope.firstConfirmSuppSkill = false;
+                $scope.secondConfirmSuppSkill = false;
+                $scope.evaluatedDisabel = false;
+                $scope.allCompetences = devoirTmp.competences;
+                $scope.evaluatedCompetence = $scope.evaluationOfSkilles($scope.allCompetences,devoirTmp);
+                $scope.devoir.competences.sync().then(() => {
+                    $scope.createDevoir();
+                    evaluations.enseignements.on('sync', function() {
+                        $scope.initFilter(true);
+                        $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
+
+                        //tableau des connaissances à cocher éventuellement
+                        var parentToCheck = [];
+
+                        for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
+                            for (let j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
+                                if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
+                                    + $scope.evaluations.enseignements.all[j].id] !== undefined) {
+                                    //selection des competences du devoir
+                                    $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence
+                                    + '_' + $scope.evaluations.enseignements.all[j].id].isSelected = true;
+
+                                    $scope.evaluations.competencesDevoir[i].id
+                                        = $scope.evaluations.competencesDevoir[i].id_competence;
+                                    $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
+
+                                    //remplissage des connaissances parent  à cocher éventuellement
+                                    var parentCo = $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
+                                    + '_' + $scope.evaluations.enseignements.all[j].id];
+                                    if (parentToCheck.indexOf(parentCo) === -1 && parentCo !== undefined) {
+                                        parentToCheck.push(parentCo);
+                                    }
+
+                                    utils.safeApply($scope);
+                                }
+                            }
+                        }
+
+                        //On coche la connaissance si elle n'a aucun fils sélectionné
+                        for (var i = 0; i < parentToCheck.length; i++) {
+                            var checkIt = true;
+                            for (let j in  $scope.competencesFilter) {
+                                if ($scope.competencesFilter.hasOwnProperty(j)) {
+                                    var currComp = $scope.competencesFilter[j];
+                                    if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
+                                        checkIt = currComp.isSelected;
+                                    }
+                                    // si on rencontre un fils non selectionné on arrête de chercher
+                                    if (!checkIt) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (checkIt) {
+                                parentToCheck[i].isSelected = true;
+                                parentToCheck[i].id = parentToCheck[i].id_competence;
+                            }
+                            else {
+                                parentToCheck[i].isSelected = false;
+                                parentToCheck[i].id = parentToCheck[i].id_competence;
+                            }
+                            //depliement de l'enseignement pour les compétences sélectionnées du devoir à modifier
+                            var enseignementToOpen =$scope.devoir.enseignements.all.find(
+                                function (elem) { return elem.id === parentToCheck[i].data.id_enseignement});
+                            enseignementToOpen.open =true;
+
+                            //depliement des connaissances parent des compétences du devoir à modifier
+                            parentToCheck[i].data.open = true;
+                            utils.safeApply($scope);
+                        }
+                    });
+                    template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
+                    $scope.displayCreationDevoir = true;
+                    utils.safeApply($scope);
+                });
+            },
+
+            listDevoirs : function(params){
+                $scope.cleanRoot();
+                let openTamplates = () => {
+                    //rajout de la periode Annee
+                    $scope.periodes.sync();
+                    $scope.periodes.on('sync', function () {
+                        $scope.search.periode = $scope.periodeParDefault();
+                        $scope.periodesList = {
+                            "type": "select",
+                            "name": "Service",
+                            "value":  $scope.periodeParDefault(),
+                            "values": []
+                        };
+                        _.map($scope.periodes.all, function (periode) {
+                            $scope.periodesList.values.push(periode);
+                        });
+                        $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                        utils.safeApply($scope);
+                    });
+                    template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
+                    template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
+                };
+
+                if($scope.isChefEtab() ){
+                    $scope.modificationDevoir = false;
+                    if($scope.Structure === undefined )
+                        $scope.Structure = new Structure();
+                    if(!$scope.Structure.synchronized.classes) {
+                        $scope.Structure.syncClasses($scope.evaluations.structure.id);
+                        $scope.Structure.classes.on('classes-sync', () => {
+                            $scope.Structure.syncDevoirs();
+                            // console.log("Classes sync (/)");
+                            $scope.Structure.devoirs.on("devoirs-sync", () => {
+                                evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
+                                    utils.safeApply($scope);
+                                });
+                                openTamplates();
+                            });
+                        });
+                    }else{
+                        openTamplates();
+                    }
+                }else{
+
+                    evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id'));
+                    openTamplates();
+                }
+
+            },
+            viewNotesDevoir : function(params){
+                $scope.cleanRoot();
+                window.scrollTo(0, 0);
+                $scope.resetSelected();
+                if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
+                if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+                $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
+                let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
+                let date_saisie = current_periode.date_fin_saisie;
+
+                if (moment(date_saisie).diff(moment($scope.currentDevoir.date), "days") >= 0
+                    || $scope.isChefEtab()) {
+                    $scope.endSaisie = false;
+                    utils.safeApply($scope);
+                }
+                else {
+                    $scope.endSaisie = true;
+                    utils.safeApply($scope);
+                }
+                $scope.currentDevoir.endSaisie = $scope.endSaisie;
+                let syncStudents = () => {
+                    $scope.openedDetails = true;
+                    $scope.openedStatistiques = true;
+                    $scope.openedStudentInfo = true;
+                    if ($scope.currentDevoir !== undefined) {
+                        $scope.currentDevoir.competences.sync().then(() => {
+                            utils.safeApply($scope);
+                        });
+                        $scope.currentDevoir.eleves.sync().then(() => {
+                            $scope.$broadcast('initHeaderColumn');
+                            var _evals = [];
+                            for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
+                                if ($scope.currentDevoir.eleves.all[i].evaluation.valeur !== null
+                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== undefined
+                                    && $scope.currentDevoir.eleves.all[i].evaluation.valeur !== "") {
+                                    _evals.push($scope.currentDevoir.eleves.all[i].evaluation);
+                                }
+                            }
+                            utils.safeApply($scope);
+                            $scope.currentDevoir.calculStats(_evals).then(() => {
+                                utils.safeApply($scope);
+                            });
+                        });
+                    }
+
+                    template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
+                    utils.safeApply($scope);
+                };
+
+                let _classe = evaluations.classes.findWhere({id : $scope.currentDevoir.id_groupe});
+                if (_classe !== undefined) {
+                    if (_classe.eleves.all.length === 0 ) {
+                        _classe.eleves.sync().then(() => {
+                            syncStudents();
+                        })
+                    } else {
+                        syncStudents();
+                    }
+                }
+            },
+            displayReleveNotes : function(params) {
+                $scope.cleanRoot();
+                //rajout de la periode Annee
+                $scope.periodes.sync();
+                $scope.periodes.on('sync', function () {
+                    $scope.search.periode = $scope.periodeParDefault();
+                    $scope.periodesList = {
+                        "type": "select",
+                        "name": "Service",
+                        "value":  $scope.periodeParDefault(),
+                        "values": []
+                    };
+                    _.map($scope.periodes.all, function (periode) {
+                        $scope.periodesList.values.push(periode);
+                    });
+                    $scope.periodesList.values.push({
+                        libelle: $scope.translate('viescolaire.utils.annee'),
+                        id: undefined
+                    });
+                    // Affichage des criteres par défaut quand on arrive sur le releve
+                    $scope.openLeftMenu("opened.criteres", false);
+                    if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
+                    if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+                    if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
+                        || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
+                        $scope.releveNote = undefined;
+                    }
+                    if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
+                        $scope.getReleve();
+                    }
+                    utils.safeApply($scope);
+                });
+                template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
+            },
+            displaySuiviCompetencesEleve : function (params) {
+                $scope.cleanRoot();
+                let display = () => {
+                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_eleve/container');
+                    if ($scope.informations.eleve === undefined) {
+                        $scope.informations.eleve = null;
+                    }
+                    $scope.sortType = 'title'; // set the default sort type
+                    $scope.sortReverse = false;  // set the default sort order
+                };
+                if( params.idEleve != undefined && params.idClasse != undefined ){
+                    $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
+                    $scope.search.classe.eleves.sync().then(() =>{
+                        $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
+                        if($scope.displayFromClass)  $scope.displayFromClass= false;
+                        $scope.displayFromClass = true;
+                        display();
+                    });
+                }else{
+                    display();
+                }
+
+
+            },
+            displaySuiviCompetencesClasse : function (params) {
+                $scope.cleanRoot();
+                let display = () => {
+                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
+                    $scope.allRefreshed = false;
+                    $scope.sortType     = 'title'; // set the default sort type
+                    $scope.sortReverse  = false;  // set the default sort order
+                };
+                if (params.idClasse != undefined) {
+                    let classe: Classe = evaluations.classes.findWhere({ id: params.idClasse });
+                    $scope.search.classe = classe;
+                    if (classe !== undefined) {
+                        if (classe.eleves.empty()) classe.eleves.sync();
+                        if (params.idPeriode !== undefined) {
+                            $scope.search.periode = evaluations.periodes.findWhere({id : parseInt(params.idPeriode)});
+                        } else {
+                            $scope.search.periode = $scope.getPeriodeAnnee();
+                        }
+                        display();
+                    }
+                } else {
+                    display();
+                }
+            }
+        });
     }
 ]);

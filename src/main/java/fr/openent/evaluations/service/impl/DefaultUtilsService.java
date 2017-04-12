@@ -33,6 +33,8 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -150,6 +152,7 @@ public class DefaultUtilsService  implements UtilsService {
         Double noteMin = new Double(diviseurM);
         Double notes = new Double(0);
         Double diviseur = new Double(0);
+
         for (NoteDevoir noteDevoir : listeNoteDevoirs) {
             Double currNote = noteDevoir.getNote();
             Double currCoefficient = noteDevoir.getCoefficient();
@@ -325,6 +328,7 @@ public class DefaultUtilsService  implements UtilsService {
         }
         return values;
     }
+
     @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
@@ -332,6 +336,21 @@ public class DefaultUtilsService  implements UtilsService {
         }
         return recipient;
     }
+
+    @Override
+    public <K> void addToMap(K id, HashMap<K, ArrayList<NoteDevoir>> map, NoteDevoir valueToAdd) {
+        if (map.containsKey(id)) {
+
+            map.get(id).add(valueToAdd);
+
+        } else {
+
+            ArrayList<NoteDevoir> notes = new ArrayList<>();
+            notes.add(valueToAdd);
+            map.put(id, notes);
+        }
+    }
+
 
     /**
      * Récupère le cycle de la classe dans la relation classe_cycle
@@ -354,5 +373,4 @@ public class DefaultUtilsService  implements UtilsService {
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
-
 }

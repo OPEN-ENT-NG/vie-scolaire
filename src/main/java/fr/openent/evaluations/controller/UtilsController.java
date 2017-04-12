@@ -101,76 +101,6 @@ public class UtilsController extends ControllerHelper {
         });
     }
 
-    @Post("/moyenne")
-    @ApiDoc("Calcul la moyenne")
-    @SecuredAction(value = "", type=ActionType.AUTHENTICATED)
-    public void getMoyenne(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-            @Override
-            public void handle(JsonObject resource) {
-                List<NoteDevoir> notes = new ArrayList<NoteDevoir>();
-                JsonArray l = resource.getArray("notes");
-                JsonObject r = new JsonObject();
-                Boolean statistiques;
-                if (request.params().get("stats") == "undefined") {
-                    statistiques = false;
-                } else {
-                    statistiques = Boolean.parseBoolean(request.params().get("stats"));
-                }
-                for(int i = 0; i < l.size(); i++){
-                    JsonObject o = l.get(i);
-                    String note = o.getNumber("valeur").toString();
-                    if(note != null) {
-                        notes.add(new NoteDevoir(Double.parseDouble(note),
-                                o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
-                    }
-                }
-                JsonObject moyenne = new JsonObject();
-                if (notes.size() > 0) {
-                    moyenne = utilsService.calculMoyenne(notes, statistiques, 20);
-                }
-                Renders.renderJson(request, moyenne);
-            }
-        });
-    }
-
-    @Post("/moyennes")
-    @ApiDoc("Calcul la moyenne pour l'ensemble des objets donnés. Possibilité de calculer les stats avec stats=true")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getReleveMoyennes(final HttpServerRequest request) {
-        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-            @Override
-            public void handle(JsonObject resource) {
-                JsonArray returns = new JsonArray();
-                JsonArray eleves = resource.getArray("data");
-                Boolean statistiques;
-                if (request.params().get("stats") == "undefined") {
-                    statistiques = false;
-                } else {
-                    statistiques = Boolean.parseBoolean(request.params().get("stats"));
-                }
-                for (int i = 0; i < eleves.size(); i++) {
-                    List<NoteDevoir> notes = new ArrayList<NoteDevoir>();
-                    JsonObject stats = new JsonObject();
-                    JsonObject _t = eleves.get(i);
-                    JsonArray a = _t.getArray("evaluations");
-                    if (a.size() > 0) {
-                        for (int j = 0; j < a.size(); j++) {
-                            JsonObject o = a.get(j);
-                            notes.add(new NoteDevoir(Double.parseDouble(o.getNumber("valeur").toString()),
-                                    o.getBoolean("ramenersur"), Double.parseDouble(o.getString("coefficient"))));
-                        }
-                        stats = utilsService.calculMoyenne(notes, statistiques, 20);
-                        stats.putString("id", _t.getString("id"));
-                        returns.add(stats);
-                    }
-                }
-                Renders.renderJson(request, returns);
-            }
-        });
-    }
-
-
     @Get("/user/list")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void list(final HttpServerRequest request) {
@@ -192,7 +122,6 @@ public class UtilsController extends ControllerHelper {
             }
         });
     }
-
 
     /**
      * Retourne retourne le cycle de la classe

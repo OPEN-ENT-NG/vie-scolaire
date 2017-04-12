@@ -410,6 +410,28 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
+    @Get("/devoir/:idDevoir/moyenne")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Retourne la moyenne du devoir dont l'id est passé en paramètre")
+    public void getMoyenneDevoir(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user != null) {
+                    Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                    boolean stats = Boolean.parseBoolean(request.params().get("stats"));
+                    devoirsService.getMoyenne(idDevoir, stats, new Handler<JsonObject>() {
+
+                        @Override
+                        public void handle(JsonObject event) {
+                            Renders.renderJson(request, event);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     @Post("/devoir/:idDevoir/duplicate")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(AccessEvaluationFilter.class)

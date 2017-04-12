@@ -20,6 +20,7 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
@@ -35,6 +36,10 @@ import org.vertx.java.core.logging.impl.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
@@ -42,8 +47,13 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  */
 public class DefaultDevoirService extends SqlCrudService implements fr.openent.evaluations.service.DevoirService {
 
+    private DefaultUtilsService utilsService;
+    private DefaultNoteService noteService;
+
     public DefaultDevoirService(String schema, String table) {
         super(schema, table);
+        utilsService = new DefaultUtilsService();
+        noteService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
     }
 
     public StringBuilder formatDate (String date) {
@@ -701,4 +711,34 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
+    @Override
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<JsonObject> handler) {
+
+        noteService.getNotesParElevesParDevoirs(new String[0], new Long[]{idDevoir},
+                new Handler<Either<String, JsonArray>>() {
+
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if (event.isRight()) {
+                            ArrayList<NoteDevoir> notes = new ArrayList<>();
+
+                            JsonArray listNotes = event.right().getValue();
+
+                            for (int i = 0; i < listNotes.size(); i++) {
+
+                                JsonObject note = listNotes.get(i);
+
+                                NoteDevoir noteDevoir = new NoteDevoir(
+                                        Double.valueOf(note.getString("valeur")),
+                                        note.getBoolean("ramener_sur"),
+                                        Double.valueOf(note.getString("coefficient")));
+
+                                notes.add(noteDevoir);
+                            }
+
+                            handler.handle(utilsService.calculMoyenne(notes, stats, 20));
+                        }
+                    }
+                });
+    }
 }

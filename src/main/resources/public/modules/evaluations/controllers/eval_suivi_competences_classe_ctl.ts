@@ -79,26 +79,6 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             $scope.selectSuivi($scope.route.current.$$route.originalPath);
             utils.safeApply($scope);
         });
-/**
-         *
-         * Affiche le domaine suivant (de niveau 0) et ses
-         * sous domaines.
-         *
-         */
-        /* Methode plus utilsiée
-         $scope.afficherDomaineSuivant = function () {
-         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-         var domaine = $scope.suiviCompetence.domaines.all[i];
-         if( i> 0) {
-         var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
-         if(domainePrec.visible && !domaine.visible) {
-         domaine.visible = true;
-         domaine.setVisibleSousDomaines(true);
-         return;
-         }
-         }
-         }
-         };*/
 
         /**
          * Créer une suivi de compétence
@@ -106,10 +86,10 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         $scope.selectSuivi = function (state) {
             $scope.Display = {EvaluatedCompetences : true};
             $scope.informations.classe = $scope.search.classe;
-            if ($scope.informations.classe !== null && $scope.search.classe !== "") {
+            if ($scope.informations.classe !== null && $scope.search.classe !== '' && $scope.search.classe !== '*') {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
                 //on met à jour le fil d'ariane
-                let updatedUrl = '/competences/classe/'+$scope.search.classe.id + '/'+ $scope.search.periode.id;
+                let updatedUrl = '/competences/classe?idClasse='+$scope.search.classe.id + '&idPeriode='+ $scope.search.periode.id;
 
                 $rootScope.$broadcast('change-params', updatedUrl);
                 $scope.suiviCompetence.sync().then(() => {
@@ -304,6 +284,8 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             }else{
                 return true;
             }
-        }
+        };
+
+        $scope.selectSuivi();
 }
 ]);

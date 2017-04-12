@@ -1,6 +1,6 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {
-    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Remplacement, Structure
+    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
@@ -345,8 +345,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.sortReverse = false;  // set the default sort order
                 };
                 if( params.idEleve != undefined && params.idClasse != undefined ){
-                    //console.log(params.idEleve);
-                    // console.log(params.idClasse);
                     $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': params.idClasse} );
                     $scope.search.classe.eleves.sync().then(() =>{
                         $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': params.idEleve});
@@ -362,10 +360,27 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             },
             displaySuiviCompetencesClasse : function (params) {
                 $scope.cleanRoot();
-                template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
-                $scope.allRefreshed = false;
-                $scope.sortType     = 'title'; // set the default sort type
-                $scope.sortReverse  = false;  // set the default sort order
+                let display = () => {
+                    template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
+                    $scope.allRefreshed = false;
+                    $scope.sortType     = 'title'; // set the default sort type
+                    $scope.sortReverse  = false;  // set the default sort order
+                };
+                if (params.idClasse != undefined) {
+                    let classe: Classe = evaluations.classes.findWhere({ id: params.idClasse });
+                    $scope.search.classe = classe;
+                    if (classe !== undefined) {
+                        if (classe.eleves.empty()) classe.eleves.sync();
+                        if (params.idPeriode !== undefined) {
+                            $scope.search.periode = evaluations.periodes.findWhere({id : parseInt(params.idPeriode)});
+                        } else {
+                            $scope.search.periode = $scope.getPeriodeAnnee();
+                        }
+                        display();
+                    }
+                } else {
+                    display();
+                }
             }
         });
 
@@ -376,7 +391,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 model.me.functions !== undefined &&
                 model.me.functions.DIR !== undefined &&
                 model.me.functions.DIR.code === 'DIR';
-        }
+        };
         $scope.evaluations = evaluations;
         $scope.competencesSearchKeyWord = "";
         $scope.devoirs = evaluations.devoirs;
@@ -457,6 +472,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
         };
 
+        $scope.getPeriodeAnnee = () => {
+            return {libelle: $scope.translate('viescolaire.utils.annee'), id: undefined}
+        };
 
         /**
          * Changement établissemnt : réinitial

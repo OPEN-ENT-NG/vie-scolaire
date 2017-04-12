@@ -39,7 +39,12 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                     url : ""
                 };
                 if(getSize($route.current.params) > 0){
-                    state.url = $route.current.originalPath.replace($route.current.regexp.exec($route.current.originalPath)[1], $route.current.params[$route.current.regexp.exec($route.current.originalPath)[1].substring(1)]);
+                    // state.url = $route.current.originalPath.replace($route.current.regexp.exec($route.current.originalPath)[1], $route.current.params[$route.current.regexp.exec($route.current.originalPath)[1].substring(1)]);
+                    let url = $route.current.originalPath + '?';
+                    for (let key in $route.current.params) {
+                        url += key + '=' + $route.current.params[key] + '&';
+                    }
+                    state.url = url.slice(0, -1);
                 }else{
                     state.url = $route.current.originalPath;
                 }

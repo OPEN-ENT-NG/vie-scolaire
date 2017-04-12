@@ -22,9 +22,7 @@
         ng-init="initHeader(enseignement)">
         <span class="skills-text-overflow skills-teach bold" title="Enseignement" ng-click="enseignement.open = !enseignement.open; doNotApplySearchFilter();">
             <i class="skills-open-icon"></i>
-            <span>
-                [[enseignementsFilter[enseignement.id].nomHtml]]
-            </span>
+            <span ng-bind-html="enseignementsFilter[enseignement.id].nomHtml"></span>
         </span>
         <ul class="twelve-mobile">
             <li class="twelve skills-header skill-40 underline" ng-repeat="competence in enseignement.competences.all" ng-init="initHeader(competence); initCheckBox(competence, $parent.enseignement)" ng-class="{opened: competence.open}">
@@ -34,7 +32,7 @@
                 </label>
                 <span ng-class="{whiteSpaceNormal : competence.hovering}" ng-mouseenter="showIt(competence)" ng-mouseleave="hideIt(competence)" ng-click="competence.open = !competence.open; doNotApplySearchFilter();" title="Connaissance" class="skills-text-overflow">
                     <i class="skills-open-icon"></i>
-                    <span>[[competencesFilter[competence.id+'_'+competence.id_enseignement].nomHtml]]</span>
+                    <span ng-bind-html="competencesFilter[competence.id+'_'+competence.id_enseignement].nomHtml"></span>
                 </span>
                 <ul class="twelve">
                     <li ng-repeat="sousCompetence in competence.competences.all" ng-init="initCheckBox(sousCompetence, $parent.$parent)" class="skills-connaissance">
@@ -45,7 +43,7 @@
                             </label>
                             <span ng-class="{whiteSpaceNormal : sousCompetence.hovering}" ng-mouseenter="showIt(sousCompetence)" ng-mouseleave="hideIt(sousCompetence)" class="ten skills-list-connaissance skills-text-overflow italic" title="Compétence">
                                 <i class="skills-open-icon"></i>
-                                <span>[[competencesFilter[sousCompetence.id+'_'+sousCompetence.id_enseignement].nomHtml]]</span>
+                                <span ng-bind-html="competencesFilter[sousCompetence.id+'_'+sousCompetence.id_enseignement].nomHtml"></span>
                             </span>
                         </label>
                     </li>

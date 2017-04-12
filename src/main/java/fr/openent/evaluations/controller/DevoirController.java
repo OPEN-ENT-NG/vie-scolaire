@@ -343,12 +343,13 @@ public class DevoirController extends ControllerHelper {
 
                                             for (int i = 0; i < resultNbNotesDevoirs.size(); i++) {
                                                 JsonObject o = resultNbNotesDevoirs.get(i);
-
-                                                if (null != o && !idGroupes.contains(o.getString("id_groupe"))) {
-                                                    idGroupes.add(o.getString("id_groupe"));
+                                                if (null != o){
+                                                    if(!idGroupes.contains(o.getString("id_groupe"))) {
+                                                        idGroupes.add(o.getString("id_groupe"));
+                                                    }
+                                                    idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+                                                    nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
                                                 }
-                                                idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
-                                                nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
                                             }
 
                                             classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {

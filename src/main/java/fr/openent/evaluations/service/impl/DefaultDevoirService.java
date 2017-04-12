@@ -197,8 +197,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         }
 
         // ajoute de l'évaluation de la compéténce (cas évaluation libre)
-        if(devoir.containsField("competenceEvaluee")
-                && devoir.getArray("competenceEvaluee").size() > 0) {
+        if(devoir.containsField("competenceEvaluee")) {
             final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
             JsonArray paramsCompLibre = new JsonArray();
             StringBuilder valueParamsLibre = new StringBuilder();

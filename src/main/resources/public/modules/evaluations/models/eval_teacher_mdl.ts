@@ -1787,7 +1787,7 @@ function setSliderOptions(poDomaine,tableConversions) {
 
 
 
-    let maConvertion =  undefined;
+
     let moyenneTemp = undefined;
     // si Une valeur a été modifiée par le chef d'établissement alors on prend cette valeur
     if(poDomaine.bfc !== undefined && poDomaine.bfc.valeur !== undefined){
@@ -1795,16 +1795,12 @@ function setSliderOptions(poDomaine,tableConversions) {
     }else{
         moyenneTemp = poDomaine.moyenne;
     }
-    for(let i= 0 ; i < tableConversions.length ; i++){
-        if((tableConversions[i].valmin <= moyenneTemp && tableConversions[i].valmax > moyenneTemp) && tableConversions[i].ordre !== tableConversions.length ){
-            maConvertion = tableConversions[i];
-        }else if((tableConversions[i].valmin <= moyenneTemp && tableConversions[i].valmax >= moyenneTemp) && tableConversions[i].ordre === tableConversions.length ){
-            maConvertion = tableConversions[i];
-        }
-    }
+
+    // Récupération de la moyenne convertie
+    let maConvertion = utils.getMoyenneForBFC(moyenneTemp,tableConversions);
 
     // si ça ne rentre dans aucune case
-    if(maConvertion === undefined ){
+    if(maConvertion === -1 ){
         poDomaine.slider.value = -1 ;
         poDomaine.slider.options.getSelectionBarClass = function(){ return '#d8e0f3';};
         poDomaine.slider.options.translate = function(value,sliderId,label){
@@ -1817,7 +1813,7 @@ function setSliderOptions(poDomaine,tableConversions) {
         };
 
     }else{
-        poDomaine.slider.value = maConvertion.ordre ;
+        poDomaine.slider.value = maConvertion ;
         poDomaine.slider.options.getSelectionBarClass = function(value){
             let ConvertionOfValue = _.find(tableConversions,{ordre: value});
             if(ConvertionOfValue !== undefined)

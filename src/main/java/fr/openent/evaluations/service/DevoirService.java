@@ -106,7 +106,7 @@ public interface DevoirService extends CrudService {
      * @param idGroupes La liste des devoirs désirés
      * @param handler handler portant le résultat de la requête
      */
-    public void getNbNotesDevoirs(UserInfos user, JsonArray idGroupes, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(UserInfos user, Long[] idGroupes, Handler<Either<String, JsonArray>> handler);
 
     /**
      * verifie si le devoir est evalué ou pas

@@ -587,7 +587,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbNotesDevoirs(UserInfos user, JsonArray idDevoirs, Handler<Either<String, JsonArray>> handler) {
+    public void getNbNotesDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
@@ -596,7 +596,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE notes.id_devoir = devoirs.id ")
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
-                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs.toArray()) + " ");
+                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs) + " ");
         if(!isChefEtab) {
             query.append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
                     .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
@@ -616,8 +616,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         JsonArray values =  new JsonArray();
 
         //Ajout des id désirés
-        for (int i = 0; i < idDevoirs.size(); i++) {
-            values.add(idDevoirs.get(i));
+        for (Long l : idDevoirs) {
+            values.addNumber(l);
         }
         if(!isChefEtab) {
             // Ajout des params pour les devoirs dont on est le propriétaire

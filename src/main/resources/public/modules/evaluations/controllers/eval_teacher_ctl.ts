@@ -2316,14 +2316,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.disabledDevoir=[];
         $rootScope.$on("$locationChangeSuccess", function ($event, $nextRoute, $oldRoute) {
             if( $oldRoute === $nextRoute && ($route.current.originalPath === '/devoir/:idDevoir/edit' || $route.current.originalPath === '/devoir/:idDevoir/edit/')  ){
-                $scope.$watch(function() { return $scope.displayCreationDevoir; }, function (newValue, oldValue) {
-                    if (newValue){
-                        $scope.goTo('');
+                     $scope.goTo('/');
                         console.log('redirect');
                         utils.safeApply($scope);
-                    }
-                });
-
             }
             utils.safeApply($scope);
         });

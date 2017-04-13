@@ -232,9 +232,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             this.domaine.bfc.deleteBilanFinDeCycle().then((res) => {
                 if (res.rows === 1) {
                     this.domaine.bfc = undefined;
-                    let maConvertion = undefined;
                     // Récupération de la moyenne convertie
-                    maConvertion = utils.getMoyenneForBFC(this.domaine.moyenne,$scope.suiviCompetence.tableConversions.all);
+                    let maConvertion = utils.getMoyenneForBFC(this.domaine.moyenne,$scope.suiviCompetence.tableConversions.all);
                     this.domaine.slider.value =  maConvertion;
                 }
                 utils.safeApply($scope);

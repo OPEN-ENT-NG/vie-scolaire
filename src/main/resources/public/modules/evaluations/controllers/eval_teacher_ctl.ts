@@ -1866,7 +1866,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                                         if ($location.$$path === '/releve') {
                                             $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
-                                            $scope.calculStatsDevoirReleve($scope.releveNote.devoirs.findWhere({id : evaluation.id_devoir}));
+                                            $scope.calculStatsDevoirReleve(_.findWhere($scope.releveNote.devoirs.all, {id : evaluation.id_devoir}));
                                         } else {
                                             $scope.calculStatsDevoir();
                                         }
@@ -1888,7 +1888,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 evaluation.delete().then((res) => {
                                     if ($location.$$path === '/releve') {
                                         $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
-                                        $scope.calculStatsDevoirReleve($scope.releveNote.devoirs.findWhere({id : evaluation.id_devoir}));
+                                        $scope.calculStatsDevoirReleve(_.findWhere($scope.releveNote.devoirs.all,{id : evaluation.id_devoir}));
                                         if (res.rows === 1) {
                                             evaluation.id = undefined;
                                             evaluation.data.id = undefined;
@@ -1970,7 +1970,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Calcul les statistiques du devoir courant
          */
         $scope.calculStatsDevoir = function () {
-            var evals = [];
             for (var i = 0; i < $scope.currentDevoir.eleves.all.length; i++) {
                 if ($scope.currentDevoir.eleves.all[i].evaluation !== undefined &&
                     $scope.currentDevoir.eleves.all[i].evaluation.valeur) {

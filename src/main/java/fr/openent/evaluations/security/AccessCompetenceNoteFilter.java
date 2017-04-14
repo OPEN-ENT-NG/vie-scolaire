@@ -63,6 +63,22 @@ public class AccessCompetenceNoteFilter implements ResourcesProvider {
             }
 
             break;
+            case "Personnel" : {
+                if (user.getFunctions().containsKey("DIR")) {
+                    resourceRequest.pause();
+                    if (!resourceRequest.params().contains("id")) {
+                        handler.handle(false);
+                    } else {
+                        resourceRequest.resume();
+                        handler.handle(true);
+                    }
+                }
+                else{
+                    handler.handle(true);
+                }
+
+            }
+            break;
             default: {
                 handler.handle(false);
             }

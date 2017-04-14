@@ -135,7 +135,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<JsonObject> handler) {
+    public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler) {
 
         noteService.getNotesParElevesParDevoirs(new String[]{idEleve}, idDevoirs,
                 new Handler<Either<String, JsonArray>>() {
@@ -144,7 +144,6 @@ public class DefaultUserService implements UserService {
                     public void handle(Either<String, JsonArray> event) {
                         if (event.isRight()) {
                             ArrayList<NoteDevoir> notes = new ArrayList<>();
-
                             JsonArray listNotes = event.right().getValue();
 
                             for (int i = 0; i < listNotes.size(); i++) {
@@ -159,7 +158,18 @@ public class DefaultUserService implements UserService {
                                 notes.add(noteDevoir);
                             }
 
-                            handler.handle(utilsService.calculMoyenne(notes, false, 20));
+                            Either<String, JsonObject> result;
+
+                            if (!notes.isEmpty()) {
+                                result = new Either.Right<>(utilsService.calculMoyenne(notes, false, 20));
+                            } else {
+                                result = new Either.Right<>(new JsonObject());
+                            }
+
+                            handler.handle(result);
+
+                        } else {
+                            handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                         }
                     }
                 });

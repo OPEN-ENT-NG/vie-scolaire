@@ -1838,6 +1838,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             else {
                 if (evaluation.id_appreciation !== undefined && evaluation.appreciation === "") {
                     evaluation.deleteAppreciation().then((res) => {
+                        evaluation.oldAppreciation = evaluation.appreciation;
                         if (res.rows === 1) {
                             evaluation.id_appreciation = undefined;
                             evaluation.data.id_appreciation = undefined;
@@ -1886,6 +1887,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         } else {
                             if (evaluation.id !== undefined && evaluation.valeur === "") {
                                 evaluation.delete().then((res) => {
+                                    evaluation.valid = true;
+                                    evaluation.oldValeur = evaluation.valeur;
                                     if ($location.$$path === '/releve') {
                                         $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
                                         $scope.calculStatsDevoirReleve(_.findWhere($scope.releveNote.devoirs.all,{id : evaluation.id_devoir}));

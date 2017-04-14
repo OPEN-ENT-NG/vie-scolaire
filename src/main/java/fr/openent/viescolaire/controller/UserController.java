@@ -40,6 +40,7 @@ import org.vertx.java.core.json.JsonObject;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -126,11 +127,15 @@ public class UserController extends ControllerHelper {
                         idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
                     }
 
-                    userService.getMoyenne(idEleve, idDevoirsArray, new Handler<JsonObject>() {
+                    userService.getMoyenne(idEleve, idDevoirsArray, new Handler<Either<String, JsonObject>>() {
 
                         @Override
-                        public void handle(JsonObject event) {
-                            Renders.renderJson(request, event);
+                        public void handle(Either<String, JsonObject> event) {
+                            if(event.isRight()) {
+                                Renders.renderJson(request, event.right().getValue());
+                            } else {
+                                leftToResponse(request, event.left());
+                            }
                         }
                     });
                 }

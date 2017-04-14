@@ -39,7 +39,7 @@ public interface UserService {
 
     public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-    public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<JsonObject> handler);
+    public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler);
 
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 

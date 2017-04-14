@@ -242,7 +242,7 @@ export class ReleveNote extends  Model implements IModel{
                         d.statistiques = devoir;
                         if(!d.percent) {
                             evaluations.devoirs.getPercentDone(d.id).then(() => {
-                               d.statistiques.percentDone = d.percent;
+                                d.statistiques.percentDone = d.percent;
                             });
                         } else {
                             d.statistiques.percentDone = d.percent;
@@ -367,15 +367,15 @@ export class Eleve extends Model implements IModel{
                     idDevoirsURL += "devoirs="+id+"&";
                 });
                 idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length-1);
-                if (idDevoirsURL) {
-                    http().getJson(this.api.getMoyenne+idDevoirsURL).done(function (res) {
-                        if (_.has(res, "moyenne")) {
-                            this.moyenne = res.moyenne;
-                            if(resolve && typeof(resolve) === 'function'){
-                                resolve();
-                            }
-                        }
-                    }.bind(this));
+                http().getJson(this.api.getMoyenne+idDevoirsURL).done(function (res) {
+                    if (!res.error) {
+                        this.moyenne = res.moyenne;
+                    } else {
+                        this.moyenne = "";
+                    }
+                }.bind(this));
+                if(resolve && typeof(resolve) === 'function'){
+                    resolve();
                 }
             }
         });
@@ -723,7 +723,7 @@ export class Devoir extends Model implements IModel{
         return new Promise((resolve, reject) => {
             if (classes.length > 0) {
                 http().postJson(this.api.duplicate, {classes: classes}).done((res) => {
-                   resolve();
+                    resolve();
                 });
             } else {
                 reject();
@@ -798,13 +798,19 @@ export class Devoir extends Model implements IModel{
         return new Promise((resolve, reject) => {
             let that = this;
             http().getJson(this.api.getStatsDevoir).done(function (res) {
-                that.statistiques = res;
-                let id = [];
-                id.push(that.id);
-                evaluations.devoirs.getPercentDone(id).then(() => {
-                    that.statistiques.percentDone = _.findWhere(evaluations.devoirs.all,{id : that.id}).percent;
-                    model.trigger('apply');
-                });
+                if(!res.error) {
+                    that.statistiques = res;
+                    let id = [];
+                    id.push(that.id);
+                    evaluations.devoirs.getPercentDone(id).then(() => {
+                        that.statistiques.percentDone = _.findWhere(evaluations.devoirs.all,{id : that.id}).percent;
+                    });
+                } else {
+                    _.mapObject(that.statistiques, (val) => {
+                        return "";
+                    });
+                }
+                model.trigger('apply');
                 if(resolve && typeof(resolve) === 'function'){
                     resolve();
                 }
@@ -1495,12 +1501,12 @@ export class Evaluations extends Model{
                             let url = '/viescolaire/eleves?idEtablissement='+this.model.structure.id;
                             //filtre par classe pour les enseignants
                             if((model.me.type === 'ENSEIGNANT')){
-                            evaluations.classes.forEach((classe) => {
-                                url += '&idClasse=' + classe.id;
-                            });
+                                evaluations.classes.forEach((classe) => {
+                                    url += '&idClasse=' + classe.id;
+                                });
                             }
                             if(model.me.type === 'PERSEDUCNAT'
-                            || model.me.type === 'ENSEIGNANT') {
+                                || model.me.type === 'ENSEIGNANT') {
                                 http().getJson(url).done((res) => {
                                     evaluations.eleves = [];
                                     for (let i = 0; i < res.length; i++) {

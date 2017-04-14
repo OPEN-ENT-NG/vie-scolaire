@@ -145,5 +145,5 @@ public interface DevoirService extends CrudService {
      * @param stats Booléen permettant de demander le calcul des statistique en plus
      * @param handler handler portant le résultat de la requête.
      */
-    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<JsonObject> handler);
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<Either<String, JsonObject>> handler);
  }

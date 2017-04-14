@@ -416,11 +416,15 @@ public class DevoirController extends ControllerHelper {
                 if(user != null) {
                     Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
                     boolean stats = Boolean.parseBoolean(request.params().get("stats"));
-                    devoirsService.getMoyenne(idDevoir, stats, new Handler<JsonObject>() {
+                    devoirsService.getMoyenne(idDevoir, stats, new Handler<Either<String, JsonObject>>() {
 
                         @Override
-                        public void handle(JsonObject event) {
-                            Renders.renderJson(request, event);
+                        public void handle(Either<String, JsonObject> event) {
+                            if(event.isRight()) {
+                                Renders.renderJson(request, event.right().getValue());
+                            } else {
+                                leftToResponse(request, event.left());
+                            }
                         }
                     });
                 }

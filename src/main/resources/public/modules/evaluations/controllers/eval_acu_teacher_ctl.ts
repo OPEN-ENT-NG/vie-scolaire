@@ -68,31 +68,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.classes = evaluations.classes;
             }
 
-            // /**
-            //  * Retourne la période courante
-            //  * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
-            //  */
-            // var setCurrentPeriode = function (): Promise<any> {
-            //     return new Promise((resolve, reject) => {
-            //         var formatStr = "DD/MM/YYYY";
-            //         var momentCurrDate = moment(moment().format(formatStr), formatStr);
-            //         $scope.currentPeriodeId = -1;
-            //         for (var i = 0; i < evaluations.periodes.all.length; i++) {
-            //             var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
-            //             var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
-            //             if (momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
-            //                 $scope.currentPeriodeId = evaluations.periodes.all[i].id;
-            //                 if (resolve && typeof (resolve) === 'function') {
-            //                     resolve(evaluations.periodes.all[i]);
-            //                 }
-            //             }
-            //         }
-            //         if (resolve && typeof (resolve) === 'function') {
-            //             resolve($scope.currentPeriodeId);
-            //         }
-            //     });
-            // };
-
             $scope.getDevoirsNotDone = function (idDevoirs?) {
                 return new Promise((resolve, reject) => {
                     if (!idDevoirs) {
@@ -184,67 +159,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 return item;
             }
         };
-
-
-        // /**
-        //  * Séquence de récupération d'un relevé de note
-        //  */
-        // $scope.getReleve = function () {
-        //     if($scope.search.periode !== undefined && $scope.search.periode !== '*') {
-        //         var p = {
-        //             idPeriode : parseInt($scope.search.periode.id)
-        //         };
-        //
-        //         if(evaluations.synchronized.classes !== 0) {
-        //             evaluations.classes.on('classes-sync', function () {
-        //                 var releve = new ReleveNote(p);
-        //                 evaluations.releveNotes.push(releve);
-        //                 $scope.releveNote = releve;
-        //                 $scope.releveNote.sync().then(() => {
-        //                     $scope.releveNote.synchronized.releve = true;
-        //                     $scope.releveNote.calculStatsDevoirs().then(() => {
-        //                         utils.safeApply($scope);
-        //                     });
-        //                     utils.safeApply($scope);
-        //                 });
-        //             });
-        //             return;
-        //         }
-        //         var releve = new ReleveNote(p);
-        //         evaluations.releveNotes.push(releve);
-        //         $scope.releveNote = releve;
-        //         $scope.releveNote.sync().then(() => {
-        //             $scope.releveNote.synchronized.releve = true;
-        //             $scope.releveNote.calculStatsDevoirs().then(() => {
-        //                 utils.safeApply($scope);
-        //             });
-        //             utils.safeApply($scope);
-        //         });
-        //
-        //         $scope.openedStudentInfo = false;
-        //     }
-        // };
-        //
-        // /**
-        //  * Return la periode scolaire courante
-        //  * @returns {any}
-        //  */
-        // $scope.periodeParDefault = function () {
-        //     let PeriodeParD = new Date().toISOString();
-        //     let PeriodeSet = false;
-        //     //let  PeriodeParD = new Date().getFullYear() +"-"+ new Date().getMonth() +1 +"-" +new Date().getDate();
-        //
-        //     for (let i = 0; i < $scope.periodes.all.length; i++) {
-        //         if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
-        //             PeriodeSet = true;
-        //             return $scope.periodes.all[i];
-        //         }
-        //     }
-        //     if (PeriodeSet === false) {
-        //         return $scope.textPeriode;
-        //     }
-        // };
-
         //permet de basculer sur l' écran de saisie de note en cliquant sur le diagramme
         $scope.SaisieNote = (points, evt) =>{
             if(points.length>0 && points !== undefined ){

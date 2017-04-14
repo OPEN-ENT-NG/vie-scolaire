@@ -711,7 +711,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<JsonObject> handler) {
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<Either<String, JsonObject>> handler) {
 
         noteService.getNotesParElevesParDevoirs(new String[0], new Long[]{idDevoir},
                 new Handler<Either<String, JsonArray>>() {
@@ -735,7 +735,18 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                                 notes.add(noteDevoir);
                             }
 
-                            handler.handle(utilsService.calculMoyenne(notes, stats, 20));
+                            Either<String, JsonObject> result;
+
+                            if(!notes.isEmpty()) {
+                                result = new Either.Right<>(utilsService.calculMoyenne(notes, stats, 20));
+                            } else {
+                                result = new Either.Right<>(new JsonObject());
+                            }
+
+                            handler.handle(result);
+
+                        } else {
+                            handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                         }
                     }
                 });

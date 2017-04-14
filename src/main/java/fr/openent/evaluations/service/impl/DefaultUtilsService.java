@@ -33,18 +33,27 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
+
+
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 
 /**
  * Created by ledunoiss on 05/08/2016.
  */
 public class DefaultUtilsService  implements UtilsService {
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);
+
     private final Neo4j neo4j = Neo4j.getInstance();
 
     @Override
@@ -178,8 +187,16 @@ public class DefaultUtilsService  implements UtilsService {
             }
         }
         Double moyenne = (notes/diviseur)*diviseurM;
-        DecimalFormat df = new DecimalFormat("##.##");
-        moyenne = Double.parseDouble(df.format(moyenne).replace(",", "."));
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("fr", "FR"));
+        symbols.setDecimalSeparator('.');
+
+        DecimalFormat df = new DecimalFormat("##.##", symbols);
+        try {
+            moyenne = Double.valueOf(df.format(moyenne));
+        } catch (NumberFormatException e) {
+            log.error("Moyenne : "+String.valueOf(moyenne), e);
+        }
         JsonObject r = new JsonObject().putNumber("moyenne", moyenne);
         if (statistiques) {
             r.putNumber("noteMax", noteMax).putNumber("noteMin", noteMin);

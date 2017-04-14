@@ -86,17 +86,17 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                     $scope.devoirsNotDone = devoirs;
                     $scope.devoirsClasses = _.filter(evaluations.classes.all, (classe) => {
                         return _.some(devoirs, (devoir) => {
-                            return devoir.id_groupe == classe.id;
+                            return devoir.id_groupe === classe.id;
                         });
                     });
                     $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses, 'name')).id;
                     $scope.loadChart($scope.chartOptions.selectedClasse);
                 });
-            }
+            };
 
             if (!evaluations.synchronized.devoirs) {
                 evaluations.devoirs.on('sync', () => {
-                    $scope.initChartListNotDone()
+                    $scope.initChartListNotDone();
                 });
             } else{
                 $scope.initChartListNotDone();

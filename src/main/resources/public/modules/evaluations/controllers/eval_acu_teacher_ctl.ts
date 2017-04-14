@@ -85,11 +85,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.getDevoirsNotDone().then((devoirs) => {
                     $scope.devoirsNotDone = devoirs;
                     $scope.devoirsClasses = _.filter(evaluations.classes.all, (classe) => {
-                        return (_.find(evaluations.devoirs.all, {'id_groupe' : classe.id, is_evaluated : true}));
-                    })
-                    $scope.chartOptions.selectedClasse = _.first(_.sortBy(_.filter(evaluations.classes.all, (classe) => {
-                        return _.contains(_.pluck(evaluations.devoirs.all, 'id_groupe'), classe.id);
-                    }), 'name')).id;
+                        return _.some(devoirs, (devoir) => {
+                            return devoir.id_groupe == classe.id;
+                        });
+                    });
+                    $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses, 'name')).id;
                     $scope.loadChart($scope.chartOptions.selectedClasse);
                 });
             }
@@ -118,6 +118,12 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                         names: _.pluck(devoirs, 'name'),
                         percents: _.pluck(devoirs, 'percent'),
                         id: _.pluck(devoirs, 'id')
+                    };
+                } else {
+                    $scope.chartOptions.classes[idClasse] = {
+                        names: [],
+                        percents: [],
+                        id: []
                     };
                 }
 

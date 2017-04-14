@@ -483,7 +483,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     })
                     .catch(() => {
                         notify.error(lang.translate('evaluation.duplicate.devoir.error'));
-                    })
+                    });
             }
         };
 
@@ -571,12 +571,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.selectClasse = function (selectedClasseId: string) {
             let classe = $scope.classes.findWhere({id : selectedClasseId});
-            if(classe !== undefined){
+            if(classe !== undefined) {
                 $scope.selected.classes.push({
                     id : selectedClasseId,
                     type_groupe : classe.type_groupe
                 });
-            }else{
+            } else {
                 $scope.selected.classes = _.reject($scope.selected.classes, (classe) => {
                     return classe.id === selectedClasseId;
                 });
@@ -609,15 +609,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         } else {
             for (let i = 0; i < evaluations.classes.all.length; i++) {
                 let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                    if( (_.findWhere($scope.eleves,{id: eleve.id })) === undefined){
-                        return _.extend(eleve,{
+                    if((_.findWhere($scope.eleves, {id: eleve.id})) === undefined) {
+                        return _.extend(eleve, {
                                 classEleve : evaluations.classes.all[i]
                             }
-                        );}
+                        );
+                    }
                 });
                 $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
             }
-
         }
 
         /**
@@ -1663,13 +1663,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
 
                 let p = {
-                    idEtablissement : $scope.evaluations.structure.id,
-                    idClasse : $scope.search.classe.id,
-                    idPeriode : $scope.search.periode,
-                    idMatiere : $scope.search.matiere.id
+                    idEtablissement: $scope.evaluations.structure.id,
+                    idClasse: $scope.search.classe.id,
+                    idPeriode: $scope.search.periode,
+                    idMatiere: $scope.search.matiere.id
                 };
 
-                if(currentPeriode !== null){
+                if (currentPeriode !== null) {
                     p.idPeriode = currentPeriode.id;
                 }
 
@@ -1981,7 +1981,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
             $scope.currentDevoir.calculStats().then(() => {
-                    utils.safeApply($scope);
+                utils.safeApply($scope);
             });
         };
 
@@ -2318,9 +2318,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.disabledDevoir=[];
         $rootScope.$on("$locationChangeSuccess", function ($event, $nextRoute, $oldRoute) {
             if( $oldRoute === $nextRoute && ($route.current.originalPath === '/devoir/:idDevoir/edit' || $route.current.originalPath === '/devoir/:idDevoir/edit/')  ){
-                     $scope.goTo('/');
-                        console.log('redirect');
-                        utils.safeApply($scope);
+                $scope.goTo('/');
+                console.log('redirect');
+                utils.safeApply($scope);
             }
             utils.safeApply($scope);
         });

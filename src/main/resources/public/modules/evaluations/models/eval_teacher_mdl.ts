@@ -348,7 +348,7 @@ export class ReleveNote extends  Model implements IModel{
             let that = this;
             let url = this.api.get;
             if(that.periode !== undefined && that.periode !== null && that.periode.id !== undefined) {
-                url += '&idPeriode='+that.idPeriode;
+                url += '&idPeriode=' + that.idPeriode;
             }
             http().getJson(url)
                 .done(function (res) {
@@ -521,7 +521,7 @@ export class Eleve extends Model implements IModel{
 
     get api() {
         return {
-            getMoyenne : '/viescolaire/evaluations/eleve/'+this.id+'/moyenne?'
+            getMoyenne : '/viescolaire/evaluations/eleve/' + this.id + '/moyenne?'
         }
     }
 
@@ -542,10 +542,10 @@ export class Eleve extends Model implements IModel{
             if (devoirs) {
                 let idDevoirsURL = "";
                 _.each(_.pluck(devoirs,'id'), (id) => {
-                    idDevoirsURL += "devoirs="+id+"&";
+                    idDevoirsURL += "devoirs=" + id + "&";
                 });
-                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length-1);
-                http().getJson(this.api.getMoyenne+idDevoirsURL).done(function (res) {
+                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length - 1);
+                http().getJson(this.api.getMoyenne + idDevoirsURL).done(function (res) {
                     if (!res.error) {
                         this.moyenne = res.moyenne;
                     } else {
@@ -774,7 +774,7 @@ export class Devoir extends Model implements IModel{
             getCompetencesLastDevoir : '/viescolaire/evaluations/competences/last/devoir/',
             getNotesDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/notes',
             getAppreciationDevoir: '/viescolaire/evaluations/appreciation/' + this.id + '/appreciations',
-            getStatsDevoir : '/viescolaire/evaluations/devoir/'+this.id+'/moyenne?stats=true',
+            getStatsDevoir : '/viescolaire/evaluations/devoir/' + this.id + '/moyenne?stats=true',
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/devoir/',
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
@@ -1172,9 +1172,9 @@ export class DevoirsCollection {
             if(idDevoirs && evaluations.structure.synchronized.devoirs) {
                 let idDevoirsURL = "";
                 _.each(idDevoirs, (id) => {
-                    idDevoirsURL += "devoirs="+id+"&";
+                    idDevoirsURL += "devoirs=" + id + "&";
                 });
-                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length-1);
+                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length - 1);
                 http().getJson(this.api.done + idDevoirsURL).done((res) => {
                     for (let id of idDevoirs) {
                         let calculatedPercent = _.findWhere(res, {id : id});
@@ -1183,9 +1183,9 @@ export class DevoirsCollection {
                     model.trigger('apply');
                     resolve();
                 })
-                .error(() => {
-                    reject();
-                });
+                    .error(() => {
+                        reject();
+                    });
             }
         });
     }

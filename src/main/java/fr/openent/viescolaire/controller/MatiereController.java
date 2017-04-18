@@ -79,8 +79,7 @@ public class MatiereController extends ControllerHelper {
                         matieresExternalList.add(classe + "$" + matiere.getObject("f").getObject("data").getString("externalId"));
                     }
 
-                    JsonObject n = new JsonObject();
-                    JsonObject enseignant = new JsonObject();
+                    JsonObject n, enseignant;
                     for(int i = 0; i < r.size(); i++){
                         n = r.get(i);
                         enseignant = n.getObject("n").getObject("data");
@@ -120,17 +119,16 @@ public class MatiereController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
-                if(user != null && user.getType().equals("Student")){
+                if(user != null && "Student".equals(user.getType())){
                     matiereService.listMatieresEleve(request.params().get("userId"), new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if(event.isRight()){
                                 JsonArray r = event.right().getValue();
                                 ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
-                                String key = new String();
-                                JsonObject f = new JsonObject();
+                                String key;
+                                JsonObject f;
                                 final JsonArray matieres = r;
-                                final JsonArray response = new JsonArray();
 
                                 for(int i = 0; i < r.size(); i++){
                                     JsonObject o = r.get(i);
@@ -146,7 +144,7 @@ public class MatiereController extends ControllerHelper {
                             }
                         }
                     });
-                }else if(user != null && user.getType().equals("Relative")){
+                }else if(user != null && "Relative".equals(user.getType())){
                     utilsService.getEnfants(user.getUserId(), new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
@@ -159,10 +157,9 @@ public class MatiereController extends ControllerHelper {
                                         if(event.isRight()){
                                             JsonArray r = event.right().getValue();
                                             ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
-                                            String key = new String();
-                                            JsonObject f = new JsonObject();
+                                            String key;
+                                            JsonObject f;
                                             final JsonArray matieres = r;
-                                            final JsonArray response = new JsonArray();
 
                                             for(int i = 0; i < r.size(); i++){
                                                 JsonObject o = r.get(i);
@@ -259,7 +256,7 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+                    if("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR")){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         matiereService.listMatieresEtab(user, handler);
                     }else{

@@ -3,8 +3,7 @@
   "version": "0.2.0",
   "main": "gulpfile.js",
   "dependencies": {
-    "toolkit": "git+https://git@github.com/entcore/toolkit.git#dev",
-    "axios" : "^0.15.2"
+    "toolkit": "git+https://git@github.com/entcore/toolkit.git#dev"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

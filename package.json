@@ -40,7 +40,6 @@
   "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
   "devDependencies": {
     "@types/core-js": "^0.9.35",
-    "@types/node": "^7.0.5",
-    "gulp-tslint": "^7.1.0"
+    "@types/node": "^7.0.5"
   }
 }

@@ -102,15 +102,15 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                         public void handle(Message<JsonObject> event) {
                             JsonObject result = event.body();
                             if (result.containsField("status") && "ok".equals(result.getString("status"))) {
-                                handler.handle(new Either.Right<>(new JsonObject().putNumber("id", devoirId)));
+                                handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
                             }
                             else {
-                                handler.handle(new Either.Left<>(result.getString("status")));
+                                handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
                             }
                         }
                     });
                 } else {
-                    handler.handle(new Either.Left<>(event.left().getValue()));
+                    handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                 }
             }
         }));

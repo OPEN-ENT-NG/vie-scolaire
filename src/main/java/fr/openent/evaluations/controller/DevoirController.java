@@ -349,8 +349,10 @@ public class DevoirController extends ControllerHelper {
                                         if (null != o && !idGroupes.contains(o.getString("id_groupe"))) {
                                             idGroupes.add(o.getString("id_groupe"));
                                         }
-                                        idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
-                                        nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
+                                        if (o != null) {
+                                            idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+                                            nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
+                                        }
                                     }
 
                                     classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {
@@ -460,7 +462,7 @@ public class DevoirController extends ControllerHelper {
                                                         JsonArray competences = result.right().getValue();
                                                         if (competences.size() > 0) {
                                                             JsonArray idCompetences = new JsonArray();
-                                                            JsonObject o = new JsonObject();
+                                                            JsonObject o;
                                                             for (int i = 0; i < competences.size(); i++) {
                                                                 o = competences.get(i);
                                                                 if (o.containsField("id")) {
@@ -484,6 +486,7 @@ public class DevoirController extends ControllerHelper {
                                 });
                             } catch (ClassCastException e) {
                                 log.error("idDevoir parameter must be a long object.");
+                                log.error(e);
                                 renderError(request);
                             }
                         }

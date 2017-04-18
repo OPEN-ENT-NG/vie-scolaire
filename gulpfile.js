@@ -213,32 +213,3 @@ gulp.task('build-mod', function () {
        });
     });
 });
-
-gulp.task('ts::lint::watch', function () {
-    return watch(['./src/main/ressources/public/modules/absences/*.ts',
-            '!./src/main/ressources/public/modules/**/*___jb_tmp___',
-            '!./src/main/ressources/public/modules/**/*___jb_old___'],
-        function () {
-            return gulp.src(['./src/main/ressources/public/modules/absences/*.ts',
-                '!./src/main/ressources/public/modules/**/*___jb_tmp___',
-                '!./src/main/ressources/public/modules/**/*___jb_old___'])
-                .pipe(tslint({
-                    formatter: "prose"
-                }))
-                .pipe(tslint.report({
-                    reportLimit: 2
-                }));
-        });
-});
-
-gulp.task('ts::lint', function () {
-    return gulp.src(['./src/main/ressources/public/modules/absences/*.ts',
-        '!./src/main/ressources/public/modules/**/*___jb_tmp___',
-        '!./src/main/ressources/public/modules/**/*___jb_old___'])
-        .pipe(tslint({
-            formatter: "prose"
-        }))
-        .pipe(tslint.report({
-            reportLimit: 2
-        }));
-});

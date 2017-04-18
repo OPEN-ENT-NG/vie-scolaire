@@ -16,6 +16,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
              * les URLS suprimé du fil d'ariane just après les avoir quitter
              * @type {[string]}
              */
+            $scope.$location = $location;
             $scope.ToDelete = [
                 "/devoir/create"
             ];

@@ -70,6 +70,7 @@ routes.define(function($routeProvider){
         .when('/competences/classe', {action : 'displaySuiviCompetencesClasse'})
         .when('/remplacements/list',{action:'listRemplacements'})
         .when('/remplacement/create',{action:'createRemplacements'})
+        .when('/disabled', {action : 'disabled'})
         .when('/',{action:'accueil'})
         .otherwise({
             redirectTo : '/'

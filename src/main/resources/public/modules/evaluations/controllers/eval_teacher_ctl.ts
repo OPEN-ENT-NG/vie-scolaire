@@ -10,42 +10,37 @@ declare let _:any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
-    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
-        $scope.opened = {
-            devoir : -1,
-            note : -1,
-            criteres : true,
-            details : true,
-            statistiques : true,
-            studentInfo : true,
-            devoirInfo : true,
-            lightbox : false,
-            lightboxEvalLibre : false,
-            lightboxs : {
-                updateDevoir : {
-                    firstConfirmSupp : false,
-                    secondConfirmSupp : false,
-                    evaluatedSkillDisabel : false
-                },
-                no : {
-                    structure : false
-                },
-                createDevoir : {
-                    firstConfirmSupp : false,
-                    secondConfirmSupp : false
-                }
-            },
-            accOp : 0,
-            evaluation : {
-                suppretionMsg1 : false,
-                suppretionMsg2 : false,
+    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout, $route) {
+        $scope.initPeriodesList = () => {
+            $scope.periodesList = {
+                "type": "select",
+                "name": "Service",
+                "value":  $scope.periodeParDefault(),
+                "values": []
+            };
+            _.map($scope.periodes.all, function (periode) {
+                $scope.periodesList.values.push(periode);
+            });
+            $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+        };
+
+        $scope.initSearch = () =>  {
+            return {
+                matiere: '*',
+                periode : $scope.periodeParDefault(),
+                classe : '*',
+                sousmatiere : '*',
+                type : '*',
+                idEleve : '*',
+                name : '',
+                duplication: ''
             }
         };
+
         route({
 
             accueil : function(params) {
-                if ($scope.evaluations.structure !== undefined) {
-
+                if (evaluations.structure !== undefined) {
                     $scope.cleanRoot();
 
                     // Chefs d'établissement
@@ -56,7 +51,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if ( $scope.Structure.synchronized.Eleve !== false) {
                         if($scope.isChefEtab() ) {
                             evaluations.on('eleves-sync', function () {
-                            $scope.Structure.eleves.all = evaluations.eleves;
+                                $scope.Structure.eleves.all = evaluations.eleves;
                                 utils.safeApply($scope);
                             });
                         }
@@ -68,8 +63,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                         }
                     }
-                }else{
-                    $scope.opened.lightboxs.no.structure = true;
                 }
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
                 utils.safeApply($scope);
@@ -198,16 +191,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.periodes.sync();
                     $scope.periodes.on('sync', function () {
                         $scope.search.periode = $scope.periodeParDefault();
-                        $scope.periodesList = {
-                            "type": "select",
-                            "name": "Service",
-                            "value":  $scope.periodeParDefault(),
-                            "values": []
-                        };
-                        _.map($scope.periodes.all, function (periode) {
-                            $scope.periodesList.values.push(periode);
-                        });
-                        $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+                        $scope.initPeriodesList();
                         utils.safeApply($scope);
                     });
                     template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
@@ -306,19 +290,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.periodes.sync();
                 $scope.periodes.on('sync', function () {
                     $scope.search.periode = $scope.periodeParDefault();
-                    $scope.periodesList = {
-                        "type": "select",
-                        "name": "Service",
-                        "value":  $scope.periodeParDefault(),
-                        "values": []
-                    };
-                    _.map($scope.periodes.all, function (periode) {
-                        $scope.periodesList.values.push(periode);
-                    });
-                    $scope.periodesList.values.push({
-                        libelle: $scope.translate('viescolaire.utils.annee'),
-                        id: undefined
-                    });
+                    $scope.initPeriodesList();
                     // Affichage des criteres par défaut quand on arrive sur le releve
                     $scope.openLeftMenu("opened.criteres", false);
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
@@ -381,10 +353,40 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 } else {
                     display();
                 }
+            },
+            disabled: () => {
+                template.open('main', '../templates/disabled_structure');
+                utils.safeApply($scope);
             }
         });
 
-
+        $scope.opened = {
+            devoir : -1,
+            note : -1,
+            criteres : true,
+            details : true,
+            statistiques : true,
+            studentInfo : true,
+            devoirInfo : true,
+            lightbox : false,
+            lightboxEvalLibre : false,
+            lightboxs : {
+                updateDevoir : {
+                    firstConfirmSupp : false,
+                    secondConfirmSupp : false,
+                    evaluatedSkillDisabel : false
+                },
+                createDevoir : {
+                    firstConfirmSupp : false,
+                    secondConfirmSupp : false
+                }
+            },
+            accOp : 0,
+            evaluation : {
+                suppretionMsg1 : false,
+                suppretionMsg2 : false,
+            }
+        };
 
         $scope.isChefEtab =() =>{
             return model.me.type === 'PERSEDUCNAT' &&
@@ -406,7 +408,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         }else{
             console.log("Periodes indéfinies, l'établissement ne doit pas être actif.");
         }
-        $scope.periodesWithYear= _.extendedDiagnostics
+        $scope.periodesWithYear= _.extendedDiagnostics;
         $scope.classes = evaluations.classes;
         $scope.types = evaluations.types;
         $scope.filter = $filter;
@@ -414,7 +416,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.currentDevoir = {};
         $scope.search = {
             matiere: '*',
-            periode : undefined,
+            periode : '*',
             classe : '*',
             sousmatiere : '*',
             type : '*',
@@ -463,7 +465,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.devoirs.sync().then(() => {
                             $scope.resetSelected();
                             $scope.opened.lightboxs.duplication = false;
-                           utils.safeApply($scope);
+                            utils.safeApply($scope);
                         });
                     })
                     .catch(() => {
@@ -479,55 +481,77 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         /**
          * Changement établissemnt : réinitial
          */
+        // $scope.changeEtablissement = () => {
+        //     $scope.evaluations.sync().then(()=>{
+        //         $scope.evaluations = evaluations;
+        //
+        //         evaluations.periodes.on('sync', function () {
+        //             setCurrentPeriode().then((defaultPeriode) => {
+        //                 $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+        //                 utils.safeApply($scope);
+        //             });
+        //         });
+        //         // On réinitialise les éléments de rech
+        //         $scope.search = {
+        //             matiere: '*',
+        //             periode : undefined,
+        //             classe : '*',
+        //             sousmatiere : '*',
+        //             type : '*',
+        //             idEleve : '*',
+        //             name : ''
+        //         };
+        //
+        //         $scope.periodes = evaluations.periodes;
+        //         $scope.periodes.sync();
+        //         $scope.classes = evaluations.classes;
+        //         $scope.devoirs = evaluations.devoirs;
+        //         $scope.matieres = evaluations.matieres;
+        //         utils.safeApply($scope);
+        //     });
+        // };
+
+        // $scope.updateEtabInfo = () =>{
+        //     // On récupère l'établissement sélectionné
+        //     $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement})
+        //     $scope.evaluations.sync().then(()=>{
+        //         $scope.evaluations = evaluations;
+        //
+        //         evaluations.periodes.on('sync', function () {
+        //             setCurrentPeriode().then((defaultPeriode) => {
+        //                 $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+        //                 utils.safeApply($scope);
+        //             });
+        //         });
+        //         $scope.periodes = evaluations.periodes;
+        //         $scope.periodes.sync();
+        //         $scope.classes = evaluations.classes;
+        //         $scope.devoirs = evaluations.devoirs;
+        //         $scope.matieres = evaluations.matieres;
+        //         utils.safeApply($scope);
+        //     });
+        // };
+
         $scope.changeEtablissement = () => {
-            $scope.evaluations.sync().then(()=>{
-                $scope.evaluations = evaluations;
-
-                evaluations.periodes.on('sync', function () {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                        utils.safeApply($scope);
-                    });
+            let init = () => {
+                $scope.initReferences();
+                $scope.search = $scope.initSearch();
+            };
+            if (!evaluations.structure.isSynchronized) {
+                evaluations.structure.sync().then(() => {
+                   init();
                 });
-                // On réinitialise les éléments de rech
-                $scope.search = {
-                    matiere: '*',
-                    periode : undefined,
-                    classe : '*',
-                    sousmatiere : '*',
-                    type : '*',
-                    idEleve : '*',
-                    name : ''
-                };
-
-                $scope.periodes = evaluations.periodes;
-                $scope.periodes.sync();
-                $scope.classes = evaluations.classes;
-                $scope.devoirs = evaluations.devoirs;
-                $scope.matieres = evaluations.matieres;
-                utils.safeApply($scope);
-            });
+            } else {
+                init();
+            }
         };
 
-        $scope.updateEtabInfo = () =>{
-            // On récupère l'établissement sélectionné
-            $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement})
-            $scope.evaluations.sync().then(()=>{
-                $scope.evaluations = evaluations;
-
-                evaluations.periodes.on('sync', function () {
-                    setCurrentPeriode().then((defaultPeriode) => {
-                        $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                        utils.safeApply($scope);
-                    });
-                });
-                $scope.periodes = evaluations.periodes;
-                $scope.periodes.sync();
-                $scope.classes = evaluations.classes;
-                $scope.devoirs = evaluations.devoirs;
-                $scope.matieres = evaluations.matieres;
-                utils.safeApply($scope);
-            });
+        $scope.switchStructureCreation = () => {
+            let structure = evaluations.structures.findWhere({id : $scope.devoir.id_etablissement});
+            if (structure !== undefined) {
+                evaluations.structure = structure;
+                $scope.changeEtablissement();
+            }
         };
 
         $scope.annulerDuplication = () => {
@@ -565,7 +589,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             }else{
                 $scope.selected.classes = _.reject($scope.selected.classes, (classe) => {
-                   return classe.id === selectedClasseId;
+                    return classe.id === selectedClasseId;
                 });
             }
         };
@@ -813,16 +837,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             utils.safeApply($scope);
         };
 
-        if($scope.periodes !== undefined) {
-            evaluations.periodes.on('sync', function () {
-                setCurrentPeriode().then((defaultPeriode) => {
-                    $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                    utils.safeApply($scope);
-                });
-            });
-        } else {
-            console.log("Periodes indéfinies, l'établissement ne doit pas être actif.");
-        }
+        // if($scope.periodes !== undefined) {
+        //     evaluations.periodes.on('sync', function () {
+        //         setCurrentPeriode().then((defaultPeriode) => {
+        //             $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
+        //             utils.safeApply($scope);
+        //         });
+        //     });
+        // } else {
+        //     console.log("Periodes indéfinies, l'établissement ne doit pas être actif.");
+        // }
 
         $scope.resetSelected = function () {
             $scope.selected = {
@@ -853,17 +877,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.initDevoir = function () {
             return new Devoir({
                 name : undefined,
-                date_publication  : new Date(),
-                date       : new Date(),
-                diviseur         : 20,
-                coefficient      : 1,
-                id_etablissement  : $scope.evaluations.structure.id,
-                ramener_sur       : false,
-                id_etat           : 1,
-                owner            : model.me.userId,
+                date_publication : new Date(),
+                date : new Date(),
+                diviseur : 20,
+                coefficient : 1,
+                id_etablissement : $scope.evaluations.structure.id,
+                ramener_sur : false,
+                id_etat : 1,
+                owner : model.me.userId,
                 matieresByClasse : [],
-                controlledDate   : true,
-                is_evaluated         : false
+                controlledDate : true,
+                is_evaluated : false
             });
         };
 
@@ -1288,23 +1312,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
 
             // Chargement des enseignements et compétences en fonction de la classe
-            evaluations.enseignements.sync($scope.devoir.id_groupe);
+            // evaluations.enseignements.sync($scope.devoir.id_groupe);
 
             if ($location.path() === "/devoirs/list") {
                 $scope.devoir.id_type = $scope.search.type.id;
                 $scope.devoir.id_sousmatiere = $scope.search.sousmatiere.id;
             }
 
-
             //template.open('lightboxContainer', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
             if($location.path() !== "/devoir/"+$scope.devoir.id+"/edit") {
                 template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
                 utils.safeApply($scope);
             }
-
-
         };
-
 
 // on ecoute sur l'evenement checkConnaissances
 // ie on doit ajouter/supprimer toutes les sous competences dans le recap
@@ -1768,8 +1788,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getClasseData = (idClasse, key) => {
             if ($scope.classes === undefined || idClasse == null || idClasse === ''
-                    || ($scope.classes === undefined || $scope.evaluations.classes === undefined)
-                    || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)){
+                || ($scope.classes === undefined || $scope.evaluations.classes === undefined)
+                || ($scope.classes.all.length === 0 &&  $scope.evaluations.classes.all.length === 0)){
                 return '';
             }
             let classe = $scope.classes.findWhere({id : idClasse});
@@ -2415,18 +2435,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any}
          */
         $scope.periodeParDefault = function () {
-            let PeriodeParD = new Date().toISOString();
-            let PeriodeSet = false;
-
-            for (let i = 0; i < $scope.periodes.all.length; i++) {
-                if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
-                    PeriodeSet = true;
-                    return $scope.periodes.all[i];
-                }
-            }
-            if (PeriodeSet === false) {
-                return $scope.textPeriode;
-            }
+            return utils.getDefaultPeriode($scope.periodes.all);
         };
 
         /**
@@ -2445,6 +2454,35 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             );
         };
 
+        $scope.initReferences = () => {
+            $scope.devoirs = evaluations.structure.devoirs;
+            $scope.enseignements = evaluations.structure.enseignements;
+            $scope.matieres = evaluations.structure.matieres;
+            $scope.releveNotes = evaluations.structure.releveNotes;
+            $scope.periodes = evaluations.structure.periodes;
+            $scope.classes = evaluations.structure.classes;
+            $scope.types = evaluations.structure.types;
+            $scope.eleves = evaluations.structure.eleves;
+            $scope.initPeriodesList();
+            utils.safeApply($scope);
+        };
 
+        evaluations.sync()
+            .then(() => {
+                $scope.structure = evaluations.structure;
+                evaluations.structure.sync().then(() => {
+                    $scope.initReferences();
+                });
+                if ($location.path() === '/disabled') {
+                    $location.path('/');
+                    $location.replace();
+                } else {
+                    $route.reload();
+                }
+            })
+            .catch(() => {
+                $location.path() === '/disabled' ? $route.reload() : $location.path('/disabled');
+                $location.replace();
+            });
     }
 ]);

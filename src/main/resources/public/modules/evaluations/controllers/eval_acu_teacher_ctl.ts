@@ -50,23 +50,14 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.devoirsNotDone = [];
             $scope.devoirsClasses = [];
 
-            evaluations.periodes.on('sync', function () {
-                setCurrentPeriode().then((defaultPeriode) => {
-                    $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-                    utils.safeApply($scope);
-                });
-            });
-
             $scope.periodes = evaluations.periodes;
+
             // Récupération des structures
             $scope.structures = evaluations.structures;
-            $scope.periodes.sync();
 
-
-            // Changement établissement
-            if (isChangementEtablissement === true) {
-                $scope.classes = evaluations.classes;
-            }
+            $scope.getDefaultPeriode = function () {
+                return utils.getDefaultPeriode($scope.periodes.all);
+            };
 
             /**
              * Retourne la période courante
@@ -95,37 +86,39 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
 
             $scope.getDevoirsNotDone = function (idDevoirs?) {
                 return new Promise((resolve, reject) => {
-                    if (!idDevoirs) {
-                        idDevoirs = _.pluck(_.where(evaluations.devoirs.all, {is_evaluated: true}), 'id');
+                    let calcPercent = () => {
+                        if (!idDevoirs) {
+                            idDevoirs = _.pluck(_.where($scope.devoirs.all, {is_evaluated: true}), 'id');
+                        }
+                        evaluations.structure.devoirs.getPercentDone(idDevoirs).then(() => {
+                            resolve($scope.devoirs.filter((devoir) => {
+                                return (devoir.percent < 100 && _.contains(idDevoirs, devoir.id));
+                            }));
+                        });
+                    };
+                    if (!evaluations.structure.synchronized.devoirs) {
+                        evaluations.structure.devoirs.one('sync', function () {
+                            calcPercent();
+                        });
+                    } else {
+                        calcPercent();
                     }
-                    evaluations.devoirs.getPercentDone(idDevoirs).then(() => {
-                        resolve(_.filter(evaluations.devoirs.all, (devoir) => {
-                            return (devoir.percent < 100 && _.contains(idDevoirs, devoir.id));
-                        }));
-                    });
+
                 });
             };
 
             $scope.initChartListNotDone = function () {
                 $scope.getDevoirsNotDone().then((devoirs) => {
                     $scope.devoirsNotDone = devoirs;
-                    $scope.devoirsClasses = _.filter(evaluations.classes.all, (classe) => {
-                        return (_.find(evaluations.devoirs.all, {'id_groupe' : classe.id, is_evaluated : true}));
-                    })
-                    $scope.chartOptions.selectedClasse = _.first(_.sortBy(_.filter(evaluations.classes.all, (classe) => {
-                        return _.contains(_.pluck(evaluations.devoirs.all, 'id_groupe'), classe.id);
+                    $scope.devoirsClasses = _.filter($scope.classes.all, (classe) => {
+                        return (_.find($scope.devoirs.all, {'id_groupe' : classe.id, is_evaluated : true}));
+                    });
+                    $scope.chartOptions.selectedClasse = _.first(_.sortBy(_.filter($scope.classes.all, (classe) => {
+                        return _.contains(_.pluck($scope.devoirs.all, 'id_groupe'), classe.id);
                     }), 'name')).id;
                     $scope.loadChart($scope.chartOptions.selectedClasse);
                 });
-            }
-
-            if (!evaluations.synchronized.devoirs) {
-                evaluations.devoirs.on('sync', () => {
-                    $scope.initChartListNotDone()
-                });
-            } else{
-                $scope.initChartListNotDone();
-            }
+            };
         };
 
         // Initialisation du Controler
@@ -140,7 +133,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         $scope.loadChart = function (idClasse) {
-            let idDevoirs = _.pluck(_.where(evaluations.devoirs.all, {id_groupe: idClasse}), 'id');
+            let idDevoirs = _.pluck($scope.devoirs.where({id_groupe: idClasse}), 'id');
             $scope.getDevoirsNotDone(idDevoirs).then((devoirs) => {
                 if (devoirs) {
                     $scope.chartOptions.classes[idClasse] = {
@@ -149,10 +142,8 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                         id: _.pluck(devoirs, 'id')
                     };
                 }
-
                 utils.safeApply($scope);
             });
-            utils.safeApply($scope);
         };
 
         /**
@@ -165,14 +156,23 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.goTo(path,idOfpath);
         };
 
-        /**
-        * Changement établissemnt : réinitial
-        * @param Eleve
-        */
         $scope.changeEtablissementAccueil = () => {
-            evaluations.sync().then(()=>{
-                $scope.initControler(true);
-            });
+            let switchEtab = () => {
+                $scope.initControler();
+                $scope.$parent.initReferences();
+                $scope.periodes = evaluations.structure.periodes;
+                $scope.search = $scope.$parent.initSearch();
+                $scope.search.periode =  $scope.getDefaultPeriode();
+                $scope.devoirs = evaluations.structure.devoirs;
+                $scope.initChartListNotDone();
+                utils.safeApply($scope);
+            };
+            if (!evaluations.structure.isSynchronized) {
+                evaluations.structure.sync().then(() => {
+                    switchEtab();
+                });
+            }
+            switchEtab();
         };
 
         /**
@@ -190,118 +190,18 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
 
-        /**
-         * Séquence de récupération d'un relevé de note
-         */
-        $scope.getReleve = function () {
-            if($scope.search.periode !== undefined && $scope.search.periode !== '*') {
-                var p = {
-                    idPeriode : parseInt($scope.search.periode.id)
-                };
+        evaluations.devoirs.on('sync', function () {
+            $scope.initChartListNotDone();
+        });
 
-                if(evaluations.synchronized.classes !== 0) {
-                    evaluations.classes.on('classes-sync', function () {
-                        var releve = new ReleveNote(p);
-                        evaluations.releveNotes.push(releve);
-                        $scope.releveNote = releve;
-                        $scope.releveNote.sync().then(() => {
-                            $scope.releveNote.synchronized.releve = true;
-                            $scope.releveNote.calculStatsDevoirs().then(() => {
-                                $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                utils.safeApply($scope);
-                            });
-                            utils.safeApply($scope);
-                        });
-                    });
-                    return;
-                }
-                var releve = new ReleveNote(p);
-                evaluations.releveNotes.push(releve);
-                $scope.releveNote = releve;
-                $scope.releveNote.sync().then(() => {
-                    $scope.releveNote.synchronized.releve = true;
-                    $scope.releveNote.calculStatsDevoirs().then(() => {
-                        $scope.releveNote.calculMoyennesEleves().then(() => {
-                            utils.safeApply($scope);
-                        });
-                        utils.safeApply($scope);
-                    });
-                    utils.safeApply($scope);
-                });
+        if (evaluations.structure.isSynchronized) {
+            $scope.initChartListNotDone();
+        }
 
-                $scope.openedStudentInfo = false;
-            }
-        };
-
-        /**
-         * Séquence de récupération d'un relevé de note
-         */
-        $scope.getReleve = function () {
-            if($scope.search.periode !== undefined && $scope.search.periode !== '*') {
-                var p = {
-                    idPeriode : parseInt($scope.search.periode.id)
-                };
-
-                if(evaluations.synchronized.classes !== 0) {
-                    evaluations.classes.on('classes-sync', function () {
-                        var releve = new ReleveNote(p);
-                        evaluations.releveNotes.push(releve);
-                        $scope.releveNote = releve;
-                        $scope.releveNote.sync().then(() => {
-                            $scope.releveNote.synchronized.releve = true;
-                            $scope.releveNote.calculStatsDevoirs().then(() => {
-                                $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                utils.safeApply($scope);
-                            });
-                            utils.safeApply($scope);
-                        });
-                    });
-                    return;
-                }
-                var releve = new ReleveNote(p);
-                evaluations.releveNotes.push(releve);
-                $scope.releveNote = releve;
-                $scope.releveNote.sync().then(() => {
-                    $scope.releveNote.synchronized.releve = true;
-                    $scope.releveNote.calculStatsDevoirs().then(() => {
-                        $scope.releveNote.calculMoyennesEleves().then(() => {
-                            utils.safeApply($scope);
-                        });
-                        utils.safeApply($scope);
-                    });
-                    utils.safeApply($scope);
-                });
-                // } else {
-                //     $scope.releveNote = rn;
-                //     utils.safeApply($scope);
-                // }
-
-                $scope.openedStudentInfo = false;
-            }
-        };
-        /**
-         * Return la periode scolaire courante
-         * @returns {any}
-         */
-        $scope.periodeParDefault = function () {
-            let PeriodeParD = new Date().toISOString();
-            let PeriodeSet = false;
-            //let  PeriodeParD = new Date().getFullYear() +"-"+ new Date().getMonth() +1 +"-" +new Date().getDate();
-
-            for (let i = 0; i < $scope.periodes.all.length; i++) {
-                if (PeriodeParD >= $scope.periodes.all[i].timestamp_dt && PeriodeParD <= $scope.periodes.all[i].timestamp_fn) {
-                    PeriodeSet = true;
-                    return $scope.periodes.all[i];
-                }
-            }
-            if (PeriodeSet === false) {
-                return $scope.textPeriode;
-            }
-        };
+        evaluations.periodes.on('sync', function () {
+            $scope.search = $scope.$parent.initSearch();
+            $scope.search.periode =  $scope.getDefaultPeriode();
+        });
 
         //permet de basculer sur l' écran de saisie de note en cliquant sur le diagramme
         $scope.SaisieNote = (points, evt) =>{

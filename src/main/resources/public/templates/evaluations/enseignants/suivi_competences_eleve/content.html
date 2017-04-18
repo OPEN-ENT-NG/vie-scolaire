@@ -17,10 +17,10 @@
   ~
   -->
 
-<div class="titre-widget ten centered" ng-show ="!isChefEtab() ">
+<article class="titre-widget ten centered" ng-show ="!isChefEtab() ">
     <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
     <autocomplete options="eleves" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-</div>
+</article>
 <div class="titre-widget ten centered" ng-show ="isChefEtab() ">
     <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
     <autocomplete options="Structure.eleves.all" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>

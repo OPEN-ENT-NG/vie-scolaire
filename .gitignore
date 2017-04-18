@@ -14,11 +14,11 @@ workspace.xml
 /bower_components
 /src/main/resources/public/ts/entcore
 /src/main/resources/public/temp
-/src/main/resourves/public/dist/*
-/src/test/
 /src/main/resources/public/modules/entcore
 /src/main/resources/public/templates/entcore
 /src/main/resources/view
 /manifests
 *.bat
-tslint.json
+.gitignore
+
+/src/test

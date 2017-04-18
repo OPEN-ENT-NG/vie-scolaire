@@ -67,13 +67,13 @@ export class WObservations extends Model {
 }
 
 export class Widget extends Model {
-    WAbsSansMotifs : WAbsSansMotifs;
-    WAppelsOublies : WAppelsOublies;
-    WObservations : WObservations;
+    WAbsSansMotifs: WAbsSansMotifs;
+    WAppelsOublies: WAppelsOublies;
+    WObservations: WObservations;
 }
 
 export class VieScolaire extends Model {
-    widget : Widget;
+    widget: Widget;
 
     constructor () {
         super();
@@ -95,4 +95,4 @@ export let vieScolaire = new VieScolaire();
 model.build = function () {
     (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();
-}
+};

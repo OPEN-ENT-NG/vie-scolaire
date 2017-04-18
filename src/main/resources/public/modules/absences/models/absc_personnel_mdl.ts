@@ -1,4 +1,4 @@
-import { model, http, Model, Collection, idiom as lang } from 'entcore/entcore';
+    import { model, http, Model, Collection, idiom as lang } from 'entcore/entcore';
 import { syncedCollection } from '../../utils/interfaces/syncedCollection';
 
 // Import des classes
@@ -100,7 +100,7 @@ class VieScolaire extends Model {
 let vieScolaire = new VieScolaire();
 
 // Export des classes
-export { vieScolaire, Appel, Motif, Justificatif, Evenement, Enseignant, Classe }
+export { vieScolaire, Appel, Motif, Justificatif, Evenement, Enseignant, Classe };
 
 model.build = function () {
     (this as any).vieScolaire = vieScolaire;

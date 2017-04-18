@@ -13,7 +13,7 @@ export let acuVieScolaireController = ng.controller('VscoAcuPersonnelController'
         $scope.widget = vieScolaire.widget;
 
         $scope.formatDate = function(pODateDebut, pODateFin){
-            return (moment(pODateDebut).format('DD/MM/YYYY')+" "+moment(pODateDebut).format('HH:mm')+"-"+moment(pODateFin).format('HH:mm'))
+            return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
         };
     }
 ]);

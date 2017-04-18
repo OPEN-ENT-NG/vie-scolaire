@@ -101,16 +101,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                         @Override
                         public void handle(Message<JsonObject> event) {
                             JsonObject result = event.body();
-                            if (result.containsField("status") && result.getString("status").equals("ok")) {
-                                handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
+                            if (result.containsField("status") && "ok".equals(result.getString("status"))) {
+                                handler.handle(new Either.Right<>(new JsonObject().putNumber("id", devoirId)));
                             }
                             else {
-                                handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
+                                handler.handle(new Either.Left<>(result.getString("status")));
                             }
                         }
                     });
                 } else {
-                    handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
+                    handler.handle(new Either.Left<>(event.left().getValue()));
                 }
             }
         }));
@@ -282,7 +282,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         try {
             o.putNumber("coefficient", Long.parseLong(o.getString("coefficient")));
         } catch (ClassCastException e) {
-            log.error("An error occured when casting devoir object to duplication format");
+            log.error("An error occured when casting devoir object to duplication format.");
+            log.error(e);
         }
         if (o.getString("libelle") == null) {
             o.removeField("libelle");
@@ -309,7 +310,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                         statements.add(tempStatements.get(j));
                     }
                 } catch (ClassCastException e) {
-                    log.error("Next id devoir must be a long Object");
+                    log.error("Next id devoir must be a long Object.");
+                    log.error(e);
                 }
 
             }

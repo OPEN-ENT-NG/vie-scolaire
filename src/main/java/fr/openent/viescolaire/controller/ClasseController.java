@@ -100,7 +100,7 @@ public class ClasseController extends BaseController {
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         List<String> idClasse = request.params().getAll("idClasse");
                         JsonArray idClasseArray = new JsonArray(idClasse.toArray());
-                        Boolean isTeacher = user.getType().equals("Teacher");
+                        Boolean isTeacher = "Teacher".equals(user.getType());
                         String idEtablissement = request.params().get("idEtablissement");
 
                         classeService.getEleveClasses(idEtablissement,idClasseArray,isTeacher, handler);

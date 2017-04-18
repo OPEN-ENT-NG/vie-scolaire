@@ -19,5 +19,6 @@ workspace.xml
 /src/main/resources/view
 /manifests
 *.bat
-tslint.json
 .gitignore
+
+/src/test

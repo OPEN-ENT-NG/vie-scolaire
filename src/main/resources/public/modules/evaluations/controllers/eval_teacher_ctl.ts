@@ -1746,7 +1746,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.filterValidClasse = () => {
             return (item) => {
                 return $scope.isValidClasse(item.id_groupe || item.id);
-            }
+            };
         };
 
         /**

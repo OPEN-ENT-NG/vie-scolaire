@@ -1494,7 +1494,9 @@ export class Evaluations extends Model{
                             }
                         });
                         this.classes.sync();
-                        this.classes.syncRemplacement();
+                        if(!isChefEtab()) {
+                            this.classes.syncRemplacement();
+                        }
                         let that = this;
                         evaluations.classes.on('classes-sync', function () {
                             //chargement des élèves Pour les enseignants ou personnel de l'établissement

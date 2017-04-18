@@ -45,7 +45,9 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             };
 
             $scope.initHeader = function(item){
-                return (item.open = false);
+                if(item.open === undefined) {
+                    return (item.open = false);
+                }
             };
 
             $scope.safeApply = function(fn) {

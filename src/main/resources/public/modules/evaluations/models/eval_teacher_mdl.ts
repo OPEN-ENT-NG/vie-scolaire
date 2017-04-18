@@ -1418,6 +1418,7 @@ export class Evaluations extends Model{
                                         });
                                         delete enseignement['competences_1'];
                                     });
+                                    evaluations.enseignements.trigger('sync');
                                 }.bind(this));
                             }
                         });

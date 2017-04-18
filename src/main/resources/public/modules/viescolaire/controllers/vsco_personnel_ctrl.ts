@@ -11,8 +11,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.safeApply = function(fn) {
             let phase = this.$root.$$phase;
-            if(phase == '$apply' || phase == '$digest') {
-                if(fn && (typeof(fn) === 'function')) {
+            if (phase === '$apply' || phase === '$digest') {
+                if (fn && (typeof(fn) === 'function')) {
                     fn();
                 }
             } else {

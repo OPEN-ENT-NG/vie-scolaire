@@ -53,9 +53,7 @@ public class GroupeEnseignementController extends ControllerHelper {
                         public void handle(Either<String, JsonArray> event) {
                             if(event.isRight()){
                                 JsonArray r = event.right().getValue();
-                                ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
-                                JsonObject groupeEnseignement = new JsonObject();
-                                JsonObject g = new JsonObject();
+                                JsonObject groupeEnseignement, g;
                                 JsonArray groupesEnseignementJsonArray = new JsonArray();
 
                                 for(int i = 0; i < r.size(); i++){
@@ -92,7 +90,7 @@ public class GroupeEnseignementController extends ControllerHelper {
                 if (user != null) {
                     final String groupId = request.params().get("groupId");
                     if (groupId != null && !groupId.trim().isEmpty()) {
-                        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);;
+                        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         final String profile = request.params().get("type");
                         groupeService.listUsersByGroupeEnseignementId(groupId, profile, handler);
                     }else{

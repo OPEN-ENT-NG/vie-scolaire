@@ -119,7 +119,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         JsonObject params = new JsonObject();
         JsonArray matieresListe = new JsonArray();
         for(int i = 0 ; i < ids.size(); i++){
-            matieresListe.addString(ids.get(i).toString());
+            matieresListe.addString(ids.get(i));
         }
         params.putArray("ids", matieresListe);
         query.append("MATCH (n:`FieldOfStudy`) WHERE n.id in {ids} RETURN n");

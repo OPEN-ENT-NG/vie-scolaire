@@ -233,7 +233,7 @@ public class DefaultUserService implements UserService {
      * @return true | false if the profile is a valid profile
      */
     private static boolean validProfile (JsonObject user) {
-        return user.getString("type").equals("Teacher") || user.getString("type").equals("Student");
+        return "Teacher".equals(user.getString("type")) || "Student".equals(user.getString("type"));
     }
 
     /**

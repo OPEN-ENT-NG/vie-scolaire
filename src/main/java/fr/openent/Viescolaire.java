@@ -159,8 +159,6 @@ public class Viescolaire extends BaseServer {
 		addController(new CompetenceNoteController());
 		addController(new RemplacementController());
 
-		addController(new SqlController());
-
 		// devoir table
 		SqlConf confDevoir = SqlConfs.createConf(DevoirController.class.getName());
 		confDevoir.setResourceIdLabel(DEVOIR_RESOURCE_ID);

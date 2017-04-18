@@ -19,7 +19,6 @@
 
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
-var tslint = require('gulp-tslint');
 var webpack = require('webpack-stream');
 var bower = require('gulp-bower');
 var merge = require('merge2');

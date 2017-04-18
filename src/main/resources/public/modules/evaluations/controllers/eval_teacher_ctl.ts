@@ -464,8 +464,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.synchronizeStudents =(idClasse) : boolean => {
             let _classe = evaluations.structure.classes.findWhere({id : idClasse});
             if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
-                _classe.eleves.sync();
-                return true;
+                _classe.eleves.sync().then(() => {
+                    utils.safeApply($scope);
+                    return true;
+                });
             }
             return false;
         };

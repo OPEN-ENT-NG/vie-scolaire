@@ -452,7 +452,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.synchronizeStudents = (idClasse) => {
-            let _classe = evaluations.classes.findWhere({id : idClasse});
+            let _classe = evaluations.structure.classes.findWhere({id : idClasse});
             if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
                 _classe.eleves.sync();
             }
@@ -478,60 +478,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.getPeriodeAnnee = () => {
             return {libelle: $scope.translate('viescolaire.utils.annee'), id: undefined}
         };
-
-        /**
-         * Changement établissemnt : réinitial
-         */
-        // $scope.changeEtablissement = () => {
-        //     $scope.evaluations.sync().then(()=>{
-        //         $scope.evaluations = evaluations;
-        //
-        //         evaluations.periodes.on('sync', function () {
-        //             setCurrentPeriode().then((defaultPeriode) => {
-        //                 $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-        //                 utils.safeApply($scope);
-        //             });
-        //         });
-        //         // On réinitialise les éléments de rech
-        //         $scope.search = {
-        //             matiere: '*',
-        //             periode : undefined,
-        //             classe : '*',
-        //             sousmatiere : '*',
-        //             type : '*',
-        //             idEleve : '*',
-        //             name : ''
-        //         };
-        //
-        //         $scope.periodes = evaluations.periodes;
-        //         $scope.periodes.sync();
-        //         $scope.classes = evaluations.classes;
-        //         $scope.devoirs = evaluations.devoirs;
-        //         $scope.matieres = evaluations.matieres;
-        //         utils.safeApply($scope);
-        //     });
-        // };
-
-        // $scope.updateEtabInfo = () =>{
-        //     // On récupère l'établissement sélectionné
-        //     $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement})
-        //     $scope.evaluations.sync().then(()=>{
-        //         $scope.evaluations = evaluations;
-        //
-        //         evaluations.periodes.on('sync', function () {
-        //             setCurrentPeriode().then((defaultPeriode) => {
-        //                 $scope.search.periode = (defaultPeriode !== -1) ? defaultPeriode : '*';
-        //                 utils.safeApply($scope);
-        //             });
-        //         });
-        //         $scope.periodes = evaluations.periodes;
-        //         $scope.periodes.sync();
-        //         $scope.classes = evaluations.classes;
-        //         $scope.devoirs = evaluations.devoirs;
-        //         $scope.matieres = evaluations.matieres;
-        //         utils.safeApply($scope);
-        //     });
-        // };
 
         $scope.changeEtablissement = () => {
             let init = () => {

@@ -168,8 +168,10 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 utils.safeApply($scope);
             };
             if (!evaluations.structure.isSynchronized) {
+                $scope.$parent.opened.displayStructureLoader = true;
                 evaluations.structure.sync().then(() => {
                     switchEtab();
+                    $scope.$parent.opened.displayStructureLoader = false;
                 });
             }
             switchEtab();

@@ -385,7 +385,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             evaluation : {
                 suppretionMsg1 : false,
                 suppretionMsg2 : false,
-            }
+            },
+            displayStructureLoader: false
         };
 
         $scope.isChefEtab =() =>{
@@ -536,8 +537,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             let init = () => {
                 $scope.initReferences();
                 $scope.search = $scope.initSearch();
+                $scope.opened.displayStructureLoader = false;
             };
             if (!evaluations.structure.isSynchronized) {
+                $scope.opened.displayStructureLoader = true;
                 evaluations.structure.sync().then(() => {
                    init();
                 });
@@ -2429,7 +2432,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }
             else
                 return true;
-        }
+        };
+
         /**
          * Return la periode scolaire courante
          * @returns {any}
@@ -2470,8 +2474,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         evaluations.sync()
             .then(() => {
                 $scope.structure = evaluations.structure;
+                $scope.opened.displayStructureLoader = true;
                 evaluations.structure.sync().then(() => {
                     $scope.initReferences();
+                    $scope.opened.displayStructureLoader = false;
                 });
                 if ($location.path() === '/disabled') {
                     $location.path('/');

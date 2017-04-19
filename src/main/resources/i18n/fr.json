@@ -11,6 +11,8 @@
   "viescolaire.manager":"Gestion",
   "viescolaire.contrib":"Contribution",
   "viescolaire.read":"Lecture",
+  "viescolaire.structure.load": "Chargement de l'établissement",
+  "viescolaire.structure.load.end": "en cours...",
   "unsetImage":"Supprimer l'image",
   "group.Teacher":"Tous les enseignants du groupe {0}.",
   "group.Personnel":"Tous les personnels du groupe {0}.",

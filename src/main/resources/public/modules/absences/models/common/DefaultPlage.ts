@@ -1,8 +1,3 @@
 import { Model } from 'entcore/entcore';
 
-export class DefaultPlage extends Model {
-
-    constructor () {
-        super();
-    }
-}
+export class DefaultPlage extends Model {}

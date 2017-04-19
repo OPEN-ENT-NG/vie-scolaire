@@ -88,7 +88,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== '' && $scope.search.classe !== '*') {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
-                //on met à jour le fil d'ariane
+                // on met à jour le fil d'ariane
                 let updatedUrl = '/competences/classe?idClasse='+$scope.search.classe.id + '&idPeriode='+ $scope.search.periode.id;
 
                 $rootScope.$broadcast('change-params', updatedUrl);

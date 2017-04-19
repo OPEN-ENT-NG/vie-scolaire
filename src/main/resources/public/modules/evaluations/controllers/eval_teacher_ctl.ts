@@ -11,6 +11,7 @@ declare let _:any;
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
     function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
+        $scope.MAX_NBR_COMPETENCE = 12;
         $scope.opened = {
             devoir : -1,
             note : -1,
@@ -604,7 +605,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_type !== undefined
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
-                && ($scope.devoir.is_evaluated || $scope.evaluations.competencesDevoir.length > 0)
+                && ($scope.devoir.is_evaluated
+                    || $scope.evaluations.competencesDevoir.length > 0)
+                && $scope.evaluations.competencesDevoir.length < $scope.MAX_NBR_COMPETENCE
             );
         };
 
@@ -1020,7 +1023,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
                 if(competence === undefined) {
-                    //if(!_.contains(evaluations.competencesDevoir, item)) {
+                    // if(!_.contains(evaluations.competencesDevoir, item)) {
                     evaluations.competencesDevoir.push(item);
                 }
             } else {
@@ -2327,10 +2330,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.cleanRoot();
                 window.scrollTo(0, 0);
                 $scope.resetSelected();
-                //on met à jour le fil d'ariane
-                let updatedUrl = '/devoir/'+ parseInt(params.devoirId);
 
-                $rootScope.$broadcast('change-params', updatedUrl);
                 if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                 if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                 $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id : parseInt(params.devoirId)});
@@ -2365,6 +2365,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                     template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
                     utils.safeApply($scope);
+                    //on met à jour le fil d'ariane
+                    let updatedUrl = '/devoir/'+ parseInt(params.devoirId);
+                    $rootScope.$broadcast('change-params', updatedUrl);
                 };
 
                 let _classe = evaluations.classes.findWhere({id : $scope.currentDevoir.id_groupe});

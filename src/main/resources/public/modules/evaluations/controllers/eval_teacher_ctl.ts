@@ -196,7 +196,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.updateEtabInfo = () =>{
             // On récupère l'établissement sélectionné
-            $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement})
+            $scope.evaluations.structure = _.findWhere($scope.evaluations.structures.all, {id : $scope.devoir.id_etablissement});
             $scope.evaluations.sync().then(()=>{
                 $scope.evaluations = evaluations;
 
@@ -928,6 +928,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.createDevoir = function () {
             if($location.path() === "/devoir/create") {
                 $scope.devoir = $scope.initDevoir();
+                $scope.updateEtabInfo();
             }
             //$scope.opened.lightbox = true;
             $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
@@ -949,7 +950,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
 
             //Séquence non exécutée lors de la modification d'un devoir
-            if($scope.devoir.id_periode === undefined) {
+            if($location.path() === "/devoir/create") {
                 $scope.setCurrentPeriode().then((defaultPeriode) => {
                     $scope.devoir.id_periode = defaultPeriode.id;
                     utils.safeApply($scope);
@@ -1453,7 +1454,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getLibellePeriode = function(idPeriode) {
             if (idPeriode == null || idPeriode === "") return "";
-            return _.findWhere($scope.periodes.all, {id : parseInt(idPeriode)}).libelle;
+            let myPeriode = _.findWhere($scope.periodes.all, {id : parseInt(idPeriode)});
+            if(myPeriode != undefined)
+                return myPeriode.libelle;
         };
 
         /**
@@ -1475,7 +1478,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.getLibelleMatiere = function(idMatiere) {
             if (idMatiere == null || idMatiere === "") return "";
-            return _.findWhere($scope.matieres.all, { id: idMatiere }).name;
+            let matiere = _.findWhere($scope.matieres.all, { id: idMatiere });
+            if(matiere != undefined)
+                return matiere.name;
         };
 
         /**
@@ -1486,7 +1491,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.getLibelleSousMatiere = function(idSousMatiere) {
             if (idSousMatiere == null || idSousMatiere === "" || idSousMatiere == undefined) return "";
             $scope.selectedMatiere();
-            return _.findWhere($scope.devoir.matiere.sousMatieres.all, {id : parseInt(idSousMatiere)}).libelle;
+            let sousmatiere = _.findWhere($scope.devoir.matiere.sousMatieres.all, {id : parseInt(idSousMatiere)});
+            if(sousmatiere != undefined)
+                return sousmatiere.libelle;
         };
 
 

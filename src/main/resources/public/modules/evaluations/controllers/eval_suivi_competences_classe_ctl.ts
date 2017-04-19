@@ -80,6 +80,12 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             utils.safeApply($scope);
         });
 
+        $scope.switchEtablissementSuivi = () => {
+            delete $scope.suiviCompetence;
+            delete $scope.informations.classe;
+            $scope.changeEtablissement();
+        };
+
         /**
          * Créer une suivi de compétence
          */

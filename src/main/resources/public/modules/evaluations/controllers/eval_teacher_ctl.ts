@@ -2115,7 +2115,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             editDevoir : function (params) {
                 let loadUpdate = function () {
                     $scope.cleanRoot();
-                    var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                    var devoirTmp = evaluations.devoirs.findWhere({id: parseInt(params.idDevoir)});
                     $scope.devoir = $scope.initDevoir();
                     $scope.devoir.id_groupe = devoirTmp.id_groupe;
                     $scope.devoir.id = devoirTmp.id;
@@ -2215,47 +2215,64 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         });
 
                         template.open('main', '../templates/evaluations/enseignants/creation_devoir/display_creation_devoir');
-
                         utils.safeApply($scope);
                     });
-                }
+                };
+
+                // GESTION DU F5: On attend la synchronisation de toutes les données
+                // dont a besoin l'écran
                 if ( evaluations.devoirs === undefined || evaluations.devoirs.all.length === 0
                     || evaluations.enseignements.all.length === 0 || evaluations.enseignements === undefined) {
                     let synchronized = {
                         devoirs: false,
                         enseignements: false
                     };
-
-                    evaluations.devoirs.on('sync', function () {
-                        if(!synchronized.devoirs) {
-                            synchronized.devoirs = true;
-                            let d = evaluations.devoirs.findWhere({id: parseInt(params.idDevoir)});
-                            if (d === undefined) {
-                                $scope.goTo('/');
-                            } else if(synchronized.enseignements){
-                                loadUpdate();
-                            }
-                        }
-                    });
-
-                    evaluations.enseignements.on('sync', function () {
-                        if(!synchronized.enseignements) {
-                            $scope.enseignements = evaluations.enseignements;
-                            $scope.initFilter(true);
-                            synchronized.enseignements = true;
-                            if (synchronized.devoirs) {
-                                let d = evaluations.devoirs.findWhere({id: parseInt(params.idDevoir)});
-                                if (d === undefined) {
-                                    $scope.goTo('/');
-                                } else {
-                                    loadUpdate();
+                    let wait = undefined;
+                    console.dir(evaluations);
+                    let reload = function () {
+                        if (evaluations.devoirs !== undefined) {
+                            evaluations.devoirs.on('sync', function () {
+                                if (!synchronized.devoirs) {
+                                    synchronized.devoirs = true;
+                                    let d = evaluations.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                                    if (d === undefined) {
+                                        $scope.goTo('/');
+                                    } else if (synchronized.enseignements) {
+                                        loadUpdate();
+                                    }
                                 }
-                            }
+                            });
                         }
-                    })
-                } else {
+                        if (evaluations.enseignements !== undefined) {
+                            evaluations.enseignements.on('sync', function () {
+                                if (!synchronized.enseignements) {
+                                    $scope.enseignements = evaluations.enseignements;
+                                    $scope.initFilter(true);
+                                    synchronized.enseignements = true;
+                                    if (synchronized.devoirs) {
+                                        let d = evaluations.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                                        if (d === undefined) {
+                                            $scope.goTo('/');
+                                        } else {
+                                            loadUpdate();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    };
+
+                    if (evaluations.enseignements === undefined || evaluations.devoirs === undefined){
+                        // si les collections ne sont pas définies on attend qu'elles le soient TODO
+                    }
+                    else {
+                        reload();
+                    }
+                }
+                else {
                     loadUpdate();
                 }
+
             },
 
             listDevoirs : function(params){

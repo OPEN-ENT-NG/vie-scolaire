@@ -1,4 +1,4 @@
-import { DefaultAppel } from '../common/impl/DefaultAppel';
+import { DefaultAppel } from '../common/DefaultAppel';
 
 export class Appel extends DefaultAppel {
     constructor (o?: any) {

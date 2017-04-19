@@ -368,6 +368,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         route(routesActions);
 
+        $scope.MAX_NBR_COMPETENCE = 12;
         $scope.opened = {
             devoir : -1,
             note : -1,
@@ -923,7 +924,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_type !== undefined
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
-                && ($scope.devoir.is_evaluated || $scope.evaluations.competencesDevoir.length > 0)
+                && ($scope.devoir.is_evaluated
+                    || $scope.evaluations.competencesDevoir.length > 0)
+                && $scope.evaluations.competencesDevoir.length < $scope.MAX_NBR_COMPETENCE
             );
         };
 
@@ -1334,7 +1337,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
                 if(competence === undefined) {
-                    //if(!_.contains(evaluations.competencesDevoir, item)) {
+                    // if(!_.contains(evaluations.competencesDevoir, item)) {
                     evaluations.competencesDevoir.push(item);
                 }
             } else {

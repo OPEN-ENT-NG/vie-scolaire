@@ -61,7 +61,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
 
 
             $scope.suiviFilter = {
-                mine : 'false'
+                mine : 'true'
             };
 
             $scope.selected.colors = {

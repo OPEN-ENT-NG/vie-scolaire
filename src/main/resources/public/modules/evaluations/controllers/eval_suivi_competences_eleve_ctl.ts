@@ -215,7 +215,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.suiviFilter = {
-            mine: 'false'
+            mine: 'true'
         };
 
         $scope.opened.detailCompetenceSuivi = false;

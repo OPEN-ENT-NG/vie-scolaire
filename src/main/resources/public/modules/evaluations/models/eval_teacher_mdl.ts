@@ -350,7 +350,6 @@ export class ReleveNote extends  Model implements IModel{
                     }
                     if (_devoirs.length > 0) {
                         this.load(_devoirs);
-                        that.trigger('format');
                     }
                 }
             }
@@ -360,9 +359,16 @@ export class ReleveNote extends  Model implements IModel{
     syncClasse () : Promise<any> {
         return new Promise((resolve, reject) => {
             let c = _.findWhere(evaluations.classes.all, {id : this.idClasse});
-            this.classe.eleves.load($.extend(true, [], c.eleves.all));
-            this.synchronized.classe = true;
-            resolve();
+            if (c.eleves.all.length === 0) {
+                this.classe.eleves.sync().then(() => {
+                    this.synchronized.classe = true;
+                    resolve();
+                });
+            } else {
+                this.classe.eleves.load($.extend(true, [], c.eleves.all));
+                this.synchronized.classe = true;
+                resolve();
+            }
         });
     }
 
@@ -395,9 +401,7 @@ export class ReleveNote extends  Model implements IModel{
             var that = this;
 
             this.on('format', function () {
-                let _notes;
-                let _devoirs;
-                let _eleves;
+                let _notes ,_devoirs, _eleves;
                 if(that._tmp) {
                     _notes = that._tmp.notes;
                     _devoirs = that._tmp.devoirs;
@@ -408,7 +412,7 @@ export class ReleveNote extends  Model implements IModel{
                     let _t = _.where(_notes, {id_eleve: eleve.id});
                     _.each(that.devoirs.all, (devoir) => {
                         let devoirPeriode = evaluations.structure.periodes.findWhere({id: devoir.id_periode});
-                        let endSaisie = undefined;
+                        let endSaisie: boolean;
                         let date_saisie = devoirPeriode.date_fin_saisie;
                         let current_date = new Date();
                         endSaisie = moment(date_saisie).diff(moment(current_date), "days") < 0;
@@ -475,6 +479,83 @@ export class ReleveNote extends  Model implements IModel{
             this.syncClasse().then(() => {
                 callFormating();
             });
+        });
+    }
+
+    calculStatsDevoirs() : Promise<any> {
+
+        return new Promise((resolve, reject) => {
+            this.on('noteOK', function () {
+                var that = this;
+                var _datas = [];
+                _.each(that.devoirs.all, function (devoir) {
+                    var _o = {
+                        id: String(devoir.id),
+                        evaluations: []
+                    };
+                    _.each(that.classe.eleves.all, function (eleve) {
+                        var _e = eleve.evaluations.findWhere({id_devoir: devoir.id});
+
+                        if (_e !== undefined && _e.valeur !== "") _o.evaluations.push(_e.formatMoyenne());
+                    });
+                    if (_o.evaluations.length > 0) _datas.push(_o);
+                });
+                if (_datas.length > 0) {
+                    http().postJson('/viescolaire/evaluations/moyennes?stats=true', {data: _datas}).done(function (res) {
+                        _.each(res, function (devoir) {
+                            var nbEleves = that.classe.eleves.all.length;
+                            var nbN = _.findWhere(_datas, {id: devoir.id});
+                            var d = that.devoirs.findWhere({id: parseInt(devoir.id)});
+                            if (d !== undefined) {
+                                d.statistiques = devoir;
+                                if (nbN !== undefined) {
+                                    d.statistiques.percentDone = Math.round((nbN.evaluations.length / nbEleves) * 100);
+                                    d.percent = d.statistiques.percentDone;
+                                    if (resolve && typeof(resolve) === 'function') {
+                                        resolve();
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    calculMoyennesEleves() : Promise<any> {
+        return new Promise((resolve, reject) => {
+            var that = this;
+            var _datas = [];
+            _.each(this.classe.eleves.all, function (eleve) {
+                var _t = eleve.evaluations.filter(function (evaluation) {
+                    return evaluation.valeur !== "" && evaluation.valeur !== null && evaluation.valeur !== undefined && evaluation.is_evaluated === true;
+                });
+                if (_t.length > 0) {
+                    var _evals = [];
+                    for (var i = 0; i < _t.length; i++) {
+                        _evals.push(_t[i].formatMoyenne());
+                    }
+                    var _o = {
+                        id: eleve.id,
+                        evaluations: _evals
+                    };
+                    _datas.push(_o);
+                }
+            });
+            if (_datas.length > 0) {
+                http().postJson('/viescolaire/evaluations/moyennes', {data: _datas}).done(function (res) {
+                    _.each(res, function (eleve) {
+                        var e = that.classe.eleves.findWhere({id: eleve.id});
+                        if (e !== undefined) {
+                            e.moyenne = eleve.moyenne;
+                            if (resolve && typeof(resolve) === 'function') {
+                                resolve();
+                            }
+                        }
+                    });
+                });
+            }
         });
     }
 }
@@ -1202,7 +1283,10 @@ export class DevoirsCollection {
                     .done((res) => {
                         for (let id of idDevoirs) {
                             let calculatedPercent = _.findWhere(res, {id : id});
-                            _.findWhere(this.all, {id : id}).percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
+                            let devoir = _.findWhere(this.all, {id : id});
+                            if (devoir !== undefined) {
+                                devoir.percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
+                            }
                         }
                         model.trigger('apply');
                         resolve();

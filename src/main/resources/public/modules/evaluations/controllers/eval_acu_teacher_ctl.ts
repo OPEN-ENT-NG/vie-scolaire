@@ -60,31 +60,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 return utils.getDefaultPeriode($scope.periodes.all);
             };
 
-            /**
-             * Retourne la période courante
-             * @returns {Promise<T>} Promesse retournant l'identifiant de la période courante
-             */
-            var setCurrentPeriode = function (): Promise<any> {
-                return new Promise((resolve, reject) => {
-                    var formatStr = "DD/MM/YYYY";
-                    var momentCurrDate = moment(moment().format(formatStr), formatStr);
-                    $scope.currentPeriodeId = -1;
-                    for (var i = 0; i < evaluations.periodes.all.length; i++) {
-                        var momentCurrPeriodeDebut = moment(moment(evaluations.periodes.all[i].timestamp_dt).format(formatStr), formatStr);
-                        var momentCurrPeriodeFin = moment(moment(evaluations.periodes.all[i].timestamp_fn).format(formatStr), formatStr);
-                        if (momentCurrPeriodeDebut.diff(momentCurrDate) <= 0 && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
-                            $scope.currentPeriodeId = evaluations.periodes.all[i].id;
-                            if (resolve && typeof (resolve) === 'function') {
-                                resolve(evaluations.periodes.all[i]);
-                            }
-                        }
-                    }
-                    if (resolve && typeof (resolve) === 'function') {
-                        resolve($scope.currentPeriodeId);
-                    }
-                });
-            };
-
             $scope.getDevoirsNotDone = function (idDevoirs?) {
                 return new Promise((resolve, reject) => {
                     let calcPercent = () => {

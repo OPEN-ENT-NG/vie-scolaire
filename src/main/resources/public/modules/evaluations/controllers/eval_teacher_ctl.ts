@@ -290,24 +290,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             displayReleveNotes : function(params) {
                 if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
                     $scope.cleanRoot();
-                    //rajout de la periode Annee
-                    $scope.periodes.sync();
-                    $scope.periodes.on('sync', function () {
-                        $scope.search.periode = $scope.periodeParDefault();
-                        $scope.initPeriodesList();
-                        // Affichage des criteres par défaut quand on arrive sur le releve
-                        $scope.openLeftMenu("opened.criteres", false);
-                        if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
-                        if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                        if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
-                            || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
-                            $scope.releveNote = undefined;
-                        }
-                        if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
-                            $scope.getReleve();
-                        }
-                        utils.safeApply($scope);
-                    });
+                    $scope.search.periode = $scope.periodeParDefault();
+                    $scope.initPeriodesList();
+                    // Affichage des criteres par défaut quand on arrive sur le releve
+                    $scope.openLeftMenu("opened.criteres", false);
+                    if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
+                    if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
+                    if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
+                        || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
+                        $scope.releveNote = undefined;
+                    }
+                    if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
+                        $scope.getReleve();
+                    }
+                    utils.safeApply($scope);
                     template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 }
             },
@@ -1678,20 +1674,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     p.idPeriode = currentPeriode.id;
                 }
 
-                // var rn = evaluations.releveNotes.findWhere(p);
-                // if (rn === undefined) {
-                if (evaluations.structure.isSynchronized) {
-                    $scope.releveNote = new ReleveNote(p);
+                let syncReleveNote = () => {
+                    let releve = new ReleveNote(p);
+                    evaluations.releveNotes.push(releve);
+                    $scope.releveNote = releve;
                     $scope.releveNote.sync().then(() => {
                         $scope.releveNote.synchronized.releve = true;
-                        $scope.releveNote.calculStatsDevoirs().then(() => {
-                            $scope.releveNote.calculMoyennesEleves().then(() => {
                                 utils.safeApply($scope);
                             });
-                        });
-                        utils.safeApply($scope);
-                    });
+                };
+
+                if ($scope.synchronizeStudents($scope.search.classe.id)) {
+                    $scope.search.classe.on('sync', syncReleveNote);
+                } else {
+                    syncReleveNote();
                 }
+
                 $scope.openedStudentInfo = false;
                 utils.safeApply($scope);
             }

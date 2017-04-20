@@ -286,7 +286,7 @@ export class ReleveNote extends  Model implements IModel{
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere,
+            get : '/viescolaire/evaluations/releve?idEtablissement='+this.structure.id+'&idClasse='+this.idClasse+'&idMatiere='+this.idMatiere
         }
     }
 
@@ -372,9 +372,7 @@ export class ReleveNote extends  Model implements IModel{
             var that = this;
 
             this.on('format', function () {
-                let _notes;
-                let _devoirs;
-                let _eleves;
+                let _notes, _devoirs, _eleves;
                 if(that._tmp) {
                     _notes = that._tmp.notes;
                     _devoirs = that._tmp.devoirs;

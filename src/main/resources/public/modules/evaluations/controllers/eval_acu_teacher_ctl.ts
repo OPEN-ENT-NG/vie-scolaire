@@ -14,6 +14,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.search = {
                 matiere: '*',
                 periode: undefined,
+                enseignant: '*',
                 classe: '*',
                 sousmatiere: '*',
                 type: '*',

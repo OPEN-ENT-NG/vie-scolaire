@@ -9,6 +9,7 @@ export class Structure extends Model implements IModel{
     id: string;
     libelle: string;
     eleves : Collection<Eleve>;
+    enseignants : Collection<Enseignant>;
     devoirs : Devoirs;
     synchronized: any;
     classes : Collection<Classe>;
@@ -23,6 +24,7 @@ export class Structure extends Model implements IModel{
     get api () {
         return  {
             getEleves : '/viescolaire/evaluations/eleves?idEtablissement=' + this.id,
+            getEnseignants : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
             getClasses: '/viescolaire/evaluations/classes?idEtablissement=' + this.id,
             TYPE : {
@@ -61,7 +63,11 @@ export class Structure extends Model implements IModel{
             types: false,
             enseignements: false
         };
+        if (isChefEtab()) {
+            this.synchronized.enseignants = false;
+        }
         let that: Structure = this;
+        this.collection(Enseignant);
         this.collection(Eleve, {
             sync : function () {
                 //chargement des élèves Pour les enseignants ou personnel de l'établissement
@@ -81,7 +87,7 @@ export class Structure extends Model implements IModel{
                 }
             }
         });
-        this.collection(Type, {
+    this.collection(Type, {
             sync: function () {
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.TYPE.synchronization).done(function (res) {
@@ -221,6 +227,9 @@ export class Structure extends Model implements IModel{
                     this.synchronized.classes &&
                     this.synchronized.enseignements &&
                     this.synchronized.devoirs;
+                if (isChefEtab()) {
+                    b = b && this.synchronized.enseignants;
+                }
                 if (b) {
                     this.isSynchronized = true;
                     resolve();
@@ -232,9 +241,11 @@ export class Structure extends Model implements IModel{
             this.classes.sync().then(isSynced);
             this.enseignements.sync().then(isSynced);
             this.syncDevoirs().then(isSynced);
+            if (isChefEtab()) {
+                this.syncEnseignants().then(isSynced);
+            }
         });
     }
-
     syncDevoirs () :  Promise<any> {
         return new Promise((resolve, reject) => {
             this.devoirs.sync().then((data) =>{
@@ -242,6 +253,18 @@ export class Structure extends Model implements IModel{
                 this.devoirs.trigger('devoirs-sync');
                 resolve();
             });
+        });
+    }
+
+    syncEnseignants () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().getJson(this.api.getEnseignants+this.id).done(function(res) {
+                this.enseignants.load(res);
+                this.synchronized.enseignants = true;
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve();
+                }
+            }.bind(this));
         });
     }
 
@@ -372,7 +395,9 @@ export class ReleveNote extends  Model implements IModel{
             var that = this;
 
             this.on('format', function () {
-                let _notes, _devoirs, _eleves;
+                let _notes;
+                let _devoirs;
+                let _eleves;
                 if(that._tmp) {
                     _notes = that._tmp.notes;
                     _devoirs = that._tmp.devoirs;

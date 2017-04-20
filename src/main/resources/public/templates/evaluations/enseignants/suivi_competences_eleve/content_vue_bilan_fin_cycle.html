@@ -28,7 +28,7 @@
                     <div class="maitrise-bfc" ng-repeat ="Conversion in suiviCompetence.tableConversions.all track by $index ">
                         <div ng-if = " ($index !== 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <  Conversion.valmax) || ($index === 0 && domaine.moyenne >= Conversion.valmin && domaine.moyenne <= Conversion.valmax)">
                                 <div ng-if = " domaine.bfc !== undefined">
-                                    <i class="refresh" aria-hidden="true" ng-click="deleteBFC()" tooltip="<i18n>evaluation.domaine.average.refresh</i18n>[[Conversion.libelle]] ([[domaine.moyenne.toFixed(2)]])"></i>
+                                    <i class="reset" aria-hidden="true" ng-click="deleteBFC()" tooltip="<i18n>evaluation.domaine.average.refresh</i18n>[[Conversion.libelle]] ([[domaine.moyenne.toFixed(2)]])"></i>
                                 </div>
                                 <div ng-if = " domaine.bfc === undefined" >
                                     [[Conversion.libelle]] ([[domaine.moyenne.toFixed(2)]])

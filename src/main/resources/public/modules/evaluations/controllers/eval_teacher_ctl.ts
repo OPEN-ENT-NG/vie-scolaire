@@ -33,6 +33,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 type : '*',
                 idEleve : '*',
                 name : '',
+                enseignant: '*',
                 duplication: ''
             }
         };
@@ -197,6 +198,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     let openTemplates = () => {
                         //rajout de la periode Annee
                         $scope.periodes.sync();
+                        $scope.search.enseignant ="*";
                         $scope.periodes.on('sync', function () {
                             $scope.search.periode = $scope.periodeParDefault();
                             $scope.initPeriodesList();
@@ -432,6 +434,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
+            enseignant : '*',
             name : '',
             duplication: ''
         };
@@ -2376,6 +2379,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.classes = evaluations.structure.classes;
             $scope.types = evaluations.structure.types;
             $scope.eleves = evaluations.structure.eleves;
+            $scope.enseignants = evaluations.structure.enseignants;
             $scope.initPeriodesList();
             utils.safeApply($scope);
         };

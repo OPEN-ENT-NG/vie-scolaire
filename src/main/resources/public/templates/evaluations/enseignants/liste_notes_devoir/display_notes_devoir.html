@@ -46,6 +46,9 @@
                     <section ng-if="currentDevoir.libelle !== null">
                         <label><i18n class="bold">viescolaire.utils.description</i18n> : [[currentDevoir.libelle]]</label>
                     </section>
+                    <section ng-if="isChefEtab()">
+                        <span class="bold"><i18n>evaluations.test.teacher</i18n></span> : [[currentDevoir.teacher]]
+                    </section>
                     <section><span class="bold"><i18n>viescolaire.utils.class</i18n></span> : [[getClasseData(currentDevoir.id_groupe, 'name')]]</section>
 
                     <section>

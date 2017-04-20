@@ -307,8 +307,63 @@ public class DevoirController extends ControllerHelper {
                 Viescolaire.SCHEMA_DEVOIRS_UPDATE, new Handler<JsonObject>() {
             @Override
             public void handle(final JsonObject devoir) {
-                devoirsService.updateDevoir(request.params().get("idDevoir"),
-                        devoir, arrayResponseHandler(request));
+                List<String> idDevoirsList = request.params().getAll("idDevoir");
+                final HashMap<Long, Integer> nbCompetencesByDevoir = new HashMap<>();
+                Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+
+                for (int i = 0; i < idDevoirsList.size(); i++) {
+                    idDevoirsArray[i] = Long.valueOf(idDevoirsList.get(i));
+                }
+                // On recherche le Nonbre de compétences sur le devoir à mettre à jour
+                devoirsService.getNbCompetencesDevoirs(idDevoirsArray, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if (event.isRight()) {
+                            if (event.right().getValue() != null) {
+                                JsonArray resultNbCompetencesDevoirs = event.right().getValue();
+
+                                for (int i = 0; i < resultNbCompetencesDevoirs.size(); i++) {
+                                    JsonObject o = resultNbCompetencesDevoirs.get(i);
+
+                                    if (o != null) {
+                                        nbCompetencesByDevoir.put(o.getLong("id"),
+                                                o.getInteger("nb_competences"));
+                                    }
+                                }
+                                System.out.println("nbCompetencesByDevoir :" +
+                                        nbCompetencesByDevoir.get(Long.valueOf(request.params().get("idDevoir"))));
+
+                                System.out.println("competencesAdd :" +
+                                        devoir.getArray("competencesAdd").size());
+
+                                System.out.println("competencesRem :" +
+                                        devoir.getArray("competencesRem").size());
+
+                                // On limite le nbre de compétence d' un devoir
+                                if ((devoir.containsField("competencesAdd")
+                                        && devoir.containsField("competencesRem"))
+
+                                        && ((nbCompetencesByDevoir.get(Long.valueOf(request.params().get("idDevoir")))
+                                        + devoir.getArray("competencesAdd").size()
+                                        - devoir.getArray("competencesRem").size())
+                                        <= Viescolaire.MAX_NBR_COMPETENCE)) {
+                                    devoirsService.updateDevoir(request.params().get("idDevoir"),
+                                            devoir, arrayResponseHandler(request));
+
+                                }
+                                else{
+                                    leftToResponse(request, event.left());
+                                }
+                            }
+                            else {
+                                leftToResponse(request, event.left());
+                            }
+                        }
+                        else {
+                            leftToResponse(request, event.left());
+                        }
+                    }
+                });
             }
         });
     }

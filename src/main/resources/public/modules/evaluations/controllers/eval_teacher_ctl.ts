@@ -926,7 +926,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.id_etat !== undefined
                 && ($scope.devoir.is_evaluated
                     || $scope.evaluations.competencesDevoir.length > 0)
-                && $scope.evaluations.competencesDevoir.length < $scope.MAX_NBR_COMPETENCE
+                //&& $scope.evaluations.competencesDevoir.length <= $scope.MAX_NBR_COMPETENCE
             );
         };
 

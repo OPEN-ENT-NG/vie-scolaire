@@ -93,22 +93,27 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
                 if (event.isRight()) {
                     final Long devoirId = event.right().getValue().getLong("id");
-                    //Récupération de l'id du devoir à créer
-                    JsonArray statements = createStatement(devoirId, devoir, user);
+                    // Limitation du nombre de compétences
+                    if( devoir.getArray("competences").size() > Viescolaire.MAX_NBR_COMPETENCE) {
+                        handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
+                    }
+                    else {
+                        // Récupération de l'id du devoir à créer
+                        JsonArray statements = createStatement(devoirId, devoir, user);
 
-                    //Exécution de la transaction avec roleBack
-                    Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
-                        @Override
-                        public void handle(Message<JsonObject> event) {
-                            JsonObject result = event.body();
-                            if (result.containsField("status") && "ok".equals(result.getString("status"))) {
-                                handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
+                        // Exécution de la transaction avec roleBack
+                        Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
+                            @Override
+                            public void handle(Message<JsonObject> event) {
+                                JsonObject result = event.body();
+                                if (result.containsField("status") && "ok".equals(result.getString("status"))) {
+                                    handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
+                                } else {
+                                    handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
+                                }
                             }
-                            else {
-                                handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
-                            }
-                        }
-                    });
+                        });
+                    }
                 } else {
                     handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                 }
@@ -753,4 +758,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     }
                 });
     }
+
+
+    public void getNbCompetencesDevoirs(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT count(id_competence) as nb_competences, id_devoir as id ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ")
+                .append("WHERE competences_devoirs.id_devoir IN " + Sql.listPrepared(idDevoirs) + " ")
+                .append("GROUP by competences_devoirs.id_devoir ");
+
+        JsonArray values =  new JsonArray();
+        //Ajout des id désirés
+        for (Long idDevoir : idDevoirs) {
+            values.addNumber(idDevoir);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
 }

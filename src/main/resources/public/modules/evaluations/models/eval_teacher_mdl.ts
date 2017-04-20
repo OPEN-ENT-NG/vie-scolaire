@@ -10,6 +10,7 @@ export class Structure extends Model implements IModel{
     libelle: string;
     type: string;
     eleves : Collection<Eleve>;
+    enseignants : Collection<Eleve>;
     devoirs : Devoirs;
     classes : Collection<Classe>;
     synchronized : any;
@@ -18,6 +19,7 @@ export class Structure extends Model implements IModel{
     get api () {
         return  {
             getEleves : '/viescolaire/evaluations/eleves?idEtablissement=',
+            getEnseignants : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
             getClasses: '/viescolaire/evaluations/classes?idEtablissement='
         }
@@ -25,14 +27,18 @@ export class Structure extends Model implements IModel{
 
     constructor () {
         super();
+        var that = this;
         this.synchronized = {
             devoirs : false,
             classes : false,
             eleves : false,
+            enseignants : false
         };
         this.collection(Eleve);
         this.collection(Devoir);
         this.collection(Classe);
+
+        this.collection(Enseignant);
     }
 
     syncEleves (idEtab) :  Promise<any> {
@@ -52,6 +58,8 @@ export class Structure extends Model implements IModel{
             });
         });
     }
+
+
     syncDevoirs () :  Promise<any> {
         return new Promise((resolve, reject) => {
             this.collection(Devoir, new DevoirsCollection(this.id));
@@ -60,6 +68,18 @@ export class Structure extends Model implements IModel{
                 this.devoirs.trigger('devoirs-sync');
                 resolve();
             });
+        });
+    }
+
+    syncEnseignants () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().getJson(this.api.getEnseignants+this.id).done(function(res) {
+                this.enseignants.load(res);
+                this.synchronized.enseignants = true;
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve();
+                }
+            }.bind(this));
         });
     }
 

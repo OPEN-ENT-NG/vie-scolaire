@@ -75,6 +75,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             sousmatiere : '*',
             type : '*',
             idEleve : '*',
+            enseignant : '*',
             name : '',
             duplication: ''
         };
@@ -181,6 +182,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     classe : '*',
                     sousmatiere : '*',
                     type : '*',
+                    enseignant : '*',
                     idEleve : '*',
                     name : ''
                 };
@@ -2280,6 +2282,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 let openTamplates = () => {
                     //rajout de la periode Annee
                     $scope.periodes.sync();
+                    $scope.search.enseignant ="*";
                     $scope.periodes.on('sync', function () {
                         $scope.search.periode = $scope.periodeParDefault();
                         $scope.periodesList = {
@@ -2303,6 +2306,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if($scope.Structure === undefined ) {
                         $scope.Structure = new Structure();
                     }
+
+                    $scope.Structure.id = $scope.evaluations.structure.id;
+                    $scope.Structure.syncEnseignants();
+
                     if(!$scope.Structure.synchronized.classes) {
                         $scope.Structure.syncClasses($scope.evaluations.structure.id);
                         $scope.Structure.classes.on('classes-sync', () => {

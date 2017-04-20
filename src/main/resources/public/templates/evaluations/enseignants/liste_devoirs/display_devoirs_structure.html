@@ -90,6 +90,14 @@
                             </select>
                         </label>
                     </section>
+
+                    <section ng-show="isChefEtab()">
+                        <label class="select">
+                            <select ng-model="search.enseignant" ng-options="enseignant.displayName for enseignant in Structure.enseignants.all">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.teacher')]]</option>
+                            </select>
+                        </label>
+                    </section>
                 </div>
 
             </div>

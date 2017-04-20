@@ -758,4 +758,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     }
                 });
     }
+
+
+    public void getNbCompetencesDevoirs(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT count(id_competence) as nb_competences, id_devoir as id ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ")
+                .append("WHERE competences_devoirs.id_devoir IN " + Sql.listPrepared(idDevoirs) + " ")
+                .append("GROUP by competences_devoirs.id_devoir ");
+
+        JsonArray values =  new JsonArray();
+        //Ajout des id désirés
+        for (Long idDevoir : idDevoirs) {
+            values.addNumber(idDevoir);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
 }

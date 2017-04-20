@@ -146,4 +146,12 @@ public interface DevoirService extends CrudService {
      * @param handler handler portant le résultat de la requête.
      */
     public void getMoyenne(Long idDevoir, final boolean stats, final Handler<Either<String, JsonObject>> handler);
- }
+
+    /**
+     * Récupère le nombre de compétences en fonction du devoir pour un utilisateur donné
+     * @param idGroupes La liste des devoirs désirés
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getNbCompetencesDevoirs( Long[] idGroupes, Handler<Either<String, JsonArray>> handler);
+
+}

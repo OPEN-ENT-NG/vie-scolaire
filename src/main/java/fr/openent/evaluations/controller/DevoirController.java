@@ -330,14 +330,6 @@ public class DevoirController extends ControllerHelper {
                                                 o.getInteger("nb_competences"));
                                     }
                                 }
-                                System.out.println("nbCompetencesByDevoir :" +
-                                        nbCompetencesByDevoir.get(Long.valueOf(request.params().get("idDevoir"))));
-
-                                System.out.println("competencesAdd :" +
-                                        devoir.getArray("competencesAdd").size());
-
-                                System.out.println("competencesRem :" +
-                                        devoir.getArray("competencesRem").size());
 
                                 // On limite le nbre de compétence d' un devoir
                                 if ((devoir.containsField("competencesAdd")

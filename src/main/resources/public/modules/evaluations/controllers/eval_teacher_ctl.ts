@@ -230,7 +230,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.resetSelected();
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                     if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
-                    $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id: parseInt(params.devoirId)});
+                    $scope.currentDevoir = _.findWhere(evaluations.structure.devoirs.all, {id: parseInt(params.devoirId)});
                     let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
                     let date_saisie = current_periode.date_fin_saisie;
 
@@ -273,7 +273,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         utils.safeApply($scope);
                     };
 
-                    let _classe = evaluations.classes.findWhere({id: $scope.currentDevoir.id_groupe});
+                    let _classe = evaluations.structure.classes.findWhere({id: $scope.currentDevoir.id_groupe});
                     if (_classe !== undefined) {
                         if (_classe.eleves.all.length === 0) {
                             _classe.eleves.sync().then(() => {
@@ -1510,7 +1510,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             }
             $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
-                evaluations.devoirs.sync().then(() => {
+                evaluations.structure.devoirs.sync().then(() => {
                     if ($location.path() === "/devoir/create") {
                         if (res !== undefined) {
                             $location.path("/devoir/" + res.id);
@@ -1642,10 +1642,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
                 && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
 
-                var p = {
+                let p = {
                     idEtablissement : $scope.evaluations.structure.id,
                     idClasse : $scope.search.classe.id,
-                    idPeriode : undefined,
+                    idPeriode : $scope.search.periode,
                     idMatiere : $scope.search.matiere.id
                 };
 
@@ -1655,42 +1655,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 // var rn = evaluations.releveNotes.findWhere(p);
                 // if (rn === undefined) {
-                if(evaluations.synchronized.classes !== 0) {
-                    evaluations.classes.on('classes-sync', function () {
-                        var releve = new ReleveNote(p);
-                        evaluations.releveNotes.push(releve);
-                        $scope.releveNote = releve;
-                        $scope.releveNote.sync().then(() => {
-                            $scope.releveNote.synchronized.releve = true;
-                            $scope.releveNote.calculStatsDevoirs().then(() => {
-                                $scope.releveNote.calculMoyennesEleves().then(() => {
-                                    utils.safeApply($scope);
-                                });
+                if (evaluations.structure.isSynchronized) {
+                    $scope.releveNote = new ReleveNote(p);
+                    $scope.releveNote.sync().then(() => {
+                        $scope.releveNote.synchronized.releve = true;
+                        $scope.releveNote.calculStatsDevoirs().then(() => {
+                            $scope.releveNote.calculMoyennesEleves().then(() => {
                                 utils.safeApply($scope);
                             });
-                            utils.safeApply($scope);
-                        });
-                    });
-                    return;
-                }
-                var releve = new ReleveNote(p);
-                evaluations.releveNotes.push(releve);
-                $scope.releveNote = releve;
-                $scope.releveNote.sync().then(() => {
-                    $scope.releveNote.synchronized.releve = true;
-                    $scope.releveNote.calculStatsDevoirs().then(() => {
-                        $scope.releveNote.calculMoyennesEleves().then(() => {
-                            utils.safeApply($scope);
                         });
                         utils.safeApply($scope);
                     });
-                    utils.safeApply($scope);
-                });
-                // } else {
-                //     $scope.releveNote = rn;
-                //     utils.safeApply($scope);
-                // }
-
+                }
                 $scope.openedStudentInfo = false;
                 utils.safeApply($scope);
             }

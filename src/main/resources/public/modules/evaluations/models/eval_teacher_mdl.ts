@@ -301,23 +301,19 @@ export class ReleveNote extends  Model implements IModel{
             releve : false
         };
         this.structure = evaluations.structure;
-        this.periode = evaluations.periodes.findWhere({id : this.idPeriode});
-        this.matiere = evaluations.matieres.findWhere({id : this.idMatiere});
-        var c = evaluations.classes.findWhere({id : this.idClasse});
+        this.periode = evaluations.structure.periodes.findWhere({id : this.idPeriode});
+        this.matiere = evaluations.structure.matieres.findWhere({id : this.idMatiere});
+        var c = evaluations.structure.classes.findWhere({id : this.idClasse});
         this.classe = new Classe({id : c.id, name: c.name });
-        var _e = $.extend(true, {}, evaluations.classes.findWhere({id : this.idClasse}).eleves.all);
+        var _e = $.extend(true, {}, evaluations.structure.classes.findWhere({id : this.idClasse}).eleves.all);
         this.classe.eleves.load($.map(_e, function (el) {
             return el;
         }));
 
         this.collection(Devoir, {
             sync : function () {
-                if (!evaluations.synchronized.devoirs) {
-                    evaluations.devoirs.on('sync', function () {
-                        console.log(this);
-                    });
-                } else {
-                    var _devoirs=[];
+                if (evaluations.structure.synchronized.devoirs) {
+                    let _devoirs=[];
                     if(this.composer.idPeriode !== undefined) {
                         _devoirs = evaluations.devoirs.where({
                             id_periode: this.composer.idPeriode,
@@ -336,7 +332,6 @@ export class ReleveNote extends  Model implements IModel{
                     if (_devoirs.length > 0) {
                         this.load(_devoirs);
                         that.trigger('format');
-                        this.trigger('sync');
                     }
                 }
             }
@@ -380,7 +375,7 @@ export class ReleveNote extends  Model implements IModel{
                     var _t;
                     if(that._tmp && that._tmp.length !== 0)  _t = _.where(that._tmp, {id_eleve : eleve.id});
                     _.each(that.devoirs.all, function (devoir) {
-                        let devoirPeriode = evaluations.periodes.findWhere({id: devoir.id_periode});
+                        let devoirPeriode = evaluations.structure.periodes.findWhere({id: devoir.id_periode});
                         let endSaisie = undefined;
                         let date_saisie = devoirPeriode.date_fin_saisie;
                         let current_date = new Date();
@@ -847,7 +842,7 @@ export class Devoir extends Model implements IModel{
         this.collection(Eleve, {
             sync : function () : Promise<any> {
                 return new Promise((resolve, reject) => {
-                    var _classe = evaluations.classes.findWhere({id : that.id_groupe});
+                    var _classe = evaluations.structure.classes.findWhere({id : that.id_groupe});
                     // that.eleves.load(JSON.parse(JSON.stringify(_classe.eleves.all)));
                     // that.eleves.load($.extend(true, {}, JSON.stringify(_classe.eleves.all)));
                     var e = $.map($.extend(true, {}, _classe.eleves.all), function (el) {
@@ -894,7 +889,7 @@ export class Devoir extends Model implements IModel{
     }
 
     toJSON () {
-        let classe = evaluations.classes.findWhere({id : this.id_groupe});
+        let classe = evaluations.structure.classes.findWhere({id : this.id_groupe});
         let  type_groupe = -1;
         let  id_groupe = null;
         if(classe !== undefined){

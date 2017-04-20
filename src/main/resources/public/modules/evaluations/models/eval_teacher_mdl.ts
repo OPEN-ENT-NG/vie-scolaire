@@ -131,6 +131,7 @@ export class Structure extends Model implements IModel{
                     if (isChefEtab()) {
                         http().getJson(that.api.MATIERE.synchronizationCE).done(function (res) {
                             this.load(res);
+                            that.synchronized.matieres = true;
                             resolve();
                         }.bind(this));
                     } else {

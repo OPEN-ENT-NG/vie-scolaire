@@ -186,7 +186,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             listDevoirs : function(params){
                 $scope.cleanRoot();
-                let openTamplates = () => {
+                let openTemplates = () => {
                     //rajout de la periode Annee
                     $scope.periodes.sync();
                     $scope.periodes.on('sync', function () {
@@ -200,27 +200,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 if($scope.isChefEtab() ){
                     $scope.modificationDevoir = false;
-                    if($scope.Structure === undefined )
-                        $scope.Structure = new Structure();
-                    if(!$scope.Structure.synchronized.classes) {
-                        $scope.Structure.syncClasses($scope.evaluations.structure.id);
-                        $scope.Structure.classes.on('classes-sync', () => {
-                            $scope.Structure.syncDevoirs();
-                            // console.log("Classes sync (/)");
-                            $scope.Structure.devoirs.on("devoirs-sync", () => {
-                                evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
-                                    utils.safeApply($scope);
-                                });
-                                openTamplates();
-                            });
+                    if(!$scope.structure.synchronized.classes) {
+                        $scope.structure.classes.sync();
+                        evaluations.structure.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
+                            utils.safeApply($scope);
                         });
+                        openTemplates();
                     }else{
-                        openTamplates();
+                        openTemplates();
                     }
                 }else{
-
                     evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id'));
-                    openTamplates();
+                    openTemplates();
                 }
 
             },

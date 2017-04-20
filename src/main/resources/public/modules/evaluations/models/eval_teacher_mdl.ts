@@ -1173,14 +1173,15 @@ export class DevoirsCollection {
                     idDevoirsURL += "devoirs=" + id + "&";
                 });
                 idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length - 1);
-                http().getJson(this.api.done + idDevoirsURL).done((res) => {
-                    for (let id of idDevoirs) {
-                        let calculatedPercent = _.findWhere(res, {id : id});
-                        _.findWhere(this.all, {id : id}).percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
-                    }
-                    model.trigger('apply');
-                    resolve();
-                })
+                http().getJson(this.api.done + idDevoirsURL)
+                    .done((res) => {
+                        for (let id of idDevoirs) {
+                            let calculatedPercent = _.findWhere(res, {id : id});
+                            _.findWhere(this.all, {id : id}).percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
+                        }
+                        model.trigger('apply');
+                        resolve();
+                    })
                     .error(() => {
                         reject();
                     });

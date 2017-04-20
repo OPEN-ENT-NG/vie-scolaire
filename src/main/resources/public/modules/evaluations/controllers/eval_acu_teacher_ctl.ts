@@ -9,7 +9,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
     '$scope', 'route', 'model',
     function ($scope, route, model) {
         // Méthode d'initialisation ou de réinitialisation du Controler : notamment lors du changement d'établissement
-        $scope.initControler = function (isChangementEtablissement) {
+        $scope.initControler = function () {
             $scope.evaluations = evaluations;
             $scope.search = {
                 matiere: '*',
@@ -175,8 +175,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                     switchEtab();
                     $scope.$parent.opened.displayStructureLoader = false;
                 });
+            } else {
+                switchEtab();
             }
-            switchEtab();
         };
 
         /**

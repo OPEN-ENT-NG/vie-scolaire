@@ -1098,9 +1098,9 @@ export class DevoirsCollection {
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/devoirs?idEtablissement=',
+            get : '/viescolaire/evaluations/devoirs?idEtablissement=' + this.idEtablissement,
             areEvaluatedDevoirs : '/viescolaire/evaluations/devoirs/evaluations/informations?',
-            done : '/viescolaire/evaluations/devoirs/done?'
+            done : '/viescolaire/evaluations/devoirs/done'
         }
     }
 
@@ -1167,8 +1167,8 @@ export class DevoirsCollection {
 
     getPercentDone (idDevoirs?) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if(idDevoirs && evaluations.structure.synchronized.devoirs) {
-                let idDevoirsURL = "";
+            if(idDevoirs.length > 0 && evaluations.structure.synchronized.devoirs) {
+                let idDevoirsURL = "?";
                 _.each(idDevoirs, (id) => {
                     idDevoirsURL += "devoirs=" + id + "&";
                 });

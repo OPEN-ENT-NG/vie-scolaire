@@ -177,6 +177,8 @@
   "evaluations.max.competences" : "Vous ne pouvez pas rajouter plus de 12 compétences pour une même évaluation.",
   "you.have": "Vous avez sélectionné ",
  "evaluations.competences": " compétences.",
+  "you.have": "Vous avez ",
+ "evaluations.competences": " compétences",
   "evaluations.test.value" : "Valeur de l'évaluation",
   "evaluations.competences.proficiency":"Très bonne maîtrise",
   "evaluations.competences.satisfying":"Maîtrise satisfaisante",

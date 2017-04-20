@@ -866,6 +866,7 @@ export class Devoir extends Model implements IModel{
     competencesAdd: any;
     competencesRem: any;
     percent: any;
+    teacher: string;
     evaluationDevoirs : Collection<EvaluationDevoir> ;
 
     get api () {

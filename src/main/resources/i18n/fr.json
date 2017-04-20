@@ -163,6 +163,7 @@
   "evaluations.test.ramenersur":"Ramener sur 20",
   "evaluations.test.ramenersur.true":"Oui",
   "evaluations.test.ramenersur.false":"Non",
+  "evaluations.test.teacher": "Enseignant",
   "evaluations.test.duplicate":"Dupliquer",
   "evaluations.test.duplication.title": "Duplication d'une évaluation",
   "evaluations.test.delete":"Supprimer",

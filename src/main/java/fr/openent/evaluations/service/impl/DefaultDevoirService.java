@@ -447,7 +447,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
-                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences ")
+                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
                 .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
@@ -455,6 +455,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA + ".users ON users.id = devoirs.owner ")
                 .append("WHERE (rel_devoirs_groupes.id_devoir = devoirs.id) ")
                 .append("AND (devoirs.id_etablissement = ? )")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
@@ -470,7 +471,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                             .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
                 .append(") ")
 
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
@@ -493,11 +494,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void listDevoirsEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe , rel_devoirs_groupes.type_groupe , devoirs.is_evaluated, " )
+        query.append(" SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe , rel_devoirs_groupes.type_groupe , devoirs.is_evaluated, " )
                 .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
                 .append("   devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur,  ")
                 .append("   type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date,  ")
-                .append("   type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences   ")
+                .append("   type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("   FROM notes.devoirs  ")
                 .append("   inner join notes.type on devoirs.id_type = type.id  ")
                 .append("   inner join viesco.periode on devoirs.id_periode = periode.id  ")
@@ -505,9 +506,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("   left join viesco.sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id  ")
                 .append("   left join viesco.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id  ")
                 .append("   left join notes.rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id  ")
+                .append("   inner join notes.users on users.id = devoirs.owner")
                 .append("   where devoirs.id_etablissement IN "+ Sql.listPrepared(user.getStructures().toArray()) +" ")
                 .append("   and id_groupe is not null ")
-                .append("   GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated,  ")
+                .append("   GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username,  ")
                 .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
                 .append("   devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom  ")
                 .append("   ORDER BY devoirs.date ASC; ");

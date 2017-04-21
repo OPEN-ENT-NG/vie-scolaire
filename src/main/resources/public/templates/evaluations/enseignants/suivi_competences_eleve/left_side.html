@@ -22,7 +22,7 @@
     </div>
     <section ng-if="evaluations.structures.all.length > 1">
         <label class="select">
-            <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in evaluations.structures.all track by structure.id"  ng-change="changeEtablissement()"></select>
+            <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in evaluations.structures.all track by structure.id"  ng-change="switchEtablissementSuivi();"></select>
         </label>
     </section>
     <section>

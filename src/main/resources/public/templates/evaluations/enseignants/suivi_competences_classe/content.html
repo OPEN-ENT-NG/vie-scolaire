@@ -16,7 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<article class="ten card twelve-mobile centered" ng-if="informations.classe === undefined || informations.classe === '' || search.classe === ''">
+<article class="ten card twelve-mobile centered" ng-if="informations.classe === undefined || informations.classe === '' || search.classe === ''|| search.classe === '*'">
     <i18n>evaluation.suivi.classe.empty</i18n>
 </article>
 <div class="content-suivi-eleve twelve-mobile ten card" ng-if="informations.classe !== '' && informations.classe !== undefined && search.classe !== ''">

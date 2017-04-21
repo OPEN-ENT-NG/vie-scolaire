@@ -239,54 +239,25 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 utils.safeApply($scope);
             });
         };
-        /**
-         *
-         * Affiche le domaine suivant (de niveau 0) et ses
-         * sous domaines.
-         *
-         */
-        /* Methode plus utilisée
-         $scope.afficherDomaineSuivant = function () {
-         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-         var domaine = $scope.suiviCompetence.domaines.all[i];
-         if (i > 0) {
-         var domainePrec = $scope.suiviCompetence.domaines.all[i - 1];
-         if (domainePrec.visible && !domaine.visible) {
-         domaine.visible = true;
-         domaine.setVisibleSousDomaines(true);
-         return;
-         }
-         }
-         }
-         };*/
 
-        /**
-         *
-         * Méthode qui n'affiche que le 1er domaine
-         *
-         */
-        /* Methode plus utilisée
-         $scope.initAffichageDomaines = function () {
-         for (var i = 0; i < $scope.suiviCompetence.domaines.all.length; i++) {
-         var domaine = $scope.suiviCompetence.domaines.all[i];
-         var bPremierDomaine = (i == 0);
-         domaine.visible = bPremierDomaine;
-         domaine.setVisibleSousDomaines(bPremierDomaine);
-         }
-         };*/
+        $scope.switchEtablissementSuivi = () => {
+            delete $scope.suiviCompetence;
+            $scope.changeEtablissement();
+        };
 
         /**
          * Créer une suivi de compétence
          */
         $scope.selectSuivi = function () {
             $scope.selected.grey = true;
-            if ($scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
+            if ($scope.search.eleve !== undefined &&
+                $scope.search.classe.eleves.findWhere({id: $scope.search.eleve.id}) === undefined) {
                 $scope.search.eleve = "";
                 delete $scope.suiviCompetence;
                 return;
             }
             $scope.informations.eleve = $scope.search.eleve;
-            if ($scope.informations.eleve !== null && $scope.search.eleve !== "") {
+            if ($scope.informations.eleve !== null && $scope.search.eleve !== "" && $scope.informations.eleve !== undefined) {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
                 $scope.suiviCompetence.sync().then(() => {
                     // On récupère d'abord les bilans de fin de cycle enregistrés par le chef d'établissement

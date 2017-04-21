@@ -14,10 +14,10 @@
     <!--  Content (main zone)  Chef etablissement-->
     <div ng-if="isChefEtab()" class="ten cell main-content twelve-mobile">
         <section class="eleven cell row headerAccueil">
-            <div class="twelve cell ">
+            <article class="twelve cell ">
                 <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
                 <autocomplete options="Structure.eleves.all" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-            </div>
+            </article>
         </section>
     </div>
 
@@ -32,10 +32,10 @@
                     </label>
                 </header>
             </div>
-            <div class="twelve cell ">
+            <article class="twelve cell ">
                 <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-                <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-            </div>
+                <autocomplete options="eleves.all" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+            </article>
         </section>
 
 
@@ -63,7 +63,7 @@
                         </div>
                         <div class="content-box-accueil--table--content">
                             <div
-                                    ng-repeat="devoir in evaluations.devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
+                                    ng-repeat="devoir in devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -148,7 +148,3 @@
 
 
 </div>
-
-<lightbox  show="opened.lightboxs.no.structure" on-close="opened.lightboxs.no.structure = false">
-    <p><i18n>no.structure</i18n></p>
-</lightbox>

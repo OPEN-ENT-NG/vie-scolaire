@@ -50,7 +50,7 @@
                     </section>
                     <section>
                         <label class="select">
-                            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id); getReleve()" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
+                            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id);" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.class.groupe')]]</option>
                             </select>
                         </label>
@@ -58,7 +58,7 @@
 
                     <section >
                         <label class="select">
-                            <select ng-model="search.matiere" ng-change="getReleve()"
+                            <select ng-model="search.matiere"
                                     ng-options="matiere.name for matiere in matieres.all | unique:'name'">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
                             </select>
@@ -84,7 +84,7 @@
                     <section>
                         <label class="select">
                             <select ng-model="periodesList.value"
-                                    ng-change="search.periode = periodesList.value;getReleve()"
+                                    ng-change="search.periode = periodesList.value;"
                                     ng-options="periode.libelle for periode in periodesList.values">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                             </select>
@@ -93,7 +93,7 @@
 
                     <section ng-show="isChefEtab()">
                         <label class="select">
-                            <select ng-model="search.enseignant" ng-options="enseignant.displayName for enseignant in Structure.enseignants.all">
+                            <select ng-model="search.enseignant" ng-options="enseignant.displayName for enseignant in enseignants.all">
                                 <option class="header-opt" value="">[[translate('viescolaire.utils.teacher')]]</option>
                             </select>
                         </label>

@@ -61,9 +61,12 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             $scope.route = $route;
 
 
-            $scope.suiviFilter = {
-                mine : (!$scope.isChefEtab()).toString()
+            $scope.initFilterMine = () => {
+                $scope.suiviFilter = {
+                    mine: (!$scope.isChefEtab()).toString()
+                };
             };
+            $scope.initFilterMine();
 
             $scope.selected.colors = {
                 0 : true,
@@ -134,6 +137,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             if($scope.detailCompetence === undefined){
                 return ;
             }
+            if ($scope.suiviFilter === undefined) $scope.initFilterMine();
             var evaluations = $scope.suiviFilter.mine == 'true'
                 ? _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : idEleve, owner : model.me.userId})
                 : _.where($scope.detailCompetence.competencesEvaluations, {id_eleve : idEleve});
@@ -179,6 +183,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @returns {boolean} Retourne true si l'utilisateur n'est pas le propriétaire
          */
         $scope.notEvalutationOwner = function (listeEvaluations) {
+            if ($scope.suiviFilter === undefined) $scope.initFilterMine();
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return false;
             }
@@ -224,6 +229,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @returns {boolean} Retourne true si l'utilisateur est le propriétaire de l'évaluation
          */
         $scope.filterOwnerSuivi = function (evaluation) {
+            if ($scope.suiviFilter === undefined) $scope.initFilterMine();
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return true;
             }

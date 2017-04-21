@@ -207,9 +207,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 );
         };
 
-        $scope.suiviFilter = {
-            mine: (!$scope.isChefEtab()).toString()
+        $scope.initFilterMine = () => {
+            $scope.suiviFilter = {
+                mine: (!$scope.isChefEtab()).toString()
+            };
         };
+
+        $scope.initFilterMine();
 
         $scope.opened.detailCompetenceSuivi = false;
         $scope.refreshSlider = function () {
@@ -318,10 +322,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
         });
 
-
-
-
-
         $scope.pOFilterEval = {
             limitTo: 2
         };
@@ -356,6 +356,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * @returns {boolean} Retourne true si l'utilisateur n'est pas le propriétaire
          */
         $scope.notEvalutationOwner = function (listeEvaluations) {
+            if ($scope.suiviFilter === undefined) $scope.initFilterMine();
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return false;
             }
@@ -403,6 +404,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * @returns {boolean} Retourne true si l'utilisateur est le propriétaire de l'évaluation
          */
         $scope.filterOwnerSuivi = function (evaluation) {
+            if ($scope.suiviFilter === undefined) $scope.initFilterMine();
             if ($scope.suiviFilter.mine === 'false' || $scope.suiviFilter.mine === false) {
                 return true;
             }

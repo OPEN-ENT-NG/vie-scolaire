@@ -268,13 +268,14 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                                 $scope.suiviCompetence.setMoyenneCompetences($scope.suiviFilter.mine);
 
                                 if ($scope.opened.detailCompetenceSuivi) {
-
-                                    $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
-                                    if ($scope.detailCompetence) {
-                                        $scope.openDetailCompetence($scope.detailCompetence);
-                                    } else {
-                                        $scope.backToSuivi();
-                                    }
+                                    if ($scope.detailCompetence !== undefined) {
+                                        $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
+                                        if ($scope.detailCompetence) {
+                                            $scope.openDetailCompetence($scope.detailCompetence);
+                                        } else {
+                                            $scope.backToSuivi();
+                                        }
+                                    } else $scope.backToSuivi();
                                 }
                         });
                     });

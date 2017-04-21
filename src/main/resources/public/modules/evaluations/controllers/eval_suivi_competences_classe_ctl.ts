@@ -101,10 +101,13 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 $scope.suiviCompetence.sync().then(() => {
                     $scope.suiviCompetence.domaines.sync();
                     if ($scope.opened.detailCompetenceSuivi) {
-                        $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
-                        if (!$scope.detailCompetence) $scope.backToSuivi();
+                        if ($scope.detailCompetence !== undefined) {
+                            $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
+                            if (!$scope.detailCompetence) $scope.backToSuivi();
+                        } else {
+                            $scope.backToSuivi();
+                        }
                     }
-
 
                     // On stocke l'ensemble des élèves de la classe dan une Map
                     var mapEleves = {};

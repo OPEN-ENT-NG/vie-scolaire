@@ -558,11 +558,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          *
          */
         $scope.initChartsEval = function () {
-            if ($scope.detailCompetence !== undefined) {
-                var ListEval = _.map($scope.detailCompetence.competencesEvaluations, function (evalu) {
-                    if ($scope.filterOwnerSuivi(evalu)) {
-                        return evalu;
-                    }
+            if ($scope.detailCompetence !== undefined && $scope.detailCompetence !== null) {
+                var ListEval = _.filter($scope.detailCompetence.competencesEvaluations, function (evalu) {
+                    return $scope.filterOwnerSuivi(evalu);
                 });
                 //initialisation et rajout de la 1er colomn vide
                 $scope.chartOptionsEval.tooltipLabels = [];
@@ -574,6 +572,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.chartOptionsEval.colors = [];
                 $scope.chartOptionsEval.colors.push('#FFFFFF');
                 ListEval =  _.sortBy(ListEval, function(evalu){ return evalu.evaluation_date; });
+
                 for (let i = 0; i < ListEval.length; i++) {
                     $scope.chartOptionsEval.datasets.data.push(ListEval[i].evaluation + 2);
                     $scope.chartOptionsEval.datasets.labels.push($scope.getDateFormated(ListEval[i].evaluation_date));

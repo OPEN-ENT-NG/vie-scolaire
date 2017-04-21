@@ -880,19 +880,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             let start_datePeriode = current_periode.timestamp_dt;
             let end_datePeriode = current_periode.timestamp_fn;
             let date_saisie = current_periode.date_fin_saisie;
-            if (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0) {
-                $scope.endSaisie = false;
-                utils.safeApply($scope);
-            }
-            else {
-                $scope.endSaisie = true;
-                utils.safeApply($scope);
-            }
+            $scope.errDatePubli = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") < 0);
+            $scope.errDateDevoir = (moment($scope.devoir.dateDevoir).diff(moment(start_datePeriode), "days") < 0) || (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") < 0);
+            $scope.endSaisie = moment(new Date()).diff(moment(date_saisie)) > 0 || moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") < 0;
 
-            $scope.devoir.controlledDate = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
-                && (moment($scope.devoir.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.devoir.dateDevoir), "days") >= 0)
-                && (moment(date_saisie).diff(moment($scope.devoir.dateDevoir), "days") >= 0);
+            $scope.devoir.controlledDate = !$scope.errDatePubli && !$scope.errDateDevoir && !$scope.endSaisie;
+            utils.safeApply($scope);
         };
 
         $scope.selectDevoir = function (devoir) {

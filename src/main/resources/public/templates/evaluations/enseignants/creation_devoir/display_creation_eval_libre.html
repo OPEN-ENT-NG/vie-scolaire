@@ -132,6 +132,11 @@
             </div>
         </section>
 
+        <section ng-if="errDateEvalFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>devoir.errDateDevoir</i18n>
+            </div>
+        </section>
         <section class="row twelve-mobile">
             <!-- Date évaluation -->
             <div class="three cell addDevoirTable__libelle twelve-mobile">
@@ -144,6 +149,11 @@
             </div>
         </section>
 
+        <section ng-if="errDatePubliEvalFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>devoir.errDatePubli</i18n>
+            </div>
+        </section>
         <section class="row twelve-mobile">
             <!-- Date publication -->
             <div class="three cell addDevoirTable__libelle twelve-mobile">

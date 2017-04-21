@@ -215,18 +215,27 @@
                                     </div>
                                 </section>
 
+                                <section ng-if="errDateDevoir" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>devoir.errDateDevoir</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Date évaluation -->
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>evaluations.test.date</i18n>
                                         <i class="asterisk obligatoire"></i>
                                     </div>
-
                                     <div class="nine cell twelve-mobile">
                                         <date-picker style="margin: 10px 0;" ng-model="devoir.dateDevoir" class="four" ng-change="showDate = true; controleDate()" ></date-picker>
                                     </div>
                                 </section>
 
+                                <section ng-if="errDatePubli" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>devoir.errDatePubli</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Date publication -->
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">

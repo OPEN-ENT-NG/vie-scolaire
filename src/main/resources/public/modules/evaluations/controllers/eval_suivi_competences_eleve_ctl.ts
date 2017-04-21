@@ -83,7 +83,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 id_matiere: "",
                 id_sousmatiere: null,
                 competences: [],
-                controlledDate: false
+                controlledDate: true
             });
             $scope.EvaluationLibreCharge= {
                 matieres : [_.findWhere(evaluations.matieres.all,{idEtablissement: $scope.evaluations.structure.id})] ,
@@ -186,19 +186,12 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             let end_datePeriode = current_periode.timestamp_fn;
             let date_saisie = current_periode.date_fin_saisie;
 
-            if (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0) {
-                $scope.endSaisieFree = false;
-                utils.safeApply($scope);
-            }
-            else {
-                $scope.endSaisieFree = true;
-                utils.safeApply($scope);
-            }
+            $scope.errDatePubliEvalFree = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0);
+            $scope.errDateEvalFree = (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") < 0) || (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0);
+            $scope.endSaisieFree = moment(new Date()).diff(moment(date_saisie)) > 0 || moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0;
 
-            $scope.evaluationLibre.controlledDate = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
-                && (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") >= 0)
-                && (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0)
-                && (moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") >= 0);
+            $scope.evaluationLibre.controlledDate = !$scope.errDatePubliEvalFree &&  !$scope.errDateEvalFree && !$scope.endSaisieFree;
+            utils.safeApply($scope);
         };
 
         /**

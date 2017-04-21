@@ -101,33 +101,35 @@ export class Structure extends Model implements IModel{
         this.collection(Devoir, new DevoirsCollection(that.id));
         this.collection(Enseignement, {
             // sync : '/viescolaire/evaluations/enseignements'
-            sync: function (idClasse?: any) {
+            sync: function (idClasse: string) {
                 return new Promise((resolve, reject) => {
                     var uri = that.api.ENSEIGNEMENT.synchronization;
                     if (idClasse !== undefined) {
                         uri += '?idClasse=' + idClasse;
+                        http().getJson(uri).done(function (res) {
+                            this.load(res);
+                            this.each(function (enseignement) {
+                                enseignement.competences.load(enseignement['competences_1']);
+                                _.map(enseignement.competences.all, function (competence) {
+                                    return competence.composer = enseignement;
+                                });
+                                enseignement.competences.each(function (competence) {
+                                    if (competence['competences_2'].length > 0) {
+                                        competence.competences.load(competence['competences_2']);
+                                        _.map(competence.competences.all, function (sousCompetence) {
+                                            return sousCompetence.composer = competence;
+                                        });
+                                    }
+                                    delete competence['competences_2'];
+                                });
+                                delete enseignement['competences_1'];
+                            });
+                            that.synchronized.enseignements = true;
+                            resolve();
+                        }.bind(this));
+                    } else {
+                        console.error('idClasse must be defined');
                     }
-                    http().getJson(uri).done(function (res) {
-                        this.load(res);
-                        this.each(function (enseignement) {
-                            enseignement.competences.load(enseignement['competences_1']);
-                            _.map(enseignement.competences.all, function (competence) {
-                                return competence.composer = enseignement;
-                            });
-                            enseignement.competences.each(function (competence) {
-                                if (competence['competences_2'].length > 0) {
-                                    competence.competences.load(competence['competences_2']);
-                                    _.map(competence.competences.all, function (sousCompetence) {
-                                        return sousCompetence.composer = competence;
-                                    });
-                                }
-                                delete competence['competences_2'];
-                            });
-                            delete enseignement['competences_1'];
-                        });
-                        that.synchronized.enseignements = true;
-                        resolve();
-                    }.bind(this));
                 });
             }
         });
@@ -225,7 +227,6 @@ export class Structure extends Model implements IModel{
                     this.synchronized.periodes &&
                     this.synchronized.types &&
                     this.synchronized.classes &&
-                    this.synchronized.enseignements &&
                     this.synchronized.devoirs;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
@@ -239,7 +240,6 @@ export class Structure extends Model implements IModel{
             this.periodes.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
-            this.enseignements.sync().then(isSynced);
             this.syncDevoirs().then(isSynced);
             if (isChefEtab()) {
                 this.syncEnseignants().then(isSynced);

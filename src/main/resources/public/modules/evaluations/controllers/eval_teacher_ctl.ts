@@ -18,7 +18,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 "value":  $scope.periodeParDefault(),
                 "values": []
             };
-            _.map($scope.periodes.all, function (periode) {
+            _.map(evaluations.structure.periodes.all, function (periode) {
                 $scope.periodesList.values.push(periode);
             });
             $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
@@ -77,11 +77,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             },
 
-            createDevoir : function(params){
+            createDevoir : function(){
                 if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
                     $scope.cleanRoot();
                     $scope.createDevoir();
-                    $scope.initFilter(true);
                     utils.safeApply($scope);
                 }
             },
@@ -1232,8 +1231,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
             if (currentIdCycle !== null && currentIdCycle !== newIdCycle) {
-                evaluations.enseignements.sync(classe_Id);
-                evaluations.enseignements.on('sync', function () {
+                evaluations.enseignements.sync(classe_Id).then(function () {
                     //suppression des compétences qui n'appartiennent pas au cycle
                     $scope.initFilter(true);
                     evaluations.competencesDevoir = [];
@@ -1261,8 +1259,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.$watch('search.keyword', function (newValue, oldValue) {
                 $scope.search.haschange = (newValue !== oldValue);
             }, true);
-            _.extend($scope.devoir.enseignements, $scope.enseignements);
-
 
             evaluations.competencesDevoir = [];
 
@@ -1293,6 +1289,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.setClasseMatieres();
                 }
             }
+            evaluations.structure.enseignements.sync($scope.devoir.id_groupe).then(() => {
+                _.extend($scope.devoir.enseignements, $scope.enseignements);
+                if (!$scope.devoir.hasOwnProperty('id')) {
+                    $scope.initFilter(true);
+                }
+            });
 
             // Chargement des enseignements et compétences en fonction de la classe
             // evaluations.enseignements.sync($scope.devoir.id_groupe);

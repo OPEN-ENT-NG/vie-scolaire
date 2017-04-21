@@ -57,7 +57,6 @@ export class Structure extends Model implements IModel{
         this.synchronized = {
             devoirs : false,
             classes : false,
-            eleves : false,
             matieres: false,
             periodes: false,
             types: false,
@@ -210,10 +209,14 @@ export class Structure extends Model implements IModel{
                         that.synchronized.classes = true;
                         if (!isChefEtab()) {
                             that.syncRemplacement().then(() => {
-                                resolve()
+                                that.eleves.sync().then(() => {
+                                   resolve();
+                                });
                             })
                         } else {
-                            resolve();
+                            that.eleves.sync().then(() => {
+                                resolve();
+                            });
                         }
                     });
                 });
@@ -233,7 +236,6 @@ export class Structure extends Model implements IModel{
                     this.synchronized.periodes &&
                     this.synchronized.types &&
                     this.synchronized.classes &&
-                    this.synchronized.eleves &&
                     this.synchronized.devoirs;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
@@ -247,7 +249,6 @@ export class Structure extends Model implements IModel{
             this.periodes.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
-            this.eleves.sync().then(isSynced);
             this.syncDevoirs().then(isSynced);
             if (isChefEtab()) {
                 this.syncEnseignants().then(isSynced);

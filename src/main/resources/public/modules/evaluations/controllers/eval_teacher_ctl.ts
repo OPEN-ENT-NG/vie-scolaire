@@ -120,7 +120,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.createDevoir();
                         evaluations.enseignements.on('sync', function () {
                             $scope.initFilter(true);
-                            $scope.evaluations.competencesDevoir = $scope.devoir.competences.all;
+                            $scope.evaluations.competencesDevoir = [];
+                            for(let i=0; i< $scope.devoir.competences.all.length; i++){
+                                $scope.evaluations.competencesDevoir.push($scope.devoir.competences.all[i]);
+                            }
 
                             //tableau des connaissances à cocher éventuellement
                             var parentToCheck = [];

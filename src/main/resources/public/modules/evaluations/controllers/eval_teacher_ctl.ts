@@ -522,6 +522,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.changeEtablissement = () => {
             let init = () => {
+                $scope.clearScope();
                 $scope.initReferences();
                 $scope.search = $scope.initSearch();
                 $scope.opened.displayStructureLoader = false;
@@ -534,6 +535,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             } else {
                 init();
             }
+        };
+
+        $scope.clearScope = () => {
+            delete $scope.releveNote;
         };
 
         $scope.switchStructureCreation = () => {
@@ -1627,6 +1632,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Séquence de récupération d'un relevé de note
          */
         $scope.getReleve = function () {
+            if($scope.releveNote !== undefined) {
+                delete $scope.releveNote;
+            }
             if($scope.selected.devoirs.list !== undefined){
                 for(let i =0 ; i< $scope.selected.devoirs.list.length; i++){
                     $scope.selected.devoirs.list[i].selected = false;
@@ -1638,7 +1646,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.search.matiere !== null && $scope.search.matiere !== undefined && $scope.search.matiere.id !== undefined
                 && $scope.search.periode !== undefined
                 && $scope.search.classe !== undefined && $scope.search.classe.id !== '*'
-                && $scope.search.matiere !== '*' && $scope.search.periode !== '*') {
+                && $scope.search.matiere !== '*' && $scope.search.periode !== '*'
+                && _.findWhere($scope.evaluations.devoirs.all,{id_groupe : $scope.search.classe.id})) {
 
                 let p = {
                     idEtablissement: $scope.evaluations.structure.id,
@@ -2346,6 +2355,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.initReferences = () => {
+            evaluations.enseignements = evaluations.structure.enseignements;
+            evaluations.releveNotes = evaluations.structure.releveNotes;
+            evaluations.periodes = evaluations.structure.periodes;
+            evaluations.matieres = evaluations.structure.matieres;
+            evaluations.eleves = evaluations.structure.eleves;
+            evaluations.classes = evaluations.structure.classes;
+            evaluations.devoirs = evaluations.structure.devoirs;
+            evaluations.types = evaluations.structure.types;
             $scope.devoirs = evaluations.structure.devoirs;
             $scope.enseignements = evaluations.structure.enseignements;
             $scope.matieres = evaluations.structure.matieres;

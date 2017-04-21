@@ -1684,14 +1684,6 @@ export class Evaluations extends Model{
     async sync () : Promise<any> {
         try {
             await this.structures.sync();
-            evaluations.enseignements = evaluations.structure.enseignements;
-            evaluations.releveNotes = evaluations.structure.releveNotes;
-            evaluations.periodes = evaluations.structure.periodes;
-            evaluations.matieres = evaluations.structure.matieres;
-            evaluations.eleves = evaluations.structure.eleves;
-            evaluations.classes = evaluations.structure.classes;
-            evaluations.devoirs = evaluations.structure.devoirs;
-            evaluations.types = evaluations.structure.types;
             return;
         } catch (e) {
             throw e;

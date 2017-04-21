@@ -44,26 +44,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
                     $scope.cleanRoot();
 
-                    // Chefs d'établissement
-                    if ($scope.Structure === undefined) {
-                        $scope.Structure = new Structure();
-                    }
+                    // // Chefs d'établissement
+                    // if ($scope.Structure === undefined) {
+                    //     $scope.Structure = new Structure();
+                    // }
                     //si les Eleves ne sont pas sync
-                    if ( $scope.Structure.synchronized.Eleve !== false) {
-                        if($scope.isChefEtab() ) {
-                            evaluations.on('eleves-sync', function () {
-                                $scope.Structure.eleves.all = evaluations.eleves;
-                                utils.safeApply($scope);
-                            });
-                        }
-                        else{
-                            evaluations.on('eleves-sync', function () {
-                                $scope.eleves = evaluations.eleves;
-                                utils.safeApply($scope);
-                            });
-
-                        }
-                    }
+                    // if ( $scope.Structure.synchronized.Eleve !== false) {
+                    //     if($scope.isChefEtab() ) {
+                    //         evaluations.on('eleves-sync', function () {
+                    //             $scope.eleves = evaluations.eleves;
+                    //             utils.safeApply($scope);
+                    //         });
+                    //     }
+                    //     else{
+                    //         evaluations.on('eleves-sync', function () {
+                    //             $scope.eleves = evaluations.eleves;
+                    //             utils.safeApply($scope);
+                    //         });
+                    //
+                    //     }
+                    // }
                 }
                 template.open('main', '../templates/evaluations/enseignants/eval_acu_teacher');
                 utils.safeApply($scope);
@@ -588,38 +588,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return _.indexOf($scope.selected.classes, id) !== -1;
         };
 
-        $scope.eleves = [];
-        if (evaluations.synchronized.classes !== 0) {
-            if(evaluations.classes !== undefined) {
-                evaluations.classes.on('classes-sync', () => {
-                    for (let i = 0; i < evaluations.classes.all.length; i++) {
-                        let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function (eleve) {
-                            if ((_.findWhere($scope.eleves, {id: eleve.id})) === undefined) {
-                                return _.extend(eleve, {
-                                        classEleve: evaluations.classes.all[i]
-                                    }
-                                );
-                            }
-                        });
-                        $scope.eleves = _.union($scope.eleves, _.without(elevesOfclass, undefined));
-                    }
-
-
-                });
-            }
-        } else {
-            for (let i = 0; i < evaluations.classes.all.length; i++) {
-                let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
-                    if((_.findWhere($scope.eleves, {id: eleve.id})) === undefined) {
-                        return _.extend(eleve, {
-                                classEleve : evaluations.classes.all[i]
-                            }
-                        );
-                    }
-                });
-                $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
-            }
-        }
+        // for (let i = 0; i < evaluations.classes.all.length; i++) {
+        //     let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+        //         if((_.findWhere($scope.eleves, {id: eleve.id})) === undefined) {
+        //             return _.extend(eleve, {
+        //                     classEleve : evaluations.classes.all[i]
+        //                 }
+        //             );
+        //         }
+        //     });
+        //     $scope.eleves = _.union($scope.eleves,  _.without(elevesOfclass, undefined));
+        // }
 
         /**
          * cette function permet d'extraire les competences evalué du devoir

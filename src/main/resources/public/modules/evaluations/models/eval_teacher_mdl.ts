@@ -70,21 +70,24 @@ export class Structure extends Model implements IModel{
         this.collection(Enseignant);
         this.collection(Eleve, {
             sync : function () {
-                //chargement des élèves Pour les enseignants ou personnel de l'établissement
-                let url = that.api.ELEVE.synchronization;
-                //filtre par classe pour les enseignants
-                if((model.me.type === 'ENSEIGNANT')){
-                    evaluations.classes.forEach((classe) => {
-                        url += '&idClasse=' + classe.id;
-                    });
-                }
-                if(model.me.type === 'PERSEDUCNAT'
-                    || model.me.type === 'ENSEIGNANT') {
-                    http().getJson(url).done((res) => {
-                        that.eleves.load(res);
-                        evaluations.trigger('eleves-sync');
-                    });
-                }
+                return new Promise((resolve, reject) => {
+                    //chargement des élèves Pour les enseignants ou personnel de l'établissement
+                    let url = that.api.ELEVE.synchronization;
+                    //filtre par classe pour les enseignants
+                    if((model.me.type === 'ENSEIGNANT')){
+                        evaluations.classes.forEach((classe) => {
+                            url += '&idClasse=' + classe.id;
+                        });
+                    }
+                    if(model.me.type === 'PERSEDUCNAT'
+                        || model.me.type === 'ENSEIGNANT') {
+                        http().getJson(url).done((res) => {
+                            that.eleves.load(res);
+                            that.synchronized.eleves = true;
+                            resolve();
+                        });
+                    }
+                });
             }
         });
     this.collection(Type, {
@@ -205,10 +208,13 @@ export class Structure extends Model implements IModel{
                     http().getJson(that.api.CLASSE.synchronization).done((res) => {
                         that.classes.addRange(castClasses(res));
                         that.synchronized.classes = true;
-                        that.syncRemplacement().then(() => {
-                            that.eleves.sync();
-                            resolve()
-                        })
+                        if (!isChefEtab()) {
+                            that.syncRemplacement().then(() => {
+                                resolve()
+                            })
+                        } else {
+                            resolve();
+                        }
                     });
                 });
             },
@@ -227,6 +233,7 @@ export class Structure extends Model implements IModel{
                     this.synchronized.periodes &&
                     this.synchronized.types &&
                     this.synchronized.classes &&
+                    this.synchronized.eleves &&
                     this.synchronized.devoirs;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
@@ -240,6 +247,7 @@ export class Structure extends Model implements IModel{
             this.periodes.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
+            this.eleves.sync().then(isSynced);
             this.syncDevoirs().then(isSynced);
             if (isChefEtab()) {
                 this.syncEnseignants().then(isSynced);

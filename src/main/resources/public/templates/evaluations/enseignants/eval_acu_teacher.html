@@ -10,23 +10,12 @@
             <li ng-if="isChefEtab()"><a href="#/remplacements/list"><i18n>evaluations.remplacants.title</i18n></a></li>
         </ul>
     </nav>
-
-    <!--  Content (main zone)  Chef etablissement-->
-    <div ng-if="isChefEtab()" class="ten cell main-content twelve-mobile">
-        <section class="eleven cell row headerAccueil">
-            <article class="twelve cell ">
-                <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-                <autocomplete options="Structure.eleves.all" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-            </article>
-        </section>
-    </div>
-
     <!--  Content (main zone) Enseignant -->
-    <div ng-if="!isChefEtab()" class="ten cell main-content twelve-mobile">
+    <div  class="ten cell main-content twelve-mobile">
         <section class="eleven cell row headerAccueil">
             <div class="twelve cell ">
                 <header>
-                    <button class="marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
+                    <button ng-if="!isChefEtab()" class="marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
                     <label class="select right-magnet" ng-if="evaluations.structures.all.length > 1">
                         <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in structures.all track by structure.id"  ng-change="changeEtablissementAccueil()"></select>
                     </label>

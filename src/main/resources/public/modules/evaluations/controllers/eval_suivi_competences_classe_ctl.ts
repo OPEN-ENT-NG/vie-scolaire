@@ -39,6 +39,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 $scope.periodesList.values.push(periode);
             });
             $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
+            $scope.search.periode = $scope.periodesList.value;
             utils.safeApply($scope);
 
             //sélection de la classe du suivi
@@ -61,7 +62,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
 
 
             $scope.suiviFilter = {
-                mine : 'true'
+                mine : (!$scope.isChefEtab()).toString()
             };
 
             $scope.selected.colors = {
@@ -89,13 +90,15 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         /**
          * Créer une suivi de compétence
          */
-        $scope.selectSuivi = function (state) {
+        $scope.selectSuivi = function () {
             $scope.Display = {EvaluatedCompetences : true};
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== '' && $scope.search.classe !== '*') {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
                 // on met à jour le fil d'ariane
-                let updatedUrl = '/competences/classe?idClasse='+$scope.search.classe.id + '&idPeriode='+ $scope.search.periode.id;
+                let updatedUrl = '/competences/classe?idClasse='+$scope.search.classe.id;
+                if ($scope.search.periode.hasOwnProperty('id') && $scope.search.periode.id !== undefined)
+                    updatedUrl += '&idPeriode='+ $scope.search.periode.id;
 
                 $rootScope.$broadcast('change-params', updatedUrl);
                 $scope.suiviCompetence.sync().then(() => {

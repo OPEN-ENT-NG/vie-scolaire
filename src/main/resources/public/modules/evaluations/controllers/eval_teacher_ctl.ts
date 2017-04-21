@@ -1488,7 +1488,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
                         var toAdd = true;
                         for(let j =0; j < $scope.devoir.competences.all.length; j++) {
-                            if ($scope.devoir.competences.all[j].id_competence
+                            if ($scope.devoir.competences.all[j].id
                                 === evaluations.competencesDevoir[i].id) {
                                 toAdd = false;
                                 break;

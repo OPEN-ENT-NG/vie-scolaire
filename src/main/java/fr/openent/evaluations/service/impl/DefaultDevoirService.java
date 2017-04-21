@@ -459,16 +459,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("WHERE (rel_devoirs_groupes.id_devoir = devoirs.id) ")
                 .append("AND (devoirs.id_etablissement = ? )")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (de l'établissement passé en paramètre)
-                                        .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                                        .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                                        .append("WHERE id_remplacant = ? ")
-                                        .append("AND rel_professeurs_remplacants.id_etablissement = ? ")
-                                        .append(") OR ")
-                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                            .append("WHERE resource_id = devoirs.id ")
-                            .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (de l'établissement passé en paramètre)
+                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                .append("WHERE id_remplacant = ? ")
+                .append("AND rel_professeurs_remplacants.id_etablissement = ? ")
+                .append(") OR ")
+                .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                .append("WHERE resource_id = devoirs.id ")
+                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
                 .append(") ")
 
                 .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username, ")
@@ -765,10 +765,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbCompetencesDevoirs(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT count(id_competence) as nb_competences, id_devoir as id ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ")
-                .append("WHERE competences_devoirs.id_devoir IN " + Sql.listPrepared(idDevoirs) + " ")
-                .append("GROUP by competences_devoirs.id_devoir ");
+        query.append("SELECT d.id id, count(id_competence) as nb_competences ")
+                .append("FROM  "+ Viescolaire.EVAL_SCHEMA +".devoirs d ")
+                .append("LEFT JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs cd  ON d.id = cd.id_devoir ")
+                .append("where d.id IN "+ Sql.listPrepared(idDevoirs) + " ")
+                .append("GROUP by d.id ");
 
         JsonArray values =  new JsonArray();
         //Ajout des id désirés

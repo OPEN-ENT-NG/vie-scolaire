@@ -1094,7 +1094,7 @@ export class Devoir extends Model implements IModel{
                     let id = [];
                     id.push(that.id);
                     evaluations.devoirs.getPercentDone(id).then(() => {
-                        that.statistiques.percentDone = _.findWhere(evaluations.devoirs.all,{id : that.id}).percent;
+                        that.statistiques.percentDone = _.findWhere(evaluations.structure.devoirs.all,{id : that.id}).percent;
                     });
                 } else {
                     _.mapObject(that.statistiques, (val) => {

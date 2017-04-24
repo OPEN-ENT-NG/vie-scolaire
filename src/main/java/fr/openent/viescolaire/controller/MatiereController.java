@@ -203,10 +203,14 @@ public class MatiereController extends ControllerHelper {
                         final List<String> ids = new ArrayList<String>();
 
                         final JsonArray reponseJA = new JsonArray();
-
+                        JsonArray libelleGroups, libelleClasses;
                         for (Object res : resultats) {
                             final JsonObject r = (JsonObject) res;
-                            r.putArray("libelleClasses", utilsService.saUnion(r.getArray("libelleClasses"), r.getArray("libelleGroupes")));
+                            libelleGroups = r.getArray("libelleGroupes");
+                            libelleClasses = r.getArray("libelleClasses");
+                            libelleGroups = libelleGroups == null ? new JsonArray() : libelleGroups;
+                            libelleClasses = libelleClasses == null ? new JsonArray() : libelleClasses;
+                             r.putArray("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
                             r.removeField("libelleGroupes");
                             reponseJA.addObject(r);
                             ids.add(r.getString("id"));

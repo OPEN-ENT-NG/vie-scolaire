@@ -45,7 +45,9 @@ module.exports = {
             'angular': path.resolve('./bower_components/angular/angular.min.js'),
             'angular-route': path.resolve('./bower_components/angular-route/angular-route.min.js'),
             'angular-sanitize': path.resolve('./bower_components/angular-sanitize/angular-sanitize.min.js'),
-            'es6-shim': path.resolve('./bower_components/es6-shim/es6-shim.min.js')
+            'es6-shim': path.resolve('./bower_components/es6-shim/es6-shim.min.js'),
+            'toolkit': path.resolve('./node_modules/toolkit/index.js'),
+            'axios': path.resolve('./node_modules/axios/dist/axios.js')
         },
         extensions: ['', '.js']
     },

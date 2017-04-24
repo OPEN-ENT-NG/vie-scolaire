@@ -25,7 +25,8 @@
                 <span></span>
             </label>
         </div>
-        <div class="two cell cell-indent four-mobile">
+
+        <div class= "cell cell-indent four-mobile" ng-class="{'one': isChefEtab(), 'two': !isChefEtab()}">
             <i18n>viescolaire.utils.date</i18n>
         </div>
         <div tooltip="Classe / Groupe" class="one cell cell-indent three-mobile ellipsis">
@@ -37,11 +38,18 @@
         <div class="one cell cell-indent last zero-mobile">
             <i18n>evaluations.test.coefficient</i18n>
         </div>
-        <div class="two cell cell-indent last zero-mobile">
+        <div tooltip="Nb. compétences"  ng-if="isChefEtab()" class="one ellipsis cell cell-indent last zero-mobile ">
             <i18n>evaluations.skills.nb</i18n>
         </div>
+        <div  ng-if="!isChefEtab()" class="two cell cell-indent last zero-mobile ">
+            <i18n>evaluations.skills.nb</i18n>
+        </div>
+
         <div class="one cell cell-indent zero-mobile">
             <i18n>evaluations.test.percent</i18n>
+        </div>
+        <div ng-if="isChefEtab()" class="two cell cell-indent four-mobile">
+            <i18n>evaluations.test.teacher</i18n>
         </div>
         <div class="one cell display-check zero-mobile">
             &nbsp;
@@ -52,20 +60,22 @@
     <div class="expandable-liste card"  bottom-scroll="pOFilterEval.limitTo = pOFilterEval.limitTo + 5" >
         <div class="expandable twelve"
              ng-repeat="devoir in devoirs.all | customSearchFilters:search | limitTo:pOFilterEval.limitTo"
-             ng-class="{'opened shadow': openedDevoir === $index}" >
-            <div class="row">
+             ng-class="{'opened shadow': openedDevoir === $index, 'DisabledDevoir': disabledDevoir[devoir.id]}" >
+            <div class="row" >
                 <div class="one cell cell-check expandable-content two-mobile">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="devoir.selected" ng-change="selectDevoir(devoir)">
                         <span></span>
                     </label>
                 </div>
-                <a ng-href="#/devoir/[[devoir.id]]">
-                    <div class="two cell cell-indent expandable-content four-mobile">
+                <a ng-href="#/devoir/[[devoir.id]]"
+                   ng-if="isValidClasse(devoir.id_groupe)">
+                    <div class="cell cell-indent expandable-content four-mobile"
+                         ng-class="{'one': isChefEtab(), 'two': !isChefEtab()}" >
                         [[getDateFormated(devoir.date)]]
                     </div>
                     <div class="one cell cell-indent expandable-content three-mobile">
-                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? '&nbsp;'  : getClasseData(devoir.id_groupe, 'name')]]
+                        [[(getClasseData(devoir.id_groupe, 'name') === '' || getClasseData(devoir.id_groupe, 'name') === undefined) ? getNameInOtherClasses(devoir.id_groupe,devoir.id)  : getClasseData(devoir.id_groupe, 'name')]]
                     </div>
                     <div class="three cell cell-indent expandable-content three-mobile">
                         [[devoir.name]]
@@ -73,13 +83,44 @@
                     <div class="one cell cell-indent expandable-content zero-mobile">
                         [[(devoir.is_evaluated === true) ? devoir.coefficient : 'N/A']]
                     </div>
-                    <div class="two cell cell-indent expandable-content zero-mobile">
+                    <div class="cell cell-indent expandable-content zero-mobile"
+                         ng-class="{'one ellipsis': isChefEtab(), 'two': !isChefEtab()}">
                         [[devoir.nbcompetences]]
                     </div>
                     <div class="one cell cell-indent expandable-content  zero-mobile">
                         [[devoir.percent = (devoir.percent !== undefined) ? devoir.percent : 0]]%
                     </div>
+                    <div ng-if="isChefEtab()"
+                            class="two cell cell-indent expandable-content  zero-mobile">
+                        [[devoir.teacher]]
+                    </div>
                 </a>
+                <div ng-if="!isValidClasse(devoir.id_groupe)">
+                    <div class="cell cell-indent expandable-content four-mobile"
+                         ng-class="{'one': isChefEtab(), 'two': !isChefEtab()}">
+                        [[getDateFormated(devoir.date)]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content three-mobile">
+                        [[getClasseData(devoir.id_groupe, 'name')]]
+                    </div>
+                    <div class="three cell cell-indent expandable-content three-mobile">
+                        [[devoir.name]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content zero-mobile">
+                        [[(devoir.is_evaluated === true) ? devoir.coefficient : 'N/A']]
+                    </div>
+                    <div class="cell cell-indent expandable-content zero-mobile"
+                         ng-class="{'one ellipsis': isChefEtab(), 'two': !isChefEtab()}"   >
+                        [[devoir.nbcompetences]]
+                    </div>
+                    <div class="one cell cell-indent expandable-content  zero-mobile">
+                        [[devoir.percent = (devoir.percent !== undefined) ? devoir.percent : 0]]%
+                    </div>
+                    <div ng-if="isChefEtab()"
+                         class="two cell cell-indent expandable-content  zero-mobile">
+                        [[devoir.teacher]]
+                    </div>
+                </div>
                 <div class="one cell cell-check expandable-content zero-mobile">
                     <span class="plus-input" ng-click="expand($index, true)"></span>
                 </div>

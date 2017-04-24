@@ -22,10 +22,13 @@ package fr.openent.evaluations.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.service.RemplacementService;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -107,5 +110,24 @@ public class DefaultRemplacementService extends SqlCrudService implements Rempla
         values.addString(id_etablissement);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validRowsResultHandler(handler));
+    }
+
+    @Override
+    public void getRemplacementClasse(JsonArray classes, UserInfos user, String idStructure, Handler<Either<String, JsonArray>> handler) {
+        JsonArray ids = new JsonArray();
+        for (int i = 0; i < classes.size(); i++) {
+            JsonObject o = classes.get(i);
+            if (o.containsField("id_groupe")) ids.addString(o.getString("id_groupe"));
+        }
+        String query = "MATCH c " +
+                "WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) " +
+                "AND NOT (:User {id:{userId}})-[:IN]->(c:FunctionalGroup) " +
+                "AND c.id IN {ids} " +
+                "RETURN collect({id: c.id, name: c.name, remplacement: true, type_groupe: CASE WHEN labels(c) = ['Class'] THEN 0 ELSE 1 END}) as classes";
+        JsonObject params = new JsonObject()
+                .putArray("ids", ids)
+                .putString("userId", user.getUserId());
+
+        Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 }

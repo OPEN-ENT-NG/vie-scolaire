@@ -33,16 +33,27 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
+
+
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 
 /**
  * Created by ledunoiss on 05/08/2016.
  */
 public class DefaultUtilsService  implements UtilsService {
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);
+
     private final Neo4j neo4j = Neo4j.getInstance();
 
     @Override
@@ -150,6 +161,7 @@ public class DefaultUtilsService  implements UtilsService {
         Double noteMin = new Double(diviseurM);
         Double notes = new Double(0);
         Double diviseur = new Double(0);
+
         for (NoteDevoir noteDevoir : listeNoteDevoirs) {
             Double currNote = noteDevoir.getNote();
             Double currCoefficient = noteDevoir.getCoefficient();
@@ -175,8 +187,16 @@ public class DefaultUtilsService  implements UtilsService {
             }
         }
         Double moyenne = (notes/diviseur)*diviseurM;
-        DecimalFormat df = new DecimalFormat("##.##");
-        moyenne = Double.parseDouble(df.format(moyenne).replace(",", "."));
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("fr", "FR"));
+        symbols.setDecimalSeparator('.');
+
+        DecimalFormat df = new DecimalFormat("##.##", symbols);
+        try {
+            moyenne = Double.valueOf(df.format(moyenne));
+        } catch (NumberFormatException e) {
+            log.error("Moyenne : "+String.valueOf(moyenne), e);
+        }
         JsonObject r = new JsonObject().putNumber("moyenne", moyenne);
         if (statistiques) {
             r.putNumber("noteMax", noteMax).putNumber("noteMin", noteMin);
@@ -193,6 +213,27 @@ public class DefaultUtilsService  implements UtilsService {
     public void getStructure(String id, Handler<Either<String, JsonObject>> handler) {
         String query = "match (s:`Structure`) where s.id = {id} return s";
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
+    }
+
+    /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_etablissement ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".etablissements_actifs  ")
+                .append("WHERE id_etablissement IN " + Sql.listPrepared(userInfos.getStructures().toArray()))
+                .append(" AND actif = TRUE");
+
+        for(String idStructure :  userInfos.getStructures()){
+            params.addString(idStructure);
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
     @Override
@@ -257,18 +298,29 @@ public class DefaultUtilsService  implements UtilsService {
 
     /**
      * Récupère la liste des classes de l'utilisateur
-     * @param idClasses identifiant des classes
-     * @param idGroupes identifiant des groupes
+     * @param user
      * @param handler handler portant le résultat de la requête
      */
     @Override
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (g:Class) WHERE g.id IN {structures} return g " +
-                "UNION ALL " +
-                "MATCH (g:FunctionalGroup) WHERE g.id IN {groups} return g";
-        JsonObject params = new JsonObject()
-                .putArray("structures", new JsonArray(idClasses.toArray()))
-                .putArray("groups", new JsonArray(idGroupes.toArray()));
+    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+        String query;
+        JsonObject params = new JsonObject();
+        // Dans le cas du chef d'établissement, on récupère toutes les classes
+        if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";
+            params.putString("idEtablissement", idEtablissement);
+        }
+        else {
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {classes} AND s.id = {idEtablissement} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
+            params = new JsonObject();
+            params.putArray("classes", new JsonArray(user.getClasses().toArray()))
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+                    .putString("idEtablissement", idEtablissement);
+        }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 
@@ -284,12 +336,38 @@ public class DefaultUtilsService  implements UtilsService {
     }
 
     @Override
+    public JsonObject mapListString (JsonArray list, String key, String value) {
+        JsonObject values = new JsonObject();
+        JsonObject o;
+        for (int i = 0; i < list.size(); i++) {
+            o = list.get(i);
+            values.putString(o.getString(key), o.getString(value));
+        }
+        return values;
+    }
+
+    @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
             recipient.addString((String) list.get(i));
         }
         return recipient;
     }
+
+    @Override
+    public <K> void addToMap(K id, HashMap<K, ArrayList<NoteDevoir>> map, NoteDevoir valueToAdd) {
+        if (map.containsKey(id)) {
+
+            map.get(id).add(valueToAdd);
+
+        } else {
+
+            ArrayList<NoteDevoir> notes = new ArrayList<>();
+            notes.add(valueToAdd);
+            map.put(id, notes);
+        }
+    }
+
 
     /**
      * Récupère le cycle de la classe dans la relation classe_cycle
@@ -301,14 +379,15 @@ public class DefaultUtilsService  implements UtilsService {
         StringBuilder query =new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT id_groupe, id_cycle ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle ")
-                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()));
+        query.append("SELECT id_groupe, id_cycle, libelle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle,  ")
+                .append( Viescolaire.EVAL_SCHEMA +".cycle ")
+                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()))
+                .append(" AND id_cycle = cycle.id");
 
         for(String id :  idClasse){
             params.addString(id);
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
-
 }

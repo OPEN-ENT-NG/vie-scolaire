@@ -19,6 +19,7 @@
 
 package fr.openent.evaluations.service;
 
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
@@ -42,6 +43,25 @@ public interface DevoirService extends CrudService {
     public void createDevoir(final JsonObject devoir, UserInfos user,final Handler<Either<String, JsonObject>> handler);
 
     /**
+     * Créer le statement SQL de création d'un devoir.
+     * @param idDevoir Identifiant du devoir
+     * @param devoir devoir
+     * @param user utilisateur courant
+     * @return Statements SQL
+     */
+    public JsonArray createStatement(Long idDevoir, JsonObject devoir, UserInfos user);
+
+    /**
+     * Duplique le devoir passé en paramètre sur la liste de classes passée en paramètre
+     * @param idDevoir identifiant du devoir à dupliquer
+     * @param devoir devoir à dupliquer
+     * @param classes liste des classes
+     * @param user utilisateur courant
+     * @param handler handler portant le résultat de la requête
+     */
+    public void duplicateDevoir(Long idDevoir, JsonObject devoir, JsonArray classes, UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Met à jour un devoir
      * @param id Identifian du devoir
      * @param devoir Devoir à mettre à jour
@@ -54,7 +74,7 @@ public interface DevoirService extends CrudService {
      * @param user utilisateur l'utilisateur connecté
      * @param handler handler portant le résultat de la requête
      */
-    public void listDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    public void listDevoirs(UserInfos user,String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste des devoirs pour un établissement, une classe, une matière et une période donnée.
@@ -83,9 +103,11 @@ public interface DevoirService extends CrudService {
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
      * @param user l'utilisateur connecté
+     * @param idGroupes La liste des devoirs désirés
      * @param handler handler portant le résultat de la requête
      */
-    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(UserInfos user, Long[] idGroupes, Handler<Either<String, JsonArray>> handler);
+
     /**
      * verifie si le devoir est evalué ou pas
      * @param idDevoir
@@ -99,4 +121,37 @@ public interface DevoirService extends CrudService {
      * @param handler
      */
     public void getevaluatedDevoirs(Long[] idDevoir, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Liste des devoirs pour un établissement.
+     *
+     * @param user
+     * @param handler
+     */
+    public void listDevoirsEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Retourne la liste des toutes les classes qui font ou ont fait l'objet d'un devoir par
+     * l'utilisateur.
+     * @param user Utilisateur en cours
+     * @param structureId Identifiant de la structure
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getClassesIdsDevoir(UserInfos user, String structureId, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère les notes du devoirs dans la base et en calcule la moyenne
+     * @param idDevoir Devoir dont on souhaite avoir la moyenne
+     * @param stats Booléen permettant de demander le calcul des statistique en plus
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Récupère le nombre de compétences en fonction du devoir pour un utilisateur donné
+     * @param idGroupes La liste des devoirs désirés
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getNbCompetencesDevoirs( Long[] idGroupes, Handler<Either<String, JsonArray>> handler);
+
 }

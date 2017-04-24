@@ -26,6 +26,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -99,6 +101,14 @@ public interface UtilsService {
 
 
     /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler);
+
+
+    /**
      * Récupère le cycle de la classe dans la relation classe_cycle
      * @param idClasse Identifiant de l'établissement.
      * @param handler Handler portant le résultat de la requête.
@@ -122,11 +132,10 @@ public interface UtilsService {
 
     /**
      * Récupère la liste des classes de l'utilisateur
-     * @param idClasses identifiant des classes
-     * @param idGroupes identifiant des groupes
+     *
      * @param handler handler portant le résultat de la requête
      */
-    public void listClasses(List<String> idClasses, List<String> idGroupes, Handler<Either<String, JsonArray>> handler);
+    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur
@@ -138,10 +147,28 @@ public interface UtilsService {
     public JsonObject mapListNumber(JsonArray list, String key, String value);
 
     /**
+     * Map une JsonArray en un JsonObject contenant une clé et une valeur
+     * @param list liste à mapper
+     * @param key clé
+     * @param value valeur
+     * @return Un object Json contenant les clés et les valeurs
+     */
+    public JsonObject mapListString(JsonArray list, String key, String value);
+
+    /**
      * Réalise une union de deux JsonArray de String
      * @param recipient Tableau d'accueil
      * @param list Tableau à transférer
      * @return Un JsonArray contenant les deux tableau
      */
     public JsonArray saUnion(JsonArray recipient, JsonArray list);
+
+    /**
+     * Ajoute la NoteDevoir passé en paramètre à la collection associée à la clé passée. Si la collection n'existe pas, la crée.
+     * @param key Clé à laquelle ajouter la valueToAdd
+     * @param map La map dans laquelle faire l'ajout
+     * @param valueToAdd La valeur à ajouter.
+     * @param <K> Le type de la clé
+     */
+    public <K> void addToMap(K key, HashMap<K, ArrayList<NoteDevoir>> map, NoteDevoir valueToAdd);
 }

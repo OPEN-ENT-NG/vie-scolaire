@@ -44,18 +44,27 @@ public class AccessEvaluationFilter implements ResourcesProvider {
                     handler.handle(false);
                 }
                 try {
-                    Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
-                    new FilterDevoirUtils().validateAccessDevoir(idDevoir, user, new Handler<Boolean>() {
+                    final Long idDevoir = Long.parseLong(resourceRequest.params().get("idDevoir"));
+                    new FilterDevoirUtils().validateAccessDevoir(idDevoir, user, resourceRequest.method().contains("PUT"), new Handler<Boolean>() {
                         @Override
-                        public void handle(Boolean isOwner) {
+                        public void handle(Boolean isValid) {
                             resourceRequest.resume();
-                            handler.handle(isOwner);
+                            handler.handle(isValid);
                         }
                     });
                 } catch (NumberFormatException e) {
                     resourceRequest.resume();
                     Renders.badRequest(resourceRequest, "Error : idNote must be a long object");
                 }
+            }
+            break;
+            case "Personnel" : {
+                resourceRequest.pause();
+                if (!resourceRequest.params().contains("idDevoir")) {
+                    handler.handle(false);
+                }
+                resourceRequest.resume();
+                handler.handle(true);
             }
             break;
             default : {

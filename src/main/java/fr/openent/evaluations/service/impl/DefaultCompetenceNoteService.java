@@ -185,6 +185,43 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
+    public void getCompetencesNotesDomaineClasse(List<String> idEleves, Long idPeriode, List<String> idDomaines, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray();
+        StringBuilder query = new StringBuilder()
+                .append("SELECT competences_notes.id_eleve AS id_eleve, competences.id as id_competence, max(competences_notes.evaluation) as evaluation,rel_competences_domaines.id_domaine, competences_notes.owner ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
+                .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence " +
+                        "AND rel_competences_domaines.id_domaine IN ( " );
+
+        for (int i=0; i<idDomaines.size()-1 ; i++){
+            query.append("?,");
+            values.addNumber(Integer.valueOf(idDomaines.get(i)));
+        }
+        query.append("?)) ");
+        values.addNumber(Integer.valueOf(idDomaines.get(idDomaines.size()-1)));
+
+         query.append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id AND competences_notes.id_eleve IN (");
+
+        for (int i=0; i<idEleves.size()-1 ; i++){
+            query.append("?,");
+            values.addString(idEleves.get(i));
+        }
+        query.append("?)) ");
+        values.addString(idEleves.get(idEleves.size()-1));
+
+        query.append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ");
+
+        if (idPeriode != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(idPeriode);
+        }
+        query.append("GROUP BY competences.id, competences.id_cycle,rel_competences_domaines.id_domaine, competences_notes.id_eleve, competences_notes.owner ");
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+
+    @Override
     public void getConversionNoteCompetence(String idEtablissement, String idClasse, Handler<Either<String,JsonArray>> handler){
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()

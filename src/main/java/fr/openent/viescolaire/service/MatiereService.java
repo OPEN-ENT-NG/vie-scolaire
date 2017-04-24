@@ -21,6 +21,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
@@ -40,7 +41,7 @@ public interface MatiereService extends CrudService {
     public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
 
     //TODO A SUPPRIMER
-    public void listMatieres(String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result);
+    public void listMatieres(String structureId, String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result);
 
     /**
      *
@@ -63,5 +64,12 @@ public interface MatiereService extends CrudService {
      * @param result handler portant le résulat de la requête
      */
     public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
+
+    /**
+     * Récupére les matiéres de l'établissment de l'utilisateurs (chef Etab)
+     * @param user
+     * @param handler
+     */
+   public void listMatieresEtab(UserInfos user, Handler<Either<String, JsonArray>> handler );
 
 }

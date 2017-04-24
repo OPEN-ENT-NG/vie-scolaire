@@ -34,4 +34,29 @@ public interface ClasseService extends CrudService {
      * @param handler Handler portant le résultat de la requête.
      */
     public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère le nombre d'élève de chaque groupe dont l'id est passé en paramètre.
+     * @param idGroupes Listes des identifiants de groupe.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getNbElevesGroupe(JsonArray idGroupes, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère toutes les classes d'une classe donné en fonction de son id Neo4j.
+
+     * @param idClasse
+     * @param handler
+     */
+    public void getEleveClasse( String idClasse, Handler<Either<String, JsonArray>> handler);
+
+    /**²
+     * Récupère toutes les classes d'une Liste de classe donné en fonction de son id Neo4j.
+      *@param idEtablissement
+     * @param idClasse
+     * @param isTeacher
+     * @param handler
+     */
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
+
 }

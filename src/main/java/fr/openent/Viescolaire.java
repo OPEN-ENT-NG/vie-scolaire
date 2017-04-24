@@ -24,6 +24,7 @@ import fr.openent.absences.controller.EvenementController;
 import fr.openent.absences.controller.MotifController;
 import fr.openent.evaluations.controller.*;
 import fr.openent.viescolaire.controller.*;
+import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import fr.wseduc.webutils.email.EmailSender;
 import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.BaseServer;
@@ -56,6 +57,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_PERIODE_TABLE = "periode";
 	public final static String VSCO_MATIERE_TABLE = "matiere";
 	public final static String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
+	public final static String VSCO_PERSONNES_SUPP_TABLE = "personnes_supp";
 
 	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
@@ -69,6 +71,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_DOMAINES_TABLE = "domaines";
 	public static final String EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE = "rel_professeurs_remplacants";
 	public static final String EVAL_APPRECIATIONS_TABLE = "appreciations";
+	public static final String EVAL_BFC_TABLE = "bilan_fin_cycle";
 
 	/**
 	 * Déclaration des router préfixs
@@ -105,6 +108,14 @@ public class Viescolaire extends BaseServer {
 	public final static String SCHEMA_APPRECIATIONS_CREATE = "eval_createAppreciation";
 	public final static String SCHEMA_APPRECIATIONS_UPDATE = "eval_updateAppreciation";
 
+	public static final Integer CLASSE_TYPE = 0;
+	public static final Integer GROUPE_TYPE = 1;
+
+	public final static String SCHEMA_BFC_CREATE = "eval_createBFC";
+	public final static String SCHEMA_BFC_UPDATE = "eval_updateBFC";
+
+	public final static Integer MAX_NBR_COMPETENCE = 12;
+
 	@Override
 	public void start() {
 		super.start();
@@ -131,6 +142,7 @@ public class Viescolaire extends BaseServer {
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
+
 
 		/*
 			CONTROLEURS ABSENCES
@@ -169,20 +181,10 @@ public class Viescolaire extends BaseServer {
 		addController(new NoteController());
 		addController(new AppreciationController());
 		addController(new UtilsController());
-
+		addController(new BFCController());
 		addController(new ReferentielController());
 
-		//TODO awaiting an admin console
-		//waiting for automatic script, launch after one mitute
-		/*
-		vertx.setTimer(60000, new Handler<Long>() {
-			@Override
-			public void handle(Long aLong) {
-				//init datas linked with a structure id.
-				new InitDataService().initData();
-		}
-		});
-		*/
+		setRepositoryEvents(new VieScolaireRepositoryEvents());
 	}
 
 }

@@ -7,5 +7,9 @@
  * @returns {boolean} true si ça match false sinon
  */
 export function containsIgnoreCase(psString, psKeyword){
-    return psString.toLowerCase().indexOf(psKeyword.toLowerCase())>=0 && psKeyword.trim() !== "";
+    if (psKeyword !== undefined) {
+        return psString.toLowerCase().indexOf(psKeyword.toLowerCase())>=0 && psKeyword.trim() !== "";
+    } else {
+        return false;
+    }
 };

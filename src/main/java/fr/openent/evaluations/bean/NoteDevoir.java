@@ -43,7 +43,7 @@ public class NoteDevoir {
      */
     private Double coefficient;
 
-    public static Integer DIVISEUR_DEFAULT_VALUE = 20;
+    public static final Integer DIVISEUR_DEFAULT_VALUE = 20;
 
     /**
      * @param note valeur de la note

@@ -28,6 +28,7 @@ import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
+import fr.wseduc.webutils.http.response.DefaultResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -35,6 +36,11 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+
+import java.util.List;
+
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -45,6 +51,7 @@ public class UserController extends ControllerHelper {
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
+        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         userService = new DefaultUserService();
     }
 
@@ -101,5 +108,38 @@ public class UserController extends ControllerHelper {
                     }
                 }
         );
+    }
+
+    @Get("/eleve/:idEleve/moyenne")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Retourne la moyenne de l'élève dont l'id est passé en paramètre, sur les devoirs passés en paramètre")
+    public void getMoyenneEleve(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user != null) {
+                    List<String> idDevoirsList = request.params().getAll("devoirs");
+                    String idEleve = request.params().get("idEleve");
+
+                    Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+
+                    for (int i = 0; i < idDevoirsList.size(); i++) {
+                        idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
+                    }
+
+                    userService.getMoyenne(idEleve, idDevoirsArray, new Handler<Either<String, JsonObject>>() {
+
+                        @Override
+                        public void handle(Either<String, JsonObject> event) {
+                            if(event.isRight()) {
+                                Renders.renderJson(request, event.right().getValue());
+                            } else {
+                                leftToResponse(request, event.left());
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 }

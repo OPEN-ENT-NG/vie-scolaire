@@ -20,6 +20,9 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.security.AccessAuthorozed;
+import fr.openent.evaluations.security.AccessEvaluationFilter;
+import fr.openent.evaluations.security.utils.FilterUserUtils;
 import fr.openent.viescolaire.service.EleveService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -28,6 +31,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.openent.viescolaire.service.impl.DefaultEleveService;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
@@ -54,6 +58,16 @@ public class EleveController extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         eleveService.getEleveClasse(idClasse, handler);
+    }
+
+    @Get("/etab/eleves/:idEtab")
+    @ApiDoc("Recupere tous les élèves d'un etablissment.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getEleveEtab(final HttpServerRequest request){
+        String idEtab = request.params().get("idEtab");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        eleveService.getEleve(idEtab, handler);
     }
 
 }

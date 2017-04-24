@@ -17,11 +17,10 @@
   ~
   -->
 
-<div class="titre-widget ten centered">
+<article class="titre-widget ten centered">
     <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-    <autocomplete options="eleves" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-</div>
-
+    <autocomplete options="eleves.all" ng-change="updateSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+</article>
 <article class="ten card twelve-mobile centered" ng-if="suiviCompetence === undefined">
     <i18n>evaluation.suivi.eleve.empty</i18n>
 </article>
@@ -39,7 +38,8 @@
 
         <div ng-show="opened.detailCompetenceSuivi" class="twelve">
             <div>
-                <a class="button twelve-mobile" ng-click="createEvaluationLibre();"><i18n>evaluations.evaluation.libre.add</i18n></a>
+                <a class="button twelve-mobile"  ng-disabled="search.periode.id == undefined" ng-show="!isChefEtab()" ng-click="createEvaluationLibre();" ><i18n>evaluations.evaluation.libre.add</i18n></a>
+                <a class="button twelve-mobile" ng-disabled="search.periode.id == undefined" ng-show=" isChefEtab()"  ng-click="displayInConstruction();" ><i18n>evaluations.evaluation.libre.add</i18n></a>
             </div>
             <div class="right-magnet">
                 <a ng-click="backToSuivi()" tooltip="evaluations.back.suivi.eleve.title">
@@ -74,3 +74,4 @@
         </div>
     </div>
 </div>
+<div ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_construction_page.html'"></div>

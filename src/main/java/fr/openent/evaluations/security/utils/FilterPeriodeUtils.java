@@ -33,13 +33,18 @@ import org.vertx.java.core.json.JsonObject;
 public class FilterPeriodeUtils {
 
     public void validateStructure (final String idEtablissement, Long idPeriode, final Handler<Boolean> handler) {
+
         StringBuilder query = new StringBuilder()
                 .append("SELECT count(periode.*) " +
                         "FROM " + Viescolaire.VSCO_SCHEMA + ".periode " +
-                        "WHERE periode.id = ? " +
-                        "AND periode.id_etablissement = ?");
+                        "WHERE periode.id_etablissement = ?");
+        JsonArray params = new JsonArray().addString(idEtablissement);
 
-        JsonArray params = new JsonArray().addNumber(idPeriode).addString(idEtablissement);
+        if(idPeriode != null) {
+            query.append("AND  periode.id = ? ");
+            params.addNumber(idPeriode);
+        }
+
 
         Sql.getInstance().prepared(query.toString(), params, new Handler<Message<JsonObject>>() {
             @Override
@@ -48,6 +53,7 @@ public class FilterPeriodeUtils {
                 handler.handle(count != null && count > 0);
             }
         });
+
     }
 
 }

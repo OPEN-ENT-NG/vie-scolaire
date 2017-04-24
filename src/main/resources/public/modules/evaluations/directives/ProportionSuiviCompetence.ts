@@ -31,6 +31,9 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
                 }
             }, true);
 
+            $scope.$watch('majProportions', function () {
+                $scope.calculProportion();
+            }, true);
             /**
              * Retourne la valeur d'une clé i18n passées en paramètres
              * @param key clé i18n

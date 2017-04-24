@@ -22,16 +22,23 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
 import fr.openent.viescolaire.service.ClasseService;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 19/02/2016.
  */
 public class DefaultClasseService extends SqlCrudService implements ClasseService {
+
+    private final Neo4j neo4j = Neo4j.getInstance();
+
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
@@ -48,5 +55,47 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         params.addString(idEtablissement);
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+    @Override
+    public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        query.append("Match (c:Class{id: {idClasse} }) with c ")
+                .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
+                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
+
+        neo4j.execute(query.toString(), new JsonObject().putString("idClasse", idClasse), Neo4jResult.validResultHandler(handler));
+
+    }
+
+    @Override
+    public void getNbElevesGroupe(JsonArray idGroupes, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject values = new JsonObject();
+
+        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] AND f.id IN {idClasse} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb " +
+                        "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb");
+
+        values.putArray("idClasse", idGroupes);
+        values.putArray("idGroupe", idGroupes);
+
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonObject params =  new JsonObject();
+        query.append("MATCH (s:Structure {id:'"+idEtablissement+"'})<-[BELONGS]-(c:Class)<-[DEPENDS]")
+                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) ");
+        if(isTeacher){
+            query.append(" WHERE c.id IN {idClasse}");
+            params.putArray("idClasse", idClasse);
+        }
+        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, c.id as idClasse ORDER BY displayName");
+
+        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
+
     }
 }

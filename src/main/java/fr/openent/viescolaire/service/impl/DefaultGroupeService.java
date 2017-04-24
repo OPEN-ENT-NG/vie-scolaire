@@ -49,5 +49,17 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
+    @Override
+    public void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject values = new JsonObject();
+        query.append("MATCH (c:`Class` {id: {groupeId} }) RETURN c.id as id,  c.name as name ");
+        query.append("UNION ");
+        query.append("MATCH (g:`FunctionalGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
+        values.putString("groupeId", idGroupe);
+
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    }
+
 
 }

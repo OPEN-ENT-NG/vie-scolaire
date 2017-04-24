@@ -16,6 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+<div ng-include="'/viescolaire/public/templates/evaluations/enseignants/informations/display_construction_page.html'"></div>
 
 <div class="row">
     <nav class="twelve cell marginLeftFive nav-devoirs">
@@ -25,7 +26,8 @@
             <i class="show-icons" ng-class="{ selected: template.contains('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view') }"
                ng-click="template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/icon_view')"></i>
         </div>
-        <button class="marginFive" ng-click="goTo('/devoir/create');"><i18n>evaluations.test.new</i18n></button>
+        <button ng-show="!isChefEtab()" class="marginFive" ng-click="goTo('/devoir/create');"><i18n>evaluations.test.new</i18n></button>
+        <button ng-show="isChefEtab()" class="marginFive" ng-click="displayInConstruction();"><i18n>evaluations.test.new</i18n></button>
         <div class="microbox-wrapper zero">
             <div class="microbox-content">
                 <i class="close-2x"></i>
@@ -41,10 +43,14 @@
                     <div  class="header">
                         <h2><i18n>viescolaire.utils.criterion</i18n></h2>
                     </div>
-
+                    <section ng-if="evaluations.structures.all.length > 1">
+                        <label class="select">
+                            <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in evaluations.structures.all track by structure.id"  ng-change="changeEtablissement()"></select>
+                        </label>
+                    </section>
                     <section>
                         <label class="select">
-                            <select ng-model="search.classe" ng-change="getReleve();" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
+                            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id);" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.class.groupe')]]</option>
                             </select>
                         </label>
@@ -52,7 +58,7 @@
 
                     <section >
                         <label class="select">
-                            <select ng-model="search.matiere" ng-change="getReleve()"
+                            <select ng-model="search.matiere"
                                     ng-options="matiere.name for matiere in matieres.all | unique:'name'">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
                             </select>
@@ -77,8 +83,18 @@
 
                     <section>
                         <label class="select">
-                            <select ng-model="search.periode" ng-change="getReleve()" ng-options="periode.libelle for periode in periodes.all">
+                            <select ng-model="periodesList.value"
+                                    ng-change="search.periode = periodesList.value;"
+                                    ng-options="periode.libelle for periode in periodesList.values">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section ng-show="isChefEtab()">
+                        <label class="select">
+                            <select ng-model="search.enseignant" ng-options="enseignant.displayName for enseignant in enseignants.all">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.teacher')]]</option>
                             </select>
                         </label>
                     </section>
@@ -104,11 +120,22 @@
 <section class="toggle-buttons" ng-class="{ hide: selected.devoirs.list.length == 0 }">
     <div class="toggle">
         <div class="row">
-            <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"
+            <button ng-show="selected.devoirs.list.length === 1 && !isChefEtab()
+                                && !checkEndSaisie(selected.devoirs.list[0])"
+                    class="cell ng-scope"
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
-            <!-- TODO DUPLIQUER -->
+           <!--
+           <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
+                    ng-click="displayInConstruction();">
+                <i18n><span class="no-style">evaluations.test.edit</span></i18n>
+            </button>
+            -->
+            <button ng-show="filterDuplicationAction()" class="cell ng-scope"
+                    ng-click="opened.lightboxs.duplication = true;">
+                <i18n><span class="no-style">evaluations.toaster.duplication</span></i18n>
+            </button>
             <button class="cell ng-scope" ng-click="confirmSuppretion()">
                 <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
@@ -116,16 +143,76 @@
     </div>
 </section>
 
-<lightbox ng-if="selected.devoirs.list.length > 0 " show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
-    <p><i18n>evaluations.devoir.information.suppression</i18n></p>
-    <div ng-if="(selected.devoirs.list.length < 15)">
-        <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
+<lightbox ng-if="selected.devoirs.list.length === 1" on-close="annulerDuplication();" show="opened.lightboxs.duplication">
+    <h2><i18n>evaluations.test.duplication.title</i18n></h2>
+    <h4><i18n>evaluations.lightbox.duplication.mid</i18n> [[selected.devoirs.list[0].name]]</h4>
+    <div class="warning"><i18n>evaluations.lightbox.duplication.top</i18n></div>
+    <input type="text" class="twelve" ng-model="search.duplication" i18n-placeholder="search.groups" style="font-size: 1em;font-style: italic">
+    <div class="row">
+        <h5><i18n>viescolaire.utils.class</i18n></h5>
+        <div class="three cell horizontal-spacing vertical-spacing expandable-content six-mobile" ng-repeat="classe in getClassesByIdCycle(0) | filter:filterValidClasse(classe.id) | filter:filterSearchDuplication() | orderBy:'name'">
+            <label>
+                <label class="checkbox">
+                    <input type="checkbox" ng-checked="isSelected(classe.id)" ng-model="bool" ng-change="selectClasse(classe.id)">
+                    <span></span>
+                </label>
+                <span>[[classe.name]]</span>
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <h5><i18n>viescolaire.utils.groupeEnseignement</i18n></h5>
+        <div class="three cell horizontal-spacing vertical-spacing expandable-content six-mobile" ng-repeat="classe in getClassesByIdCycle(1) | filter:filterValidClasse(classe.id)| filter:filterSearchDuplication() | orderBy:'name'">
+            <label>
+                <label class="checkbox">
+                    <input type="checkbox" ng-checked="isSelected(classe.id)" ng-model="bool" ng-change="selectClasse(classe.id)">
+                    <span></span>
+                </label>
+                <span>[[classe.name]]</span>
+            </label>
+        </div>
+    </div>
+    <div class="vertical-spacing right-magnet">
+        <button class="marginFive" ng-disabled="selected.classes.length === 0" ng-click="confirmerDuplication();">
+            <i18n>evaluations.devoir.confirmation</i18n>
+        </button>
+        <button class="marginFive" ng-click="annulerDuplication();">
+            <i18n>evaluations.devoir.annuler</i18n>
+        </button>
+    </div>
+</lightbox>
+
+<lightbox ng-if="selected.devoirs.list.length > 0 || devoirsUncancelable.length > 0"
+          show="opened.evaluation.suppretionMsg1" on-close="opened.evaluation.suppretionMsg1=false">
+    <p ng-if="devoirsUncancelable.length > 0 ">
+        <i18n>evaluations.devoir.recaputilatif.suppression.uncancelable</i18n>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
+              class="no-style ng-scope">:</span>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)>= 12"
+              class="no-style ng-scope">.</span>
+    </p>
+    <div ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12  ">
+        <ul>
+            <li ng-repeat="devoir in devoirsUncancelable">[[devoir.name]]</li>
+        </ul>
+    </div>
+    <p ng-if="selected.devoirs.list.length > 0">
+        <i18n>evaluations.devoir.information.suppression</i18n>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)< 12"
+              class="no-style ng-scope">:</span>
+        <span ng-if="(selected.devoirs.list.length + devoirsUncancelable.length)>= 12"
+              class="no-style ng-scope">.</span>
+    </p>
+    <div ng-if="(selected.devoirs.list.length + devoirsUncancelable.length) < 12">
         <ul>
             <li ng-repeat="devoir in selected.devoirs.list">[[devoir.name]]</li>
         </ul>
     </div>
-    <p><i18n>evaluations.devoir.confirmation.question</i18n></p>
-    <button class="marginFive" ng-click="firstConfirmationSuppDevoir()">
+    <p ng-if="selected.devoirs.list.length > 0 ">
+        <i18n>evaluations.devoir.confirmation.question</i18n>
+    </p>
+    <button  ng-if="selected.devoirs.list.length > 0 "
+            class="marginFive" ng-click="firstConfirmationSuppDevoir()">
         <i18n>evaluations.devoir.confirmation</i18n>
     </button>
     <button class="marginFive" ng-click="annulerSuppretion()">

@@ -34,7 +34,7 @@
                 <section class="row twelve-mobile">
                     <div class="three cell addRemplacementTable__libelle twelve-mobile">
                         <i18n>evaluations.remplacement.titulaire</i18n>
-                        <i class="fa fa-asterisk obligatoire"></i>
+                        <i class="asterisk obligatoire"></i>
                     </div>
 
                     <div class="five cell twelve-mobile">
@@ -50,7 +50,7 @@
                 <section class="row twelve-mobile">
                     <div class="three cell addRemplacementTable__libelle twelve-mobile">
                         <i18n>evaluations.remplacement.remplacant</i18n>
-                        <i class="fa fa-asterisk obligatoire"></i>
+                        <i class="asterisk obligatoire"></i>
                     </div>
 
                     <div class="five cell twelve-mobile">
@@ -66,7 +66,7 @@
                     <!-- Date début -->
                     <div class="three cell addRemplacementTable__libelle twelve-mobile">
                         <i18n>evaluations.remplacement.debut</i18n>
-                        <i class="fa fa-asterisk obligatoire"></i>
+                        <i class="asterisk obligatoire"></i>
                     </div>
 
                     <div class="nine cell twelve-mobile">
@@ -78,7 +78,7 @@
                     <!-- Date fin -->
                     <div class="three cell addRemplacementTable__libelle twelve-mobile">
                         <i18n>evaluations.remplacement.fin</i18n>
-                        <i class="fa fa-asterisk obligatoire"></i>
+                        <i class="asterisk obligatoire"></i>
                     </div>
 
                     <div class="nine cell twelve-mobile">
@@ -127,23 +127,23 @@
                         </th>
                         <th ng-click="gestionRemplacement.sortType = 'titulaire.displayName'; gestionRemplacement.sortReverse =!gestionRemplacement.sortReverse">
                             <i18n>evaluations.remplacement.titulaire</i18n>
-                            <span ng-show="gestionRemplacement.sortType == 'titulaire.displayName' && !gestionRemplacement.sortReverse" class="fa fa-caret-down"></span>
-                            <span ng-show="gestionRemplacement.sortType == 'titulaire.displayName' && gestionRemplacement.sortReverse" class="fa fa-caret-up"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'titulaire.displayName' && !gestionRemplacement.sortReverse" class="sort-desc"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'titulaire.displayName' && gestionRemplacement.sortReverse" class="sort-asc"></span>
                         </th>
                         <th ng-click="gestionRemplacement.sortType = 'remplacant.displayName'; gestionRemplacement.sortReverse =!gestionRemplacement.sortReverse">
                             <i18n>evaluations.remplacement.remplacant</i18n>
-                            <span ng-show="gestionRemplacement.sortType == 'remplacant.displayName' && !gestionRemplacement.sortReverse" class="fa fa-caret-down"></span>
-                            <span ng-show="gestionRemplacement.sortType == 'remplacant.displayName' && gestionRemplacement.sortReverse" class="fa fa-caret-up"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'remplacant.displayName' && !gestionRemplacement.sortReverse" class="sort-desc"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'remplacant.displayName' && gestionRemplacement.sortReverse" class="sort-asc"></span>
                         </th>
                         <th ng-click="gestionRemplacement.sortType = 'date_debut'; gestionRemplacement.sortReverse =!gestionRemplacement.sortReverse">
                             <i18n>evaluations.remplacement.debut</i18n>
-                            <span ng-show="gestionRemplacement.sortType == 'date_debut' && !gestionRemplacement.sortReverse" class="fa fa-caret-down"></span>
-                            <span ng-show="gestionRemplacement.sortType == 'date_debut' && gestionRemplacement.sortReverse" class="fa fa-caret-up"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'date_debut' && !gestionRemplacement.sortReverse" class="sort-desc"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'date_debut' && gestionRemplacement.sortReverse" class="sort-asc"></span>
                         </th>
                         <th ng-click="gestionRemplacement.sortType = 'date_fin'; gestionRemplacement.sortReverse =!gestionRemplacement.sortReverse">
                             <i18n>evaluations.remplacement.fin</i18n>
-                            <span ng-show="gestionRemplacement.sortType == 'date_fin' && !gestionRemplacement.sortReverse" class="fa fa-caret-down"></span>
-                            <span ng-show="gestionRemplacement.sortType == 'date_fin' && gestionRemplacement.sortReverse" class="fa fa-caret-up"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'date_fin' && !gestionRemplacement.sortReverse" class="sort-desc"></span>
+                            <span ng-show="gestionRemplacement.sortType == 'date_fin' && gestionRemplacement.sortReverse" class="sort-asc"></span>
                         </th>
                     </tr>
                     </thead>

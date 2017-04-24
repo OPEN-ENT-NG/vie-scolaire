@@ -192,8 +192,8 @@ public class MatiereController extends ControllerHelper {
     }
 
 
-    private void listMatieres(JsonArray poTitulairesIdList, final HttpServerRequest request) {
-        matiereService.listMatieres(request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
+    private void listMatieres(String structureId , JsonArray poTitulairesIdList, final HttpServerRequest request) {
+        matiereService.listMatieres(structureId , request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if(event.isRight()){
@@ -203,10 +203,14 @@ public class MatiereController extends ControllerHelper {
                         final List<String> ids = new ArrayList<String>();
 
                         final JsonArray reponseJA = new JsonArray();
-
+                        JsonArray libelleGroups, libelleClasses;
                         for (Object res : resultats) {
                             final JsonObject r = (JsonObject) res;
-                            r.putArray("libelleClasses", utilsService.saUnion(r.getArray("libelleClasses"), r.getArray("libelleGroupes")));
+                            libelleGroups = r.getArray("libelleGroupes");
+                            libelleClasses = r.getArray("libelleClasses");
+                            libelleGroups = libelleGroups == null ? new JsonArray() : libelleGroups;
+                            libelleClasses = libelleClasses == null ? new JsonArray() : libelleClasses;
+                             r.putArray("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
                             r.removeField("libelleGroupes");
                             reponseJA.addObject(r);
                             ids.add(r.getString("id"));
@@ -248,6 +252,7 @@ public class MatiereController extends ControllerHelper {
 
     /**
      * Retourne les matières enseignées par un enseignant donné
+     * Ou les matiére de l'établissement, si (Chef ETab).
      * @param request
      */
     @Get("/matieres")
@@ -258,18 +263,28 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
-                                @Override
-                                public void handle(Either<String, JsonArray> event) {
-                                    if(event.isRight()) {
-                                        JsonArray oTitulairesIdList = event.right().getValue();
-                                        listMatieres(oTitulairesIdList, request);
-                                    } else {
-                                        leftToResponse(request, event.left());
+                    if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        matiereService.listMatieresEtab(user, handler);
+                    }else{
+                        if(null != request.params().get("idEtablissement")) {
+                            utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> event) {
+                                            if (event.isRight()) {
+                                                JsonArray oTitulairesIdList = event.right().getValue();
+                                                listMatieres(request.params().get("idEtablissement"), oTitulairesIdList, request);
+                                            } else {
+                                                leftToResponse(request, event.left());
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                    );
+                            );
+                        } else {
+                            log.error("Error viewMatiere : idEtablissement can't be null ");
+                            badRequest(request);
+                        }
+                    }
                 }else{
                     unauthorized(request);
                 }

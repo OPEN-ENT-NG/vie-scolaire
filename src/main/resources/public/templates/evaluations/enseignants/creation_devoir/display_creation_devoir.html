@@ -31,13 +31,17 @@
                                 <section class="row twelve-mobile ">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.school</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
-                                        <label class="select eight cell twelve-mobile">
-                                            <select ng-model="devoir.id_etablissement" ng-change="updateEtabInfo()">
-                                                <option ng-repeat="etab in me.structures" ng-selected="etab == me.structures[0]" value="[[etab]]">[[getEtablissementName(etab)]]</option>
+                                        <label class="select eight cell twelve-mobile" ng-class="{disabled : devoir.id !== undefined}">
+                                            <select ng-model="devoir.id_etablissement"
+                                                    ng-change="switchStructureCreation()"
+                                                    ng-disabled="devoir.id !== undefined">
+                                                <option ng-repeat="etab in evaluations.structures.all"
+                                                        ng-selected="etab.id == evaluations.structure.id"
+                                                        value="[[etab.id]]">[[etab.libelle]]</option>
                                             </select>
                                         </label>
                                     </div>
@@ -47,13 +51,14 @@
                                 <section class="row twelve-mobile ">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.class.groupe</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile" ng-class="{disabled : devoir.id_etablissement === undefined}">
-                                            <select ng-model="devoir.id_groupe" ng-change="setClasseMatieres();loadEnseignementsByClasse();" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
-
+                                            <select ng-model="devoir.id_groupe"
+                                                    ng-change="setClasseMatieres();loadEnseignementsByClasse();"
+                                                    ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | filter:filterValidClasse() | orderBy:['type_groupe_libelle','name']">
                                             </select>
                                         </label>
                                     </div>
@@ -63,7 +68,7 @@
                                 <section class="row twelve-mobile">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.subject</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="three cell twelve-mobile">
@@ -94,13 +99,13 @@
                                 <section class="row twelve-mobile">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.type</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
                                             <select ng-model="devoir.id_type">
-                                                <option ng-repeat="type in types.all" ng-selected="type.default_type === true" value="[[type.id]]">[[type.nom]]</option>
+                                                <option ng-repeat="type in evaluations.types.all" ng-selected="type.default_type === true" value="[[type.id]]">[[type.nom]]</option>
                                             </select>
                                         </label>
                                     </div>
@@ -112,7 +117,7 @@
                                 <section class="row twelve-mobile">
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>evaluations.test.title</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
@@ -188,40 +193,54 @@
                                 </div>
 
                                 <div class="separator" />
-
+                                <section ng-if="endSaisie" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>end.saisie</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Période -->
+
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>viescolaire.utils.periode</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
                                         <label class="select four twelve-mobile">
-                                            <select ng-model="devoir.id_periode"
+                                            <select ng-model="devoir.id_periode" ng-change="controleDate()"
                                                     ng-options="periode.id as periode.libelle for periode in periodes.all">
                                             </select>
                                         </label>
                                     </div>
                                 </section>
 
+                                <section ng-if="errDateDevoir" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>devoir.errDateDevoir</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Date évaluation -->
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>evaluations.test.date</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
-
                                     <div class="nine cell twelve-mobile">
                                         <date-picker style="margin: 10px 0;" ng-model="devoir.dateDevoir" class="four" ng-change="showDate = true; controleDate()" ></date-picker>
                                     </div>
                                 </section>
 
+                                <section ng-if="errDatePubli" class="row twelve-mobile">
+                                    <div class="warning">
+                                        <i18n>devoir.errDatePubli</i18n>
+                                    </div>
+                                </section>
                                 <section class="row twelve-mobile">
                                     <!-- Date publication -->
                                     <div class="three cell addDevoirTable__libelle twelve-mobile">
                                         <i18n>evaluations.test.grade.publication.date</i18n>
-                                        <i class="fa fa-asterisk obligatoire"></i>
+                                        <i class="asterisk obligatoire"></i>
                                     </div>
 
                                     <div class="nine cell twelve-mobile">
@@ -266,16 +285,6 @@
                     <!-- Competences filtrees / recherchees -->
 
                     <div class="nine cell twelve-mobile">
-
-                        <!--
-                            function-filter : méthode qui va checker si l'enseignement parcouru doit être affiché ou non
-                            function-search : méthode qui va déplier les enseignements/compétences qui matche le mot clef recherché. Cette méthode surligne
-                            également les mots recherchés
-                            data : les enseignements parcourus
-                            enseignements-filter : objet où l'on stocke si un enseignement est sélectionné ou non
-                            competences-filter : objet où l'on stocke les noms au format html des compétences (pour le surlignement lors d'une recherche)
-                            search : objet concernant la recherche
-                        -->
                         <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
                                        function-search="enseignementsSearchFunction"
                                        data="devoir.enseignements"
@@ -293,12 +302,14 @@
         </div>
 
         <div class="twelve cell">
-            <input class="button-add-devoir " type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+            <input class="button-add-devoir " type="button" ng-click="beforSaveDevoir()"
+                   ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
         </div>
 
     </div>
 
-    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="beforSaveDevoir()" ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
+    <input class="button-add-devoir zero-mobile button-fixed-top-right" type="button" ng-click="beforSaveDevoir()"
+           ng-disabled="controleNewDevoirForm()" i18n-value="viescolaire.utils.save">
 
 
     <!-- PARTIE RECAPITULATIF -->
@@ -335,16 +346,21 @@
                         <div class="twelve-mobile inline-block six">[[getClasseData(devoir.id_groupe, 'name')]]</div>
                     </div>
                 </section>
-
-                <!-- Matiere/Sous matiere devoir-->
+                <!-- Classe cycle -->
                 <section>
-                    <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.subject</i18n>
-                        <div class="twelve-mobile inline-block six" ng-if="devoir.id_matiere !== null">[[getLibelleMatiere(devoir.id_matiere)]]</div>
-                    </div>
-                    <div class="twelve-mobile inline-block twelve" ng-show="devoir.id_sousmatiere !== null"><i18n class="bold cell">viescolaire.utils.undersubject</i18n>
-                        <div class="twelve-mobile inline-block six">[[getLibelleSousMatiere(devoir.id_sousmatiere)]]</div>
+                    <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.cycle</i18n>
+                        <div class="twelve-mobile inline-block six">[[getClasseData(devoir.id_groupe, 'libelle_cycle')]]</div>
                     </div>
                 </section>
+                <!-- Matiere/Sous matiere devoir-->
+                <!--<section>-->
+                    <!--<div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.subject</i18n>-->
+                        <!--<div class="twelve-mobile inline-block six" ng-if="devoir.id_matiere !== null">[[getLibelleMatiere(devoir.id_matiere)]]</div>-->
+                    <!--</div>-->
+                    <!--<div class="twelve-mobile inline-block twelve" ng-show="devoir.id_sousmatiere !== null"><i18n class="bold cell">viescolaire.utils.undersubject</i18n>-->
+                        <!--<div class="twelve-mobile inline-block six">[[getLibelleSousMatiere(devoir.id_sousmatiere)]]</div>-->
+                    <!--</div>-->
+                <!--</section>-->
 
                 <!-- Coefficient / Note sur -->
                 <section ng-if="devoir.is_evaluated">
@@ -367,14 +383,14 @@
                 </section>
 
                 <!-- Periode / Type devoir-->
-                <section>
-                    <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.periode</i18n>
-                        <div class="twelve-mobile inline-block six">[[getLibellePeriode(devoir.id_periode)]]</div>
-                    </div>
-                    <div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.type</i18n>
-                        <div class="twelve-mobile inline-block six">[[getLibelleType(devoir.id_type)]]</div>
-                    </div>
-                </section>
+                <!--<section>-->
+                    <!--<div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.periode</i18n>-->
+                        <!--<div class="twelve-mobile inline-block six">[[getLibellePeriode(devoir.id_periode)]]</div>-->
+                    <!--</div>-->
+                    <!--<div class="twelve-mobile inline-block twelve"><i18n class="bold cell">viescolaire.utils.type</i18n>-->
+                        <!--<div class="twelve-mobile inline-block six">[[getLibelleType(devoir.id_type)]]</div>-->
+                    <!--</div>-->
+                <!--</section>-->
 
                 <!-- Date evaluation -->
                 <section>
@@ -397,7 +413,6 @@
                     <ul class="twelve twelve-mobile devoir-skills-list">
                         <li ng-repeat="itemCompetence in evaluations.competencesDevoir" class="skills-connaissance">
                             <label class="skills-label twelve-mobile">
-                                <!--<span class="skill-connaissance-eye fa fa-eye"></span>-->
                                 <span ng-class="{whiteSpaceNormal : itemCompetence.hoveringRecap}"
                                       ng-mouseenter="showIt(itemCompetence)"
                                       ng-mouseleave="hideIt(itemCompetence)"
@@ -414,6 +429,10 @@
 
     </div>
 </div>
+<lightbox  show="evaluations.competencesDevoir.length > MAX_NBR_COMPETENCE" on-close="controleNewDevoirForm()">
+    <p><i18n>you.have</i18n>[[evaluations.competencesDevoir.length]] <i18n>evaluations.competences</i18n></p>
+    <p><i18n>evaluations.max.competences</i18n></p>
+</lightbox>
 
 <lightbox  show="opened.lightboxs.updateDevoir.firstConfirmSupp" on-close="opened.lightboxs.updateDevoir.firstConfirmSupp = false">
     <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part1</i18n></p>

@@ -20,8 +20,15 @@
     <div class="twelve cell">
 
         <input type="button" ng-click="goTo('/devoir/[[currentDevoir.id]]/edit')" i18n-value="evaluations.test.edit"
+               ng-disabled="endSaisie"
+               ng-if="!isChefEtab()"
                class="right-magnet" ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,
                                         'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
+        <section ng-if="endSaisie" class="row twelve-mobile ng-scope">
+            <div class="six warning">
+                <i18n>evaluations.devoir.uncancelable</i18n>
+            </div>
+        </section>
 
         <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
@@ -39,13 +46,18 @@
                     <section ng-if="currentDevoir.libelle !== null">
                         <label><i18n class="bold">viescolaire.utils.description</i18n> : [[currentDevoir.libelle]]</label>
                     </section>
+                    <section ng-if="isChefEtab()">
+                        <span class="bold"><i18n>evaluations.test.teacher</i18n></span> : [[currentDevoir.teacher]]
+                    </section>
                     <section><span class="bold"><i18n>viescolaire.utils.class</i18n></span> : [[getClasseData(currentDevoir.id_groupe, 'name')]]</section>
 
                     <section>
-                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[currentDevoir.matiere.name]]</label>
+                        <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[getLibelleMatiere(currentDevoir.id_matiere)]]</label>
                     </section>
-                    <section ng-show="currentDevoir._sousmatiere_libelle !== null && currentDevoir._sousmatiere_libelle !== undefined && currentDevoir._sousmatiere_libelle !== ''">
-                        <label><i18n class="bold">viescolaire.utils.undersubject</i18n> : [[currentDevoir._sousmatiere_libelle]]</label>
+                    <section ng-show="currentDevoir.id_sousmatiere!== null">
+                        <label>
+                            <i18n class="bold">viescolaire.utils.undersubject</i18n> : [[getLibelleSousMatiere(currentDevoir.id_sousmatiere)]]
+                        </label>
                     </section>
                     <section>
                         <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>
@@ -146,14 +158,13 @@
                                         </div>
                                         <div ng-if="currentDevoir.is_evaluated" ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
 
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" autofocus ng-if="$index === 0 && currentDevoir.is_evaluated">
 
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve)" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index === 0 && !currentDevoir.is_evaluated">
 
-
-                                            <input ng-disabled="!currentDevoir.is_evaluated" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
+                                            <input ng-disabled="endSaisie" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false);" class="ten" type="text" ng-model="eleve.evaluation.valeur"
                                                    ng-blur="calculStatsDevoir(); saveNoteDevoirEleve(eleve.evaluation, $event, eleve);" ng-class="{'input-note' : currentDevoir.is_evaluated, error : eleve.evaluation.valid == false}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" ng-if="$index !== 0">
                                         </div>
                                         <div ng-if="!currentDevoir.is_evaluated" ng-class="{'grade-disable' : !currentDevoir.is_evaluated, 'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
@@ -194,7 +205,10 @@
                                         </div>
                                         <div ng-class="{nine : currentDevoir.competences.all.length === 0, four : currentDevoir.competences.all.length > 0}"
                                              class="cell cell-input " ng-if="currentDevoir.competences.all.length < 8">
-                                            <input type="text" class="eleven input-appreciation" name="appreciation" ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)" ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
+                                            <input type="text" class="eleven input-appreciation" name="appreciation"
+                                                   ng-disabled="endSaisie"
+                                                   ng-model="eleve.evaluation.appreciation" ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event)"
+                                                   ng-focus="focusMe($event);getEleveInfo(eleve);expandNote($index, false)">
                                         </div>
                                     </div>
                                 </div>
@@ -210,6 +224,7 @@
                                                    ng-model="eleve.evaluation.appreciation"
                                                    ng-blur="saveNoteDevoirEleve(eleve.evaluation, $event);expandAppreciation($index, true, $event);"
                                                    ng-focus="getEleveInfo(eleve);expandAppreciation($index, false);"
+                                                   ng-disabled="endSaisie"
                                                    style="font-style: oblique;">
                                         </div>
                                     </div>

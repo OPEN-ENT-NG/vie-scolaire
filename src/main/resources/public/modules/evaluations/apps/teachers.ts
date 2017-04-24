@@ -42,6 +42,7 @@ import {autofocus} from '../../utils/directives/autofocus';
 import {sticky} from '../../utils/directives/sticky';
 import {proportionSuiviCompetence} from '../directives/ProportionSuiviCompetence';
 import {rzslider} from '../../utils/directives/slider';
+import { structureLoader } from '../../utils/directives/structureLoading';
 
 ng.directives.push(cFilAriane);
 ng.directives.push(navigable);
@@ -57,6 +58,7 @@ ng.directives.push(autofocus);
 ng.directives.push(sticky);
 ng.directives.push(proportionSuiviCompetence);
 ng.directives.push(rzslider);
+ng.directives.push(structureLoader);
 
 
 routes.define(function($routeProvider){
@@ -70,6 +72,7 @@ routes.define(function($routeProvider){
         .when('/competences/classe', {action : 'displaySuiviCompetencesClasse'})
         .when('/remplacements/list',{action:'listRemplacements'})
         .when('/remplacement/create',{action:'createRemplacements'})
+        .when('/disabled', {action : 'disabled'})
         .when('/',{action:'accueil'})
         .otherwise({
             redirectTo : '/'

@@ -51,11 +51,12 @@
                     [[eleve.eleve_nom]] [[eleve.eleve_prenom]]
                 </div>
                 <div class="two cell cell-indent">
-                    <span tooltip="Retard" class="fa fa-clock-o appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                    <span tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
                     </span>
-                    <span tooltip="Départ" class="fa fa-clock-o appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                    <span tooltip="Départ" class="clock appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
                     </span>
-                    <span tooltip="Incident" class="fa fa-exclamation appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                    <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                        <i class="warning"></i>
                     </span>
                     <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
                 </div>
@@ -79,10 +80,14 @@
         </div>
         <div class="six cell">
             <div class="two cell">
-                <a href="#" ng-click="alertNonImplementee();" class="fa fa-envelope fa-2x appel__detail-eleve-icon-mail"
-                   tooltip="Contacter la personne"></a>
+                <a href="#" ng-click="alertNonImplementee();" class="appel__detail-eleve-icon-mail"
+                   tooltip="Contacter la personne">
+                    <i class="mail"></i>
+                </a>
                 <a href="#" ng-click="alertNonImplementee();"
-                   class="fa fa-line-chart fa-2x appel__detail-eleve-icon-stats" tooltip="Statistiques"></a>
+                   class="appel__detail-eleve-icon-stats" tooltip="Statistiques">
+                    <i class="stats"></i>
+                </a>
             </div>
             <div class="ten cell">
                 <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.fk4j_user_id]]" alt=""/>

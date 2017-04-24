@@ -26,7 +26,6 @@
     <script src="/viescolaire/public/dist/entcore/ng-app.js" id="context" type="text/javascript"></script>
     <script src="/viescolaire/public/dist/evaluations/eval_teachers.js" type="text/javascript"></script>
     <script type="text/ng-template" id="empty"></script>
-    <link rel="stylesheet" href="/viescolaire/public/css/fontawesome/css/font-awesome.css">
 </head>
 
 <body ng-controller="EvaluationsController" class="evaluations vsco--global">
@@ -43,9 +42,10 @@
             <li><a href="#/devoirs/list"><i18n>evaluations.test.list</i18n></a></li>
             <li><a href="#/releve"><i18n>evaluations.releve.title</i18n></a></li>
             <li><a href="#/competences/eleve"><i18n>evaluations.suivi.eleve.title</i18n></a></li>
-            <li><a href="#"><i18n>evaluations.suivi.classe.title</i18n></a></li>
+            <li ><a href="#/competences/classe"><i18n>evaluations.suivi.classe.title</i18n></a></li>
         </ul>
     </nav>
+    <structure-loader display="opened.displayStructureLoader" structure-name="structure.libelle"></structure-loader>
 </portal>
 </body>
 

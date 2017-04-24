@@ -16,7 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="row notes-help">
+<div class="row notes-help evalLibre">
     <div class="cell twelve legend">
         <h4>
             <i18n>evaluations.evaluation.libre.add</i18n>
@@ -34,7 +34,7 @@
         <section class="row twelve-mobile">
             <div class="three cell addDevoirTable__libelle twelve-mobile">
                 <i18n>evaluations.test.title</i18n>
-                <i class="fa fa-asterisk obligatoire"></i>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="nine cell twelve-mobile">
@@ -94,7 +94,7 @@
         <section class="row twelve-mobile">
             <div class="three cell addDevoirTable__libelle twelve-mobile">
                 <i18n>evaluations.competence.evaluate</i18n>
-                <i class="fa fa-asterisk obligatoire"></i>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="inline-block align-center align-top">
@@ -108,17 +108,23 @@
 
 
         <div class="separator"/>
+        <section ng-if="endSaisieFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>end.saisie</i18n>
+            </div>
+        </section>
 
         <section class="row twelve-mobile">
             <!-- Période -->
             <div class="three cell addDevoirTable__libelle twelve-mobile">
                 <i18n>viescolaire.utils.periode</i18n>
-                <i class="fa fa-asterisk obligatoire"></i>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="nine cell twelve-mobile">
+
                 <label class="select four twelve-mobile">
-                    <select ng-model="EvaluationLibreCharge.periode" ng-change="" ng-options="periode.libelle for periode in periodes.all">
+                    <select ng-model="EvaluationLibreCharge.periode" ng-change="controleDate()" ng-options="periode.libelle for periode in periodes.all">
                         <option  value="" ng-if = "EvaluationLibreCharge.periode === undefined || EvaluationLibreCharge.periode === null || EvaluationLibreCharge.periode===''">[[translate('viescolaire.utils.periode')]]
                         </option>
                     </select>
@@ -126,11 +132,16 @@
             </div>
         </section>
 
+        <section ng-if="errDateEvalFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>devoir.errDateDevoir</i18n>
+            </div>
+        </section>
         <section class="row twelve-mobile">
             <!-- Date évaluation -->
             <div class="three cell addDevoirTable__libelle twelve-mobile">
                 <i18n>evaluations.test.date</i18n>
-                <i class="fa fa-asterisk obligatoire"></i>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="nine cell twelve-mobile">
@@ -138,11 +149,16 @@
             </div>
         </section>
 
+        <section ng-if="errDatePubliEvalFree" class="row twelve-mobile">
+            <div class="warning">
+                <i18n>devoir.errDatePubli</i18n>
+            </div>
+        </section>
         <section class="row twelve-mobile">
             <!-- Date publication -->
             <div class="three cell addDevoirTable__libelle twelve-mobile">
                 <i18n>evaluations.test.grade.publication.date</i18n>
-                <i class="fa fa-asterisk obligatoire"></i>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="nine cell twelve-mobile">

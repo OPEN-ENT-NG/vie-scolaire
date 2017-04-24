@@ -29,6 +29,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.Arrays;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
@@ -85,17 +87,33 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void getNoteParDevoirEtParEleve(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler) {
+    public void getNotesParElevesParDevoirs(String[] idEleves, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
+        boolean eleves = idEleves.length != 0;
+        boolean devoirs = idDevoirs.length != 0;
 
-        query.append("SELECT notes.* ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes ")
-                .append("WHERE notes.id_devoir = ? ")
-                .append("AND notes.id_eleve = ? ");
+        query.append("SELECT notes.id_devoir, notes.id_eleve, notes.valeur, devoirs.coefficient, devoirs.ramener_sur " +
+                "FROM notes.notes LEFT JOIN notes.devoirs ON devoirs.id = notes.id_devoir WHERE devoirs.is_evaluated = true");
 
-        values.addNumber(idDevoir);
-        values.addString(idEleve);
+        if(eleves || devoirs) {
+            query.append(" AND ");
+            if(eleves) {
+                query.append("notes.id_eleve IN " + Sql.listPrepared(idEleves));
+                for(String s : idEleves) {
+                    values.addString(s);
+                }
+            }
+            if(eleves && devoirs) {
+                query.append(" AND ");
+            }
+            if(devoirs) {
+                query.append("notes.id_devoir IN " + Sql.listPrepared(idDevoirs));
+                for(Long l : idDevoirs) {
+                    values.addNumber(l);
+                }
+            }
+        }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -131,7 +149,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, ")
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, devoirs.is_evaluated, ")
                 .append(" notes.valeur, notes.id ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir and notes.id_eleve = ? ")
@@ -151,15 +169,19 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
+
         query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
                 "WHERE devoirs.id_etablissement = ? " +
-                "AND devoirs.id_matiere = ? " +
-                "AND devoirs.id_periode = ? " +
-                "ORDER BY devoirs.date ASC ;");
-        values.addString(classeId).addString(etablissementId).addString(matiereId).addNumber(periodeId);
+                "AND devoirs.id_matiere = ? " );
+        values.addString(classeId).addString(etablissementId).addString(matiereId);
+        if(periodeId != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(periodeId);
+        }
+        query.append("ORDER BY devoirs.date ASC ;");
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

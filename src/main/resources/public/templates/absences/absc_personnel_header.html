@@ -12,11 +12,13 @@
         </div>
         <div class="header-nav__date-pickers right-magnet">
             <label><i18n>viescolaire.utils.from</i18n></label>
-                <label class="fa fa-calendar-o">
+                <label>
+                    <i class="calendar"></i>
                     <date-picker ng-model="periode.debut" ng-change="showDate = true; loadData()"></date-picker>
                 </label>
             <label><i18n>viescolaire.utils.to</i18n></label>
-                <label class="fa fa-calendar-o">
+                <label>
+                    <i class="calendar"></i>
                     <date-picker ng-model="periode.fin" ng-change="showDate = true; loadData()"></date-picker>
                 </label>
         </div>

@@ -25,21 +25,21 @@
         <tr>
             <th ng-click="sortType = 'evaluation_libelle'; sortReverse =!sortReverse">
                 <i18n>evaluations.title</i18n>
-                <span ng-show="sortType == 'evaluation_libelle' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'evaluation_libelle' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'evaluation_libelle' && !sortReverse" class="sort-desc"></span>
+                <span ng-show="sortType == 'evaluation_libelle' && sortReverse" class="sort-asc"></span>
             </th>
             <th ng-click="sortType = 'owner_name'; sortReverse =!sortReverse"><i18n>viescolaire.utils.teacher</i18n>
-                <span ng-show="sortType == 'owner_name' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'owner_name' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'owner_name' && !sortReverse" class="sort-desc"></span>
+                <span ng-show="sortType == 'owner_name' && sortReverse" class="sort-asc"></span>
             </th>
             <th ng-click="sortType = 'created'; sortReverse =!sortReverse"><i18n>date</i18n>
-                <span ng-show="sortType == 'created' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'created' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'created' && !sortReverse" class="sort-desc"></span>
+                <span ng-show="sortType == 'created' && sortReverse" class="sort-asc"></span>
             </th>
             <th ng-click="sortType = 'evaluation'; sortReverse =!sortReverse">
                 <i18n>level</i18n>
-                <span ng-show="sortType == 'evaluation' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'evaluation' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'evaluation' && !sortReverse" class="sort-desc"></span>
+                <span ng-show="sortType == 'evaluation' && sortReverse" class="sort-asc"></span>
             </th>
         </tr>
         </thead>

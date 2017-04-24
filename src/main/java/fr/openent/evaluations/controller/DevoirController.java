@@ -22,12 +22,15 @@ package fr.openent.evaluations.controller;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessPeriodeFilter;
-import fr.openent.evaluations.service.CompetenceNoteService;
+import fr.openent.evaluations.service.CompetencesService;
+import fr.openent.evaluations.service.NoteService;
 import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetencesService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
+import fr.openent.evaluations.service.impl.DefaultNoteService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -38,22 +41,18 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.entcore.common.utils.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Created by ledunoiss on 04/08/2016.
@@ -64,16 +63,18 @@ public class DevoirController extends ControllerHelper {
      * Déclaration des services
      */
     private final DefaultDevoirService devoirsService;
-    private final DefaultCompetencesService defaultCompetencesService;
-    private final CompetenceNoteService competencesNotesService;
     private final UtilsService utilsService;
+    private final ClasseService classesService;
+    private final NoteService notesService;
+    private final CompetencesService competencesService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         devoirsService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
-        defaultCompetencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
-        competencesNotesService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
+        classesService = new DefaultClasseService();
         utilsService = new DefaultUtilsService();
+        notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
+        competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
     }
 
     @Get("/devoirs")
@@ -84,40 +85,44 @@ public class DevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    if (request.params().size() == 1) {
-
-                        devoirsService.listDevoirs(user, handler);
-
-
-
-                    } else {
-                        String idEtablissement = request.params().get("idEtablissement");
-                        String idClasse = request.params().get("idClasse");
-                        String idMatiere = request.params().get("idMatiere");
-
-                        Long idPeriode;
-                        try {
-                            idPeriode = Long.parseLong(request.params().get("idPeriode"));
-                        } catch(NumberFormatException e) {
-                            log.error("Error : idPeriode must be a long object", e);
-                            badRequest(request, e.getMessage());
-                            return;
-                        }
-
-                        if (idEtablissement != "undefined" && idClasse != "undefined"
-                                && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
-                            devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                    if(user.getType().equals("Personnel") && user.getFunctions().containsKey("DIR")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        devoirsService.listDevoirsEtab(user, handler);
+                    }else{
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        if (request.params().size() == 2) {
+                            String idEtablissement = request.params().get("idEtablissement");
+                            devoirsService.listDevoirs(user,idEtablissement, handler);
                         } else {
-                            Renders.badRequest(request, "Invalid parameters");
+                            String idEtablissement = request.params().get("idEtablissement");
+                            String idClasse = request.params().get("idClasse");
+                            String idMatiere = request.params().get("idMatiere");
+
+                            Long idPeriode;
+                            try {
+                                idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                            } catch(NumberFormatException e) {
+                                log.error("Error : idPeriode must be a long object", e);
+                                badRequest(request, e.getMessage());
+                                return;
+                            }
+
+                            if (idEtablissement != "undefined" && idClasse != "undefined"
+                                    && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
+                                devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                            } else {
+                                Renders.badRequest(request, "Invalid parameters");
+                            }
                         }
                     }
+
                 }else{
                     unauthorized(request);
                 }
             }
         });
     }
+
     /**
      * Créer un devoir avec les paramètres passés en post.
      * @param request
@@ -143,7 +148,7 @@ public class DevoirController extends ControllerHelper {
                                 @Override
                                 public void handle(final JsonObject devoir) {
 
-                                     devoirsService.createDevoir(devoir, user, new Handler<Either<String, JsonObject>>() {
+                                    devoirsService.createDevoir(devoir, user, new Handler<Either<String, JsonObject>>() {
                                         @Override
                                         public void handle(Either<String, JsonObject> event) {
                                             if (event.isRight()) {
@@ -205,15 +210,14 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
-
     /**
-     * Liste des devoirs publiés pour un établissement et une période donnée.
+     * Liste des devoirs publiés par l'utilisateur pour un établissement et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
      *
      * @param request
      */
     @Get("/devoirs/periode/:idPeriode")
-    @ApiDoc("Liste des devoirs publiés pour un établissement et une période donnée.")
+    @ApiDoc("Liste des devoirs publiés par l'utilisateur pour un établissement et une période donnée.")
     @SecuredAction(value = "", type= ActionType.RESOURCE)
     @ResourceFilter(AccessPeriodeFilter.class)
     public void listDevoirsPeriode (final HttpServerRequest request){
@@ -242,6 +246,7 @@ public class DevoirController extends ControllerHelper {
             }
         });
     }
+
     @Get("/devoirs/evaluations/information")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
     @ResourceFilter(AccessEvaluationFilter.class)
@@ -249,7 +254,7 @@ public class DevoirController extends ControllerHelper {
     public void isEvaluatedDevoir(final HttpServerRequest request){
         Long idDevoir;
         try {
-             idDevoir = Long.parseLong(request.params().get("idDevoir"));
+            idDevoir = Long.parseLong(request.params().get("idDevoir"));
         } catch(NumberFormatException e) {
             log.error("Error : idPeriode must be a long object", e);
             badRequest(request, e.getMessage());
@@ -288,6 +293,7 @@ public class DevoirController extends ControllerHelper {
         devoirsService.getevaluatedDevoirs(idDevoirsArray,handler);
 
     }
+
     /**
      * Met à jour un devoir
      * @param request
@@ -301,59 +307,140 @@ public class DevoirController extends ControllerHelper {
                 Viescolaire.SCHEMA_DEVOIRS_UPDATE, new Handler<JsonObject>() {
             @Override
             public void handle(final JsonObject devoir) {
-                devoirsService.updateDevoir(request.params().get("idDevoir"),
-                        devoir, arrayResponseHandler(request));
+                List<String> idDevoirsList = request.params().getAll("idDevoir");
+                final HashMap<Long, Integer> nbCompetencesByDevoir = new HashMap<>();
+                Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+
+                for (int i = 0; i < idDevoirsList.size(); i++) {
+                    idDevoirsArray[i] = Long.valueOf(idDevoirsList.get(i));
+                }
+                // On recherche le Nonbre de compétences sur le devoir à mettre à jour
+                devoirsService.getNbCompetencesDevoirs(idDevoirsArray, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if (event.isRight()) {
+                            if (event.right().getValue() != null) {
+                                JsonArray resultNbCompetencesDevoirs = event.right().getValue();
+
+                                for (int i = 0; i < resultNbCompetencesDevoirs.size(); i++) {
+                                    JsonObject o = resultNbCompetencesDevoirs.get(i);
+
+                                    if (o != null) {
+                                        nbCompetencesByDevoir.put(o.getLong("id"),
+                                                o.getInteger("nb_competences"));
+                                    }
+                                }
+
+                                // On limite le nbre de compétence d' un devoir
+                                if ((devoir.containsField("competencesAdd")
+                                        && devoir.containsField("competencesRem"))
+
+                                        && ((nbCompetencesByDevoir.get(Long.valueOf(request.params().get("idDevoir")))
+                                        + devoir.getArray("competencesAdd").size()
+                                        - devoir.getArray("competencesRem").size())
+                                        <= Viescolaire.MAX_NBR_COMPETENCE)) {
+                                    devoirsService.updateDevoir(request.params().get("idDevoir"),
+                                            devoir, arrayResponseHandler(request));
+
+                                }
+                                else{
+                                    leftToResponse(request, event.left());
+                                }
+                            }
+                            else {
+                                leftToResponse(request, event.left());
+                            }
+                        }
+                        else {
+                            leftToResponse(request, event.left());
+                        }
+                    }
+                });
             }
         });
     }
 
-    @Post("/devoirs/done")
+    @Get("/devoirs/done")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Calcul le pourcentage réalisé pour chaque devoir")
     public void getPercentDone (final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
-                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-                    @Override
-                    public void handle(JsonObject devoirs) {
-                        final JsonObject classes = devoirs.getObject("datas");
-                        devoirsService.getNbNotesDevoirs(user, new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event) {
-                                if (event.isRight()) {
-                                    JsonObject returns = new JsonObject();
-                                    JsonArray values = event.right().getValue();
-                                    for (int i = 0; i < values.size(); i++) {
-                                        Double percent = new Double(0);
-                                        JsonObject devoir = values.get(i);
-                                        if(null != devoir
-                                                && null != devoir.getInteger("id")) {
-                                            String idClasse = devoir.getString("id_groupe");
-                                            Integer idDevoir = devoir.getInteger("id");
-                                            if (null != classes
-                                                    && null != classes.getInteger(idClasse)) {
-                                                percent = Double.parseDouble(String.valueOf((devoir.getInteger("nb_notes") * 100 / classes.getInteger(idClasse))));
-                                            }
-                                            returns.putNumber(idDevoir.toString(), percent);
+                if(user != null) {
+                    final HashMap<Long, String> idDevoirToGroupe = new HashMap<>();
+                    final HashMap<String, Integer> nbElevesByGroupe = new HashMap<>();
+                    final HashMap<Long, Integer> nbNotesByDevoir = new HashMap<>();
+                    List<String> idDevoirsList = request.params().getAll("devoirs");
+
+                    Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+
+                    for (int i = 0; i < idDevoirsList.size(); i++) {
+                        idDevoirsArray[i] = Long.valueOf(idDevoirsList.get(i));
+                    }
+
+                    final JsonArray result = new JsonArray();
+
+                    devoirsService.getNbNotesDevoirs(user, idDevoirsArray , new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                if(event.right().getValue() != null) {
+                                    JsonArray resultNbNotesDevoirs = event.right().getValue();
+
+                                    JsonArray idGroupes = new JsonArray();
+
+                                    for (int i = 0; i < resultNbNotesDevoirs.size(); i++) {
+                                        JsonObject o = resultNbNotesDevoirs.get(i);
+
+                                        if (null != o && !idGroupes.contains(o.getString("id_groupe"))) {
+                                            idGroupes.add(o.getString("id_groupe"));
+                                        }
+                                        if (o != null) {
+                                            idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+                                            nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
                                         }
                                     }
-                                    Renders.renderJson(request, returns);
-                                } else {
-                                    leftToResponse(request,event.left());
+
+                                    classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> event) {
+                                            if (event.isRight()) {
+                                                JsonArray resultNbElevesGroupes = event.right().getValue();
+
+                                                for (int i = 0; i < resultNbElevesGroupes.size(); i++) {
+                                                    JsonObject o = resultNbElevesGroupes.get(i);
+                                                    nbElevesByGroupe.put(o.getString("id_groupe"), o.getInteger("nb"));
+                                                }
+                                                for (Map.Entry devoirToGroupe : idDevoirToGroupe.entrySet()) {
+                                                    JsonObject o = new JsonObject();
+                                                    o.putNumber("id", (Number)devoirToGroupe.getKey());
+                                                    o.putNumber("percent", nbNotesByDevoir.get(devoirToGroupe.getKey()) * 100 / nbElevesByGroupe.get(devoirToGroupe.getValue()));
+                                                    result.add(o);
+                                                }
+                                                Renders.renderJson(request, result);
+                                            } else {
+                                                leftToResponse(request, event.left());
+                                            }
+                                        }
+                                    });
                                 }
+                            } else {
+                                leftToResponse(request, event.left());
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+                }
             }
         });
     }
+
     /**
      *  Supprimer un devoir
      */
     @Delete("/devoir")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
     @ApiDoc("Supprime un devoir")
     public void remove(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -366,5 +453,93 @@ public class DevoirController extends ControllerHelper {
                 }
             }
         });
+    }
+
+    @Get("/devoir/:idDevoir/moyenne")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Retourne la moyenne du devoir dont l'id est passé en paramètre")
+    public void getMoyenneDevoir(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user != null) {
+                    Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                    boolean stats = Boolean.parseBoolean(request.params().get("stats"));
+                    devoirsService.getMoyenne(idDevoir, stats, new Handler<Either<String, JsonObject>>() {
+
+                        @Override
+                        public void handle(Either<String, JsonObject> event) {
+                            if(event.isRight()) {
+                                Renders.renderJson(request, event.right().getValue());
+                            } else {
+                                leftToResponse(request, event.left());
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Post("/devoir/:idDevoir/duplicate")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @ApiDoc("Duplique un devoir pour une liste de classes donnée")
+    public void duplicateDevoir (final HttpServerRequest request) {
+        if (!request.params().contains("idDevoir")) {
+            badRequest(request);
+        } else {
+            UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+                @Override
+                public void handle(final UserInfos user) {
+                    RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(final JsonObject body) {
+                            try {
+                                final Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                                devoirsService.retrieve(idDevoir.toString(), new Handler<Either<String, JsonObject>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonObject> result) {
+                                        if (result.isRight()) {
+                                            final JsonObject devoir = result.right().getValue();
+                                            competencesService.getDevoirCompetences(idDevoir, new Handler<Either<String, JsonArray>>() {
+                                                @Override
+                                                public void handle(Either<String, JsonArray> result) {
+                                                    if (result.isRight()) {
+                                                        JsonArray competences = result.right().getValue();
+                                                        if (competences.size() > 0) {
+                                                            JsonArray idCompetences = new JsonArray();
+                                                            JsonObject o;
+                                                            for (int i = 0; i < competences.size(); i++) {
+                                                                o = competences.get(i);
+                                                                if (o.containsField("id")) {
+                                                                    idCompetences.addNumber(o.getNumber("id_competence"));
+                                                                }
+                                                            }
+                                                            devoir.putArray("competences", idCompetences);
+                                                        }
+                                                        devoirsService.duplicateDevoir(idDevoir, devoir, body.getArray("classes"), user, arrayResponseHandler(request));
+                                                    } else {
+                                                        log.error("An error occured when collecting competences for devoir id " + idDevoir);
+                                                        renderError(request);
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            log.error("An error occured when collecting devoir data for id " + idDevoir);
+                                            renderError(request);
+                                        }
+                                    }
+                                });
+                            } catch (ClassCastException e) {
+                                log.error("idDevoir parameter must be a long object.");
+                                log.error(e);
+                                renderError(request);
+                            }
+                        }
+                    });
+                }
+            });
+        }
     }
 }

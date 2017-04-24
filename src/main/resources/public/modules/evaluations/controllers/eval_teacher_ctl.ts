@@ -2391,6 +2391,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             .then(() => {
                 $scope.structure = evaluations.structure;
                 $scope.opened.displayStructureLoader = true;
+                template.close('main');
                 evaluations.structure.sync().then(() => {
                     $scope.initReferences();
                     if ($location.path() === '/disabled') {

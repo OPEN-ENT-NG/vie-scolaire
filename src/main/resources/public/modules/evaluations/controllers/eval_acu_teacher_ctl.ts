@@ -177,6 +177,8 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
 
         if (evaluations.structure.isSynchronized) {
             $scope.initChartListNotDone();
+            $scope.search.periode = $scope.getDefaultPeriode();
+            $scope.$parent.initSearch();
         }
 
         evaluations.periodes.on('sync', function () {

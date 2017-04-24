@@ -2341,6 +2341,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return utils.getDefaultPeriode($scope.periodes.all);
         };
 
+        $scope.filterDuplicationAction = () => {
+            try {
+                if ($scope.selected.devoirs.list.length > 1) { return false; }
+                let classe = evaluations.structure.classes.findWhere({id : $scope.selected.devoirs.list[0].id_groupe});
+                return !classe.remplacement;
+            } catch (e) {
+                return false;
+            }
+        };
+
         /**
          * Controle la validité du formulaire de création d'un remplacement
          * @returns {boolean} Validité du formulaire

@@ -529,7 +529,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (!evaluations.structure.isSynchronized) {
                 $scope.opened.displayStructureLoader = true;
                 evaluations.structure.sync().then(() => {
-                   init();
+                    init();
                 });
             } else {
                 init();
@@ -900,7 +900,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
                 && ($scope.devoir.is_evaluated
-                    || $scope.evaluations.competencesDevoir.length > 0)
+                || $scope.evaluations.competencesDevoir.length > 0)
                 && $scope.evaluations.competencesDevoir.length <= $scope.MAX_NBR_COMPETENCE
             );
         };
@@ -1668,9 +1668,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     evaluations.releveNotes.push(releve);
                     $scope.releveNote = releve;
                     $scope.releveNote.sync().then(() => {
-                        $scope.releveNote.synchronized.releve = true;
-                                utils.safeApply($scope);
-                            });
+                        if($scope.releveNote.devoirs.length === 0) {
+                            delete $scope.releveNote;
+                        } else {
+                            $scope.releveNote.synchronized.releve = true;
+                        }
+                        utils.safeApply($scope);
+                    });
                 };
 
                 if ($scope.synchronizeStudents($scope.search.classe.id)) {

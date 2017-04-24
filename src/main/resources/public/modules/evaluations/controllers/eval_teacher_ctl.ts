@@ -1668,7 +1668,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     evaluations.releveNotes.push(releve);
                     $scope.releveNote = releve;
                     $scope.releveNote.sync().then(() => {
-                        if($scope.releveNote.devoirs.length === 0) {
+                        if($scope.releveNote.devoirs.all.length === 0) {
                             delete $scope.releveNote;
                         } else {
                             $scope.releveNote.synchronized.releve = true;

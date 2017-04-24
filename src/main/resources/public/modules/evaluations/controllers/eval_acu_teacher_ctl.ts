@@ -64,7 +64,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 return new Promise((resolve, reject) => {
                     let calcPercent = () => {
                         if (!idDevoirs) {
-                            idDevoirs = _.pluck(_.where($scope.devoirs.all, {is_evaluated: true}), 'id');
+                            idDevoirs = _.pluck(_.filter($scope.devoirs.all, (devoir) => {
+                                return _.contains(_.pluck($scope.classes.all, 'id'), devoir.id_groupe) && devoir.is_evaluated === true
+                            }), 'id');
                         }
                         evaluations.structure.devoirs.getPercentDone(idDevoirs).then(() => {
                             resolve($scope.devoirs.filter((devoir) => {
@@ -87,12 +89,11 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.getDevoirsNotDone().then((devoirs) => {
                     $scope.devoirsNotDone = devoirs;
                     $scope.devoirsClasses = _.filter($scope.classes.all, (classe) => {
-                        return (_.some($scope.devoirs.all, {'id_groupe' : classe.id, is_evaluated : true}));
+                        return _.contains(_.uniq(_.pluck($scope.devoirsNotDone, 'id_groupe')), classe.id) && classe.remplacement != true;
                     });
-                    $scope.chartOptions.selectedClasse = _.first(_.sortBy(_.filter($scope.classes.all, (classe) => {
-                        return _.contains(_.pluck($scope.devoirs.all, 'id_groupe'), classe.id);
-                    }), 'name')).id;
+                    $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses,'name')).id;
                     $scope.loadChart($scope.chartOptions.selectedClasse);
+                    utils.safeApply;
                 });
             };
         };
@@ -105,7 +106,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         }
 
         $scope.loadChart = function (idClasse) {
-            let idDevoirs = _.pluck($scope.devoirs.where({id_groupe: idClasse}), 'id');
+            let idDevoirs = _.pluck(_.where($scope.devoirsNotDone,{id_groupe: idClasse}), 'id');
             $scope.getDevoirsNotDone(idDevoirs).then((devoirs) => {
                 if (devoirs) {
                     $scope.chartOptions.classes[idClasse] = {

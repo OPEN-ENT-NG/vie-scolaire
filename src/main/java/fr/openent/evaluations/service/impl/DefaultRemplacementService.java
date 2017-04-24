@@ -115,19 +115,20 @@ public class DefaultRemplacementService extends SqlCrudService implements Rempla
     @Override
     public void getRemplacementClasse(JsonArray classes, UserInfos user, String idStructure, Handler<Either<String, JsonArray>> handler) {
         JsonArray ids = new JsonArray();
+        StringBuilder query = new StringBuilder();
         for (int i = 0; i < classes.size(); i++) {
             JsonObject o = classes.get(i);
             if (o.containsField("id_groupe")) ids.addString(o.getString("id_groupe"));
         }
-        String query = "MATCH c " +
-                "WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) " +
-                "AND NOT (:User {id:{userId}})-[:IN]->(c:FunctionalGroup) " +
-                "AND c.id IN {ids} " +
-                "RETURN collect({id: c.id, name: c.name, remplacement: true, type_groupe: CASE WHEN labels(c) = ['Class'] THEN 0 ELSE 1 END}) as classes";
+        query.append("MATCH c ")
+                .append("WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) ")
+                .append("AND NOT (:User {id:{userId}})-[:IN]->(c:FunctionalGroup) AND c.id IN {ids} ")
+                .append("RETURN c.id as id, c.name as name, CASE WHEN labels(c) = ['Class'] THEN 0 ELSE 1 END as type_groupe");
+
         JsonObject params = new JsonObject()
                 .putArray("ids", ids)
                 .putString("userId", user.getUserId());
 
-        Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
+        Neo4j.getInstance().execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 }

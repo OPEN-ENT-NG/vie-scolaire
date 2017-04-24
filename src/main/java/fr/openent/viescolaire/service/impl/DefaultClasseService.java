@@ -26,11 +26,12 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
-import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+
+import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -97,5 +98,21 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
 
+    }
+
+    @Override
+    public void getCycleClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT rel_groupe_cycle.id_groupe, rel_groupe_cycle.id_cycle " );
+        query.append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_groupe_cycle ");
+        query.append("WHERE rel_groupe_cycle.id_groupe IN " + Sql.listPrepared(idClasses));
+
+        for(String s : idClasses) {
+            values.addString(s);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

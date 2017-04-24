@@ -24,6 +24,8 @@ import fr.openent.evaluations.service.DevoirService;
 import fr.openent.evaluations.service.RemplacementService;
 import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.openent.evaluations.service.impl.DefaultRemplacementService;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Delete;
 import fr.wseduc.rs.Get;
@@ -42,6 +44,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.HashMap;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
@@ -53,11 +57,13 @@ public class RemplacementController extends ControllerHelper{
      */
     private final RemplacementService remplacementService;
     private final DevoirService devoirService;
+    private final ClasseService classeService;
 
     public RemplacementController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         remplacementService = new DefaultRemplacementService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE);
         devoirService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
+        classeService = new DefaultClasseService();
     }
 
 
@@ -167,8 +173,40 @@ public class RemplacementController extends ControllerHelper{
                                     public void handle(Either<String, JsonArray> event) {
                                         if (event.isRight()) {
                                             JsonArray values = event.right().getValue();
-                                            JsonObject o = values.get(0);
-                                            renderJson(request, o.getArray("classes"));
+                                            final HashMap<String, JsonObject> classesById = new HashMap<>();
+
+                                            String[] idClasses = new String[values.size()];
+                                            for (int i = 0; i < values.size(); i++) {
+                                                JsonObject o = values.get(i);
+                                                o.putBoolean("remplacement", true);
+                                                idClasses[i] = o.getString("id");
+                                                classesById.put(idClasses[i], o);
+                                            }
+
+                                            if(idClasses.length > 0) {
+
+                                                classeService.getCycleClasses(idClasses, new Handler<Either<String, JsonArray>>() {
+                                                    @Override
+                                                    public void handle(Either<String, JsonArray> event) {
+                                                        if (event.isRight()) {
+                                                            JsonArray cycles = event.right().getValue();
+                                                            JsonArray result = new JsonArray();
+                                                            for (int i = 0; i < cycles.size(); i++) {
+                                                                JsonObject o = cycles.get(i);
+                                                                if (o != null && o.containsField("id_groupe") && classesById.containsKey(o.getString("id_groupe"))) {
+                                                                    classesById.get(o.getString("id_groupe")).putValue("id_cycle", o.getField("id_cycle"));
+                                                                    result.addObject(classesById.get(o.getString("id_groupe")));
+                                                                }
+                                                            }
+//                                                            JsonArray result = new JsonArray((List) new ArrayList<>(classesById.values()));
+                                                            Renders.renderJson(request, result);
+                                                        } else {
+                                                            log.error("An error occured while gathering cycle number for classes");
+                                                            renderError(request);
+                                                        }
+                                                    }
+                                                });
+                                            }
                                         } else {
                                             renderError(request);
                                         }

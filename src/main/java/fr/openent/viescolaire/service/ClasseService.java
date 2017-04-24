@@ -59,4 +59,10 @@ public interface ClasseService extends CrudService {
      */
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Fournit le cycle du ou des classes dont les ids sont passés en paramètre.
+     * @param idClasses Ids des classes
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getCycleClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 }

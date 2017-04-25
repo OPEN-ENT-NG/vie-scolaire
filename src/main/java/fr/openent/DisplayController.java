@@ -31,10 +31,10 @@ import org.vertx.java.core.http.HttpServerRequest;
 public class DisplayController extends ControllerHelper {
 
     public DisplayController(){
-        super();
+        pathPrefix = "";
     }
 
-    @Get("")
+    @Get(Viescolaire.VSCO_PATHPREFIX)
     @ApiDoc("Get Vie Scolaire HTML view")
     @SecuredAction(value="Viescolaire.view")
     public void view(final HttpServerRequest request){
@@ -51,7 +51,7 @@ public class DisplayController extends ControllerHelper {
         });
     }
 
-    @Get("/absences")
+    @Get(Viescolaire.ABSC_PATHPREFIX)
     @ApiDoc("Get Absences HTML view")
     @SecuredAction(value="Viescolaire.absences.view")
     public void viewAbsences(final HttpServerRequest request){
@@ -67,7 +67,7 @@ public class DisplayController extends ControllerHelper {
         });
     }
 
-    @Get("/evaluations")
+    @Get(Viescolaire.EVAL_PATHPREFIX)
     @ApiDoc("Get Evaluation HTML view")
     @SecuredAction(value = "Viescolaire.evaluation.view")
     public void viewEvaluations(final HttpServerRequest request) {

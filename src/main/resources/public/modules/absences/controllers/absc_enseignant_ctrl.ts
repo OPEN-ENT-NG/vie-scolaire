@@ -7,60 +7,60 @@ declare let _: any;
 export let absencesController = ng.controller('AbsencesController', [
     '$scope', 'route', 'model', '$location', '$route',
     function ($scope, route, model, $location, $route) {
-        $scope.initApp = () => {
-            route({
-                appel: (params) => {
-                    let dtToday = new Date();
-                    $scope.ouvrirAppel(dtToday);
-                    template.open('main', '../templates/absences/absc_teacher_appel');
-                    $scope.safeApply();
-                },
-                disabled : (params) => {
-                    template.open('main', '../templates/absences/absc_disabled_structure');
-                    $scope.safeApply();
-                }
-            });
-
-            $scope.template = template;
-
-            $scope.format = {
-                gsFormatDate : 'DD-MM-YYYY',
-                gsFormatTimestampWithoutTimeZone : "YYYY-MM-DDTHH:mm:ss.SSSS"
-            };
-
-            $scope.etatAppel = {
-                giIdEtatAppelInit : 1,
-                giIdEtatAppelEnCours : 2,
-                giIdEtatAppelFait : 3
-            };
-
-            $scope.show = {
-                success : false,
-                lightbox : false
-            };
-
-            $scope.oEvtType = {
-                giIdEvenementAbsence : 1,
-                giIdEvenementRetard : 2,
-                giIdEvenementDepart : 3,
-                giIdEvenementIncident : 4,
-                giIdEvenementObservation : 5,
-                giIdMotifSansMotif : 8
-            };
-
-            $scope.detailEleveOpen = {
-                displayed : false
-            };
-            $scope.appel = {
-                date	: {}
-            };
-            $scope.oEvtTime = {
-                depart : '--:--',
-                retard : '--:--'
-            };
-
-            template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
+        const routesActions = {
+            appel: (params) => {
+                let dtToday = new Date();
+                $scope.ouvrirAppel(dtToday);
+                template.open('main', '../templates/absences/absc_teacher_appel');
+                $scope.safeApply();
+            },
+            disabled : (params) => {
+                template.open('main', '../templates/absences/absc_disabled_structure');
+                $scope.safeApply();
+            }
         };
+
+        route(routesActions);
+
+        $scope.template = template;
+
+        $scope.format = {
+            gsFormatDate : 'DD-MM-YYYY',
+            gsFormatTimestampWithoutTimeZone : "YYYY-MM-DDTHH:mm:ss.SSSS"
+        };
+
+        $scope.etatAppel = {
+            giIdEtatAppelInit : 1,
+            giIdEtatAppelEnCours : 2,
+            giIdEtatAppelFait : 3
+        };
+
+        $scope.show = {
+            success : false,
+            lightbox : false
+        };
+
+        $scope.oEvtType = {
+            giIdEvenementAbsence : 1,
+            giIdEvenementRetard : 2,
+            giIdEvenementDepart : 3,
+            giIdEvenementIncident : 4,
+            giIdEvenementObservation : 5,
+            giIdMotifSansMotif : 8
+        };
+
+        $scope.detailEleveOpen = {
+            displayed : false
+        };
+        $scope.appel = {
+            date	: {}
+        };
+        $scope.oEvtTime = {
+            depart : '--:--',
+            retard : '--:--'
+        };
+
+        template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
         // $scope.courss = vieScolaire.courss;
         // $scope.creneaus = vieScolaire.creneaus;
         // $scope.plages = vieScolaire.plages;
@@ -541,18 +541,28 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.safeApply();
         };
 
+        let getCurrentAction = function (): string {
+            return $route.current.$$route.action;
+        };
+
+        let executeAction = function (): void {
+            routesActions[getCurrentAction()]($route.current.params);
+        };
+
+
         vieScolaire.structures.sync().then(() => {
-            $scope.initApp();
             if (!vieScolaire.structures.empty()) {
                 $scope.structure = vieScolaire.structures.first();
                 if ($location.path() === '/disabled') {
                     $location.path('/appel');
                     $location.replace();
                 } else {
-                    $route.reload();
+                    executeAction();
                 }
             } else {
-                $location.path() === '/disabled' ? $route.reload() : $location.path('/disabled');
+                $location.path() === '/disabled' ?
+                    executeAction() :
+                    $location.path('/disabled');
                 $location.replace();
             }
         });

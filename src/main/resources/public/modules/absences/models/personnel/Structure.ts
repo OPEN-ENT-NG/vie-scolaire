@@ -19,31 +19,17 @@
 
 import { Collection, http } from 'entcore/entcore';
 
-import { Cours } from './Cours';
 import { DefaultStructure } from '../common/DefaultStructure';
 
 export class Structure extends DefaultStructure {
-    courss: Collection<Cours>;
 
     constructor (o?: any) {
         super();
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
-        this.collection(Cours, {
-            sync : () => {
-                return new Promise((resolve, reject) => {
-                    http().getJson('/directory/timetable/courses/' + this.id).done((res: any) => {
-                       console.log(res);
-                    });
-                    // TODO Récupérer les cours de la structure sur l'api timetable
-                });
-            }
-        });
+
     }
 
-    async sync (): Promise<any> {
-        await this.courss.sync();
-        return;
-    }
+    async sync (): Promise<any> {}
 }

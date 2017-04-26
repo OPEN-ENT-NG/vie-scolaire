@@ -1,3 +1,10 @@
-import { Model } from 'entcore/entcore';
+import { DefaultMatiere } from '../common/DefaultMatiere';
 
-export class Matiere extends Model {}
+export class Matiere extends DefaultMatiere {
+    constructor (o?: any) {
+        super();
+        if (o && typeof o === 'object') {
+            this.updateData(o);
+        }
+    }
+}

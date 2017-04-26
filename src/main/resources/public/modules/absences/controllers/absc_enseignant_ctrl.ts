@@ -1,5 +1,5 @@
 import { template, ng, routes } from 'entcore/entcore';
-import { vieScolaire } from '../models/absc_enseignant_mdl';
+import { vieScolaire, Evenement } from '../models/absc_enseignant_mdl';
 
 let moment = require('moment');
 declare let _: any;
@@ -10,7 +10,7 @@ export let absencesController = ng.controller('AbsencesController', [
         const routesActions = {
             appel: (params) => {
                 let dtToday = new Date();
-                $scope.ouvrirAppel(dtToday);
+                // $scope.ouvrirAppel(dtToday);
                 template.open('main', '../templates/absences/absc_teacher_appel');
                 $scope.safeApply();
             },
@@ -548,7 +548,6 @@ export let absencesController = ng.controller('AbsencesController', [
         let executeAction = function (): void {
             routesActions[getCurrentAction()]($route.current.params);
         };
-
 
         vieScolaire.structures.sync().then(() => {
             if (!vieScolaire.structures.empty()) {

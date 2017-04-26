@@ -3,13 +3,13 @@ import { model, http, Model, Collection } from 'entcore/entcore';
 // import { AbsencePrev } from './teacher/AbsencePrev';
 // import { Appel } from './teacher/Appel';
 // import { Cours } from './teacher/Cours';
-// import { Evenement } from './teacher/Evenement';
+import { Evenement } from './teacher/Evenement';
 import { Structure } from './teacher/Structure';
 
 let moment = require('moment');
 declare let _: any;
 
-class VieScolaire extends Model {
+class Presences extends Model {
     structures: Collection<Structure>;
 
     constructor () {
@@ -19,7 +19,7 @@ class VieScolaire extends Model {
                 return new Promise((resolve, reject) => {
                     http().getJson('/viescolaire/presences/user/structures/actives')
                         .done((activesStructures) => {
-                            let structures = [];
+                            let structures: Structure[] = [];
                             for (let i = 0; i < model.me.structures.length; i++) {
                                 let id_structure: string = model.me.structures[i];
                                 if (_.findWhere(activesStructures, {id_etablissement: id_structure})) {
@@ -50,10 +50,11 @@ class VieScolaire extends Model {
     }
 }
 
-export let vieScolaire = new VieScolaire();
+let presences = new Presences();
 
 // export { AbsencePrev, Appel, Cours, Evenement, vieScolaire }
+export { presences, Evenement }
 
 model.build = function () {
-    (this as any).vieScolaire = vieScolaire;
+    (this as any).vieScolaire = presences;
 };

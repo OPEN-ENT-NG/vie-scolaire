@@ -1,3 +1,3 @@
-import { Model } from 'entcore/entcore';
+import { DefaultJustificatif } from '../common/DefaultJustificatif';
 
-export class Justificatif extends Model {}
+export class Justificatif extends DefaultJustificatif {}

@@ -48,3 +48,9 @@ CREATE TABLE notes.bilan_fin_cycle  (
     REFERENCES notes.domaines (id) MATCH SIMPLE
     ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+CREATE TABLE notes.etablissements_actifs  (
+    id_etablissement character varying(36) NOT NULL,
+    actif boolean NOT NULL DEFAULT true,
+    CONSTRAINT etablissement_actifs_pk PRIMARY KEY (id_etablissement)
+);

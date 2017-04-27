@@ -117,13 +117,13 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
     public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT string_agg(domaines.codification, ', ') as code_domaine, competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
+        query.append("SELECT string_agg(domaines.codification, ', ') as code_domaine, competences.id as id_competence, competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ON (competences.id = competences_devoirs.id_competence ) ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
                 .append("WHERE competences_devoirs.id_devoir = ? ")
-                .append("GROUP BY competences_devoirs.id, competences.nom, competences.id_type, competences.id_parent ")
+                .append("GROUP BY competences_devoirs.id, competences.nom, competences.id_type, competences.id_parent, competences.id ")
                 .append("ORDER BY competences_devoirs.id ASC;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));

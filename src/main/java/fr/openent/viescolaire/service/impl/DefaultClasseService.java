@@ -36,10 +36,13 @@ import org.vertx.java.core.json.JsonObject;
  * Created by ledunoiss on 19/02/2016.
  */
 public class DefaultClasseService extends SqlCrudService implements ClasseService {
+
+    private final Neo4j neo4j = Neo4j.getInstance();
+
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
-    private final Neo4j neo4j = Neo4j.getInstance();
+
     @Override
     public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -61,6 +64,38 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
 
         neo4j.execute(query.toString(), new JsonObject().putString("idClasse", idClasse), Neo4jResult.validResultHandler(handler));
+
+    }
+
+    @Override
+    public void getNbElevesGroupe(JsonArray idGroupes, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject values = new JsonObject();
+
+        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] AND f.id IN {idClasse} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb " +
+                        "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} " +
+                "RETURN f.id as id_groupe, count(distinct u) as nb");
+
+        values.putArray("idClasse", idGroupes);
+        values.putArray("idGroupe", idGroupes);
+
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonObject params =  new JsonObject();
+        query.append("MATCH (s:Structure {id:'"+idEtablissement+"'})<-[BELONGS]-(c:Class)<-[DEPENDS]")
+                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) ");
+        if(isTeacher){
+            query.append(" WHERE c.id IN {idClasse}");
+            params.putArray("idClasse", idClasse);
+        }
+        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, c.id as idClasse ORDER BY displayName");
+
+        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
 
     }
 }

@@ -20,7 +20,9 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.DevoirService;
 import fr.openent.evaluations.service.RemplacementService;
+import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.openent.evaluations.service.impl.DefaultRemplacementService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Delete;
@@ -50,10 +52,12 @@ public class RemplacementController extends ControllerHelper{
      * Déclaration des services
      */
     private final RemplacementService remplacementService;
+    private final DevoirService devoirService;
 
     public RemplacementController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         remplacementService = new DefaultRemplacementService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_REL_PROFESSEURS_REMPLACANTS_TABLE);
+        devoirService = new DefaultDevoirService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DEVOIR_TABLE);
     }
 
 
@@ -143,6 +147,43 @@ public class RemplacementController extends ControllerHelper{
                 }
             }
         });
+    }
+
+    @Get("/remplacements/classes")
+    @ApiDoc("Récupère la liste des classes qui font ou ont fait l'objet de remplacement")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getRemplacementClasses (final HttpServerRequest request) {
+        if (request.params().contains("idEtablissement")) {
+            UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+                @Override
+                public void handle(final UserInfos user) {
+                    devoirService.getClassesIdsDevoir(user, request.params().get("idEtablissement"), new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                final JsonArray classeIds = event.right().getValue();
+                                remplacementService.getRemplacementClasse(classeIds, user, request.params().get("idEtablissement"), new Handler<Either<String, JsonArray>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonArray> event) {
+                                        if (event.isRight()) {
+                                            JsonArray values = event.right().getValue();
+                                            JsonObject o = values.get(0);
+                                            renderJson(request, o.getArray("classes"));
+                                        } else {
+                                            renderError(request);
+                                        }
+                                    }
+                                });
+                            } else {
+                                renderError(request);
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            badRequest(request);
+        }
     }
 
 }

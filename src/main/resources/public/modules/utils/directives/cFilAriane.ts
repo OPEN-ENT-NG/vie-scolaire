@@ -16,6 +16,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
              * les URLS suprimé du fil d'ariane just après les avoir quitter
              * @type {[string]}
              */
+            $scope.$location = $location;
             $scope.ToDelete = [
                 "/devoir/create"
             ];
@@ -24,7 +25,7 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
             }
             $scope.ariane = [];
 
-            var getSize = function(obj) {
+            let getSize = function(obj): number {
                 var size = 0, key;
                 for (key in obj) {
                     if (obj.hasOwnProperty(key)) size++;
@@ -38,10 +39,21 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                     stateName : "ariane."+appPrefix+"."+$route.current.action,
                     url : ""
                 };
-                if(getSize($route.current.params) > 0){
-                    state.url = $route.current.originalPath.replace($route.current.regexp.exec($route.current.originalPath)[1], $route.current.params[$route.current.regexp.exec($route.current.originalPath)[1].substring(1)]);
-                }else{
-                    state.url = $route.current.originalPath;
+                let url = $route.originalPath;
+                if (getSize($route.current.params) > 0) {
+                    let params = $route.current.params;
+                    _.map(params, (param) => {
+                        param.done = false;
+                    });
+                    for (let p in params) {
+                        if (url.indexOf(':' + p)) {
+                            url.replace(':' + p, params[p]);
+                        } else {
+                            if (url.indexOf('?') === -1) url = url + '?';
+                            url = url + p + '=' + params[p] + '&';
+                        }
+                    }
+                    state.url = url.slice(0, -1);
                 }
                 $scope.ariane.push(state);
             }
@@ -80,21 +92,18 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                             stateName : "ariane."+appPrefix+"."+$route.current.action,
                             url : ""
                         };
-                        if(getSize($route.current.params) > 0){
-                            state.url = $route.current.originalPath+'?';
-                            for(let i=0; i <= getSize($route.current.params); i++) {
-                                if (i === 0) {
-                                    let key = Object.keys($route.current.params)[i];
-                                    state.url += key+ '=' + $route.current.params[key];
-                                } else {
-                                    let key = Object.keys($route.current.params)[i];
-                                    state.url +=  '&'+key+'='+$route.current.params[key];
-                                }
+                        let url = $route.current.$$route.originalPath;
+                        let params = $route.current.params;
+                        for (let p in params) {
+                            if (url.indexOf(':' + p) !== -1) {
+                                url = url.replace(':' + p, params[p]);
+                            } else {
+                                if (url.indexOf('?') === -1) url = url + '?';
+                                url = url + p + '=' + params[p] + '&';
                             }
-
-                        }else{
-                            state.url = $route.current.originalPath;
                         }
+                        if (url.indexOf('=') !== -1) url.slice(0, -1);
+                        state.url = url;
                         $scope.ariane.push(state);
                     }
                 }
@@ -108,6 +117,17 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                 return lang.translate(i18nKey);
             };
 
+            $scope.$on('change-params', function (event, updatedUrl) {
+                var o = _.findWhere($scope.ariane, {stateName: "ariane."+appPrefix+"."+$route.current.action,});
+                if(o!== undefined){
+                    var i = $scope.ariane.indexOf(o);
+                }else{
+                    i=-1;
+                }
+                if(i !== -1) {
+                    o.url = updatedUrl;
+                }
+                });
 
         }
 

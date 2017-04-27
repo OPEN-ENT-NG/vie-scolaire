@@ -9,6 +9,9 @@ export function safeApply(that) {
         var phase = that.$root.$$phase;
         if(phase === '$apply' || phase === '$digest') {
             if(resolve && (typeof(resolve) === 'function')) resolve();
-        } else that.$apply(resolve);
+        } else {
+            if (resolve && (typeof(resolve) === 'function')) that.$apply(resolve);
+            else that.$apply();
+        }
     });
 }

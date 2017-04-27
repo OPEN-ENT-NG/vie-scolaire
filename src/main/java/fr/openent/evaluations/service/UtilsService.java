@@ -22,11 +22,12 @@ package fr.openent.evaluations.service;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.UserInfos;
-import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -100,6 +101,14 @@ public interface UtilsService {
 
 
     /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler);
+
+
+    /**
      * Récupère le cycle de la classe dans la relation classe_cycle
      * @param idClasse Identifiant de l'établissement.
      * @param handler Handler portant le résultat de la requête.
@@ -154,5 +163,12 @@ public interface UtilsService {
      */
     public JsonArray saUnion(JsonArray recipient, JsonArray list);
 
-
+    /**
+     * Ajoute la NoteDevoir passé en paramètre à la collection associée à la clé passée. Si la collection n'existe pas, la crée.
+     * @param key Clé à laquelle ajouter la valueToAdd
+     * @param map La map dans laquelle faire l'ajout
+     * @param valueToAdd La valeur à ajouter.
+     * @param <K> Le type de la clé
+     */
+    public <K> void addToMap(K key, HashMap<K, ArrayList<NoteDevoir>> map, NoteDevoir valueToAdd);
 }

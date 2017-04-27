@@ -39,6 +39,12 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
             });
             output = tempTable;
         }
+
+        if (searchParams.enseignant !== undefined && searchParams.enseignant !== '*' && searchParams.enseignant !== null) {
+            tempTable = _.where(output, {owner : searchParams.enseignant.id});
+            output = tempTable;
+        }
+
         return output;
     };
 });

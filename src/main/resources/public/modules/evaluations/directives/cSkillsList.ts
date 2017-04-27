@@ -3,6 +3,15 @@
  */
 import {ng, appPrefix} from 'entcore/entcore';
 
+/**
+ * function-filter : méthode qui va checker si l'enseignement parcouru doit être affiché ou non
+ * function-search : méthode qui va déplier les enseignements/compétences qui matche le mot clef recherché. Cette méthode surligne
+ * également les mots recherchés
+ * data : les enseignements parcourus
+ * enseignements-filter : objet où l'on stocke si un enseignement est sélectionné ou non
+ * competences-filter : objet où l'on stocke les noms au format html des compétences (pour le surlignement lors d'une recherche)
+ * search : objet concernant la recherche
+ */
 export let cSkillsList = ng.directive("cSkillsList", function(){
     return {
         restrict : 'E',
@@ -45,7 +54,9 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             };
 
             $scope.initHeader = function(item){
-                return (item.open = false);
+                if(item.open === undefined) {
+                    return (item.open = false);
+                }
             };
 
             $scope.safeApply = function(fn) {

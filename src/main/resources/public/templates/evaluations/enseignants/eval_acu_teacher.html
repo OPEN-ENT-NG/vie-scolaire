@@ -10,32 +10,21 @@
             <li ng-if="isChefEtab()"><a href="#/remplacements/list"><i18n>evaluations.remplacants.title</i18n></a></li>
         </ul>
     </nav>
-
-    <!--  Content (main zone)  Chef etablissement-->
-    <div ng-if="isChefEtab()" class="ten cell main-content twelve-mobile">
-        <section class="eleven cell row headerAccueil">
-            <div class="twelve cell ">
-                <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-                <autocomplete options="Structure.eleves.all" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-            </div>
-        </section>
-    </div>
-
     <!--  Content (main zone) Enseignant -->
-    <div ng-if="!isChefEtab()" class="ten cell main-content twelve-mobile">
+    <div  class="ten cell main-content twelve-mobile">
         <section class="eleven cell row headerAccueil">
             <div class="twelve cell ">
                 <header>
-                    <button class="marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
+                    <button ng-if="!isChefEtab()" class="marginFive right-magnet" ng-click="openCreateEval()"><i18n>evaluations.evaluation.create</i18n></button>
                     <label class="select right-magnet" ng-if="evaluations.structures.all.length > 1">
                         <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in structures.all track by structure.id"  ng-change="changeEtablissementAccueil()"></select>
                     </label>
                 </header>
             </div>
-            <div class="twelve cell ">
+            <article class="twelve cell ">
                 <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-                <autocomplete options="eleves" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
-            </div>
+                <autocomplete options="eleves.all" ng-change="openSuiviEleve(ngModel)" ng-model="search.eleveName"></autocomplete>
+            </article>
         </section>
 
 
@@ -62,7 +51,8 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in evaluations.devoirs.all | customSearchFilters:search | orderBy:'date':true" class="row">
+                            <div
+                                    ng-repeat="devoir in devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -98,7 +88,7 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div ng-repeat="devoir in devoirs | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
+                            <div ng-repeat="devoir in devoirsNotDone | orderBy:'date':true |filter:FilterGroupEmpty" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -124,7 +114,7 @@
                         <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>&nbsp;:
                     </h2>
                     <label class="select right-magnet">
-                        <select class="padding-select-accueil" ng-model="charts.uncomplete" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name'] "
+                        <select class="padding-select-accueil" ng-change="loadChart(chartOptions.selectedClasse);" ng-model="chartOptions.selectedClasse" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in devoirsClasses | orderBy:['type_groupe_libelle','name'] "
                                 >
 
                         </select>
@@ -132,8 +122,8 @@
                 </div>
                 <div class="content-box-accueil">
                     <canvas class="chart chart-bar"
-                            chart-data="chartOptions.classes[charts.uncomplete].percents"
-                            chart-labels="chartOptions.classes[charts.uncomplete].names"
+                            chart-data="chartOptions.classes[chartOptions.selectedClasse].percents"
+                            chart-labels="chartOptions.classes[chartOptions.selectedClasse].names"
                             chart-options="chartOptions.options"
                             chart-colors="chartOptions.colors"
                             chart-click="SaisieNote">

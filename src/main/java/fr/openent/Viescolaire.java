@@ -114,6 +114,8 @@ public class Viescolaire extends BaseServer {
 	public final static String SCHEMA_BFC_CREATE = "eval_createBFC";
 	public final static String SCHEMA_BFC_UPDATE = "eval_updateBFC";
 
+	public final static Integer MAX_NBR_COMPETENCE = 12;
+
 	@Override
 	public void start() {
 		super.start();

@@ -54,4 +54,13 @@ public interface RemplacementService extends CrudService {
      * @param handler
      */
     public void deleteRemplacement(String id_titulaire, String id_remplacant, String date_debut, String date_fin, String id_etablissement, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Retourne la liste des classes dont l'enseignant à fait l'objet de remplacement et dont il possède un devoir.
+     * @param classes Liste des classes sur lequel l'utilisateur à créer un devoir
+     * @param user Utilisateur courant
+     * @param idStructure Structure courante
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getRemplacementClasse(JsonArray classes, UserInfos user, String idStructure, Handler<Either<String, JsonArray>> handler);
 }

@@ -16,7 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div id="crumbs" ng-show="ariane.length !== 1">
+<div id="crumbs" ng-show="ariane.length !== 1 && $location.path() !== '/disabled'">
     <ul>
         <li ng-repeat="state in ariane"><a href="#[[state.url]]" ng-if="!isLast(state)">[[getI18nValue(state.stateName)]]</a><a ng-if="isLast(state)" ng-class="{selected : isLast(state)}">[[getI18nValue(state.stateName)]]</a></i18n></li>
     </ul>

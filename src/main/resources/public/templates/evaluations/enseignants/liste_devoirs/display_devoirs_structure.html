@@ -50,7 +50,7 @@
                     </section>
                     <section>
                         <label class="select">
-                            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id); getReleve()" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
+                            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id);" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.class.groupe')]]</option>
                             </select>
                         </label>
@@ -58,7 +58,7 @@
 
                     <section >
                         <label class="select">
-                            <select ng-model="search.matiere" ng-change="getReleve()"
+                            <select ng-model="search.matiere"
                                     ng-options="matiere.name for matiere in matieres.all | unique:'name'">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
                             </select>
@@ -84,9 +84,17 @@
                     <section>
                         <label class="select">
                             <select ng-model="periodesList.value"
-                                    ng-change="search.periode = periodesList.value;getReleve()"
+                                    ng-change="search.periode = periodesList.value;"
                                     ng-options="periode.libelle for periode in periodesList.values">
                                 <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section ng-show="isChefEtab()">
+                        <label class="select">
+                            <select ng-model="search.enseignant" ng-options="enseignant.displayName for enseignant in enseignants.all">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.teacher')]]</option>
                             </select>
                         </label>
                     </section>
@@ -118,11 +126,13 @@
                     ng-click="goTo('/devoir/' + selected.devoirs.list[0].id + '/edit')">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
-            <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
+           <!--
+           <button ng-show="selected.devoirs.list.length === 1 && isChefEtab()" class="cell ng-scope"
                     ng-click="displayInConstruction();">
                 <i18n><span class="no-style">evaluations.test.edit</span></i18n>
             </button>
-            <button ng-show="selected.devoirs.list.length === 1" class="cell ng-scope"
+            -->
+            <button ng-show="filterDuplicationAction()" class="cell ng-scope"
                     ng-click="opened.lightboxs.duplication = true;">
                 <i18n><span class="no-style">evaluations.toaster.duplication</span></i18n>
             </button>
@@ -134,27 +144,42 @@
 </section>
 
 <lightbox ng-if="selected.devoirs.list.length === 1" on-close="annulerDuplication();" show="opened.lightboxs.duplication">
-    <p><i18n>evaluations.lightbox.duplication.top</i18n></p>
-    <p><i18n>evaluations.lightbox.duplication.mid</i18n></p>
-    <p>[[selected.devoirs.list[0].name]]</p>
-    <p><i18n>evaluations.lightbox.duplication.bot</i18n></p>
-    <div ng-repeat="classe in getClassesByIdCycle()">
-        <div class="row">
-            <div class="one cell cell-check expandable-content two-mobile">
+    <h2><i18n>evaluations.test.duplication.title</i18n></h2>
+    <h4><i18n>evaluations.lightbox.duplication.mid</i18n> [[selected.devoirs.list[0].name]]</h4>
+    <div class="warning"><i18n>evaluations.lightbox.duplication.top</i18n></div>
+    <input type="text" class="twelve" ng-model="search.duplication" i18n-placeholder="search.groups" style="font-size: 1em;font-style: italic">
+    <div class="row">
+        <h5><i18n>viescolaire.utils.class</i18n></h5>
+        <div class="three cell horizontal-spacing vertical-spacing expandable-content six-mobile" ng-repeat="classe in getClassesByIdCycle(0) | filter:filterValidClasse(classe.id) | filter:filterSearchDuplication() | orderBy:'name'">
+            <label>
                 <label class="checkbox">
                     <input type="checkbox" ng-checked="isSelected(classe.id)" ng-model="bool" ng-change="selectClasse(classe.id)">
                     <span></span>
                 </label>
-            </div>
-            <span>[[classe.name]]</span>
+                <span>[[classe.name]]</span>
+            </label>
         </div>
     </div>
-    <button class="marginFive" ng-disabled="selected.classes.length === 0" ng-click="confirmerDuplication();">
-        <i18n>evaluations.devoir.confirmation</i18n>
-    </button>
-    <button class="marginFive" ng-click="annulerDuplication();">
-        <i18n>evaluations.devoir.annuler</i18n>
-    </button>
+    <div class="row">
+        <h5><i18n>viescolaire.utils.groupeEnseignement</i18n></h5>
+        <div class="three cell horizontal-spacing vertical-spacing expandable-content six-mobile" ng-repeat="classe in getClassesByIdCycle(1) | filter:filterValidClasse(classe.id)| filter:filterSearchDuplication() | orderBy:'name'">
+            <label>
+                <label class="checkbox">
+                    <input type="checkbox" ng-checked="isSelected(classe.id)" ng-model="bool" ng-change="selectClasse(classe.id)">
+                    <span></span>
+                </label>
+                <span>[[classe.name]]</span>
+            </label>
+        </div>
+    </div>
+    <div class="vertical-spacing right-magnet">
+        <button class="marginFive" ng-disabled="selected.classes.length === 0" ng-click="confirmerDuplication();">
+            <i18n>evaluations.devoir.confirmation</i18n>
+        </button>
+        <button class="marginFive" ng-click="annulerDuplication();">
+            <i18n>evaluations.devoir.annuler</i18n>
+        </button>
+    </div>
 </lightbox>
 
 <lightbox ng-if="selected.devoirs.list.length > 0 || devoirsUncancelable.length > 0"

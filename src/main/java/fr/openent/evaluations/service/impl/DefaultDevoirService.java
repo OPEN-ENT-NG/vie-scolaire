@@ -20,13 +20,11 @@
 package fr.openent.evaluations.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
-import fr.openent.evaluations.service.DevoirService;
-import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
@@ -35,6 +33,11 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
@@ -44,16 +47,29 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  */
 public class DefaultDevoirService extends SqlCrudService implements fr.openent.evaluations.service.DevoirService {
 
+    private DefaultUtilsService utilsService;
+    private DefaultNoteService noteService;
+
     public DefaultDevoirService(String schema, String table) {
         super(schema, table);
+        utilsService = new DefaultUtilsService();
+        noteService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
     }
 
     public StringBuilder formatDate (String date) {
-        StringBuilder dateFormated = new StringBuilder();
-        dateFormated.append(date.split("/")[2]).append('-');
-        dateFormated.append(date.split("/")[1]).append('-');
-        dateFormated.append(date.split("/")[0]);
-        return dateFormated;
+        Pattern p = Pattern.compile("[0-9]*-[0-9]*-[0-9]*.*");
+        Matcher m = p.matcher(date);
+        if (!m.matches()) {
+            StringBuilder dateFormated = new StringBuilder();
+            dateFormated.append(date.split("/")[2]).append('-');
+            dateFormated.append(date.split("/")[1]).append('-');
+            dateFormated.append(date.split("/")[0]);
+            return dateFormated;
+        } else {
+            return new StringBuilder(date);
+        }
+
+
     }
 
     private static final String attributeTypeGroupe = "type_groupe";
@@ -76,160 +92,241 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             public void handle(Either<String, JsonObject> event) {
 
                 if (event.isRight()) {
-                    //Récupération de l'id du devoir à créer
                     final Long devoirId = event.right().getValue().getLong("id");
-                    JsonArray statements = new JsonArray();
-                    JsonArray competences = devoir.getArray("competences");
-                    final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
-
-                    //Merge_user dans la transaction
-
-                    StringBuilder queryParamsForMerge = new StringBuilder();
-                    JsonArray paramsForMerge = new JsonArray();
-                    paramsForMerge.add(user.getUserId()).add(user.getUsername());
-
-                    StringBuilder queryForMerge = new StringBuilder()
-                            .append("SELECT " + schema + "merge_users(?,?)" );
-                    statements.add(new JsonObject()
-                            .putString("statement", queryForMerge.toString())
-                            .putArray("values", paramsForMerge)
-                            .putString("action", "prepared"));
-
-
-                    //Ajout de la creation du devoir dans la pile de transaction
-                    StringBuilder queryParams = new StringBuilder();
-                    JsonArray params = new JsonArray();
-                    StringBuilder valueParams = new StringBuilder();
-                    queryParams.append("( id ");
-                    valueParams.append("( ?");
-                    params.addNumber(devoirId);
-                    for (String attr : devoir.getFieldNames()) {
-                        if(attr.contains("date")){
-                            queryParams.append(" , ").append(attr);
-                            valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
-                            params.add(formatDate(devoir.getString(attr)).toString());
-                        }
-                        else{
-                            if(!(attr.equals("competencesAdd")
-                                    ||  attr.equals("competencesRem")
-                                    ||  attr.equals("competenceEvaluee")
-                                    ||  attr.equals("competences")
-                                    ||  attr.equals(attributeTypeGroupe)
-                                    ||  attr.equals(attributeIdGroupe))) {
-                                queryParams.append(" , ").append(attr);
-                                valueParams.append(" , ? ");
-                                params.add(devoir.getValue(attr));
-                            }
-                        }
+                    // Limitation du nombre de compétences
+                    if( devoir.getArray("competences").size() > Viescolaire.MAX_NBR_COMPETENCE) {
+                        handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                     }
-                    queryParams.append(" )");
-                    valueParams.append(" ) ");
-                    queryParams.append(" VALUES ").append(valueParams.toString());
-                    StringBuilder query = new StringBuilder()
-                            .append("INSERT INTO " + resourceTable + queryParams.toString());
-                    statements.add(new JsonObject()
-                            .putString("statement", query.toString())
-                            .putArray("values", params)
-                            .putString("action", "prepared"));
+                    else {
+                        // Récupération de l'id du devoir à créer
+                        JsonArray statements = createStatement(devoirId, devoir, user);
 
-
-                    //Ajout de chaque compétence dans la pile de transaction
-                    if (devoir.containsField("competences") &&
-                            devoir.getArray("competences").size() > 0) {
-
-                        JsonArray paramsComp = new JsonArray();
-                        StringBuilder queryComp = new StringBuilder()
-                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
-                                        +".competences_devoirs (id_devoir, id_competence) VALUES ");
-                        for(int i = 0; i < competences.size(); i++){
-                            queryComp.append("(?, ?)");
-                            paramsComp.addNumber(devoirId);
-                            paramsComp.addNumber((Number) competences.get(i));
-                            if(i != competences.size()-1){
-                                queryComp.append(",");
-                            }else{
-                                queryComp.append(";");
+                        // Exécution de la transaction avec roleBack
+                        Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
+                            @Override
+                            public void handle(Message<JsonObject> event) {
+                                JsonObject result = event.body();
+                                if (result.containsField("status") && "ok".equals(result.getString("status"))) {
+                                    handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
+                                } else {
+                                    handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
+                                }
                             }
-                        }
-                        statements.add(new JsonObject()
-                                .putString("statement", queryComp.toString())
-                                .putArray("values", paramsComp)
-                                .putString("action", "prepared"));
+                        });
                     }
-
-                    // ajoute de l'évaluation de la compéténce (cas évaluation libre)
-                    if(oCompetenceNote != null) {
-                        JsonArray paramsCompLibre = new JsonArray();
-                        StringBuilder valueParamsLibre = new StringBuilder();
-                        oCompetenceNote.putString("owner", user.getUserId());
-                        StringBuilder queryCompLibre = new StringBuilder()
-                                .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes ");
-                        queryCompLibre.append("( id_devoir ");
-                        valueParamsLibre.append("( ?");
-                        paramsCompLibre.addNumber(devoirId);
-                        for (String attr : oCompetenceNote.getFieldNames()) {
-                            if(attr.contains("date")){
-                                queryCompLibre.append(" , ").append(attr);
-                                valueParamsLibre.append(" , to_timestamp(?,'YYYY-MM-DD') ");
-                                paramsCompLibre.add(formatDate(oCompetenceNote.getString(attr)).toString());
-                            }
-                            else{
-                                queryCompLibre.append(" , ").append(attr);
-                                valueParamsLibre.append(" , ? ");
-                                paramsCompLibre.add(oCompetenceNote.getValue(attr));
-                            }
-                        }
-                        queryCompLibre.append(" )");
-                        valueParamsLibre.append(" ) ");
-                        queryCompLibre.append(" VALUES ").append(valueParamsLibre.toString());
-                        statements.add(new JsonObject()
-                                .putString("statement", queryCompLibre.toString())
-                                .putArray("values", paramsCompLibre)
-                                .putString("action", "prepared"));
-
-                    }
-
-                    // Ajoute une relation notes.rel_devoirs_groupes
-                    if(null != devoir.getLong(attributeTypeGroupe)
-                            && devoir.getLong(attributeTypeGroupe)>-1){
-                        JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
-                        String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
-                        paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
-                        paramsAddRelDevoirsGroupes.addNumber(devoirId);
-                        paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
-                        statements.add(new JsonObject()
-                                .putString("statement", queryAddRelDevoirsGroupes)
-                                .putArray("values", paramsAddRelDevoirsGroupes)
-                                .putString("action", "prepared"));
-                    }else{
-                        log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + devoirId);
-                    }
-
-
-
-                    //Exécution de la transaction avec roleBack
-
-                    Sql.getInstance().transaction(statements, new Handler<Message<JsonObject>>() {
-                        @Override
-                        public void handle(Message<JsonObject> event) {
-                            JsonObject result = event.body();
-                            if (result.containsField("status") && result.getString("status").equals("ok")) {
-                                handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putNumber("id", devoirId)));
-                            }
-                            else {
-                                handler.handle(new Either.Left<String, JsonObject>(result.getString("status")));
-                            }
-                        }
-                    });
                 } else {
                     handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
                 }
             }
         }));
-
-
-
     }
+
+    @Override
+    public JsonArray createStatement(Long idDevoir, JsonObject devoir, UserInfos user) {
+        JsonArray statements = new JsonArray();
+        JsonArray competences = devoir.getArray("competences");
+
+        //Merge_user dans la transaction
+
+        StringBuilder queryParamsForMerge = new StringBuilder();
+        JsonArray paramsForMerge = new JsonArray();
+        paramsForMerge.add(user.getUserId()).add(user.getUsername());
+
+        StringBuilder queryForMerge = new StringBuilder()
+                .append("SELECT " + schema + "merge_users(?,?)" );
+        statements.add(new JsonObject()
+                .putString("statement", queryForMerge.toString())
+                .putArray("values", paramsForMerge)
+                .putString("action", "prepared"));
+
+
+        //Ajout de la creation du devoir dans la pile de transaction
+        StringBuilder queryParams = new StringBuilder();
+        JsonArray params = new JsonArray();
+        StringBuilder valueParams = new StringBuilder();
+        queryParams.append("( id ");
+        valueParams.append("( ?");
+        params.addNumber(idDevoir);
+        for (String attr : devoir.getFieldNames()) {
+            if(attr.contains("date")){
+                queryParams.append(" , ").append(attr);
+                valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
+                params.add(formatDate(devoir.getString(attr)).toString());
+            }
+            else{
+                if(!(attr.equals("competencesAdd")
+                        ||  attr.equals("competencesRem")
+                        ||  attr.equals("competenceEvaluee")
+                        ||  attr.equals("competences")
+                        ||  attr.equals(attributeTypeGroupe)
+                        ||  attr.equals(attributeIdGroupe))) {
+                    queryParams.append(" , ").append(attr);
+                    valueParams.append(" , ? ");
+                    params.add(devoir.getValue(attr));
+                }
+            }
+        }
+        queryParams.append(" )");
+        valueParams.append(" ) ");
+        queryParams.append(" VALUES ").append(valueParams.toString());
+        StringBuilder query = new StringBuilder()
+                .append("INSERT INTO " + resourceTable + queryParams.toString());
+        statements.add(new JsonObject()
+                .putString("statement", query.toString())
+                .putArray("values", params)
+                .putString("action", "prepared"));
+
+
+        //Ajout de chaque compétence dans la pile de transaction
+        if (devoir.containsField("competences") &&
+                devoir.getArray("competences").size() > 0) {
+
+            JsonArray paramsComp = new JsonArray();
+            StringBuilder queryComp = new StringBuilder()
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
+                            +".competences_devoirs (id_devoir, id_competence) VALUES ");
+            for(int i = 0; i < competences.size(); i++){
+                queryComp.append("(?, ?)");
+                paramsComp.addNumber(idDevoir);
+                paramsComp.addNumber((Number) competences.get(i));
+                if(i != competences.size()-1){
+                    queryComp.append(",");
+                }else{
+                    queryComp.append(";");
+                }
+            }
+            statements.add(new JsonObject()
+                    .putString("statement", queryComp.toString())
+                    .putArray("values", paramsComp)
+                    .putString("action", "prepared"));
+        }
+
+        // ajoute de l'évaluation de la compéténce (cas évaluation libre)
+        if(devoir.containsField("competenceEvaluee")) {
+            final JsonObject oCompetenceNote = devoir.getObject("competenceEvaluee");
+            JsonArray paramsCompLibre = new JsonArray();
+            StringBuilder valueParamsLibre = new StringBuilder();
+            oCompetenceNote.putString("owner", user.getUserId());
+            StringBuilder queryCompLibre = new StringBuilder()
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes ");
+            queryCompLibre.append("( id_devoir ");
+            valueParamsLibre.append("( ?");
+            paramsCompLibre.addNumber(idDevoir);
+            for (String attr : oCompetenceNote.getFieldNames()) {
+                if(attr.contains("date")){
+                    queryCompLibre.append(" , ").append(attr);
+                    valueParamsLibre.append(" , to_timestamp(?,'YYYY-MM-DD') ");
+                    paramsCompLibre.add(formatDate(oCompetenceNote.getString(attr)).toString());
+                }
+                else{
+                    queryCompLibre.append(" , ").append(attr);
+                    valueParamsLibre.append(" , ? ");
+                    paramsCompLibre.add(oCompetenceNote.getValue(attr));
+                }
+            }
+            queryCompLibre.append(" )");
+            valueParamsLibre.append(" ) ");
+            queryCompLibre.append(" VALUES ").append(valueParamsLibre.toString());
+            statements.add(new JsonObject()
+                    .putString("statement", queryCompLibre.toString())
+                    .putArray("values", paramsCompLibre)
+                    .putString("action", "prepared"));
+
+        }
+
+        // Ajoute une relation notes.rel_devoirs_groupes
+        if(null != devoir.getLong(attributeTypeGroupe)
+                && devoir.getLong(attributeTypeGroupe)>-1){
+            JsonArray paramsAddRelDevoirsGroupes = new JsonArray();
+            String queryAddRelDevoirsGroupes = new String("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes(id_groupe, id_devoir,type_groupe) VALUES (?, ?, ?)");
+            paramsAddRelDevoirsGroupes.add(devoir.getValue(attributeIdGroupe));
+            paramsAddRelDevoirsGroupes.addNumber(idDevoir);
+            paramsAddRelDevoirsGroupes.addNumber(devoir.getInteger(attributeTypeGroupe).intValue());
+            statements.add(new JsonObject()
+                    .putString("statement", queryAddRelDevoirsGroupes)
+                    .putArray("values", paramsAddRelDevoirsGroupes)
+                    .putString("action", "prepared"));
+        }else{
+            log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre:  " + idDevoir);
+        }
+        return statements;
+    }
+
+    @Override
+    public void duplicateDevoir(Long idDevoir, final JsonObject devoir, final JsonArray classes, final UserInfos user, final Handler<Either<String, JsonArray>> handler) {
+        final JsonArray ids = new JsonArray();
+        String queryNewDevoirId;
+        final Integer[] counter = {0};
+        final Integer[] errors = {0};
+        for (int i = 0; i < classes.size(); i++) {
+            queryNewDevoirId = "SELECT nextval('" + Viescolaire.EVAL_SCHEMA + ".devoirs_id_seq') as id";
+            sql.raw(queryNewDevoirId, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
+                @Override
+                public void handle(Either<String, JsonObject> event) {
+                    counter[0]++;
+                    if (event.isRight()) {
+                        JsonObject o = event.right().getValue();
+                        ids.addNumber(o.getNumber("id"));
+                        if (counter[0] == classes.size()) {
+                            insertDuplication(ids, devoir, classes, user, errors[0], handler);
+                        }
+                    } else {
+                        errors[0]++;
+                    }
+                }
+            }));
+        }
+    }
+
+    private JsonObject formatDevoirForDuplication (JsonObject devoir) {
+        JsonObject o = new JsonObject(devoir.toMap());
+        o.removeField("owner");
+        o.removeField("created");
+        o.removeField("modified");
+        o.removeField("id");
+        try {
+            o.putNumber("coefficient", Long.parseLong(o.getString("coefficient")));
+        } catch (ClassCastException e) {
+            log.error("An error occured when casting devoir object to duplication format.");
+            log.error(e);
+        }
+        if (o.getString("libelle") == null) {
+            o.removeField("libelle");
+        }
+        if (o.getString("id_sousmatiere") == null) {
+            o.removeField("id_sousmatiere");
+        }
+        return o;
+    }
+
+    private void insertDuplication(JsonArray ids, JsonObject devoir, JsonArray classes, UserInfos user, Integer errors, Handler<Either<String, JsonArray>> handler) {
+        if (errors == 0 && ids.size() == classes.size()) {
+            JsonObject o, g;
+            JsonArray statements = new JsonArray();
+            for (int i = 0; i < ids.size(); i++) {
+                try {
+                    g = classes.get(i);
+                    o = formatDevoirForDuplication(devoir);
+                    o.putString("id_groupe", g.getString("id"));
+                    o.putNumber("type_groupe", g.getNumber("type_groupe"));
+                    o.putString("owner", user.getUserId());
+                    JsonArray tempStatements = this.createStatement(Long.parseLong(ids.get(i).toString()), o, user);
+                    for (int j = 0; j < tempStatements.size(); j++) {
+                        statements.add(tempStatements.get(j));
+                    }
+                } catch (ClassCastException e) {
+                    log.error("Next id devoir must be a long Object.");
+                    log.error(e);
+                }
+
+            }
+            Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
+        } else {
+            log.error("An error occured when collecting ids in duplication sequence.");
+            handler.handle(new Either.Left<String, JsonArray>("An error occured when collecting ids in duplication sequence."));
+        }
+    }
+
     protected static final Logger log = LoggerFactory.getLogger(DefaultDevoirService.class);
     @Override
     public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {
@@ -346,11 +443,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
+        query.append("SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
-                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences ")
+                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
                 .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
@@ -358,22 +455,23 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id ")
                 .append("left join "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id ")
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA + ".users ON users.id = devoirs.owner ")
                 .append("WHERE (rel_devoirs_groupes.id_devoir = devoirs.id) ")
                 .append("AND (devoirs.id_etablissement = ? )")
                 .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (de l'établissement passé en paramètre)
-                                        .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                                        .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                                        .append("WHERE id_remplacant = ? ")
-                                        .append("AND rel_professeurs_remplacants.id_etablissement = ? ")
-                                        .append(") OR ")
-                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                            .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                            .append("WHERE resource_id = devoirs.id ")
-                            .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
+                .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (de l'établissement passé en paramètre)
+                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                .append("WHERE id_remplacant = ? ")
+                .append("AND rel_professeurs_remplacants.id_etablissement = ? ")
+                .append(") OR ")
+                .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                .append("WHERE resource_id = devoirs.id ")
+                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
                 .append(") ")
 
-                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, ")
+                .append("GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username, ")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom ")
                 .append("ORDER BY devoirs.date ASC;");
@@ -396,11 +494,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void listDevoirsEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
-        query.append("SELECT devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe , rel_devoirs_groupes.type_groupe , devoirs.is_evaluated, " )
+        query.append(" SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe , rel_devoirs_groupes.type_groupe , devoirs.is_evaluated, " )
                 .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
                 .append("   devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur,  ")
                 .append("   type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date,  ")
-                .append("   type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences   ")
+                .append("   type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("   FROM notes.devoirs  ")
                 .append("   inner join notes.type on devoirs.id_type = type.id  ")
                 .append("   inner join viesco.periode on devoirs.id_periode = periode.id  ")
@@ -408,9 +506,10 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("   left join viesco.sousmatiere  on devoirs.id_sousmatiere = sousmatiere.id  ")
                 .append("   left join viesco.type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id  ")
                 .append("   left join notes.rel_devoirs_groupes ON rel_devoirs_groupes.id_devoir = devoirs.id  ")
+                .append("   inner join notes.users on users.id = devoirs.owner")
                 .append("   where devoirs.id_etablissement IN "+ Sql.listPrepared(user.getStructures().toArray()) +" ")
                 .append("   and id_groupe is not null ")
-                .append("   GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated,  ")
+                .append("   GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username,  ")
                 .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
                 .append("   devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, periode.libelle, type.nom  ")
                 .append("   ORDER BY devoirs.date ASC; ");
@@ -421,7 +520,30 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
     }
 
-
+    @Override
+    public void getClassesIdsDevoir(UserInfos user, String structureId, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT distinct(rel_devoirs_groupes.id_groupe) " +
+                "FROM notes.devoirs " +
+                "inner join notes.rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id) " +
+                "AND (devoirs.id_etablissement = ? ) " +
+                "AND (devoirs.owner = ? " +
+                "OR devoirs.owner IN (SELECT DISTINCT id_titulaire " +
+                "FROM notes.rel_professeurs_remplacants " +
+                "INNER JOIN notes.devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement " +
+                "WHERE id_remplacant = ? " +
+                "AND rel_professeurs_remplacants.id_etablissement = ?) " +
+                "OR ? IN (SELECT member_id " +
+                "FROM notes.devoirs_shares " +
+                "WHERE resource_id = devoirs.id " +
+                "AND action = '"+ Viescolaire.DEVOIR_ACTION_UPDATE +"'))";
+        JsonArray params = new JsonArray()
+                .addString(structureId)
+                .addString(user.getUserId())
+                .addString(user.getUserId())
+                .addString(structureId)
+                .addString(user.getUserId());
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
+    }
 
     @Override
     public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
@@ -474,40 +596,51 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbNotesDevoirs(UserInfos user, Handler<Either<String, JsonArray>> handler) {
+    public void getNbNotesDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
+
+        boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
 
         query.append("SELECT count(notes.id) as nb_notes, devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE notes.id_devoir = devoirs.id ")
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
-                .append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
-                .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
-                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
-                .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
-                .append("WHERE id_remplacant = ? ")
-                .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
-                .append(") OR ")
-                .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-                .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
-                .append("WHERE resource_id = devoirs.id ")
-                .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE+"')")
-                .append(") ")
-                .append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
+                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs) + " ");
+        if(!isChefEtab) {
+            query.append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+                    .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
+                    .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
+                    .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
+                    .append("WHERE id_remplacant = ? ")
+                    .append("AND rel_professeurs_remplacants.id_etablissement IN " + Sql.listPrepared(user.getStructures().toArray()) + " ")
+                    .append(") OR ")
+                    .append("? IN (SELECT member_id ") // ou devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+                    .append("FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs_shares ")
+                    .append("WHERE resource_id = devoirs.id ")
+                    .append("AND action = '" + Viescolaire.DEVOIR_ACTION_UPDATE + "')")
+                    .append(") ");
+        }
+        query.append("GROUP by devoirs.id, rel_devoirs_groupes.id_groupe");
 
         JsonArray values =  new JsonArray();
 
-        // Ajout des params pour les devoirs dont on est le propriétaire
-        values.add(user.getUserId());
-
-        // Ajout des params pour la récupération des devoirs de mes tiulaires
-        values.add(user.getUserId());
-        for (int i = 0; i < user.getStructures().size(); i++) {
-            values.add(user.getStructures().get(i));
+        //Ajout des id désirés
+        for (Long l : idDevoirs) {
+            values.addNumber(l);
         }
+        if(!isChefEtab) {
+            // Ajout des params pour les devoirs dont on est le propriétaire
+            values.add(user.getUserId());
 
-        // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
-        values.add(user.getUserId());
+            // Ajout des params pour la récupération des devoirs de mes tiulaires
+            values.add(user.getUserId());
+            for (int i = 0; i < user.getStructures().size(); i++) {
+                values.add(user.getStructures().get(i));
+            }
+
+            // Ajout des params pour les devoirs que l'on m'a partagés (lorsqu'un remplaçant a créé un devoir pour un titulaire par exemple)
+            values.add(user.getUserId());
+        }
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
@@ -584,6 +717,67 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    public void getMoyenne(Long idDevoir, final boolean stats, final Handler<Either<String, JsonObject>> handler) {
+
+        noteService.getNotesParElevesParDevoirs(new String[0], new Long[]{idDevoir},
+                new Handler<Either<String, JsonArray>>() {
+
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if (event.isRight()) {
+                            ArrayList<NoteDevoir> notes = new ArrayList<>();
+
+                            JsonArray listNotes = event.right().getValue();
+
+                            for (int i = 0; i < listNotes.size(); i++) {
+
+                                JsonObject note = listNotes.get(i);
+
+                                NoteDevoir noteDevoir = new NoteDevoir(
+                                        Double.valueOf(note.getString("valeur")),
+                                        note.getBoolean("ramener_sur"),
+                                        Double.valueOf(note.getString("coefficient")));
+
+                                notes.add(noteDevoir);
+                            }
+
+                            Either<String, JsonObject> result;
+
+                            if(!notes.isEmpty()) {
+                                result = new Either.Right<>(utilsService.calculMoyenne(notes, stats, 20));
+                            } else {
+                                result = new Either.Right<>(new JsonObject());
+                            }
+
+                            handler.handle(result);
+
+                        } else {
+                            handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
+                        }
+                    }
+                });
+    }
+
+
+    public void getNbCompetencesDevoirs(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT d.id id, count(id_competence) as nb_competences ")
+                .append("FROM  "+ Viescolaire.EVAL_SCHEMA +".devoirs d ")
+                .append("LEFT JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs cd  ON d.id = cd.id_devoir ")
+                .append("where d.id IN "+ Sql.listPrepared(idDevoirs) + " ")
+                .append("GROUP by d.id ");
+
+        JsonArray values =  new JsonArray();
+        //Ajout des id désirés
+        for (Long idDevoir : idDevoirs) {
+            values.addNumber(idDevoir);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
 }

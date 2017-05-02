@@ -1,5 +1,5 @@
 import { template, ng } from 'entcore/entcore';
-import { vieScolaire } from '../models/absc_personnel_mdl';
+import { presences } from '../models/absc_personnel_mdl';
 
 let moment = require('moment');
 declare let _: any;
@@ -14,13 +14,13 @@ export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelControl
         $scope.psDisplayReponsables = false;
         $scope.selectedAppels = [];
         $scope.periode.fin = new Date();
-        vieScolaire.appels.sync($scope.periode.debut, $scope.periode.fin);
+        presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
 
-        $scope.formatDate = function(pODateDebut, pODateFin){
+        $scope.formatDate = function(pODateDebut, pODateFin) {
             return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
         };
 
-        $scope.appelFilterFunction = function(appel){
+        $scope.appelFilterFunction = function(appel) {
             if ($scope.pOFilterAppel.noneffectues) {
                 return (appel.fk_etat_appel_id !== 3);
             }

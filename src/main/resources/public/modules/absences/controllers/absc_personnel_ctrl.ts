@@ -1,35 +1,45 @@
 import { template, ng } from 'entcore/entcore';
-import { vieScolaire } from '../models/absc_personnel_mdl';
+import { presences } from '../models/absc_personnel_mdl';
+import * as utils from '../utils/personnel';
 
 let moment = require('moment');
 declare let _: any;
 
 export let absencesController = ng.controller('AbsencesController', [
-    '$scope', 'route', 'model', '$rootScope', '$location',
-    function ($scope, route, model, $rootScope, $location) {
-        route({
+    '$scope', 'route', 'model', '$rootScope', '$location', '$route',
+    function ($scope, route, model, $rootScope, $location, $route) {
+       const routesActions = {
             AbsencesSansMotifs: function (params) {
                 template.open('main', '../templates/absences/absc_personnel_abssm');
                 $scope.display.menu = false;
             },
-            AppelsOublies : function(params){
+            AppelsOublies : function(params) {
                 template.open('main', '../templates/absences/absc_personnel_appo');
                 $scope.display.menu = false;
             },
-            Redirect : function(params){
-                $scope.goToPage('/viescolaire');
+            Redirect : function(params) {
+                $scope.goTo('/viescolaire');
+            },
+            disabled : (params) => {
+                template.open('main', '../templates/absences/absc_disabled_structure');
+                utils.safeApply($scope);
             }
-        });
+        };
+
+        route(routesActions);
+
+        let getCurrentAction = function (): string {
+            return $route.current.$$route.action;
+        };
+
+
+        let executeAction = function (): void {
+            routesActions[getCurrentAction()]($route.current.params);
+        };
 
         template.open('menu', '../templates/absences/absc_personnel_menu');
         template.open('header', '../templates/absences/absc_personnel_header');
 
-        $scope.appels = vieScolaire.appels;
-        $scope.classes = vieScolaire.classes;
-        $scope.enseignants = vieScolaire.enseignants;
-        $scope.evenements = vieScolaire.evenements;
-        $scope.motifs = vieScolaire.motifs;
-        $scope.justificatifs = vieScolaire.justificatifs;
 
         $scope.display = {
             responsables : false,
@@ -58,69 +68,97 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         $rootScope.$on('$routeChangeSuccess', ($currentRoute, $previousRoute, $location) => {
-            $scope.safeApply();
+            utils.safeApply($scope);
         });
 
-        $scope.loadData = function(){
-            if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                if ($location.path() === "/sansmotifs") {
-                    vieScolaire.evenements.sync($scope.periode.debut, $scope.periode.fin);
-                }else if ($location.path() === "/appels/noneffectues") {
-                    vieScolaire.appels.sync($scope.periode.debut, $scope.periode.fin);
+        /** On initiliase tout d'abord la structure **/
+        presences.structures.sync().then(() => {
+            if (!presences.structures.empty()) {
+                $scope.structure = presences.structures.first();
+                $scope.appels = presences.structure.appels;
+                $scope.classes = presences.structure.classes;
+                $scope.enseignants = presences.structure.enseignants;
+                $scope.evenements = presences.structure.evenements;
+                $scope.motifs = presences.structure.motifs;
+                $scope.justificatifs = presences.structure.justificatifs;
+
+                $scope.loadData = function() {
+                    if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+                        if ($location.path() === "/sansmotifs") {
+                            presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                        }else if ($location.path() === "/appels/noneffectues") {
+                            presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                        }
+                    }
+                };
+
+                presences.structure.classes.on('sync', function() {
+                    presences.structure.classes.map(function(classe) {
+                        classe.selected = true;
+                        return classe;
+                    });
+                });
+
+                presences.structure.enseignants.on('sync', function() {
+                    presences.structure.enseignants.map(function(enseignant) {
+                        enseignant.selected = true;
+                        return enseignant;
+                    });
+                });
+
+                // presences.structure.motifs.on('sync', function() {
+                //     presences.structure.motifs.synced = true;
+                // });
+
+                if ($location.path() === '/disabled') {
+                    $location.path('/');
+                    $location.replace();
+                } else {
+                    executeAction();
                 }
+            } else {
+                $location.path() === '/disabled' ?
+                    executeAction() :
+                    $location.path('/disabled');
+                $location.replace();
             }
+        });
+        $scope.goTo = function(path, id ) {
+            $location.path(path);
+            if (id !== undefined)
+                $location.search(id);
+            $location.replace();
+            utils.safeApply($scope);
         };
 
-        vieScolaire.classes.on('sync', function(){
-            vieScolaire.classes.map(function(classe){
-                classe.selected = true;
-                return classe;
-            });
-        });
-
-        vieScolaire.enseignants.on('sync', function(){
-            vieScolaire.enseignants.map(function(enseignant){
-                enseignant.selected = true;
-                return enseignant;
-            });
-        });
-
-        vieScolaire.motifs.on('sync', function(){
-            vieScolaire.motifs.synced = true;
-        });
-
-        $scope.goToPage = function(path){
-            location.replace(path);
-        };
-
-        $scope.goToState = function(path){
+        $scope.goToState = function(path) {
             $location.path(path);
             $location.replace();
         };
 
-        $scope.safeApply = function(fn) {
-            let phase = this.$root.$$phase;
-            if (phase === '$apply' || phase === '$digest') {
-                if (fn && (typeof(fn) === 'function')) {
-                    fn();
-                }
-            } else {
-                this.$apply(fn);
-            }
-        };
+        // $scope.safeApply = function(fn) {
+        //     let phase = this.$root.$$phase;
+        //     if (phase === '$apply' || phase === '$digest') {
+        //         if (fn && (typeof(fn) === 'function')) {
+        //             fn();
+        //         }
+        //     } else {
+        //         this.$apply(fn);
+        //     }
+        // };
 
-        $scope.personnelFilter = function(event){
+        $scope.personnelFilter = function(event) {
             return $scope.classeFilter(event) && $scope.enseignantFilter(event);
         };
-        $scope.classeFilter = function(event){
+        $scope.classeFilter = function(event) {
             return ($scope.classes.findWhere({classe_id : event.classe_id, selected: true}) !== undefined);
         };
 
-        $scope.enseignantFilter = function(event){
+        $scope.enseignantFilter = function(event) {
             return ($scope.enseignants.findWhere({personnel_id : event.personnel_id, selected: true}) !== undefined);
         };
 
-        $scope.alert = function(message){
+        $scope.alert = function(message) {
             alert(message);
         };
     }

@@ -1,5 +1,7 @@
 import {template,  ng } from 'entcore/entcore';
-import {vieScolaire,  Evenement} from '../models/absc_personnel_mdl';
+import {presences,  Evenement} from '../models/absc_personnel_mdl';
+import * as utils from '../utils/personnel';
+
 
 let moment = require('moment');
 declare let _: any;
@@ -13,45 +15,45 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             sansmotifs : true,
             limitTo : 15
         };
-        vieScolaire.evenements.sync($scope.periode.debut, $scope.periode.fin);
+        presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
 
         /**
          * A la synchronisation des évènements, on récupères toutes les absences et le motif par défaut
          */
-        vieScolaire.evenements.on('sync', function(){
-            vieScolaire.evenements.synced = true;
+        presences.structure.evenements.on('sync', function() {
+            // presences.structure.evenements.synced = true;
             $scope.absences = $scope.evenements;
             $scope.defaultMotif = $scope.motifs.first();
             initAllEvenement();
-            $scope.safeApply();
+            utils.safeApply($scope);
         });
 
-        vieScolaire.motifs.on('sync', function(){
-            vieScolaire.motifs.synced = true;
+        presences.structure.motifs.on('sync', function() {
+            // presences.structure.motifs.synced = true;
             initAllEvenement();
-            $scope.safeApply();
+            utils.safeApply($scope);
         });
 
-        $scope.loadData = function(){
+        $scope.loadData = function() {
             if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                vieScolaire.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
             }
         };
 
-        $scope.getJourDate = function(evt){
+        $scope.getJourDate = function(evt) {
             return moment(evt.timestamp_dt).format('DD/MM/YYYY') + ' ' + moment(evt.timestamp_dt).format('HH:mm') + ' - ' + moment(evt.timestamp_fn).format('HH:mm');
         };
 
-        $scope.getPeriodeCours = function(evt){
+        $scope.getPeriodeCours = function(evt) {
             return moment(evt.timestamp_dt).format('HH:mm') + ' - ' + moment(evt.timestamp_fn).format('HH:mm');
         };
 
-        $scope.getEnseignantNom = function(evt){
-            let e = vieScolaire.enseignants.findWhere({id : evt.personnel_id});
+        $scope.getEnseignantNom = function(evt) {
+            let e = presences.structure.enseignants.findWhere({id : evt.personnel_id});
             if (e !== undefined) { return (e.nom + ' ' + e.prenom); }
         };
 
-        $scope.updateEvtMotif = function(evt){
+        $scope.updateEvtMotif = function(evt) {
             let e = new Evenement(evt);
             e.update().then((res) => {
                 if (res !== undefined) {
@@ -61,23 +63,23 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         let initAllEvenement = function () {
-            _.each(vieScolaire.evenements, function (e) {
-                _.each(e.evenements, function(evt){
+            _.each(presences.structure.evenements, function (e) {
+                _.each(e.evenements, function(evt) {
                     if (evt.fk_type_evt_id === 1) {
                         $scope.initEvenement(evt);
                     }
                 });
             });
-            $scope.safeApply();
+            utils.safeApply($scope);
         };
 
         $scope.initEvenement = function (event) {
             if (event.fk_motif_id !== null) {
-                event.motif = vieScolaire.motifs.findWhere({id : event.fk_motif_id});
+                event.motif = presences.structure.motifs.findWhere({id : event.fk_motif_id});
             } else {
                 event.motif = $scope.defaultMotif;
             }
-            $scope.safeApply();
+            utils.safeApply($scope);
         };
 
         $scope.absencesFilterFunction = function (eleve) {
@@ -92,7 +94,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             }
         };
 
-        $scope.absencesNonJustifieesFilter = function (evt){
+        $scope.absencesNonJustifieesFilter = function (evt) {
             if ($scope.pOFilterAbsences.sansmotifs) {
                 return (evt.fk_type_evt_id === 1 && (evt.fk_motif_id === 8 || evt.fk_motif_id === 2));
             } else {
@@ -101,10 +103,10 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.initList = function (eleve) {
-            $scope.$on('closeList', function(event, args){
+            $scope.$on('closeList', function(event, args) {
                 if (args.id !== eleve.id) {
                     eleve.displayed = false;
-                    $scope.safeApply();
+                    utils.safeApply($scope);
                 }
             });
         };
@@ -112,7 +114,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         $scope.displayList = function (eleve) {
             eleve.displayed = !eleve.displayed;
             if (eleve.displayed) { $scope.$broadcast('closeList', eleve); }
-            $scope.safeApply();
+            utils.safeApply($scope);
         };
 
         $scope.setEvtMotifEleve = function (eleve) {
@@ -139,15 +141,15 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                 if (_.every(a, function (evt) {
                         return evt.fk_motif_id === m;
                     })) {
-                    eleve.motif = vieScolaire.motifs.findWhere({motif_id: m});
-                    $scope.safeApply();
+                    eleve.motif = presences.structure.motifs.findWhere({motif_id: m});
+                    utils.safeApply($scope);
                 } else {
                     eleve.motif = undefined;
                 }
             }
         };
 
-        $scope.absencesFilter = function(eleve){
+        $scope.absencesFilter = function(eleve) {
             let result = true;
             if (typeof $scope.absencesFilterFunction === 'function') {
                 result = result && $scope.absencesFilterFunction(eleve);

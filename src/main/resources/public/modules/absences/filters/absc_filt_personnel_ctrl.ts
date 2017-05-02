@@ -15,8 +15,8 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
             responsables : false
         };
 
-        $scope.switchAll = function(oListe, b){
-            oListe.each(function(o){
+        $scope.switchAll = function(oListe, b) {
+            oListe.each(function(o) {
                 o.selected = b;
             });
         };

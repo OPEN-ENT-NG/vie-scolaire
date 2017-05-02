@@ -1,99 +1,44 @@
 import { model, Model, Collection, idiom as lang } from 'entcore/entcore';
 
 // Import des classes
-// import { Evenement } from './personnel/Evenement';
-// import { Motif } from './personnel/Motif';
+import { Evenement } from './personnel/Evenement';
+import { Motif } from './personnel/Motif';
 import { Structure } from './personnel/Structure';
+import { Enseignant } from './personnel/Enseignant';
 
 import { getActiveStructures } from '../../utils/functions/getActiveStructures';
+import { syncedCollection } from "../../utils/interfaces/syncedCollection";
+import { Appel } from "./personnel/Appel";
+import { Justificatif } from "./personnel/Justificatif";
+import { Classe } from "./personnel/Classe";
+import {getEvenements} from "../../utils/functions/getEvenements";
+
 
 let moment = require('moment');
 declare let _: any;
+/**
+ * MODELE DE DONNEES PERSONNEL :
+ *  1. Responsable : Coordonnées des responsables de l'élève.
+ *  2. Evenements : Liste des évènements relatifs à l'élève : Absences, retards, départs, ...
+ *  3. Eleve : Objet contenant toutes les informations relatives à un élève. Contient une liste de Responables et d'Evenements.
+ *  4. Classe : Objet contenant toutes les informations relatives à une Classe. Contient une liste d'élève.
+ *  5. Enseignant : Objet contenant toutes les informations relatives à un enseignant.
+ *  6. Matiere : Objet contenant toutes les informations relatives à une matière.
+ *  7. Appel : Object contenant toutes les informations relatives à un appel fait en classe ou réalisé par le CPE/Personnel d'éducation.
+ *  8. Motif : Contient les différents motifs d'absences relatif à l'établissement.
+ */
 
-// interface Evenements extends Collection<Evenement>, syncedCollection {}
 
-// interface Motifs extends Collection<Motif>, syncedCollection {}
 
 class Presences extends Model {
-    // classes: Collection<Classe>;
-    // enseignants: Collection<Enseignant>;
-    // appels: Collection<Appel>;
-    // evenements: Evenements;
-    // motifs: Motifs;
-    // justificatifs: Collection<Justificatif>;
-    //
+
     // constructor () {
     //     super();
-    //     this.collection(Classe, {
-    //         sync : '/viescolaire/classes/etablissement'
-    //     });
-    //     this.collection(Enseignant, {
-    //         sync : '/viescolaire/enseignants/etablissement'
-    //     });
-    //     this.collection(Appel, {
-    //         sync : function (pODateDebut, pODateFin) {
-    //             if (pODateDebut !== undefined && pODateFin !== undefined) {
-    //                 http().getJson('/viescolaire/absences/appels/' + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD')).done(function(data){
-    //                     this.load(data);
-    //                 }.bind(this));
-    //             }
-    //         }
-    //     });
-    //     this.collection(Evenement, {
-    //         sync : function (psDateDebut, psDateFin) {
-    //             if (psDateDebut !== undefined && psDateDebut !== undefined) {
-    //                 http().getJson('/viescolaire/absences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data){
-    //                     let aLoadedData = [];
-    //                     _.map(data, function(e){
-    //                         e.date = moment(e.timestamp_dt).format('YYYY-MM-DD');
-    //                         return e;
-    //                     });
-    //                     let aDates = _.groupBy(data, 'cours_date');
-    //                     for (let k in aDates) {
-    //                         if (!aDates.hasOwnProperty(k)) { continue; }
-    //                         let aEleves = _.groupBy(aDates[k], 'fk_eleve_id');
-    //                         for (let e in aEleves) {
-    //                             if (!aEleves.hasOwnProperty(e)) { continue; }
-    //                             let t = aEleves[e];
-    //                             let tempEleve = {
-    //                                 id : t[0].fk_eleve_id,
-    //                                 nom : t[0].nom,
-    //                                 prenom : t[0].prenom,
-    //                                 date : t[0].date,
-    //                                 displayed : false,
-    //                                 evenements : t
-    //                             };
-    //                             aLoadedData.push(tempEleve);
-    //                         }
-    //                     }
-    //                     this.load(aLoadedData);
-    //                 }.bind(this));
-    //             }
-    //         }
-    //     } as Evenements);
-    //     this.collection(Motif, {
-    //         sync : function () {
-    //             http().getJson('/viescolaire/absences/motifs').done(function (motifs) {
-    //                 this.load(motifs);
-    //                 this.map(function (motif) {
-    //                     motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
-    //                     return motif;
-    //                 });
-    //             }.bind(this));
-    //         }
-    //     } as Motifs);
-    //     this.collection(Justificatif, {
-    //         sync : '/viescolaire/absences/justificatifs'
-    //     });
     // }
     //
-    // sync () {
-    //     this.justificatifs.sync();
-    //     this.classes.sync();
-    //     this.motifs.sync();
-    //     this.enseignants.sync();
-    // }
+
     structures: Collection<Structure>;
+    structure: Structure;
 
     constructor () {
         super();
@@ -116,6 +61,7 @@ class Presences extends Model {
     async sync (): Promise<any> {
         try {
             await  this.structures.sync();
+            this.structure = this.structures.first();
             return;
         } catch (e) {
             throw e;
@@ -125,7 +71,7 @@ class Presences extends Model {
 
 export let presences = new Presences();
 
-// export { vieScolaire, Appel, Motif, Justificatif, Evenement, Enseignant, Classe };
+export {  Evenement };
 
 model.build = function () {
     (this as any).presences = presences;

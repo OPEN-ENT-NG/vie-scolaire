@@ -17,19 +17,66 @@
  *
  */
 
-import { Collection, http } from 'entcore/entcore';
+import { Collection, http, idiom as lang } from 'entcore/entcore';
 
 import { DefaultStructure } from '../common/DefaultStructure';
+import { Enseignant } from "./Enseignant";
+import { Appel } from "./Appel";
+import { Classe } from "./Classe";
+import { Justificatif } from "./Justificatif";
+import { Motif } from "./Motif";
+import { Evenement } from "./Evenement";
+
 
 export class Structure extends DefaultStructure {
+
+    enseignants: Collection<Enseignant>;
+    appels: Collection<Appel>;
+    classes: Collection<Classe>;
+    justificatifs: Collection<Justificatif>;
+    motifs: Collection<Motif>;
+    evenements: Collection<Evenement>;
 
     constructor (o?: any) {
         super();
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
-
+        this.collection(Motif, {
+            sync : function () {
+                http().getJson('/viescolaire/presences/motifs').done(function (motifs) {
+                    this.load(motifs);
+                    this.map(function (motif) {
+                        motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
+                        return motif;
+                    });
+                }.bind(this));
+            }
+        });
+        this.collection(Enseignant, {
+            sync : '/viescolaire/enseignants/etablissement'
+        });
+        this.collection(Appel, {
+            sync : function (pODateDebut, pODateFin) {
+                if (pODateDebut !== undefined && pODateFin !== undefined) {
+                    http().getJson('/viescolaire/presences/appels/' + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD')).done(function(data) {
+                        this.load(data);
+                    }.bind(this));
+                }
+            }
+        });
+        this.collection(Classe, {
+            sync : '/viescolaire/classes/etablissement'
+        });
+        this.collection(Justificatif, {
+            sync : '/viescolaire/presences/justificatifs'
+        });
     }
 
-    async sync (): Promise<any> {}
+    async sync (): Promise<any> {
+            this.justificatifs.sync();
+            this.classes.sync();
+            this.motifs.sync();
+            this.enseignants.sync();
+    }
 }

@@ -3,6 +3,7 @@ import { Evenement } from './Evenement';
 import { Responsable } from './Responsable';
 
 export class Eleve extends Model {
+    id: string;
     responsables: Collection<Responsable>;
     evenements: Collection<Evenement>;
 

@@ -25,8 +25,8 @@
             <button ng-click="switchAll(classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="classe in classes.all | filter:{classe_libelle:pORecherche.pSNomClasse} | orderBy : 'classe_libelle'" ng-click="classe.selected = !classe.selected"
-                ng-class="{selected : classe.selected}">[[classe.classe_libelle]]</li>
+            <li ng-repeat="classe in structure.classes.all | filter:{classe_libelle:pORecherche.pSNomClasse} | orderBy : 'name'" ng-click="classe.selected = !classe.selected"
+                ng-class="{selected : classe.selected}">[[classe.name]]</li>
         </ul>
     </div>
     <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">

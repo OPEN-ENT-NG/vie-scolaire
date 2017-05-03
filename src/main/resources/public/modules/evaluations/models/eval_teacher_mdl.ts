@@ -26,7 +26,7 @@ export class Structure extends Model implements IModel{
             getEleves : '/viescolaire/evaluations/eleves?idEtablissement=' + this.id,
             getEnseignants : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
-            getClasses: '/viescolaire/evaluations/classes?idEtablissement=' + this.id,
+            getClasses: '/viescolaire/classes?idEtablissement=' + this.id,
             TYPE : {
                 synchronization : '/viescolaire/evaluations/types?idEtablissement=' + this.id
             },
@@ -41,7 +41,7 @@ export class Structure extends Model implements IModel{
                 synchronization : '/viescolaire/evaluations/periodes?idEtablissement=' + this.id
             },
             CLASSE : {
-                synchronization : '/viescolaire/evaluations/classes?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
                 synchronizationRemplacement : '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
             },
             ELEVE : {

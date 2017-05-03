@@ -22,8 +22,8 @@ import { Model, IModel, Collection, http } from 'entcore/entcore';
 import { AbsencePrev } from './AbsencePrev';
 import { Cours } from './Cours';
 import { Evenement } from './Evenement';
-import { Plage } from './Plage';
-import { vieScolaire } from '../absc_enseignant_mdl';
+import { Plage } from './Plage-old';
+import { presences as vieScolaire } from '../absc_enseignant_mdl';
 
 
 export class Eleve extends Model implements IModel {
@@ -33,7 +33,7 @@ export class Eleve extends Model implements IModel {
     absencePrevs: Collection<AbsencePrev>;
     plages: Collection<Plage>;
     composer: any;
-    eleve_id: number;
+    id: String;
     absc_precedent_cours: boolean;
 
     get api () {
@@ -44,7 +44,7 @@ export class Eleve extends Model implements IModel {
         super();
         this.collection(Evenement, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/absences/eleve/' + this.composer.eleve_id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson('/viescolaire/absences/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
                     this.evenements.load(data);
                 });
             }
@@ -60,7 +60,7 @@ export class Eleve extends Model implements IModel {
                 let otCours = this.courss;
                 let that = this.plages;
                 // On copie les plages dans un tableau
-                that.load(JSON.parse(JSON.stringify(vieScolaire.plages)));
+                that.load(JSON.parse(JSON.stringify(vieScolaire.structure.plages)));
                 for (let i = 0; i < that.all.length; i++) {
                     that.all[i].evenements = new Collection<Evenement>(Evenement);
                     that.all[i].evenements.model = that.all[i];
@@ -71,9 +71,9 @@ export class Eleve extends Model implements IModel {
                  * la liste des evenements relatifs à la plage horaire.
                  */
                 _.each(otEvt.all, (evenement) => {
-                    let otCurrentCours = otCours.findWhere({cours_id : evenement.cours_id});
+                    let otCurrentCours = otCours.findWhere({id : evenement.id});
                     let otCurrentPlage = that.filter((plage) => {
-                        let dt = parseInt(moment(otCurrentCours.cours_timestamp_dt).format('HH'));
+                        let dt = parseInt(moment(otCurrentCours.timestamp_dt).format('HH'));
                         return plage.heure === dt;
                     })[0];
                     otCurrentPlage.evenements.push(evenement, false);
@@ -103,7 +103,7 @@ export class Eleve extends Model implements IModel {
         });
         this.collection(AbsencePrev, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/absences/eleve/' + this.composer.eleve_id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson('/viescolaire/absences/eleve/' + this.composer.id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done((data) => {
                     this.absencePrevs.load(data);
                 });
             }

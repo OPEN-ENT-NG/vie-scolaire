@@ -48,7 +48,7 @@
                     </span>
                 </div>
                 <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)" ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
-                    [[eleve.eleve_nom]] [[eleve.eleve_prenom]]
+                    [[eleve.lastName]] [[eleve.firstName]]
                 </div>
                 <div class="two cell cell-indent">
                     <span tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
@@ -76,7 +76,7 @@
 <mobile-panel side="right" displayed="detailEleveOpen.displayed">
     <div class="cell">
         <div class="six cell">
-            <h2 class="appel__detail-eleve_nom">[[currentEleve.eleve_nom]] [[currentEleve.eleve_prenom]]</h2>
+            <h2 class="appel__detail-eleve_nom">[[currentEleve.lastName]] [[currentEleve.firstName]]</h2>
         </div>
         <div class="six cell">
             <div class="two cell">
@@ -90,7 +90,7 @@
                 </a>
             </div>
             <div class="ten cell">
-                <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.fk4j_user_id]]" alt=""/>
+                <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.id]]" alt=""/>
             </div>
         </div>
 

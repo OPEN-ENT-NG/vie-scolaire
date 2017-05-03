@@ -148,7 +148,7 @@ public class EvenementController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                Integer psClasseId = Integer.parseInt(request.params().get("classeId"));
+                String psClasseId = request.params().get("classeId");
                 Integer psCoursId = Integer.parseInt(request.params().get("coursId"));
                 String psUserId = user.getUserId();
 
@@ -163,12 +163,11 @@ public class EvenementController extends ControllerHelper {
     @ApiDoc("Recupere tous les évènements pour une classe donnée dans une période donnée")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEvtClassePeriode(final HttpServerRequest request){
-        Integer iClasseId = Integer.parseInt(request.params().get("classeId"));
+        String iClasseId = request.params().get("classeId");
         String oDateDebut = request.params().get("dateDebut")+" 00:00:00";
         String oDateFin = request.params().get("dateFin")+" 23:59:59";
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
         miAbscEvenementService.getEvtClassePeriode(iClasseId, oDateDebut, oDateFin, handler);
     }
 }

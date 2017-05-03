@@ -111,7 +111,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
 
     @Override
-    public void getAbsencesDernierCours(String psUserId, Integer psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler) {
+    public void getAbsencesDernierCours(String psUserId, String psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -119,25 +119,23 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement " +
                 "WHERE evenement.id_appel = ( " +
                 "SELECT appel.id " +
-                "FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
-                "WHERE personnel.fk4j_user_id = ? " +
-                "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
-                "AND rel_personnel_cours.fk_cours_id = cours.id " +
+                "FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
+                "WHERE cours.id_personnel = ? " +
                 "AND cours.id_classe = ? " +
                 "AND appel.id_cours = cours.id " +
                 "AND cours.id != ? " +
                 "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM "+ Viescolaire.VSCO_SCHEMA +".cours WHERE cours.id = ?) " +
                 "ORDER BY cours.timestamp_dt DESC " +
                 "LIMIT 1) " +
-                "AND evenement.fk_type_evt_id = 1 ");
+                "AND evenement.id_type = 1 ");
 
-        values.addString(psUserId).addNumber(psClasseId).addNumber(psCoursId).addNumber(psCoursId);
+        values.addString(psUserId).addString(psClasseId).addNumber(psCoursId).addNumber(psCoursId);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
     @Override
-    public void getEvtClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+    public void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -151,7 +149,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
 
-        values.addNumber(piClasseId).addString(psDateDebut).addString(psDateFin);
+        values.addString(piClasseId).addString(psDateDebut).addString(psDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

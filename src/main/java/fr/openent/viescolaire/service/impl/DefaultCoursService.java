@@ -47,20 +47,19 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     }
 
     @Override
-    public void getClasseCours(String pSDateDebut, String pSDateFin, Long pLIdClasse, Handler<Either<String, JsonArray>> handler) {
+    public void getClasseCours(String pSDateDebut, String pSDateFin, String pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.id, cours.id_etablissement, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.id_matiere, cours.id_classe ")
-        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".classe ")
-        .append("WHERE cours.id_classe = classe.id ")
-        .append("AND cours.id_classe = ? ")
+        query.append("SELECT cours.* ")
+        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+        .append("WHERE cours.id_classe = ? ")
         .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("ORDER BY cours.timestamp_fn ASC");
 
 
-        values.addNumber(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
+        values.addString(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -70,15 +69,15 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, classe.libelle as libelle_classe, rel_personnel_cours.fk_personnel_id ")
-                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".classe, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.VSCO_SCHEMA +".personnel ")
-                .append("WHERE personnel.fk4j_user_id::varchar = ? ")
-                .append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
+        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("WHERE id_personnel::varchar = ? ")
+                //.append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
+                //.append("AND rel_personnel_cours.fk_cours_id = cours.id ")
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
-                .append("AND cours.id_classe = classe.id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
+               // .append("AND cours.fk_classe_id = classe.id ")
+
                 .append("ORDER BY cours.timestamp_dt ASC");
 
         values.addString(psUserId);

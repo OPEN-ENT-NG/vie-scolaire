@@ -56,17 +56,7 @@ public class CoursController extends ControllerHelper{
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-
-        Long lIdClase;
-        try {
-            lIdClase = Long.parseLong(idClasse);
-        } catch(NumberFormatException e) {
-            log.error("Error : idClasse must be a long object", e);
-            badRequest(request, e.getMessage());
-            return;
-        }
-
-        coursService.getClasseCours(dateDebut, dateFin, lIdClase, handler);
+        coursService.getClasseCours(dateDebut, dateFin, idClasse, handler);
     }
 
     // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE

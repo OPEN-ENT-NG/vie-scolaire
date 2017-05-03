@@ -24,6 +24,8 @@ import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.List;
+
 public interface EleveService extends CrudService {
 
     /**
@@ -72,10 +74,10 @@ public interface EleveService extends CrudService {
 
     /**
      * Recupere toutes les absences prévisionnelle pour une classe donnée dans une période donnée
-     * @param piClasseId identifiant de la classe
+     * @param idEleves liste d'identifiants d'élèves
      * @param psDateDebut date de début de la période
      * @param psDateFin date de fin de la période
      * @param handler handler portant le résultat de la requête
      */
-    public void getAbsencesPrevClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+    public void getAbsencesPrevClassePeriode(List<String> idEleves, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

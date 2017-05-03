@@ -43,7 +43,7 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
 
         query.append("SELECT * ")
             .append("FROM "+ Viescolaire.ABSC_SCHEMA +".motif ")
-            .append("WHERE id_etablissement=?");
+            .append("WHERE id_etablissement = ?");
 
         values.addString(psIdEtablissement);
 

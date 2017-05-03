@@ -16,7 +16,7 @@ export class AppelElevesCollection {
         this.sync = function () {
             let that = this;
             http().getJson('/viescolaire/classe/' + this.composer.fk_classe_id + '/eleves').done((data) => {
-                _.map(data, function(eleve){
+                _.map(data, function(eleve) {
                     eleve.cours = that.cours;
                 });
                 that.load(data);

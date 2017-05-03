@@ -27,11 +27,11 @@ export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelControl
             return true;
         };
 
-        $scope.applyAppelFilter = function(){
+        $scope.applyAppelFilter = function() {
             $scope.appelFilter = $scope.pOFilterAppel.noneffectues ? $scope.appelFilterFunction : null;
         };
 
-        $scope.checkAppel = function(appel){
+        $scope.checkAppel = function(appel) {
             let index = _.indexOf($scope.selectedAppels, appel);
             if (index === -1) {
                 $scope.selectedAppels.push(appel);

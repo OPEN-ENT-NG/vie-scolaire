@@ -22,13 +22,19 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.display.menu = false;
             },
             Redirect : function(params) {
+                template.close('menu');
+                template.close('header');
                 template.open('main', '../templates/viescolaire/vsco_acu_personnel');
 
             },
             Accueil: function (params) {
-               template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                template.close('menu');
+                template.close('header');
+                template.open('main', '../templates/viescolaire/vsco_acu_personnel');
             },
             disabled : (params) => {
+                template.close('menu');
+                template.close('header');
                 template.open('main', '../templates/absences/absc_disabled_structure');
                 utils.safeApply($scope);
             }

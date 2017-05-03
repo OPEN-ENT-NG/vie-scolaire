@@ -1,3 +1,86 @@
+CREATE TABLE presences.users
+(
+  id character varying(36) NOT NULL,
+  username character varying(255),
+  CONSTRAINT users_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE presences.groups
+(
+  id character varying(36) NOT NULL,
+  name character varying(255),
+  CONSTRAINT groups_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE presences.members
+(
+  id character varying(36) NOT NULL,
+  user_id character varying(36),
+  group_id character varying(36),
+  CONSTRAINT members_pk PRIMARY KEY (id),
+  CONSTRAINT fk_group_id FOREIGN KEY (group_id)
+  REFERENCES presences.groups (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_users_id FOREIGN KEY (user_id)
+  REFERENCES presences.users (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- functions and triggers
+CREATE OR REPLACE FUNCTION presences.insert_users_members() RETURNS trigger AS
+$$
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    INSERT INTO presences.members (id, user_id) VALUES (NEW.id, NEW.id);
+    RETURN NEW;
+  END IF;
+  RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION presences.insert_groups_members() RETURNS trigger AS
+$$
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    INSERT INTO presences.members (id, group_id) VALUES (NEW.id, NEW.id);
+    RETURN NEW;
+  END IF;
+  RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER users_trigger
+AFTER INSERT
+  ON presences.users
+FOR EACH ROW
+EXECUTE PROCEDURE presences.insert_users_members();
+
+CREATE TRIGGER groups_trigger
+AFTER INSERT
+  ON presences.groups
+FOR EACH ROW
+EXECUTE PROCEDURE presences.insert_groups_members();
+
+CREATE OR REPLACE FUNCTION presences.merge_users(key character varying, data character varying) RETURNS void AS
+$$
+BEGIN
+  LOOP
+    UPDATE presences.users SET username = data WHERE id = key;
+    IF found THEN
+      RETURN;
+    END IF;
+    BEGIN
+      INSERT INTO presences.users(id,username) VALUES (key, data);
+      RETURN;
+      EXCEPTION WHEN unique_violation THEN
+    END;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
 CREATE TABLE viesco.cours
 (
   id bigserial NOT NULL,

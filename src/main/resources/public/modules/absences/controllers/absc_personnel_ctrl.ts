@@ -10,15 +10,23 @@ export let absencesController = ng.controller('AbsencesController', [
     function ($scope, route, model, $rootScope, $location, $route) {
        const routesActions = {
             AbsencesSansMotifs: function (params) {
+                template.open('menu', '../templates/absences/absc_personnel_menu');
+                template.open('header', '../templates/absences/absc_personnel_header');
                 template.open('main', '../templates/absences/absc_personnel_abssm');
                 $scope.display.menu = false;
             },
             AppelsOublies : function(params) {
+                template.open('menu', '../templates/absences/absc_personnel_menu');
+                template.open('header', '../templates/absences/absc_personnel_header');
                 template.open('main', '../templates/absences/absc_personnel_appo');
                 $scope.display.menu = false;
             },
             Redirect : function(params) {
-                $scope.goTo('/viescolaire');
+                template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+
+            },
+            Accueil: function (params) {
+               template.open('main', '../templates/viescolaire/vsco_acu_personnel');
             },
             disabled : (params) => {
                 template.open('main', '../templates/absences/absc_disabled_structure');
@@ -36,10 +44,6 @@ export let absencesController = ng.controller('AbsencesController', [
         let executeAction = function (): void {
             routesActions[getCurrentAction()]($route.current.params);
         };
-
-        template.open('menu', '../templates/absences/absc_personnel_menu');
-        template.open('header', '../templates/absences/absc_personnel_header');
-
 
         $scope.display = {
             responsables : false,
@@ -86,8 +90,10 @@ export let absencesController = ng.controller('AbsencesController', [
                     if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
                         if ($location.path() === "/sansmotifs") {
                             presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                            utils.safeApply($scope);
                         }else if ($location.path() === "/appels/noneffectues") {
                             presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                            utils.safeApply($scope);
                         }
                     }
                 };

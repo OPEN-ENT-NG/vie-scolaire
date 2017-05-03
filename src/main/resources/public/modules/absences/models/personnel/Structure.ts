@@ -65,6 +65,38 @@ export class Structure extends DefaultStructure {
                 }
             }
         });
+        this.collection(Evenement, {
+            sync : function (psDateDebut, psDateFin) {
+                if (psDateDebut !== undefined && psDateDebut !== undefined) {
+                    http().getJson('/viescolaire/presences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data){
+                        let aLoadedData = [];
+                        _.map(data, function(e) {
+                            e.date = moment(e.timestamp_dt).format('YYYY-MM-DD');
+                            return e;
+                        });
+                        let aDates = _.groupBy(data, 'cours_date');
+                        for (let k in aDates) {
+                            if (!aDates.hasOwnProperty(k)) { continue; }
+                            let aEleves = _.groupBy(aDates[k], 'fk_eleve_id');
+                            for (let e in aEleves) {
+                                if (!aEleves.hasOwnProperty(e)) { continue; }
+                                let t = aEleves[e];
+                                let tempEleve = {
+                                    id : t[0].fk_eleve_id,
+                                    nom : t[0].nom,
+                                    prenom : t[0].prenom,
+                                    date : t[0].date,
+                                    displayed : false,
+                                    evenements : t
+                                };
+                                aLoadedData.push(tempEleve);
+                            }
+                        }
+                        this.load(aLoadedData);
+                    }.bind(this));
+                }
+            }
+        });
         this.collection(Classe, {
             sync : '/viescolaire/classes/etablissement'
         });
@@ -78,5 +110,6 @@ export class Structure extends DefaultStructure {
             this.classes.sync();
             this.motifs.sync();
             this.enseignants.sync();
+            this.evenements.sync();
     }
 }

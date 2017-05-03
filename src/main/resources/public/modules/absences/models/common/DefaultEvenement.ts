@@ -22,7 +22,7 @@ export class DefaultEvenement extends Model implements IModel {
             http().putJson(http().parseUrl(this.api.put)).done((data) => {
                if (resolve && (typeof resolve === 'function')) {
                    resolve(data);
-               };
+               }
             });
         });
     }

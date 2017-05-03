@@ -11,7 +11,6 @@ import { syncedCollection } from "../../utils/interfaces/syncedCollection";
 import { Appel } from "./personnel/Appel";
 import { Justificatif } from "./personnel/Justificatif";
 import { Classe } from "./personnel/Classe";
-import {getEvenements} from "../../utils/functions/getEvenements";
 
 
 let moment = require('moment');

@@ -45,18 +45,25 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray value = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.matiere, cours.salle, appel.id, personnel.prenom, personnel.nom, appel.fk_etat_appel_id, classe.libelle, classe.id, personnel.id " +
-                "FROM "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.VSCO_SCHEMA +".classe, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, "+ Viescolaire.VSCO_SCHEMA +".cours " +
-                "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel on (cours.id = appel.fk_cours_id) " +
+        query.append("SELECT DISTINCT cours.id, " +
+                "                cours.timestamp_dt, " +
+                "                cours.timestamp_fn, " +
+                "                cours.id_matiere, " +
+                "                cours.salle, " +
+                "                appel.id, " +
+                "                appel.id_etat, " +
+                "                cours.id_classe, " +
+                "                cours.id_personnel " +
+                "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +
                 "WHERE cours.id_etablissement = ? " +
-                "AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND rel_personnel_cours.fk_cours_id = cours.id " +
-                "AND rel_personnel_cours.fk_personnel_id = personnel.id " +
-                "AND cours.fk_classe_id = classe.id "+
+                "  AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
+                "  AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
                 "ORDER BY cours.timestamp_dt DESC");
 
-        value.addString(psIdEtablissement).addString(psDateDebut).addString(psDateFin);
+        value.addString(psIdEtablissement)
+                .addString(psDateDebut)
+                .addString(psDateFin);
 
         Sql.getInstance().prepared(query.toString(), value, SqlResult.validResultHandler(handler));
     }

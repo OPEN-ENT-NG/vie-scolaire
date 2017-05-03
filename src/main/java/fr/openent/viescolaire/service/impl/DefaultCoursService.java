@@ -51,10 +51,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.id, cours.id_etablissement, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.matiere, cours.fk_classe_id ")
+        query.append("SELECT cours.id, cours.id_etablissement, cours.timestamp_dt, cours.timestamp_fn, cours.salle, cours.id_matiere, cours.id_classe ")
         .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".classe ")
-        .append("WHERE cours.fk_classe_id = classe.id ")
-        .append("AND cours.fk_classe_id = ? ")
+        .append("WHERE cours.id_classe = classe.id ")
+        .append("AND cours.id_classe = ? ")
         .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
         .append("ORDER BY cours.timestamp_fn ASC");
@@ -77,7 +77,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY') ")
-                .append("AND cours.fk_classe_id = classe.id ")
+                .append("AND cours.id_classe = classe.id ")
                 .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
                 .append("ORDER BY cours.timestamp_dt ASC");
 

@@ -23,6 +23,7 @@ public enum Events {
         this.eventName = text;
     }
 
+    @Override
     public String toString () {
         return this.eventName;
     }

@@ -44,18 +44,12 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getEleveClasse(String pSIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        query.append("Match (c:Class{id: {idClasse} }) with c ")
+                .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
+                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
 
-        query.append("SELECT eleve.* ")
-        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe ")
-        .append("WHERE classe.id = ? ")
-        .append("AND classe.id = rel_eleve_classe.fk_classe_id ")
-        .append("AND eleve.id = rel_eleve_classe.fk_eleve_id ")
-        .append("ORDER BY nom ASC, prenom ASC");
+        neo4j.execute(query.toString(), new JsonObject().putString("idClasse", pSIdClasse), Neo4jResult.validResultHandler(handler));
 
-        values.addNumber(new Integer(pSIdClasse));
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
     @Override

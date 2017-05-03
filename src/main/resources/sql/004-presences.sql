@@ -95,6 +95,7 @@ CREATE TABLE viesco.cours
   edt_matiere character varying(36),
   edt_id_cours character varying(36),
   id_classe character varying(36),
+  id_personnel character varying(36),
   CONSTRAINT cours_pkey PRIMARY KEY (id)
 );
 
@@ -179,7 +180,7 @@ CREATE TABLE presences.absence_prev
   id bigserial NOT NULL,
   timestamp_dt timestamp without time zone,
   timestamp_fn timestamp without time zone,
-  id_eleve bigint,
+  id_eleve character varying(36),
   id_motif bigint,
   CONSTRAINT absence_prev_pk PRIMARY KEY (id),
   CONSTRAINT fk_motif_id FOREIGN KEY (id_motif)

@@ -1,5 +1,5 @@
 import { template, ng, routes } from 'entcore/entcore';
-import { vieScolaire, Evenement } from '../models/absc_enseignant_mdl';
+import { presences, Evenement } from '../models/absc_enseignant_mdl';
 
 let moment = require('moment');
 declare let _: any;
@@ -9,10 +9,12 @@ export let absencesController = ng.controller('AbsencesController', [
     function ($scope, route, model, $location, $route) {
         const routesActions = {
             appel: (params) => {
-                let dtToday = new Date();
-                // $scope.ouvrirAppel(dtToday);
-                template.open('main', '../templates/absences/absc_teacher_appel');
-                $scope.safeApply();
+                if (presences.structure !== undefined && presences.structure.isSynchronized) {
+                    let dtToday = new Date();
+                    $scope.ouvrirAppel(dtToday);
+                    template.open('main', '../templates/absences/absc_teacher_appel');
+                    $scope.safeApply();
+                }
             },
             disabled : (params) => {
                 template.open('main', '../templates/absences/absc_disabled_structure');
@@ -61,9 +63,9 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
-        // $scope.courss = vieScolaire.courss;
-        // $scope.creneaus = vieScolaire.creneaus;
-        // $scope.plages = vieScolaire.plages;
+        // $scope.courss = presences.courss;
+        // $scope.creneaus = presences.creneaus;
+        // $scope.plages = presences.plages;
         $scope.safeApply = function(fn) {
             let phase = this.$root.$$phase;
             if (phase === '$apply' || phase === '$digest') {
@@ -388,9 +390,9 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.show.lightbox = true;
         };
 
-        $scope.selectCurrentCours = function(){
-            let currentCours = $scope.courss.filter(function(cours){
-                return (moment().diff(moment(cours.cours_timestamp_dt)) > 0) && (moment().diff(moment(cours.cours_timestamp_fn)) < 0);
+        $scope.selectCurrentCours = function() {
+            let currentCours = $scope.structure.courss.filter(function(cours){
+                return (moment().diff(moment(cours.timestamp_dt)) > 0) && (moment().diff(moment(cours.timestamp_fn)) < 0);
             });
             if (currentCours.length === 0) { return undefined; }
             else { return currentCours[0]; }
@@ -486,7 +488,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * Charge un appel
          * @param pdtDate la date du jour souhaitée
          */
-        $scope.ouvrirAppel = function (pdtDate) {
+        $scope.ouvrirAppel = async function (pdtDate) {
 
             // formatage en string
             $scope.appel.sDateDebut = moment(pdtDate).format($scope.format.gsFormatDate);
@@ -498,20 +500,14 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.detailEleveOpen.displayed = false;
 
             // chargement des cours de la journée de l'enseignant
-            $scope.courss.sync(model.me.userId, $scope.appel.sDateDebut, $scope.appel.sDateFin);
+            await $scope.structure.courss.sync($scope.appel.sDateDebut, $scope.appel.sDateFin);
+            await $scope.structure.creneaus.sync();
+            let currentCours = $scope.selectCurrentCours();
+            if (currentCours !== undefined) {
+                $scope.selectCours(currentCours);
+            }
 
-            // chargement des eleves de  chaque cours
-            $scope.courss.on('sync', function(){
-                // $scope.creneaus.sync();
-                // $scope.creneaus.on('sync', function(){
-                //     let currentCours = $scope.selectCurrentCours();
-                //     if (currentCours !== undefined) {
-                //         $scope.selectCours(currentCours);
-                //     }
-                // });
-            });
-
-            // $scope.plages.sync();
+            // $scope.structure.plages.sync();
         };
 
         /**
@@ -536,7 +532,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param piIdEtatAppel l'identifiant de l'état souhaité.
          */
         $scope.changerEtatAppel = function (piIdEtatAppel) {
-            $scope.currentCours.appel.fk_etat_appel_id = piIdEtatAppel;
+            $scope.currentCours.appel.id_appel = piIdEtatAppel;
             $scope.currentCours.appel.update();
             $scope.safeApply();
         };
@@ -549,15 +545,18 @@ export let absencesController = ng.controller('AbsencesController', [
             routesActions[getCurrentAction()]($route.current.params);
         };
 
-        vieScolaire.structures.sync().then(() => {
-            if (!vieScolaire.structures.empty()) {
-                $scope.structure = vieScolaire.structures.first();
-                if ($location.path() === '/disabled') {
-                    $location.path('/appel');
-                    $location.replace();
-                } else {
-                    executeAction();
-                }
+        presences.structures.sync().then(() => {
+            if (!presences.structures.empty()) {
+                $scope.structure = presences.structures.first();
+                presences.structure = $scope.structure;
+                presences.structure.sync().then(() => {
+                    if ($location.path() === '/disabled') {
+                        $location.path('/appel');
+                        $location.replace();
+                    } else {
+                        executeAction();
+                    }
+                });
             } else {
                 $location.path() === '/disabled' ?
                     executeAction() :

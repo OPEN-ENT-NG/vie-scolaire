@@ -11,6 +11,7 @@ declare let _: any;
 
 class Presences extends Model {
     structures: Collection<Structure>;
+    structure: Structure;
 
     constructor () {
         super();
@@ -53,8 +54,8 @@ class Presences extends Model {
 let presences = new Presences();
 
 // export { AbsencePrev, Appel, Cours, Evenement, vieScolaire }
-export { presences, Evenement }
+export { presences, Evenement };
 
 model.build = function () {
-    (this as any).vieScolaire = presences;
+    (this as any).presences = presences;
 };

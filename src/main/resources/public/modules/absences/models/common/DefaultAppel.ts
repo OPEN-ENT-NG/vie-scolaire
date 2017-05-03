@@ -8,9 +8,9 @@ export class DefaultAppel extends Model {
     owner: string;
     get api () {
         return {
-            CREATE: '/presences/appel',
-            UPDATE: '/presences/appel',
-            DELETE: '/presences/appel/' + this.id
+            CREATE: 'presences/appel',
+            UPDATE: 'presences/appel',
+            DELETE: 'presences/appel/' + this.id
         };
     }
     create(): Promise<any> {

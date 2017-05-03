@@ -28,6 +28,8 @@ import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.List;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 public class DefaultEleveService extends SqlCrudService implements fr.openent.absences.service.EleveService {
@@ -158,19 +160,20 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
     }
 
     @Override
-    public void getAbsencesPrevClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+    public void getAbsencesPrevClassePeriode(List<String> idEleves, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT absence_prev.* " +
-                "FROM "+ Viescolaire.ABSC_SCHEMA +".absence_prev, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe " +
-                "WHERE absence_prev.id_eleve = eleve.id " +
-                "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
-                "AND rel_eleve_classe.fk_classe_id = ? " +
-                "AND absence_prev.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND absence_prev.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')");
+        query.append("SELECT absence_prev.* ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".absence_prev " )
+                .append("WHERE absence_prev.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND absence_prev.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND id_eleve IN "+ Sql.listPrepared(idEleves.toArray()));
 
-        values.addNumber(piClasseId).addString(psDateDebut).addString(psDateFin);
+        values.addString(psDateDebut).addString(psDateFin);
+        for(Integer i=0; i< idEleves.size(); i++){
+            values.addString(idEleves.get(i));
+        }
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

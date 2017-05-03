@@ -81,7 +81,8 @@ public class ClasseController extends BaseController {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    if("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR")){
+                    if(("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR"))
+                        || "Teacher".equals(user.getType()) ) {
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         String idClasse = request.params().get("idClasse");
                         classeService.getEleveClasse(idClasse, handler);

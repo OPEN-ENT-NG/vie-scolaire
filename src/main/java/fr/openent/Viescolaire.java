@@ -23,6 +23,7 @@ import fr.openent.absences.controller.*;
 import fr.openent.evaluations.controller.*;
 import fr.openent.evaluations.controller.UtilsController;
 import fr.openent.viescolaire.controller.*;
+import fr.openent.absences.controller.*;
 import fr.openent.viescolaire.controller.EleveController;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import fr.wseduc.webutils.email.EmailSender;
@@ -147,7 +148,7 @@ public class Viescolaire extends BaseServer {
 		/*
 			CONTROLEURS ABSENCES
 		 */
-		addController(new EleveController());
+		addController(new fr.openent.absences.controller.EleveController());
 		addController(new MotifController());
 		addController(new AppelController());
 		addController(new EvenementController());

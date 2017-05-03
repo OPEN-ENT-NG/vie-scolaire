@@ -85,7 +85,7 @@ public interface EvenementService extends CrudService {
      * @param psCoursId identifiant du cours.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getAbsencesDernierCours(String psUserId, Integer psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler);
+    public void getAbsencesDernierCours(String psUserId, String psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere tous les évènements pour une classe donnée sur une période donnée
@@ -94,5 +94,5 @@ public interface EvenementService extends CrudService {
      * @param psDateFin date de fin de la période.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getEvtClassePeriode(Integer piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+    public void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

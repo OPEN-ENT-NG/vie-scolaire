@@ -98,7 +98,6 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
     public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
-
         query.append("SELECT appel.id, appel.id_personnel, appel.id_cours, appel.id_etat, appel.id_justificatif " +
                 "FROM "+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE appel.id_cours = ?");

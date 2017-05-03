@@ -130,12 +130,6 @@ public interface UtilsService {
      */
     public void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
 
-    /**
-     * Récupère la liste des classes de l'utilisateur
-     *
-     * @param handler handler portant le résultat de la requête
-     */
-    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur

@@ -297,33 +297,7 @@ public class DefaultUtilsService  implements UtilsService {
         neo4j.execute(query, params,  Neo4jResult.validResultHandler(results));
     }
 
-    /**
-     * Récupère la liste des classes de l'utilisateur
-     * @param user
-     * @param handler handler portant le résultat de la requête
-     */
-    @Override
-    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler) {
-        String query;
-        JsonObject params = new JsonObject();
-        // Dans le cas du chef d'établissement, on récupère toutes les classes
-        if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
-                    "UNION ALL " +
-                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";
-            params.putString("idEtablissement", idEtablissement);
-        }
-        else {
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {classes} AND s.id = {idEtablissement} return g " +
-                    "UNION ALL " +
-                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
-            params = new JsonObject();
-            params.putArray("classes", new JsonArray(user.getClasses().toArray()))
-                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
-                    .putString("idEtablissement", idEtablissement);
-        }
-        neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
-    }
+
 
     @Override
     public JsonObject mapListNumber(JsonArray list, String key, String value) {

@@ -85,42 +85,43 @@ export let absencesController = ng.controller('AbsencesController', [
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
                 $scope.structure = presences.structures.first();
-                $scope.appels = presences.structure.appels;
-                $scope.classes = presences.structure.classes;
-                $scope.enseignants = presences.structure.enseignants;
-                $scope.evenements = presences.structure.evenements;
-                $scope.motifs = presences.structure.motifs;
-                $scope.justificatifs = presences.structure.justificatifs;
+                $scope.structure.sync().then(() => {
+                    $scope.appels = presences.structure.appels;
+                    $scope.classes = presences.structure.classes;
+                    $scope.enseignants = presences.structure.enseignants;
+                    $scope.evenements = presences.structure.evenements;
+                    $scope.motifs = presences.structure.motifs;
+                    $scope.justificatifs = presences.structure.justificatifs;
 
-                $scope.loadData = function() {
-                    if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                        if ($location.path() === "/sansmotifs") {
-                            presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
-                            utils.safeApply($scope);
-                        }else if ($location.path() === "/appels/noneffectues") {
-                            presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                            utils.safeApply($scope);
+                    $scope.loadData = function() {
+                        if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+                            if ($location.path() === "/sansmotifs") {
+                                presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                                utils.safeApply($scope);
+                            }else if ($location.path() === "/appels/noneffectues") {
+                                presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                                utils.safeApply($scope);
+                            }
                         }
-                    }
-                };
+                    };
 
-                presences.structure.classes.on('sync', function() {
-                    presences.structure.classes.map(function(classe) {
-                        classe.selected = true;
-                        return classe;
+                    presences.structure.classes.on('sync', function() {
+                        presences.structure.classes.map(function(classe) {
+                            classe.selected = true;
+                            return classe;
+                        });
                     });
-                });
 
-                presences.structure.enseignants.on('sync', function() {
-                    presences.structure.enseignants.map(function(enseignant) {
-                        enseignant.selected = true;
-                        return enseignant;
+                    presences.structure.enseignants.on('sync', function() {
+                        presences.structure.enseignants.map(function(enseignant) {
+                            enseignant.selected = true;
+                            return enseignant;
+                        });
                     });
+                    // presences.structure.motifs.on('sync', function() {
+                    //     presences.structure.motifs.synced = true;
+                    // });
                 });
-
-                // presences.structure.motifs.on('sync', function() {
-                //     presences.structure.motifs.synced = true;
-                // });
 
                 if ($location.path() === '/disabled') {
                     $location.path('/');
@@ -137,8 +138,9 @@ export let absencesController = ng.controller('AbsencesController', [
         });
         $scope.goTo = function(path, id ) {
             $location.path(path);
-            if (id !== undefined)
+            if (id !== undefined) {
                 $location.search(id);
+            }
             $location.replace();
             utils.safeApply($scope);
         };

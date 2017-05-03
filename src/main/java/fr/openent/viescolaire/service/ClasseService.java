@@ -21,6 +21,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
@@ -28,12 +29,6 @@ import org.vertx.java.core.json.JsonArray;
  * Created by ledunoiss on 19/02/2016.
  */
 public interface ClasseService extends CrudService {
-    /**
-     * Récupère toutes les classes de l'établissement en fonction de son id Neo4j.
-     * @param idEtablissement Identifiant de l'établissement.
-     * @param handler Handler portant le résultat de la requête.
-     */
-    public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère le nombre d'élève de chaque groupe dont l'id est passé en paramètre.
@@ -60,16 +55,10 @@ public interface ClasseService extends CrudService {
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.
-     * @param idClasses Tableau des id des classes
-     * @param handler Handler portant le résultat de la requête.
+     * Récupère la liste des classes de l'utilisateur
+     *
+     * @param handler handler portant le résultat de la requête
      */
-    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-    /**
-     * Recupere les id des etablissements auxquels appartiennent les classes dont l'id est passé en paramètre.
-     * @param idClasses Tableau des id des classes
-     * @param handler Handler portant le résultat de la requête.
-     */
-    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 }

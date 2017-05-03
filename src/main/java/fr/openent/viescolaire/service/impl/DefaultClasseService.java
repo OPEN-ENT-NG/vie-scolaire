@@ -26,6 +26,7 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
@@ -42,18 +43,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
 
-    @Override
-    public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-
-        query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} RETURN c.id as idClasse ORDER BY c.name");
-        params.putString("idEtablissement", idEtablissement);
-
-        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
-    }
-
-    //TODO Revoir avec getEleveClasses
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
@@ -81,7 +70,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 
-    //TODO Revoir avec getEleveClasse
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
@@ -98,30 +86,31 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     }
 
+    /**
+     * Récupère la liste des classes de l'utilisateur
+     * @param user
+     * @param handler handler portant le résultat de la requête
+     */
     @Override
-    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
+    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+        String query;
         JsonObject params = new JsonObject();
-
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
-                .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName ")
-                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
-                .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName");
-        params.putArray("idClasses", new JsonArray(idClasses));
-
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
-    }
-
-    @Override
-    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-        query.append("MATCH (g:Class)-[BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure ")
-            .append("UNION MATCH (g:FunctionalGroup)-[DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure");
-        params.putArray("idClasses", new JsonArray(idClasses));
-
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+        // Dans le cas du chef d'établissement, on récupère toutes les classes
+        if(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")){
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";
+            params.putString("idEtablissement", idEtablissement);
+        }
+        else {
+            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {classes} AND s.id = {idEtablissement} return g " +
+                    "UNION ALL " +
+                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
+            params = new JsonObject();
+            params.putArray("classes", new JsonArray(user.getClasses().toArray()))
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+                    .putString("idEtablissement", idEtablissement);
+        }
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 }

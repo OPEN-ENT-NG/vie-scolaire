@@ -21,6 +21,8 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessAuthorozed;
+import fr.openent.evaluations.service.UtilsService;
+import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -37,6 +39,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -48,24 +51,26 @@ import static org.entcore.common.http.response.DefaultResponseHandler.leftToResp
 public class ClasseController extends BaseController {
 
     ClasseService classeService;
+    UtilsService utilsService;
 
     public ClasseController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         classeService = new DefaultClasseService();
+        utilsService = new DefaultUtilsService();
     }
 
-    @Get("/classes/etablissement")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Recupere toutes les classes d'un établissement donné.")
-    public void getClasseEtablissement(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                classeService.getClasseEtablissement(user.getStructures().get(0), handler);
-            }
-        });
-    }
+//    @Get("/classes/etablissement")
+//    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+//    @ApiDoc("Recupere toutes les classes d'un établissement donné.")
+//    public void getClasseEtablissement(final HttpServerRequest request){
+//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+//            @Override
+//            public void handle(UserInfos user) {
+//                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+//                classeService.getClasseEtablissement(user.getStructures().get(0), handler);
+//            }
+//        });
+//    }
 
     @Get("/classes/:idClasse/users")
     @ApiDoc("Recupere tous les élèves d'une Classe.")
@@ -106,6 +111,67 @@ public class ClasseController extends BaseController {
                         classeService.getEleveClasses(idEtablissement,idClasseArray,isTeacher, handler);
                 } else {
                     unauthorized(request);
+                }
+            }
+        });
+    }
+
+    @Get("/classes")
+    @ApiDoc("Retourne les classes de l'utilisateur")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getClasses(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null && request.params().size() == 2) {
+                    String idEtablissement = request.params().get("idEtablissement");
+                    classeService.listClasses(idEtablissement,user, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                JsonArray recipient = event.right().getValue();
+                                JsonObject classe, object;
+                                final JsonArray classes = new JsonArray();
+                                List<String> idGroupes = new ArrayList<>();
+                                for (int i = 0; i < recipient.size(); i++) {
+                                    classe = recipient.get(i);
+                                    classe = classe.getObject("g");
+                                    object = classe.getObject("metadata");
+                                    classe = classe.getObject("data");
+                                    classe.putNumber("type_groupe", object.getArray("labels").contains("Class") ? 0 : 1);
+                                    idGroupes.add(classe.getString("id"));
+                                    classes.addObject(classe);
+                                }
+
+                                if (idGroupes.size() > 0) {
+                                    utilsService.getCycle(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> event) {
+                                            if (event.isRight()) {
+                                                JsonArray returnedList = new JsonArray();
+                                                JsonObject object;
+                                                JsonObject cycles = utilsService.mapListNumber(event.right().getValue(), "id_groupe", "id_cycle");
+                                                JsonObject cycleLibelle = utilsService.mapListString(event.right().getValue(), "id_groupe", "libelle");
+                                                for (int i = 0; i < classes.size(); i++) {
+                                                    object = classes.get(i);
+                                                    object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));
+                                                    object.putString("libelle_cycle", cycleLibelle.getString(object.getString("id")));
+                                                    returnedList.addObject(object);
+                                                }
+                                                renderJson(request, returnedList);
+                                            } else {
+                                                badRequest(request);
+                                            }
+                                        }
+                                    });
+                                }
+                            } else {
+                                badRequest(request);
+                            }
+                        }
+                    });
+                } else {
+                    badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
                 }
             }
         });

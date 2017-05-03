@@ -37,11 +37,19 @@ export class Structure extends DefaultStructure {
     motifs: Collection<Motif>;
     evenements: Collection<Evenement>;
 
+    get api () {
+        return  {
+            CLASSE : {
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
+            },
+        };
+    }
     constructor (o?: any) {
         super();
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
+        let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
                 http().getJson('/viescolaire/presences/motifs').done(function (motifs) {
@@ -97,8 +105,44 @@ export class Structure extends DefaultStructure {
                 }
             }
         });
+        const libelle = {
+            CLASSE: 'Classe',
+            GROUPE: "Groupe d'enseignement"
+        };
+        const castClasses = (classes) => {
+            return _.map(classes, (classe) => {
+                let libelleClasse;
+                if (classe.type_groupe_libelle = classe.type_groupe === 0) {
+                    libelleClasse = libelle.CLASSE;
+                } else {
+                    libelleClasse = libelle.GROUPE;
+                }
+                classe.type_groupe_libelle = libelleClasse;
+                if (!classe.hasOwnProperty("remplacement")) classe.remplacement = false;
+                classe = new Classe(classe);
+                return classe;
+            });
+        };
         this.collection(Classe, {
-            sync : '/viescolaire/classes/etablissement'
+            sync: function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.CLASSE.synchronization).done((res) => {
+                        // this.classes.addRange(castClasses(res));
+                        this.load(castClasses(res));
+                        // if (!isChefEtab()) {
+                        //     that.syncRemplacement().then(() => {
+                        //         that.eleves.sync().then(() => {
+                        //             resolve();
+                        //         });
+                        //     });
+                        // } else {
+                        //     that.eleves.sync().then(() => {
+                        //         resolve();
+                        //     });
+                        // }
+                    }).bind(this);
+                });
+            },
         });
         this.collection(Justificatif, {
             sync : '/viescolaire/presences/justificatifs'

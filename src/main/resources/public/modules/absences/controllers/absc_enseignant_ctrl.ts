@@ -116,7 +116,7 @@ export let absencesController = ng.controller('AbsencesController', [
             // creation absence
             if (evenementAbsence === undefined) {
                 evenementAbsence = new Evenement();
-                evenementAbsence.evenement_saisie_cpe = false;
+                evenementAbsence.saisie_cpe = false;
                 evenementAbsence.id_eleve = poEleve.id;
                 evenementAbsence.id_appel = $scope.currentCours.appel.id;
                 evenementAbsence.id_type = $scope.oEvtType.giIdEvenementAbsence;
@@ -253,7 +253,7 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.saisieCpe = function(psAppelID, oEleve, iTypeEvt) {
             let o = oEleve.evenements.findWhere({id_appel : psAppelID, id_type : iTypeEvt});
             if (o !== undefined) {
-                return o.evenement_saisie_cpe;
+                return o.saisie_cpe;
             }
         };
 
@@ -367,9 +367,8 @@ export let absencesController = ng.controller('AbsencesController', [
             // Recuperation de l'appel associé (création en mode Init s'il n'existe pas)
             $scope.currentCours.appel.sync();
 
-            $scope.currentCours.eleves.sync();
+            $scope.currentCours.eleves.sync().then(() => {
 
-            $scope.currentCours.eleves.on("appelSynchronized", function() {
                 $scope.currentCours.nbPresents = 0;
                 $scope.currentCours.eleves.each(function (oEleve) {
                     oEleve.isAbsent = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementAbsence, id_appel : $scope.currentCours.appel.id}) !== undefined;
@@ -535,7 +534,7 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.getLibelleClasse = function (idClasse) {
             let index_classe = model.me.classes.indexOf(idClasse);
             if ( index_classe !== -1) {
-               return model.me.classNames[index_classe].split('$')[1];
+                return model.me.classNames[index_classe].split('$')[1];
             }
             else {
                 return " ";

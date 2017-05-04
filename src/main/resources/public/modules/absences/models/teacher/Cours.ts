@@ -52,14 +52,19 @@ export class Cours extends Model {
             }.bind(this.appel));
         };
         this.collection(Eleve, {
-            sync: () => {
-                let that = this;
-                http().getJson('/directory/class/' + that.id_classe + '/users?type=Student').done((data) => {
-                    _.map(data, function (eleve) {
-                        eleve.cours = that;
+            sync: (): Promise<any> => {
+                return new Promise((resolve, reject) => {
+                    let that = this;
+                    http().getJson('/directory/class/' + that.id_classe + '/users?type=Student').done((data) => {
+                        _.map(data, function (eleve) {
+                            eleve.cours = that;
+                        });
+                        that.eleves.load(data);
+                        that.loadEvenements();
+                        if (resolve && typeof (resolve) === 'function') {
+                            resolve();
+                        }
                     });
-                    that.eleves.load(data);
-                    that.loadEvenements();
                 });
             }
         });

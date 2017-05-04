@@ -95,7 +95,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
-                "evenement.evenement_saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
+                "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
                 " evenement.id_pj, evenement.id_motif," +
                 " eleve.id, eleve.fk4j_user_id, appel.id_cours " +
                 "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +".appel " +

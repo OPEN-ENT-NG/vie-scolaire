@@ -44,7 +44,7 @@ export class Eleve extends Model implements IModel {
         super();
         this.collection(Evenement, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/absences/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson('/viescolaire/presences/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
                     this.evenements.load(data);
                 });
             }

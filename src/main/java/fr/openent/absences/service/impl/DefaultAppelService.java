@@ -45,7 +45,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray value = new JsonArray();
 
-        query.append("SELECT DISTINCT cours.id, cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
+        query.append("SELECT cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
                 "appel.id_etat, cours.id_classe, cours.id_personnel " +
                 "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +

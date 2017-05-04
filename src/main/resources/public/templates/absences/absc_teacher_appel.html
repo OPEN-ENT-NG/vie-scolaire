@@ -6,7 +6,7 @@
 
         <div ng-if="showSuccess" class="info appel__info">[[messageSuccess]]</div>
 
-        <button ng-disabled="currentCours !== undefined && currentCours.appel.fk_etat_appel_id === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></button>
+        <button ng-disabled="currentCours !== undefined && currentCours.appel.id_etat === 3" ng-show="currentCours !== undefined" class="button right" ng-click="terminerAppel();"><i18n>viescolaire.absences.appel.button.enregistrer</i18n></button>
     </div>
 
     <!--  Menu de gauche  -->
@@ -16,17 +16,17 @@
                 <i class="calendar"></i>
                 <date-picker class="pointer" ng-model="appel.date" ng-change="showDate = true;selectAppel()"></date-picker>
             </label>
-            <div class="appel__journee-calendar" ng-if="creneaus.all.length > 0">
-                <div ng-repeat="creneau in creneaus.all"
-                     ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.cours_id === creneau.cours.cours_id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
+            <div class="appel__journee-calendar" ng-if="structure.creneaus.all.length > 0">
+                <div ng-repeat="creneau in structure.creneaus.all"
+                     ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.id === creneau.cours.cours_id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
                      ng-style="creneau.style"
                 >
-                    <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.heureDebut]]</div>
-                    <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined" ng-click="selectCours(creneau.cours)">[[creneau.cours.libelle_classe]]</div>
+                    <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.timestamp_dt]]</div>
+                    <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined" ng-click="selectCours(creneau.cours)">[[getLibelleClasse(creneau.cours.id_classe)]]</div>
                     <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours === undefined">
                         <!--<i18n>viescolaire.absences.appel.crenau.vide</i18n>-->
                     </div>
-                    <div class="twelve cell appel__journee-calendar-creneau-footer">[[creneau.heureFin]]</div>
+                    <div class="twelve cell appel__journee-calendar-creneau-footer">[[creneau.timestamp_fn]]</div>
                 </div>
             </div>
         </div>

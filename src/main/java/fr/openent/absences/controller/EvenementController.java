@@ -75,9 +75,9 @@ public class EvenementController extends ControllerHelper {
             @Override
             public void handle(JsonObject poEvenement) {
                 Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
-                poEvenement.removeField("cours_id");
-                poEvenement.removeField("evenement_heure_arrivee");
-                poEvenement.removeField("evenement_heure_depart");
+                poEvenement.removeField("id_cours");
+                poEvenement.removeField("timestamp_arrive");
+                poEvenement.removeField("timestamp_depart");
                 miAbscEvenementService.updateEvenement(poEvenement,
                         handler);
             }
@@ -94,9 +94,9 @@ public class EvenementController extends ControllerHelper {
                 RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENT_CREATE, new Handler<JsonObject>() {
                     @Override
                     public void handle(JsonObject poEvenement) {
-                        poEvenement.removeField("cours_id");
-                        poEvenement.removeField("evenement_heure_arrivee");
-                        poEvenement.removeField("evenement_heure_depart");
+                        poEvenement.removeField("id_cours");
+                        poEvenement.removeField("timestamp_arrive");
+                        poEvenement.removeField("timestamp_depart");
                         miAbscEvenementService.createEvenement(poEvenement, user, defaultResponseHandler(request));
                     }
                 });

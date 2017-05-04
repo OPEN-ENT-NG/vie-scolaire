@@ -77,7 +77,7 @@ export let absencesController = ng.controller('AbsencesController', [
             }
         };
 
-        $scope.formatDate = function(h){
+        $scope.formatDate = function(h) {
             return "00:00";
         };
 
@@ -117,10 +117,11 @@ export let absencesController = ng.controller('AbsencesController', [
             if (evenementAbsence === undefined) {
                 evenementAbsence = new Evenement();
                 evenementAbsence.evenement_saisie_cpe = false;
-                evenementAbsence.fk_eleve_id = poEleve.eleve_id;
-                evenementAbsence.fk_appel_id = $scope.currentCours.appel.id;
-                evenementAbsence.fk_type_evt_id = $scope.oEvtType.giIdEvenementAbsence;
-                evenementAbsence.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+                evenementAbsence.id_eleve = poEleve.id;
+                evenementAbsence.id_appel = $scope.currentCours.appel.id;
+                evenementAbsence.id_type = $scope.oEvtType.giIdEvenementAbsence;
+                evenementAbsence.id_motif = $scope.oEvtType.giIdMotifSansMotif;
+                evenementAbsence.id_cours = $scope.currentCours.id;
 
                 evenementAbsence.create().then((piEvenement) => {
                     evenementAbsence.id = piEvenement.id;
@@ -150,10 +151,10 @@ export let absencesController = ng.controller('AbsencesController', [
          *  Supprime les  évènements Retard, Départ et Incident si l'élève est déclaré absent.
          * @param poEleve Objet Eleve référencé
          */
-        $scope.removeEvtNAbsc = function(poEleve){
-            let tEvenementDepart = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementDepart});
-            let tEvenementRetard = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementRetard});
-            let tEvenementIncident = poEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementIncident});
+        $scope.removeEvtNAbsc = function(poEleve) {
+            let tEvenementDepart = poEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementDepart});
+            let tEvenementRetard = poEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementRetard});
+            let tEvenementIncident = poEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementIncident});
             if (tEvenementDepart !== undefined) {
                 poEleve.evenements.remove(tEvenementDepart);
                 tEvenementDepart.delete();
@@ -193,7 +194,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @returns l'évenement ouo undefined si aucun évenement trouvé.
          */
         $scope.getEvenementEleve = function(poEleve, piTypeEvenement) {
-            return  poEleve.evenements.findWhere({fk_type_evt_id : parseInt(piTypeEvenement)});
+            return  poEleve.evenements.findWhere({id_type : parseInt(piTypeEvenement)});
         };
 
 
@@ -214,11 +215,11 @@ export let absencesController = ng.controller('AbsencesController', [
                 let sHeureAujourDhui = moment().format("HH:mm");
 
                 // initalisation des heures selon l'heure courante et la date du cours
-                if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementDepart) {
-                    poEvenement.evenement_heure_depart = sHeureAujourDhui;
+                if (poEvenement.id_type === $scope.oEvtType.giIdEvenementDepart) {
+                    poEvenement.timestamp_depart = sHeureAujourDhui;
                     $scope.oEvtTime.depart = sHeureAujourDhui;
-                } else if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementRetard) {
-                    poEvenement.evenement_heure_arrivee = sHeureAujourDhui;
+                } else if (poEvenement.id_type === $scope.oEvtType.giIdEvenementRetard) {
+                    poEvenement.timestamp_arrive = sHeureAujourDhui;
                     $scope.oEvtTime.retard = sHeureAujourDhui;
                 }
 
@@ -235,9 +236,9 @@ export let absencesController = ng.controller('AbsencesController', [
                 });
             }else {
                 poEvenement.delete(function() {
-                    if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementDepart) {
+                    if (poEvenement.id_type === $scope.oEvtType.giIdEvenementDepart) {
                         $scope.oEvtTime.depart = "--:--";
-                    } else if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementRetard) {
+                    } else if (poEvenement.id_type === $scope.oEvtType.giIdEvenementRetard) {
                         $scope.oEvtTime.retard = "--:--";
                     }
                     $scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
@@ -249,23 +250,23 @@ export let absencesController = ng.controller('AbsencesController', [
             }
         };
 
-        $scope.saisieCpe = function(psAppelID, oEleve, iTypeEvt){
-            let o = oEleve.evenements.findWhere({fk_appel_id : psAppelID, fk_type_evt_id : iTypeEvt});
+        $scope.saisieCpe = function(psAppelID, oEleve, iTypeEvt) {
+            let o = oEleve.evenements.findWhere({id_appel : psAppelID, id_type : iTypeEvt});
             if (o !== undefined) {
                 return o.evenement_saisie_cpe;
             }
         };
 
-        $scope.addEvtPlage = function(poEvt){
-            let otCours = $scope.currentEleve.courss.findWhere({cours_id : $scope.currentCours.cours_id});
+        $scope.addEvtPlage = function(poEvt) {
+            let otCours = $scope.currentEleve.courss.findWhere({id_cours : $scope.currentCours.id_cours});
             let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
 
             otPlage.evenements.push(poEvt);
             $scope.safeApply();
         };
 
-        $scope.setIdToValue = function(poEvenement, poValue){
-            switch (poEvenement.fk_type_evt_id) {
+        $scope.setIdToValue = function(poEvenement, poValue) {
+            switch (poEvenement.id_type) {
                 case $scope.oEvtType.giIdEvenementDepart :
                     $scope.currentEleve.evenementDepart.evenement_id = poValue;
                     break;
@@ -284,7 +285,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param poUpdatedField nouveau champs
          */
         $scope.updateEvenement = function(poEvenement, poUpdatedField) {
-            if (poUpdatedField !== 'evenement_commentaire') {
+            if (poUpdatedField !== 'commentaire') {
                 let oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
                 $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
             } else {
@@ -313,20 +314,20 @@ export let absencesController = ng.controller('AbsencesController', [
 
         /**
          * Selon l'évenement récupère l'heure de départ ou l'heure d'arrivée et la convertie en timestamp
-         * pour la renseigner dans le champ correspondant (poEvenement.evenement_timestamp_depart ou poEvenement.evenement_timestamp_arrive).
+         * pour la renseigner dans le champ correspondant (poEvenement.timestamp_depart ou poEvenement.timestamp_arrive).
          *
          * @param poEvenement l'evenement.
          * @param poMomentDebutCours objet moment.js représentant la date de début du cours (nécessaire pour avoir la date du jour).
          */
         $scope.mapToTimestamp = function (poEvenement, poMomentDebutCours) {
             // initalisation des heures selon l'heure courante et la date du cours
-            if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementDepart) {
-                let oEvenementTimestampDepart = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.evenement_heure_depart.split(":")[0]).minute(poEvenement.evenement_heure_depart.split(":")[1]);
-                poEvenement.evenement_timestamp_depart = oEvenementTimestampDepart.format($scope.format.gsFormatTimestampWithoutTimeZone);
+            if (poEvenement.id_type === $scope.oEvtType.giIdEvenementDepart) {
+                let oEvenementTimestampDepart = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.timestamp_depart.split(":")[0]).minute(poEvenement.timestamp_depart.split(":")[1]);
+                poEvenement.timestamp_depart = oEvenementTimestampDepart.format($scope.format.gsFormatTimestampWithoutTimeZone);
 
-            } else if (poEvenement.fk_type_evt_id === $scope.oEvtType.giIdEvenementRetard) {
-                let oEvenementTimestampArrive = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.evenement_heure_arrivee.split(":")[0]).minute(poEvenement.evenement_heure_arrivee.split(":")[1]);
-                poEvenement.evenement_timestamp_arrive = oEvenementTimestampArrive.format($scope.format.gsFormatTimestampWithoutTimeZone);
+            } else if (poEvenement.id_type === $scope.oEvtType.giIdEvenementRetard) {
+                let oEvenementTimestampArrive = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.timestamp_arrive.split(":")[0]).minute(poEvenement.timestamp_arrive.split(":")[1]);
+                poEvenement.timestamp_arrive = oEvenementTimestampArrive.format($scope.format.gsFormatTimestampWithoutTimeZone);
             }
         };
 
@@ -337,7 +338,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param poEvenement évenement à supprimer
          */
         $scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
-            let otCours = $scope.currentEleve.courss.findWhere({cours_id : $scope.currentCours.cours_id});
+            let otCours = $scope.currentEleve.courss.findWhere({id_cours : $scope.currentCours.id_cours});
             let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
 
             otPlage.evenements.remove(otPlage.evenements.findWhere({evenement_id : poEvenement.evenement_id}));
@@ -368,14 +369,14 @@ export let absencesController = ng.controller('AbsencesController', [
 
             $scope.currentCours.eleves.sync();
 
-            $scope.currentCours.eleves.on("appelSynchronized", function(){
+            $scope.currentCours.eleves.on("appelSynchronized", function() {
                 $scope.currentCours.nbPresents = 0;
                 $scope.currentCours.eleves.each(function (oEleve) {
-                    oEleve.isAbsent = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementAbsence, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasDepart = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementDepart, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasIncident = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementIncident, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasRetard = oEleve.evenements.findWhere({fk_type_evt_id : $scope.oEvtType.giIdEvenementRetard, fk_appel_id : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.plages.sync($scope.currentCours.appel.id, function(){
+                    oEleve.isAbsent = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementAbsence, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                    oEleve.hasDepart = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementDepart, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                    oEleve.hasIncident = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementIncident, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                    oEleve.hasRetard = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementRetard, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                    oEleve.plages.sync($scope.currentCours.appel.id, function() {
                         $scope.safeApply();
                     });
                 });
@@ -385,13 +386,13 @@ export let absencesController = ng.controller('AbsencesController', [
             });
         };
 
-        $scope.lightboxAppel = function(){
+        $scope.lightboxAppel = function() {
             template.open('lightbox', '../modules/absences/template/absc_teacher_help');
             $scope.show.lightbox = true;
         };
 
         $scope.selectCurrentCours = function() {
-            let currentCours = $scope.structure.courss.filter(function(cours){
+            let currentCours = $scope.structure.courss.filter(function(cours) {
                 return (moment().diff(moment(cours.timestamp_dt)) > 0) && (moment().diff(moment(cours.timestamp_fn)) < 0);
             });
             if (currentCours.length === 0) { return undefined; }
@@ -406,7 +407,7 @@ export let absencesController = ng.controller('AbsencesController', [
             // template.close('rightSide_absc_eleve_appel_detail');
             $scope.initEvtTime();
             $scope.detailEleveOpen.displayed = $scope.currentEleve === undefined ||
-                ($scope.currentEleve !== undefined && $scope.currentEleve.eleve_id !== poEleve.eleve_id);
+                ($scope.currentEleve !== undefined && $scope.currentEleve.id_eleve !== poEleve.id_eleve);
 
             if ($scope.detailEleveOpen.displayed) {
                 $scope.currentEleve = poEleve;
@@ -418,49 +419,49 @@ export let absencesController = ng.controller('AbsencesController', [
             let oEvenementRetard = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementRetard);
             if (oEvenementRetard === undefined) {
                 oEvenementRetard = new Evenement();
-                oEvenementRetard.evenement_saisie_cpe = false;
-                oEvenementRetard.cours_id = $scope.currentCours.cours_id;
-                oEvenementRetard.fk_eleve_id = poEleve.eleve_id;
-                oEvenementRetard.fk_appel_id = $scope.currentCours.appel.id;
-                oEvenementRetard.fk_type_evt_id = $scope.oEvtType.giIdEvenementRetard;
-                oEvenementRetard.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+                oEvenementRetard.saisie_cpe = false;
+                oEvenementRetard.id_cours = $scope.currentCours.id;
+                oEvenementRetard.id_eleve = poEleve.id;
+                oEvenementRetard.id_appel = $scope.currentCours.appel.id;
+                oEvenementRetard.id_type = $scope.oEvtType.giIdEvenementRetard;
+                oEvenementRetard.id_motif = $scope.oEvtType.giIdMotifSansMotif;
             } else {
-                $scope.oEvtTime.retard = moment(oEvenementRetard.evenement_timestamp_arrive).format('HH:mm');
+                $scope.oEvtTime.retard = moment(oEvenementRetard.timestamp_arrive).format('HH:mm');
             }
 
             let oEvenementDepart = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementDepart);
             if (oEvenementDepart === undefined) {
                 oEvenementDepart = new Evenement();
-                oEvenementDepart.evenement_saisie_cpe = false;
-                oEvenementDepart.cours_id = $scope.currentCours.cours_id;
-                oEvenementDepart.fk_eleve_id = poEleve.eleve_id;
-                oEvenementDepart.fk_appel_id = $scope.currentCours.appel.id;
-                oEvenementDepart.fk_type_evt_id = $scope.oEvtType.giIdEvenementDepart;
-                oEvenementDepart.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+                oEvenementDepart.saisie_cpe = false;
+                oEvenementDepart.id_cours = $scope.currentCours.id;
+                oEvenementDepart.id_eleve = poEleve.id;
+                oEvenementDepart.id_appel = $scope.currentCours.appel.id;
+                oEvenementDepart.id_type = $scope.oEvtType.giIdEvenementDepart;
+                oEvenementDepart.id_motif = $scope.oEvtType.giIdMotifSansMotif;
             } else {
-                $scope.oEvtTime.depart = moment(oEvenementDepart.evenement_timestamp_depart).format('HH:mm');
+                $scope.oEvtTime.depart = moment(oEvenementDepart.timestamp_depart).format('HH:mm');
             }
 
             let oEvenementIncident = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementIncident);
             if (oEvenementIncident === undefined) {
                 oEvenementIncident = new Evenement();
-                oEvenementIncident.evenement_saisie_cpe = false;
-                oEvenementIncident.cours_id = $scope.currentCours.cours_id;
-                oEvenementIncident.fk_eleve_id = poEleve.eleve_id;
-                oEvenementIncident.fk_appel_id = $scope.currentCours.appel.id;
-                oEvenementIncident.fk_type_evt_id = $scope.oEvtType.giIdEvenementIncident;
-                oEvenementIncident.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+                oEvenementIncident.saisie_cpe = false;
+                oEvenementIncident.id_cours = $scope.currentCours.id;
+                oEvenementIncident.id_eleve = poEleve.id;
+                oEvenementIncident.id_appel = $scope.currentCours.appel.id;
+                oEvenementIncident.id_type = $scope.oEvtType.giIdEvenementIncident;
+                oEvenementIncident.id_motif = $scope.oEvtType.giIdMotifSansMotif;
             }
 
             let oEvenementObservation = $scope.getEvenementEleve(poEleve, $scope.oEvtType.giIdEvenementObservation);
             if (oEvenementObservation === undefined) {
                 oEvenementObservation = new Evenement();
-                oEvenementObservation.cours_id = $scope.currentCours.cours_id;
-                oEvenementObservation.evenement_saisie_cpe = false;
-                oEvenementObservation.fk_eleve_id = poEleve.eleve_id;
-                oEvenementObservation.fk_appel_id = $scope.currentCours.appel.id;
-                oEvenementObservation.fk_type_evt_id = $scope.oEvtType.giIdEvenementObservation;
-                oEvenementObservation.fk_motif_id = $scope.oEvtType.giIdMotifSansMotif;
+                oEvenementObservation.id_cours = $scope.currentCours.id;
+                oEvenementObservation.saisie_cpe = false;
+                oEvenementObservation.id_eleve = poEleve.id;
+                oEvenementObservation.id_appel = $scope.currentCours.appel.id;
+                oEvenementObservation.id_type = $scope.oEvtType.giIdEvenementObservation;
+                oEvenementObservation.id_motif = $scope.oEvtType.giIdMotifSansMotif;
             }
 
             $scope.currentEleve.evenementObservation = oEvenementObservation;
@@ -477,7 +478,7 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.detailEleveOpen.displayed = false;
         };
 
-        $scope.initEvtTime = function(){
+        $scope.initEvtTime = function() {
             $scope.oEvtTime = {
                 depart : '--:--',
                 retard : '--:--'
@@ -522,9 +523,23 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.succesMessage = function (psMessage, piDuration) {
             $scope.messageSuccess = psMessage;
             $scope.showSuccess = true;
-            setTimeout(function(){
+            setTimeout(function() {
                 $scope.showSuccess = false;
             }, piDuration);
+        };
+
+        /**
+         * Récupère le libelle d'une classe.
+         * @param idClasse l'identifiant de la classe.
+         */
+        $scope.getLibelleClasse = function (idClasse) {
+            let index_classe = model.me.classes.indexOf(idClasse);
+            if ( index_classe !== -1) {
+               return model.me.classNames[index_classe].split('$')[1];
+            }
+            else {
+                return " ";
+            }
         };
 
         /**

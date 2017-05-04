@@ -58,11 +58,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.* ")
-                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
-                .append("WHERE eleve.id = ? ")
-                .append("AND eleve.id = evenement.fk_eleve_id ")
-                .append("AND evenement.fk_appel_id = appel.id ")
-                .append("AND appel.fk_cours_id = cours.id ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
+                .append("WHERE evenement.id_eleve = ? ")
+                .append("AND evenement.id_appel = appel.id ")
+                .append("AND appel.id_cours = cours.id ")
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY')");
 

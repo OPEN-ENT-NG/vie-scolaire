@@ -5,7 +5,7 @@
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un enseignant">
         </div>
         <ul class="selectable-list abscSM-content--SMSelectable-list">
-            <li ng-click="pOFilterAppel.noneffectues = !pOFilterAppel.noneffectues; applyAppelFilter()" ng-class="{ selected : pOFilterAppel.noneffectues }"><i class="warning"></i><i18n>viescolaire.absences.ariane.AppelsOublies</i18n></li>
+            <li ng-click="pOFilterAppel.noneffectues = !pOFilterAppel.noneffectues; applyAppelFilter()" ng-class="{ selected : pOFilterAppel.noneffectues }"><i class="report"></i><i18n>viescolaire.absences.ariane.AppelsOublies</i18n></li>
         </ul>
         <div class="list-view-cgi">
             <div class="ten cell abscSM-content--SM-list panel-in-cell">
@@ -27,7 +27,7 @@
                         <i class="sort-desc" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
                         <i class="sort-asc" ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div style="display: none !important" class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'id_etat'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="warning"></i>
+                    <div style="display: none !important" class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'id_etat'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="report"></i>
                         <i class="sort-desc" ng-show="pOSortParameters.sortType == 'id_etat' && !pOSortParameters.sortReverse"></i>
                         <i class="sort-asc" ng-show="pOSortParameters.sortType == 'id_etat' && pOSortParameters.sortReverse"></i>
                     </div>
@@ -45,7 +45,7 @@
                         <div class="cell cell-indent three">[[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]</div>
                         <div class="cell cell-indent three">[[appel.cours_matiere]]</div>
                         <div class="cell cell-indent one" style="display: none">
-                            <i class="warning" ng-if="appel.id_etat === null"></i>
+                            <i class="report" ng-if="appel.id_etat === null"></i>
                         </div>
                     </div>
                 </div>

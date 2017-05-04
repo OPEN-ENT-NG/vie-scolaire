@@ -260,7 +260,7 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(UserInfos user){
                 if(user != null){
-                    if("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR")){
+                    if("Personnel".equals(user.getType())){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         matiereService.listMatieresEtab(user, handler);
                     }else{

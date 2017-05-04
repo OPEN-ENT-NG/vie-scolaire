@@ -1,7 +1,8 @@
 import { Model } from 'entcore/entcore';
 
 export class DefaultMatiere extends Model {
-    subjectId: string;
+    id: string;
+    idEtablissement: string;
+    name: string;
     subjectCode: string;
-    subjectLabel: string;
 }

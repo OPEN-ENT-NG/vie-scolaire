@@ -258,8 +258,8 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         $scope.addEvtPlage = function(poEvt) {
-            let otCours = $scope.currentEleve.courss.findWhere({id_cours : $scope.currentCours.id_cours});
-            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
+            let otCours = $scope.currentEleve.courss.findWhere({id : $scope.currentCours.id});
+            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.timestamp_dt).format('HH'))});
 
             otPlage.evenements.push(poEvt);
             $scope.safeApply();
@@ -386,7 +386,7 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         $scope.lightboxAppel = function() {
-            template.open('lightbox', '../modules/absences/template/absc_teacher_help');
+            template.open('lightbox', '../templates/absences/absc_teacher_help');
             $scope.show.lightbox = true;
         };
 

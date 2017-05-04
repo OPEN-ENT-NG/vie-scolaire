@@ -78,18 +78,19 @@ export class Cours extends Model {
          * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
          */
         let url = '/viescolaire/presences/evenement/classe/';
+        let that = this;
         url += this.id_classe + '/periode/';
         url += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
         url += moment(this.timestamp_dt).format('YYYY-MM-DD');
         http().getJson(url)
             .done((data) => {
-                for (let i = 0; i < this.eleves.all.length; i++) {
-                    this.eleves.all[i].evenementsJours.load(_.where(data, {id : this.eleves.all[i].id}));
-                    this.eleves.all[i].evenements.load(
-                        this.eleves.all[i].evenementsJours.where({id_cours : this.id})
+                for (let i = 0; i < that.eleves.all.length; i++) {
+                    that.eleves.all[i].evenementsJours.load(_.where(data, {id : that.eleves.all[i].id}));
+                    that.eleves.all[i].evenements.load(
+                        that.eleves.all[i].evenementsJours.where({id_cours : that.id})
                     );
                 }
-                this.loadAbscPrev();
+                that.loadAbscPrev();
             });
     }
 
@@ -97,14 +98,14 @@ export class Cours extends Model {
         let url = '/viescolaire/presences/absencesprev/eleves';
         url += '?dateDebut=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
         url += '&dateFin=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
-
+        let that = this;
         for (let i = 0; i < this.eleves.all.length; i++) {
             url += '&id_eleve=' + this.eleves.all[i].id;
         }
         http().getJson(url)
             .done((data) => {
                 for (let i = 0; i < this.eleves.all.length; i++) {
-                    this.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: this.eleves.all[i].id}));
+                    that.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: that.eleves.all[i].id}));
                 }
             });
         this.loadAbscLastCours();
@@ -114,15 +115,16 @@ export class Cours extends Model {
         let url = '/viescolaire/presences/precedentes/classe/';
         url += this.id_classe + '/cours/';
         url += this.id;
+        let that = this;
         http().getJson(url)
             .done((data) => {
                 _.each(data, function(absc) {
-                    let eleve = this.findWhere({id : absc.id_eleve});
+                    let eleve = that.eleves.findWhere({id : absc.id_eleve});
                     if (eleve !== undefined) {
                         eleve.absc_precedent_cours = true;
                     }
                 });
-                this.loadCoursClasse();
+                that.loadCoursClasse();
             });
     }
 
@@ -130,9 +132,10 @@ export class Cours extends Model {
         let url = '/viescolaire/' + this.id_classe + '/cours/';
         url += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
         url += moment(this.timestamp_fn).format('YYYY-MM-DD');
+        let that = this;
         http().getJson(url)
             .done((data) => {
-                _.each(this.eleves.all, function(eleve) {
+                _.each(that.eleves.all, function(eleve) {
                     eleve.courss.load(data);
                 });
                 this.trigger("appelSynchronized");

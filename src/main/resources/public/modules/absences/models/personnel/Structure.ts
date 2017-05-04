@@ -50,7 +50,10 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id,
             },
             MATIERE : {
-                synchronization : '/viescolaire/matieres',
+                synchronization : '/viescolaire/matieres?idEtablissement=',
+            },
+            JUSTIFICATIF : {
+                synchronization : '/viescolaire/presences/justificatifs?idEtablissement='+ this.id,
             }
         };
     }
@@ -178,7 +181,14 @@ export class Structure extends DefaultStructure {
             },
         });
         this.collection(Justificatif, {
-            sync : '/viescolaire/presences/justificatifs'
+            sync : function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.JUSTIFICATIF.synchronization).done(function(res) {
+                        this.load(res);
+                        resolve();
+                    }.bind(this));
+                });
+            }
         });
     }
 

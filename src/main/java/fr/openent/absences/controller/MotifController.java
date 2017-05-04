@@ -68,8 +68,9 @@ public class MotifController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
+                String idEtablissement = request.params().get("idEtablissement");
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                miAbscMotifService.getAbscJustificatifsEtablissement(user.getStructures().get(0), handler);
+                miAbscMotifService.getAbscJustificatifsEtablissement(idEtablissement, handler);
             }
         });
     }

@@ -27,9 +27,9 @@
                         <i class="sort-desc" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
                         <i class="sort-asc" ng-show="pOSortParameters.sortType == 'cours_matiere' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div style="display: none !important" class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'fk_etat_appel_id'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="warning"></i>
-                        <i class="sort-desc" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && !pOSortParameters.sortReverse"></i>
-                        <i class="sort-asc" ng-show="pOSortParameters.sortType == 'fk_etat_appel_id' && pOSortParameters.sortReverse"></i>
+                    <div style="display: none !important" class="cell cell-indent" style="display: none" ng-click="pOSortParameters.sortType = 'id_etat'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i class="warning"></i>
+                        <i class="sort-desc" ng-show="pOSortParameters.sortType == 'id_etat' && !pOSortParameters.sortReverse"></i>
+                        <i class="sort-asc" ng-show="pOSortParameters.sortType == 'id_etat' && pOSortParameters.sortReverse"></i>
                     </div>
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
@@ -58,7 +58,7 @@
             <div class="row">
                 <button class="cell"  ng-click="alert('Fonctionnalité bientôt disponible')"
                         ng-repeat="justificatif in justificatifs.all">
-                    [[justificatif.justificatif_appel_libelle]]
+                    [[justificatif.libelle]]
                 </button>
             </div>
         </div>

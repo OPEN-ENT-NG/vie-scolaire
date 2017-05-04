@@ -90,6 +90,7 @@ export let absencesController = ng.controller('AbsencesController', [
                     $scope.appels = presences.structure.appels;
                     $scope.classes = presences.structure.classes;
                     $scope.enseignants = presences.structure.enseignants;
+                    $scope.matieres = presences.structure.matieres;
                     $scope.evenements = presences.structure.evenements;
                     $scope.motifs = presences.structure.motifs;
                     $scope.justificatifs = presences.structure.justificatifs;
@@ -137,6 +138,14 @@ export let absencesController = ng.controller('AbsencesController', [
                                 return appel;
                             });
                         }
+                        if ( $scope.matieres !== undefined
+                            && $scope.matieres.all.length > 0 ) {
+                            _.map(presences.structure.appels.all, (appel) => {
+                                let matiere = $scope.matieres.findWhere({id : appel.id_matiere});
+                                appel.cours_matiere = matiere.name;
+                                return appel;
+                            });
+                        }
                     });
                     // presences.structure.motifs.on('sync', function() {
                     //     presences.structure.motifs.synced = true;
@@ -169,17 +178,6 @@ export let absencesController = ng.controller('AbsencesController', [
             $location.path(path);
             $location.replace();
         };
-
-        // $scope.safeApply = function(fn) {
-        //     let phase = this.$root.$$phase;
-        //     if (phase === '$apply' || phase === '$digest') {
-        //         if (fn && (typeof(fn) === 'function')) {
-        //             fn();
-        //         }
-        //     } else {
-        //         this.$apply(fn);
-        //     }
-        // };
 
         $scope.personnelFilter = function(event) {
             return $scope.classeFilter(event) && $scope.enseignantFilter(event);

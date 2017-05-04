@@ -26,11 +26,13 @@ import { Classe } from "./Classe";
 import { Justificatif } from "./Justificatif";
 import { Motif } from "./Motif";
 import { Evenement } from "./Evenement";
+import {Matiere} from "./Matiere";
 
 
 export class Structure extends DefaultStructure {
 
     enseignants: Collection<Enseignant>;
+    matieres: Collection<Matiere>;
     appels: Collection<Appel>;
     classes: Collection<Classe>;
     justificatifs: Collection<Justificatif>;
@@ -46,6 +48,9 @@ export class Structure extends DefaultStructure {
             },
             ENSEIGNANT : {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id,
+            },
+            MATIERE : {
+                synchronization : '/viescolaire/matieres',
             }
         };
     }
@@ -54,12 +59,35 @@ export class Structure extends DefaultStructure {
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
+
+        // Constantes utiles pour la synchro des appels
         this.isSynchronized = false;
         this.synchronized = {
-            // matieres : false,
+            matieres : false,
             classes : false,
             enseignants: false
         };
+
+        // Constantes utiles pour la récupération de classes et groupes d'enseignements
+        const libelle = {
+            CLASSE: 'Classe',
+            GROUPE: "Groupe d'enseignement"
+        };
+        const castClasses = (classes) => {
+            return _.map(classes, (classe) => {
+                let libelleClasse;
+                if (classe.type_groupe_libelle = classe.type_groupe === 0) {
+                    libelleClasse = libelle.CLASSE;
+                } else {
+                    libelleClasse = libelle.GROUPE;
+                }
+                classe.type_groupe_libelle = libelleClasse;
+                if (!classe.hasOwnProperty("remplacement")) classe.remplacement = false;
+                classe = new Classe(classe);
+                return classe;
+            });
+        };
+
         let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
@@ -83,6 +111,17 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
+        this.collection(Matiere, {
+            sync : function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.MATIERE.synchronization).done(function(res) {
+                        this.load(res);
+                        that.synchronized.matieres = true;
+                        resolve();
+                    }.bind(this));
+                });
+            }
+        });
         this.collection(Appel, {
             sync : function (pODateDebut, pODateFin) {
                 return new Promise((resolve, reject) => {
@@ -98,7 +137,7 @@ export class Structure extends DefaultStructure {
         this.collection(Evenement, {
             sync : function (psDateDebut, psDateFin) {
                 if (psDateDebut !== undefined && psDateDebut !== undefined) {
-                    http().getJson('/viescolaire/presences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data){
+                    http().getJson('/viescolaire/presences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data) {
                         let aLoadedData = [];
                         _.map(data, function(e) {
                             e.date = moment(e.timestamp_dt).format('YYYY-MM-DD');
@@ -127,42 +166,12 @@ export class Structure extends DefaultStructure {
                 }
             }
         });
-        const libelle = {
-            CLASSE: 'Classe',
-            GROUPE: "Groupe d'enseignement"
-        };
-        const castClasses = (classes) => {
-            return _.map(classes, (classe) => {
-                let libelleClasse;
-                if (classe.type_groupe_libelle = classe.type_groupe === 0) {
-                    libelleClasse = libelle.CLASSE;
-                } else {
-                    libelleClasse = libelle.GROUPE;
-                }
-                classe.type_groupe_libelle = libelleClasse;
-                if (!classe.hasOwnProperty("remplacement")) classe.remplacement = false;
-                classe = new Classe(classe);
-                return classe;
-            });
-        };
         this.collection(Classe, {
             sync: function () {
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.CLASSE.synchronization).done((res) => {
-                        // this.classes.addRange(castClasses(res));
                         this.load(castClasses(res));
                         that.synchronized.classes = true;
-                        // if (!isChefEtab()) {
-                        //     that.syncRemplacement().then(() => {
-                        //         that.eleves.sync().then(() => {
-                        //             resolve();
-                        //         });
-                        //     });
-                        // } else {
-                        //     that.eleves.sync().then(() => {
-                        //         resolve();
-                        //     });
-                        // }
                         resolve();
                     }).bind(this);
                 });
@@ -177,18 +186,20 @@ export class Structure extends DefaultStructure {
         return new Promise((resolve, reject) => {
             let isSynced = () => {
                 let b =
-                    // this.synchronized.matieres &&
+                    this.synchronized.matieres &&
                     this.synchronized.classes &&
                     this.synchronized.enseignants;
                 if (b) {
+                    // On souhaite récupérer les appels à la toute fin car les libellés (Matières, Classes et Enseignants)
+                    // sont utilisés par la suite dans les appels
                     this.appels.sync();
                     this.isSynchronized = true;
                     resolve();
                 }
             };
-            // this.matieres.sync().then(isSynced);
             this.enseignants.sync().then(isSynced);
             this.classes.sync().then(isSynced);
+            this.matieres.sync().then(isSynced);
             this.justificatifs.sync();
             this.motifs.sync();
             this.evenements.sync();

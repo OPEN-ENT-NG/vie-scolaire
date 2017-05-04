@@ -36,12 +36,17 @@ export class Structure extends DefaultStructure {
     justificatifs: Collection<Justificatif>;
     motifs: Collection<Motif>;
     evenements: Collection<Evenement>;
+    synchronized: any;
+    isSynchronized: boolean;
 
     get api () {
         return  {
             CLASSE : {
                 synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
             },
+            ENSEIGNANT : {
+                synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id,
+            }
         };
     }
     constructor (o?: any) {
@@ -49,6 +54,12 @@ export class Structure extends DefaultStructure {
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
+        this.isSynchronized = false;
+        this.synchronized = {
+            // matieres : false,
+            classes : false,
+            enseignants: false
+        };
         let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
@@ -62,15 +73,26 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(Enseignant, {
-            sync : '/viescolaire/enseignants/etablissement'
+            sync : function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.ENSEIGNANT.synchronization).done(function(res) {
+                        this.load(res);
+                        that.synchronized.enseignants = true;
+                        resolve();
+                    }.bind(this));
+                });
+            }
         });
         this.collection(Appel, {
             sync : function (pODateDebut, pODateFin) {
-                if (pODateDebut !== undefined && pODateFin !== undefined) {
-                    http().getJson('/viescolaire/presences/appels/' + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD')).done(function(data) {
-                        this.load(data);
-                    }.bind(this));
-                }
+                return new Promise((resolve, reject) => {
+                    if (pODateDebut !== undefined && pODateFin !== undefined) {
+                        http().getJson('/viescolaire/presences/appels/' + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD')).done(function(data) {
+                            this.load(data);
+                            resolve();
+                        }.bind(this));
+                    }
+                });
             }
         });
         this.collection(Evenement, {
@@ -129,6 +151,7 @@ export class Structure extends DefaultStructure {
                     http().getJson(that.api.CLASSE.synchronization).done((res) => {
                         // this.classes.addRange(castClasses(res));
                         this.load(castClasses(res));
+                        that.synchronized.classes = true;
                         // if (!isChefEtab()) {
                         //     that.syncRemplacement().then(() => {
                         //         that.eleves.sync().then(() => {
@@ -140,6 +163,7 @@ export class Structure extends DefaultStructure {
                         //         resolve();
                         //     });
                         // }
+                        resolve();
                     }).bind(this);
                 });
             },
@@ -150,10 +174,24 @@ export class Structure extends DefaultStructure {
     }
 
     async sync (): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let isSynced = () => {
+                let b =
+                    // this.synchronized.matieres &&
+                    this.synchronized.classes &&
+                    this.synchronized.enseignants;
+                if (b) {
+                    this.appels.sync();
+                    this.isSynchronized = true;
+                    resolve();
+                }
+            };
+            // this.matieres.sync().then(isSynced);
+            this.enseignants.sync().then(isSynced);
+            this.classes.sync().then(isSynced);
             this.justificatifs.sync();
-            this.classes.sync();
             this.motifs.sync();
-            this.enseignants.sync();
             this.evenements.sync();
+        });
     }
 }

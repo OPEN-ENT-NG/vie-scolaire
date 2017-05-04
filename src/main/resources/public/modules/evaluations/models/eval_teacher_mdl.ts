@@ -41,7 +41,7 @@ export class Structure extends Model implements IModel{
                 synchronization : '/viescolaire/evaluations/periodes?idEtablissement=' + this.id
             },
             CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/evaluations/classes?idEtablissement=' + this.id,
                 synchronizationRemplacement : '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
             },
             ELEVE : {

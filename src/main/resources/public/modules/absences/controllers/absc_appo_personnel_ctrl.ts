@@ -22,7 +22,7 @@ export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelControl
 
         $scope.appelFilterFunction = function(appel) {
             if ($scope.pOFilterAppel.noneffectues) {
-                return (appel.fk_etat_appel_id !== 3);
+                return (appel.id_etat !== 3);
             }
             return true;
         };

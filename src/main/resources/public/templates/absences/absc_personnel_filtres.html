@@ -6,12 +6,12 @@
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
-            <button ng-click="switchAll(enseignants, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
-            <button ng-click="switchAll(enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
+            <button ng-click="switchAll(structure.enseignants, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(structure.enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="enseignant in enseignants.all | filter:pORecherche.pSNomEnseignant | orderBy : 'personnel_nom'" ng-click="enseignant.selected = !enseignant.selected"
-                ng-class="{selected : enseignant.selected}">[[enseignant.personnel_nom]] [[enseignant.personnel_prenom]]</li>
+            <li ng-repeat="enseignant in structure.enseignants.all | filter:pORecherche.pSNomEnseignant | orderBy : 'lastName'" ng-click="enseignant.selected = !enseignant.selected"
+                ng-class="{selected : enseignant.selected}">[[enseignant.lastName]] [[enseignant.firstName]]</li>
         </ul>
     </div>
     <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
@@ -21,11 +21,11 @@
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
-            <button ng-click="switchAll(classes, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
-            <button ng-click="switchAll(classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
+            <button ng-click="switchAll(structure.classes, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
+            <button ng-click="switchAll(structure.classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
         </div>
         <ul class="selectable-list">
-            <li ng-repeat="classe in structure.classes.all | filter:{classe_libelle:pORecherche.pSNomClasse} | orderBy : 'name'" ng-click="classe.selected = !classe.selected"
+            <li ng-repeat="classe in structure.classes.all | filter:{name:pORecherche.pSNomClasse} | orderBy : 'name'" ng-click="classe.selected = !classe.selected"
                 ng-class="{selected : classe.selected}">[[classe.name]]</li>
         </ul>
     </div>

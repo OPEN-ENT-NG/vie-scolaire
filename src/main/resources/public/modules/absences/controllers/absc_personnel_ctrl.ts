@@ -85,6 +85,7 @@ export let absencesController = ng.controller('AbsencesController', [
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
                 $scope.structure = presences.structures.first();
+                presences.structure = $scope.structure;
                 $scope.structure.sync().then(() => {
                     $scope.appels = presences.structure.appels;
                     $scope.classes = presences.structure.classes;
@@ -92,7 +93,7 @@ export let absencesController = ng.controller('AbsencesController', [
                     $scope.evenements = presences.structure.evenements;
                     $scope.motifs = presences.structure.motifs;
                     $scope.justificatifs = presences.structure.justificatifs;
-
+                    presences.structure = $scope.structure;
                     $scope.loadData = function() {
                         if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
                             if ($location.path() === "/sansmotifs") {
@@ -104,7 +105,6 @@ export let absencesController = ng.controller('AbsencesController', [
                             }
                         }
                     };
-
                     presences.structure.classes.on('sync', function() {
                         presences.structure.classes.map(function(classe) {
                             classe.selected = true;
@@ -117,6 +117,26 @@ export let absencesController = ng.controller('AbsencesController', [
                             enseignant.selected = true;
                             return enseignant;
                         });
+                    });
+
+                    presences.structure.appels.on('sync', function() {
+                        if ( $scope.enseignants !== undefined
+                            && $scope.enseignants.all.length > 0 ) {
+                            _.map(presences.structure.appels.all, (appel) => {
+                                let enseignant = $scope.enseignants.findWhere({id : appel.id_personnel});
+                                appel.personnel_prenom = enseignant.firstName;
+                                appel.personnel_nom = enseignant.lastName ;
+                                return appel;
+                            });
+                        }
+                        if ( $scope.classes !== undefined
+                            && $scope.classes.all.length > 0 ) {
+                            _.map(presences.structure.appels.all, (appel) => {
+                                let classe = $scope.classes.findWhere({id : appel.id_classe});
+                                appel.classe_libelle = classe.name;
+                                return appel;
+                            });
+                        }
                     });
                     // presences.structure.motifs.on('sync', function() {
                     //     presences.structure.motifs.synced = true;
@@ -165,11 +185,11 @@ export let absencesController = ng.controller('AbsencesController', [
             return $scope.classeFilter(event) && $scope.enseignantFilter(event);
         };
         $scope.classeFilter = function(event) {
-            return ($scope.classes.findWhere({classe_id : event.classe_id, selected: true}) !== undefined);
+            return ($scope.structure.classes.findWhere({id : event.id_classe, selected: true}) !== undefined);
         };
 
         $scope.enseignantFilter = function(event) {
-            return ($scope.enseignants.findWhere({personnel_id : event.personnel_id, selected: true}) !== undefined);
+            return ($scope.structure.enseignants.findWhere({id : event.id_personnel, selected: true}) !== undefined);
         };
 
         $scope.alert = function(message) {

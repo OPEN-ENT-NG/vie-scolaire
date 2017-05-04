@@ -19,9 +19,9 @@
                         <i class="sort-desc" ng-show="pOSortParameters.sortType == 'classe_libelle' && !pOSortParameters.sortReverse"></i>
                         <i class="sort-asc" ng-show="pOSortParameters.sortType == 'classe_libelle' && pOSortParameters.sortReverse"></i>
                     </div>
-                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.date</i18n> / <i18n>viescolaire.utils.heure</i18n>
-                        <i class="sort-desc" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && !pOSortParameters.sortReverse"></i>
-                        <i class="sort-asc" ng-show="pOSortParameters.sortType == 'cours_timestamp_dt' && pOSortParameters.sortReverse"></i>
+                    <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.date</i18n> / <i18n>viescolaire.utils.heure</i18n>
+                        <i class="sort-desc" ng-show="pOSortParameters.sortType == 'timestamp_dt' && !pOSortParameters.sortReverse"></i>
+                        <i class="sort-asc" ng-show="pOSortParameters.sortType == 'timestamp_dt' && pOSortParameters.sortReverse"></i>
                     </div>
                     <div class="cell cell-indent three" ng-click="pOSortParameters.sortType = 'cours_matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse"><i18n>viescolaire.utils.matiere</i18n>
                         <i class="sort-desc" ng-show="pOSortParameters.sortType == 'cours_matiere' && !pOSortParameters.sortReverse"></i>
@@ -36,16 +36,16 @@
                     <div class="abscSM-content--SM-list--item cell-indent" ng-repeat="appel in appels.all | filter:personnelFilter | filter : poRecherche.nom | filter:appelFilter | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse">
                         <div class="cell cell-indent one">
                             <label class="checkbox">
-                                <input ng-disabled="appel.fk_etat_appel_id === 3" type="checkbox" ng-change="checkAppel(appel)" ng-init="appel.selected = false" ng-model="appel.selected" class="ng-pristine ng-valid">
+                                <input ng-disabled="appel.id_etat === 3" type="checkbox" ng-change="checkAppel(appel)" ng-init="appel.selected = false" ng-model="appel.selected" class="ng-pristine ng-valid">
                                 <span></span>
                             </label>
                         </div>
                         <div class="cell cell-indent two">[[appel.personnel_nom]] [[appel.personnel_prenom]]</div>
                         <div class="cell cell-indent two">[[appel.classe_libelle]]</div>
-                        <div class="cell cell-indent three">[[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]</div>
-                        <div class="cell cell-indent three">[[appel.cours_matiere]]</div>
+                        <div class="cell cell-indent three">[[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]</div>
+                        <div class="cell cell-indent three">[[appel.id_matiere]]</div>
                         <div class="cell cell-indent one" style="display: none">
-                            <i class="warning" ng-if="appel.fk_etat_appel_id === null"></i>
+                            <i class="warning" ng-if="appel.id_etat === null"></i>
                         </div>
                     </div>
                 </div>

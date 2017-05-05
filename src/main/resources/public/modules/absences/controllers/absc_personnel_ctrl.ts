@@ -64,6 +64,10 @@ export let absencesController = ng.controller('AbsencesController', [
             sortReverse : false
         };
 
+        $scope.formatDate = function(pODateDebut, pODateFin) {
+            return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
+        };
+
         /**
          * Critères de recherches personnels
          */
@@ -85,6 +89,7 @@ export let absencesController = ng.controller('AbsencesController', [
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
                 $scope.structure = presences.structures.first();
+                $scope.structure.isWidget = true;
                 presences.structure = $scope.structure;
                 $scope.structure.sync().then(() => {
                     $scope.appels = presences.structure.appels;
@@ -94,6 +99,7 @@ export let absencesController = ng.controller('AbsencesController', [
                     $scope.evenements = presences.structure.evenements;
                     $scope.motifs = presences.structure.motifs;
                     $scope.justificatifs = presences.structure.justificatifs;
+                    $scope.structure.isWidget = true;
                     presences.structure = $scope.structure;
                     $scope.loadData = function() {
                         if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
@@ -101,6 +107,11 @@ export let absencesController = ng.controller('AbsencesController', [
                                 presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
                                 utils.safeApply($scope);
                             }else if ($location.path() === "/appels/noneffectues") {
+                                $scope.structure.isWidget = false;
+                                presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                                utils.safeApply($scope);
+                            }else {
+                                $scope.structure.isWidget = true;
                                 presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
                                 utils.safeApply($scope);
                             }

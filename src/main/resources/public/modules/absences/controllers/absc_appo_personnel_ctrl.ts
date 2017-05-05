@@ -14,6 +14,7 @@ export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelControl
         $scope.psDisplayReponsables = false;
         $scope.selectedAppels = [];
         $scope.periode.fin = new Date();
+        presences.structure.isWidget = false;
         presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
 
         $scope.formatDate = function(pODateDebut, pODateFin) {

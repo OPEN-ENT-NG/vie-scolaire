@@ -62,12 +62,12 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div class="row" ng-repeat="appel in widget.WAppelsOublies.appels.all">
+                                <div class="row" ng-repeat="appel in structure.appels.all">
                                 <div class="four cell">
                                     [[appel.personnel_nom]] [[appel.personnel_prenom]]
                                 </div>
                                 <div class="four cell">
-                                    [[formatDate(appel.cours_timestamp_dt, appel.cours_timestamp_fn)]]
+                                    [[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]
                                 </div>
                                 <div class="four cell">
                                     [[appel.classe_libelle]]

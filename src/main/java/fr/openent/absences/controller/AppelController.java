@@ -75,9 +75,9 @@ public class AppelController extends ControllerHelper {
             public void handle(UserInfos user) {
                 String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
                 String psDateFin = request.params().get("dateFin")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date());
-
+                String idEtablissement = request.params().get("idEtablissement");
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                miAbscAppelService.getAppelPeriode(user.getStructures().get(0),psDateDebut, psDateFin, handler);
+                miAbscAppelService.getAppelPeriode(idEtablissement,psDateDebut, psDateFin, handler);
             }
         });
     }
@@ -89,12 +89,13 @@ public class AppelController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
+                String idEtablissement = request.params().get("idEtablissement");
                 String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
                 String psDateFin = request.params().get("dateFin")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date());
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscAppelService.getAppelsNonEffectues(user.getStructures().get(0), psDateDebut, psDateFin, handler);
+                miAbscAppelService.getAppelsNonEffectues(idEtablissement, psDateDebut, psDateFin, handler);
             }
         });
     }

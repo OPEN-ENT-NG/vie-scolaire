@@ -27,7 +27,7 @@ import { Justificatif } from "./Justificatif";
 import { Motif } from "./Motif";
 import { Evenement } from "./Evenement";
 import {Matiere} from "./Matiere";
-
+let moment = require('moment');
 
 export class Structure extends DefaultStructure {
 
@@ -40,6 +40,7 @@ export class Structure extends DefaultStructure {
     evenements: Collection<Evenement>;
     synchronized: any;
     isSynchronized: boolean;
+    isWidget: boolean;
 
     get api () {
         return  {
@@ -53,7 +54,11 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/matieres?idEtablissement=',
             },
             JUSTIFICATIF : {
-                synchronization : '/viescolaire/presences/justificatifs?idEtablissement='+ this.id,
+                synchronization : '/viescolaire/presences/justificatifs?idEtablissement=' + this.id,
+            },
+            APPEL :  {
+                synchronization : '/viescolaire/presences/appels/',
+                synchronizationNonEffectues : '/viescolaire/presences/appels/noneffectues/',
             }
         };
     }
@@ -128,12 +133,20 @@ export class Structure extends DefaultStructure {
         this.collection(Appel, {
             sync : function (pODateDebut, pODateFin) {
                 return new Promise((resolve, reject) => {
-                    if (pODateDebut !== undefined && pODateFin !== undefined) {
-                        http().getJson('/viescolaire/presences/appels/' + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD')).done(function(data) {
+                    if (that.isWidget) {
+                        http().getJson(that.api.APPEL.synchronizationNonEffectues  + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
                             this.load(data);
                             resolve();
                         }.bind(this));
+                    }else {
+                        if (pODateDebut !== undefined && pODateFin !== undefined) {
+                            http().getJson(that.api.APPEL.synchronization  + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
+                                this.load(data);
+                                resolve();
+                            }.bind(this));
+                        }
                     }
+
                 });
             }
         });

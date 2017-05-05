@@ -24,13 +24,13 @@ export let absencesController = ng.controller('AbsencesController', [
             Redirect : function(params) {
                 template.close('menu');
                 template.close('header');
-                template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                template.open('main', '../templates/absences/absc_personnel_acu');
 
             },
             Accueil: function (params) {
                 template.close('menu');
                 template.close('header');
-                template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                template.open('main', '../templates/absences/absc_personnel_acu');
             },
             disabled : (params) => {
                 template.close('menu');

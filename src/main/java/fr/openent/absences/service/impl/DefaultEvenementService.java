@@ -43,12 +43,12 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
     public static final String gsFormatTimestampWithoutTimeZone = "'yyyy-mm-dd\"T\"hh24:mi:ss.MS'";
 
-    public void updateEvenement(String pIIdEvenement, JsonObject pOEvenement, Handler<Either<String, JsonArray>> handler) {
+    public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
         query.append("UPDATE "+ Viescolaire.ABSC_SCHEMA +".evenement SET id_motif = ? WHERE "+ Viescolaire.ABSC_SCHEMA +".evenement.id = ? RETURNING *");
-        values.addNumber(pOEvenement.getObject("motif").getInteger("id_motif")).addNumber(Integer.parseInt(pIIdEvenement));
+        values.addNumber(piMotif).addNumber(piIdEvenement);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

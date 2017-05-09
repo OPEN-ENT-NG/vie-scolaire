@@ -33,11 +33,11 @@ public interface EvenementService extends CrudService {
 
     /**
      * Met à jours l'évènement
-     * @param pIIdEvenement identifiant de l'évènement.
-     * @param pOEvenement objet contenant l'évènement.
+     * @param piIdEvenement identifiant de l'évènement.
+     * @param piMotif identifiant du motif
      * @param handler handler portant le résultat de la requête.
      */
-    public void updateEvenement(String pIIdEvenement, JsonObject pOEvenement, Handler<Either<String, JsonArray>> handler);
+    public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Créé un evenement en base de données

@@ -57,7 +57,7 @@
                                 <div class="three cell ellipsis">[[evt.cours_matiere]]</div>
                                 <div class="three cell">
                                     <label class="select-input">
-                                        <select ng-model="evt.id_motif" class="twelve" ng-init="initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"
+                                        <select ng-model="evt.motif" class="twelve" ng-init="initEvenement(evt);initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"
                                                 ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in motifs.all track by motif.id"></select>
                                     </label>
                                 </div>

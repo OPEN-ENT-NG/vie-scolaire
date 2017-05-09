@@ -152,7 +152,7 @@ CREATE TABLE presences.appel
   id_etat bigint,
   id_justificatif bigint,
   owner character varying(36),
-  created timestamp without time zone,
+  created timestamp without time zone DEFAULT now(),
   modified timestamp without time zone,
   CONSTRAINT appel_pk PRIMARY KEY (id),
   CONSTRAINT fk_cours_id FOREIGN KEY (id_cours)
@@ -217,7 +217,7 @@ CREATE TABLE presences.evenement
   id_pj bigint,
   id_motif bigint,
   owner character varying(36),
-  created timestamp without time zone,
+  created timestamp without time zone DEFAULT now(),
   modified timestamp without time zone,
   CONSTRAINT evenement_pk PRIMARY KEY (id),
   CONSTRAINT fk_appel_id FOREIGN KEY (id_appel)

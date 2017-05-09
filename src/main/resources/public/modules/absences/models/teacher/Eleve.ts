@@ -23,7 +23,7 @@ import { AbsencePrev } from './AbsencePrev';
 import { Cours } from './Cours';
 import { Evenement } from './Evenement';
 import { Plage } from './Plage-old';
-import { presences as vieScolaire } from '../absc_enseignant_mdl';
+import { presences } from '../absc_enseignant_mdl';
 
 
 export class Eleve extends Model implements IModel {
@@ -44,7 +44,7 @@ export class Eleve extends Model implements IModel {
         super();
         this.collection(Evenement, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/presences/eleve/' + this.composer.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson('/viescolaire/presences/eleve/' + this.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
                     this.evenements.load(data);
                 });
             }
@@ -53,14 +53,14 @@ export class Eleve extends Model implements IModel {
         this.evenementsJours =  new Collection<Evenement>(Evenement);
         this.evenementsJours.model = this;
         this.collection(Plage, {
-            sync : (piIdAppel) => {
+            sync : () => {
                 // Evenements du jours
                 let otEvt = this.evenementsJours;
                 // Liste des cours
                 let otCours = this.courss;
                 let that = this.plages;
                 // On copie les plages dans un tableau
-                that.load(JSON.parse(JSON.stringify(vieScolaire.structure.plages)));
+                that.load(JSON.parse(JSON.stringify(presences.structure.plages)));
                 for (let i = 0; i < that.all.length; i++) {
                     that.all[i].evenements = new Collection<Evenement>(Evenement);
                     that.all[i].evenements.model = that.all[i];

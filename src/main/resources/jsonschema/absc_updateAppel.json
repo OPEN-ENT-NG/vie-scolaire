@@ -3,22 +3,22 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "fk_personnel_id": {
+    "id_personnel": {
+      "type": "string"
+    },
+    "id_cours": {
       "type": "integer"
     },
-    "fk_cours_id": {
+    "id": {
       "type": "integer"
     },
-    "fk_etat_appel_id": {
-      "type": "integer"
-    },
-    "fk_justificatif_appel_id": {
+    "id_justificatif": {
       "type": ["integer", "null"]
     }
   },
   "required": [
-    "fk_personnel_id",
-    "fk_cours_id",
-    "fk_etat_appel_id"
+    "id_personnel",
+    "id_cours",
+    "id_etat"
   ]
 }

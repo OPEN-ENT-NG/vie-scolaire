@@ -85,7 +85,7 @@ export class Cours extends Model {
         http().getJson(url)
             .done((data) => {
                 for (let i = 0; i < that.eleves.all.length; i++) {
-                    that.eleves.all[i].evenementsJours.load(_.where(data, {id : that.eleves.all[i].id}));
+                    that.eleves.all[i].evenementsJours.load(_.where(data, {id_eleve : that.eleves.all[i].id}));
                     that.eleves.all[i].evenements.load(
                         that.eleves.all[i].evenementsJours.where({id_cours : that.id})
                     );
@@ -137,6 +137,7 @@ export class Cours extends Model {
             .done((data) => {
                 _.each(that.eleves.all, function(eleve) {
                     eleve.courss.load(data);
+                    eleve.plages.sync();
                 });
                 this.trigger("appelSynchronized");
             });

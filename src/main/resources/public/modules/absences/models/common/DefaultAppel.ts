@@ -21,7 +21,7 @@ export class DefaultAppel extends Model {
                         resolve();
                     }
                 })
-                .catch((err) => {
+                .error(function () {
                     if (reject && typeof reject === 'function') {
                         reject();
                     }
@@ -37,7 +37,7 @@ export class DefaultAppel extends Model {
                         resolve();
                     }
                 })
-                .catch((err) => {
+                .error(function () {
                     if (reject && typeof reject === 'function') {
                         reject();
                     }
@@ -53,7 +53,7 @@ export class DefaultAppel extends Model {
                         resolve();
                     }
                 })
-                .catch((err) => {
+                .error(function () {
                     if (reject && typeof reject === 'function') {
                         reject();
                     }

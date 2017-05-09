@@ -10,6 +10,7 @@ export class DefaultEvenement extends Model implements IModel {
     id_appel: string;
     id_type: string;
     id_pj?: string;
+    id_motif: number;
 
     get api () {
         return {
@@ -19,11 +20,24 @@ export class DefaultEvenement extends Model implements IModel {
 
     update (): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().putJson(http().parseUrl(this.api.put)).done((data) => {
+            let _evenement = this.toJSON();
+            http().putJson(http().parseUrl(this.api.put), _evenement).done((data) => {
                if (resolve && (typeof resolve === 'function')) {
                    resolve(data);
                }
             });
         });
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            commentaire: this.commentaire,
+            saisie_cpe: this.saisie_cpe,
+            id_eleve: this.id_eleve,
+            id_appel: this.id_appel,
+            id_type: this.id_type,
+            id_motif: this.id_motif
+        };
     }
 }

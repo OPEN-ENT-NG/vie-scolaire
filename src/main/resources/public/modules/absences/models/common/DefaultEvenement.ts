@@ -7,21 +7,21 @@ export class DefaultEvenement extends Model implements IModel {
     commentaire?: string;
     saisie_cpe: boolean;
     id_eleve: string;
-    id_appel: string;
-    id_type: string;
-    id_pj?: string;
+    id_appel: number;
+    id_type: number;
+    id_pj?: number;
     id_motif: number;
 
     get api () {
         return {
-          put: '/viescolaire/presences/evenement/' + this.id + '/updatemotif'
+          PUT: '/viescolaire/presences/evenement/:id/updatemotif'
         };
     }
 
     update (): Promise<any> {
         return new Promise((resolve, reject) => {
             let _evenement = this.toJSON();
-            http().putJson(http().parseUrl(this.api.put), _evenement).done((data) => {
+            http().putJson(http().parseUrl(this.api.PUT), _evenement).done((data) => {
                if (resolve && (typeof resolve === 'function')) {
                    resolve(data);
                }

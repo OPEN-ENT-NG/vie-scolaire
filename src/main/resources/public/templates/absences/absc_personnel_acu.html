@@ -92,12 +92,12 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div class="row" ng-repeat="observation in widget.WObservations.observations.all">
+                            <div class="row" ng-repeat="observation in structure.observations.all">
                                 <div class="four cell">
                                     [[formatDate(observation.cours_timestamp_dt, observation.cours_timestamp_fn)]]
                                 </div>
                                 <div class="eight cell">
-                                    [[observation.evenement_commentaire]]
+                                    [[observation.commentaire]]
                                 </div>
                             </div>
                         </div>

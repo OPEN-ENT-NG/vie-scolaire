@@ -120,7 +120,9 @@ public class ClasseController extends BaseController {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                if (user != null && request.params().size() == 2) {
+                if (user != null
+                        && !request.params().isEmpty()
+                        && request.params().size() == 2) {
                     String idEtablissement = request.params().get("idEtablissement");
                     classeService.listClasses(idEtablissement,user, new Handler<Either<String, JsonArray>>() {
                         @Override

@@ -39,6 +39,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     private final Neo4j neo4j = Neo4j.getInstance();
 
+    private static final String mParameterIdClasse = "idClasse";
+    
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
@@ -50,7 +52,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
                 .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
 
-        neo4j.execute(query.toString(), new JsonObject().putString("idClasse", idClasse), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().putString(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
 
     }
 
@@ -64,7 +66,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                         "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} " +
                 "RETURN f.id as id_groupe, count(distinct u) as nb");
 
-        values.putArray("idClasse", idGroupes);
+        values.putArray(mParameterIdClasse, idGroupes);
         values.putArray("idGroupe", idGroupes);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
@@ -78,7 +80,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) ");
         if(isTeacher){
             query.append(" WHERE c.id IN {idClasse}");
-            params.putArray("idClasse", idClasse);
+            params.putArray(mParameterIdClasse, idClasse);
         }
         query.append("RETURN distinct(u.id) as id, u.displayName as displayName, c.id as idClasse ORDER BY displayName");
 

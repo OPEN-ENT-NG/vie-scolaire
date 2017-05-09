@@ -102,25 +102,17 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT DISTINCT(evenement.id), cours.id_matiere, evenement.commentaire, evenement.saisie_cpe," +
-                " eleve.nom, eleve.prenom, evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, " +
-                "evenement.id_appel, evenement.id_type, classe.id, personnel.id ")
-                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe, " +
-                        ""+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours, " +
-                        ""+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.ABSC_SCHEMA +".evenement " +
-                        "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) ")
-                .append("WHERE evenement.id_eleve = eleve.id ")
-                .append("AND evenement.id_appel = appel.id ")
+        query.append("SELECT DISTINCT(evenement.id), cours.id_matiere, evenement.commentaire, evenement.saisie_cpe, ")
+                .append("evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, cours.id_personnel, ")
+                .append("evenement.id_appel, evenement.id_type ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".evenement ")
+                .append("LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) ")
+                .append("WHERE evenement.id_appel = appel.id ")
                 .append("AND appel.id_cours = cours.id ")
                 .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
                 .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-                .append("AND eleve.id = rel_eleve_classe.fk_eleve_id ")
-                .append("AND rel_eleve_classe.fk_classe_id = classe.id ")
-                .append("AND classe.id_etablissement = ? ")
-                .append("AND cours.id_classe = classe.id ")
-                .append("AND rel_personnel_cours.fk_cours_id = cours.id ")
-                .append("AND personnel.id = rel_personnel_cours.fk_personnel_id ")
-                .append("AND evenement.fk_type_evt_id = 1");
+                .append("AND cours.id_etablissement = ? ")
+                .append("AND evenement.id_type = 1");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 

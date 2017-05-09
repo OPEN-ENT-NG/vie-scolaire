@@ -82,7 +82,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             query.append(" WHERE c.id IN {idClasse}");
             params.putArray(mParameterIdClasse, idClasse);
         }
-        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, c.id as idClasse ORDER BY displayName");
+        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");
 
         neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
 

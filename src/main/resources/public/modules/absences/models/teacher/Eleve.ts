@@ -83,7 +83,7 @@ export class Eleve extends Model implements IModel {
                  */
                 if (this.absencePrevs.all.length > 0) {
                     _.each(this.absencePrevs, (abs) => {
-                        abs.fk_type_evt_id = 'abs-prev';
+                        abs.id_type = 'abs-prev';
                         let dt = parseInt(moment(abs.absence_prev_timestamp_dt).format('HH'));
                         let fn = parseInt(moment(abs.absence_prev_timestamp_fn).format('HH'));
                         let oIndex = {

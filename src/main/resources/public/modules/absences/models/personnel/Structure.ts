@@ -21,6 +21,7 @@ import { Collection, http, idiom as lang } from 'entcore/entcore';
 
 import { DefaultStructure } from '../common/DefaultStructure';
 import { Enseignant } from "./Enseignant";
+import { Eleve } from "./Eleve";
 import { Appel } from "./Appel";
 import { Classe } from "./Classe";
 import { Justificatif } from "./Justificatif";
@@ -34,6 +35,7 @@ let moment = require('moment');
 export class Structure extends DefaultStructure {
 
     enseignants: Collection<Enseignant>;
+    eleves: Collection<Eleve>;
     matieres: Collection<Matiere>;
     appels: Collection<Appel>;
     classes: Collection<Classe>;
@@ -52,6 +54,9 @@ export class Structure extends DefaultStructure {
             },
             ENSEIGNANT : {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
+            },
+            ELEVE : {
+               synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
             },
             MATIERE : {
                 synchronization : '/viescolaire/matieres?idEtablissement='
@@ -79,7 +84,8 @@ export class Structure extends DefaultStructure {
         this.synchronized = {
             matieres : false,
             classes : false,
-            enseignants: false
+            enseignants: false,
+            eleves: false
         };
 
         // Constantes utiles pour la récupération de classes et groupes d'enseignements
@@ -125,6 +131,20 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
+
+        this.collection(Eleve, {
+            sync : function () {
+                return new Promise((resolve, reject) => {
+                    // chargement des élèves
+                    http().getJson(that.api.ELEVE.synchronization).done((res) => {
+                        this.load(res);
+                        that.synchronized.eleves = true;
+                        resolve();
+                    });
+                });
+            }
+        });
+
         this.collection(Matiere, {
             sync : function () {
                 return new Promise((resolve, reject) => {
@@ -171,22 +191,43 @@ export class Structure extends DefaultStructure {
                 if (psDateDebut !== undefined && psDateDebut !== undefined) {
                     http().getJson('/viescolaire/presences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data) {
                         let aLoadedData = [];
+
+                       // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
                         _.map(data, function(e) {
-                            e.date = moment(e.timestamp_dt).format('YYYY-MM-DD');
+                            e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
+
+                            let loadedEleve = _.findWhere(that.eleves.all, {id : e.id_eleve});
+                            e.firstName =  loadedEleve.firstName;
+                            e.lastName =  loadedEleve.lastName;
+
+                            let loadedMatiere = _.findWhere(that.matieres.all, {id : e.id_matiere});
+                            e.cours_matiere = loadedMatiere.name;
+
                             return e;
                         });
+
+                        // regroupement par date de début d'un cours
                         let aDates = _.groupBy(data, 'cours_date');
+
+
+                        // parcours des absences par date
                         for (let k in aDates) {
                             if (!aDates.hasOwnProperty(k)) { continue; }
-                            let aEleves = _.groupBy(aDates[k], 'fk_eleve_id');
+
+                            // regroupement des absences par élève
+                            let aEleves = _.groupBy(aDates[k], 'id_eleve');
+
+                            // parcours des élèves d'une date (évenement lié à un élève)
                             for (let e in aEleves) {
                                 if (!aEleves.hasOwnProperty(e)) { continue; }
                                 let t = aEleves[e];
+
+
                                 let tempEleve = {
-                                    id : t[0].fk_eleve_id,
-                                    nom : t[0].nom,
-                                    prenom : t[0].prenom,
-                                    date : t[0].date,
+                                    id : t[0].id_eleve,
+                                    eleve_nom : t[0].lastName,
+                                    eleve_prenom : t[0].firstName,
+                                    cours_date : t[0].cours_date,
                                     displayed : false,
                                     evenements : t
                                 };
@@ -227,9 +268,10 @@ export class Structure extends DefaultStructure {
                 let b =
                     this.synchronized.matieres &&
                     this.synchronized.classes &&
-                    this.synchronized.enseignants;
+                    this.synchronized.enseignants &&
+                    this.synchronized.eleves;
                 if (b) {
-                    // On souhaite récupérer les appels à la toute fin car les libellés (Matières, Classes et Enseignants)
+                    // On souhaite récupérer les appels à la toute fin car les libellés (Matières, Classes, Enseignants, Eleves)
                     // sont utilisés par la suite dans les appels
                     this.appels.sync();
                     this.isSynchronized = true;
@@ -237,6 +279,7 @@ export class Structure extends DefaultStructure {
                 }
             };
             this.enseignants.sync().then(isSynced);
+            this.eleves.sync().then(isSynced);
             this.classes.sync().then(isSynced);
             this.matieres.sync().then(isSynced);
             this.justificatifs.sync();

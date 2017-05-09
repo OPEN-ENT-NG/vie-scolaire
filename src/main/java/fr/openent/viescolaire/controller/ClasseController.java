@@ -24,13 +24,13 @@ import fr.openent.evaluations.security.AccessAuthorozed;
 import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.BaseController;
-import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -72,8 +71,10 @@ public class ClasseController extends BaseController {
                     if (request.params().isEmpty()){
                         badRequest(request);
                     } else {
-                        if (("Personnel".equals(user.getType()) && user.getFunctions().containsKey("DIR"))
-                                || "Teacher".equals(user.getType())) {
+                        if (("Personnel".equals(user.getType())
+                                && !user.getFunctions().isEmpty()
+                                && user.getFunctions().containsKey("DIR")
+                            ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse, handler);

@@ -48,7 +48,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("UPDATE "+ Viescolaire.ABSC_SCHEMA +".evenement SET id_motif = ? WHERE "+ Viescolaire.ABSC_SCHEMA +".evenement.id = ? RETURNING *");
-        values.addNumber(pOEvenement.getObject("motif").getInteger("motif_id")).addNumber(Integer.parseInt(pIIdEvenement));
+        values.addNumber(pOEvenement.getObject("motif").getInteger("id_motif")).addNumber(Integer.parseInt(pIIdEvenement));
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

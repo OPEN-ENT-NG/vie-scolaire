@@ -1,3 +1,6 @@
+CREATE SCHEMA presences;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 CREATE TABLE presences.users
 (
   id character varying(36) NOT NULL,
@@ -98,9 +101,6 @@ CREATE TABLE viesco.cours
   id_personnel character varying(36),
   CONSTRAINT cours_pkey PRIMARY KEY (id)
 );
-
-CREATE SCHEMA presences;
-CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE TABLE presences.etablissements_actifs
 (

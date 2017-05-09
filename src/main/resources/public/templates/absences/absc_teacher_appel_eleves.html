@@ -52,11 +52,13 @@
                 </div>
                 <div class="two cell cell-indent">
                     <span tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                        <i class="clock retard-color-icon" ></i>
                     </span>
                     <span tooltip="Départ" class="clock appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                        <i class="clock depart-color-icon" ></i>
                     </span>
                     <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
-                        <i class="warning"></i>
+                        <i class="report"></i>
                     </span>
                     <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
                 </div>
@@ -64,7 +66,7 @@
                     <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
                         <div ng-repeat="evt in plage.evenements.all track by $index"
                              ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
-                            ng-class="{'absence-color' : evt.fk_type_evt_id === 1, 'retard-color' : evt.fk_type_evt_id === 2, 'depart-color' : evt.fk_type_evt_id === 3, 'absence-prev-color' : evt.fk_type_evt_id === 'abs-prev','incident-color' : evt.fk_type_evt_id === 4, 'commentaire-color' : evt.fk_type_evt_id === 5}"
+                            ng-class="{'absence-color' : evt.id_type === 1, 'retard-color' : evt.id_type === 2, 'depart-color' : evt.id_type === 3, 'absence-prev-color' : evt.id_type === 'abs-prev','incident-color' : evt.id_type === 4, 'commentaire-color' : evt.id_type === 5}"
                             class="appel__historiques-creneau-eleve"
                         ></div>
                     </div>

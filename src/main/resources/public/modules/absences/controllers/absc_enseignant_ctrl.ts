@@ -63,9 +63,6 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
-        // $scope.courss = presences.courss;
-        // $scope.creneaus = presences.creneaus;
-        // $scope.plages = presences.plages;
         $scope.safeApply = function(fn) {
             let phase = this.$root.$$phase;
             if (phase === '$apply' || phase === '$digest') {
@@ -160,7 +157,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 tEvenementDepart.delete();
                 $scope.supprimerEvenementEleve(poEleve, tEvenementDepart);
                 if (poEleve.evenementDepart !== undefined) {
-                    poEleve.evenementDepart.evenement_id = undefined;
+                    poEleve.evenementDepart.id = undefined;
                     poEleve.hasDepart = false;
                 }
             }
@@ -169,7 +166,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 tEvenementRetard.delete();
                 $scope.supprimerEvenementEleve(poEleve, tEvenementRetard);
                 if (poEleve.evenementRetard !== undefined) {
-                    poEleve.evenementRetard.evenement_id = undefined;
+                    poEleve.evenementRetard.id = undefined;
                     poEleve.hasRetard = false;
                 }
             }
@@ -178,7 +175,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 tEvenementIncident.delete();
                 $scope.supprimerEvenementEleve(poEleve, tEvenementIncident);
                 if (poEleve.evenementIncident !== undefined) {
-                    poEleve.evenementIncident.evenement_id = undefined;
+                    poEleve.evenementIncident.id = undefined;
                     poEleve.hasIncident = false;
                 }
             }
@@ -268,13 +265,13 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.setIdToValue = function(poEvenement, poValue) {
             switch (poEvenement.id_type) {
                 case $scope.oEvtType.giIdEvenementDepart :
-                    $scope.currentEleve.evenementDepart.evenement_id = poValue;
+                    $scope.currentEleve.evenementDepart.id = poValue;
                     break;
                 case $scope.oEvtType.giIdEvenementRetard :
-                    $scope.currentEleve.evenementRetard.evenement_id = poValue;
+                    $scope.currentEleve.evenementRetard.id = poValue;
                     break;
                 case $scope.oEvtType.giIdEvenementObservation :
-                    $scope.currentEleve.evenementObservation.evenement_id = poValue;
+                    $scope.currentEleve.evenementObservation.id = poValue;
                     break;
             }
         };
@@ -286,12 +283,12 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.updateEvenement = function(poEvenement, poUpdatedField) {
             if (poUpdatedField !== 'commentaire') {
-                let oMomentDebutCours = moment($scope.currentCours.cours_timestamp_dt);
+                let oMomentDebutCours = moment($scope.currentCours.timestamp_dt);
                 $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
             } else {
                 if (poEvenement[poUpdatedField] === '' || poEvenement[poUpdatedField] === null || poEvenement[poUpdatedField] === undefined) {
                     console.log($scope.oEvtTime);
-                    if (poEvenement.evenement_id !== undefined) {
+                    if (poEvenement.id !== undefined) {
                         poEvenement.delete(function() {
                             $scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
                             $scope.setIdToValue(poEvenement, undefined);
@@ -303,7 +300,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 }
             }
             poEvenement.save(function(piEvenementId, pbCreated) {
-                poEvenement.evenement_id = piEvenementId;
+                poEvenement.id = piEvenementId;
                 if (pbCreated) {
                     $scope.addEvtPlage(poEvenement);
                 }
@@ -338,10 +335,10 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param poEvenement évenement à supprimer
          */
         $scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
-            let otCours = $scope.currentEleve.courss.findWhere({id_cours : $scope.currentCours.id_cours});
-            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.cours_timestamp_dt).format('HH'))});
+            let otCours = $scope.currentEleve.courss.findWhere({id : $scope.currentCours.id});
+            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.timestamp_dt).format('HH'))});
 
-            otPlage.evenements.remove(otPlage.evenements.findWhere({evenement_id : poEvenement.evenement_id}));
+            otPlage.evenements.remove(otPlage.evenements.findWhere({id : poEvenement.id}));
             $scope.safeApply();
         };
 
@@ -546,7 +543,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param piIdEtatAppel l'identifiant de l'état souhaité.
          */
         $scope.changerEtatAppel = function (piIdEtatAppel) {
-            $scope.currentCours.appel.id_appel = piIdEtatAppel;
+            $scope.currentCours.appel.id_etat = piIdEtatAppel;
             $scope.currentCours.appel.update();
             $scope.safeApply();
         };
@@ -564,6 +561,9 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.structure = presences.structures.first();
                 presences.structure = $scope.structure;
                 presences.structure.sync().then(() => {
+                    $scope.courss = presences.structure.courss;
+                    $scope.creneaus = presences.structure.creneaus;
+                    $scope.plages = presences.structure.plages;
                     if ($location.path() === '/disabled') {
                         $location.path('/appel');
                         $location.replace();

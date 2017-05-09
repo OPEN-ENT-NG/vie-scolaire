@@ -95,12 +95,13 @@ public class EleveController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
+                String idEtablissement = request.params().get("idEtablissement");
                 String sDateDebut = request.params().get("dateDebut")+" 00:00:00";
                 String sDateFin = request.params().get("dateFin")+" 23:59:59";
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscEleveService.getAbsences(user.getStructures().get(0), sDateDebut, sDateFin, handler);
+                miAbscEleveService.getAbsences(idEtablissement, sDateDebut, sDateFin, handler);
             }
         });
     }
@@ -113,11 +114,11 @@ public class EleveController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
+                String idEtablissement = request.params().get("idEtablissement");
                 String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
                 String psDateFin = request.params().get("dateFin")+" 23:59:59";
 
-                miAbscEleveService.getAbsencesSansMotifs(user.getStructures().get(0), psDateDebut, psDateFin, handler);
+                miAbscEleveService.getAbsencesSansMotifs(idEtablissement, psDateDebut, psDateFin, handler);
             }
         });
     }

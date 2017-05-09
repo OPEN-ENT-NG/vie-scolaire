@@ -124,26 +124,22 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT DISTINCT(evenement.id), evenement.commentaire, evenement.saisie_cpe, eleve.nom, eleve.prenom, " +
-                "evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, evenement.id_appel, " +
-                "evenement.id_type," +
-                " classe.id, personnel.id, motif.id, motif.libelle, motif.justifiant " +
-                "FROM "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.VSCO_SCHEMA +".classe, " +
-                ""+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.VSCO_SCHEMA +".rel_personnel_cours," +
-                " "+ Viescolaire.VSCO_SCHEMA +".personnel, "+ Viescolaire.ABSC_SCHEMA +".evenement " +
-                "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) " +
-                "WHERE evenement.id_eleve = eleve.id AND evenement.id_appel = appel.id " +
-                "AND appel.id_cours = cours.id " +
-                "AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
-                "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
-                "AND evenement.fk_type_evt_id = 1 " +
-                "AND (evenement.fk_motif_id = 8 OR evenement.fk_motif_id = 2)" +
-                "AND rel_eleve_classe.fk_classe_id = classe.id " +
-                "AND classe.id_etablissement = ? " +
-                "AND cours.fk_classe_id = classe.id AND rel_personnel_cours.fk_cours_id = cours.id " +
-                "AND personnel.id = rel_personnel_cours.fk_personnel_id " +
-                "ORDER BY cours.cours_timestamp_dt DESC");
+        query.append("SELECT evenement.id ,evenement.commentaire ,evenement.saisie_cpe ,evenement.id_eleve ,evenement.id_motif " )
+                .append(",cours.timestamp_dt ,cours.timestamp_fn ,evenement.id_appel ,evenement.id_type ,cours.id_classe ,cours.id_personnel " )
+                .append(",motif.id ,motif.libelle ,motif.justifiant " )
+                .append("FROM ").append(Viescolaire.ABSC_SCHEMA).append(".appel, ").append(Viescolaire.VSCO_SCHEMA).append(".cours, ").append(Viescolaire.ABSC_SCHEMA).append(".evenement " )
+                .append("LEFT JOIN ").append(Viescolaire.ABSC_SCHEMA).append(".motif ON (evenement.id_motif = motif.id) " )
+                .append("WHERE evenement.id_appel = appel.id " )
+                    .append("AND appel.id_cours = cours.id " )
+                    .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
+                    .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
+                    .append("AND evenement.id_type = 1 " )
+                    .append("AND ( " )
+                    .append("evenement.id_motif = 8 " )
+                        .append("OR evenement.id_motif = 2 " )
+                    .append(") " )
+                    .append( "AND cours.id_etablissement = ? " )
+                .append("ORDER BY cours.timestamp_dt DESC");
 
         values.addString(psDateDebut).addString(psDateFin).addString(psIdEtablissement);
 

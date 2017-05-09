@@ -104,6 +104,7 @@ export let absencesController = ng.controller('AbsencesController', [
                     $scope.loadData = function() {
                         if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
                             if ($location.path() === "/sansmotifs") {
+                                $scope.structure.isWidget = false;
                                 presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
                                 utils.safeApply($scope);
                             }else if ($location.path() === "/appels/noneffectues") {

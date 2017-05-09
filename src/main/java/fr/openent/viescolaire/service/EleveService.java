@@ -23,7 +23,6 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 10/02/2016.

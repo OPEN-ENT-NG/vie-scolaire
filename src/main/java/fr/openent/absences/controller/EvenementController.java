@@ -119,12 +119,17 @@ public class EvenementController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
-                String psDateFin = request.params().get("dateFin")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date());
+                if(request.params().isEmpty()) {
+                    badRequest(request);
+                } else {
+                    String idEtablissement = request.params().get("idEtablissement");
+                    String psDateDebut = request.params().get("dateDebut") + " 00:00:00";
+                    String psDateFin = request.params().get("dateFin") + " " + new SimpleDateFormat("HH:mm:ss").format(new Date());
 
-                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscEvenementService.getObservations(user.getStructures().get(0), psDateDebut, psDateFin, handler);
+                    miAbscEvenementService.getObservations(idEtablissement, psDateDebut, psDateFin, handler);
+                }
             }
         });
     }

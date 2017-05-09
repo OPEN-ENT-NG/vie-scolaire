@@ -27,6 +27,8 @@ import { Justificatif } from "./Justificatif";
 import { Motif } from "./Motif";
 import { Evenement } from "./Evenement";
 import {Matiere} from "./Matiere";
+import {Observation} from "./Observation";
+
 let moment = require('moment');
 
 export class Structure extends DefaultStructure {
@@ -38,6 +40,7 @@ export class Structure extends DefaultStructure {
     justificatifs: Collection<Justificatif>;
     motifs: Collection<Motif>;
     evenements: Collection<Evenement>;
+    observations: Collection<Observation>;
     synchronized: any;
     isSynchronized: boolean;
     isWidget: boolean;
@@ -45,20 +48,23 @@ export class Structure extends DefaultStructure {
     get api () {
         return  {
             CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id
             },
             ENSEIGNANT : {
-                synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id,
+                synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
             },
             MATIERE : {
-                synchronization : '/viescolaire/matieres?idEtablissement=',
+                synchronization : '/viescolaire/matieres?idEtablissement='
             },
             JUSTIFICATIF : {
-                synchronization : '/viescolaire/presences/justificatifs?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/presences/justificatifs?idEtablissement=' + this.id
             },
             APPEL :  {
                 synchronization : '/viescolaire/presences/appels/',
-                synchronizationNonEffectues : '/viescolaire/presences/appels/noneffectues/',
+                appelsNonEffectues : '/viescolaire/presences/appels/noneffectues/'
+            },
+            OBSERVATION : {
+                synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
             }
         };
     }
@@ -130,11 +136,21 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
+        this.collection(Observation, {
+            sync : function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.OBSERVATION.synchronization).done(function(res) {
+                        this.load(res);
+                        resolve();
+                    }.bind(this));
+                });
+            }
+        });
         this.collection(Appel, {
             sync : function (pODateDebut, pODateFin) {
                 return new Promise((resolve, reject) => {
                     if (that.isWidget) {
-                        http().getJson(that.api.APPEL.synchronizationNonEffectues  + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
+                        http().getJson(that.api.APPEL.appelsNonEffectues  + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
                             this.load(data);
                             resolve();
                         }.bind(this));
@@ -225,6 +241,7 @@ export class Structure extends DefaultStructure {
             this.matieres.sync().then(isSynced);
             this.justificatifs.sync();
             this.motifs.sync();
+            this.observations.sync();
             this.evenements.sync();
         });
     }

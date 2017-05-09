@@ -1,34 +1,31 @@
-import { Model, Collection, http } from 'entcore/entcore';
-
+import { Collection, http } from 'entcore/entcore';
 import { Appel } from './Appel';
-// import { AppelElevesCollection } from './AppelElevesCollection';
 import { Eleve } from './Eleve';
+import {DefaultCours} from "../common/DefaultCours";
 
-// interface Eleves extends Collection<Eleve>, AppelElevesCollection {}
 
-export class Cours extends Model {
+
+export class Cours extends DefaultCours {
     appel: Appel;
     eleves: Collection<Eleve>;
 
-    id: number;
-    timestamp_dt: string;
-    timestamp_fn: string;
-    id_personnel: string; // Champs supplémentaire
-    id_matiere: string;
-    id_etablissement: string;
-    salle: string;
-    edt_classe: string;
-    edt_date: string;
-    edt_salle: string;
-    edt_matiere: string;
-    edt_id_cours: string;
-    id_classe: string;
-
-    composer: any; // Get from AppelElevesCollection
-
     get api () {
+
+        // Construction de l'API de récupération des absences prévisionnelles
+        let url_absence_prev = '/viescolaire/presences/absencesprev/eleves';
+        url_absence_prev += '?dateDebut=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
+        url_absence_prev += '&dateFin=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
+        for (let i = 0; i < this.eleves.all.length; i++) {
+            url_absence_prev += '&id_eleve=' + this.eleves.all[i].id;
+        }
+
         return {
-            getAppel : '/viescolaire/presences/appel/cours/'
+            GET_APPEL : super.api.GET_APPEL,
+            GET_ELEVE : super.api.GET_ELEVE,
+            GET_EVENEMENT_ELEVE : super.api.GET_EVENEMENT_ELEVE,
+            GET_ABSENCE_PREV : url_absence_prev,
+            GET_ABSENCE_LAST_COURS : super.api.GET_ABSENCE_LAST_COURS,
+            GET_COURS_CLASSE : super.api.GET_COURS_CLASSE
         };
     }
 
@@ -37,7 +34,7 @@ export class Cours extends Model {
         this.appel = new Appel();
         this.appel.sync = () => {
             let that = this;
-            http().getJson(this.api.getAppel + this.id).done(function (data) {
+            http().getJson(this.api.GET_APPEL + this.id).done(function (data) {
                 if (data.length > 0) {
                     this.updateData(data[0]);
                 }
@@ -55,7 +52,7 @@ export class Cours extends Model {
             sync: (): Promise<any> => {
                 return new Promise((resolve, reject) => {
                     let that = this;
-                    http().getJson('/directory/class/' + that.id_classe + '/users?type=Student').done((data) => {
+                    http().getJson(this.api.GET_ELEVE).done((data) => {
                         _.map(data, function (eleve) {
                             eleve.cours = that;
                         });
@@ -77,12 +74,8 @@ export class Cours extends Model {
          * - evenementsJours qui nous permettera d'afficher l'historique.
          * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
          */
-        let url = '/viescolaire/presences/evenement/classe/';
         let that = this;
-        url += this.id_classe + '/periode/';
-        url += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
-        url += moment(this.timestamp_dt).format('YYYY-MM-DD');
-        http().getJson(url)
+        http().getJson(this.api.GET_EVENEMENT_ELEVE)
             .done((data) => {
                 for (let i = 0; i < that.eleves.all.length; i++) {
                     that.eleves.all[i].evenementsJours.load(_.where(data, {id_eleve : that.eleves.all[i].id}));
@@ -95,14 +88,8 @@ export class Cours extends Model {
     }
 
     loadAbscPrev () {
-        let url = '/viescolaire/presences/absencesprev/eleves';
-        url += '?dateDebut=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
-        url += '&dateFin=' + moment(this.timestamp_dt).format('YYYY-MM-DD');
         let that = this;
-        for (let i = 0; i < this.eleves.all.length; i++) {
-            url += '&id_eleve=' + this.eleves.all[i].id;
-        }
-        http().getJson(url)
+        http().getJson(this.api.GET_ABSENCE_PREV)
             .done((data) => {
                 for (let i = 0; i < this.eleves.all.length; i++) {
                     that.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: that.eleves.all[i].id}));
@@ -112,11 +99,8 @@ export class Cours extends Model {
     }
 
     loadAbscLastCours () {
-        let url = '/viescolaire/presences/precedentes/classe/';
-        url += this.id_classe + '/cours/';
-        url += this.id;
         let that = this;
-        http().getJson(url)
+        http().getJson(this.api.GET_ABSENCE_LAST_COURS)
             .done((data) => {
                 _.each(data, function(absc) {
                     let eleve = that.eleves.findWhere({id : absc.id_eleve});
@@ -129,11 +113,8 @@ export class Cours extends Model {
     }
 
     loadCoursClasse () {
-        let url = '/viescolaire/' + this.id_classe + '/cours/';
-        url += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
-        url += moment(this.timestamp_fn).format('YYYY-MM-DD');
         let that = this;
-        http().getJson(url)
+        http().getJson(this.api.GET_COURS_CLASSE)
             .done((data) => {
                 _.each(that.eleves.all, function(eleve) {
                     eleve.courss.load(data);

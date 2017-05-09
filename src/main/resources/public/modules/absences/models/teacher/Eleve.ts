@@ -24,27 +24,27 @@ import { Cours } from './Cours';
 import { Evenement } from './Evenement';
 import { Plage } from './Plage-old';
 import { presences } from '../absc_enseignant_mdl';
+import {DefaultEleve} from "../common/DefaultEleve";
 
 
-export class Eleve extends Model implements IModel {
+export class Eleve extends DefaultEleve {
     evenements: Collection<Evenement>;
     courss: Collection<Cours>;
     evenementsJours: Collection<Evenement>;
     absencePrevs: Collection<AbsencePrev>;
     plages: Collection<Plage>;
-    composer: any;
-    id: String;
-    absc_precedent_cours: boolean;
 
     get api () {
-        return {};
+        return {GET_EVENEMENT : super.api.GET_EVENEMENT,
+            GET_ABSENCES_PREV : super.api.GET_ABSENCES_PREV
+        };
     }
 
     constructor () {
         super();
         this.collection(Evenement, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/presences/eleve/' + this.id + '/evenements/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson(this.api.GET_EVENEMENT + psDateDebut + '/' + psDateFin).done((data) => {
                     this.evenements.load(data);
                 });
             }
@@ -103,7 +103,7 @@ export class Eleve extends Model implements IModel {
         });
         this.collection(AbsencePrev, {
             sync : (psDateDebut, psDateFin) => {
-                http().getJson('/viescolaire/absences/eleve/' + this.composer.id + '/absencesprev/' + psDateDebut + '/' + psDateFin).done((data) => {
+                http().getJson(this.api.GET_ABSENCES_PREV + psDateDebut + '/' + psDateFin).done((data) => {
                     this.absencePrevs.load(data);
                 });
             }

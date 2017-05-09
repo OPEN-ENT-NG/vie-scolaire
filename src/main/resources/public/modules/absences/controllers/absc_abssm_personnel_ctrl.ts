@@ -56,9 +56,11 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.updateEvtMotif = function(evt) {
             let e = new Evenement(evt);
+            e.id_motif = evt.motif.id;
             e.update().then((res) => {
                 if (res !== undefined) {
                     evt.id_motif = res[0].id_motif;
+                    evt.motif = res[0];
                 }
             });
         };
@@ -123,6 +125,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             if (t.length > 0) {
                 _.each(t, function (evt) {
                     evt.motif = eleve.motif;
+                    evt.id_motif = eleve.motif.id;
                     let e = new Evenement(evt);
                     e.update();
                 });
@@ -143,9 +146,11 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                         return evt.id_motif === m;
                     })) {
                     eleve.motif = presences.structure.motifs.findWhere({id: m});
+                    eleve.id_motif = eleve.motif.id;
                     utils.safeApply($scope);
                 } else {
                     eleve.motif = undefined;
+                    eleve.id_motif = undefined;
                 }
             }
         };

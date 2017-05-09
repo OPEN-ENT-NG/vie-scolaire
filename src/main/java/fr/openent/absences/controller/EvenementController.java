@@ -60,9 +60,10 @@ public class EvenementController extends ControllerHelper {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override
             public void handle(JsonObject event) {
-                String pIIdEvenement = request.params().get("idEvenement");
+                Integer piIdEvenement = Integer.parseInt(request.params().get("idEvenement"));
+                Integer piIdMotif = event.getInteger("id_motif");
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                miAbscEvenementService.updateEvenement(pIIdEvenement, event.getObject("evenement"), handler);
+                miAbscEvenementService.updateMotif(piIdEvenement, piIdMotif, handler);
             }
         });
     }

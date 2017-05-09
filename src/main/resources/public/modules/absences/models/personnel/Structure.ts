@@ -68,6 +68,10 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/presences/appels/',
                 appelsNonEffectues : '/viescolaire/presences/appels/noneffectues/'
             },
+            EVENEMENT : {
+                synchronization : '/viescolaire/presences/eleves/evenements/',
+                absencesSansMotifs : '/viescolaire/presences/sansmotifs/'
+            },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
             }
@@ -188,54 +192,74 @@ export class Structure extends DefaultStructure {
         });
         this.collection(Evenement, {
             sync : function (psDateDebut, psDateFin) {
-                if (psDateDebut !== undefined && psDateDebut !== undefined) {
-                    http().getJson('/viescolaire/presences/eleves/evenements/' + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD')).done(function(data) {
-                        let aLoadedData = [];
-
-                       // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
-                        _.map(data, function(e) {
-                            e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
-
-                            let loadedEleve = _.findWhere(that.eleves.all, {id : e.id_eleve});
-                            e.firstName =  loadedEleve.firstName;
-                            e.lastName =  loadedEleve.lastName;
-
-                            let loadedMatiere = _.findWhere(that.matieres.all, {id : e.id_matiere});
-                            e.cours_matiere = loadedMatiere.name;
-
-                            return e;
-                        });
-
-                        // regroupement par date de début d'un cours
-                        let aDates = _.groupBy(data, 'cours_date');
-
-
-                        // parcours des absences par date
-                        for (let k in aDates) {
-                            if (!aDates.hasOwnProperty(k)) { continue; }
-
-                            // regroupement des absences par élève
-                            let aEleves = _.groupBy(aDates[k], 'id_eleve');
-
-                            // parcours des élèves d'une date (évenement lié à un élève)
-                            for (let e in aEleves) {
-                                if (!aEleves.hasOwnProperty(e)) { continue; }
-                                let t = aEleves[e];
-
-
-                                let tempEleve = {
-                                    id : t[0].id_eleve,
-                                    eleve_nom : t[0].lastName,
-                                    eleve_prenom : t[0].firstName,
-                                    cours_date : t[0].cours_date,
-                                    displayed : false,
-                                    evenements : t
-                                };
-                                aLoadedData.push(tempEleve);
-                            }
+                if (that.isWidget) {
+                    http().getJson(that.api.EVENEMENT.absencesSansMotifs + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
+                        if (data !== undefined
+                            && that.eleves.all !== undefined
+                            && that.eleves.all.length > 0 ) {
+                            _.map(data, (evenement) => {
+                                let tempEleve = _.findWhere(that.eleves.all, {id: evenement.id_eleve});
+                                evenement.eleve_nom = tempEleve.firstName;
+                                evenement.eleve_prenom = tempEleve.lastName ;
+                                return evenement;
+                            });
                         }
-                        this.load(aLoadedData);
+                        this.load(data);
                     }.bind(this));
+                } else {
+                    if (psDateDebut !== undefined && psDateDebut !== undefined) {
+                        http().getJson(that.api.EVENEMENT.synchronization + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
+                            let aLoadedData = [];
+
+                            // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
+                            _.map(data, function (e) {
+                                e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
+
+                                let loadedEleve = _.findWhere(that.eleves.all, {id: e.id_eleve});
+                                e.firstName = loadedEleve.firstName;
+                                e.lastName = loadedEleve.lastName;
+
+                                let loadedMatiere = _.findWhere(that.matieres.all, {id: e.id_matiere});
+                                e.cours_matiere = loadedMatiere.name;
+
+                                return e;
+                            });
+
+                            // regroupement par date de début d'un cours
+                            let aDates = _.groupBy(data, 'cours_date');
+
+
+                            // parcours des absences par date
+                            for (let k in aDates) {
+                                if (!aDates.hasOwnProperty(k)) {
+                                    continue;
+                                }
+
+                                // regroupement des absences par élève
+                                let aEleves = _.groupBy(aDates[k], 'id_eleve');
+
+                                // parcours des élèves d'une date (évenement lié à un élève)
+                                for (let e in aEleves) {
+                                    if (!aEleves.hasOwnProperty(e)) {
+                                        continue;
+                                    }
+                                    let t = aEleves[e];
+
+
+                                    let tempEleve = {
+                                        id: t[0].id_eleve,
+                                        eleve_nom: t[0].lastName,
+                                        eleve_prenom: t[0].firstName,
+                                        cours_date: t[0].cours_date,
+                                        displayed: false,
+                                        evenements: t
+                                    };
+                                    aLoadedData.push(tempEleve);
+                                }
+                            }
+                            this.load(aLoadedData);
+                        }.bind(this));
+                    }
                 }
             }
         });

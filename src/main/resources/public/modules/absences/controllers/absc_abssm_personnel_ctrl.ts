@@ -15,6 +15,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             sansmotifs : true,
             limitTo : 15
         };
+        presences.structure.isWidget = false;
         presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
 
         /**

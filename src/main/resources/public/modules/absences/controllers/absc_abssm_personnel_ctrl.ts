@@ -49,15 +49,15 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.getEnseignantNom = function(evt) {
-            let e = presences.structure.enseignants.findWhere({id : evt.personnel_id});
-            if (e !== undefined) { return (e.nom + ' ' + e.prenom); }
+            let e = presences.structure.enseignants.findWhere({id : evt.id_personnel});
+            if (e !== undefined) { return (e.lastName + ' ' + e.firstName); }
         };
 
         $scope.updateEvtMotif = function(evt) {
             let e = new Evenement(evt);
             e.update().then((res) => {
                 if (res !== undefined) {
-                    evt.fk_motif_id = res[0].fk_motif_id;
+                    evt.id_motif = res[0].id_motif;
                 }
             });
         };
@@ -65,7 +65,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         let initAllEvenement = function () {
             _.each(presences.structure.evenements, function (e) {
                 _.each(e.evenements, function(evt) {
-                    if (evt.fk_type_evt_id === 1) {
+                    if (evt.id_type === 1) {
                         $scope.initEvenement(evt);
                     }
                 });
@@ -74,8 +74,8 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.initEvenement = function (event) {
-            if (event.fk_motif_id !== null) {
-                event.motif = presences.structure.motifs.findWhere({id : event.fk_motif_id});
+            if (event.id_motif !== null) {
+                event.motif = presences.structure.motifs.findWhere({id : event.id_motif});
             } else {
                 event.motif = $scope.defaultMotif;
             }
@@ -84,9 +84,9 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.absencesFilterFunction = function (eleve) {
             if ($scope.pOFilterAbsences.sansmotifs) {
-                let t = _.where(eleve.evenements, {fk_type_evt_id : 1});
+                let t = _.where(eleve.evenements, {id_type : 1});
                 if (t.length > 0) {
-                    return (_.where(t, {fk_motif_id : 8})).length !== 0 || (_.where(t, {fk_motif_id : 2})).length !== 0;
+                    return (_.where(t, {id_motif : 8})).length !== 0 || (_.where(t, {id_motif : 2})).length !== 0;
                 }
                 return false;
             } else {
@@ -96,7 +96,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.absencesNonJustifieesFilter = function (evt) {
             if ($scope.pOFilterAbsences.sansmotifs) {
-                return (evt.fk_type_evt_id === 1 && (evt.fk_motif_id === 8 || evt.fk_motif_id === 2));
+                return (evt.id_type === 1 && (evt.id_motif === 8 || evt.id_motif === 2));
             } else {
                 return true;
             }
@@ -118,7 +118,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.setEvtMotifEleve = function (eleve) {
-            let t = _.where(eleve.evenements, {fk_type_evt_id : 1});
+            let t = _.where(eleve.evenements, {id_type : 1});
             if (t.length > 0) {
                 _.each(t, function (evt) {
                     evt.motif = eleve.motif;
@@ -129,19 +129,19 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.initEleveSelect = function (eleve) {
-            let t = _.where(eleve.evenements, {fk_type_evt_id: 1});
+            let t = _.where(eleve.evenements, {id_type: 1});
             if (t.length > 0) {
                 let a = t;
                 if ($scope.pOFilterAbsences.sansmotifs) {
                     a = _.filter(t, function (e) {
-                        return e.fk_motif_id === 2 || e.fk_motif_id === 8;
+                        return e.id_motif === 2 || e.id_motif === 8;
                     });
                 }
-                let m = a[0].fk_motif_id;
+                let m = a[0].id_motif;
                 if (_.every(a, function (evt) {
-                        return evt.fk_motif_id === m;
+                        return evt.id_motif === m;
                     })) {
-                    eleve.motif = presences.structure.motifs.findWhere({motif_id: m});
+                    eleve.motif = presences.structure.motifs.findWhere({id: m});
                     utils.safeApply($scope);
                 } else {
                     eleve.motif = undefined;

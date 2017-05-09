@@ -6,7 +6,7 @@
         </div>
         <ul class="selectable-list abscSM-content--SMSelectable-list">
             <li ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs"
-                ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="warning"></i>
+                ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="report"></i>
                 <i18n>viescolaire.absences.ariane.AbsencesSansMotifs</i18n>
             </li>
         </ul>
@@ -43,7 +43,7 @@
                                 <label class="select-input">
                                     <select ng-change="setEvtMotifEleve(eleve)" ng-model="eleve.motif"
                                             class="twelve"
-                                            ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
+                                            ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in motifs.all track by motif.id"></select>
                                 </label>
                             </div>
                             <div class="cell one">
@@ -53,12 +53,12 @@
                         <div class="abscSM-content--SM-list--item--subevents ten cell" ng-class="{displayed : eleve.displayed}">
                             <div ng-repeat="evt in eleve.evenements|filter:absencesNonJustifieesFilter">
                                 <div class="two cell">[[getPeriodeCours(evt)]]</div>
-                                <div class="three cell">[[getEnseignantNom(evt)]]</div>
-                                <div class="three cell">[[evt.cours_matiere]]</div>
+                                <div class="three cell ellipsis">[[getEnseignantNom(evt)]]</div>
+                                <div class="three cell ellipsis">[[evt.cours_matiere]]</div>
                                 <div class="three cell">
                                     <label class="select-input">
                                         <select ng-model="evt.motif" class="twelve" ng-init="initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"
-                                                ng-options="motif as motif.motif_libelle group by motif.motif_justifiant_libelle for motif in motifs.all track by motif.motif_id"></select>
+                                                ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in motifs.all track by motif.id"></select>
                                     </label>
                                 </div>
                             </div>

@@ -59,19 +59,6 @@ public class ClasseController extends BaseController {
         utilsService = new DefaultUtilsService();
     }
 
-//    @Get("/classes/etablissement")
-//    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-//    @ApiDoc("Recupere toutes les classes d'un établissement donné.")
-//    public void getClasseEtablissement(final HttpServerRequest request){
-//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-//            @Override
-//            public void handle(UserInfos user) {
-//                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-//                classeService.getClasseEtablissement(user.getStructures().get(0), handler);
-//            }
-//        });
-//    }
-
     @Get("/classes/:idClasse/users")
     @ApiDoc("Recupere tous les élèves d'une Classe.")
     @ResourceFilter(AccessAuthorozed.class)
@@ -80,12 +67,17 @@ public class ClasseController extends BaseController {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
             @Override
             public void handle(UserInfos user){
+
                 if(user != null){
-                    if(("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR"))
-                        || "Teacher".equals(user.getType()) ) {
-                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        String idClasse = request.params().get("idClasse");
-                        classeService.getEleveClasse(idClasse, handler);
+                    if (request.params().isEmpty()){
+                        badRequest(request);
+                    } else {
+                        if (("Personnel".equals(user.getType()) && user.getFunctions().containsKey("DIR"))
+                                || "Teacher".equals(user.getType())) {
+                            final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                            String idClasse = request.params().get("idClasse");
+                            classeService.getEleveClasse(idClasse, handler);
+                        }
                     }
                 }else{
                     unauthorized(request);
@@ -103,13 +95,17 @@ public class ClasseController extends BaseController {
             @Override
             public void handle(UserInfos user) {
                 if (user != null) {
+                    if (request.params().isEmpty()){
+                        badRequest(request);
+                    } else {
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         List<String> idClasse = request.params().getAll("idClasse");
                         JsonArray idClasseArray = new JsonArray(idClasse.toArray());
                         Boolean isTeacher = "Teacher".equals(user.getType());
                         String idEtablissement = request.params().get("idEtablissement");
 
-                        classeService.getEleveClasses(idEtablissement,idClasseArray,isTeacher, handler);
+                        classeService.getEleveClasses(idEtablissement, idClasseArray, isTeacher, handler);
+                    }
                 } else {
                     unauthorized(request);
                 }

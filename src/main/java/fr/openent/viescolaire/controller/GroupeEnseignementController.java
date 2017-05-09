@@ -1,10 +1,8 @@
 package fr.openent.viescolaire.controller;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
-
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -18,8 +16,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
-import java.util.ArrayList;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;

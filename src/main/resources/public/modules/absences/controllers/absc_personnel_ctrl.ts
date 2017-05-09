@@ -109,10 +109,12 @@ export let absencesController = ng.controller('AbsencesController', [
                             }else if ($location.path() === "/appels/noneffectues") {
                                 $scope.structure.isWidget = false;
                                 presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                                $scope.appels = presences.structure.appels;
                                 utils.safeApply($scope);
                             }else {
                                 $scope.structure.isWidget = true;
                                 presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                                $scope.appels = presences.structure.appels;
                                 utils.safeApply($scope);
                             }
                         }

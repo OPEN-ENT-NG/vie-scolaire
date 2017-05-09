@@ -130,7 +130,8 @@ public class ClasseController extends BaseController {
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {
                                 JsonArray recipient = event.right().getValue();
-                                JsonObject classe, object;
+                                JsonObject classe;
+                                JsonObject object;
                                 final JsonArray classes = new JsonArray();
                                 List<String> idGroupes = new ArrayList<>();
                                 for (int i = 0; i < recipient.size(); i++) {
@@ -143,7 +144,8 @@ public class ClasseController extends BaseController {
                                     classes.addObject(classe);
                                 }
 
-                                if (idGroupes.size() > 0) {
+                                if (!idGroupes.isEmpty()
+                                        && idGroupes.size() > 0) {
                                     utilsService.getCycle(idGroupes, new Handler<Either<String, JsonArray>>() {
                                         @Override
                                         public void handle(Either<String, JsonArray> event) {

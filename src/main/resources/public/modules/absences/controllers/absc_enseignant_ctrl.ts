@@ -530,7 +530,7 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.getLibelleClasse = function (idClasse) {
             let index_classe = model.me.classes.indexOf(idClasse);
-            if ( index_classe !== -1) {
+            if ( index_classe !== -1 && model.me.classNames[index_classe] !== undefined ) {
                 return model.me.classNames[index_classe].split('$')[1];
             }
             else {

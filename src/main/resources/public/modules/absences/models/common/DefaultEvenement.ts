@@ -13,7 +13,7 @@ export class DefaultEvenement extends Model implements IModel {
 
     get api () {
         return {
-          put: '/viescolaire/presences/evenement/:id/updatemotif'
+          put: '/viescolaire/presences/evenement/' + this.id + '/updatemotif'
         };
     }
 

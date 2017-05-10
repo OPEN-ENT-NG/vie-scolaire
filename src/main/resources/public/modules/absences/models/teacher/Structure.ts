@@ -24,8 +24,8 @@ import { DefaultStructure } from '../common/DefaultStructure';
 import { Plage } from "./Plage-old";
 import { Creneau } from "./Creneau";
 
-import { HEURE } from '../constants/heures';
-import { PLAGES } from '../constants/plages';
+import { FORMAT } from '../../constants/formats';
+import { PLAGES } from '../../constants/plages';
 
 export class Structure extends DefaultStructure {
     isSynchronized: boolean;
@@ -103,13 +103,13 @@ export class Structure extends DefaultStructure {
                     let gotimestamp_dtPlage = moment();
                     gotimestamp_dtPlage.hour(PLAGES.heureDebut);
                     gotimestamp_dtPlage.minute(0);
-                    gotimestamp_dtPlage = moment(moment(gotimestamp_dtPlage).format(HEURE.format), HEURE.format);
+                    gotimestamp_dtPlage = moment(moment(gotimestamp_dtPlage).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
 
                     // creation d'un objet moment pour la plage de fin de journée
                     let gotimestamp_fnPlage = moment();
                     gotimestamp_fnPlage.hour(PLAGES.heureFin);
                     gotimestamp_fnPlage.minute(0);
-                    gotimestamp_fnPlage = moment(moment(gotimestamp_fnPlage).format(HEURE.format), HEURE.format);
+                    gotimestamp_fnPlage = moment(moment(gotimestamp_fnPlage).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
 
                     if (this.courss !== undefined && this.courss.all.length > 0) {
 
@@ -120,15 +120,15 @@ export class Structure extends DefaultStructure {
 
                             let oCurrentCours = this.courss.all[i];
 
-                            let otimestamp_dtCours = moment(moment(oCurrentCours.timestamp_dt).format(HEURE.format), HEURE.format);
-                            let otimestamp_fnCours = moment(moment(oCurrentCours.timestamp_fn).format(HEURE.format), HEURE.format);
+                            let otimestamp_dtCours = moment(moment(oCurrentCours.timestamp_dt).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
+                            let otimestamp_fnCours = moment(moment(oCurrentCours.timestamp_fn).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
 
                             // si le cours est après le dernier creneau ajouté
                             if (otimestamp_dtCours.diff(oHeureEnCours) > 0) {
 
                                 // on ajoute un crenau "vide" jusqu'au cours
-                                let creneau = this.initialiazeCreneaux( oHeureEnCours.format(HEURE.format),
-                                    otimestamp_dtCours.format(HEURE.format), undefined,
+                                let creneau = this.initialiazeCreneaux( oHeureEnCours.format(FORMAT.heureMinutes),
+                                    otimestamp_dtCours.format(FORMAT.heureMinutes), undefined,
                                     otimestamp_dtCours.diff(oHeureEnCours, "minute"));
 
                                 oListeCreneauxJson.push(creneau);
@@ -136,8 +136,8 @@ export class Structure extends DefaultStructure {
                             }
 
                             // TODO tester si timestamp_fn = 18h
-                            let creneau = this.initialiazeCreneaux(otimestamp_dtCours.format(HEURE.format),
-                                otimestamp_fnCours.format(HEURE.format), oCurrentCours ,
+                            let creneau = this.initialiazeCreneaux(otimestamp_dtCours.format(FORMAT.heureMinutes),
+                                otimestamp_fnCours.format(FORMAT.heureMinutes), oCurrentCours ,
                                 otimestamp_fnCours.diff(otimestamp_dtCours, "minute") );
 
                             oListeCreneauxJson.push(creneau);
@@ -151,8 +151,8 @@ export class Structure extends DefaultStructure {
                                 // on ajoute un crenau "vide" jusqu'à la fin de la journée
                                 if (gotimestamp_fnPlage.diff(otimestamp_fnCours) > 0) {
 
-                                    let creneau = this.initialiazeCreneaux(otimestamp_fnCours.format(HEURE.format),
-                                        gotimestamp_fnPlage.format(HEURE.format), undefined,
+                                    let creneau = this.initialiazeCreneaux(otimestamp_fnCours.format(FORMAT.heureMinutes),
+                                        gotimestamp_fnPlage.format(FORMAT.heureMinutes), undefined,
                                         gotimestamp_fnPlage.diff(otimestamp_fnCours, "minute"));
                                     oListeCreneauxJson.push(creneau);
                                 }
@@ -182,8 +182,8 @@ export class Structure extends DefaultStructure {
                 }
             };
             let today = new Date();
-            let sDateDebut = moment(today).format(HEURE.format);
-            let sDateFin =  moment(today).add(1, 'days').format(HEURE.format);
+            let sDateDebut = moment(today).format(FORMAT.heureMinutes);
+            let sDateFin =  moment(today).add(1, 'days').format(FORMAT.heureMinutes);
 
             this.plages.sync().then(isSynchronized);
             this.courss.sync(sDateDebut, sDateFin).then(() => {

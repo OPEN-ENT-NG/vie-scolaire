@@ -1,6 +1,6 @@
  **deleteEvenement**
  ---- 
-   Mise à jour  d'un évènement.
+   Suppression d'un évènement.
   
  * **URL**
   

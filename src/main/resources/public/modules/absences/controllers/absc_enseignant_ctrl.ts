@@ -1,5 +1,6 @@
-import { template, ng, routes } from 'entcore/entcore';
+import { template, ng } from 'entcore/entcore';
 import { presences, Evenement } from '../models/absc_enseignant_mdl';
+import { FORMAT } from '../constants/formats';
 
 let moment = require('moment');
 declare let _: any;
@@ -26,10 +27,6 @@ export let absencesController = ng.controller('AbsencesController', [
 
         $scope.template = template;
 
-        $scope.format = {
-            gsFormatDate : 'DD-MM-YYYY',
-            gsFormatTimestampWithoutTimeZone : "YYYY-MM-DDTHH:mm:ss.SSSS"
-        };
 
         $scope.etatAppel = {
             giIdEtatAppelInit : 1,
@@ -319,12 +316,12 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.mapToTimestamp = function (poEvenement, poMomentDebutCours) {
             // initalisation des heures selon l'heure courante et la date du cours
             if (poEvenement.id_type === $scope.oEvtType.giIdEvenementDepart) {
-                let oEvenementTimestampDepart = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.timestamp_depart.split(":")[0]).minute(poEvenement.timestamp_depart.split(":")[1]);
-                poEvenement.timestamp_depart = oEvenementTimestampDepart.format($scope.format.gsFormatTimestampWithoutTimeZone);
+                let oEvenementTimestampDepart = moment(poMomentDebutCours, FORMAT.timestamp).hour(poEvenement.timestamp_depart.split(":")[0]).minute(poEvenement.timestamp_depart.split(":")[1]);
+                poEvenement.timestamp_depart = oEvenementTimestampDepart.format(FORMAT.timestamp);
 
             } else if (poEvenement.id_type === $scope.oEvtType.giIdEvenementRetard) {
-                let oEvenementTimestampArrive = moment(poMomentDebutCours, $scope.format.gsFormatTimestampWithoutTimeZone).hour(poEvenement.timestamp_arrive.split(":")[0]).minute(poEvenement.timestamp_arrive.split(":")[1]);
-                poEvenement.timestamp_arrive = oEvenementTimestampArrive.format($scope.format.gsFormatTimestampWithoutTimeZone);
+                let oEvenementTimestampArrive = moment(poMomentDebutCours, FORMAT.timestamp).hour(poEvenement.timestamp_arrive.split(":")[0]).minute(poEvenement.timestamp_arrive.split(":")[1]);
+                poEvenement.timestamp_arrive = oEvenementTimestampArrive.format(FORMAT.timestamp);
             }
         };
 
@@ -488,10 +485,10 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.ouvrirAppel = async function (pdtDate) {
 
             // formatage en string
-            $scope.appel.sDateDebut = moment(pdtDate).format($scope.format.gsFormatDate);
+            $scope.appel.sDateDebut = moment(pdtDate).format(FORMAT.date);
 
             // calcul jour suivant
-            $scope.appel.sDateFin =  moment(pdtDate).add(1, 'days').format($scope.format.gsFormatDate);
+            $scope.appel.sDateFin =  moment(pdtDate).add(1, 'days').format(FORMAT.date);
 
             // booleen pour savoir si la partie droite de la vue est affichée (saisie retard/depart/punition eleve)
             $scope.detailEleveOpen.displayed = false;

@@ -14,11 +14,11 @@
  
     **Required:**
   
-   `idClasse = [String]`
+   `idClasse = String`
    
-   `dateDebut = [String]`
+   `dateDebut = String`
    
-   `dateFin = [String]`
+   `dateFin = String`
    
 * **Response:**
    

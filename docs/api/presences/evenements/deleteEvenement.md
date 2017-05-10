@@ -14,7 +14,7 @@
   
      **Required:**
    
-    `evenementId = [Integer]`
+    `evenementId = Integer`
     
  * **Response:**
     

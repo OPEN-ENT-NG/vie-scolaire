@@ -88,12 +88,12 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE)
                 .append("WHERE absence_prev.id_eleve = ? ")
                 .append("AND ( ")
-                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_date(?, 'DD-MM-YYYY')) ")
+                .append("(to_timestamp(?, 'YYYY-MM-DD') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_timestamp(?, 'YYYY-MM-DD')) ")
                 .append("OR ")
-                .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_fn  AND absence_prev.timestamp_fn < to_date(?, 'DD-MM-YYYY')) ")
+                .append("(to_timestamp(?, 'YYYY-MM-DD') <= absence_prev.timestamp_fn  AND absence_prev.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD')) ")
                 .append(")");
 
-        values.addNumber(new Integer(psIdEleve))
+        values.addString(psIdEleve)
                 .addString(psDateDebut)
                 .addString(psDateFin)
                 .addString(psDateDebut)

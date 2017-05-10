@@ -20,7 +20,6 @@
 package fr.openent.absences.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.absences.service.EleveService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
@@ -29,8 +28,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
 import java.util.List;
-
-import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 public class DefaultEleveService extends SqlCrudService implements fr.openent.absences.service.EleveService {
     public DefaultEleveService() {

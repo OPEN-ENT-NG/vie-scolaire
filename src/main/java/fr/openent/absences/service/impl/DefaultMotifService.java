@@ -21,7 +21,6 @@ package fr.openent.absences.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
-import fr.openent.absences.service.MotifService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;

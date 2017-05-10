@@ -41,13 +41,12 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     private static final String TABLE_APPEL = ".appel ";
     private static final String TABLE_EVENEMENT = ".evenement, ";
     private static final String FILTRE_APPEL_ID = "AND evenement.id_appel = appel.id ";
+    private static final String FILTRE_COURS_ID = "AND appel.id_cours = cours.id ";
+    protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
 
     public DefaultEvenementService() {
         super(Viescolaire.ABSC_SCHEMA, Viescolaire.ABSC_EVENEMENT_TABLE);
     }
-    protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
-
-
 
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -83,7 +82,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
                 "WHERE evenement.commentaire IS NOT NULL " +
                 FILTRE_APPEL_ID +
-                "AND appel.id_cours = cours.id " +
+                FILTRE_COURS_ID +
                 "AND evenement.id_type = 5 " +
                 "AND cours.timestamp_dt >to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')  " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') "+
@@ -128,7 +127,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 FROM+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
                 "WHERE cours.id_personnel = ? " +
                 "AND cours.id_classe = ? " +
-                "AND appel.id_cours = cours.id " +
+                FILTRE_COURS_ID +
                 "AND cours.id != ? " +
                 "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM "+ Viescolaire.VSCO_SCHEMA +".cours WHERE cours.id = ?) " +
                 "ORDER BY cours.timestamp_dt DESC " +
@@ -151,7 +150,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "WHERE cours.id_classe = ? " +
                 FILTRE_APPEL_ID +
-                "AND appel.id_cours = cours.id " +
+                FILTRE_COURS_ID +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
 

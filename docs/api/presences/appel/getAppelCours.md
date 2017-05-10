@@ -14,7 +14,7 @@
  
     **Required:**
   
-   `coursId = [Integer]`
+   `coursId = Integer`
    
 * **Response:**
    

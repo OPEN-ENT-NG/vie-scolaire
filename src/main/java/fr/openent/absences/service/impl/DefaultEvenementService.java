@@ -42,6 +42,10 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
     protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
 
+    private static final String mFROM = "FROM ";
+    private static final String mTABLE_APPEL = ".appel ";
+    private static final String mTABLE_EVENEMENT = ".evenement, ";
+
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
@@ -73,7 +77,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id, evenement.commentaire, cours.timestamp_dt, cours.timestamp_fn " +
-                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
+                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
                 "WHERE evenement.commentaire IS NOT NULL " +
                 "AND evenement.id_appel = appel.id " +
                 "AND appel.id_cours = cours.id " +
@@ -97,7 +101,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
                 " evenement.id_pj, evenement.id_motif," +
                 " eleve.id, eleve.fk4j_user_id, appel.id_cours " +
-                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +".appel " +
+                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
                 "WHERE evenement.id_eleve = eleve.id " +
                 "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +
@@ -115,10 +119,10 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id_eleve " +
-                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement " +
+                mFROM+ Viescolaire.ABSC_SCHEMA +".evenement " +
                 "WHERE evenement.id_appel = ( " +
                 "SELECT appel.id " +
-                "FROM "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel " +
+                mFROM+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
                 "WHERE cours.id_personnel = ? " +
                 "AND cours.id_classe = ? " +
                 "AND appel.id_cours = cours.id " +
@@ -141,7 +145,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
                 "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
                 " evenement.id_pj, evenement.id_motif, cours.id " +
-                "FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "WHERE cours.id_classe = ? " +
                 "AND evenement.id_appel = appel.id " +
                 "AND appel.id_cours = cours.id " +

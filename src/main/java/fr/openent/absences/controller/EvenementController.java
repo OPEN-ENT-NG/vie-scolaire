@@ -21,12 +21,12 @@ package fr.openent.absences.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.absences.service.EvenementService;
+import fr.openent.absences.service.impl.DefaultEvenementService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
-import fr.openent.absences.service.impl.DefaultEvenementService;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -34,9 +34,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 

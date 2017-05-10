@@ -1,6 +1,7 @@
 import {  http } from 'entcore/entcore';
 import { DefaultEvenement } from '../common/DefaultEvenement';
-export class Evenement extends DefaultEvenement {
+import {IModel} from "../../../entcore/modelDefinitions";
+export class Evenement extends DefaultEvenement implements IModel {
 
     get api () {
         return {

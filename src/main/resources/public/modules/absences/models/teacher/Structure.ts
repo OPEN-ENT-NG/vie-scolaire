@@ -127,21 +127,16 @@ export class Structure extends DefaultStructure {
                             if (otimestamp_dtCours.diff(oHeureEnCours) > 0) {
 
                                 // on ajoute un crenau "vide" jusqu'au cours
-                                let creneau = new Creneau();
-                                creneau.timestamp_dt = oHeureEnCours.format(HEURE.format);
-                                creneau.timestamp_fn = otimestamp_dtCours.format(HEURE.format);
-                                creneau.cours = undefined;
-                                creneau.duree = otimestamp_dtCours.diff(oHeureEnCours, "minute");
-                                creneau.style = {
-                                    "height": creneau.duree + "px"
-                                };
+                                let creneau = this.initialiazeCreneaux( oHeureEnCours.format(HEURE.format),
+                                    otimestamp_dtCours.format(HEURE.format), undefined,
+                                    otimestamp_dtCours.diff(oHeureEnCours, "minute"));
+
                                 oListeCreneauxJson.push(creneau);
                                 oHeureEnCours = otimestamp_dtCours;
                             }
 
                             // TODO tester si timestamp_fn = 18h
-                            let creneau = new Creneau();
-                            this.initialiazeCreneaux(otimestamp_dtCours.format(HEURE.format),
+                            let creneau = this.initialiazeCreneaux(otimestamp_dtCours.format(HEURE.format),
                                 otimestamp_fnCours.format(HEURE.format), oCurrentCours ,
                                 otimestamp_fnCours.diff(otimestamp_dtCours, "minute") );
 

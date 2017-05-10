@@ -251,6 +251,8 @@ export class Structure extends DefaultStructure {
 
                                     let tempEleve = {
                                         id: t[0].id_eleve,
+                                        id_classe: t[0].id_classe,
+                                        id_personnel: t[0].id_personnel,
                                         eleve_nom: t[0].lastName,
                                         eleve_prenom: t[0].firstName,
                                         cours_date: t[0].cours_date,

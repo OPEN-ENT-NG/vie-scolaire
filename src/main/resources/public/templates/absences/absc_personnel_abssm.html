@@ -35,7 +35,7 @@
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
                     <div class="abscSM-content--SM-list--item cell-indent"
-                         ng-repeat="eleve in structure.absences.all| filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
+                         ng-repeat="eleve in structure.absences.all | filter:personnelFilter | filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
                         <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}">
                             <div class="three cell ellipsis">[[eleve.eleve_nom]] [[eleve.eleve_prenom]]</div>
                             <div class="three cell ellipsis">[[eleve.cours_date]]</div>

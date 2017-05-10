@@ -11,11 +11,11 @@ declare let _:any;
 export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClasseCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route',
     function ($scope, route, $rootScope, $location, $filter, $route) {
-        //rajout de la periode Annee
+        // rajout de la periode Annee
         $scope.periodes.sync();
         $scope.periodes.on('sync', function () {
-            //selection de la periode du suivi à l'initialisation du filtre par période
-            if($route.current.params.idPeriode === undefined) {
+            // selection de la periode du suivi à l'initialisation du filtre par période
+            if ($route.current.params.idPeriode === undefined) {
                 $scope.periodesList = {
                     "type": "select",
                     "name": "Service",
@@ -23,9 +23,9 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     "values": []
                 };
             }
-            else{
+            else {
                 $scope.search.periode = $scope.periodes.findWhere({id: parseInt($route.current.params.idPeriode)});
-                if($scope.search.periode === undefined){
+                if ($scope.search.periode === undefined){
                     $scope.search.periode = $scope.periodeParDefault();
                 }
                 $scope.periodesList = {

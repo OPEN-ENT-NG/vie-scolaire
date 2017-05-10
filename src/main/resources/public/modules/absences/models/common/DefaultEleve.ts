@@ -6,7 +6,7 @@ import { Model } from 'entcore/entcore';
 
 export class DefaultEleve extends Model {
     composer: any;
-    id: String;
+    id: string;
     absc_precedent_cours: boolean;
 
 }

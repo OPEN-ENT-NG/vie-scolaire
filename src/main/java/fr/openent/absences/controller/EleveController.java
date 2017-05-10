@@ -130,7 +130,7 @@ public class EleveController extends ControllerHelper {
     }
 
     @Get("/absencesprev/eleves")
-    @ApiDoc("Recupere toutes les absences prévisionnelles pour une classe donnée dans une péiode données")
+    @ApiDoc("Recupere toutes les absences prévisionnelles pour une classe donnée dans une période données")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAbsencesPrevClassePeriode(final HttpServerRequest request){
         String psDateDebut = request.params().get(DATE_DEBUT)+MINUIT;

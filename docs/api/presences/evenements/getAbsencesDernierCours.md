@@ -14,9 +14,9 @@
  
     **Required:**
   
-   `classeId = [String]`
+   `classeId = String`
    
-   `coursId = [Integer]`
+   `coursId = Integer`
    
    
 * **Response:**

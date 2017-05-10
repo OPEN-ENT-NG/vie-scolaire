@@ -85,93 +85,93 @@ export let absencesController = ng.controller('AbsencesController', [
             utils.safeApply($scope);
         });
 
-        /** On initiliase tout d'abord la structure **/
+        /** Fonction D'initialisation de structure **/
+        let initialiseStructure = function (structure) {
+            $scope.structure = structure;
+
+            $scope.structure.classes.on('sync', function () {
+                $scope.structure.classes.map(function (classe) {
+                    classe.selected = true;
+                    return classe;
+                });
+            });
+
+            $scope.structure.enseignants.on('sync', function () {
+                $scope.structure.enseignants.map(function (enseignant) {
+                    enseignant.selected = true;
+                    return enseignant;
+                });
+            });
+
+            $scope.structure.appels.on('sync', function () {
+                if ($scope.structure.enseignants !== undefined
+                    && $scope.structure.enseignants.all.length > 0) {
+                    _.map($scope.structure.appels.all, (appel) => {
+                        let enseignant = $scope.structure.enseignants.findWhere({id: appel.id_personnel});
+                        appel.personnel_prenom = enseignant.firstName;
+                        appel.personnel_nom = enseignant.lastName;
+                        return appel;
+                    });
+                }
+                if ($scope.structure.classes !== undefined
+                    && $scope.structure.classes.all.length > 0) {
+                    _.map($scope.structure.appels.all, (appel) => {
+                        let classe = $scope.structure.classes.findWhere({id: appel.id_classe});
+                        appel.classe_libelle = classe.name;
+                        return appel;
+                    });
+                }
+                if ($scope.structure.matieres !== undefined
+                    && $scope.structure.matieres.all.length > 0) {
+                    _.map($scope.structure.appels.all, (appel) => {
+                        let matiere = $scope.structure.matieres.findWhere({id: appel.id_matiere});
+                        appel.cours_matiere = matiere.name;
+                        return appel;
+                    });
+                }
+            });
+
+            $scope.structure.isWidget = true;
+            $scope.structure.sync().then(() => {
+                $scope.structure.isWidget = true;
+                $scope.loadData = function () {
+
+                    if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+                        if ($location.path() === "/sansmotifs") {
+                            $scope.structure.isWidget = false;
+                            // $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                            utils.safeApply($scope);
+                        } else if ($location.path() === "/appels/noneffectues") {
+                            $scope.structure.isWidget = false;
+                            $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                            // $scope.appels = $scope.structure.appels;
+                            utils.safeApply($scope);
+                        } else {
+                            $scope.structure.isWidget = true;
+                            $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                            // $scope.appels = $scope.structure.appels;
+                            utils.safeApply($scope);
+                        }
+                    }
+                };
+                // $scope.structure.motifs.on('sync', function() {
+                //     $scope.structure.motifs.synced = true;
+                // });
+            });
+
+            if ($location.path() === '/disabled') {
+                $location.path('/');
+                $location.replace();
+            } else {
+                executeAction();
+            }
+        };
+
+
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
-                $scope.structure = presences.structures.first();
-                $scope.structure.isWidget = true;
-                presences.structure = $scope.structure;
-                $scope.structure.sync().then(() => {
-                    $scope.appels = presences.structure.appels;
-                    $scope.classes = presences.structure.classes;
-                    $scope.enseignants = presences.structure.enseignants;
-                    $scope.matieres = presences.structure.matieres;
-                    $scope.evenements = presences.structure.evenements;
-                    $scope.motifs = presences.structure.motifs;
-                    $scope.justificatifs = presences.structure.justificatifs;
-                    $scope.structure.isWidget = true;
-                    presences.structure = $scope.structure;
-                    $scope.loadData = function() {
-                        if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                            if ($location.path() === "/sansmotifs") {
-                                $scope.structure.isWidget = false;
-                                presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
-                                utils.safeApply($scope);
-                            }else if ($location.path() === "/appels/noneffectues") {
-                                $scope.structure.isWidget = false;
-                                presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                                $scope.appels = presences.structure.appels;
-                                utils.safeApply($scope);
-                            }else {
-                                $scope.structure.isWidget = true;
-                                presences.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                                $scope.appels = presences.structure.appels;
-                                utils.safeApply($scope);
-                            }
-                        }
-                    };
-                    presences.structure.classes.on('sync', function() {
-                        presences.structure.classes.map(function(classe) {
-                            classe.selected = true;
-                            return classe;
-                        });
-                    });
-
-                    presences.structure.enseignants.on('sync', function() {
-                        presences.structure.enseignants.map(function(enseignant) {
-                            enseignant.selected = true;
-                            return enseignant;
-                        });
-                    });
-
-                    presences.structure.appels.on('sync', function() {
-                        if ( $scope.enseignants !== undefined
-                            && $scope.enseignants.all.length > 0 ) {
-                            _.map(presences.structure.appels.all, (appel) => {
-                                let enseignant = $scope.enseignants.findWhere({id : appel.id_personnel});
-                                appel.personnel_prenom = enseignant.firstName;
-                                appel.personnel_nom = enseignant.lastName ;
-                                return appel;
-                            });
-                        }
-                        if ( $scope.classes !== undefined
-                            && $scope.classes.all.length > 0 ) {
-                            _.map(presences.structure.appels.all, (appel) => {
-                                let classe = $scope.classes.findWhere({id : appel.id_classe});
-                                appel.classe_libelle = classe.name;
-                                return appel;
-                            });
-                        }
-                        if ( $scope.matieres !== undefined
-                            && $scope.matieres.all.length > 0 ) {
-                            _.map(presences.structure.appels.all, (appel) => {
-                                let matiere = $scope.matieres.findWhere({id : appel.id_matiere});
-                                appel.cours_matiere = matiere.name;
-                                return appel;
-                            });
-                        }
-                    });
-                    // presences.structure.motifs.on('sync', function() {
-                    //     presences.structure.motifs.synced = true;
-                    // });
-                });
-
-                if ($location.path() === '/disabled') {
-                    $location.path('/');
-                    $location.replace();
-                } else {
-                    executeAction();
-                }
+                /** On initiliase tout d'abord la structure **/
+                initialiseStructure(presences.structures.first());
             } else {
                 $location.path() === '/disabled' ?
                     executeAction() :
@@ -179,6 +179,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 $location.replace();
             }
         });
+
         $scope.goTo = function(path, id ) {
             $location.path(path);
             if (id !== undefined) {

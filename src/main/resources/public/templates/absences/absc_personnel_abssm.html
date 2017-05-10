@@ -35,7 +35,7 @@
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
                     <div class="abscSM-content--SM-list--item cell-indent"
-                         ng-repeat="eleve in absences.all| filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
+                         ng-repeat="eleve in structure.absences.all| filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
                         <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}">
                             <div class="three cell ellipsis">[[eleve.eleve_nom]] [[eleve.eleve_prenom]]</div>
                             <div class="three cell ellipsis">[[eleve.cours_date]]</div>
@@ -43,7 +43,7 @@
                                 <label class="select-input">
                                     <select ng-change="setEvtMotifEleve(eleve)" ng-model="eleve.motif"
                                             class="twelve"
-                                            ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in motifs.all track by motif.id"></select>
+                                            ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all track by motif.id"></select>
                                 </label>
                             </div>
                             <div class="cell one">
@@ -58,7 +58,7 @@
                                 <div class="three cell">
                                     <label class="select-input">
                                         <select ng-model="evt.motif" class="twelve" ng-init="initEvenement(evt);initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"
-                                                ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in motifs.all track by motif.id"></select>
+                                                ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all track by motif.id"></select>
                                     </label>
                                 </div>
                             </div>

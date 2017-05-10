@@ -15,29 +15,29 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             sansmotifs : true,
             limitTo : 15
         };
-        presences.structure.isWidget = false;
-        presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+        $scope.structure.isWidget = false;
+        $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
 
         /**
          * A la synchronisation des évènements, on récupères toutes les absences et le motif par défaut
          */
-        presences.structure.evenements.on('sync', function() {
-            // presences.structure.evenements.synced = true;
-            $scope.absences = $scope.evenements;
-            $scope.defaultMotif = $scope.motifs.first();
+        $scope.structure.evenements.on('sync', function() {
+            // $scope.structure.evenements.synced = true;
+            $scope.structure.absences = $scope.structure.evenements;
+            $scope.defaultMotif = $scope.structure.motifs.first();
             initAllEvenement();
             utils.safeApply($scope);
         });
 
-        presences.structure.motifs.on('sync', function() {
-            // presences.structure.motifs.synced = true;
+        $scope.structure.motifs.on('sync', function() {
+            // $scope.structure.motifs.synced = true;
             initAllEvenement();
             utils.safeApply($scope);
         });
 
         $scope.loadData = function() {
             if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                presences.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
             }
         };
 
@@ -50,7 +50,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.getEnseignantNom = function(evt) {
-            let e = presences.structure.enseignants.findWhere({id : evt.id_personnel});
+            let e = $scope.structure.enseignants.findWhere({id : evt.id_personnel});
             if (e !== undefined) { return (e.lastName + ' ' + e.firstName); }
         };
 
@@ -66,7 +66,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         let initAllEvenement = function () {
-            _.each(presences.structure.evenements, function (e) {
+            _.each($scope.structure.evenements, function (e) {
                 _.each(e.evenements, function(evt) {
                     if (evt.id_type === 1) {
                         $scope.initEvenement(evt);
@@ -78,7 +78,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.initEvenement = function (event) {
             if (event.id_motif !== null) {
-                event.motif = presences.structure.motifs.findWhere({id : event.id_motif});
+                event.motif = $scope.structure.motifs.findWhere({id : event.id_motif});
             } else {
                 event.motif = $scope.defaultMotif;
             }
@@ -145,7 +145,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                 if (_.every(a, function (evt) {
                         return evt.id_motif === m;
                     })) {
-                    eleve.motif = presences.structure.motifs.findWhere({id: m});
+                    eleve.motif = $scope.structure.motifs.findWhere({id: m});
                     eleve.id_motif = eleve.motif.id;
                     utils.safeApply($scope);
                 } else {

@@ -125,7 +125,7 @@ public class EvenementController extends ControllerHelper {
                 } else {
                     String idEtablissement = request.params().get("idEtablissement");
                     String psDateDebut = request.params().get("dateDebut") + " 00:00:00";
-                    String psDateFin = request.params().get("dateFin") + " " + new SimpleDateFormat("HH:mm:ss").format(new Date());
+                    String psDateFin = request.params().get("dateFin") + " " + " 18:00:00";
 
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 

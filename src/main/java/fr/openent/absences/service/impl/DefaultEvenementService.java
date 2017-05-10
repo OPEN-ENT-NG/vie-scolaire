@@ -37,15 +37,17 @@ import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
  * Created by ledunoiss on 25/02/2016.
  */
 public class DefaultEvenementService extends SqlCrudService implements fr.openent.absences.service.EvenementService {
+    private static final String FROM = "FROM ";
+    private static final String TABLE_APPEL = ".appel ";
+    private static final String TABLE_EVENEMENT = ".evenement, ";
+    private static final String FILTRE_APPEL_ID = "AND evenement.id_appel = appel.id ";
+
     public DefaultEvenementService() {
         super(Viescolaire.ABSC_SCHEMA, Viescolaire.ABSC_EVENEMENT_TABLE);
     }
     protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
 
-    private static final String mFROM = "FROM ";
-    private static final String mTABLE_APPEL = ".appel ";
-    private static final String mTABLE_EVENEMENT = ".evenement, ";
-    private static final String mFILTRE_APPEL_ID = "AND evenement.id_appel = appel.id ";
+
 
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -78,9 +80,9 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id, evenement.commentaire, cours.timestamp_dt, cours.timestamp_fn " +
-                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
+                FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
                 "WHERE evenement.commentaire IS NOT NULL " +
-                mFILTRE_APPEL_ID +
+                FILTRE_APPEL_ID +
                 "AND appel.id_cours = cours.id " +
                 "AND evenement.id_type = 5 " +
                 "AND cours.timestamp_dt >to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')  " +
@@ -102,11 +104,11 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
                 " evenement.id_pj, evenement.id_motif," +
                 " eleve.id, eleve.fk4j_user_id, appel.id_cours " +
-                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
+                FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
                 "WHERE evenement.id_eleve = eleve.id " +
                 "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +
-                mFILTRE_APPEL_ID +
+                FILTRE_APPEL_ID +
                 "AND appel.id_cours = ?");
 
         values.addNumber(Integer.parseInt(psClasseId)).addNumber(Integer.parseInt(psCoursId));
@@ -120,10 +122,10 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id_eleve " +
-                mFROM+ Viescolaire.ABSC_SCHEMA +".evenement " +
+                FROM+ Viescolaire.ABSC_SCHEMA +".evenement " +
                 "WHERE evenement.id_appel = ( " +
                 "SELECT appel.id " +
-                mFROM+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
+                FROM+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
                 "WHERE cours.id_personnel = ? " +
                 "AND cours.id_classe = ? " +
                 "AND appel.id_cours = cours.id " +
@@ -146,9 +148,9 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
                 "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
                 " evenement.id_pj, evenement.id_motif, cours.id " +
-                mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "WHERE cours.id_classe = ? " +
-                mFILTRE_APPEL_ID +
+                FILTRE_APPEL_ID +
                 "AND appel.id_cours = cours.id " +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");

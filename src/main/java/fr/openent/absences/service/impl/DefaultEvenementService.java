@@ -45,6 +45,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     private static final String mFROM = "FROM ";
     private static final String mTABLE_APPEL = ".appel ";
     private static final String mTABLE_EVENEMENT = ".evenement, ";
+    private static final String mFILTRE_APPEL_ID = "AND evenement.id_appel = appel.id ";
 
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -79,7 +80,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         query.append("SELECT evenement.id, evenement.commentaire, cours.timestamp_dt, cours.timestamp_fn " +
                 mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +mTABLE_APPEL +
                 "WHERE evenement.commentaire IS NOT NULL " +
-                "AND evenement.id_appel = appel.id " +
+                mFILTRE_APPEL_ID +
                 "AND appel.id_cours = cours.id " +
                 "AND evenement.id_type = 5 " +
                 "AND cours.timestamp_dt >to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')  " +
@@ -105,7 +106,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 "WHERE evenement.id_eleve = eleve.id " +
                 "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
                 "AND rel_eleve_classe.fk_classe_id = ? " +
-                "AND evenement.id_appel = appel.id " +
+                mFILTRE_APPEL_ID +
                 "AND appel.id_cours = ?");
 
         values.addNumber(Integer.parseInt(psClasseId)).addNumber(Integer.parseInt(psCoursId));
@@ -147,7 +148,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 " evenement.id_pj, evenement.id_motif, cours.id " +
                 mFROM+ Viescolaire.ABSC_SCHEMA +mTABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "WHERE cours.id_classe = ? " +
-                "AND evenement.id_appel = appel.id " +
+                mFILTRE_APPEL_ID +
                 "AND appel.id_cours = cours.id " +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");

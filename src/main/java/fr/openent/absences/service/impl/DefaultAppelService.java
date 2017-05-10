@@ -21,7 +21,6 @@ package fr.openent.absences.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
-import fr.openent.absences.service.AppelService;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
@@ -29,8 +28,6 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
-import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
 /**
  * Created by ledunoiss on 22/02/2016.

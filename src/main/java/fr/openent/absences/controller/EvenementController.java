@@ -42,7 +42,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  */
 public class EvenementController extends ControllerHelper {
 
-    private final String ABSC_EVENEMENT_SCHEMA = "";
+    private static final String mCLASSE_ID = "classeId";
 
     private final EvenementService miAbscEvenementService;
     public EvenementController(){
@@ -136,7 +136,7 @@ public class EvenementController extends ControllerHelper {
     @ApiDoc("Recupere tous les évènements d'une classe sur un cours donné")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEvenementClasseCours(final HttpServerRequest request){
-        String psClasseId = request.params().get("classeId");
+        String psClasseId = request.params().get(mCLASSE_ID);
         String psCoursId = request.params().get("coursId");
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
@@ -151,7 +151,7 @@ public class EvenementController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                String psClasseId = request.params().get("classeId");
+                String psClasseId = request.params().get(mCLASSE_ID);
                 Integer psCoursId = Integer.parseInt(request.params().get("coursId"));
                 String psUserId = user.getUserId();
 
@@ -166,7 +166,7 @@ public class EvenementController extends ControllerHelper {
     @ApiDoc("Recupere tous les évènements pour une classe donnée dans une période donnée")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEvtClassePeriode(final HttpServerRequest request){
-        String iClasseId = request.params().get("classeId");
+        String iClasseId = request.params().get(mCLASSE_ID);
         String oDateDebut = request.params().get("dateDebut")+" 00:00:00";
         String oDateFin = request.params().get("dateFin")+" 23:59:59";
 

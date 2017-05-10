@@ -72,7 +72,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE)
                 .append("WHERE absence_prev.id_eleve = ? ");
 
-        values.addNumber(new Integer(psIdEleve));
+        values.addString(psIdEleve);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

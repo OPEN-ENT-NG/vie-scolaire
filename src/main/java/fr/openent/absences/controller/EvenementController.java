@@ -132,18 +132,6 @@ public class EvenementController extends ControllerHelper {
         });
     }
 
-    @Get("/evenement/classe/:classeId/cours/:coursId")
-    @ApiDoc("Recupere tous les évènements d'une classe sur un cours donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getEvenementClasseCours(final HttpServerRequest request){
-        String psClasseId = request.params().get(CLASSE_ID);
-        String psCoursId = request.params().get("coursId");
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        miAbscEvenementService.getEvenementClasseCours(psClasseId, psCoursId, handler);
-    }
-
     @Get("/precedentes/classe/:classeId/cours/:coursId")
     @ApiDoc("Recupere toutes les absences du cours précédent en fonction de l'identifiant de la classe et de l'identifiant du cours")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)

@@ -95,27 +95,6 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
 
     @Override
-    public void getEvenementClasseCours(String psClasseId, String psCoursId, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-
-        query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
-                "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
-                " evenement.id_pj, evenement.id_motif," +
-                " eleve.id, eleve.fk4j_user_id, appel.id_cours " +
-                FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.VSCO_SCHEMA +".eleve, "+ Viescolaire.VSCO_SCHEMA +".rel_eleve_classe, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
-                "WHERE evenement.id_eleve = eleve.id " +
-                "AND eleve.id = rel_eleve_classe.fk_eleve_id " +
-                "AND rel_eleve_classe.fk_classe_id = ? " +
-                FILTRE_APPEL_ID +
-                "AND appel.id_cours = ?");
-
-        values.addNumber(Integer.parseInt(psClasseId)).addNumber(Integer.parseInt(psCoursId));
-
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
-    }
-
-    @Override
     public void getAbsencesDernierCours(String psUserId, String psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();

@@ -75,7 +75,6 @@ public interface EvenementService extends CrudService {
      * @param psCoursId identifiant du cours.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getEvenementClasseCours(String psClasseId, String psCoursId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les absences sur le cours précédent en fonction de l'identifiant de l'utilisateur, de l'identifiant

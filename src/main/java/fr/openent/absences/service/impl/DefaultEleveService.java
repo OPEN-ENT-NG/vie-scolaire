@@ -103,7 +103,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT(evenement.id), cours.id_matiere, evenement.commentaire, evenement.saisie_cpe, ")
-                .append("evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, cours.id_personnel, ")
+                .append("evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, cours.id_personnel, cours.id_classe, ")
                 .append("evenement.id_appel, evenement.id_type ")
                 .append("FROM "+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".evenement ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) ")

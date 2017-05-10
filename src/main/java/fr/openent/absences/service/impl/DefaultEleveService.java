@@ -33,6 +33,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
     private static final String SELECT = "SELECT ";
     private static final String FROM = "FROM ";
+    private static final String FILTER_COURS_ID = "AND appel.id_cours = cours.id ";
+    private static final String TABLE_ABSENCE = ".absence_prev ";
 
     public DefaultEleveService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_ELEVE_TABLE);
@@ -50,7 +52,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE evenement.id_eleve = ? ")
                 .append("AND evenement.id_appel = appel.id ")
-                .append("AND appel.id_cours = cours.id ")
+                .append(FILTER_COURS_ID)
                 .append("AND to_date(?, 'DD-MM-YYYY') <= cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY')");
 
@@ -67,7 +69,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append(SELECT+ Viescolaire.ABSC_SCHEMA +".absence_prev.* ")
-                .append(FROM+ Viescolaire.ABSC_SCHEMA +".absence_prev ")
+                .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE)
                 .append("WHERE absence_prev.id_eleve = ? ");
 
         values.addNumber(new Integer(psIdEleve));
@@ -83,7 +85,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         // récupération de toutes les absences prévisionnelles dont la date de début ou la date de fin
         // est comprise entre la date de début et de fin passée en paramètre (exemple date début et date fin d'un cours)
         query.append(SELECT+ Viescolaire.ABSC_SCHEMA +".absence_prev.* ")
-                .append(FROM+ Viescolaire.ABSC_SCHEMA +".absence_prev ")
+                .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE)
                 .append("WHERE absence_prev.id_eleve = ? ")
                 .append("AND ( ")
                 .append("(to_date(?, 'DD-MM-YYYY') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_date(?, 'DD-MM-YYYY')) ")
@@ -111,7 +113,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append(FROM+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".evenement ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) ")
                 .append("WHERE evenement.id_appel = appel.id ")
-                .append("AND appel.id_cours = cours.id ")
+                .append(FILTER_COURS_ID)
                 .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
                 .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND cours.id_etablissement = ? ")
@@ -133,7 +135,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append(FROM).append(Viescolaire.ABSC_SCHEMA).append(".appel, ").append(Viescolaire.VSCO_SCHEMA).append(".cours, ").append(Viescolaire.ABSC_SCHEMA).append(".evenement " )
                 .append("LEFT JOIN ").append(Viescolaire.ABSC_SCHEMA).append(".motif ON (evenement.id_motif = motif.id) " )
                 .append("WHERE evenement.id_appel = appel.id " )
-                    .append("AND appel.id_cours = cours.id " )
+                    .append(FILTER_COURS_ID )
                     .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
                     .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
                     .append("AND evenement.id_type = 1 " )
@@ -155,7 +157,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT absence_prev.* ")
-                .append(FROM+ Viescolaire.ABSC_SCHEMA +".absence_prev " )
+                .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE )
                 .append("WHERE absence_prev.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND absence_prev.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND id_eleve IN "+ Sql.listPrepared(idEleves.toArray()));

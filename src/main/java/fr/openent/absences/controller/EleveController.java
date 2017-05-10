@@ -40,6 +40,12 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 
 public class EleveController extends ControllerHelper {
 
+    private static final String MINUIT = " 00:00:00";
+    private static final String PRESQUE_MINUIT = " 23:59:59";
+    private static final String ID_ELEVE = "idEleve";
+    private static final String DATE_DEBUT ="dateDebut";
+    private static final String DATE_FIN ="dateFin";
+
     /**
      * Service relatif a des opérations concernant les élèves
      */
@@ -55,9 +61,9 @@ public class EleveController extends ControllerHelper {
     @ApiDoc("Recupere tous le evenements d'un eleve sur une periode")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEvenements(final HttpServerRequest request){
-        String sIdEleve = request.params().get("idEleve");
-        String sDateDebut = request.params().get("dateDebut");
-        String sDateFin = request.params().get("dateFin");
+        String sIdEleve = request.params().get(ID_ELEVE);
+        String sDateDebut = request.params().get(DATE_DEBUT);
+        String sDateFin = request.params().get(DATE_FIN);
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -68,7 +74,7 @@ public class EleveController extends ControllerHelper {
     @ApiDoc("Recupere tous le absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrev(final HttpServerRequest request){
-        String sIdEleve = request.params().get("idEleve");
+        String sIdEleve = request.params().get(ID_ELEVE);
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -79,9 +85,9 @@ public class EleveController extends ControllerHelper {
     @ApiDoc("Recupere tous les absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrevInPeriod (final HttpServerRequest request){
-        String sIdEleve = request.params().get("idEleve");
-        String sDateDebut = request.params().get("dateDebut");
-        String sDateFin = request.params().get("dateFin");
+        String sIdEleve = request.params().get(ID_ELEVE);
+        String sDateDebut = request.params().get(DATE_DEBUT);
+        String sDateFin = request.params().get(DATE_FIN);
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -96,8 +102,8 @@ public class EleveController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 String idEtablissement = request.params().get("idEtablissement");
-                String sDateDebut = request.params().get("dateDebut")+" 00:00:00";
-                String sDateFin = request.params().get("dateFin")+" 23:59:59";
+                String sDateDebut = request.params().get(DATE_DEBUT)+MINUIT;
+                String sDateFin = request.params().get(DATE_FIN)+PRESQUE_MINUIT;
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -115,8 +121,8 @@ public class EleveController extends ControllerHelper {
             public void handle(UserInfos user) {
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                 String idEtablissement = request.params().get("idEtablissement");
-                String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
-                String psDateFin = request.params().get("dateFin")+" 23:59:59";
+                String psDateDebut = request.params().get(DATE_DEBUT)+MINUIT;
+                String psDateFin = request.params().get(DATE_FIN)+PRESQUE_MINUIT;
 
                 miAbscEleveService.getAbsencesSansMotifs(idEtablissement, psDateDebut, psDateFin, handler);
             }
@@ -127,8 +133,8 @@ public class EleveController extends ControllerHelper {
     @ApiDoc("Recupere toutes les absences prévisionnelles pour une classe donnée dans une péiode données")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAbsencesPrevClassePeriode(final HttpServerRequest request){
-        String psDateDebut = request.params().get("dateDebut")+" 00:00:00";
-        String psDateFin = request.params().get("dateFin")+" 23:59:59";
+        String psDateDebut = request.params().get(DATE_DEBUT)+MINUIT;
+        String psDateFin = request.params().get(DATE_FIN)+PRESQUE_MINUIT;
         List<String> idEleves = request.params().getAll("id_eleve");
         miAbscEleveService.getAbsencesPrevClassePeriode(idEleves, psDateDebut, psDateFin, arrayResponseHandler(request));
     }

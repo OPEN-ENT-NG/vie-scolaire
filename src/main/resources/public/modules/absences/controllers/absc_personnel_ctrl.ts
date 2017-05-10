@@ -103,6 +103,10 @@ export let absencesController = ng.controller('AbsencesController', [
                 });
             });
 
+            $scope.structure.motifs.on('sync', function() {
+                $scope.structure.motifs.synced = true;
+            });
+
             $scope.structure.appels.on('sync', function () {
                 if ($scope.structure.enseignants !== undefined
                     && $scope.structure.enseignants.all.length > 0) {
@@ -139,24 +143,19 @@ export let absencesController = ng.controller('AbsencesController', [
                     if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
                         if ($location.path() === "/sansmotifs") {
                             $scope.structure.isWidget = false;
-                            // $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                            $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
                             utils.safeApply($scope);
                         } else if ($location.path() === "/appels/noneffectues") {
                             $scope.structure.isWidget = false;
                             $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                            // $scope.appels = $scope.structure.appels;
                             utils.safeApply($scope);
                         } else {
                             $scope.structure.isWidget = true;
                             $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                            // $scope.appels = $scope.structure.appels;
                             utils.safeApply($scope);
                         }
                     }
                 };
-                // $scope.structure.motifs.on('sync', function() {
-                //     $scope.structure.motifs.synced = true;
-                // });
             });
 
             if ($location.path() === '/disabled') {

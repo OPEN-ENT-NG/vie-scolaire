@@ -17,7 +17,7 @@
  *
  */
 
-import { Model, IModel, Collection, http } from 'entcore/entcore';
+import { IModel, Collection, http } from 'entcore/entcore';
 
 import { AbsencePrev } from './AbsencePrev';
 import { Cours } from './Cours';
@@ -27,7 +27,7 @@ import { presences } from '../absc_enseignant_mdl';
 import {DefaultEleve} from "../common/DefaultEleve";
 
 
-export class Eleve extends DefaultEleve {
+export class Eleve extends DefaultEleve implements IModel {
     evenements: Collection<Evenement>;
     courss: Collection<Cours>;
     evenementsJours: Collection<Evenement>;
@@ -35,8 +35,8 @@ export class Eleve extends DefaultEleve {
     plages: Collection<Plage>;
 
     get api () {
-        return {GET_EVENEMENT : super.api.GET_EVENEMENT,
-            GET_ABSENCES_PREV : super.api.GET_ABSENCES_PREV
+        return {GET_EVENEMENT : '/viescolaire/presences/eleve/' + this.id + '/evenements/',
+            GET_ABSENCES_PREV : '/viescolaire/absences/eleve/' + this.composer.id + '/absencesprev/'
         };
     }
 

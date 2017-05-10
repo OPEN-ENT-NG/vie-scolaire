@@ -2,14 +2,31 @@ import { Collection, http } from 'entcore/entcore';
 import { Appel } from './Appel';
 import { Eleve } from './Eleve';
 import {DefaultCours} from "../common/DefaultCours";
+import {IModel} from "../../../entcore/modelDefinitions";
 
 
 
-export class Cours extends DefaultCours {
+export class Cours extends DefaultCours implements IModel {
     appel: Appel;
     eleves: Collection<Eleve>;
 
-    get api () {
+    public get api () {
+        // Construction de l' API de récupération des évènements d'un élève
+        let url_evenement_eleve = '/viescolaire/presences/evenement/classe/';
+        url_evenement_eleve += this.id_classe + '/periode/';
+        url_evenement_eleve += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
+        url_evenement_eleve += moment(this.timestamp_dt).format('YYYY-MM-DD');
+
+        // Construction de l'API de récupération des absences au derniers Cours
+        let url_absence_last_cours = '/viescolaire/presences/precedentes/classe/';
+        url_absence_last_cours += this.id_classe + '/cours/';
+        url_absence_last_cours += this.id;
+
+        // Construction de l'API de récupération des cours d'une classe
+        let url_cours_classe = '/viescolaire/' + this.id_classe + '/cours/';
+        url_cours_classe += moment(this.timestamp_dt).format('YYYY-MM-DD') + '/';
+        url_cours_classe += moment(this.timestamp_fn).format('YYYY-MM-DD');
+
 
         // Construction de l'API de récupération des absences prévisionnelles
         let url_absence_prev = '/viescolaire/presences/absencesprev/eleves';
@@ -20,12 +37,12 @@ export class Cours extends DefaultCours {
         }
 
         return {
-            GET_APPEL : super.api.GET_APPEL,
-            GET_ELEVE : super.api.GET_ELEVE,
-            GET_EVENEMENT_ELEVE : super.api.GET_EVENEMENT_ELEVE,
+            GET_APPEL : '/viescolaire/presences/appel/cours/',
+            GET_ELEVE : '/directory/class/' + this.id_classe + '/users?type=Student',
+            GET_EVENEMENT_ELEVE : url_evenement_eleve,
+            GET_ABSENCE_LAST_COURS : url_absence_last_cours,
+            GET_COURS_CLASSE : url_cours_classe,
             GET_ABSENCE_PREV : url_absence_prev,
-            GET_ABSENCE_LAST_COURS : super.api.GET_ABSENCE_LAST_COURS,
-            GET_COURS_CLASSE : super.api.GET_COURS_CLASSE
         };
     }
 

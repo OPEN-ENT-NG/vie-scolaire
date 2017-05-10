@@ -72,8 +72,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("WHERE id_personnel = ? ")
-                .append("AND to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') < cours.timestamp_dt ")
-                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS') < cours.timestamp_dt ")
+                .append("AND cours.timestamp_fn < to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS') ")
                 .append("ORDER BY cours.timestamp_dt ASC");
 
         values.addString(psUserId);

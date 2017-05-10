@@ -66,7 +66,7 @@ public class CoursController extends ControllerHelper{
     public void getCoursByUserId(final HttpServerRequest request){
         String userId = request.params().get("userId");
         String dateDebut= request.params().get("dateDebut")+" 00:00:00";
-        String dateFin= request.params().get("dateFin")+" 23:59:59";
+        String dateFin= request.params().get("dateFin")+" 00:00:00";
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 

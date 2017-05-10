@@ -41,7 +41,6 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
         super(Viescolaire.ABSC_SCHEMA, Viescolaire.ABSC_EVENEMENT_TABLE);
     }
     protected static final Logger log = LoggerFactory.getLogger(DefaultEvenementService.class);
-    public static final String gsFormatTimestampWithoutTimeZone = "'yyyy-mm-dd\"T\"hh24:mi:ss.MS'";
 
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

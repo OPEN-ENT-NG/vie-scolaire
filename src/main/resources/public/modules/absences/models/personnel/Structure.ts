@@ -72,6 +72,9 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/presences/eleves/evenements/',
                 absencesSansMotifs : '/viescolaire/presences/sansmotifs/'
             },
+            MOTIF : {
+                synchronization : '/viescolaire/presences/motifs'
+            },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
             }
@@ -115,7 +118,7 @@ export class Structure extends DefaultStructure {
         let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
-                http().getJson('/viescolaire/presences/motifs').done(function (motifs) {
+                http().getJson(that.api.MOTIF.synchronization).done(function (motifs) {
                     this.load(motifs);
                     this.map(function (motif) {
                         motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
@@ -303,13 +306,14 @@ export class Structure extends DefaultStructure {
                 }
             };
             this.enseignants.sync().then(isSynced);
-            this.eleves.sync().then(isSynced);
+            this.eleves.sync().then(() => {
+                this.evenements.sync(isSynced);
+            });
             this.classes.sync().then(isSynced);
             this.matieres.sync().then(isSynced);
             this.justificatifs.sync();
             this.motifs.sync();
             this.observations.sync();
-            this.evenements.sync();
         });
     }
 }

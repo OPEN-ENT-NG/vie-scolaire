@@ -1,16 +1,9 @@
-import { model, Model, Collection, idiom as lang } from 'entcore/entcore';
-
+import {Collection, Model, model} from "entcore/entcore";
 // Import des classes
-import { Evenement } from './personnel/Evenement';
-import { Motif } from './personnel/Motif';
-import { Structure } from './personnel/Structure';
-import { Enseignant } from './personnel/Enseignant';
+import {Evenement} from "./personnel/Evenement";
+import {Structure} from "./personnel/Structure";
 
-import { getActiveStructures } from '../../utils/functions/getActiveStructures';
-import { syncedCollection } from "../../utils/interfaces/syncedCollection";
-import { Appel } from "./personnel/Appel";
-import { Justificatif } from "./personnel/Justificatif";
-import { Classe } from "./personnel/Classe";
+import {getActiveStructures} from "../../utils/functions/getActiveStructures";
 
 
 let moment = require('moment');

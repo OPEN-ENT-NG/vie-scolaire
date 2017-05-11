@@ -212,7 +212,7 @@
   
  * **URL**
   
-   `/eleve/:idEleve/absencesprev/:dateDebut/:dateFin`
+   `/eleve/:idEleve/evenements/:dateDebut/:dateFin`
   
  * **Method:**
     
@@ -232,10 +232,24 @@
      * **Content**:  
      ```json
      [{
-          "id":1,
-          "timestamp_dt":"2017-05-10T00:00:00.000",
-          "timestamp_fn":"2017-05-12T00:00:00.000",
-          "id_motif":9,
-          "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e"
+          "id":7,
+          "timestamp_arrive":null,
+          "timestamp_depart":null,
+          "commentaire":null,
+          "saisie_cpe":false,
+          "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e",
+          "id_appel":4,
+          "id_type":2,
+          "id_pj":null,
+          "id_motif":8,
+          "owner":"89a3d71f-6ba9-47bf-b708-e3f54a345b40",
+          "created":null,
+          "modified":null,
+          "to_char":null
        }]
      ```
+     
+ * **Notes:**
+       
+       `dateDebut et dateFin sont au format : yyyy-mm-dd 
+               ex: 2017-05-10 pour le 10 mai 2017.`

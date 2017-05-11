@@ -1,3 +1,7 @@
+*CoursController*
+ -------- 
+ ---- 
+
 **GetClasseCours**
 ---- 
   Récupère tous les cours d'une classe dans une période donnée.

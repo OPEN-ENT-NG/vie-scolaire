@@ -509,7 +509,6 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.terminerAppel = function() {
             $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelFait);
-            $scope.currentCours.appel.update();
             $scope.succesMessage("L'appel a bien été marqué comme terminé", 5000);
         };
 

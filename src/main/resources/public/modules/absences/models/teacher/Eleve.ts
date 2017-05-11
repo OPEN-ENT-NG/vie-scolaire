@@ -82,10 +82,10 @@ export class Eleve extends DefaultEleve implements IModel {
                  * Si il y a des absences previsionnelles, on les rajoutes dans le tableau d'évènements
                  */
                 if (this.absencePrevs.all.length > 0) {
-                    _.each(this.absencePrevs, (abs) => {
+                    _.each(this.absencePrevs.all, (abs) => {
                         abs.id_type = 'abs-prev';
-                        let dt = parseInt(moment(abs.absence_prev_timestamp_dt).format('HH'));
-                        let fn = parseInt(moment(abs.absence_prev_timestamp_fn).format('HH'));
+                        let dt = parseInt(moment(abs.timestamp_dt).format('HH'));
+                        let fn = parseInt(moment(abs.timestamp_fn).format('HH'));
                         let oIndex = {
                             dt : undefined,
                             fn : undefined

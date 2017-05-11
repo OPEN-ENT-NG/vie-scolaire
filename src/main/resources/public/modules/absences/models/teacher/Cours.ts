@@ -96,9 +96,6 @@ export class Cours extends DefaultCours implements IModel {
             .done((data) => {
                 for (let i = 0; i < that.eleves.all.length; i++) {
                     that.eleves.all[i].evenementsJours.load(_.where(data, {id_eleve : that.eleves.all[i].id}));
-                    that.eleves.all[i].evenements.load(
-                        that.eleves.all[i].evenementsJours.where({id_cours : that.id})
-                    );
                 }
                 that.loadAbscPrev();
             });
@@ -110,6 +107,7 @@ export class Cours extends DefaultCours implements IModel {
             .done((data) => {
                 for (let i = 0; i < this.eleves.all.length; i++) {
                     that.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: that.eleves.all[i].id}));
+                    that.eleves.all[i].evenements.load(_.where(data, {id_eleve: that.eleves.all[i].id}));
                 }
             });
         this.loadAbscLastCours();

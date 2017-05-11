@@ -364,18 +364,20 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.currentCours.eleves.sync().then(() => {
 
                 $scope.currentCours.nbPresents = 0;
-                $scope.currentCours.eleves.each(function (oEleve) {
-                    oEleve.isAbsent = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementAbsence, id_appel : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasDepart = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementDepart, id_appel : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasIncident = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementIncident, id_appel : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.hasRetard = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementRetard, id_appel : $scope.currentCours.appel.id}) !== undefined;
-                    oEleve.plages.sync($scope.currentCours.appel.id, function() {
-                        $scope.safeApply();
+                $scope.currentCours.on('appelSynchronized', function () {
+                    $scope.currentCours.eleves.each(function (oEleve) {
+                        oEleve.isAbsent = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementAbsence, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                        oEleve.hasDepart = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementDepart, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                        oEleve.hasIncident = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementIncident, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                        oEleve.hasRetard = oEleve.evenements.findWhere({id_type : $scope.oEvtType.giIdEvenementRetard, id_appel : $scope.currentCours.appel.id}) !== undefined;
+                        oEleve.plages.sync($scope.currentCours.appel.id, function() {
+                            $scope.safeApply();
+                        });
                     });
+                    $scope.currentCours.nbPresents = $scope.currentCours.eleves.all.length - (($scope.currentCours.eleves.where({isAbsent : true})).length);
+                    $scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
+                    $scope.safeApply();
                 });
-                $scope.currentCours.nbPresents = $scope.currentCours.eleves.all.length - (($scope.currentCours.eleves.where({isAbsent : true})).length);
-                $scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
-                $scope.safeApply();
             });
         };
 

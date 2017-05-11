@@ -22,6 +22,10 @@ package fr.openent.absences.controller;
 import fr.openent.Viescolaire;
 import fr.openent.absences.service.EvenementService;
 import fr.openent.absences.service.impl.DefaultEvenementService;
+import fr.openent.absences.utils.EventRegister;
+import fr.openent.absences.utils.Events;
+import fr.openent.viescolaire.service.EventService;
+import fr.openent.viescolaire.service.impl.DefaultEventService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -45,9 +49,13 @@ public class EvenementController extends ControllerHelper {
     private static final String CLASSE_ID = "classeId";
 
     private final EvenementService miAbscEvenementService;
+    private final EventService eventService;
+    private final EventRegister eventRegister = new EventRegister();
+
     public EvenementController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscEvenementService = new DefaultEvenementService();
+        eventService = new DefaultEventService();
     }
 
     @Put("/evenement/:idEvenement/updatemotif")
@@ -69,15 +77,20 @@ public class EvenementController extends ControllerHelper {
     @ApiDoc("Met à jours l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateEvenement(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENT_UPDATE, new Handler<JsonObject>() {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(JsonObject poEvenement) {
-                Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
-                poEvenement.removeField("id_cours");
-                poEvenement.removeField("timestamp_arrive");
-                poEvenement.removeField("timestamp_depart");
-                miAbscEvenementService.updateEvenement(poEvenement,
-                        handler);
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENT_UPDATE, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject poEvenement) {
+                        Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
+                        poEvenement.removeField("id_cours");
+                        poEvenement.removeField("timestamp_arrive");
+                        poEvenement.removeField("timestamp_depart");
+                        miAbscEvenementService.updateEvenement(poEvenement,
+                                eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.UPDATE_EVENEMENT.toString()));
+                    }
+                });
             }
         });
     }
@@ -95,7 +108,8 @@ public class EvenementController extends ControllerHelper {
                         poEvenement.removeField("id_cours");
                         poEvenement.removeField("timestamp_arrive");
                         poEvenement.removeField("timestamp_depart");
-                        miAbscEvenementService.createEvenement(poEvenement, user, defaultResponseHandler(request));
+                        miAbscEvenementService.createEvenement(poEvenement, user,
+                                eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.CREATE_EVENEMENT.toString()));
                     }
                 });
             }
@@ -106,8 +120,20 @@ public class EvenementController extends ControllerHelper {
     @ApiDoc("Supprime l'évènement.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteEvenement(final HttpServerRequest request){
-        String oEvenementId = request.params().get("evenementId");
-        miAbscEvenementService.deleteEvenement(Integer.parseInt(oEvenementId), defaultResponseHandler(request));
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                try {
+                    Number oEvenementId = Long.parseLong(request.params().get("evenementId"));
+                    miAbscEvenementService.deleteEvenement(oEvenementId,
+                            eventRegister.getEventRegisterHandler(request, user, new JsonObject().putNumber("id", oEvenementId), Events.DELETE_EVENEMENT.toString()));
+                } catch (ClassCastException e) {
+                    log.error("Cannot cast evenementId to Number on delete evenement");
+                    badRequest(request);
+                }
+            }
+        });
+
     }
 
     @Get("/observations/:dateDebut/:dateFin")

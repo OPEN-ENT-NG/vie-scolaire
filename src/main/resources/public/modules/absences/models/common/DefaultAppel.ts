@@ -17,6 +17,10 @@ export class DefaultAppel extends Model {
         return new Promise((resolve, reject) => {
             http().postJson(this.api.CREATE, this)
                 .done((data) => {
+                    if (!data.hasOwnProperty('id')) {
+                        reject();
+                    }
+                    this.id = data.id;
                     if (resolve && typeof resolve === 'function') {
                         resolve();
                     }

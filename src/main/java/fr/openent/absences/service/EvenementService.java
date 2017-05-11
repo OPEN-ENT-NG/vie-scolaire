@@ -58,7 +58,7 @@ public interface EvenementService extends CrudService {
      * @param poEvenementId Identifiant de l'evenement à supprimer.
      * @param handler portant le résultat de la requête.
      */
-    public void deleteEvenement(int poEvenementId, Handler<Either<String, JsonObject>> handler);
+    public void deleteEvenement(Number poEvenementId, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Récupère toutes les observations dans une période donnée.

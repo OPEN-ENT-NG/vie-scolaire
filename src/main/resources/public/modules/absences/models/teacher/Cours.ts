@@ -59,9 +59,7 @@ export class Cours extends DefaultCours implements IModel {
                     this.id_personnel = that.id_personnel;
                     this.id_cours = that.id;
                     that.appel.id_etat = 1;
-                    this.create().then((data) => {
-                        this.id = data.id;
-                    });
+                    this.create();
                 }
             }.bind(this.appel));
         };

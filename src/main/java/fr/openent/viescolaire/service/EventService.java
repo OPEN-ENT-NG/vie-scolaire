@@ -12,5 +12,5 @@ public interface EventService {
      * @param ressource ressource impactée
      * @param event Evènement
      */
-    public void add(UserInfos user, Long idRessource, JsonObject ressource, String event);
+    public void add(UserInfos user, Number idRessource, JsonObject ressource, String event);
 }

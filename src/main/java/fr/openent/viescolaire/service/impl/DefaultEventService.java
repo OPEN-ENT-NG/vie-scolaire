@@ -6,26 +6,28 @@ import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
 
+import java.sql.Timestamp;
+
 /**
  * Created by ledunoiss on 02/05/2017.
  */
 public class DefaultEventService implements EventService {
 
-    private final String TRACE_COLLECTION;
+    private final String TRACE_COLLECTION = "vsco.events";
     private final MongoDb mongo;
 
-    public DefaultEventService(final String collection) {
-        this.TRACE_COLLECTION = collection;
+    public DefaultEventService() {
         this.mongo = MongoDb.getInstance();
     }
 
     @Override
-    public void add(UserInfos user, Long idRessource, JsonObject ressource, String event) {
+    public void add(UserInfos user, Number idRessource, JsonObject ressource, String event) {
         JsonObject trace = new JsonObject();
         trace.putObject("user", formatUser(user))
                 .putNumber("ressource_id", idRessource)
                 .putString("event", event)
-                .putObject("ressource", ressource);
+                .putObject("ressource", ressource)
+                .putString("date", new Timestamp(System.currentTimeMillis()).toString());
 
         mongo.insert(TRACE_COLLECTION, trace);
     }

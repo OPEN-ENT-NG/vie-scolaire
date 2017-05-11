@@ -22,6 +22,10 @@ package fr.openent.absences.controller;
 import fr.openent.Viescolaire;
 import fr.openent.absences.service.AppelService;
 import fr.openent.absences.service.impl.DefaultAppelService;
+import fr.openent.absences.utils.EventRegister;
+import fr.openent.absences.utils.Events;
+import fr.openent.viescolaire.service.EventService;
+import fr.openent.viescolaire.service.impl.DefaultEventService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
@@ -42,18 +46,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
 /**
  * Created by ledunoiss on 22/02/2016.
  */
 public class AppelController extends ControllerHelper {
     private final AppelService miAbscAppelService;
+    private final EventService eventService;
+    private final EventRegister eventRegister = new EventRegister();
 
     public AppelController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscAppelService = new DefaultAppelService();
+        eventService = new DefaultEventService();
     }
 
     @Get("/appel/cours/:coursId")
@@ -109,8 +114,8 @@ public class AppelController extends ControllerHelper {
             public void handle(final UserInfos user) {
                 RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPEL_CREATE, new Handler<JsonObject>() {
                     @Override
-                    public void handle(JsonObject poAppel) {
-                        miAbscAppelService.createAppel(poAppel, user, defaultResponseHandler(request));
+                    public void handle(final JsonObject poAppel) {
+                        miAbscAppelService.createAppel(poAppel, user, eventRegister.getEventRegisterHandler(request, user, poAppel, Events.CREATE_APPEL.toString()));
                     }
                 });
             }
@@ -121,10 +126,15 @@ public class AppelController extends ControllerHelper {
     @ApiDoc("Met à jour un appel.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateAppel(final HttpServerRequest request){
-        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPEL_UPDATE, new Handler<JsonObject>() {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(JsonObject poAppel) {
-                miAbscAppelService.updateAppel(poAppel, defaultResponseHandler(request));
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPEL_UPDATE, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject poAppel) {
+                        miAbscAppelService.updateAppel(poAppel, eventRegister.getEventRegisterHandler(request, user, poAppel, Events.UPDATE_APPEL.toString()));
+                    }
+                });
             }
         });
     }

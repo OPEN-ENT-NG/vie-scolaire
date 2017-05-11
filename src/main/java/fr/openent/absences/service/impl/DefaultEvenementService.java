@@ -69,8 +69,8 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
 
     @Override
-    public void deleteEvenement(int poEvenementId, Handler<Either<String, JsonObject>> handler) {
-        super.delete(Integer.toString(poEvenementId), handler);
+    public void deleteEvenement(Number poEvenementId, Handler<Either<String, JsonObject>> handler) {
+        super.delete(poEvenementId.toString(), handler);
     }
 
     @Override

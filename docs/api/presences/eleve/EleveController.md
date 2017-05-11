@@ -2,7 +2,7 @@
  -------- 
  ---- 
  
-**GetAbsencesPrevClassePeriode**
+**getAbsencesPrevClassePeriode**
 ---- 
   Récupère les absences prévisionnels d'un ensemble d'élève(s) sur une période donnée.
  

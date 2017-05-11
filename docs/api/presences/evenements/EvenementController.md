@@ -99,6 +99,38 @@
        
        `id_type = 5 : pour une observation`
     
+    **updateMotifEvenement**
+       ---- 
+         Mise à jour du motif d'un évènement.
+        
+       * **URL**
+        
+         `/evenement/:idEvenement/updatemotif`
+        
+       * **Method:**
+          
+         `PUT` 
+      
+       * **Data Params**
+          ```json
+          
+           {
+             "idEvenement" : 12,
+             "id_motif" : 8
+           }
+           ```
+           **Required:**           
+                  `idEvenement`,
+                  `id_motif`
+                  
+       * **Response:**
+          
+           * **Code:** 200 <br />
+           * **Content**:  
+           ```json
+            {"rows":1}
+           ```    
+    
     **deleteEvenement**
     ---- 
       Suppression d'un évènement.

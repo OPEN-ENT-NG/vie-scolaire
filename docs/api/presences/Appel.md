@@ -1,5 +1,14 @@
 #Appel
 
+##### Table of Contents
+  * [createAppel](#createAppel)
+  * [updateAppel](#updateAppel)
+  * [getAppelCours](#getAppelCours)
+  * [getAppelPeriode](#getAppelPeriode)
+  * [getAppelsNonEffectues](#getAppelsNonEffectues)
+  
+<a name="createAppel" />
+
  ##createAppel
 
    Créé un appel.
@@ -35,6 +44,7 @@
       "id":11 
      }
      ```
+<a name="updateAppel" />
 
 ## updateAppel
    met à jour un appel.
@@ -70,6 +80,7 @@
     {"rows":1}
      ```
 
+<a name="getAppelCours" />
 
 ## getAppelCours
   Récupère l'appel associé à un cours.
@@ -101,6 +112,8 @@
       "id_justificatif":null
     }]
     ```
+    
+<a name="getAppelPeriode" />
     
 ## getAppelPeriode
   Récupère les appels sur une période d'un établissement sur une période.
@@ -137,6 +150,8 @@
         "id_personnel":"89a3d71f-6ba9-47bf-b708-e3f54a345b40"
     }]
     ```
+
+<a name="getAppelsNonEffectues" />
 
 ## getAppelsNonEffectues
   Récupère les appels non effectués sur une période d'un établissement sur une période.

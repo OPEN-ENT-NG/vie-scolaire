@@ -1,4 +1,14 @@
 # EleveController
+
+##### Table of Contents
+  * [getAbsencesPrevClassePeriode](#getAbsencesPrevClassePeriode)
+  * [getAbsencesSansMotifs](#getAbsencesSansMotifs)
+  * [getAbsencesPrevInPeriode](#getAbsencesPrevInPeriode)
+  * [getAbsences](#getAbsences)
+  * [getAbsencesPrev](#getAbsencesPrev)
+  * [getEvenements](#getEvenements)
+  
+<a name="getAbsencesPrevClassePeriode" />
  
 ## getAbsencesPrevClassePeriode
 
@@ -36,6 +46,9 @@
 
      `Le paramètre id_eleve peut être repété pour définir l'ensemble d'élève sur lequel sont récupérées les 
      absences prévisionnels. ` 
+ 
+ <a name="getAbsencesSansMotifs" />
+
  
  ## getAbsencesSansMotifs
  
@@ -84,6 +97,9 @@
       `dateDebut et dateFin sont au format : yyyy-mm-dd 
               ex: 2017-05-10 pour le 10 mai 2017.`
 
+<a name="getAbsencesPrevInPeriode" />
+
+
 ## getAbsencesPrevInPeriode
   
    Récupère les absences prévisionnelles sur une période.
@@ -122,7 +138,9 @@
       
       `dateDebut et dateFin sont au format : yyyy-mm-dd 
               ex: 2017-05-10 pour le 10 mai 2017.`
+
               
+ <a name="getAbsences" />
               
  ## getAbsences
     Récupère les absences D'un établissement sur une période.
@@ -169,6 +187,7 @@
        `dateDebut et dateFin sont au format : yyyy-mm-dd 
                ex: 2017-05-10 pour le 10 mai 2017.`
                
+<a name="getAbsencesPrev" />
                
 ## getAbsencesPrev
 
@@ -201,7 +220,7 @@
           "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e"
        }]
      ```
-     
+<a name="getEvenements" />
      
  ## getEvenements
 

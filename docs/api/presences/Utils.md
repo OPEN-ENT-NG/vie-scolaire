@@ -1,5 +1,10 @@
 # UtilsController
 
+##### Table of Contents
+  * [getIdsStructuresActive](#getIdsStructuresActive)
+  
+<a name="getIdsStructuresActive" />
+
 ## getIdsStructuresActive
 
   Récupère la liste des structures de l'utilisateur dont le module est activé.

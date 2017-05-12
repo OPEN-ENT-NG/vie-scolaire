@@ -98,7 +98,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String query;
         JsonObject params = new JsonObject();
         // Dans le cas du chef d'établissement, on récupère toutes les classes
-        if("Personnel".equals(user.getType())  && user.getFunctions().containsKey("DIR")){
+        if("Personnel".equals(user.getType())){
             query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
                     "UNION ALL " +
                     "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";

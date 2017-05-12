@@ -1,9 +1,6 @@
-*CoursController*
- -------- 
- ---- 
+# CoursController
 
-**getClasseCours**
----- 
+## getClasseCours
   Récupère tous les cours d'une classe dans une période donnée.
  
 * **URL**
@@ -51,8 +48,7 @@
      `dateDebut et dateFin sont au format : yyyy-mm-dd 
         ex: 2017-05-10 pour le 10 mai 2017.` 
  
-**getCoursByUserId**
- ---- 
+## getCoursByUserId
    Récupère tous les cours d'une classe dans une période donnée.
   
  * **URL**

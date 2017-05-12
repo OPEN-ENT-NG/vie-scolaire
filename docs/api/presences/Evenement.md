@@ -1,9 +1,8 @@
-*EvenementController*
- -------- 
- ---- 
-  **createEvenement**
-  ---- 
-    Création  d'un évènement.
+# EvenementController
+
+  ## createEvenement
+
+   Création  d'un évènement.
    
   * **URL**
    
@@ -51,8 +50,8 @@
       
       `id_type = 5 : pour une observation`
   
-   **updateEvenement**
-   ---- 
+   ## updateEvenement
+
      Mise à jour  d'un évènement.
     
    * **URL**
@@ -99,9 +98,9 @@
        
        `id_type = 5 : pour une observation`
     
-    **updateMotifEvenement**
-       ---- 
-         Mise à jour du motif d'un évènement.
+    ## updateMotifEvenement
+
+       Mise à jour du motif d'un évènement.
         
        * **URL**
         
@@ -131,8 +130,8 @@
             {"rows":1}
            ```    
     
-    **deleteEvenement**
-    ---- 
+    ## deleteEvenement
+
       Suppression d'un évènement.
      
     * **URL**
@@ -156,8 +155,8 @@
         ```
         {"rows":1}
         ```
-**getAbsencesDernierCours**
----- 
+## getAbsencesDernierCours
+
   Récupère toutes les absences du cours précédent en fonction de l'identifiant de la classe et de l'identifiant du cours.
  
 * **URL**
@@ -188,8 +187,8 @@
     ]
     ```
 
-**getEvtClassePeriode**
----- 
+## getEvtClassePeriode
+
   Récupère tous les évènements pour une classe donnée dans une période donnée.
  
 * **URL**

@@ -7,7 +7,7 @@
 
 ## getIdsStructuresActive
 
-  Récupère la liste des structures de l'utilisateur dont le module est activé.
+Récupère la liste des structures de l'utilisateur dont le module est activé.
 
 * **URL**
 

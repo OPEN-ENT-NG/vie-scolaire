@@ -10,38 +10,38 @@
   
 <a name="createEvenement" />
 
-  ## createEvenement
 
-   Création  d'un évènement.
-   
-  * **URL**
-   
-    `/evenement`
-   
-  * **Method:**
+## createEvenement
+    
+Création  d'un évènement.
+    
+* **URL**
+    
+    `/viescolaire/presences/evenement`
+    
+* **Method:**
      
     `POST` 
- 
-  * **Data Params**
+    
+* **Data Params**
      ```json
-     
-      {
-        "commentaire" : "lets",
-        "id_appel" : 12,
-        "id_eleve" : "35eecf92-4313-4322-ad21-a2f4900ee5b9",
-        "id_motif" : 8,  
-        "id_type" : 5, 
-        "saisie_cpe" : false
-      }
-      ```
-      **Required:**           
-             `saisie_cpe`,
-             `id_eleve`,
-             `id_appel`,
-             `id_type`,
-             `id_motif`
+          {
+            "commentaire" : "lets",
+            "id_appel" : 12,
+            "id_eleve" : "35eecf92-4313-4322-ad21-a2f4900ee5b9",
+            "id_motif" : 8,  
+            "id_type" : 5, 
+            "saisie_cpe" : false
+          }
+     ```
+    **Required:**           
+     `saisie_cpe`,
+     `id_eleve`,
+     `id_appel`,
+     `id_type`,
+     `id_motif`
              
-  * **Response:**
+* **Response:**
      
       * **Code:** 200 <br />
       * **Content**:  
@@ -50,7 +50,7 @@
        "id":91 
       }
       ```
- * **Notes:**
+* **Notes:**
       
       `id_type = 1 : pour une absence`   
          
@@ -59,118 +59,117 @@
       `id_type = 3 : pour un départ`
       
       `id_type = 5 : pour une observation`
-      
+          
 <a name="updateEvenement" />
-  
-   ## updateEvenement
+ 
+## updateEvenement
 
-     Mise à jour  d'un évènement.
+ Mise à jour  d'un évènement.
     
-   * **URL**
+* **URL**
     
-     `/evenement`
+     `/viescolaire/presences/evenement`
     
-   * **Method:**
+* **Method:**
       
      `PUT` 
   
+* **Data Params**
+     
+    ```json
+    {
+     "commentaire" : "lets",
+     "id_appel" : 12,
+     "id_eleve" : "35eecf92-4313-4322-ad21-a2f4900ee5b9",
+     "id_motif" : 8,  
+     "id_type" : 5, 
+     "saisie_cpe" : false
+    }
+    ```
+    **Required:**           
+      `saisie_cpe`,
+      `id_eleve`,
+      `id_appel`,
+      `id_type`,
+      `id_motif`
+              
+* **Response:**
+   * **Code:** 200 <br />
+   * **Content**:  
+   ```json
+    {"rows":1}
+   ```
+* **Notes:**
+       
+   `id_type = 1 : pour une absence`   
+      
+   `id_type = 2 : pour un retard`
+   
+   `id_type = 3 : pour un départ`
+   
+   `id_type = 5 : pour une observation`
+    
+    <a name="updateMotifEvenement" />
+    
+## updateMotifEvenement
+
+   Mise à jour du motif d'un évènement.
+        
+   * **URL**
+        
+     `/viescolaire/presences/evenement/:idEvenement/updatemotif`
+        
+   * **Method:**
+          
+     `PUT` 
+      
    * **Data Params**
       ```json
       
        {
-         "commentaire" : "lets",
-         "id_appel" : 12,
-         "id_eleve" : "35eecf92-4313-4322-ad21-a2f4900ee5b9",
-         "id_motif" : 8,  
-         "id_type" : 5, 
-         "saisie_cpe" : false
+         "idEvenement" : 12,
+         "id_motif" : 8
        }
        ```
-       **Required:**           
-              `saisie_cpe`,
-              `id_eleve`,
-              `id_appel`,
-              `id_type`,
-              `id_motif`
-              
+        **Required:**           
+      `idEvenement`,
+      `id_motif`
+                  
    * **Response:**
       
        * **Code:** 200 <br />
        * **Content**:  
        ```json
         {"rows":1}
-       ```
-  * **Notes:**
+       ```    
+       <a name="deleteEvenement" />
        
-       `id_type = 1 : pour une absence`   
-          
-       `id_type = 2 : pour un retard`
-       
-       `id_type = 3 : pour un départ`
-       
-       `id_type = 5 : pour une observation`
-    
-    <a name="updateMotifEvenement" />
-    
-    ## updateMotifEvenement
+## deleteEvenement
 
-       Mise à jour du motif d'un évènement.
-        
-       * **URL**
-        
-         `/evenement/:idEvenement/updatemotif`
-        
-       * **Method:**
-          
-         `PUT` 
-      
-       * **Data Params**
-          ```json
-          
-           {
-             "idEvenement" : 12,
-             "id_motif" : 8
-           }
-           ```
-           **Required:**           
-                  `idEvenement`,
-                  `id_motif`
-                  
-       * **Response:**
-          
-           * **Code:** 200 <br />
-           * **Content**:  
-           ```json
-            {"rows":1}
-           ```    
-           <a name="deleteEvenement" />
-           
-    ## deleteEvenement
-
-      Suppression d'un évènement.
-     
-    * **URL**
-     
-      `/evenement`
-     
-    * **Method:**
-       
-      `DELETE` 
+  Suppression d'un évènement.
+ 
+* **URL**
+ 
+  `/viescolaire/presences/evenement`
+ 
+* **Method:**
    
-    *  **URL Params**
-     
-        **Required:**
-      
-       `evenementId = Integer`
-       
-    * **Response:**
-       
-        * **Code:** 200 <br />
-        * **Content**:  
-        ```
-        {"rows":1}
-        ```
-        <a name="getAbsencesDernierCours" />
+  `DELETE` 
+
+*  **URL Params**
+ 
+    **Required:**
+  
+   `evenementId = Integer`
+   
+* **Response:**
+   
+    * **Code:** 200 <br />
+    * **Content**:  
+    ```
+    {"rows":1}
+    ```
+    <a name="getAbsencesDernierCours" />
         
 ## getAbsencesDernierCours
 
@@ -178,7 +177,7 @@
  
 * **URL**
  
-  `/precedentes/classe/:classeId/cours/:coursId `
+  `/viescolaire/presences/precedentes/classe/:classeId/cours/:coursId `
  
 * **Method:**
    
@@ -212,7 +211,7 @@
  
 * **URL**
  
-  `/evenement/classe/:classeId/periode/:dateDebut/:dateFin `
+  `/viescolaire/presences/evenement/classe/:classeId/periode/:dateDebut/:dateFin `
  
 * **Method:**
    

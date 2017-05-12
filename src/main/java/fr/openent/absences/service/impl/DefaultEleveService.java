@@ -49,14 +49,14 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
         query.append(SELECT+ Viescolaire.ABSC_SCHEMA +".evenement.*, to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_arrive, 'hh24:mi'), " +
                 "to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_depart, 'hh24:mi') ")
-                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.ABSC_SCHEMA +".appel ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours,"+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE evenement.id_eleve = ? ")
                 .append("AND evenement.id_appel = appel.id ")
                 .append(FILTER_COURS_ID)
-                .append("AND to_date(?, 'DD-MM-YYYY') <= cours.timestamp_dt ")
-                .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY')");
+                .append("AND to_date(?, 'YYYY-MM-DD') <= cours.timestamp_dt ")
+                .append("AND cours.timestamp_fn < to_date(?, 'YYYY-MM-DD')");
 
-        values.addNumber(new Integer(psIdEleve));
+        values.addString(psIdEleve);
         values.addString(psDateDebut);
         values.addString(psDateFin);
 

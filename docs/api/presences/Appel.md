@@ -1,8 +1,7 @@
-*AppelController*
- -------- 
- ---- 
- **createAppel**
- ---- 
+#Appel
+
+ ##createAppel
+
    Créé un appel.
   
  * **URL**
@@ -37,8 +36,7 @@
      }
      ```
 
-**updateAppel**
- ---- 
+## updateAppel
    met à jour un appel.
   
  * **URL**
@@ -73,8 +71,7 @@
      ```
 
 
-**getAppelCours**
----- 
+## getAppelCours
   Récupère l'appel associé à un cours.
  
 * **URL**
@@ -105,8 +102,7 @@
     }]
     ```
     
-**getAppelPeriode**
----- 
+## getAppelPeriode
   Récupère les appels sur une période d'un établissement sur une période.
  
 * **URL**
@@ -142,8 +138,7 @@
     }]
     ```
 
-**getAppelsNonEffectues**
----- 
+## getAppelsNonEffectues
   Récupère les appels non effectués sur une période d'un établissement sur une période.
  
 * **URL**

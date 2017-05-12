@@ -8,7 +8,7 @@
 
 ## getAbscMotifsEtablissement
 
-  Récupère tous les motifs en fonction de l'id de l'établissement
+Récupère tous les motifs en fonction de l'id de l'établissement
 
 * **URL**
 
@@ -39,7 +39,7 @@
     
 ## getAbscMotifsEtablissement
 
-  Récupère tous les justificatifs en fonction de l'id de l'établissement
+Récupère tous les justificatifs en fonction de l'id de l'établissement
 
 * **URL**
 

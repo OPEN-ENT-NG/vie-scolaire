@@ -12,7 +12,7 @@
  
 ## getAbsencesPrevClassePeriode
 
-  Récupère les absences prévisionnels d'un ensemble d'élève(s) sur une période donnée.
+Récupère les absences prévisionnels d'un ensemble d'élève(s) sur une période donnée.
  
 * **URL**
  
@@ -47,12 +47,13 @@
      `Le paramètre id_eleve peut être repété pour définir l'ensemble d'élève sur lequel sont récupérées les 
      absences prévisionnels. ` 
  
+ 
  <a name="getAbsencesSansMotifs" />
 
  
  ## getAbsencesSansMotifs
  
-   Récupère les absences Sans Motif.
+Récupère les absences Sans Motif.
   
  * **URL**
   
@@ -97,12 +98,13 @@
       `dateDebut et dateFin sont au format : yyyy-mm-dd 
               ex: 2017-05-10 pour le 10 mai 2017.`
 
+
 <a name="getAbsencesPrevInPeriode" />
 
 
 ## getAbsencesPrevInPeriode
-  
-   Récupère les absences prévisionnelles sur une période.
+
+Récupère les absences prévisionnelles sur une période.
   
  * **URL**
   
@@ -143,7 +145,8 @@
  <a name="getAbsences" />
               
  ## getAbsences
-    Récupère les absences D'un établissement sur une période.
+ 
+Récupère les absences D'un établissement sur une période.
    
   * **URL**
    
@@ -191,7 +194,7 @@
                
 ## getAbsencesPrev
 
-   Récupère les absences prévisionnelles d'un élève.
+Récupère les absences prévisionnelles d'un élève.
   
  * **URL**
   
@@ -220,11 +223,13 @@
           "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e"
        }]
      ```
+     
 <a name="getEvenements" />
+
      
  ## getEvenements
 
-   Récupère les événements sur une période d'un élève.
+Récupère les événements sur une période d'un élève.
   
  * **URL**
   

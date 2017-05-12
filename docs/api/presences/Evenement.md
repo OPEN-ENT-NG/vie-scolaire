@@ -109,7 +109,7 @@ Création  d'un évènement.
    
    `id_type = 5 : pour une observation`
     
-    <a name="updateMotifEvenement" />
+<a name="updateMotifEvenement" />
     
 ## updateMotifEvenement
 

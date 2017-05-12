@@ -48,10 +48,10 @@ Récupère les absences prévisionnels d'un ensemble d'élève(s) sur une pério
      absences prévisionnels. ` 
  
  
- <a name="getAbsencesSansMotifs" />
+<a name="getAbsencesSansMotifs" />
 
  
- ## getAbsencesSansMotifs
+## getAbsencesSansMotifs
  
 Récupère les absences Sans Motif.
   
@@ -142,9 +142,9 @@ Récupère les absences prévisionnelles sur une période.
               ex: 2017-05-10 pour le 10 mai 2017.`
 
               
- <a name="getAbsences" />
+<a name="getAbsences" />
               
- ## getAbsences
+## getAbsences
  
 Récupère les absences D'un établissement sur une période.
    
@@ -227,7 +227,7 @@ Récupère les absences prévisionnelles d'un élève.
 <a name="getEvenements" />
 
      
- ## getEvenements
+## getEvenements
 
 Récupère les événements sur une période d'un élève.
   
@@ -251,24 +251,24 @@ Récupère les événements sur une période d'un élève.
     
      * **Code:** 200 <br />
      * **Content**:  
-     ```json
-     [{
-          "id":7,
-          "timestamp_arrive":null,
-          "timestamp_depart":null,
-          "commentaire":null,
-          "saisie_cpe":false,
-          "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e",
-          "id_appel":4,
-          "id_type":2,
-          "id_pj":null,
-          "id_motif":8,
-          "owner":"89a3d71f-6ba9-47bf-b708-e3f54a345b40",
-          "created":null,
-          "modified":null,
-          "to_char":null
-       }]
-     ```
+         ```json
+         [{
+              "id":7,
+              "timestamp_arrive":null,
+              "timestamp_depart":null,
+              "commentaire":null,
+              "saisie_cpe":false,
+              "id_eleve":"3c16a728-763e-4880-8349-069eef2c6a5e",
+              "id_appel":4,
+              "id_type":2,
+              "id_pj":null,
+              "id_motif":8,
+              "owner":"89a3d71f-6ba9-47bf-b708-e3f54a345b40",
+              "created":null,
+              "modified":null,
+              "to_char":null
+           }]
+         ```
      
  * **Notes:**
        

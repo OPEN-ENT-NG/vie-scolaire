@@ -123,7 +123,7 @@ public class ClasseController extends BaseController {
             public void handle(UserInfos user) {
                 if (user != null
                         && !request.params().isEmpty()
-                        && request.params().size() == 2) {
+                        && request.params().contains("idEtablissement")) {
                     String idEtablissement = request.params().get("idEtablissement");
                     classeService.listClasses(idEtablissement,user, new Handler<Either<String, JsonArray>>() {
                         @Override
@@ -166,6 +166,8 @@ public class ClasseController extends BaseController {
                                             }
                                         }
                                     });
+                                } else {
+                                    renderJson(request, new JsonArray(idGroupes.toArray()));
                                 }
                             } else {
                                 badRequest(request);

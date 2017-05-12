@@ -1,5 +1,11 @@
 # CoursController
 
+##### Table of Contents
+  * [getClasseCours](#getClasseCours)
+  * [getCoursByUserId](#getCoursByUserId)
+  
+<a name="getClasseCours" />
+
 ## getClasseCours
   Récupère tous les cours d'une classe dans une période donnée.
  
@@ -47,6 +53,8 @@
 
      `dateDebut et dateFin sont au format : yyyy-mm-dd 
         ex: 2017-05-10 pour le 10 mai 2017.` 
+
+<a name="getClasseCours" />
  
 ## getCoursByUserId
    Récupère tous les cours d'une classe dans une période donnée.

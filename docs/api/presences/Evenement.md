@@ -1,5 +1,15 @@
 # EvenementController
 
+##### Table of Contents
+  * [createEvenement](#createEvenement)
+  * [updateEvenement](#updateEvenement)
+  * [updateMotifEvenement](#updateMotifEvenement)
+  * [deleteEvenement](#deleteEvenement)
+  * [getAbsencesDernierCours](#getAbsencesDernierCours)
+  * [getEvtClassePeriode](#getEvtClassePeriode)
+  
+<a name="createEvenement" />
+
   ## createEvenement
 
    Création  d'un évènement.
@@ -49,6 +59,8 @@
       `id_type = 3 : pour un départ`
       
       `id_type = 5 : pour une observation`
+      
+<a name="updateEvenement" />
   
    ## updateEvenement
 
@@ -98,6 +110,8 @@
        
        `id_type = 5 : pour une observation`
     
+    <a name="updateMotifEvenement" />
+    
     ## updateMotifEvenement
 
        Mise à jour du motif d'un évènement.
@@ -129,7 +143,8 @@
            ```json
             {"rows":1}
            ```    
-    
+           <a name="deleteEvenement" />
+           
     ## deleteEvenement
 
       Suppression d'un évènement.
@@ -155,6 +170,8 @@
         ```
         {"rows":1}
         ```
+        <a name="getAbsencesDernierCours" />
+        
 ## getAbsencesDernierCours
 
   Récupère toutes les absences du cours précédent en fonction de l'identifiant de la classe et de l'identifiant du cours.
@@ -186,6 +203,8 @@
        {"id_eleve":"35eecf92-4313-4322-ad21-a2f4900ee5b9"}
     ]
     ```
+    
+<a name="getEvtClassePeriode" />
 
 ## getEvtClassePeriode
 

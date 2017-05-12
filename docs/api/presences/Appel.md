@@ -1,4 +1,4 @@
-#Appel
+# Appel
 
 ##### Table of Contents
   * [createAppel](#createAppel)
@@ -10,7 +10,7 @@
 <a name="createAppel" />
 
 
- ## createAppel
+## createAppel
 
    Créé un appel.
   
@@ -155,7 +155,8 @@
 <a name="getAppelsNonEffectues" />
 
 ## getAppelsNonEffectues
-  Récupère les appels non effectués sur une période d'un établissement sur une période.
+
+Récupère les appels non effectués sur une période d'un établissement sur une période.
  
 * **URL**
  

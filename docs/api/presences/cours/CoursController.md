@@ -67,7 +67,7 @@
   
      **Required:**
    
-    `idEnseignant = String`
+    `userId = String`
     
     `dateDebut = String`
     

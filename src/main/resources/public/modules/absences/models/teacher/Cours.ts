@@ -1,11 +1,8 @@
-import { Collection, http } from 'entcore/entcore';
+import { Collection, http, IModel } from 'entcore/entcore';
 import { Appel } from './Appel';
 import { Eleve } from './Eleve';
-import {DefaultCours} from "../common/DefaultCours";
-import {IModel} from "../../../entcore/modelDefinitions";
-import {workflow} from "../../../entcore/directives/workflow";
-import {Evenement} from "./Evenement";
-
+import { DefaultCours } from "../common/DefaultCours";
+import { Evenement } from "./Evenement";
 
 
 export class Cours extends DefaultCours implements IModel {

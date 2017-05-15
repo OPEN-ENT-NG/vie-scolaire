@@ -219,17 +219,17 @@ export let absencesController = ng.controller('AbsencesController', [
 
                 $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
 
-                poEvenement.save(function(pnEvenementId) {
-                    $scope.setIdToValue(poEvenement, pnEvenementId);
-                    poEvenement.id = pnEvenementId;
+                poEvenement.save().then( (pnEvenement) => {
+                    $scope.setIdToValue(poEvenement, pnEvenement.id);
+                    poEvenement.id = pnEvenement.id;
                     $scope.addEvtPlage(poEvenement);
                     $scope.currentEleve.evenements.push(poEvenement);
-                    $scope.currentEleve.evenementsJour.push(poEvenement);
+                    $scope.currentEleve.evenementsJours.push(poEvenement);
                     // l'état de l'appel repasse en cours
                     $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelEnCours);
                 });
             }else {
-                poEvenement.delete(function() {
+                poEvenement.delete().then( () => {
                     if (poEvenement.id_type === $scope.oEvtType.giIdEvenementDepart) {
                         $scope.oEvtTime.depart = "--:--";
                     } else if (poEvenement.id_type === $scope.oEvtType.giIdEvenementRetard) {

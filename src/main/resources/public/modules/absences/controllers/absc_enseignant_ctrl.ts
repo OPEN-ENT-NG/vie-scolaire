@@ -546,6 +546,14 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.safeApply();
         };
 
+        /**
+         * Convertit une date au format local: [FRANCE].
+         * @param dateStr.
+         */
+        $scope.localeDate = function (dateStr) {
+            return moment(new Date(dateStr)).format('DD-MM-YYYY');
+        };
+
         let getCurrentAction = function (): string {
             return $route.current.$$route.action;
         };

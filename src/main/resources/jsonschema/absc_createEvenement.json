@@ -10,7 +10,7 @@
       "type": ["string", "null"]
     },
     "commentaire": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "saisie_cpe": {
       "type": "boolean"

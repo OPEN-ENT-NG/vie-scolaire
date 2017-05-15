@@ -1,9 +1,10 @@
 <div class="row" ng-controller="AbscAbssmPersonnelController">
     <container template="AbscFiltres" class="cell" ng-class="{two : !display.menu, three : display.menu}"></container>
     <div ng-class="{nine : display.menu, ten : !display.menu}" class="cell abscSM-content">
+        <!-- MA-67
         <div class="abscSM-content--student-search-input ten cell">
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un élève">
-        </div>
+        </div> -->
         <ul class="selectable-list abscSM-content--SMSelectable-list">
             <li ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs"
                 ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="report"></i>

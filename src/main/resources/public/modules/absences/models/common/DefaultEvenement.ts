@@ -14,17 +14,49 @@ export class DefaultEvenement extends Model implements IModel {
 
     get api () {
         return {
-          PUT: '/viescolaire/presences/evenement/' + this.id + '/updatemotif'
+            POST : '/viescolaire/presences/evenement',
+            PUT : '/viescolaire/presences/evenement',
+            DELETE : '/viescolaire/presences/evenement?evenementId=',
+            UPDATE_MOTIF: '/viescolaire/presences/evenement/' + this.id + '/updatemotif'
         };
     }
 
-    update (): Promise<any> {
+    create (): Promise<{ id: number, bool: boolean }> {
         return new Promise((resolve, reject) => {
-            let _evenement = this.toJSON();
-            http().putJson(http().parseUrl(this.api.PUT), _evenement).done((data) => {
-               if (resolve && (typeof resolve === 'function')) {
-                   resolve(data);
-               }
+            http().postJson(this.api.POST, this).done((data) => {
+                this.id = data.id;
+                resolve({id : data.id, bool : true});
+            });
+        });
+    }
+
+    update (): Promise<{ id: number, bool: boolean }> {
+        return new Promise((resolve, reject) => {
+            http().putJson(this.api.PUT, this).done((data) => {
+                resolve({id : data.id, bool : false});
+            });
+        });
+    }
+
+    save (): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.id) {
+                this.update().then((data) => {
+                    resolve(data);
+                });
+            } else {
+                this.create().then((data) => {
+                    resolve(data);
+                });
+            }
+        });
+    }
+
+    delete (): Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().delete(this.api.DELETE + this.id).done(() => {
+                this.id = undefined;
+                resolve();
             });
         });
     }

@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 
+import org.vertx.java.core.json.impl.Json;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -389,5 +390,16 @@ public class DefaultUtilsService  implements UtilsService {
             params.addString(id);
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getNameEntity(String[] name, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (s) WHERE s.id IN {id} RETURN CASE WHEN s.name IS NULL THEN s.lastName ELSE s.name END AS name");
+        params.putArray("id", new JsonArray(name));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 }

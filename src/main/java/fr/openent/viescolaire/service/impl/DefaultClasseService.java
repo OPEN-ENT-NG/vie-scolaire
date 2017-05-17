@@ -26,7 +26,6 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
-import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
@@ -46,16 +45,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
+        JsonObject params = new JsonObject();
 
-        query.append("SELECT classe.id, classe.fk4j_classe_id, classe.libelle ")
-                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".classe ")
-                .append("WHERE classe.id_etablissement = ?");
+        query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} RETURN c.id as idClasse ORDER BY c.name");
+        params.putString("idEtablissement", idEtablissement);
 
-        params.addString(idEtablissement);
-
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
     }
+
+    //TODO Revoir avec getEleveClasses
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
@@ -83,6 +81,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 
+    //TODO Revoir avec getEleveClasse
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
@@ -97,5 +96,32 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
 
+    }
+
+    @Override
+    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName ")
+                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+        query.append("MATCH (g:Class)-[BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure ")
+            .append("UNION MATCH (g:FunctionalGroup)-[DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 }

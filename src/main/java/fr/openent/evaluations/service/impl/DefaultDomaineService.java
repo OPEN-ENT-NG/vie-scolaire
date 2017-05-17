@@ -57,4 +57,27 @@ public class DefaultDomaineService extends SqlCrudService implements DomainesSer
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }
 
+    @Override
+    public void getDomainesRacines(String idClasse, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        //On extrait d'abord les domaines evalués et dont le cycle correspond à celui de la classe
+        query.append("WITH evaluated_domaines AS ")
+                .append("(SELECT id, id_parent, libelle, codification ")
+                .append("FROM notes.domaines ")
+                .append("LEFT JOIN notes.rel_groupe_cycle ON notes.domaines.id_cycle = notes.rel_groupe_cycle.id_cycle " )
+                .append("WHERE domaines.evaluated = TRUE AND rel_groupe_cycle.id_groupe = ?) ");
+        params.addString(idClasse);
+
+        //Puis on sélectionne les domaines dont le parent n'existe pas dans la requête précente, c'est-à-dire un domaine racine (id_parent = 0) ou dont le domaine parent n'est pas évalué
+        query.append("SELECT id, libelle, codification ")
+                .append("FROM evaluated_domaines ")
+                .append("WHERE id NOT IN ")
+                .append("(SELECT t1.id ")
+                .append("FROM evaluated_domaines AS t1, evaluated_domaines AS t2 ")
+                .append("WHERE t1.id_parent = t2.id) ORDER BY codification;");
+
+        Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
+    }
 }

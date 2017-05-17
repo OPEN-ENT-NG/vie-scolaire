@@ -176,7 +176,7 @@ public class UtilsController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                if (user != null && request.params().size() == 2) {
+                if (user != null && request.params().contains("idEtablissement")) {
                     String idEtablissement = request.params().get("idEtablissement");
                     utilsService.listClasses(idEtablissement,user, new Handler<Either<String, JsonArray>>() {
                         @Override
@@ -217,6 +217,8 @@ public class UtilsController extends ControllerHelper {
                                             }
                                         }
                                     });
+                                } else {
+                                    renderJson(request, classes);
                                 }
                             } else {
                                 badRequest(request);

@@ -3,7 +3,7 @@ import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluat
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');
-declare let _:any;
+declare let _: any;
 
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
     '$scope', 'route', 'model',

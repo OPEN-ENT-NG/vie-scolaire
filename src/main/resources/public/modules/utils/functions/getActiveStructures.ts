@@ -28,3 +28,40 @@ export function getActiveStructures (module: string): Promise<any[]> {
             });
     });
 }
+
+/**
+ * Active une structure de l'utilisateur.
+ * @param module Nom du module appelant la fonction. Permet de variabiliser la route appelante.
+ * @param id_structure
+ * @returns {Promise<T>} Callback de retour.
+ */
+export function createActiveStructure (module: string, id_structure: string): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+        http().postJson('/viescolaire/' + module + '/user/structures/actives', {structureId: id_structure})
+            .done((res) => {
+                resolve(res);
+            })
+            .error(() => {
+                reject();
+            });
+    });
+}
+
+
+/**
+ * Supprime l'activation d'une structure de l'utilisateur.
+ * @param module Nom du module appelant la fonction. Permet de variabiliser la route appelante.
+ * @param id_structure
+ * @returns {Promise<T>} Callback de retour.
+ */
+export function deleteActiveStructure (module: string, id_structure: string): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+        http().delete('/viescolaire/' + module + '/user/structures/actives', {structureId: id_structure})
+            .done((res) => {
+                resolve(res);
+            })
+            .error(() => {
+                reject();
+            });
+    });
+}

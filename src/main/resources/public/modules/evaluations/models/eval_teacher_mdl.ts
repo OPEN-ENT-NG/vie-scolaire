@@ -150,9 +150,9 @@ export class Structure extends Model implements IModel{
                                 this.load(res);
                                 this.each(function (matiere) {
                                     matiere.sousMatieres.load(matiere.sous_matieres);
-                                    that.synchronized.matieres = true;
                                     delete matiere.sous_matieres;
                                 });
+                                that.synchronized.matieres = true;
                                 resolve();
                             }.bind(this));
                     }

@@ -24,9 +24,11 @@ import fr.openent.absences.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 public class DefaultUtilsService implements UtilsService {
     @Override
@@ -44,4 +46,33 @@ public class DefaultUtilsService implements UtilsService {
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
+    /**
+     * Active un établissement
+     * @param id : établissement
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void createActiveStructure (String id,UserInfos user,Handler<Either<String, JsonArray>> handler) {
+        SqlStatementsBuilder s = new SqlStatementsBuilder();
+        JsonObject data = new JsonObject();
+        String userQuery = "SELECT " +  Viescolaire.ABSC_SCHEMA + ".merge_users(?,?)";
+        s.prepared(userQuery, (new JsonArray()).add(user.getUserId()).add(user.getUsername()));
+        data.putString("id_etablissement", id);
+        data.putBoolean("actif", true);
+        s.insert( Viescolaire.ABSC_SCHEMA + ".etablissements_actifs", data, "id_etablissement");
+        Sql.getInstance().transaction(s.build(), SqlResult.validResultHandler(handler));
+
+    }
+
+    /**
+     * Supprime un étbalissement actif
+     * @param id : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void deleteActiveStructure(String id,UserInfos user,Handler<Either<String, JsonArray>> handler) {
+        String query = "DELETE FROM " +  Viescolaire.ABSC_SCHEMA + ".etablissements_actifs" + " WHERE id_etablissement = ?";
+        Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
+    }
+
 }

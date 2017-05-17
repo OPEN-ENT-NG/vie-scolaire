@@ -1,92 +1,97 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel } from 'entcore/entcore';
+import { model, Model, Collection } from 'entcore/entcore';
+import {
+    createActiveStructure, deleteActiveStructure,
+    getActiveStructures
+} from "../../utils/functions/getActiveStructures";
 
-let moment = require('moment');
-
-declare let _:any;
+declare let _: any;
 
 /**
  * MODELE DE DONNEES PERSONNEL :
- *  1. WAbsSansMotifs : Objet Widget contenant la liste des absences sans motifs.
- *  2. WAppelsOublies : Objet Widget contenant la liste des appels oubliés.
- *  3. WMotVsco: Objet Widget contenant la liste des mots pour la vie scolaire.
- *  4. Widget : Objet contenant la liste des widgets de la page d'accueil CPE. Contient des listes de WAbsSansMotifs, WAppelsOublies et WMotVsco.
+ *  viescolaire
  */
 
-export class Evenement extends Model {}
+export class Structure extends Model {
+    // Fields
+    id: string;
+    name: string;
+    isActived = {presence : false, evaluation: false};
 
-export class Appel extends Model {}
 
-export class Observation extends Model {}
-
-export class WAbsSansMotifs extends Model {
-    evenements: Collection<Evenement>;
-
-    constructor () {
+    constructor (o?: any) {
         super();
-        this.collection(Evenement);
+        if (o && typeof o === 'object') {
+            this.updateData(o);
+        }
     }
 
-    sync () {
-        http().getJson("/viescolaire/absences/sansmotifs/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done((data) => {
-            this.evenements.load(data);
-        });
-    }
-}
-
-export class WAppelsOublies extends Model {
-    appels : Collection<Appel>;
-
-    constructor () {
-        super();
-        this.collection(Appel);
-    }
-
-    sync () {
-        http().getJson("/viescolaire/absences/appels/noneffectues/"+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done((data) => {
-            this.appels.load(data);
-        });
-    }
-}
-
-export class WObservations extends Model {
-    observations : Collection<Observation>;
-
-    constructor () {
-        super();
-        this.collection(Observation);
-    }
-
-    sync ()  {
-        http().getJson('/viescolaire/absences/observations/'+moment(new Date()).format('YYYY-MM-DD')+"/"+moment(new Date()).format('YYYY-MM-DD'))
-        .done((data) => {
-            this.observations.load(data);
-        });
+    async  activate (module: string, isActif, idStructure) {
+        if ( module === 'presences') {
+            if (!isActif) {
+                let res = await deleteActiveStructure('presences', idStructure);
+                console.dir(res);
+            }
+            else {
+                let res = await createActiveStructure('presences', idStructure);
+                console.dir(res);
+            }
+        }
+        else if ( module === 'evaluations') {
+            if (!isActif) {
+                let res = await deleteActiveStructure('evaluations', idStructure);
+                console.dir(res);
+            }
+            else {
+                let res = await createActiveStructure('evaluations', this.id);
+                console.dir(res);
+            }
+        }
     }
 }
 
-export class Widget extends Model {
-    WAbsSansMotifs: WAbsSansMotifs;
-    WAppelsOublies: WAppelsOublies;
-    WObservations: WObservations;
-}
 
 export class VieScolaire extends Model {
-    widget: Widget;
+    structures: Collection<Structure>;
+    structure: Structure;
 
     constructor () {
         super();
-        this.widget = new Widget();
-        this.widget.WAbsSansMotifs = new WAbsSansMotifs();
-        this.widget.WAppelsOublies = new WAppelsOublies();
-        this.widget.WObservations = new WObservations();
+        this.collection(Structure, {
+            sync: async (): Promise<any> => {
+                try {
+                    let structuresPresences;
+                    let structuresEvaluations;
+                    structuresPresences = await getActiveStructures('presences');
+                    structuresEvaluations = await getActiveStructures('evaluations');
+                    for (let i = 0; i < model.me.structures.length; i++) {
+                        let _structure = new Structure({
+                            id: model.me.structures[i],
+                            name: model.me.structureNames[i]
+                        });
+
+                        if (_.findWhere(structuresEvaluations, {id : _structure.id})) {
+                            _structure.isActived.evaluation = true;
+                        }
+                        if (_.findWhere(structuresPresences, {id : _structure.id})) {
+                            _structure.isActived.presence = true;
+                        }
+                        this.structures.all.push(_structure);
+                    }
+                    this.structure = this.structures.all[0];
+                    return;
+                } catch (e) {
+                    throw e;
+                }
+            }
+        });
     }
 
-    sync () {
-        this.widget.WAbsSansMotifs.sync();
-        this.widget.WAppelsOublies.sync();
-        this.widget.WObservations.sync();
+    async sync (): Promise<any> {
+        try {
+          await this.structures.sync();
+        } catch (e) {
+            throw  e;
+        }
     }
 }
 

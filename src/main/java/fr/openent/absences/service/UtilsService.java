@@ -32,4 +32,21 @@ public interface UtilsService {
      * @param handler handler portant le résultat de la requête
      */
     public void getActivesIDsStructures(UserInfos userInfos, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Active un établissement
+     * @param id : id établissement
+     * @param user : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void createActiveStructure(String id ,UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * met à jour les établissements inactifs de l'utilisateur connecté
+     * @param id : établissement
+     * @param user : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void deleteActiveStructure(String id,UserInfos user ,Handler<Either<String, JsonArray>> handler);
+
 }

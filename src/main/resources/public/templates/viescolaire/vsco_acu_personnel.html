@@ -1,0 +1,85 @@
+<div class="twelve cell" ng-controller="VscoAdminController">
+    <div class="twelve tabs vertical-spacing-twice heading-tabs">
+        <header ng-class="{selected : !hasParam('filter')}" class="horizontal-spacing-twice selected">
+            <a href="#/viescolaire/accueil" class="horizontal-spacing">
+                <span><i18n><span class="no-style ng-scope">viescolaire.utils.school</span></i18n></span>
+            </a>
+        </header>
+        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}" class="horizontal-spacing-twice ng-scope">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.notes.title')]]" class="horizontal-spacing">
+                <span><i18n><span class="no-style ng-scope">viescolaire.notes.title</span></i18n></span>
+            </a>
+        </header>
+        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }" class="horizontal-spacing-twice ng-scope">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.presences.title')]]" class="horizontal-spacing">
+                <span><i18n><span class="no-style ng-scope">viescolaire.presences.title</span></i18n></span>
+            </a>
+        </header>
+    </div>
+    <div class="twelve cell">
+        <div ng-if="!hasParam('filter')">
+        </div>
+        <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
+            <table class="nine list-view">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th><i18n>viescolaire.utils.school</i18n></th>
+                    <th> <i18n>Activated</i18n></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><i role="doc"></i></td>
+                    <td>[[structure.name]]</td>
+                    <td> <div class="cell cell-indent one">
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                   ng-change="structure.activate('evaluations', structure.isActived.evaluation, structure.id);
+                                              structure.isActived.evaluation = !structure.isActived.evaluation;"
+                                   ng-click="structure.isActived.evaluation = !structure.isActived.evaluation;"
+                                   ng-model="structure.isActived.evaluation"
+                                   class="ng-pristine ng-valid">
+                            <span></span>
+                        </label>
+                    </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div ng-if="findParam('filter') === lang.translate('viescolaire.presences.title')">
+            <table class="nine list-view">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th><i18n>viescolaire.utils.school</i18n></th>
+                    <th> <i18n>Activated</i18n></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><i role="doc"></i></td>
+                    <td>[[structure.name]]</td>
+                    <td>
+                        <div class="cell cell-indent one">
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       ng-change ="structure.activate('presences', structure.isActived.presence, structure.id );
+                                                   structure.isActived.presence = !structure.isActived.presence;"
+                                       ng-click="structure.isActived.presence = !structure.isActived.presence;"
+                                       ng-model="structure.isActived.presence"
+                                       class="ng-pristine ng-valid">
+                                <span></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+

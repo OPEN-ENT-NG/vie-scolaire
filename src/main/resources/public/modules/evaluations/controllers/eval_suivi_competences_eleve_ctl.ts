@@ -3,7 +3,7 @@
  */
 
 import {ng, template, model} from 'entcore/entcore';
-import {SuiviCompetence, Devoir, CompetenceNote, evaluations} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Devoir, CompetenceNote, evaluations, Structure, Classe, Eleve} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 
@@ -324,6 +324,21 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
         $scope.pOFilterEval = {
             limitTo: 2
+        };
+
+        $scope.exportBFC = (object, idPeriode) => {
+            let url = "/viescolaire/evaluations/BFC/pdf?";
+            if (object instanceof Structure) {
+                url += "idStructure=" + object.id;
+            } else if (object instanceof Classe) {
+                url += "idClasse=" + object.id;
+            } else if (object instanceof Eleve) {
+                url += "idEleve=" + object.id;
+            }
+            if(idPeriode.id != null) {
+                url += "&idPeriode=" + idPeriode.id;
+            }
+            location.replace(url);
         };
 
         /**

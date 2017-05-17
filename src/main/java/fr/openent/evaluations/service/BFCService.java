@@ -7,6 +7,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.Map;
+
 /**
  * Created by vogelmt on 29/03/2017.
  */
@@ -37,9 +39,19 @@ public interface BFCService extends CrudService {
 
     /**
      * Récupère les BFCs d'un élève pour chaque domaine
-     * @param idEleve
+     * @param idEleves
      * @param idEtablissement
      * @param handler
      */
-    public void getBFCsByEleve(String idEleve, String idEtablissement, Handler<Either<String,JsonArray>> handler);
+    public void getBFCsByEleve(String[] idEleves, String idEtablissement, Handler<Either<String,JsonArray>> handler);
+
+    /**
+     * Retourne les moyennes par domaines des élève dont l'id est passé en paramètre.
+     * La map retournee a pour clé l'id de l'élève, et contient une autre map qui contient, pour chaque id de domaine racine, la moyenne simplifiée (
+     * @param idEleves id des élèves dont on souhaite obtenir les moyennes pour le BFC
+     * @param idClasse l'id de la classe à laquelle appartient l'élève
+     * @param idStructure l'id de l'établissement auquel appartient la classe
+     * @param handler handler portant le résultat du calcul de moyenne
+     */
+    public void buildBFC(String[] idEleves, String idClasse, String idStructure, Long idPeriode, Handler<Either<String, Map<String, Map<Long, Integer>>>> handler);
 }

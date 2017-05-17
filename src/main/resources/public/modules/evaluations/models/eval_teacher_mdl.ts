@@ -208,11 +208,13 @@ export class Structure extends Model implements IModel{
                         that.classes.addRange(castClasses(res));
                         that.synchronized.classes = true;
                         if (!isChefEtab()) {
+                            that.eleves.sync().then(() => {
+                                model.trigger('apply');
+                            });
                             that.syncRemplacement().then(() => {
-                                that.eleves.sync().then(() => {
-                                   resolve();
-                                });
-                            })
+                                model.trigger('apply');
+                            });
+                            resolve();
                         } else {
                             that.eleves.sync().then(() => {
                                 resolve();

@@ -127,7 +127,7 @@ public class BFCController extends ControllerHelper {
                 && request.params().contains("idEtablissement")) {
             String idEleve = request.params().get("idEleve");
             String idEtablissement = request.params().get("idEtablissement");
-            bfcService.getBFCsByEleve(idEleve, idEtablissement, arrayResponseHandler(request));
+            bfcService.getBFCsByEleve(new String[] {idEleve}, idEtablissement, arrayResponseHandler(request));
         } else {
             Renders.badRequest(request, "Invalid parameters");
         }

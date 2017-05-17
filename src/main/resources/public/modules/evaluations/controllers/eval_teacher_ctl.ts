@@ -2399,6 +2399,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         let executeAction = function (): void {
             routesActions[getCurrentAction()]($route.current.params);
+            utils.safeApply($scope);
         };
 
         evaluations.sync()
@@ -2413,9 +2414,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $location.replace();
                     } else {
                         executeAction();
+                        utils.safeApply($scope);
                     }
                     $scope.opened.displayStructureLoader = false;
                 });
+                utils.safeApply($scope);
             })
             .catch(() => {
                 $location.path() === '/disabled' ?

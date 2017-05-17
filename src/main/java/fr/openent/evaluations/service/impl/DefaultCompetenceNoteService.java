@@ -144,7 +144,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_notes ON (competences_notes.id_competence = competences.id) ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".devoirs ON (competences_notes.id_devoir = devoirs.id) ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
-                .append("WHERE competences_notes.id_eleve = ? AND evaluation >= 0 ");
+                .append("WHERE competences_notes.id_eleve = ? ");
         if (idPeriode != null) {
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(idPeriode);
@@ -246,14 +246,14 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
                 .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".rel_competences_domaines ON competences_notes.id_competence = rel_competences_domaines.id_competence ")
                 .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".competences ON competences_notes.id_competence = competences.id ")
                 .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".devoirs ON competences_notes.id_devoir = devoirs.id ")
-                .append("WHERE competences_notes.id_eleve IN ").append(Sql.listPrepared(id_eleve)).append(" AND evaluation >= 0 ");
+                .append("WHERE competences_notes.id_eleve IN ").append(Sql.listPrepared(id_eleve));
 
         for(String s : id_eleve) {
             values.addString(s);
         }
 
         if(idPeriode != null) {
-            query.append("AND devoirs.id_periode = ?");
+            query.append(" AND devoirs.id_periode = ?");
             values.addNumber(idPeriode);
         }
 

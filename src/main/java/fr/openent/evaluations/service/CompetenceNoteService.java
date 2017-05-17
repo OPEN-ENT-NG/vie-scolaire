@@ -125,4 +125,12 @@ public interface CompetenceNoteService extends CrudService {
      * @param handler
      **/
     public void getConversionNoteCompetence(String idEtablissement, String idclasse, Handler<Either<String,JsonArray>> handler);
-}
+
+    /**
+     * Récupère la note maximale pour chaque compétence de chaque élève dont l'id est passé en paramètre.
+     * @param idEleves id des élèves
+     * @param idPeriode id de la période dont on souhaite récupérer les notes, peut être null pour sélectionner l'année
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getMaxCompetenceNoteEleve(String[] idEleves, Long idPeriode, Handler<Either<String, JsonArray>> handler);
+ }

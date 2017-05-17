@@ -171,4 +171,10 @@ public interface UtilsService {
      * @param <K> Le type de la clé
      */
     public <K> void addToMap(K key, HashMap<K, ArrayList<NoteDevoir>> map, NoteDevoir valueToAdd);
+
+    /**
+     * Récupère le nom de l'entité à qui appartient l'identifiant passé en paramètre.
+     * @param name  l'identifiant de l'entité
+     */
+    public void getNameEntity(String[] name, Handler<Either<String, JsonArray>> handler);
 }

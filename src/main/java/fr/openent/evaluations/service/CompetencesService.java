@@ -97,4 +97,11 @@ public interface CompetencesService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getCompetencesByLevel(String filter, String idClasse, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère les compétences des domaines dont l'id est passé en paramètre
+     * @param idDomaines id des domaines dont on souhaite récupérer les compétences
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getCompetencesDomaines(Long[] idDomaines, Handler<Either<String, JsonArray>> handler);
 }

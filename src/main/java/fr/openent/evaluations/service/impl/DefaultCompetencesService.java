@@ -194,4 +194,18 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
 
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getCompetencesDomaines(Long[] idDomaines, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT * FROM " + Viescolaire.EVAL_SCHEMA + ".rel_competences_domaines WHERE id_domaine IN " + Sql.listPrepared(idDomaines));
+
+        for(Long l : idDomaines) {
+            params.addNumber(l);
+        }
+
+        Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
+    }
 }

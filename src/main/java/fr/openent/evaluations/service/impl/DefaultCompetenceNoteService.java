@@ -225,14 +225,40 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     public void getConversionNoteCompetence(String idEtablissement, String idClasse, Handler<Either<String,JsonArray>> handler){
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
-                .append("Select valmin, valmax, libelle, ordre, couleur from notes.niveau_competences  niv ")
-                .append("INNER JOIN  notes.echelle_conversion_niv_note echelle on niv.id = echelle.id_niveau ")
-                .append("INNER JOIN  notes.rel_groupe_cycle CC on cc.id_cycle = niv.id_cycle ")
+                .append("SELECT valmin, valmax, libelle, ordre, couleur ")
+                .append("FROM notes.niveau_competences AS niv ")
+                .append("INNER JOIN  " + Viescolaire.EVAL_SCHEMA + ".echelle_conversion_niv_note AS echelle ON niv.id = echelle.id_niveau ")
+                .append("INNER JOIN  " + Viescolaire.EVAL_SCHEMA + ".rel_groupe_cycle CC ON cc.id_cycle = niv.id_cycle ")
                 .append("AND cc.id_groupe = ? ")
                 .append("AND echelle.id_structure = ? ")
                 .append("ORDER BY ordre DESC");
         values.addString(idClasse);
         values.addString(idEtablissement);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getMaxCompetenceNoteEleve(String[] id_eleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray();
+        StringBuilder query = new StringBuilder()
+                .append("SELECT competences_notes.id_eleve, rel_competences_domaines.id_domaine, competences.id as id_competence, max(competences_notes.evaluation) as evaluation ")
+                .append("FROM ").append(Viescolaire.EVAL_SCHEMA).append(".competences_notes ")
+                .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".rel_competences_domaines ON competences_notes.id_competence = rel_competences_domaines.id_competence ")
+                .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".competences ON competences_notes.id_competence = competences.id ")
+                .append("INNER JOIN ").append(Viescolaire.EVAL_SCHEMA).append(".devoirs ON competences_notes.id_devoir = devoirs.id ")
+                .append("WHERE competences_notes.id_eleve IN ").append(Sql.listPrepared(id_eleve));
+
+        for(String s : id_eleve) {
+            values.addString(s);
+        }
+
+        if(idPeriode != null) {
+            query.append(" AND devoirs.id_periode = ?");
+            values.addNumber(idPeriode);
+        }
+
+        query.append(" GROUP BY competences_notes.id_eleve, competences.id, competences.id_cycle,rel_competences_domaines.id_domaine");
+
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 }

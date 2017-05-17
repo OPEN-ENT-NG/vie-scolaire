@@ -20,15 +20,26 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.bean.Eleve;
 import fr.openent.evaluations.bean.NoteDevoir;
+import fr.openent.evaluations.service.BFCService;
+import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.DevoirService;
 import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultDevoirService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.evaluations.service.DomainesService;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.PeriodeService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultEleveService;
 import fr.openent.viescolaire.service.impl.DefaultMatiereService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
+import fr.openent.evaluations.service.impl.DefaultBFCService;
+import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
+import fr.openent.evaluations.service.impl.DefaultDevoirService;
+import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.evaluations.service.impl.DefaultDomaineService;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -38,8 +49,6 @@ import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.entcore.directory.services.UserService;
-import org.entcore.directory.services.impl.DefaultUserService;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
@@ -50,6 +59,10 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import org.vertx.java.core.json.impl.Json;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -57,6 +70,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
@@ -65,6 +79,8 @@ import static org.entcore.common.http.response.DefaultResponseHandler.leftToResp
 public class ExportPDFController extends ControllerHelper {
     private String assetsPath = "../..";
     private Map<String, String> skins = new HashMap<String, String>();
+    protected static final Logger log = LoggerFactory.getLogger(ExportPDFController.class);
+
 
     private String node;
 
@@ -72,10 +88,14 @@ public class ExportPDFController extends ControllerHelper {
      * Déclaration des services
      */
     private DevoirService devoirService;
-    private UserService userService;
     private UtilsService utilsService;
     private MatiereService matiereService;
     private PeriodeService periodeService;
+    private ClasseService classeService;
+    private BFCService bfcService;
+    private DomainesService domaineService;
+    private EleveService eleveService;
+    private CompetenceNoteService competenceNoteService;
 
     public ExportPDFController(EventBus eb, EmailSender notification) {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
@@ -83,7 +103,11 @@ public class ExportPDFController extends ControllerHelper {
         utilsService = new DefaultUtilsService();
         matiereService = new DefaultMatiereService();
         periodeService = new DefaultPeriodeService();
-        userService = new DefaultUserService(notification, eb);
+        classeService = new DefaultClasseService();
+        bfcService = new DefaultBFCService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_TABLE);
+        domaineService = new DefaultDomaineService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_DOMAINES_TABLE);
+        eleveService = new DefaultEleveService();
+        competenceNoteService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
     }
 
     /**
@@ -337,6 +361,674 @@ public class ExportPDFController extends ControllerHelper {
     }
 
     /**
+     * Retourne un JsonArray contenant les JsonObject de chaque Eleve passe en parametre, seulement si tous les Eleves
+     * sont prets.
+     * Les Eleves sont pret lorsque la fonction <code>Eleve.isReady()</code> renvoit true. Dans le cas
+     * contraire, la fonction s'arrete en retournant null.
+     *
+     * @param classe  La liste des Eleves de la classe.
+     * @return        Un JsonArray contenant les JsonObject de tous les Eleves de la classe; null si un
+     *                Eleve n'est pas pret.
+     *
+     * @see Eleve
+     */
+    private JsonArray formatBFC(List<Eleve> classe) {
+        JsonArray result = new JsonArray();
+
+        for(Eleve eleve : classe) {
+            if(!eleve.isReady()) {
+                return null;
+            }
+            result.addObject(eleve.toJson());
+        }
+
+        return result;
+    }
+
+    /**
+     * Ajoute le JsonObject a <code>collection</code>, et si les JsonObject de toutes les classes ont ete
+     * renseignees dans <code>collection</code>, assemble tous JsonObject au sein d'un JsonArray qui sera fournit
+     * au handler.
+     *
+     * @param key         Identifiant de la classe a ajoute dans <code>collection</code>.
+     * @param value       JsonObject de la classe a ajoute dans <code>collection</code>.
+     * @param collection  Map des JsonObject de toutes les classes, indexant par leur identifiant.
+     * @param handler     Handler manipulant le JsonArray lorsque celui-ci est assemble.
+     */
+    private void collectBFCEleve(String key, JsonObject value, Map<String, JsonObject> collection, Handler<Either<String, JsonArray>> handler) {
+        if (!collection.values().contains(null)) {
+            return;
+        } else {
+            collection.put(key, value);
+        }
+
+        // La collection est initilisee avec les identifiants de toutes les classes, associes avec une valeur null.
+        // Ainsi, s'il demeure un null dans la collection, c'est que toutes les classes ne possede pas encore
+        // leur JsonObject.
+        if (!collection.values().contains(null)) {
+            JsonArray result = new JsonArray();
+            for(JsonObject classe : collection.values()) {
+                result.addObject(classe);
+            }
+            handler.handle(new Either.Right<String, JsonArray>(result));
+        }
+    }
+
+    /**
+     * Recupere pour chaque classe l'echelle de conversion des moyennes, les domaines racines a evaluer ainsi que les
+     * notes des eleves.
+     * Appelle les 3 services simultanement pour chaque classe, ajoutant l'information renvoyee par le service a chaque
+     * Eleve de la classe, puis appelle {@link #collectBFCEleve(String, JsonObject, Map, Handler) collectBFCEleve} avec son propre
+     * handler afin de renseigner une reponse si la classe est prete a etre exporter.
+     *
+     * @param classes      L'ensemble des Eleves, rassembles par classe et indexant en fonction de l'identifiant de la
+     *                     classe
+     * @param idStructure  L'identifiant de la structure. Necessaire afin de recuperer l'echelle de conversion.0
+     * @param idPeriode    L'identifiant de la periode pour laquelle on souhaite recuperer le BFC.
+     * @param handler      Handler contenant le BFC final.
+     *
+     * @see Eleve
+     */
+    private void getBFCParClasse(final Map<String, List<Eleve>> classes, final String idStructure, Long idPeriode, final Handler<Either<String, JsonArray>> handler) {
+
+        // Contient toutes les classes sous forme JsonObject, indexant en fontion de l'identifiant de la classe
+        // correspondante.
+        final Map<String, JsonObject> result = new LinkedHashMap<>();
+
+        // La map result avec les identifiants des classes, contenus dans "classes", afin de s'assurer qu'aucune ne
+        // manque.
+        for(String s : classes.keySet()) {
+            result.put(s, null);
+        }
+
+        for (final Map.Entry<String, List<Eleve>> classe : classes.entrySet()) {
+
+            final Map<Integer, String> libelleEchelle = new HashMap<>();
+            final Map<String, Map<Long, Integer>> resultatsEleves = new HashMap<>();
+            final Map<Long, Map<String, String>> domainesRacines = new LinkedHashMap<>();
+            final List<String> idEleves = new ArrayList<>();
+
+            // La liste des identifiants des Eleves de la classe est necessaire pour "buildBFC"
+            for(Eleve e : classe.getValue()) {
+                idEleves.add(e.getIdEleve());
+            }
+
+            competenceNoteService.getConversionNoteCompetence(idStructure, classe.getKey(), new Handler<Either<String, JsonArray>>() {
+                @Override
+                public void handle(Either<String, JsonArray> event) {
+                    if(event.isRight()) {
+                        if(event.right().getValue().size() == 0) {
+                            collectBFCEleve(classe.getKey(), new JsonObject().putString("error", "Une erreur est survenue lors de la recuperation de l'échelle de conversion pour la classe " + classe.getValue().get(0).getNomClasse() + " : aucune echelle de conversion pour cette classe."), result, handler);
+                            log.error("getBFC : getConversionNoteCompetence (" + idStructure + ", " + classe.getKey() + ") : aucune echelle de conversion pour cette classe.");
+                        }
+                        for (int i = 0; i < event.right().getValue().size(); i++) {
+                            JsonObject _o = event.right().getValue().get(i);
+                            libelleEchelle.put(_o.getInteger("ordre"), _o.getString("libelle"));
+                        }
+                        for(Eleve e : classe.getValue()) {
+                            e.setLibelleNiveau(libelleEchelle);
+                        }
+                        JsonArray classeResult = formatBFC(classe.getValue());
+                        if (classeResult != null) { // classeResult est différent de null si tous les élèves de la classe ont tous les paramètres
+                            collectBFCEleve(classe.getKey(), new JsonObject().putArray("eleves", classeResult), result, handler);
+                        }
+                    } else {
+                        collectBFCEleve(classe.getKey(), new JsonObject().putString("error", "Une erreur est survenue lors de la recuperation de l'échelle de conversion pour la classe : " + classe.getValue().get(0).getNomClasse() + ";\n" + event.left().getValue()), result, handler);
+                        log.error("getBFC : getConversionNoteCompetence (" + idStructure + ", " + classe.getKey() + ") : " + event.left().getValue());
+                    }
+                }
+            });
+
+            domaineService.getDomainesRacines(classe.getKey(), new Handler<Either<String, JsonArray>>() {
+                @Override
+                public void handle(Either<String, JsonArray> event) {
+                    if (event.isRight()) {
+                        if(event.right().getValue().size() == 0) {
+                            collectBFCEleve(classe.getKey(), new JsonObject().putString("error", "Une erreur est survenue lors de la recuperation des domaines pour la classe " + classe.getValue().get(0).getNomClasse() + " : aucun domaine racine pour cette classe."), result, handler);
+                            log.error("getBFC : getDomainesRacines (" + classe.getKey() + ") : aucun domaine racine pour cette classe.");
+                        }
+                        JsonArray queryResult = event.right().getValue();
+                        for (int i = 0; i < queryResult.size(); i++) {
+                            JsonObject domaine = queryResult.get(i);
+                            Map<String, String> infoDomaine = new HashMap<>();
+                            infoDomaine.put("id", String.valueOf(domaine.getLong("id")));
+                            infoDomaine.put("codification", domaine.getString("codification"));
+                            infoDomaine.put("libelle", domaine.getString("libelle"));
+                            domainesRacines.put(Long.valueOf(infoDomaine.get("id")), infoDomaine);
+                        }
+                        for (Eleve e : classe.getValue()) {
+                            e.setDomainesRacines(domainesRacines);
+                        }
+                        JsonArray classeResult = formatBFC(classe.getValue());
+                        if (classeResult != null) {
+                            collectBFCEleve(classe.getKey(), new JsonObject().putArray("eleves", classeResult), result, handler);
+                        }
+                    } else {
+                        collectBFCEleve(classe.getKey(), new JsonObject().putString("error", "Une erreur est survenue lors de la recuperation des domaines pour la classe : " + classe.getValue().get(0).getNomClasse() + ";\n" + event.left().getValue()), result, handler);
+                        log.error("getBFC : getDomainesRacines (" + classe.getKey() + ") : " + event.left().getValue());
+                    }
+                }
+            });
+
+            bfcService.buildBFC(idEleves.toArray(new String[0]), classe.getKey(), idStructure, idPeriode, new Handler<Either<String, Map<String, Map<Long, Integer>>>>() {
+                @Override
+                public void handle(final Either<String, Map<String, Map<Long, Integer>>> event) {
+                    if (event.isRight()) {
+                        resultatsEleves.putAll(event.right().getValue()); //Ici sont stockés les résultats
+                        for (Eleve e : classe.getValue()) {
+                            e.setNotes(resultatsEleves.get(e.getIdEleve()));
+                        }
+                        JsonArray classeResult = formatBFC(classe.getValue());
+                        if (classeResult != null) {
+                            collectBFCEleve(classe.getKey(), new JsonObject().putArray("eleves", classeResult), result, handler);
+                        }
+                    } else {
+                        collectBFCEleve(classe.getKey(), new JsonObject().putString("error", "Une erreur est survenue lors de la recuperation des notes pour la classe : " + classe.getValue().get(0).getNomClasse() + ";\n" + event.left().getValue()), result, handler);
+                        log.error("getBFC : buildBFC (Array of idEleves, " + classe.getKey() + ", " + idStructure + ") : " + event.left().getValue());
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Recupere l'identifiant de la structure a laquelle appartiennent les classes dont l'identifiant est passe en
+     * parametre.
+     *
+     * @param idClasses  Tableau contenant l'identifiant des classes dont on souhaite connaitre la structure.
+     * @param handler    Handler contenant l'identifiant de la structure.
+     */
+    private void getStructClasses(String[] idClasses, final Handler<Either<String, String>> handler) {
+        classeService.getEtabClasses(idClasses, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()) {
+                    JsonArray queryResult = event.right().getValue();
+                    if(queryResult.size() == 0) {
+                        handler.handle(new Either.Left<String, String>("Aucune classe n'a ete trouvee."));
+                        log.error("getStructClasses : No classes found with these ids");
+                    } else if(queryResult.size() > 1) {
+                        // Il est impossible de demander un BFC pour des classes n'appartenant pas au meme etablissement.
+                        handler.handle(new Either.Left<String, String>("Les classes n'appartiennent pas au meme etablissement."));
+                        log.error("getStructClasses : provided classes are not from the same structure.");
+                    } else {
+                        JsonObject structure = queryResult.get(0);
+                        handler.handle(new Either.Right<String,  String>(structure.getString("idStructure")));
+                    }
+                } else {
+                    handler.handle(new Either.Left<String, String>(event.left().getValue()));
+                    log.error("getStructClasses : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere l'identifiant de l'ensemble des classes de la structure dont l'identifiant est passe en parametre.
+     *
+     * @param idStructure  Identifiant de la structure dont on souhaite recuperer les classes.
+     * @param handler      Handler contenant la liste des identifiants des classes recuperees.
+     */
+    private void getClassesStruct(final String idStructure, final Handler<Either<String, List<String>>> handler) {
+        classeService.getClasseEtablissement(idStructure, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()) {
+                    List<String> result = new ArrayList<>();
+                    JsonArray queryResult = event.right().getValue();
+                    for (int i = 0; i < queryResult.size(); i++) {
+                        JsonObject classe = queryResult.get(i);
+                        result.add(classe.getString("idClasse"));
+                    }
+                    handler.handle(new Either.Right<String, List<String>>(result));
+                } else {
+                    handler.handle(new Either.Left<String, List<String>>(event.left().getValue()));
+                    log.error("getClassesStruct : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere l'identifiant de l'ensemble des eleves de la classe dont l'identifiant est passe en parametre.
+     *
+     * @param idClasses  Identifiant de la classe dont on souhaite recuperer les eleves.
+     * @param handler    Handler contenant la liste des identifiants des eleves recuperees.
+     */
+    private void getElevesClasses(String[] idClasses, final Handler<Either<String, Map<String, List<String>>>> handler) {
+        classeService.getElevesClasses(idClasses, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()) {
+                    Map<String, List<String>> result = new LinkedHashMap<>();
+                    JsonArray queryResult = event.right().getValue();
+                    for (int i = 0; i < queryResult.size(); i++) {
+                        JsonObject eleve = queryResult.get(i);
+                        if(!result.containsKey(eleve.getString("idClasse"))) {
+                            result.put(eleve.getString("idClasse"), new ArrayList<String>());
+                        }
+                        result.get(eleve.getString("idClasse")).add(eleve.getString("idEleve"));
+                    }
+                    handler.handle(new Either.Right<String, Map<String, List<String>>>(result));
+                } else {
+                    handler.handle(new Either.Left<String, Map<String, List<String>>>(event.left().getValue()));
+                    log.error("getElevesClasses : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere les informations relatives a chaque eleve dont l'identifiant est passe en parametre, et cree un objet
+     * Eleve correspondant a cet eleve.
+     *
+     * @param idEleves  Tableau contenant les identifiants des eleves dont on souhaite recuperer les informations.
+     * @param handler   Handler contenant la liste des objets Eleve ainsi construit,
+     *                  ou un erreur potentiellement survenue.
+     *
+     * @see Eleve
+     */
+    private void getInfoEleve(String[] idEleves, final Handler<Either<String, List<Eleve>>> handler) {
+        eleveService.getInfoEleve(idEleves, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if(event.isRight()) {
+                    final Set<String> classes = new HashSet<>();
+                    final List<Eleve> result = new ArrayList<>();
+                    JsonArray queryResult = event.right().getValue();
+                    for (int i = 0; i < queryResult.size(); i++) {
+                        JsonObject eleveBase = queryResult.get(i);
+                        Eleve eleveObj = new Eleve(eleveBase.getString("idEleve"),
+                                eleveBase.getString("lastName"),
+                                eleveBase.getString("firstName"),
+                                eleveBase.getString("idClasse"),
+                                eleveBase.getString("classeName"));
+                        classes.add(eleveObj.getIdClasse());
+                        result.add(eleveObj);
+                    }
+
+                    utilsService.getCycle(new ArrayList<>(classes), new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if(event.isRight()) {
+                                JsonArray queryResult = event.right().getValue();
+                                for (int i = 0; i < queryResult.size(); i++) {
+                                    JsonObject cycle = queryResult.get(i);
+                                    for(Eleve eleve : result) {
+                                        if(Objects.equals(eleve.getIdClasse(), cycle.getString("id_groupe"))) {
+                                            eleve.setCycle(cycle.getString("libelle"));
+                                        }
+                                    }
+                                }
+                                handler.handle(new Either.Right<String, List<Eleve>>(result));
+                            } else {
+                                handler.handle(new Either.Left<String, List<Eleve>>(event.left().getValue()));
+                                log.error("getInfoEleve : getCycle : " + event.left().getValue());
+                            }
+                        }
+                    });
+
+                } else {
+                    handler.handle(new Either.Left<String, List<Eleve>>(event.left().getValue()));
+                    log.error("getInfoEleve : getInfoEleve : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere les parametres manquant afin de pouvoir generer le BFC dans le cas ou seul l'identifiant de la
+     * structure est fourni.
+     *
+     * @param idStructure  Identifiant de la structure dont on souhaite generer le BFC.
+     * @param handler      Handler contenant les listes des eleves, indexees par classes.
+     */
+    private void getParamStruct(final String idStructure,  final Handler<Either<String, Map<String, Map<String, List<Eleve>>>>> handler) {
+
+        final Map<String, Map<String, List<Eleve>>> population = new HashMap<>();
+        population.put(idStructure, new LinkedHashMap<String, List<Eleve>>());
+
+        getClassesStruct(idStructure, new Handler<Either<String, List<String>>>() {
+            @Override
+            public void handle(Either<String, List<String>> event) {
+                if (event.isRight()) {
+                    final List<String> classes = event.right().getValue();
+                    getElevesClasses(classes.toArray(new String[0]), new Handler<Either<String, Map<String, List<String>>>>() {
+                        @Override
+                        public void handle(Either<String, Map<String, List<String>>> event) {
+                            if (event.isRight()) {
+                                for (final Map.Entry<String, List<String>> classe : event.right().getValue().entrySet()) {
+                                    population.get(idStructure).put(classe.getKey(), null);
+                                    getInfoEleve(classe.getValue().toArray(new String[0]), new Handler<Either<String, List<Eleve>>>() {
+                                        @Override
+                                        public void handle(Either<String, List<Eleve>> event) {
+                                            if(event.isRight()) {
+                                                population.get(idStructure).put(classe.getKey(), event.right().getValue());
+                                                // Si population.get(idStructure).values() contient une valeur null,
+                                                // cela signifie qu'une classe n'a pas encore recupere sa liste d'eleves
+                                                if(!population.get(idStructure).values().contains(null)) {
+                                                    handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(population));
+                                                }
+                                            } else {
+                                                handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                                                log.error("getParamStruct : getInfoEleve : " + event.left().getValue());
+                                            }
+                                        }
+                                    });
+                                }
+                            } else {
+                                handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                                log.error("getParamStruct : getElevesClasses : " + event.left().getValue());
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                    log.error("getParamStruct : getClassesStruct : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere les parametres manquant afin de pouvoir generer le BFC dans le cas ou seul des identifiants de classes
+     * sont fournis.
+     *
+     * @param idClasses  Identifiants des classes dont on souhaite generer le BFC.
+     * @param handler    Handler contenant les listes des eleves, indexees par classes.
+     */
+    private void getParamClasses(final List<String> idClasses, final Handler<Either<String, Map<String, Map<String, List<Eleve>>>>> handler) {
+        final Map<String, Map<String, List<Eleve>>> population = new HashMap<>();
+
+        getStructClasses(idClasses.toArray(new String[0]), new Handler<Either<String, String>>() {
+            @Override
+            public void handle(Either<String, String> event) {
+                if(event.isRight()) {
+                    final String idStructure = event.right().getValue();
+                    population.put(idStructure, new LinkedHashMap<String, List<Eleve>>());
+
+                    getElevesClasses(idClasses.toArray(new String[0]), new Handler<Either<String, Map<String, List<String>>>>() {
+                        @Override
+                        public void handle(Either<String, Map<String, List<String>>> event) {
+                            if (event.isRight()) {
+                                for (final Map.Entry<String, List<String>> classe : event.right().getValue().entrySet()) {
+                                    population.get(idStructure).put(classe.getKey(), null);
+                                    getInfoEleve(classe.getValue().toArray(new String[0]), new Handler<Either<String, List<Eleve>>>() {
+                                        @Override
+                                        public void handle(Either<String, List<Eleve>> event) {
+                                            if (event.isRight()) {
+                                                population.get(idStructure).put(classe.getKey(), event.right().getValue());
+                                                // Si population.get(idStructure).values() contient une valeur null,
+                                                // cela signifie qu'une classe n'a pas encore recupere sa liste d'eleves
+                                                if (!population.get(idStructure).values().contains(null)) {
+                                                    handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(population));
+                                                }
+                                            } else {
+                                                handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                                                log.error("getParamClasses : getInfoEleve : " + event.left().getValue());
+                                            }
+                                        }
+                                    });
+                                }
+                            } else {
+                                handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                                log.error("getParamClasses : getElevesClasses : " + event.left().getValue());
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                    log.error("getParamClasses : getStructClasses : " + event.left().getValue());
+                }
+            }
+        });
+    }
+
+    /**
+     * Recupere les parametres manquant afin de pouvoir generer le BFC dans le cas ou seul des identifiants d'eleves
+     * sont fournis.
+     *
+     * @param idEleves  Identifiants des eleves dont on souhaite generer le BFC.
+     * @param handler   Handler contenant les listes des eleves, indexees par classes.
+     */
+    private void getParamEleves(final List<String> idEleves, final Handler<Either<String, Map<String, Map<String, List<Eleve>>>>> handler) {
+        final Map<String, Map<String, List<Eleve>>> population = new HashMap<>();
+
+        getInfoEleve(idEleves.toArray(new String[0]), new Handler<Either<String, List<Eleve>>>() {
+            @Override
+            public void handle(Either<String, List<Eleve>> event) {
+                if(event.isRight()) {
+                    final Map<String, List<Eleve>> classes = new LinkedHashMap<>();
+                    for(Eleve e : event.right().getValue()) {
+                        if(!classes.containsKey(e.getIdClasse())) {
+                            classes.put(e.getIdClasse(), new ArrayList<Eleve>());
+                        }
+                        classes.get(e.getIdClasse()).add(e);
+                    }
+                    getStructClasses(classes.keySet().toArray(new String[0]), new Handler<Either<String, String>>() {
+                        @Override
+                        public void handle(Either<String, String> event) {
+                            if(event.isRight()) {
+                                population.put(event.right().getValue(), classes);
+                                handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(population));
+                            } else {
+                                handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                                log.error("getParamEleves : getStructClasses : " + event.left().getValue());
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                    log.error("getParamEleves : getInfoEleve : " + event.left().getValue());
+                }
+            }
+        });
+
+    }
+
+    /**
+     * Se charge d'appeler les methodes permettant la recuperation des parametres manquants en fonction du parametre
+     * fournit.
+     * Appelle {@link #getParamStruct(String, Handler)} si seul l'identifiant de la structure est fourni.
+     * Appelle {@link #getParamClasses(List, Handler)} si seuls les identifiants de classes sont fournis.
+     * Appelle {@link #getParamEleves(List, Handler)} si seuls les identifiants d'eleves sont fournis.
+     *
+     * @param idStructure  Identifiant de la structure dont on souhaite generer le BFC.
+     * @param idClasses    Identifiants des classes dont on souhaite generer le BFC.
+     * @param idEleves     Identifiants des eleves dont on souhaite generer le BFC.
+     * @param handler      Handler contenant les listes des eleves, indexees par classes.
+     */
+    private void getParamBFC(final String idStructure, final List<String> idClasses, final List<String> idEleves, final Handler<Either<String, Map<String, Map<String, List<Eleve>>>>> handler) {
+
+        if (idStructure != null) {
+            getParamStruct(idStructure, new Handler<Either<String, Map<String, Map<String, List<Eleve>>>>>() {
+                @Override
+                public void handle(Either<String, Map<String, Map<String, List<Eleve>>>> event) {
+                    if(event.isRight()) {
+                        handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(event.right().getValue()));
+                    } else {
+                        handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                        log.error("getParamStruct : failed to get related idClasses and/or idEleves.");
+                    }
+                }
+            });
+        } else if (!idClasses.isEmpty()) {
+            getParamClasses(idClasses, new Handler<Either<String, Map<String, Map<String, List<Eleve>>>>>() {
+                @Override
+                public void handle(Either<String, Map<String, Map<String, List<Eleve>>>> event) {
+                    if (event.isRight()) {
+                        handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(event.right().getValue()));
+                    } else {
+                        handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                        log.error("getParamClasses : failed to get related idStructure and/or idEleves.");
+                    }
+                }
+            });
+        } else if (!idEleves.isEmpty()) {
+            getParamEleves(idEleves, new Handler<Either<String, Map<String, Map<String, List<Eleve>>>>>() {
+                @Override
+                public void handle(Either<String, Map<String, Map<String, List<Eleve>>>> event) {
+                    if (event.isRight()) {
+                        handler.handle(new Either.Right<String, Map<String, Map<String, List<Eleve>>>>(event.right().getValue()));
+                    } else {
+                        handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>(event.left().getValue()));
+                        log.error("getParamEleves : failed to get related idStructure and/or idClasses.");
+                    }
+                }
+            });
+        } else {
+            handler.handle(new Either.Left<String, Map<String, Map<String, List<Eleve>>>>("Aucun parametre renseigne."));
+            log.error("getParamBFC : called with more than one null parameter.");
+        }
+    }
+
+    /**
+     * Genere le BFC des entites passees en parametre au format PDF via la fonction {@link #genererPdf(HttpServerRequest, JsonObject, String, String)}.
+     * Ces entites peuvent etre au choix un etablissement, un ou plusieurs classes, un ou plusieurs eleves.
+     * Afin de prefixer le fichier PDF cree, appelle {@link DefaultUtilsService#getNameEntity(String[], Handler)} afin
+     * de recuperer le nom de l'entite fournie.
+     *
+     * @param request
+     */
+    @Get("/BFC/pdf")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getBFCEleve(final HttpServerRequest request) {
+
+        final String idStructure = request.params().get("idStructure");
+        final List<String> idClasses = request.params().getAll("idClasse");
+        final List<String> idEleves = request.params().getAll("idEleve");
+        final Long idPeriode = (request.params().get("idPeriode") != null) ? Long.valueOf(request.params().get("idPeriode")) : null;
+
+        // Ou exclusif sur la presence des parametres, de facon a s'assurer qu'un seul soit renseigne.
+        if(idStructure != null ^ !idClasses.isEmpty() ^ !idEleves.isEmpty()) {
+
+            getParamBFC(idStructure, idClasses, idEleves, new Handler<Either<String, Map<String, Map<String, List<Eleve>>>>>() {
+                @Override
+                public void handle(Either<String, Map<String, Map<String, List<Eleve>>>> event) {
+                    if(event.isRight()) {
+                        final String idStructureGot = event.right().getValue().entrySet().iterator().next().getKey();
+                        final Map<String, List<Eleve>> classes = event.right().getValue().entrySet().iterator().next().getValue();
+
+                        getBFCParClasse(classes, idStructureGot, idPeriode, new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                if(event.isRight()) {
+                                    final JsonObject result = new JsonObject().putArray("classes", event.right().getValue());
+                                    if(idStructure != null) {
+                                        utilsService.getNameEntity(new String[]{idStructureGot}, new Handler<Either<String, JsonArray>>() {
+                                            @Override
+                                            public void handle(Either<String, JsonArray> event) {
+                                                if(event.isRight()) {
+                                                    final String structureName = ((JsonObject) event.right().getValue().get(0)).getString("name").replace(" ", "_");
+                                                    if(idPeriode != null){
+                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
+                                                            @Override
+                                                            public void handle(Either<String, JsonObject> event) {
+                                                                if(event.isRight()) {
+                                                                    String periodeName = event.right().getValue().getString("libelle");
+                                                                    periodeName = periodeName.replace(" ", "_");
+                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName + "_" + periodeName);
+                                                                } else  {
+                                                                    leftToResponse(request, event.left());
+                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
+                                                                }
+                                                            }
+                                                        });
+                                                    } else {
+                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName);
+                                                    }
+                                                } else {
+                                                    leftToResponse(request, event.left());
+                                                    log.error("getNameEntity : Unable to get the name of the specified entity (idStructure).");
+                                                }
+                                            }
+                                        });
+                                    } else if (!idClasses.isEmpty()) {
+                                        utilsService.getNameEntity(classes.keySet().toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
+                                            @Override
+                                            public void handle(Either<String, JsonArray> event) {
+                                                if (event.isRight()) {
+                                                    final StringBuilder classesName = new StringBuilder();
+                                                    for (int i = 0; i < event.right().getValue().size(); i++) {
+                                                        classesName.append(((JsonObject) event.right().getValue().get(i)).getString("name")).append("_");
+                                                    }
+                                                    classesName.setLength(classesName.length() - 1);
+                                                    if (idPeriode != null) {
+                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
+                                                            @Override
+                                                            public void handle(Either<String, JsonObject> event) {
+                                                                if (event.isRight()) {
+                                                                    String periodeName = event.right().getValue().getString("libelle");
+                                                                    periodeName = periodeName.replace(" ", "_");
+                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString() + "_" + periodeName);
+                                                                } else {
+                                                                    leftToResponse(request, event.left());
+                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
+                                                                }
+                                                            }
+                                                        });
+                                                    } else {
+                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString());
+                                                    }
+                                                } else {
+                                                    leftToResponse(request, event.left());
+                                                    log.error("getNameEntity : Unable to get the name of the specified entity (idClasses).");
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        utilsService.getNameEntity(idEleves.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
+                                            @Override
+                                            public void handle(Either<String, JsonArray> event) {
+                                                if (event.isRight()) {
+                                                    final StringBuilder elevesName = new StringBuilder();
+                                                    for (int i = 0; i < event.right().getValue().size(); i++) {
+                                                        elevesName.append(((JsonObject) event.right().getValue().get(i)).getString("name")).append("_");
+                                                    }
+                                                    elevesName.setLength(elevesName.length() - 1);
+                                                    if (idPeriode != null) {
+                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
+                                                            @Override
+                                                            public void handle(Either<String, JsonObject> event) {
+                                                                if (event.isRight()) {
+                                                                    String periodeName = event.right().getValue().getString("libelle");
+                                                                    periodeName = periodeName.replace(" ", "_");
+                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString() + "_" + periodeName);
+                                                                } else {
+                                                                    leftToResponse(request, event.left());
+                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
+                                                                }
+                                                            }
+                                                        });
+                                                    } else {
+                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString());
+                                                    }
+                                                } else {
+                                                    leftToResponse(request, event.left());
+                                                    log.error("getNameEntity : Unable to get the name of the specified entity (idEleves).");
+                                                }
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    leftToResponse(request, event.left());
+                                    log.error("getBFC : Unable to get BFC for the specified parameters.");
+                                }
+                            }
+                        });
+                    } else {
+                        leftToResponse(request, event.left());
+                        log.error("getParamBFC : Unable to gather parameters, parameter unknown.");
+                    }
+                }
+            });
+        } else {
+            leftToResponse(request, new Either.Left<>("Un seul parametre autre que la periode doit être specifie."));
+            log.error("getBFCEleve : call with more than 1 parameter type (among idEleve, idClasse and idStructure).");
+        }
+    }
+
+    /**
      * Generation d'un PDF à partir d'un template xhtml
      * @param request
      * @param templateProps objet JSON contenant l'ensemble des valeurs à remplir dans le template
@@ -345,14 +1037,17 @@ public class ExportPDFController extends ControllerHelper {
      */
     private void genererPdf(final HttpServerRequest request, final JsonObject templateProps, final String templateName,
                             final String prefixPdfName) {
+
         final String dateDebut = new SimpleDateFormat("dd.MM.yyyy").format(new Date().getTime());
         log.info(new SimpleDateFormat("HH:mm:ss:S").format(new Date().getTime()) + " -> Debut Generation PDF du template " + templateName);
 
-        this.assetsPath = (String) vertx.sharedData().getMap("server").get("assetPath");
-        this.skins = vertx.sharedData().getMap("skins");
-        final String assetsPath = this.assetsPath + "/assets/themes/" + this.skins.get(Renders.getHost(request));
-        final String templatePath = assetsPath + "/template/viescolaire/";
-        final String baseUrl = getScheme(request) + "://" + Renders.getHost(request) + "/assets/themes/" + this.skins.get(Renders.getHost(request)) + "/img/";
+//        this.assetsPath = (String) vertx.sharedData().ge  tMap("server").get("assetPath");
+//        this.skins = vertx.sharedData().getMap("skins");
+//        final String assetsPath = this.assetsPath + "/assets/themes/" + this.skins.get(Renders.getHost(request));
+//        final String templatePath = assetsPath + "/template/viescolaire/";
+        final String templatePath = container.config().getObject("exports").getString("template-path");
+//        final String baseUrl = getScheme(request) + "://" + Renders.getHost(request) + "/assets/themes/" + this.skins.get(Renders.getHost(request)) + "/img/";
+        final String baseUrl = getScheme(request) + "://" + Renders.getHost(request) + container.config().getString("app-address") + "/public/";
 
         node = (String) vertx.sharedData().getMap("server").get("node");
         if (node == null) {
@@ -399,7 +1094,7 @@ public class ExportPDFController extends ControllerHelper {
                                 byte[] pdf = pdfResponse.getBinary("content");
                                 request.response().putHeader("Content-Type", "application/pdf");
                                 request.response().putHeader("Content-Disposition",
-                                        "attachment; filename="+prefixPdfName+"-"+dateDebut+".pdf");
+                                        "attachment; filename="+prefixPdfName+"_"+dateDebut+".pdf");
                                 request.response().end(new Buffer(pdf));
                                 log.info(new SimpleDateFormat("HH:mm:ss:S").format(new Date().getTime()) + " -> Fin Generation PDF du template " + templateName);
                             }

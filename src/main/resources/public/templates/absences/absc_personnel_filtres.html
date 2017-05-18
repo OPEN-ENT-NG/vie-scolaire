@@ -1,8 +1,8 @@
 <div ng-controller="AbscFiltresPersonnelController">
-    <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
+    <div class="select filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
         <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">Enseignants
-            <span class="plus-input" ng-if="pOFilterCtrl.enseignants"></span>
-            <span class="plus-input" ng-if="!pOFilterCtrl.enseignants"></span>
+            <span class=" " ng-if="pOFilterCtrl.enseignants"></span>
+            <span class=" " ng-if="!pOFilterCtrl.enseignants"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
@@ -14,10 +14,10 @@
                 ng-class="{selected : enseignant.selected}">[[enseignant.lastName]] [[enseignant.firstName]]</li>
         </ul>
     </div>
-    <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
+    <div class=" select filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
         <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">Classes
-            <span class="plus-input" ng-if="pOFilterCtrl.classes" ></span>
-            <span class="plus-input" ng-if="!pOFilterCtrl.classes"></span>
+            <span class=" " ng-if="pOFilterCtrl.classes" ></span>
+            <span class=" " ng-if="!pOFilterCtrl.classes"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">

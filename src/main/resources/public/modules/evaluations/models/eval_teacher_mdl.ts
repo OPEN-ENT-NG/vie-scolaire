@@ -74,7 +74,7 @@ export class Structure extends Model implements IModel{
                     let url = that.api.ELEVE.synchronization;
                     //filtre par classe pour les enseignants
                     if((model.me.type === 'ENSEIGNANT')){
-                        evaluations.classes.forEach((classe) => {
+                        that.classes.forEach((classe) => {
                             url += '&idClasse=' + classe.id;
                         });
                     }

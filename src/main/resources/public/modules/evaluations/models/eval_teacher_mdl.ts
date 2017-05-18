@@ -1653,7 +1653,7 @@ export class Evaluations extends Model{
         this.collection(Structure, {
             sync : function () {
                 return new Promise((resolve, reject) => {
-                    http().getJson('/viescolaire/evaluations/user/structures/actives').done(function (idsEtablissementActifs) {
+                    http().getJson('/viescolaire/user/structures/actives?module=notes').done(function (idsEtablissementActifs) {
                         //On récupère tout d'abord la liste des établissements actifs
                         if(idsEtablissementActifs.length > 0) {
                             for (let i = 0; i < model.me.structures.length; i++) {

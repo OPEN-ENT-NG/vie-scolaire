@@ -9,7 +9,7 @@ declare const _: any;
  */
 export function getActiveStructures (module: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().getJson('/viescolaire/' + module + '/user/structures/actives')
+        http().getJson('/viescolaire/user/structures/actives?module=' + module )
             .done((activeStructures) => {
                 let structures: any[] = [];
                 for (let i = 0; i < model.me.structures.length; i++) {
@@ -37,7 +37,7 @@ export function getActiveStructures (module: string): Promise<any[]> {
  */
 export function createActiveStructure (module: string, id_structure: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().postJson('/viescolaire/' + module + '/user/structures/actives', {structureId: id_structure})
+        http().postJson('/viescolaire/user/structures/actives', {structureId: id_structure, module: module})
             .done((res) => {
                 resolve(res);
             })
@@ -56,7 +56,7 @@ export function createActiveStructure (module: string, id_structure: string): Pr
  */
 export function deleteActiveStructure (module: string, id_structure: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().delete('/viescolaire/' + module + '/user/structures/actives', {structureId: id_structure})
+        http().delete('/viescolaire/user/structures/actives', {structureId: id_structure, module: module})
             .done((res) => {
                 resolve(res);
             })

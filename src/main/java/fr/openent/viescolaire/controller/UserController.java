@@ -23,12 +23,15 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
 import fr.wseduc.rs.ApiDoc;
+import fr.wseduc.rs.Delete;
 import fr.wseduc.rs.Get;
+import fr.wseduc.rs.Post;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.http.response.DefaultResponseHandler;
+import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -51,95 +54,78 @@ public class UserController extends ControllerHelper {
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
-        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         userService = new DefaultUserService();
     }
 
-    @Get("/user")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Retourne les informations du référentiel VieScolaire relatives à l'utilisateur")
-    public void getUserInformation(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-                    @Override
-                    public void handle(final UserInfos user) {
-                        final JsonObject values = new JsonObject();
-                        userService.getUserId(user, new Handler<Either<String, JsonObject>>() {
-                            @Override
-                            public void handle(Either<String, JsonObject> event) {
-                                if (event.isRight()) {
-                                    final JsonObject val = event.right().getValue();
-                                    values.putNumber("userId", val.getInteger("id"));
-                                    userService.getStructures(user, new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> event) {
-                                            if (event.isRight()) {
-                                                values.putArray("structures", event.right().getValue());
-                                                userService.getClasses(user, new Handler<Either<String, JsonArray>>() {
-                                                    @Override
-                                                    public void handle(Either<String, JsonArray> event) {
-                                                        if (event.isRight()) {
-                                                            values.putArray("classes", event.right().getValue());
-                                                            userService.getMatiere(user, new Handler<Either<String, JsonArray>>() {
-                                                                @Override
-                                                                public void handle(Either<String, JsonArray> event) {
-                                                                    if (event.isRight()) {
-                                                                        values.putArray("matieres", event.right().getValue());
-                                                                        Renders.renderJson(request, values);
-                                                                    } else {
-                                                                        unauthorized(request);
-                                                                    }
-                                                                }
-                                                            });
-                                                        } else {
-                                                            unauthorized(request);
-                                                        }
-                                                    }
-                                                });
-                                            } else {
-                                                unauthorized(request);
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    unauthorized(request);
-                                }
-                            }
-                        });
-                    }
-                }
-        );
-    }
-
-    @Get("/eleve/:idEleve/moyenne")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    @ApiDoc("Retourne la moyenne de l'élève dont l'id est passé en paramètre, sur les devoirs passés en paramètre")
-    public void getMoyenneEleve(final HttpServerRequest request) {
+    /**
+     * Retourne retourne le cycle de la classe
+     * @param request
+     */
+    @Get("/user/structures/actives")
+    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void getIdsStructuresInactives(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
-            public void handle(final UserInfos user) {
-                if(user != null) {
-                    List<String> idDevoirsList = request.params().getAll("devoirs");
-                    String idEleve = request.params().get("idEleve");
-
-                    Long[] idDevoirsArray = new Long[idDevoirsList.size()];
-
-                    for (int i = 0; i < idDevoirsList.size(); i++) {
-                        idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
-                    }
-
-                    userService.getMoyenne(idEleve, idDevoirsArray, new Handler<Either<String, JsonObject>>() {
-
-                        @Override
-                        public void handle(Either<String, JsonObject> event) {
-                            if(event.isRight()) {
-                                Renders.renderJson(request, event.right().getValue());
-                            } else {
-                                leftToResponse(request, event.left());
-                            }
-                        }
-                    });
+            public void handle(UserInfos user) {
+                if(user != null){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    final String module = request.params().get("module");
+                    userService.getActivesIDsStructures(user,module,handler);
+                }else{
+                    unauthorized(request);
                 }
             }
         });
     }
+
+
+    /**
+     * Retourne retourne le cycle de la classe
+     * @param request
+     */
+    @Post("/user/structures/actives")
+    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void createStructureInactive(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject body) {
+                        if(user != null && body.containsField("structureId")){
+                            final String structureId = body.getString("structureId");
+                            final String module = body.getString("module");
+                            Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                            userService.createActiveStructure(structureId,module, user, handler);
+                        }else{
+                            badRequest(request);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    @Delete("/user/structures/actives")
+    @ApiDoc("Supprime une structure active.")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void deleteEvenement(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null) {
+                    final String structureId = request.params().get("structureId");
+                    final String module = request.params().get("module");
+                    Handler<Either<String, JsonArray>> handler = org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler(request);
+                    userService.deleteActiveStructure(structureId, module, handler);
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+
+    }
+
 }

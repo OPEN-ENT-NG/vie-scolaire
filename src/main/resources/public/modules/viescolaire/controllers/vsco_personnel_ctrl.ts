@@ -8,6 +8,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location',
     function ($scope, route, model, $location) {
         $scope.template = template;
+        $scope.lang = lang;
 
         $scope.safeApply = function(fn) {
             let phase = this.$root.$$phase;
@@ -19,12 +20,13 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 this.$apply(fn);
             }
         };
-        $scope.lang = lang;
 
+        // check si on doit afficher le menu viescolaire.
         $scope.hasParam = function (param) {
             return Object.prototype.hasOwnProperty.call($location.search(), param);
         };
 
+        // recherche le module dont on veut aficher les paramètres.
         $scope.findParam = function (key) {
             if ($scope.hasParam(key)) {
                 return ($location.search())[key];

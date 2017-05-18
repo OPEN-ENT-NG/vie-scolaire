@@ -253,4 +253,55 @@ public class DefaultUserService implements UserService {
             statements.prepared(query, params);
         }
     }
+
+    /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void getActivesIDsStructures(UserInfos userInfos, String module, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_etablissement ")
+                .append("FROM "+ module +".etablissements_actifs  ")
+                .append("WHERE id_etablissement IN " + Sql.listPrepared(userInfos.getStructures().toArray()))
+                .append(" AND actif = TRUE");
+
+        for(String idStructure :  userInfos.getStructures()){
+            params.addString(idStructure);
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
+    /**
+     * Active un établissement
+     * @param id : établissement
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void createActiveStructure (String id, String module, UserInfos user,Handler<Either<String, JsonArray>> handler) {
+        SqlStatementsBuilder s = new SqlStatementsBuilder();
+        JsonObject data = new JsonObject();
+        String userQuery = "SELECT " + module + ".merge_users(?,?)";
+        s.prepared(userQuery, (new JsonArray()).add(user.getUserId()).add(user.getUsername()));
+        data.putString("id_etablissement", id);
+        data.putBoolean("actif", true);
+        s.insert(module + ".etablissements_actifs ", data, "id_etablissement");
+        Sql.getInstance().transaction(s.build(), SqlResult.validResultHandler(handler));
+
+    }
+
+    /**
+     * Supprime un étbalissement actif
+     * @param id : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void deleteActiveStructure(String id, String module, Handler<Either<String, JsonArray>> handler) {
+        String query = "DELETE FROM " + module + ".etablissements_actifs WHERE id_etablissement = ?";
+        Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
+    }
+
 }

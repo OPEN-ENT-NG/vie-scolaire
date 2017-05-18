@@ -18,7 +18,7 @@ class Presences extends Model {
         this.collection(Structure, {
             sync: () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson('/viescolaire/presences/user/structures/actives')
+                    http().getJson('/viescolaire/user/structures/actives?module=presences')
                         .done((activesStructures) => {
                             let structures: Structure[] = [];
                             for (let i = 0; i < model.me.structures.length; i++) {

@@ -3,7 +3,7 @@ import {Collection, Model, model} from "entcore/entcore";
 import {Evenement} from "./personnel/Evenement";
 import {Structure} from "./personnel/Structure";
 
-import {getActiveStructures} from "../../utils/functions/getActiveStructures";
+import {getActiveStructures} from "../../utils/functions/activeStructures";
 
 
 let moment = require('moment');

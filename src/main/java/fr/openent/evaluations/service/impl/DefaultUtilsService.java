@@ -217,55 +217,6 @@ public class DefaultUtilsService  implements UtilsService {
         neo4j.execute(query, new JsonObject().putString("id", id), Neo4jResult.validUniqueResultHandler(handler));
     }
 
-    /**
-     * Recupere les établissements inactifs de l'utilisateur connecté
-     * @param userInfos : utilisateur connecté
-     * @param handler handler comportant le resultat
-     */
-    @Override
-    public void getActivesIDsStructures(UserInfos userInfos,Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query =new StringBuilder();
-        JsonArray params = new JsonArray();
-
-        query.append("SELECT id_etablissement ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".etablissements_actifs  ")
-                .append("WHERE id_etablissement IN " + Sql.listPrepared(userInfos.getStructures().toArray()))
-                .append(" AND actif = TRUE");
-
-        for(String idStructure :  userInfos.getStructures()){
-            params.addString(idStructure);
-        }
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
-    }
-
-    /**
-     * Active un établissement
-     * @param id : établissement
-     * @param handler handler comportant le resultat
-     */
-    @Override
-    public void createActiveStructure (String id,UserInfos user,Handler<Either<String, JsonArray>> handler) {
-        SqlStatementsBuilder s = new SqlStatementsBuilder();
-        JsonObject data = new JsonObject();
-        String userQuery = "SELECT " + Viescolaire.EVAL_SCHEMA + ".merge_users(?,?)";
-        s.prepared(userQuery, (new JsonArray()).add(user.getUserId()).add(user.getUsername()));
-        data.putString("id_etablissement", id);
-        data.putBoolean("actif", true);
-        s.insert(Viescolaire.EVAL_SCHEMA + ".etablissements_actifs ", data, "id_etablissement");
-        Sql.getInstance().transaction(s.build(), SqlResult.validResultHandler(handler));
-
-    }
-
-    /**
-     * Supprime un étbalissement actif
-     * @param id : utilisateur connecté
-     * @param handler handler comportant le resultat
-     */
-    @Override
-    public void deleteActiveStructure(String id,UserInfos user,Handler<Either<String, JsonArray>> handler) {
-        String query = "DELETE FROM " + Viescolaire.EVAL_SCHEMA + ".etablissements_actifs WHERE id_etablissement = ?";
-        Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
-    }
 
     @Override
     public void list(String structureId, String classId, String groupId,

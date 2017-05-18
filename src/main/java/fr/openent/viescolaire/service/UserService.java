@@ -43,4 +43,28 @@ public interface UserService {
 
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
+    /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param userInfos : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Active un établissement
+     * @param id : id établissement
+     * @param user : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void createActiveStructure(String id,String module ,UserInfos user, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * met à jour les établissements inactifs de l'utilisateur connecté
+     * @param id : établissement
+     * @param module : le module
+     * @param handler handler comportant le resultat
+     */
+    public void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
+
+
 }

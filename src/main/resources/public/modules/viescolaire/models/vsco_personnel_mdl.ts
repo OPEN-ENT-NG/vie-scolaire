@@ -2,7 +2,7 @@ import { model, Model, Collection } from 'entcore/entcore';
 import {
     createActiveStructure, deleteActiveStructure,
     getActiveStructures
-} from "../../utils/functions/getActiveStructures";
+} from "../../utils/functions/activeStructures";
 
 declare let _: any;
 
@@ -15,40 +15,27 @@ export class Structure extends Model {
     // Fields
     id: string;
     name: string;
-    isActived = {presence : false, evaluation: false};
+    isActived = {presence: false, evaluation: false};
 
 
-    constructor (o?: any) {
+    constructor(o?: any) {
         super();
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
     }
 
-    async  activate (module: string, isActif, idStructure) {
-        if ( module === 'presences') {
-            if (!isActif) {
-                let res = await deleteActiveStructure('presences', idStructure);
-                console.dir(res);
-            }
-            else {
-                let res = await createActiveStructure('presences', idStructure);
-                console.dir(res);
-            }
+    async  activate(module: string, isActif, idStructure) {
+        if (!isActif) {
+            let res = await deleteActiveStructure(module, idStructure);
+            console.dir(res);
         }
-        else if ( module === 'evaluations') {
-            if (!isActif) {
-                let res = await deleteActiveStructure('evaluations', idStructure);
-                console.dir(res);
-            }
-            else {
-                let res = await createActiveStructure('evaluations', this.id);
-                console.dir(res);
-            }
+        else {
+            let res = await createActiveStructure(module, idStructure);
+            console.dir(res);
         }
     }
 }
-
 
 export class VieScolaire extends Model {
     structures: Collection<Structure>;
@@ -61,8 +48,9 @@ export class VieScolaire extends Model {
                 try {
                     let structuresPresences;
                     let structuresEvaluations;
+                    let _structureTmp = [];
                     structuresPresences = await getActiveStructures('presences');
-                    structuresEvaluations = await getActiveStructures('evaluations');
+                    structuresEvaluations = await getActiveStructures('notes');
                     for (let i = 0; i < model.me.structures.length; i++) {
                         let _structure = new Structure({
                             id: model.me.structures[i],
@@ -75,8 +63,9 @@ export class VieScolaire extends Model {
                         if (_.findWhere(structuresPresences, {id : _structure.id})) {
                             _structure.isActived.presence = true;
                         }
-                        this.structures.all.push(_structure);
+                        _structureTmp.push(_structure);
                     }
+                    this.structures.load(_structureTmp);
                     this.structure = this.structures.all[0];
                     return;
                 } catch (e) {
@@ -88,7 +77,7 @@ export class VieScolaire extends Model {
 
     async sync (): Promise<any> {
         try {
-          await this.structures.sync();
+            await this.structures.sync();
         } catch (e) {
             throw  e;
         }

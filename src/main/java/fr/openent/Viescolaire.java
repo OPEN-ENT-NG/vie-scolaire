@@ -151,7 +151,7 @@ public class Viescolaire extends BaseServer {
 		addController(new MotifController());
 		addController(new AppelController());
 		addController(new EvenementController());
-        addController(new fr.openent.absences.controller.UtilsController());
+
 		/*
 			CONTROLEURS NOTES
 		 */

@@ -29,6 +29,7 @@
   "group.class.Personnel":"Tous les personnels de la classe {0}.",
   "group.class.Student":"Tous les élèves de la classe {0}.",
   "group.class.Relative":"Tous les parents de la classe {0}.",
+  "activated.module": "Activer le module.",
   "home" : "Accueil",
   "back": "Retour",
   "title":"Titre",

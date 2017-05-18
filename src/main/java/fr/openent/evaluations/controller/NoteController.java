@@ -27,6 +27,8 @@ import fr.openent.evaluations.security.AccessReleveFilter;
 import fr.openent.evaluations.service.NoteService;
 import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.service.impl.DefaultUserService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -47,6 +49,7 @@ import org.vertx.java.core.json.impl.Json;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
@@ -57,21 +60,18 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
 public class NoteController extends ControllerHelper{
 
     /**
-     * Création des constantes liés au framework SQL
-     */
-
-
-
-    /**
      * Déclaration des services
      */
     private final NoteService notesService;
     private final UtilsService utilsService;
+    private  UserService userService;
+
 
     public NoteController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
         utilsService = new DefaultUtilsService();
+        userService = new DefaultUserService();
     }
 
     /**
@@ -347,4 +347,38 @@ public class NoteController extends ControllerHelper{
                     handler);
         }
     }
+
+    @Get("/eleve/:idEleve/moyenne")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Retourne la moyenne de l'élève dont l'id est passé en paramètre, sur les devoirs passés en paramètre")
+    public void getMoyenneEleve(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user != null) {
+                    List<String> idDevoirsList = request.params().getAll("devoirs");
+                    String idEleve = request.params().get("idEleve");
+
+                    Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+
+                    for (int i = 0; i < idDevoirsList.size(); i++) {
+                        idDevoirsArray[i] = Long.parseLong(idDevoirsList.get(i));
+                    }
+
+                    userService.getMoyenne(idEleve, idDevoirsArray, new Handler<Either<String, JsonObject>>() {
+
+                        @Override
+                        public void handle(Either<String, JsonObject> event) {
+                            if(event.isRight()) {
+                                Renders.renderJson(request, event.right().getValue());
+                            } else {
+                                leftToResponse(request, event.left());
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
 }

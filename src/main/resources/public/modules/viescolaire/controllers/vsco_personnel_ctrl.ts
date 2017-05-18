@@ -35,8 +35,17 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         route({
             accueil: function (params) {
-                $scope.structures = vieScolaire.structures;
-                $scope.structure = vieScolaire.structure;
+                if ( $scope.structure === undefined ) {
+                    vieScolaire.structures.sync().then(() => {
+                        $scope.structures = vieScolaire.structures;
+                        $scope.structure = vieScolaire.structure;
+                        $scope.safeApply($scope);
+                    });
+                }
+                else {
+                    $scope.structures = vieScolaire.structures;
+                    $scope.structure = vieScolaire.structure;
+                }
                 template.open('main', '../templates/viescolaire/vsco_acu_personnel');
                 $scope.safeApply($scope);
             }

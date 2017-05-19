@@ -11,7 +11,7 @@
  
 * **URL**
  
-  `/:idClasse/cours/:dateDebut/:dateFin`
+  `viescolaire/:idClasse/cours/:dateDebut/:dateFin`
  
 * **Method:**
    
@@ -63,7 +63,7 @@
   
  * **URL**
   
-   `/enseignant/:userId/cours/:dateDebut/:dateFin`
+   `viescolaire/enseignant/:userId/cours/:dateDebut/:dateFin`
   
  * **Method:**
     

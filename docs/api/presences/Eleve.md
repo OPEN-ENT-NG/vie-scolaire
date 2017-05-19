@@ -16,7 +16,7 @@ Récupère les absences prévisionnels d'un ensemble d'élève(s) sur une pério
  
 * **URL**
  
-  `/absencesprev/eleves`
+  `viescolaire/presences/absencesprev/eleves`
  
 * **Method:**
    
@@ -57,7 +57,7 @@ Récupère les absences Sans Motif.
   
  * **URL**
   
-   `/sansmotifs/:dateDebut/:dateFin`
+   `viescolaire/presences/sansmotifs/:dateDebut/:dateFin`
   
  * **Method:**
     
@@ -108,7 +108,7 @@ Récupère les absences prévisionnelles sur une période.
   
  * **URL**
   
-   `/eleve/:idEleve/absencesprev/:dateDebut/:dateFin`
+   `viescolaire/presences/eleve/:idEleve/absencesprev/:dateDebut/:dateFin`
   
  * **Method:**
     
@@ -150,7 +150,7 @@ Récupère les absences D'un établissement sur une période.
    
   * **URL**
    
-    `/eleves/evenements/:dateDebut/:dateFin`
+    `viescolaire/presences/eleves/evenements/:dateDebut/:dateFin`
    
   * **Method:**
      
@@ -198,7 +198,7 @@ Récupère les absences prévisionnelles d'un élève.
   
  * **URL**
   
-   `/eleve/:idEleve/absencesprev`
+   `viescolaire/presences/eleve/:idEleve/absencesprev`
   
  * **Method:**
     
@@ -233,7 +233,7 @@ Récupère les événements sur une période d'un élève.
   
  * **URL**
   
-   `/eleve/:idEleve/evenements/:dateDebut/:dateFin`
+   `viescolaire/presences/eleve/:idEleve/evenements/:dateDebut/:dateFin`
   
  * **Method:**
     

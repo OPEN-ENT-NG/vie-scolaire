@@ -16,7 +16,7 @@
   
  * **URL**
   
-   `/appel`
+   `viescolaire/presences/appel`
   
  * **Method:**
     
@@ -52,7 +52,7 @@
   
  * **URL**
   
-   `/appel`
+   `viescolaire/presences/appel`
   
  * **Method:**
     
@@ -88,7 +88,7 @@
  
 * **URL**
  
-  `/appel/cours/:coursId`
+  `viescolaire/presences/appel/cours/:coursId`
  
 * **Method:**
    
@@ -121,7 +121,7 @@
  
 * **URL**
  
-  `/appels/:dateDebut/:dateFin`
+  `viescolaire/presences/appels/:dateDebut/:dateFin`
  
 * **Method:**
    
@@ -160,7 +160,7 @@ Récupère les appels non effectués sur une période d'un établissement sur un
  
 * **URL**
  
-  `/appels/noneffectues/:dateDebut/:dateFin`
+  `viescolaire/presences/appels/noneffectues/:dateDebut/:dateFin`
  
 * **Method:**
    

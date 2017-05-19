@@ -12,7 +12,7 @@ Récupère tous les motifs en fonction de l'id de l'établissement
 
 * **URL**
 
-  `/motifs`
+  `viescolaire/presences/motifs`
 
 * **Method:**
  
@@ -43,7 +43,7 @@ Récupère tous les justificatifs en fonction de l'id de l'établissement
 
 * **URL**
 
-  `/justificatifs`
+  `viescolaire/presences/justificatifs`
 
 * **Method:**
  

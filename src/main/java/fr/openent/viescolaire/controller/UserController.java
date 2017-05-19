@@ -29,8 +29,6 @@ import fr.wseduc.rs.Post;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.http.Renders;
-import fr.wseduc.webutils.http.response.DefaultResponseHandler;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
@@ -40,11 +38,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
-
 /**
  * Created by ledunoiss on 08/11/2016.
  */
@@ -62,9 +57,9 @@ public class UserController extends ControllerHelper {
      * @param request
      */
     @Get("/user/structures/actives")
-    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur")
+    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur pour un module donné ")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void getIdsStructuresInactives(final HttpServerRequest request){
+    public void getActivedStructures(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
@@ -85,9 +80,9 @@ public class UserController extends ControllerHelper {
      * @param request
      */
     @Post("/user/structures/actives")
-    @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur")
+    @ApiDoc("Active un module pour une structure donnée")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void createStructureInactive(final HttpServerRequest request){
+    public void createActivedStructure(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
@@ -109,16 +104,18 @@ public class UserController extends ControllerHelper {
     }
 
     @Delete("/user/structures/actives")
-    @ApiDoc("Supprime une structure active.")
+    @ApiDoc("Supprime une structure active pour un module donné.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void deleteEvenement(final HttpServerRequest request) {
+    public void deleteActivatedStructure(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
                 if (user != null) {
                     final String structureId = request.params().get("structureId");
                     final String module = request.params().get("module");
-                    Handler<Either<String, JsonArray>> handler = org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler(request);
+                    Handler<Either<String, JsonArray>> handler =
+                            org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler(request);
+
                     userService.deleteActiveStructure(structureId, module, handler);
                 } else {
                     unauthorized(request);

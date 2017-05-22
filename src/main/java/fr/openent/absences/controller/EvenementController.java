@@ -83,7 +83,6 @@ public class EvenementController extends ControllerHelper {
                 RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENT_UPDATE, new Handler<JsonObject>() {
                     @Override
                     public void handle(JsonObject poEvenement) {
-                        Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
                         poEvenement.removeField("id_cours");
                         poEvenement.removeField("timestamp_arrive");
                         poEvenement.removeField("timestamp_depart");
@@ -128,7 +127,7 @@ public class EvenementController extends ControllerHelper {
                     miAbscEvenementService.deleteEvenement(oEvenementId,
                             eventRegister.getEventRegisterHandler(request, user, new JsonObject().putNumber("id", oEvenementId), Events.DELETE_EVENEMENT.toString()));
                 } catch (ClassCastException e) {
-                    log.error("Cannot cast evenementId to Number on delete evenement");
+                    log.error("Cannot cast evenementId to Number on delete evenement : " + e);
                     badRequest(request);
                 }
             }

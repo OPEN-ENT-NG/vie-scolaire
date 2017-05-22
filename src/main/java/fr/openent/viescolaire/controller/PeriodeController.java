@@ -44,7 +44,7 @@ public class PeriodeController extends ControllerHelper {
     private final PeriodeService periodeService;
 
     public PeriodeController () {
-        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         periodeService = new DefaultPeriodeService();
     }
 

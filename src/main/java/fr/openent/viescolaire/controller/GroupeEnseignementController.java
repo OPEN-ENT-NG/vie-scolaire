@@ -36,7 +36,7 @@ public class GroupeEnseignementController extends ControllerHelper {
      * Liste les groupes d'enseignement d'un utilisateur
      * @param request
      */
-    @Get("/groupe/enseignement/user/:userid")
+    @Get("/groupe/enseignement/user")
     @ApiDoc("Liste les groupes d'enseignement d'un utilisateur")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getGroupesEnseignementUser(final HttpServerRequest request) {

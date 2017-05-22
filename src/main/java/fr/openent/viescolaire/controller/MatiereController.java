@@ -108,87 +108,6 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    /**
-     * Liste les matières d'un élève ou les matières de ces enfants
-     * @param request
-     */
-    @Get("/matieres/eleve/:userid")
-    @ApiDoc("Liste les matières d'un élève ou les matières de ces enfants")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void viewMatieresEleve(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                if(user != null && "Student".equals(user.getType())){
-                    matiereService.listMatieresEleve(request.params().get("userId"), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                JsonArray r = event.right().getValue();
-                                ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
-                                String key;
-                                JsonObject f;
-                                final JsonArray matieres = r;
-
-                                for(int i = 0; i < r.size(); i++){
-                                    JsonObject o = r.get(i);
-                                    f = o.getObject("f");
-                                    key = user.getClassNames().get(0)+"$"+f.getObject("data").getString("externalId");
-                                    classesFieldOfStudy.add(key);
-                                }
-
-                                getEnseignantsMatieres(request, user, matieres, user.getClassNames().get(0), classesFieldOfStudy);
-
-                            }else{
-                                leftToResponse(request, event.left());
-                            }
-                        }
-                    });
-                }else if(user != null && "Relative".equals(user.getType())){
-                    utilsService.getEnfants(user.getUserId(), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                JsonArray values = event.right().getValue();
-                                final JsonObject enfant = values.get(0);
-                                matiereService.listMatieresEleve(enfant.getString("n.id"), new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> event) {
-                                        if(event.isRight()){
-                                            JsonArray r = event.right().getValue();
-                                            ArrayList<String> classesFieldOfStudy = new ArrayList<String>();
-                                            String key;
-                                            JsonObject f;
-                                            final JsonArray matieres = r;
-
-                                            for(int i = 0; i < r.size(); i++){
-                                                JsonObject o = r.get(i);
-                                                f = o.getObject("f");
-                                                key = enfant.getArray("n.classes").get(0)+"$"+f.getObject("data").getString("externalId");
-                                                classesFieldOfStudy.add(key);
-                                            }
-
-                                            getEnseignantsMatieres(request, user, matieres, enfant.getArray("n.classes").get(0).toString(), classesFieldOfStudy);
-
-                                        }else{
-                                            leftToResponse(request, event.left());
-                                        }
-                                    }
-                                });
-
-                            }else{
-                                leftToResponse(request, event.left());
-                            }
-                        }
-                    });
-                }else{
-                    unauthorized(request);
-                }
-            }
-        });
-    }
-
-
     private void listMatieres(String structureId , JsonArray poTitulairesIdList, final HttpServerRequest request) {
         matiereService.listMatieres(structureId , request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
             @Override
@@ -289,24 +208,4 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    /**
-     * Retourne les matières
-     * @param request
-     */
-    @Get("/widget/matieres")
-    @ApiDoc("Retourne les matières")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void getMatiere(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if(user != null){
-                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    matiereService.getMatiere(request.params().getAll("idmatiere"), handler);
-                }else{
-                    unauthorized(request);
-                }
-            }
-        });
-    }
 }

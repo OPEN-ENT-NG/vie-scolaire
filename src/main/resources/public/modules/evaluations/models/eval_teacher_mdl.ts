@@ -38,10 +38,10 @@ export class Structure extends Model implements IModel{
                 synchronization : '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
             },
             PERIODE : {
-                synchronization : '/viescolaire/evaluations/periodes?idEtablissement=' + this.id
+                synchronization : '/viescolaire/periodes?idEtablissement=' + this.id
             },
             CLASSE : {
-                synchronization : '/viescolaire/evaluations/classes?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
                 synchronizationRemplacement : '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
             },
             ELEVE : {

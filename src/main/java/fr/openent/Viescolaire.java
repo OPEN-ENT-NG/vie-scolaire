@@ -180,7 +180,6 @@ public class Viescolaire extends BaseServer {
 		addController(new AppreciationController());
 		addController(new UtilsController());
 		addController(new BFCController());
-		addController(new ReferentielController());
 
 		setRepositoryEvents(new VieScolaireRepositoryEvents());
 	}

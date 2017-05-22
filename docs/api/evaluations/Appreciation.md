@@ -86,7 +86,7 @@
  
 * **URL**
  
-  `viescolaire/appreciation`
+  `viescolaire/evaluations/appreciation`
  
 * **Method:**
    

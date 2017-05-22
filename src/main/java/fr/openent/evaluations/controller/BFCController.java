@@ -96,7 +96,7 @@ public class BFCController extends ControllerHelper {
     @ApiDoc("Supprimer un bfc donnée")
     @SecuredAction(value = "", type= ActionType.RESOURCE)
     @ResourceFilter(AccessBFCFilter.class)
-    public void deleteAppreciationDevoir(final HttpServerRequest request){
+    public void delete(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {

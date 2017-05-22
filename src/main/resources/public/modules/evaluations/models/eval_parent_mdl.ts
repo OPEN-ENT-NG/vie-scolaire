@@ -32,7 +32,7 @@ export class Eleve extends Model {
 
     get api () {
         return {
-            get : '/viescolaire/evaluations/periodes?idEtablissement='+model.me.structures[0]
+            get : '/viescolaire/periodes?idEtablissement=' + model.me.structures[0]
         };
     }
 

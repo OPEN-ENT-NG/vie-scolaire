@@ -101,30 +101,6 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
-    @Override
-    public void getCorrespondanceMatieres(JsonArray codeMatieres, JsonArray codeEtablissement, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-        params.putArray("listeMatieres", codeMatieres);
-        params.putArray("listeEtablissements", codeEtablissement);
-        query.append("MATCH (n:`FieldOfStudy`) WHERE n.externalId in {listeMatieres} RETURN n")
-                .append(" UNION ")
-                .append("MATCH (n:`Structure`) WHERE n.externalId in {listeEtablissements} RETURN n");
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
-    }
-
-    @Override
-    public void getMatiere(List<String> ids, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-        JsonArray matieresListe = new JsonArray();
-        for(int i = 0 ; i < ids.size(); i++){
-            matieresListe.addString(ids.get(i));
-        }
-        params.putArray("ids", matieresListe);
-        query.append("MATCH (n:`FieldOfStudy`) WHERE n.id in {ids} RETURN n");
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
-    }
 
     @Override
     public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result) {

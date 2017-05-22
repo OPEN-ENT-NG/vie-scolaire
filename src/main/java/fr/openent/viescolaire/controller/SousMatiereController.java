@@ -44,7 +44,7 @@ public class SousMatiereController extends ControllerHelper {
     private final SousMatiereService sousMatiereService;
 
     public SousMatiereController () {
-        pathPrefix = Viescolaire.EVAL_PATHPREFIX;
+        pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         sousMatiereService = new DefaultSousMatiereService();
     }
 

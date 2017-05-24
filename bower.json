@@ -16,7 +16,6 @@
     "tests"
   ],
   "dependencies": {
-    "entcore": "git://github.com/entcore/infra-front#dev",
-    "angular-chart.js": "^1.1.1"
+    "entcore": "git://github.com/entcore/infra-front#master"
   }
 }

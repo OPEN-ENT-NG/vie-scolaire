@@ -40,7 +40,7 @@ module.exports = {
         "underscore": "_"
     },
     resolve: {
-        modulesDirectories: ['bower_components'],
+        modulesDirectories: ['bower_components', 'node_modules'],
         root: path.resolve(__dirname),
         alias: {
             'underscore': path.resolve('./bower_components/underscore/underscore-min.js'),

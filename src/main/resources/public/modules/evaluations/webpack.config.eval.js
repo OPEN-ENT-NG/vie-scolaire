@@ -41,13 +41,12 @@ module.exports = {
         "angular": "angular"
     },
     resolve: {
-        modulesDirectories: ['bower_components'],
+        modulesDirectories: ['bower_components', 'node_modules'],
         root: path.resolve(__dirname),
         alias: {
             'underscore': path.resolve('./bower_components/underscore/underscore-min.js'),
             'moment': path.resolve('./bower_components/moment/min/moment-with-locales.min.js'),
-            'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js'),
-            'chart.js': path.resolve('./bower_components/chart.js/dist/Chart.bundle.js')
+            'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js')
         },
         extensions: ['', '.js']
     },

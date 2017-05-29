@@ -42,7 +42,7 @@ export class Structure extends DefaultStructure {
     classes: Collection<Classe>;
     justificatifs: Collection<Justificatif>;
     motifs: Collection<Motif>;
-    motifAppels: Collection<MotifAppel>;
+    motifsAppel: Collection<MotifAppel>;
     evenements: Collection<Evenement>;
     observations: Collection<Observation>;
     synchronized: any;
@@ -61,7 +61,7 @@ export class Structure extends DefaultStructure {
                synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
             },
             MATIERE : {
-                synchronization : '/viescolaire/matieres?idEtablissement=' + this.id
+                synchronization : '/viescolaire/matieres?idEtablissement='
             },
             JUSTIFICATIF : {
                 synchronization : '/viescolaire/presences/justificatifs?idEtablissement=' + this.id
@@ -75,11 +75,11 @@ export class Structure extends DefaultStructure {
                 absencesSansMotifs : '/viescolaire/presences/sansmotifs/'
             },
             MOTIF_ABS : {
-                synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/presences/motifs',
                 categorie : '/viescolaire/presences/motifs/categorie'
             },
             MOTIF_APPEL : {
-                synchronization : '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
+                synchronization : '/viescolaire/presences/motifsAppel',
                 categorie : '/viescolaire/presences/motifsAppel/categorie'
             },
             OBSERVATION : {
@@ -125,7 +125,7 @@ export class Structure extends DefaultStructure {
         let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
-                http().getJson(that.api.MOTIF_ABS.synchronization  ).done(function (motifs) {
+                http().getJson(that.api.MOTIF_ABS.synchronization + '?idEtablissement=' + this.id ).done(function (motifs) {
                     this.load(motifs);
                     this.map(function (motif) {
                         motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
@@ -242,9 +242,8 @@ export class Structure extends DefaultStructure {
                                 e.lastName = loadedEleve.lastName;
 
                                 let loadedMatiere = _.findWhere(that.matieres.all, {id: e.id_matiere});
-                                if(loadedMatiere) {
-                                    e.cours_matiere = loadedMatiere.name;
-                                }
+                                e.cours_matiere = loadedMatiere.name;
+
                                 return e;
                             });
 
@@ -335,7 +334,7 @@ export class Structure extends DefaultStructure {
             this.matieres.sync().then(isSynced);
             this.justificatifs.sync();
             this.motifs.sync();
-            this.motifAppels.sync();
+            this.motifsAppel.sync();
             this.observations.sync();
         });
     }

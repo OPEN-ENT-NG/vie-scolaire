@@ -203,16 +203,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.isModif = true;
             $scope.safeApply($scope);
         };
-        $scope.changeEtablissementAccueil = function (structure) {
-            $scope.structure = structure;
-            $scope.structure.sync().then(() => {
-                if ($scope.currParam = undefined) {
-                    $scope.currParam = 0;
-                }
-                $scope.safeApply($scope);
-            });
-        };
-
         route({
             accueil: function (params) {
                 $scope.hasFilterParam = params.filter === undefined;

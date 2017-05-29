@@ -1,11 +1,11 @@
 <div class="twelve cell" ng-controller="VscoAdminController">
     <section class="twelve cell row headerAccueil">
         <div class="twelve cell ">
-            <header class="header-viescolaire">
-                <h1><span class="no-style ng-scope"><i18n>viescolaire.param</i18n></span></h1>
+            <header>
+                <h2 class="float-title zero-mobile"><i18n>viescolaire.param</i18n></h2>
                 <label ng-if="structures.all.length > 1"  class="select right-magnet">
                     <select ng-model="structure" ng-options="structure.name for structure in structures.all
-                            track by structure.id" ng-change="changeEtablissementAccueil(structure)">
+                            track by structure.id">
                     </select>
                 </label>
             </header>
@@ -36,9 +36,6 @@
     </div>
     <div class="twelve cell">
         <div ng-if="!hasParam('filter')">
-            <div class="twelve">
-                <i18n>evaluations.devoir.information.enconstruction</i18n>
-            </div>
         </div>
         <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
             <article class="twelve">
@@ -120,9 +117,9 @@
                                                 </label>
                                                 -->
                                             </th>
-                                            <th class="text-white"><i18n>viescolaire.libelle</i18n></th>
-                                            <th class="text-white"><i18n>viescolaire.absences.commentaire</i18n></th>
-                                            <th class="text-white"><i18n>viescolaire.justifiant</i18n></th>
+                                            <th class=" "><i18n>viescolaire.libelle</i18n></th>
+                                            <th class=" "><i18n>viescolaire.absences.commentaire</i18n></th>
+                                            <th class=" "><i18n>viescolaire.justifiant</i18n></th>
                                         </tr>
                                         </thead>
                                         <tbody ng-repeat="categorie in structure.categories.all">
@@ -194,9 +191,9 @@
                                                 </label>
                                                 -->
                                             </th>
-                                            <th class="text-white"><i18n>viescolaire.libelle</i18n></th>
-                                            <th class="text-white"><i18n>viescolaire.absences.commentaire</i18n></th>
-                                            <th class="text-white"><i18n>viescolaire.justifiant</i18n></th>
+                                            <th class=" "><i18n>viescolaire.libelle</i18n></th>
+                                            <th class=" "><i18n>viescolaire.absences.commentaire</i18n></th>
+                                            <th class=" "><i18n>viescolaire.justifiant</i18n></th>
                                         </tr>
                                         </thead>
                                         <tbody ng-repeat="categorie in structure.categorieAppels.all">
@@ -216,7 +213,7 @@
                                             <td class=" "></td>
                                         </tr>
                                         <tr class="textIndent"
-                                            ng-repeat="motif in categorie.motifAppels.all">
+                                                ng-repeat="motif in categorie.motifAppels.all">
                                             <td class="one cell display-check two-mobile">
                                                 <label class="checkbox">
                                                     <input type="checkbox"

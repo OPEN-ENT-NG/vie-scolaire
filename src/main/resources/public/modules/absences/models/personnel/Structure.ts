@@ -19,7 +19,7 @@
 
 import { Collection, http, idiom as lang } from 'entcore/entcore';
 
-import { DefaultStructure } from '../common/DefaultStructure';
+import { DefaultStructure } from '../../../viescolaire/models/common/DefaultStructure';
 import { Enseignant } from "./Enseignant";
 import { Eleve } from "./Eleve";
 import { Appel } from "./Appel";
@@ -29,6 +29,7 @@ import { Motif } from "./Motif";
 import { Evenement } from "./Evenement";
 import {Matiere} from "./Matiere";
 import {Observation} from "./Observation";
+import {MotifAppel} from "./MotifAppel";
 
 let moment = require('moment');
 
@@ -41,6 +42,7 @@ export class Structure extends DefaultStructure {
     classes: Collection<Classe>;
     justificatifs: Collection<Justificatif>;
     motifs: Collection<Motif>;
+    motifsAppel: Collection<MotifAppel>;
     evenements: Collection<Evenement>;
     observations: Collection<Observation>;
     synchronized: any;
@@ -72,8 +74,13 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/presences/eleves/evenements/',
                 absencesSansMotifs : '/viescolaire/presences/sansmotifs/'
             },
-            MOTIF : {
-                synchronization : '/viescolaire/presences/motifs'
+            MOTIF_ABS : {
+                synchronization : '/viescolaire/presences/motifs',
+                categorie : '/viescolaire/presences/motifs/categorie'
+            },
+            MOTIF_APPEL : {
+                synchronization : '/viescolaire/presences/motifsAppel',
+                categorie : '/viescolaire/presences/motifsAppel/categorie'
             },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
@@ -118,7 +125,7 @@ export class Structure extends DefaultStructure {
         let that: Structure = this;
         this.collection(Motif, {
             sync : function () {
-                http().getJson(that.api.MOTIF.synchronization).done(function (motifs) {
+                http().getJson(that.api.MOTIF_ABS.synchronization + '?idEtablissement=' + this.id ).done(function (motifs) {
                     this.load(motifs);
                     this.map(function (motif) {
                         motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
@@ -127,6 +134,18 @@ export class Structure extends DefaultStructure {
                 }.bind(this));
             }
         });
+        this.collection(MotifAppel, {
+            sync : function () {
+                http().getJson(that.api.MOTIF_APPEL.synchronization + '?idEtablissement=' + this.id ).done(function (motifs) {
+                    this.load(motifs);
+                    this.map(function (motif) {
+                        motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
+                        return motif;
+                    });
+                }.bind(this));
+            }
+        });
+
         this.collection(Enseignant, {
             sync : function () {
                 return new Promise((resolve, reject) => {
@@ -315,6 +334,7 @@ export class Structure extends DefaultStructure {
             this.matieres.sync().then(isSynced);
             this.justificatifs.sync();
             this.motifs.sync();
+            this.motifsAppel.sync();
             this.observations.sync();
         });
     }

@@ -1,10 +1,9 @@
 /**
  * Created by anabah on 06/06/2017.
  */
-
 import { Model } from 'entcore/entcore';
 
-export class Motif extends Model {
+export class MotifAppel extends Model {
     id: number;
     commentaire: string;
     defaut: boolean;
@@ -21,8 +20,8 @@ export class Motif extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/motif',
-            UPDATE: '/viescolaire/presences/motif'
+            POST: '/viescolaire/presences/motifAppel',
+            UPDATE: '/viescolaire/presences/motifAppel'
         };
     }
 

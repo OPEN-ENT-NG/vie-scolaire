@@ -62,7 +62,10 @@ public class Viescolaire extends BaseServer {
 
 	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
+	public final static String ABSC_MOTIF_APPEL_TABLE = "motif_appel";
 	public final static String ABSC_EVENEMENT_TABLE = "evenement";
+	public final static String ABSC_CATEGORIE_MOTIF = "categorie_motif_absence";
+	public final static String ABSC_CATEGORIE_MOTIF_APPEL = "categorie_motif_appel";
 
 	public static final String EVAL_NOTES_TABLE = "notes";
 	public static final String EVAL_DEVOIR_TABLE = "devoirs";
@@ -97,6 +100,10 @@ public class Viescolaire extends BaseServer {
 
 	public static final String SCHEMA_APPEL_CREATE = "absc_createAppel";
 	public static final String SCHEMA_APPEL_UPDATE = "absc_updateAppel";
+	public static final String SCHEMA_CATEGORIE_ABS_CREATE = "absc_createCategorieAbs";
+	public static final String SCHEMA_CATEGORIE_ABS_UPDATE = "absc_updateCategorieAbs";
+	public static final String SCHEMA_MOTIF_CREATE = "absc_createMotif";
+	public static final String SCHEMA_MOTIF_UPDATE = "absc_updateMotif";
 	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
 	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
 
@@ -149,6 +156,7 @@ public class Viescolaire extends BaseServer {
 		 */
 		addController(new fr.openent.absences.controller.EleveController());
 		addController(new MotifController());
+		addController(new MotifAppelController());
 		addController(new AppelController());
 		addController(new EvenementController());
 

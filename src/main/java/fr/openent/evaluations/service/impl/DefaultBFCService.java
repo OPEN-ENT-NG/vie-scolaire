@@ -80,7 +80,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                 .append("SELECT * ")
                 .append("FROM notes.bilan_fin_cycle ")
                 .append("WHERE bilan_fin_cycle.id_eleve IN " + Sql.listPrepared(idEleves))
-                .append(" AND bilan_fin_cycle.id_etablissement = ?");
+                .append(" AND bilan_fin_cycle.id_etablissement = ? AND valeur >= 0");
 
         for(String s : idEleves) {
             values.addString(s);
@@ -179,6 +179,9 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                     for (int i = 0; i < notesResultArray.size(); i++) {
                         JsonObject _o = notesResultArray.get(i);
                         String id_eleve = _o.getString("id_eleve");
+                        if(_o.getLong("evaluation") < 0) {
+                            continue;
+                        }
                         if (!notesCompetencesEleve.containsKey(id_eleve)) {
                             notesCompetencesEleve.put(id_eleve, new HashMap<Long, Long>());
                         }
@@ -283,7 +286,9 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                         while (moy >= bornesIterator.next() && bornesIterator.hasNext()) {
                             simplifiedMoy++;
                         }
-                        resultEleve.put(d.getId(), simplifiedMoy);
+                        if(simplifiedMoy >= bornes.first() && simplifiedMoy <= bornes.last()) {
+                            resultEleve.put(d.getId(), simplifiedMoy);
+                        }
                     }
                 }
             }
@@ -333,6 +338,9 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
 
                     for (int i = 0; i < bfcResultArray.size(); i++) {
                         JsonObject _o = bfcResultArray.get(i);
+                        if (_o.getInteger("valeur") < 0) {
+                            continue;
+                        }
                         if (!bfcEleve.containsKey(_o.getString("id_eleve"))) {
                             bfcEleve.put(_o.getString("id_eleve"), new HashMap<Long, Integer>());
                         }

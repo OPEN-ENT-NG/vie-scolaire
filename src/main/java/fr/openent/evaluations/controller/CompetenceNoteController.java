@@ -129,8 +129,13 @@ public class CompetenceNoteController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_COMPETENCE_NOTE_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-                            Integer id = resource.getInteger("id");
-                            competencesNotesService.updateCompetenceNote(String.valueOf(id), resource, user, notEmptyResponseHandler(request));
+                            String id = String.valueOf(resource.getInteger("id"));
+                            if(resource.getInteger("evaluation") == -1) {
+                                competencesNotesService.delete(id, defaultResponseHandler(request));
+                                log.warn("Cette route ne devrait pas etre utilisee avec la valeur -1. Veulliez utiliser la methode de suppression.");
+                            } else {
+                                competencesNotesService.updateCompetenceNote(id, resource, user, notEmptyResponseHandler(request));
+                            }
                         }
                     });
                 }else {

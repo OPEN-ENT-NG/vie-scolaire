@@ -1145,7 +1145,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    saveCompetencesNotes (_data) {
+     saveCompetencesNotes (_data) {
         var that = this;
         if (_data[0].evaluation !== -1){
             var _post = _.filter(_data, function (competence) {
@@ -1597,7 +1597,9 @@ export class CompetenceNote extends Model implements IModel {
 
     delete(): Promise<any> {
         return new Promise((resolve, reject) => {
+            let that = this;
             http().delete(this.api.delete).done(function (data) {
+                delete that.id;
                 if (resolve && (typeof (resolve) === 'undefined')) {
                     resolve();
                 }
@@ -1613,6 +1615,8 @@ export class CompetenceNote extends Model implements IModel {
                         resolve(data);
                     }
                 });
+            } else if (this.evaluation == -1) {
+                this.delete();
             } else {
                 this.update();
             }

@@ -20,7 +20,7 @@
 import { Collection, http } from 'entcore/entcore';
 
 import { Cours } from './Cours';
-import { DefaultStructure } from '../common/DefaultStructure';
+import { DefaultStructure } from '../../../viescolaire/models/common/DefaultStructure';
 import { Plage } from "./Plage-old";
 import { Creneau } from "./Creneau";
 

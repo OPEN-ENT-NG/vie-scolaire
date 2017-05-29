@@ -21,8 +21,10 @@ package fr.openent.absences.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 23/02/2016.
@@ -37,10 +39,47 @@ public interface MotifService extends CrudService {
     public void getAbscMotifsEtbablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
+     * Recupere toutes les catégories de motifs d'absences en fonction de l'id de l'établissement.
+     * @param psIdEtablissement identifiant de l'établissement.
+     * @param handler handler portant le résultat de la requête.
+     */
+    public void getCategorieAbscMotifsEtbablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Recupere tous les justificatifs d'appels en fonction de l'id de l'établissement
      * @param psIdEtablissement identifiant de l'établissement
      * @param handler handler portant le résultat de la requête
      */
     public void getAbscJustificatifsEtablissement(String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Créé un motif d'absence
+     * @param motif données pour la création du motif
+     * @param handler
+     */
+    public void createMotifAbs(JsonObject motif, final Handler<Either<String, JsonObject>> handler);
+
+
+    /**
+     * Met à jour un motif d'absence
+     * @param motif données pour la création du motif
+     * @param handler
+     */
+    public void updateMotifAbs(JsonObject motif, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Met à jour une catégorie de motif d'absence
+     * @param categorie données pour la création de la catégorie
+     * @param handler
+     */
+    public void updateCategorieMotifAbs(JsonObject categorie, Handler<Either<String, JsonObject>> handler);
+
+
+    /**
+     * Créé une catégorie de motif d'absence
+     * @param categorie données pour la création de la catégorie
+     * @param handler
+     */
+    public void createCategorieMotifAbs(JsonObject categorie, final Handler<Either<String, JsonObject>> handler);
 
 }

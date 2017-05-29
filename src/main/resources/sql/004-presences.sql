@@ -125,7 +125,11 @@ CREATE TABLE presences.motif
   justifiant boolean,
   commentaire character varying(250),
   defaut boolean,
-  CONSTRAINT motif_pk PRIMARY KEY (id)
+  id_categorie bigserial NOT NULL,
+  CONSTRAINT motif_pk PRIMARY KEY (id),
+  CONSTRAINT fk_categorie_motif_abs_id FOREIGN KEY (id_categorie)
+      REFERENCES presences.categorie_motif_absence (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE presences.etat_appel
@@ -275,3 +279,34 @@ CREATE TABLE presences.se_produit_sur
       REFERENCES presences.evenement (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+CREATE TABLE presences.categorie_motif_absence
+(
+  libelle character varying(36),
+  id bigserial NOT NULL,
+  id_etablissement character varying(36),
+  CONSTRAINT categorie_motif_abs_pkey PRIMARY KEY (id)
+)
+
+CREATE TABLE presences.categorie_motif_appel
+(
+  libelle character varying(36),
+  id_etablissement character varying(36),
+  id bigserial NOT NULL,
+  CONSTRAINT categorie_motif_appel_pkey PRIMARY KEY (id)
+)
+
+CREATE TABLE presences.motif_appel
+(
+  id bigserial NOT NULL,
+  justifiant boolean,
+  commentaire character varying(36),
+  libelle character varying(36),
+  id_etablissement character varying(36),
+  defaut boolean,
+  id_categorie bigserial NOT NULL,
+  CONSTRAINT motif_appel_pk PRIMARY KEY (id),
+  CONSTRAINT fk_categorie_motif_appel_id FOREIGN KEY (id_categorie)
+      REFERENCES presences.categorie_motif_appel (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)

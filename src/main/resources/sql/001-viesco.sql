@@ -37,4 +37,5 @@ CREATE TABLE viesco.periode
   CONSTRAINT periode_pk PRIMARY KEY (id)
 );
 
+
 CREATE INDEX sousmatiere_id_typesousmatiere_idx ON viesco.sousmatiere USING btree(id_type_sousmatiere, id_matiere);

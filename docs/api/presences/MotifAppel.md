@@ -1,22 +1,21 @@
 # MotifController
 
 ##### Table of Contents
-  * [getAbscMotifsEtablissement](#getAbscMotifsEtablissement)
-  * [getAbscJustificatifsEtablissement](#getAbscJustificatifsEtablissement)
-  * [getCategorieAbscMotifsEtablissement](#getCategorieAbscMotifsEtablissement)
-  * [createMotifAbs](#createMotifAbs)
-  * [updateMotifAbs](#updateMotifAbs)
+  * [getAbscMotifsAppelEtablissement](#getAbscMotifsAppelEtablissement)
+  * [getCategorieAbscMotifsAppelEtablissement](#getCategorieAbscMotifsAppelEtablissement)
+  * [createMotifAppel](#createMotifAppel)
+  * [updateMotifAppel](#updateMotifAppel)
   
 
-<a name="getAbscMotifsEtablissement" />
+<a name="getAbscMotifsAppelEtablissement" />
 
-## getAbscMotifsEtablissement
+## getAbscMotifsAppelEtablissement
 
-Récupère tous les motifs en fonction de l'id de l'établissement.
+Récupère tous les motifs d'appel oublié en fonction de l'id de l'établissement.
 
 * **URL**
 
-  `viescolaire/presences/motifs`
+  `viescolaire/presences/motifsAppel`
 
 * **Method:**
  
@@ -32,55 +31,23 @@ Récupère tous les motifs en fonction de l'id de l'établissement.
    * **Content**: 
     ```json
     [{
-        "id":9,"id_etablissement":"7d6b93f1-064c-4a15-88c7-815ebf33815b",
+        "id":9,
+        "id_etablissement":"7d6b93f1-064c-4a15-88c7-815ebf33815b",
         "libelle":"Maladie avec certificat médical",
-        "justifiant":true,"commentaire":"Maladie avec certificat médical",
-        "defaut":true
+        "justifiant":true,
+        "commentaire":"Maladie avec certificat médical"
     }]
     ``` 
     
-<a name="getAbscJustificatifsEtablissement" />
+<a name="getCategorieAbscMotifsAppelEtablissement" />
     
-## getAbscJustificatifsEtablissement
+## getCategorieAbscMotifsAppelEtablissement
 
-Récupère tous les justificatifs en fonction de l'id de l'établissement.
+Récupère toutes les catégories de motifs d'appel oublié en fonction de l'id de l'établissement.
 
 * **URL**
 
-  `viescolaire/presences/justificatifs`
-
-* **Method:**
- 
-  `GET`
-  
-*  **URL Params**
-
-    **Required:**
-  
-    `idEtablissement = String`
-
-* **Réponse:**
-  
-   * **Status**: `200`
-   * **Content**: 
-    ```json
-    [{        
-      "id":1,
-      "libelle":"Malade",
-      "id_etablissement":"7d6b93f1-064c-4a15-88c7-815ebf33815b"
-    }]
-    ``` 
-
-
-<a name="getCategorieAbscMotifsEtablissement" />
-    
-## getCategorieAbscMotifsEtablissement
-
-Récupère toutes les catégories de motifs d'absences en fonction de l'id de l'établissement.
-
-* **URL**
-
-  `viescolaire/presences/motifs/categorie`
+  `viescolaire/presences/motifsAppel/categorie`
 
 * **Method:**
  
@@ -104,15 +71,15 @@ Récupère toutes les catégories de motifs d'absences en fonction de l'id de l'
     }]
     ``` 
 
-<a name="createMotifAbs" />
+<a name="createMotifAppel" />
 
-## createMotifAbs
+## createMotifAppel
 
-   Créé un Motif d'absence.
+   Créé un Motif d'appel oublié.
   
  * **URL**
   
-   `viescolaire/presences/motif`
+   `viescolaire/presences/motifAppel`
   
  * **Method:**
     
@@ -142,10 +109,10 @@ Récupère toutes les catégories de motifs d'absences en fonction de l'id de l'
       "id":11 
      }
      ```
-<a name="updateMotifAbs" />
+<a name="updateMotifAppel" />
 
-## updateMotifAbs
-   met à jour un motif d'absence.
+## updateMotifAppel
+   met à jour un motif d'appel oublié.
   
  * **URL**
   

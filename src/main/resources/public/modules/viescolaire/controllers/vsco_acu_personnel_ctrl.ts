@@ -12,6 +12,15 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
     function ($scope, route, model) {
         $scope.structures = vieScolaire.structures;
 
+        $scope.changeSelection = function (elem){
+            if (elem) {
+                elem = ! elem;
+            }
+            else {
+                elem = true;
+            }
+            $scope.safeApply($scope);
+        }
         $scope.formatDate = function(pODateDebut, pODateFin) {
             return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
         };

@@ -1,8 +1,9 @@
 <div class="twelve cell" ng-controller="VscoAdminController">
-    <section class="eleven cell row headerAccueil">
+    <section class="twelve cell row headerAccueil">
         <div class="twelve cell ">
             <header>
-                <label class="select right-magnet">
+                <h2 class="float-title zero-mobile"><i18n>viescolaire.param</i18n></h2>
+                <label ng-if="structures.all.length > 1"  class="select right-magnet">
                     <select ng-model="structure" ng-options="structure.name for structure in structures.all
                             track by structure.id">
                     </select>
@@ -12,7 +13,8 @@
     </section>
 
     <div class="twelve tabs vertical-spacing-twice heading-tabs">
-        <header ng-class="{selected : !hasParam('filter')}" class="horizontal-spacing-twice selected">
+        <header ng-class="{selected : hasFilterParam}"
+                class="horizontal-spacing-twice ng-scope">
             <a href="#/viescolaire/accueil" class="horizontal-spacing">
                 <span><i18n><span class="no-style ng-scope">viescolaire.utils.school</span></i18n></span>
             </a>
@@ -21,7 +23,7 @@
                 class="horizontal-spacing-twice ng-scope">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.notes.title')]]"
                class="horizontal-spacing">
-                <span><i18n><span class="no-style ng-scope">viescolaire.notes.title</span></i18n></span>
+                <span><i18n><span class="no-style ng-scope">evaluations.competences.title</span></i18n></span>
             </a>
         </header>
         <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
@@ -36,7 +38,7 @@
         <div ng-if="!hasParam('filter')">
         </div>
         <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
-            <div class="twelve">
+            <article class="twelve">
                 <span class="three"><i18n>activated.module</i18n></span>
 
                 <div class="cell one">
@@ -50,14 +52,14 @@
                         <span></span>
                     </label>
                 </div>
-            </div>
+            </article>
         </div>
         <div ng-if="findParam('filter') === lang.translate('viescolaire.presences.title')">
-            <div class="twelve">
-                <span><i18n>activated.module</i18n></span>
+            <article class="twelve">
+                <label for="structure.isActived.presence" ><i18n>activated.module</i18n></label>
                 <div class="cell one">
                     <label class="checkbox">
-                        <input type="checkbox"
+                        <input id="structure.isActived.presence" type="checkbox"
                                ng-change ="structure.activate('presences', structure.isActived.presence, structure.id );
                                                    structure.isActived.presence = !structure.isActived.presence;"
                                ng-click="structure.isActived.presence = !structure.isActived.presence;"
@@ -66,9 +68,209 @@
                         <span></span>
                     </label>
                 </div>
+            </article>
+            <div ng-if="structure.isActived.presence" class="twelve">
+                <div  class="row">
+                    <div class="row cell two">
+                        <div class="side-col twelve-mobile" offset="65" sticky>
+                            <div class="row">
+                                <nav class="vertical">
+                                    <ul>
+                                        <li ng-click="currParam = 1; scrollToElement(1)">
+                                            <a ng-class="{'selected': currParam == 1}">
+                                                <i18n>viescolaire.utils.reason.absences</i18n></a>
+                                        </li>
+
+                                        <li ng-click="scrollToElement(2); currParam = 2" >
+                                            <a ng-class="{'selected': currParam == 2}">
+                                                <i18n>viescolaire.utils.reason.appel</i18n></a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ten cell twelve-mobile padd-left">
+                        <div class="hash-magnet twelve cell" id="1">
+                            <article >
+                                <div class="twelve">
+                                    <h3>
+                                        <i18n>viescolaire.utils.reason.absences</i18n>
+                                        <button class="marginFive right-magnet" ng-click="isAppel=false;createMotif(false)">
+                                            <i18n>viescolaire.create.motif</i18n>
+                                        </button>
+                                    </h3>
+
+                                </div>
+                                <lightbox show="opened.lightboxCreateMotif" on-close="opened.lightboxCreateMotif=false">
+                                    <container template="lightboxContainerCreateMotif"></container>
+                                </lightbox>
+                                <div class="responsive-table">
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th class="one cell display-check two-mobile">
+                                                <!--
+                                                <label class="checkbox">
+                                                    <input type="checkbox" ng-model="selected.all" ng-change="selected.all = !selected.all">
+                                                    <span></span>
+                                                </label>
+                                                -->
+                                            </th>
+                                            <th class=" "><i18n>viescolaire.libelle</i18n></th>
+                                            <th class=" "><i18n>viescolaire.absences.commentaire</i18n></th>
+                                            <th class=" "><i18n>viescolaire.justifiant</i18n></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody ng-repeat="categorie in structure.categories.all">
+                                        <tr>
+                                            <td class="one cell display-check two-mobile">
+                                                <label class="checkbox">
+                                                    <input type="checkbox"
+                                                           ng-init="categorie.selected = false;"
+                                                           ng-model="categorie.selected"
+                                                           ng-change="selectCategorie(categorie)">
+                                                    <span></span>
+                                                </label>
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.libelle')]]"
+                                                class="bold text-left">[[categorie.libelle]]</td>
+                                            <td class=" "></td>
+                                            <td class=" "></td>
+                                        </tr>
+                                        <tr     class="textIndent"
+                                                ng-repeat="motif in categorie.motifs.all">
+                                            <td class="one cell display-check two-mobile">
+                                                <label class="checkbox">
+                                                    <input type="checkbox"
+                                                           ng-init="motif.selected = false"
+                                                           ng-model="motif.selected"
+                                                           ng-change="selectMotif(motif)">
+                                                    <span></span>
+                                                </label>
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.libelle')]]" class="text-left">
+                                                [[motif.libelle]]
+                                            </td>
+                                            <td  data-label="[[lang.translate('viescolaire.absences.commentaire')]]"
+                                                 class="text-left">
+                                                [[motif.commentaire]]
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.justifiant')]]" class="text-left">
+                                                [[lang.translate(motif.justifiant)]]
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="hash-magnet twelve cell" id="2">
+                            <article >
+                                <div>
+                                    <h3>
+                                        <i18n>viescolaire.utils.reason.appel</i18n>
+                                        <button class="marginFive right-magnet" ng-click="isAppel=true;createMotif(true)">
+                                            <i18n>viescolaire.create.motif</i18n>
+                                        </button>
+                                    </h3>
+
+                                </div>
+                                <lightbox show="opened.lightboxCreateMotif" on-close="opened.lightboxCreateMotif=false">
+                                    <container template="lightboxContainerCreateMotif"></container>
+                                </lightbox>
+                                <div class="responsive-table">
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th class="one cell display-check two-mobile">
+                                                <!--
+                                                <label class="checkbox">
+                                                    <input type="checkbox" ng-model="selected.all" ng-change="selected.all = !selected.all">
+                                                    <span></span>
+                                                </label>
+                                                -->
+                                            </th>
+                                            <th class=" "><i18n>viescolaire.libelle</i18n></th>
+                                            <th class=" "><i18n>viescolaire.absences.commentaire</i18n></th>
+                                            <th class=" "><i18n>viescolaire.justifiant</i18n></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody ng-repeat="categorie in structure.categorieAppels.all">
+                                        <tr>
+                                            <td class="one cell display-check two-mobile">
+                                                <label class="checkbox">
+                                                    <input type="checkbox"
+                                                           ng-init="categorie.selected = false;"
+                                                           ng-model="categorie.selected"
+                                                           ng-change="selectCategorie(categorie)">
+                                                    <span></span>
+                                                </label>
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.libelle')]]"
+                                                class="bold text-left">[[categorie.libelle]]</td>
+                                            <td class=" "></td>
+                                            <td class=" "></td>
+                                        </tr>
+                                        <tr class="textIndent"
+                                                ng-repeat="motif in categorie.motifAppels.all">
+                                            <td class="one cell display-check two-mobile">
+                                                <label class="checkbox">
+                                                    <input type="checkbox"
+                                                           ng-init="motif.selected = false"
+                                                           ng-model="motif.selected"
+                                                           ng-change="selectMotif(motif)">
+                                                    <span></span>
+                                                </label>
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.libelle')]]" class="text-left">
+                                                [[motif.libelle]]
+                                            </td>
+                                            <td  data-label="[[lang.translate('viescolaire.absences.commentaire')]]"
+                                                 class="text-left">
+                                                [[motif.commentaire]]
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.justifiant')]]" class="text-left">
+                                                [[lang.translate(motif.justifiant)]]
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </article>
+                        </div>
+                        <section class="toggle-buttons" ng-class="{ hide: selected.categories.length === 0
+                                                                         && selected.motifs.length === 0}">
+                            <div class="toggle">
+                                <div class="row">
+                                    <button ng-show="selected.categories.length === 1"
+                                            class="cell ng-scope"
+                                            ng-click="updateCategorie()">
+                                        <i18n><span class="no-style">viescolaire.categorie.edit</span></i18n>
+                                    </button>
+
+                                    <button ng-show="selected.motifs.length === 1"
+                                            class="cell ng-scope"
+                                            ng-click="updateMotif()">
+                                        <i18n><span class="no-style">viescolaire.motif.edit</span></i18n>
+                                    </button>
+                                    <button class="cell ng-scope" ng-click="confirmSuppretion()">
+                                        <i18n><span class="no-style">evaluations.test.delete</span></i18n>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
     </div>
 </div>
+</div>
+
 
 

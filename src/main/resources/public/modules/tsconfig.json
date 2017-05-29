@@ -11,6 +11,7 @@
         "sourceMap":  true,
         "noImplicitAny": false,
         "typeRoots": [ "../../../../../node_modules/@types" ],
-        "types": [ "core-js" ]
+        "types": [ "core-js" ],
+        "lib": ["es6"]
     }
 }

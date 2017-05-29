@@ -2,17 +2,15 @@
  * Created by anabah on 06/06/2017.
  */
 
-import { Model } from 'entcore/entcore';
+import { Model, Collection } from 'entcore/entcore';
+import { Motif } from './Motif';
 
-export class Motif extends Model {
+export class CategorieAppel extends Model {
     id: number;
-    commentaire: string;
-    defaut: boolean;
-    id_etablissement: string;
-    justifiant: boolean;
-    justifiant_libelle: string;
     libelle: string;
-    id_categorie: string;
+    id_etablissement: string;
+
+    motifs: Collection< Motif >;
 
     constructor (o?: any) {
         super();
@@ -21,20 +19,16 @@ export class Motif extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/motif',
-            UPDATE: '/viescolaire/presences/motif'
+            POST: '/viescolaire/presences/categorieAppel',
+            UPDATE: '/viescolaire/presences/categorieAppel'
         };
     }
 
     toJson () {
         return {
             id: this.id,
-            commentaire: this.commentaire,
-            defaut: this.defaut,
-            id_etablissement: this.id_etablissement,
-            justifiant: this.justifiant,
             libelle: this.libelle,
-            id_categorie: this.id_categorie };
+            id_etablissement: this.id_etablissement };
     }
 
     create(): Promise<any> {

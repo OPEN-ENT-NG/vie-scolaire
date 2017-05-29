@@ -1,8 +1,7 @@
-import { model, Model, Collection } from 'entcore/entcore';
-import {
-    createActiveStructure, deleteActiveStructure,
-    getActiveStructures
-} from "../../utils/functions/activeStructures";
+import { model, Model, Collection} from 'entcore/entcore';
+import { getActiveStructures } from "../../utils/functions/activeStructures";
+import {Structure} from './personnel/Structure';
+
 
 declare let _: any;
 
@@ -10,32 +9,6 @@ declare let _: any;
  * MODELE DE DONNEES PERSONNEL :
  *  viescolaire
  */
-
-export class Structure extends Model {
-    // Fields
-    id: string;
-    name: string;
-    isActived = {presence: false, evaluation: false};
-
-
-    constructor(o?: any) {
-        super();
-        if (o && typeof o === 'object') {
-            this.updateData(o);
-        }
-    }
-
-    async  activate(module: string, isActif, idStructure) {
-        if (!isActif) {
-            let res = await deleteActiveStructure(module, idStructure);
-            console.dir(res);
-        }
-        else {
-            let res = await createActiveStructure(module, idStructure);
-            console.dir(res);
-        }
-    }
-}
 
 export class VieScolaire extends Model {
     structures: Collection<Structure>;
@@ -49,6 +22,8 @@ export class VieScolaire extends Model {
                     let structuresPresences;
                     let structuresEvaluations;
                     let _structureTmp = [];
+
+                    // récupération des structures actives par module
                     structuresPresences = await getActiveStructures('presences');
                     structuresEvaluations = await getActiveStructures('notes');
                     for (let i = 0; i < model.me.structures.length; i++) {

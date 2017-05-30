@@ -348,32 +348,11 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.ouvrirAppel($scope.appel.date);
         };
 
-        $scope.refreshVuesAppel = function() {
-            //fermeture ouverture du template pour rafraichir la vue
-            template.close('absc_teacher_appel_eleves_container');
-            $scope.safeApply();
-            template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
-            $scope.safeApply();
-        };
-
-        /**
-         * Affiche la vue classes ou eleves
-         * @param bShowOrHide true affiche la vue classes, false affiche la vue eleves
-         */
-        $scope.showVueClasses = function(bShowOrHide) {
-            $scope.bClassesVue = bShowOrHide;
-            $scope.refreshVuesAppel();
-        };
-
         /**
          * Sélection d'un cours : Affiche le panel central de la liste des élèves
          * @param cours l'objet cours sélectionné
          */
         $scope.selectCours = function(cours) {
-
-            // par defaut on se positionne sur la vue classique de tous les eleves
-            $scope.bClassesVue = false;
-
             $scope.currentCours = cours;
 
             $scope.currentCours.classe = $scope.structure.classes.findWhere({id : $scope.currentCours.id_classe});
@@ -410,11 +389,7 @@ export let absencesController = ng.controller('AbsencesController', [
                         _.groupBy($scope.currentCours.eleves.all, function (oEleve) {
                             return oEleve.className;
                         });
-                    // on positionne sur la vue par classes par défaut
-                    $scope.bClassesVue = true;
                 }
-
-                $scope.refreshVuesAppel();
             });
         };
 
@@ -569,7 +544,6 @@ export let absencesController = ng.controller('AbsencesController', [
                 return classe.name;
             } else {
                 console.log("Class not found : " + idClasse);
-                return " ";
             }
         };
 

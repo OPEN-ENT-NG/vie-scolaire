@@ -544,6 +544,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 return classe.name;
             } else {
                 console.log("Class not found : " + idClasse);
+                return " ";
             }
         };
 

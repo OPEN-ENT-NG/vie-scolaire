@@ -26,6 +26,7 @@ import { Creneau } from "./Creneau";
 
 import { FORMAT } from '../../constants/formats';
 import { PLAGES } from '../../constants/plages';
+import { Classe } from "../teacher/Classe";
 
 export class Structure extends DefaultStructure {
     isSynchronized: boolean;
@@ -34,10 +35,14 @@ export class Structure extends DefaultStructure {
     courss: Collection<Cours>;
     plages: Collection<Plage>;
     creneaus: Collection<Creneau>;
+    classes: Collection<Classe>;
 
     get api () {
         return {
             GET_COURS :  '/viescolaire/enseignant/' + model.me.userId + '/cours/',
+            CLASSE : {
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
+            }
         };
     }
 
@@ -49,8 +54,44 @@ export class Structure extends DefaultStructure {
         this.synchronization = {
             cours: false,
             plages: false,
-            creneaux: false
+            creneaux: false,
+            classes: false
         };
+
+        let that: Structure = this;
+
+        // Constantes utiles pour la récupération de classes et groupes d'enseignements
+        const libelle = {
+            CLASSE: 'Classe',
+            GROUPE: "Groupe d'enseignement"
+        };
+        const castClasses = (classes) => {
+            return _.map(classes, (classe) => {
+                let libelleClasse;
+                if (classe.type_groupe_libelle = classe.type_groupe === 0) {
+                    libelleClasse = libelle.CLASSE;
+                } else {
+                    libelleClasse = libelle.GROUPE;
+                }
+                classe.type_groupe_libelle = libelleClasse;
+                if (!classe.hasOwnProperty("remplacement")) classe.remplacement = false;
+                classe = new Classe(classe);
+                return classe;
+            });
+        };
+
+        this.collection(Classe, {
+            sync: function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.CLASSE.synchronization).done((res) => {
+                        this.load(castClasses(res));
+                        that.synchronization.classes = true;
+                        resolve();
+                    }).bind(this);
+                });
+            },
+        });
+
         this.collection(Cours, {
             sync : (dateDebut: any, dateFin: any) => {
                 return new Promise((resolve, reject) => {
@@ -175,7 +216,8 @@ export class Structure extends DefaultStructure {
             let isSynchronized = () => {
                 let b: boolean = this.synchronization.cours
                     && this.synchronization.creneaux
-                    && this.synchronization.plages;
+                    && this.synchronization.plages
+                    && this.synchronization.classes;
                 if (b) {
                     this.isSynchronized = true;
                     resolve();
@@ -185,6 +227,7 @@ export class Structure extends DefaultStructure {
             let sDateDebut = moment(today).format(FORMAT.heureMinutes);
             let sDateFin =  moment(today).add(1, 'days').format(FORMAT.heureMinutes);
 
+            this.classes.sync().then(isSynchronized);
             this.plages.sync().then(isSynchronized);
             this.courss.sync(sDateDebut, sDateFin).then(() => {
                 this.creneaus.sync().then(isSynchronized);

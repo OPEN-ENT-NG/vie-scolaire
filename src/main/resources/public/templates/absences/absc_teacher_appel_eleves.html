@@ -33,46 +33,65 @@
             </div>
         </div>
 
-        <div class="list-view-cgi__grille">
-            <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all">
-                <div class="one cell cell-indent appel__container-icon">
-                    <span class="appel__absence-icon appel__absence-icon--cpe"
-                            ng-if="saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
 
-                    </span>
-                    <span class="appel__absence-icon"
-                          ng-class="{'absence-color' : eleve.isAbsent}"
-                          ng-click="ajouterEvenementAbsence(eleve)"
-                          ng-if="!saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
+        <script type="text/ng-template"  id="liste_eleves.html">
+            <div class="one cell cell-indent appel__container-icon">
+                            <span class="appel__absence-icon appel__absence-icon--cpe"
+                                  ng-if="saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
 
-                    </span>
-                </div>
-                <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)" ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
-                    [[eleve.lastName]] [[eleve.firstName]]
-                </div>
-                <div class="two cell cell-indent">
-                    <span tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
-                        <i class="clock retard-color-icon" ></i>
-                    </span>
-                    <span tooltip="Départ" class="clock appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
+                            </span>
+                <span class="appel__absence-icon"
+                      ng-class="{'absence-color' : eleve.isAbsent}"
+                      ng-click="ajouterEvenementAbsence(eleve)"
+                      ng-if="!saisieCpe(currentCours.appel.appel_id, eleve, oEvtType.giIdEvenementAbsence)">
+
+                            </span>
+            </div>
+            <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)" ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
+                [[eleve.lastName]] [[eleve.firstName]]
+            </div>
+            <div class="two cell cell-indent">
+                            <span tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="eleve.hasRetard">
+                                <i class="clock retard-color-icon" ></i>
+                            </span>
+                <span tooltip="Départ" class="clock appel__evenement-icon depart-color-icon" ng-if="eleve.hasDepart">
                         <i class="clock depart-color-icon" ></i>
                     </span>
-                    <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
+                <span tooltip="Incident" class="appel__evenement-icon incident-color-icon" ng-if="eleve.hasIncident">
                         <i class="report"></i>
                     </span>
-                    <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
+                <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
+            </div>
+            <div class="five cell">
+                <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
+                    <div ng-repeat="evt in plage.evenements.all track by $index"
+                         ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
+                         ng-class="{'absence-color' : evt.id_type === 1, 'retard-color' : evt.id_type === 2, 'depart-color' : evt.id_type === 3, 'absence-prev-color' : evt.id_type === 'abs-prev','incident-color' : evt.id_type === 4, 'commentaire-color' : evt.id_type === 5}"
+                         class="appel__historiques-creneau-eleve"
+                    ></div>
                 </div>
-                <div class="five cell">
-                    <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
-                        <div ng-repeat="evt in plage.evenements.all track by $index"
-                             ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
-                            ng-class="{'absence-color' : evt.id_type === 1, 'retard-color' : evt.id_type === 2, 'depart-color' : evt.id_type === 3, 'absence-prev-color' : evt.id_type === 'abs-prev','incident-color' : evt.id_type === 4, 'commentaire-color' : evt.id_type === 5}"
-                            class="appel__historiques-creneau-eleve"
-                        ></div>
+            </div>
+        </script>
+
+        <!-- Affichage par classe lorsqu'on est sur un groupe d'enseignement -->
+        <div ng-if="currentCours.classesOfGroup !== undefined">
+            <div ng-repeat="(classe, eleves) in currentCours.classesOfGroup">
+                <h2>Classe : [[classe]]</h2>
+                <div class="list-view-cgi__grille">
+                    <div class="twelve cell" ng-repeat="eleve in eleves" ng-include="'liste_eleves.html'">
+
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Affichage de la liste des élèves classique, si on est sur une classe ou un groupe d'enseignement comportant -->
+        <!-- que des élèves d'une classe -->
+        <div class="list-view-cgi__grille" ng-if="currentCours.classesOfGroup === undefined">
+            <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all" ng-include="'liste_eleves.html'">
+            </div>
+        </div>
+
     </div>
 </div>
 <mobile-panel side="right" displayed="detailEleveOpen.displayed">

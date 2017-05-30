@@ -1,6 +1,7 @@
 import { template, ng } from 'entcore/entcore';
 import { presences, Evenement } from '../models/absc_enseignant_mdl';
 import { FORMAT } from '../constants/formats';
+import {Classe} from "../models/teacher/Classe";
 
 let moment = require('moment');
 declare let _: any;
@@ -354,6 +355,8 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.selectCours = function(cours) {
             $scope.currentCours = cours;
 
+            $scope.currentCours.classe = $scope.structure.classes.findWhere({id : $scope.currentCours.id_classe});
+
             // réinitialsiation des valeurs pour ne pas afficher le panel detail eleve lorsque l'on change d'appel.
             $scope.currentEleve = undefined;
             $scope.detailEleveOpen.displayed = false;
@@ -373,11 +376,20 @@ export let absencesController = ng.controller('AbsencesController', [
                         oEleve.plages.sync($scope.currentCours.appel.id, function() {
                             $scope.safeApply();
                         });
+
                     });
                     $scope.currentCours.nbPresents = $scope.currentCours.eleves.all.length - (($scope.currentCours.eleves.where({isAbsent : true})).length);
                     $scope.currentCours.nbEleves = $scope.currentCours.eleves.all.length;
                     $scope.safeApply();
                 });
+
+                // si le cours sélectionné est un groupe d'enseignement, alors, on regroupe les élèves par classe
+                if ($scope.currentCours.classe.type_groupe === 1) {
+                    $scope.currentCours.classesOfGroup =
+                        _.groupBy($scope.currentCours.eleves.all, function (oEleve) {
+                            return oEleve.className;
+                        });
+                }
             });
         };
 
@@ -527,12 +539,11 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param idClasse l'identifiant de la classe.
          */
         $scope.getLibelleClasse = function (idClasse) {
-            let index_classe = model.me.classes.indexOf(idClasse);
-            if ( index_classe !== -1 && model.me.classNames[index_classe] !== undefined ) {
-                return model.me.classNames[index_classe].split('$')[1];
-            }
-            else {
-                return " ";
+            let classe = $scope.structure.classes.findWhere({id : idClasse});
+            if (classe !== undefined) {
+                return classe.name;
+            } else {
+                console.log("Class not found : " + idClasse);
             }
         };
 

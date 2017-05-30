@@ -1,8 +1,8 @@
 <div ng-controller="AbscFiltresPersonnelController">
     <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
-        <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">
-            <div class="ellipsis">Enseignants</div>
-            <span class="plus-input"></span>
+        <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">Enseignants
+            <span class="plus-input" ng-if="pOFilterCtrl.enseignants"></span>
+            <span class="plus-input" ng-if="!pOFilterCtrl.enseignants"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
@@ -15,9 +15,9 @@
         </ul>
     </div>
     <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
-        <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">
-            <div class="ellipsis">Classes</div>
-            <span class="plus-input"></span>
+        <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">Classes
+            <span class="plus-input" ng-if="pOFilterCtrl.classes" ></span>
+            <span class="plus-input" ng-if="!pOFilterCtrl.classes"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
@@ -29,22 +29,19 @@
                 ng-class="{selected : classe.selected}">[[classe.name]]</li>
         </ul>
     </div>
-    <div class="filtre filtre-responsables" ng-show="psDisplayResponsables" ng-class="{opened : pOFilterCtrl.responsables}">
-        <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables"><div class="ellipsis">Informations
-            responsables</div>
-            <span class="plus-input"></span></h4>
-        <div class="row accordions">
-            <article class="accordion" ng-class="{opened: pOOpenedResponsable == responsable.id}" ng-repeat="responsable in pOResponsable">
-                <h2 ng-click="openResponsable(responsable.id)">[[responsable.lastName]] [[responsable.firstName]]</h2>
-                <div class="toggle">
-                    <div class="content">
-                        <span ng-if="responsable.homePhone"><i class="phone"></i>[[responsable.homePhone]]<br/></span>
-                        <span ng-if="responsable.workPhone"><i class="phone"></i>[[responsable.workPhone]]<br/></span>
-                        <span ng-repeat="mobilePhone in responsable.mobilePhone"><i class="phone"></i>[[mobilePhone]]<br/></span>
-                        <span><i class="home"></i>[[responsable.address]], [[responsable.zipCode]] [[responsable.city]]</span>
-                    </div>
-                </div>
-            </article>
-        </div>
+    <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">
+        <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables">Informations responsables
+            <span class="down-open" ng-if="pOFilterCtrl.responsables" ></span>
+            <span class="left-open" ng-if="!pOFilterCtrl.responsables"></span></h4>
+        <fieldset>
+            <legend>DUPONT Martin</legend>
+            <p><i class="phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
+        <fieldset>
+            <legend>DUPONT Annick</legend>
+            <p><i class="phone"></i> : 05 56 XX XX XX</p>
+            <p><i class="home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
+        </fieldset>
     </div>
 </div>

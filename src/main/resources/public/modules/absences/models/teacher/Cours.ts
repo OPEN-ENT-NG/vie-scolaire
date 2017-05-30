@@ -3,11 +3,13 @@ import { Appel } from './Appel';
 import { Eleve } from './Eleve';
 import { DefaultCours } from "../common/DefaultCours";
 import { Evenement } from "./Evenement";
+import { Classe } from "../teacher/Classe";
 
 
 export class Cours extends DefaultCours implements IModel {
     appel: Appel;
     eleves: Collection<Eleve>;
+    classe: Classe;
 
     public get api () {
         // Construction de l' API de récupération des évènements d'un élève
@@ -37,7 +39,8 @@ export class Cours extends DefaultCours implements IModel {
 
         return {
             GET_APPEL : '/viescolaire/presences/appel/cours/',
-            GET_ELEVE : '/directory/class/' + this.id_classe + '/users?type=Student',
+            GET_ELEVES_CLASSE : '/directory/class/' + this.id_classe + '/users?type=Student',
+            GET_ELEVES_GROUPE : '/viescolaire/groupe/enseignement/users/' + this.id_classe + '?type=Student',
             GET_EVENEMENT_ELEVE : url_evenement_eleve,
             GET_ABSENCE_LAST_COURS : url_absence_last_cours,
             GET_COURS_CLASSE : url_cours_classe,
@@ -66,7 +69,11 @@ export class Cours extends DefaultCours implements IModel {
             sync: (): Promise<any> => {
                 return new Promise((resolve, reject) => {
                     let that = this;
-                    http().getJson(this.api.GET_ELEVE).done((data) => {
+
+                    let url;
+                    url = this.classe.type_groupe === 1 ? this.api.GET_ELEVES_GROUPE : this.api.GET_ELEVES_CLASSE;
+
+                    http().getJson(url).done((data) => {
                         _.map(data, function (eleve) {
                             eleve.cours = that;
                         });

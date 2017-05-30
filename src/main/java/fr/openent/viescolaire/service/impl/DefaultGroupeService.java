@@ -27,7 +27,6 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     public void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
-
         query.append("MATCH (u:User {id :{userId}})-[DEPENDS]->(g:FunctionalGroup) return g");
         values.putString("userId", userId);
 
@@ -39,12 +38,14 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
-        query.append("MATCH (g:FunctionalGroup {id : {groupeEnseignementId}})<-[:IN]-(users) ");
+        query.append("MATCH (g:FunctionalGroup {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]-(:ProfileGroup)-[DEPENDS]->(c:Class) ");
         if(!StringUtils.isEmpty(profile)){
             query.append("where users.profiles =[{profile}] ");
             values.putString("profile", profile);
         }
-        query.append( "RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, users.blocked as blocked, users.source as source ORDER BY lastName");
+        query.append( "RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, ")
+                .append("users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
+                .append("users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER BY lastName");
         values.putString("groupeEnseignementId", groupeEnseignementId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));

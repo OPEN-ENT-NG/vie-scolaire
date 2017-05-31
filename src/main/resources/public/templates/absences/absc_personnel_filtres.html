@@ -1,8 +1,7 @@
 <div ng-controller="AbscFiltresPersonnelController">
     <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
         <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">Enseignants
-            <span class="plus-input" ng-if="pOFilterCtrl.enseignants"></span>
-            <span class="plus-input" ng-if="!pOFilterCtrl.enseignants"></span>
+            <span class="plus-input"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
@@ -16,8 +15,7 @@
     </div>
     <div class="filtre filtre-classes" ng-class="{opened : pOFilterCtrl.classes}">
         <h4 ng-click="pOFilterCtrl.classes = !pOFilterCtrl.classes">Classes
-            <span class="plus-input" ng-if="pOFilterCtrl.classes" ></span>
-            <span class="plus-input" ng-if="!pOFilterCtrl.classes"></span>
+            <span class="plus-input"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
         <div class="filtre__toolbar">
@@ -31,8 +29,7 @@
     </div>
     <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">
         <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables">Informations responsables
-            <span class="down-open" ng-if="pOFilterCtrl.responsables"></span>
-            <span class="left-open" ng-if="!pOFilterCtrl.responsables"></span></h4>
+            <span class="plus-input"></span></h4>
         <div class="row accordions">
             <article class="accordion" ng-class="{opened: pOOpenedResponsable == responsable.id}" ng-repeat="responsable in pOResponsable">
                 <h2 ng-click="openResponsable(responsable.id)">[[responsable.lastName]] [[responsable.firstName]]</h2>

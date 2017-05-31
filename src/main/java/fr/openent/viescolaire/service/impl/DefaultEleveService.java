@@ -80,4 +80,18 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, collect(c.id) as classes");
         neo4j.execute(query.toString(), new JsonObject().putString("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getResponsables(String idEleve, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles: ['Student']})-[:RELATED]->(r:User {profiles: ['Relative']}) ")
+                .append("WHERE u.id= {idEleve} ")
+                .append("RETURN r.id AS id, r.address AS address, r.city AS city, r.zipCode AS zipCode, r.country AS country, ")
+                .append("r.lastName AS lastName, r.firstName AS firstName, r.homePhone AS homePhone, r.workPhone AS workPhone, r.mobilePhone AS mobilePhone");
+        params.putString("idEleve", idEleve);
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
 }

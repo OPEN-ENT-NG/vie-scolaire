@@ -15,6 +15,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             sansmotifs : true,
             limitTo : 15
         };
+        $scope.pOSelectedEvent = null;
         $scope.structure.isWidget = false;
         $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
 
@@ -116,7 +117,12 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.displayList = function (eleve) {
             eleve.displayed = !eleve.displayed;
-            if (eleve.displayed) { $scope.$broadcast('closeList', eleve); }
+            if (eleve.displayed) {
+                $scope.$broadcast('closeList', eleve);
+                $scope.pOSelectedEvent = eleve;
+            } else {
+                $scope.pOSelectedEvent = null;
+            }
             utils.safeApply($scope);
         };
 

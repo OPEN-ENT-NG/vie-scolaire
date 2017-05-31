@@ -52,4 +52,11 @@ public interface EleveService extends CrudService {
      * @param handler
      */
     public void getEleve(String idEtab,  Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupération des informations des responsables d'un eleve
+     * @param idEleve  Identifiant de l'eleve
+     * @param handler  Handler de retour
+     */
+    public void getResponsables(String idEleve, Handler<Either<String, JsonArray>> handler);
 }

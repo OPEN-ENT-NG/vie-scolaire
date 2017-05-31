@@ -31,17 +31,20 @@
     </div>
     <div class="filtre filtre-responsables" ng-show="psDisplayReponsables" ng-class="{opened : pOFilterCtrl.responsables}">
         <h4 ng-click="pOFilterCtrl.responsables = !pOFilterCtrl.responsables">Informations responsables
-            <span class="down-open" ng-if="pOFilterCtrl.responsables" ></span>
+            <span class="down-open" ng-if="pOFilterCtrl.responsables"></span>
             <span class="left-open" ng-if="!pOFilterCtrl.responsables"></span></h4>
-        <fieldset>
-            <legend>DUPONT Martin</legend>
-            <p><i class="phone"></i> : 05 56 XX XX XX</p>
-            <p><i class="home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
-        </fieldset>
-        <fieldset>
-            <legend>DUPONT Annick</legend>
-            <p><i class="phone"></i> : 05 56 XX XX XX</p>
-            <p><i class="home"></i> : 55 Rue du Faubourg Saint-Honoré, 75008 Paris</p>
-        </fieldset>
+        <div class="row accordions">
+            <article class="accordion" ng-class="{opened: pOOpenedResponsable == responsable.id}" ng-repeat="responsable in pOResponsable">
+                <h2 ng-click="openResponsable(responsable.id)">[[responsable.lastName]] [[responsable.firstName]]</h2>
+                <div class="toggle">
+                    <div class="content">
+                        <span ng-if="responsable.homePhone"><i class="phone"></i> : [[responsable.homePhone]]<br/></span>
+                        <span ng-if="responsable.workPhone"><i class="phone"></i> : [[responsable.workPhone]]<br/></span>
+                        <span ng-repeat="mobilePhone in responsable.mobilePhone"><i class="phone"></i> : [[mobilePhone]]<br/></span>
+                        <span><i class="home"></i> : [[responsable.address]], [[responsable.zipCode]] [[responsable.city]]</span>
+                    </div>
+                </div>
+            </article>
+        </div>
     </div>
 </div>

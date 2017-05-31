@@ -35,10 +35,10 @@
                 <h2 ng-click="openResponsable(responsable.id)">[[responsable.lastName]] [[responsable.firstName]]</h2>
                 <div class="toggle">
                     <div class="content">
-                        <span ng-if="responsable.homePhone"><i class="phone"></i> : [[responsable.homePhone]]<br/></span>
-                        <span ng-if="responsable.workPhone"><i class="phone"></i> : [[responsable.workPhone]]<br/></span>
-                        <span ng-repeat="mobilePhone in responsable.mobilePhone"><i class="phone"></i> : [[mobilePhone]]<br/></span>
-                        <span><i class="home"></i> : [[responsable.address]], [[responsable.zipCode]] [[responsable.city]]</span>
+                        <span ng-if="responsable.homePhone"><i class="phone"></i>[[responsable.homePhone]]<br/></span>
+                        <span ng-if="responsable.workPhone"><i class="phone"></i>[[responsable.workPhone]]<br/></span>
+                        <span ng-repeat="mobilePhone in responsable.mobilePhone"><i class="phone"></i>[[mobilePhone]]<br/></span>
+                        <span><i class="home"></i>[[responsable.address]], [[responsable.zipCode]] [[responsable.city]]</span>
                     </div>
                 </div>
             </article>

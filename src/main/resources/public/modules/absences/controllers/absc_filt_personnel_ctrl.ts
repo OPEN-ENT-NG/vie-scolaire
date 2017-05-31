@@ -50,32 +50,22 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
             if (_.isEmpty(eleve.responsables.all)) {
                 eleve.responsables.sync().then(() => {
                     $scope.pOResponsable = eleve.responsables.all;
-                    $scope.pOFilterCtrl.responsables = true;
                     utils.safeApply($scope);
                 })
             } else {
                 $scope.pOResponsable = eleve.responsables.all;
-                $scope.pOFilterCtrl.responsables = true;
                 utils.safeApply($scope);
             }
         };
 
         $scope.openResponsable = (id) => {
+            console.log(id);
             if ($scope.pOOpenedResponsable != id) {
                 $scope.pOOpenedResponsable = id;
             } else {
                 $scope.pOOpenedResponsable = null;
             }
             utils.safeApply($scope);
-        };
-
-        $scope.$on("resetFilter", () => {
-            _.each($scope.pOFilterCtrl, (val, key) => {
-                $scope.pOFilterCtrl[key] = false;
-            });
-            $scope.pOOpenedResponsable = null;
-            $scope.pOResponsable = [];
-            utils.safeApply($scope);
-        });
+        }
     }
 ]);

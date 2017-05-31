@@ -10,7 +10,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
     '$scope', 'route', '$rootScope', '$location',
     function ($scope, route, $rootScope, $location) {
         template.open('AbscFiltres', '../templates/absences/absc_personnel_filtres');
-        $scope.psDisplayResponsables = false;
+        $scope.psDisplayReponsables = true;
         $scope.pOFilterAbsences = { // Objet permettant le filtre des appels oubliés / non oubliés
             sansmotifs : true,
             limitTo : 15
@@ -35,6 +35,12 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             initAllEvenement();
             utils.safeApply($scope);
         });
+
+        $scope.loadData = function() {
+            if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+                $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+            }
+        };
 
         $scope.getJourDate = function(evt) {
             return moment(evt.timestamp_dt).format('DD/MM/YYYY') + ' ' + moment(evt.timestamp_dt).format('HH:mm') + ' - ' + moment(evt.timestamp_fn).format('HH:mm');
@@ -114,7 +120,8 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             if (eleve.displayed) {
                 $scope.$broadcast('closeList', eleve);
                 $scope.pOSelectedEvent = eleve;
-                $scope.psDisplayResponsables = true;
+            } else {
+                $scope.pOSelectedEvent = null;
             }
             utils.safeApply($scope);
         };

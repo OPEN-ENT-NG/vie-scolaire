@@ -45,6 +45,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
 public class EleveController extends ControllerHelper {
 
     private final EleveService eleveService;
+
     public EleveController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         eleveService = new DefaultEleveService();
@@ -70,4 +71,13 @@ public class EleveController extends ControllerHelper {
         eleveService.getEleve(idEtab, handler);
     }
 
+    @Get("/eleves/:idEleve/responsables")
+    @ApiDoc("Recupere les relatives d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getResponsablesEleve(final HttpServerRequest request) {
+        String idEleve = request.params().get("idEleve");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        eleveService.getResponsables(idEleve, handler);
+    }
 }

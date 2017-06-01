@@ -22,6 +22,7 @@ package fr.openent.evaluations.controller;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
 import fr.openent.evaluations.security.AccessSuiviCompetenceFilter;
+import fr.openent.evaluations.security.CreateEvaluationWorkflow;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.openent.viescolaire.service.GroupeService;
@@ -93,7 +94,8 @@ public class CompetenceNoteController extends ControllerHelper {
      */
     @Post("/competence/note")
     @ApiDoc("Créé une note correspondante à une compétence pour un utilisateur donné")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -394,7 +396,8 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Post("/competence/notes")
     @ApiDoc("Créer une liste de compétences notes pour un devoir donné")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void createCompetencesNotesDevoir (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override

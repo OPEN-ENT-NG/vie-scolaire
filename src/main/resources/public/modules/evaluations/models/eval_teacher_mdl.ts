@@ -34,7 +34,7 @@ export class Structure extends Model implements IModel{
                 synchronization : '/viescolaire/evaluations/enseignements'
             },
             MATIERE : {
-                synchronizationCE : '/viescolaire/matieres',
+                synchronizationCE : '/viescolaire/matieres?idEtablissement=' + this.id,
                 synchronization : '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
             },
             PERIODE : {
@@ -149,8 +149,10 @@ export class Structure extends Model implements IModel{
                             .done(function (res) {
                                 this.load(res);
                                 this.each(function (matiere) {
-                                    matiere.sousMatieres.load(matiere.sous_matieres);
-                                    delete matiere.sous_matieres;
+                                    if (matiere.hasOwnProperty('sous_matieres')){
+                                        matiere.sousMatieres.load(matiere.sous_matieres);
+                                        delete matiere.sous_matieres;
+                                    }
                                 });
                                 that.synchronized.matieres = true;
                                 resolve();

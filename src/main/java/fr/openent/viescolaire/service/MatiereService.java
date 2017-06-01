@@ -55,6 +55,6 @@ public interface MatiereService extends CrudService {
      * @param user
      * @param handler
      */
-   public void listMatieresEtab(UserInfos user, Handler<Either<String, JsonArray>> handler );
+   public void listMatieresEtab(String idStructure, UserInfos user, Handler<Either<String, JsonArray>> handler );
 
 }

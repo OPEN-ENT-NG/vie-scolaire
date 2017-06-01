@@ -55,21 +55,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
     @Override
-    public void listMatieresEtab(UserInfos user,  Handler<Either<String, JsonArray>> handler){
-        StringBuilder query = new StringBuilder();
-        JsonObject values = new JsonObject();
-        JsonArray EtabListe = new JsonArray();
-
-        for(int i = 0 ; i < user.getStructures().size(); i++){
-            EtabListe.addString(user.getStructures().get(i).toString());
-        }
-        values.putArray("idEtabs", EtabListe);
-
-        query.append("MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure) ")
-                .append("where s.id IN {idEtabs} ")
-                .append("RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name ");
-
-        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
+    public void listMatieresEtab(String idStructure, UserInfos user,  Handler<Either<String, JsonArray>> handler){
+        String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
+				"RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name";
+        JsonObject values = new JsonObject().putString("idStructure", idStructure);
+        neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
     }
     @Override
     public void listMatieres(String structureId , String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {

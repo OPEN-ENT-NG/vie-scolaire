@@ -345,8 +345,6 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.selectAppel = function () {
             $scope.currentCours = undefined;
-            // par defaut on se positionne sur la vue classique de tous les eleves
-            $scope.bClassesVue = false;
             $scope.ouvrirAppel($scope.appel.date);
         };
 
@@ -372,6 +370,9 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param cours l'objet cours sélectionné
          */
         $scope.selectCours = function(cours) {
+
+            // par defaut on se positionne sur la vue classique de tous les eleves
+            $scope.bClassesVue = false;
 
             $scope.currentCours = cours;
 

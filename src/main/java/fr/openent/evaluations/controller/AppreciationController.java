@@ -1,10 +1,7 @@
 package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.security.AccessAppreciationFilter;
-import fr.openent.evaluations.security.AccessEvaluationFilter;
-import fr.openent.evaluations.security.AccessNoteFilter;
-import fr.openent.evaluations.security.AccessReleveFilter;
+import fr.openent.evaluations.security.*;
 import fr.openent.evaluations.service.AppreciationService;
 import fr.openent.evaluations.service.impl.DefaultAppreciationService;
 import fr.wseduc.rs.*;
@@ -54,7 +51,8 @@ public class AppreciationController extends ControllerHelper {
      */
     @Post("/appreciation")
     @ApiDoc("Créer une appreciation")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

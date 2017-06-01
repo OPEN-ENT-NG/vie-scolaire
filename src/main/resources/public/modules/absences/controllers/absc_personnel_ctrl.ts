@@ -207,5 +207,9 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.alert = function(message) {
             alert(message);
         };
+
+        $scope.resetFilter = () => {
+            $rootScope.$broadcast("resetFilter");
+        }
     }
 ]);

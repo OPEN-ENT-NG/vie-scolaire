@@ -18,6 +18,10 @@
 
         <div class="twelve cell">
             <div class="one cell cell-indent">
+                <div class="left-magnet" ng-if="currentCours.classesOfGroup !== undefined">
+                    <i tooltip="viescolaire.absences.vue.eleves" class="show-vue-eleves" ng-class="{ selected: !bClassesVue }" ng-click="showVueClasses(false)"></i>
+                    <i tooltip="viescolaire.absences.vue.classes" class="show-vue-classes" ng-class="{ selected: bClassesVue }" ng-click="showVueClasses(true)"></i>
+                </div>
                 &nbsp;
             </div>
             <div class="six cell cell-indent">
@@ -74,11 +78,11 @@
         </script>
 
         <!-- Affichage par classe lorsqu'on est sur un groupe d'enseignement -->
-        <div ng-if="currentCours.classesOfGroup !== undefined">
+        <div ng-if="currentCours.classesOfGroup !== undefined" ng-show="bClassesVue">
             <div ng-repeat="(classe, eleves) in currentCours.classesOfGroup">
                 <h2>Classe : [[classe]]</h2>
                 <div class="list-view-cgi__grille">
-                    <div class="twelve cell" ng-repeat="eleve in eleves" ng-include="'liste_eleves.html'">
+                    <div class="twelve cell" ng-repeat="eleve in eleves | orderBy:'lastName'" ng-include="'liste_eleves.html'">
 
                     </div>
                 </div>
@@ -87,7 +91,7 @@
 
         <!-- Affichage de la liste des élèves classique, si on est sur une classe ou un groupe d'enseignement comportant -->
         <!-- que des élèves d'une classe -->
-        <div class="list-view-cgi__grille" ng-if="currentCours.classesOfGroup === undefined">
+        <div class="list-view-cgi__grille" ng-show="!bClassesVue">
             <div class="twelve cell" ng-repeat="eleve in currentCours.eleves.all" ng-include="'liste_eleves.html'">
             </div>
         </div>

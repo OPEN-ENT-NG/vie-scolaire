@@ -34,7 +34,7 @@ module.exports = {
         path: __dirname + 'dest'
     },
     resolve: {
-        modulesDirectories: ['bower_components'],
+        modulesDirectories: ['bower_components', 'node_modules'],
         root: path.resolve('.'),
         alias: {
             'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js'),

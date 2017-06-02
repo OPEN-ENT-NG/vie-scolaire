@@ -36,19 +36,22 @@
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
                     <div class="abscSM-content--SM-list--item cell-indent"
-                         ng-repeat="eleve in structure.absences.all | filter:personnelFilter | filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo" ng-init="initList(eleve);">
-                        <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}">
+                         ng-repeat="eleve in structure.absences.all | filter:personnelFilter | filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo"
+                         ng-init="initList(eleve);">
+                        <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}"
+                             ng-click="displayList(eleve)">
                             <div class="three cell ellipsis">[[eleve.eleve_nom]] [[eleve.eleve_prenom]]</div>
                             <div class="three cell ellipsis">[[eleve.cours_date]]</div>
-                            <div class="four cell">
+                            <div class="four cell" ng-click="$event.stopPropagation()">
                                 <label class="select-input">
                                     <select ng-change="setEvtMotifEleve(eleve)" ng-model="eleve.motif"
                                             class="twelve"
                                             ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all track by motif.id"></select>
                                 </label>
                             </div>
-                            <div class="cell one">
-                                <button ng-click="displayList(eleve)"><span ng-if="eleve.displayed == true">-</span><span ng-if="eleve.displayed == false">+</span></button>
+                            <div class="cell one expand">
+                                <span ng-if="eleve.displayed == true">-</span>
+                                <span ng-if="eleve.displayed == false">+</span>
                             </div>
                         </div>
                         <div class="abscSM-content--SM-list--item--subevents ten cell" ng-class="{displayed : eleve.displayed}">

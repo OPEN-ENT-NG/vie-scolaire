@@ -20,15 +20,13 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.wseduc.webutils.Either;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
-import org.entcore.common.sql.Sql;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
-import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
@@ -45,6 +43,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
 
+    @Override
+    public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} RETURN c.id as idClasse ORDER BY c.name");
+        params.putString("idEtablissement", idEtablissement);
+
+        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
+    }
+
+    //TODO Revoir avec getEleveClasses
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();

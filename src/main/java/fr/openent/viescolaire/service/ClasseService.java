@@ -29,6 +29,12 @@ import org.vertx.java.core.json.JsonArray;
  * Created by ledunoiss on 19/02/2016.
  */
 public interface ClasseService extends CrudService {
+    /**
+     * Récupère toutes les classes de l'établissement en fonction de son id Neo4j.
+     * @param idEtablissement Identifiant de l'établissement.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère le nombre d'élève de chaque groupe dont l'id est passé en paramètre.

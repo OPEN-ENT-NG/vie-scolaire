@@ -47,7 +47,15 @@
 </script>
 
 <div class="content-bilan-fin-cycle">
-    <h2><i18n>evaluations.bilan.fin.cycle.title</i18n></h2>
+    <h2><i18n>evaluations.bilan.fin.cycle.title</i18n>
+        <dropdown-buttons class="right-magnet">
+            <open class="opener"><i class="download"></i></open>
+            <options>
+                <bt ng-click="exportBFC(search.eleve, search.periode)"><i18n>evaluation.bfc.export.button.eleve</i18n></bt>
+                <bt ng-click="exportBFC(search.classe, search.periode)"><i18n>evaluation.bfc.export.button.classe</i18n></bt>
+            </options>
+        </dropdown-buttons>
+    </h2>
     <div class="twelve cell">
         <div ng-repeat="domaine in suiviCompetence.domaines.all"
              ng-include="'tree_item_renderer.html'"

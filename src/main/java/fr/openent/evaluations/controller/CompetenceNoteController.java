@@ -22,6 +22,7 @@ package fr.openent.evaluations.controller;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessCompetenceNoteFilter;
 import fr.openent.evaluations.security.AccessSuiviCompetenceFilter;
+import fr.openent.evaluations.security.CreateEvaluationWorkflow;
 import fr.openent.evaluations.service.CompetenceNoteService;
 import fr.openent.evaluations.service.impl.DefaultCompetenceNoteService;
 import fr.openent.viescolaire.service.GroupeService;
@@ -93,7 +94,8 @@ public class CompetenceNoteController extends ControllerHelper {
      */
     @Post("/competence/note")
     @ApiDoc("Créé une note correspondante à une compétence pour un utilisateur donné")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -129,8 +131,13 @@ public class CompetenceNoteController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_COMPETENCE_NOTE_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-                            Integer id = resource.getInteger("id");
-                            competencesNotesService.updateCompetenceNote(String.valueOf(id), resource, user, notEmptyResponseHandler(request));
+                            String id = String.valueOf(resource.getInteger("id"));
+                            if(resource.getInteger("evaluation") == -1) {
+                                competencesNotesService.delete(id, defaultResponseHandler(request));
+                                log.warn("Cette route ne devrait pas etre utilisee avec la valeur -1. Veulliez utiliser la methode de suppression.");
+                            } else {
+                                competencesNotesService.updateCompetenceNote(id, resource, user, notEmptyResponseHandler(request));
+                            }
                         }
                     });
                 }else {
@@ -389,7 +396,8 @@ public class CompetenceNoteController extends ControllerHelper {
 
     @Post("/competence/notes")
     @ApiDoc("Créer une liste de compétences notes pour un devoir donné")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void createCompetencesNotesDevoir (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
             @Override

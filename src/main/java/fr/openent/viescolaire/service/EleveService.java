@@ -59,4 +59,11 @@ public interface EleveService extends CrudService {
      * @param handler  Handler de retour
      */
     public void getResponsables(String idEleve, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère le nom, le prénom de chacun des élèves passés en paramètre, ainsi que l'id et le nom de sa classe
+     * @param idEleves tableau contenant les ids des élèves
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler);
 }

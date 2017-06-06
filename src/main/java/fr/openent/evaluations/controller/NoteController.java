@@ -24,6 +24,7 @@ import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.security.AccessEvaluationFilter;
 import fr.openent.evaluations.security.AccessNoteFilter;
 import fr.openent.evaluations.security.AccessReleveFilter;
+import fr.openent.evaluations.security.CreateEvaluationWorkflow;
 import fr.openent.evaluations.service.NoteService;
 import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
@@ -144,7 +145,8 @@ public class NoteController extends ControllerHelper{
      */
     @Post("/note")
     @ApiDoc("Créer une note")
-    @SecuredAction("viescolaire.evaluations.createEvaluation")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+	@ResourceFilter(CreateEvaluationWorkflow.class)
     public void create(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

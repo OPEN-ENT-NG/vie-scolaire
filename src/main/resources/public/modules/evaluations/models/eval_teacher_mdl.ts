@@ -34,7 +34,7 @@ export class Structure extends Model implements IModel{
                 synchronization : '/viescolaire/evaluations/enseignements'
             },
             MATIERE : {
-                synchronizationCE : '/viescolaire/matieres',
+                synchronizationCE : '/viescolaire/matieres?idEtablissement=' + this.id,
                 synchronization : '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
             },
             PERIODE : {
@@ -74,7 +74,7 @@ export class Structure extends Model implements IModel{
                     let url = that.api.ELEVE.synchronization;
                     //filtre par classe pour les enseignants
                     if((model.me.type === 'ENSEIGNANT')){
-                        evaluations.classes.forEach((classe) => {
+                        that.classes.forEach((classe) => {
                             url += '&idClasse=' + classe.id;
                         });
                     }
@@ -149,10 +149,12 @@ export class Structure extends Model implements IModel{
                             .done(function (res) {
                                 this.load(res);
                                 this.each(function (matiere) {
-                                    matiere.sousMatieres.load(matiere.sous_matieres);
-                                    that.synchronized.matieres = true;
-                                    delete matiere.sous_matieres;
+                                    if (matiere.hasOwnProperty('sous_matieres')){
+                                        matiere.sousMatieres.load(matiere.sous_matieres);
+                                        delete matiere.sous_matieres;
+                                    }
                                 });
+                                that.synchronized.matieres = true;
                                 resolve();
                             }.bind(this));
                     }
@@ -208,11 +210,13 @@ export class Structure extends Model implements IModel{
                         that.classes.addRange(castClasses(res));
                         that.synchronized.classes = true;
                         if (!isChefEtab()) {
+                            that.eleves.sync().then(() => {
+                                model.trigger('apply');
+                            });
                             that.syncRemplacement().then(() => {
-                                that.eleves.sync().then(() => {
-                                   resolve();
-                                });
-                            })
+                                model.trigger('apply');
+                            });
+                            resolve();
                         } else {
                             that.eleves.sync().then(() => {
                                 resolve();
@@ -1143,7 +1147,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    saveCompetencesNotes (_data) {
+     saveCompetencesNotes (_data) {
         var that = this;
         if (_data[0].evaluation !== -1){
             var _post = _.filter(_data, function (competence) {
@@ -1595,7 +1599,9 @@ export class CompetenceNote extends Model implements IModel {
 
     delete(): Promise<any> {
         return new Promise((resolve, reject) => {
+            let that = this;
             http().delete(this.api.delete).done(function (data) {
+                delete that.id;
                 if (resolve && (typeof (resolve) === 'undefined')) {
                     resolve();
                 }
@@ -1611,6 +1617,8 @@ export class CompetenceNote extends Model implements IModel {
                         resolve(data);
                     }
                 });
+            } else if (this.evaluation == -1) {
+                this.delete();
             } else {
                 this.update();
             }

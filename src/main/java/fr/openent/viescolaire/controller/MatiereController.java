@@ -108,7 +108,7 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    private void listMatieres(String structureId , JsonArray poTitulairesIdList, final HttpServerRequest request) {
+    private void listMatieres(final UserInfos user, final String structureId , JsonArray poTitulairesIdList, final HttpServerRequest request) {
         matiereService.listMatieres(structureId , request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
@@ -157,7 +157,7 @@ public class MatiereController extends ControllerHelper {
                             }
                         });
                     } else {
-                        Renders.renderJson(request, resultats);
+                        matiereService.listMatieresEtab(structureId, user, arrayResponseHandler(request));
                     }
                 }else{
                     leftToResponse(request, event.left());
@@ -177,33 +177,28 @@ public class MatiereController extends ControllerHelper {
     public void viewMatiere(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
             @Override
-            public void handle(UserInfos user){
-                if(user != null){
-                    if("Personnel".equals(user.getType())){
-                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        matiereService.listMatieresEtab(user, handler);
-                    }else{
-                        if(null != request.params().get("idEtablissement")) {
-                            utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> event) {
-                                            if (event.isRight()) {
-                                                JsonArray oTitulairesIdList = event.right().getValue();
-                                                listMatieres(request.params().get("idEtablissement"), oTitulairesIdList, request);
-                                            } else {
-                                                leftToResponse(request, event.left());
-                                            }
-                                        }
-                                    }
-                            );
-                        } else {
-                            log.error("Error viewMatiere : idEtablissement can't be null ");
-                            badRequest(request);
-                        }
-                    }
-                }else{
-                    unauthorized(request);
-                }
+            public void handle(final UserInfos user){
+				if(user != null && null != request.params().get("idEtablissement")){
+					if("Personnel".equals(user.getType())){
+						final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+						matiereService.listMatieresEtab(request.params().get("idEtablissement"), user, handler);
+					}else{
+						utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+									@Override
+									public void handle(Either<String, JsonArray> event) {
+										if (event.isRight()) {
+											JsonArray oTitulairesIdList = event.right().getValue();
+											listMatieres(user, request.params().get("idEtablissement"), oTitulairesIdList, request);
+										} else {
+											leftToResponse(request, event.left());
+										}
+									}
+								}
+						);
+					}
+				}else{
+					badRequest(request);
+				}
             }
         });
     }

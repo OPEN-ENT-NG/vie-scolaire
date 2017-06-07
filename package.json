@@ -1,6 +1,6 @@
 {
   "name": "VieScolaire",
-  "version": "0.4-SNAPSHOT",
+  "version": "0.4.0",
   "main": "gulpfile.js",
   "dependencies": {
     "angular-chart.js": "^1.1.1",

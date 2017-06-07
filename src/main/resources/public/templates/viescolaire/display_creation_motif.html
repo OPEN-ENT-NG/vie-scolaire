@@ -71,9 +71,9 @@
                 </label>
             </div>
             <div class="three cell right-magnet">
-                <a ng-click="createCategorie()" tooltip="viescolaire.create.categorie">
+                <button data-ng-click="createCategorie()" class="right-magnet cancel">
                     <span><i18n>viescolaire.create.categorie</i18n></span>
-                </a>
+                </button>
             </div>
         </section>
 
@@ -115,9 +115,9 @@
                    i18n-value="viescolaire.utils.save">
 
             <div ng-if="!isModif" class="three cell right-magnet">
-                <a ng-click="openCreateMotif()" tooltip="evaluations.remplacement.cancel">
+                <button data-ng-click="openCreateMotif()" class="right-magnet cancel">
                     <span><i18n>evaluations.remplacement.cancel</i18n></span>
-                </a>
+                </button>
             </div>
         </div>
     </div>

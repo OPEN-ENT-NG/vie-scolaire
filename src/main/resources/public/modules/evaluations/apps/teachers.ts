@@ -3,7 +3,7 @@
  */
 import {routes, ng} from 'entcore/entcore';
 
-ng.addRequiredModule('angular-chart.js');
+ng.addRequiredModule('chart.js');
 
 //CONTROLLERS
 import {evaluationsController} from '../controllers/eval_teacher_ctl';

@@ -26,7 +26,6 @@
         <section class="row twelve-mobile">
             <div class="three cell twelve-mobile">
                 <i18n>viescolaire.absences.commentaire</i18n>
-                <i class="asterisk obligatoire"></i>
             </div>
             <div class="nine cell twelve-mobile">
                 <input type="text" class="eleven twelve-mobile" ng-model="newMotif.commentaire" ng-required="true">
@@ -58,6 +57,7 @@
 
             <div class="three cell twelve-mobile">
                 <i18n>viescolaire.categorie</i18n>
+                <i class="asterisk obligatoire"></i>
             </div>
 
             <div class="five cell twelve-mobile">
@@ -82,13 +82,13 @@
 
         <div ng-if="!isAppel" class="twelve cell">
             <input class="right-magnet" type="button"
-                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle) || isStringUndefinedOrEmpty(newMotif.commentaire)"
+                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle)"
                    ng-click="saveMotif()"
                     i18n-value="viescolaire.utils.save">
         </div>
         <div ng-if="isAppel" class="twelve cell">
             <input class="right-magnet" type="button"
-                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle) || isStringUndefinedOrEmpty(newMotif.commentaire)"
+                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle) "
                    ng-click="saveMotifAppel()"
                    i18n-value="viescolaire.utils.save">
         </div>

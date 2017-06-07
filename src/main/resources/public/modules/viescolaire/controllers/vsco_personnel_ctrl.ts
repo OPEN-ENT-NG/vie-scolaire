@@ -60,7 +60,21 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.opened.lightboxCreateMotif = true;
             $scope.safeApply($scope);
         };
-
+        $scope.slideAll = function (isAppel) {
+            if (isAppel) {
+                $scope.structure.categorieAppels.slidedAll = !$scope.structure.categorieAppels.slidedAll;
+                $scope.structure.categorieAppels.map(function (categorieAppel) {
+                    categorieAppel.slided = $scope.structure.categorieAppels.slidedAll;
+                });
+            }
+            else {
+                $scope.structure.categories.slidedAll = !$scope.structure.categories.slidedAll;
+                $scope.structure.categories.map(function (categorie) {
+                  categorie.slided = $scope.structure.categories.slidedAll;
+                });
+            }
+            $scope.safeApply($scope);
+        };
         $scope.createMotif = function(isAppel) {
             $scope.isAppel = isAppel;
             $scope.newMotif = {
@@ -72,6 +86,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             };
             $scope.openCreateMotif();
         };
+
         $scope.createCategorie = function (isAppel) {
             $scope.isAppel = isAppel;
             if (isAppel !== undefined) {

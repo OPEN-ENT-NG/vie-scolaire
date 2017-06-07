@@ -103,7 +103,11 @@
                                             <i18n>viescolaire.create.motif</i18n>
                                         </button>
                                     </h3>
-
+                                </div>
+                                <div class="twelve">
+                                    <button data-ng-click="slideAll(false)" class="cancel">
+                                        <span><i18n>viescolaire.slideAll</i18n></span>
+                                    </button>
                                 </div>
                                 <lightbox show="opened.lightboxCreateMotif" on-close="!opened.lightboxCreateMotif">
                                     <container template="lightboxContainerCreateMotif"></container>
@@ -132,9 +136,10 @@
                                             </tbody>
                                         </table>
                                         <div class="row">
-                                            <table ng-repeat="categorie in structure.categories.all">
+                                            <table ng-repeat="categorie in structure.categories.all"
+                                                    ng-init="structure.categories.slidedAll = true">
                                                 <thead ng-class="{ slided: categorie.slided }">
-                                                    <tr ng-init="categorie.slided = $first" ng-click="categorie.slided = categorie.slided ? false : true" >
+                                                    <tr ng-init="categorie.slided = true" ng-click="categorie.slided = categorie.slided ? false : true" >
                                                         <td>
                                                             <i class="arrow" ng-if="categorie.motifs.all.length > 0"></i>
 
@@ -191,28 +196,34 @@
                                     </h3>
 
                                 </div>
+                                <div class="twelve">
+                                    <button data-ng-click="slideAll(true)" class="cancel">
+                                        <span><i18n>viescolaire.slideAll</i18n></span>
+                                    </button>
+                                </div>
                                 <div class="row">
-                                    <div class="responsive-table">
-                                        <table class="fixed-head">
-                                            <tbody>
+                                <div class="responsive-table">
+                                    <table class="fixed-head">
+                                        <tbody>
                                                 <tr></tr>
-                                                <tr>
-                                                    <th class="display-check">
-                                                        <!--<label class="checkbox">-->
-                                                            <!--<input type="checkbox" ng-model="selected.all" ng-change="selected.all = !selected.all">-->
-                                                            <!--<span></span>-->
-                                                        <!--</label>-->
-                                                    </th>
-                                                    <th class="text-white"><i18n>viescolaire.libelle</i18n></th>
-                                                    <th class="text-white"><i18n>viescolaire.absences.commentaire</i18n></th>
-                                                    <th class="text-white"><i18n>viescolaire.justifiant</i18n></th>
-                                                </tr>
-                                            </tbody>
+                                        <tr>
+                                            <th class=" display-check ">
+                                                <!--<label class="checkbox">-->
+                                                    <!--<input type="checkbox" ng-model="selected.all" ng-change="selected.all = !selected.all">-->
+                                                    <!--<span></span>-->
+                                                <!--</label>-->
+
+                                            </th>
+                                            <th class=" text-white"><i18n>viescolaire.libelle</i18n></th>
+                                            <th class=" text-white"><i18n>viescolaire.absences.commentaire</i18n></th>
+                                            <th class=" text-white"><i18n>viescolaire.justifiant</i18n></th>
+                                        </tr>
+                                        </tbody>
                                         </table>
                                         <div class="row">
-                                            <table ng-repeat="categorie in structure.categorieAppels.all">
-                                                <thead ng-class="{ slided: categorie.slided }">
-                                                    <tr ng-init="categorie.slided = $first" ng-click="categorie.slided = categorie.slided ? false : true">
+                                            <table ng-repeat="categorie in structure.categorieAppels.all"
+                                                ng-init="structure.categorieAppels.slidedAll = true"><thead ng-class="{ slided: categorie.slided }">
+                                                    <tr ng-init="categorie.slided = true" ng-click="categorie.slided = categorie.slided ? false : true">
                                                         <td>
                                                             <i class="arrow" ng-if="categorie.motifAppels.all.length > 0"></i>
                                                             <input type="checkbox"
@@ -229,28 +240,27 @@
                                                 </thead>
                                                 <tbody slide="categorie.slided">
                                                     <tr ng-repeat="motif in categorie.motifAppels.all">
-                                                        <td>
-                                                            <input type="checkbox"
-                                                                   ng-init="motif.selected = false"
-                                                                   ng-model="motif.selected"
-                                                                   ng-change="selectMotif(motif)"
-                                                                   ng-hide="selected.categories.length > 0"/>
-                                                        </td>
-                                                        <td data-label="[[lang.translate('viescolaire.libelle')]]" class=text-left">
-                                                            [[motif.libelle]]
-                                                        </td>
-                                                        <td  data-label="[[lang.translate('viescolaire.absences.commentaire')]]"
-                                                             class="text-left">
-                                                            [[motif.commentaire]]
-                                                        </td>
-                                                        <td data-label="[[lang.translate('viescolaire.justifiant')]]" class="text-left">
-                                                            <i ng-if="motif.justifiant" class="ok"></i>
+                                            <td >
+                                                    <input type="checkbox"
+                                                           ng-init="motif.selected = false"
+                                                           ng-model="motif.selected"
+                                                           ng-change="selectMotif(motif)"
+                                                    ng-hide="selected.categories.length > 0"/>
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.libelle')]]" class=text-left">
+                                                [[motif.libelle]]
+                                            </td>
+                                            <td  data-label="[[lang.translate('viescolaire.absences.commentaire')]]"
+                                                 class="text-left">
+                                                [[motif.commentaire]]
+                                            </td>
+                                            <td data-label="[[lang.translate('viescolaire.justifiant')]]" class="text-left">
+                                                <i ng-if="motif.justifiant" class="ok"></i>
                                                             <i ng-if="!motif.justifiant" class="close-2x"></i>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table></div>
                                     </div>
                                 </div>
                             </article>

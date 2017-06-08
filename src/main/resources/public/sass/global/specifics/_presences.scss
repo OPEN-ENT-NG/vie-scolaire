@@ -1,0 +1,638 @@
+body.presences {
+  /**
+  TABLE DES MATIERES
+    1. ENSEIGNANT-APPEL
+    2. CPE-PAGE-ACCUEIL
+  **/
+
+  /**
+    $ENSEIGNANT-APPEL
+  **/
+  .header-nav__fil-ariane-appel {
+    padding-left: 15px;
+    margin-right: 10px;
+    height: 40px;
+  }
+
+  .content-box-accueil {
+    padding: 5px;
+  }
+
+  .appel-cours {
+    width: 100%;
+  }
+
+  .pannel-in-cell {
+    margin: 10px;
+    padding: 15px;
+    background-color: white;
+    @include border-radius(5px);
+    @include box-shadow(rgba(0,0,0,0.15) 0px 0px 5px 0px);
+  }
+
+  .appel__calendar {
+    color : rgba(85, 85, 85, 0.7);
+    width: 100%;
+
+    > input[type="text"] {
+      width: 80%;
+    }
+  }
+
+  .appel__absence-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    border: solid 1px;
+    @include box-shadow(rgba(0,0,0,0.15) 0px 0px 5px 0px);
+
+    &.appel__absence-icon--cpe{
+      border: solid 1px;
+      background-color: $grey;
+    }
+  }
+
+  //$retard-color:#E88010;
+  //$depart-color:#F75A92;
+  //$incident-color:#E62727;
+  //$absence-color:rgb(224, 103, 103);
+  //$absence-prev-color:#DDD238;
+  //$commentaire-color: $primary-light;
+  $retard-color:#4981ff;
+  $depart-color:#009688;
+  $incident-color:#f16601;
+  $absence-color:#F44336;
+  $absence-prev-color:#e0e0e0;
+  $commentaire-color: #a261ed;
+
+  .absence-color {
+    background-color: $absence-color;
+  }
+
+  .commentaire-color {
+    background-color: $commentaire-color;
+  }
+
+  .retard-color {
+    background-color: $retard-color;
+  }
+
+  .depart-color {
+    background-color: $depart-color;
+  }
+
+  .absence-prev-color {
+    background-color: $absence-prev-color;
+  }
+
+  .incident-color {
+    background-color: $incident-color;
+  }
+
+
+
+  .appel__evenement-icon {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    position: relative;
+  }
+
+  .retard-color-icon {
+    @include appel__evenement-icon(25px, 10deg, $retard-color);
+  }
+
+  .depart-color-icon {
+    @include appel__evenement-icon(25px, 350deg, $depart-color);
+  }
+
+  .incident-color-icon {
+    @include appel__evenement-icon(22px, 0, $incident-color);
+  }
+
+  .appel__journee-calendar {
+    width:100%;
+    background-color: white;
+  }
+  .appel__journee-calendar-creneau-header {
+    height: 33%;
+  }
+  .appel__journee-calendar-creneau-middle {
+    height: 33%;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+  }
+
+  .appel__journee-calendar-creneau-footer {
+    height: 33%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .appel__journee-calendar__creneau {
+    background-color: $primary;
+    padding: 0 5px;
+    margin: 5px 0px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 2px 0px;
+    color: white;
+  }
+
+  .appel__journee-calendar__creneau-selected {
+    background-color: $orange;
+  }
+
+  .appel__journee-calendar__creneau-vide {
+    padding: 0 5px;
+    background-color: rgba(206, 216, 220, 0.35);
+    padding: 0 5px;
+    margin: 5px 0px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 2px 0px;
+    color: #504D4D;
+  }
+
+  .appel__historiques-creneau-plage {
+    @include appel__historiques-creneau(29px);
+    margin-left: -2px;
+  }
+
+  .appel__historiques-creneau-eleve {
+    @include appel__historiques-creneau(29px);
+  }
+
+  .appel__historique{
+    display: inline-block;
+    margin-top: -1px;
+  }
+
+  .appel__detail-eleve-close {
+    text-align: right;
+    color: #C0C0C0;
+    margin-bottom: 5px;
+    font-size: 20px;
+    margin-top: -10px;
+  }
+
+  .appel__detail-eleve-img {
+    width: 90%;
+    float: right;
+    margin-top: 3px;
+  }
+
+  .appel__detail-eleve_nom {
+    margin-top: 0;
+  }
+  .appel__detail-eleve-icon-mail {
+    cursor: pointer;
+    color: #CBD81D;
+  }
+
+  .appel__detail-eleve-icon-stats {
+    cursor: pointer;
+    color: #CE2351;
+  }
+  .appel_eleves-presents {
+    color: $green;
+  }
+
+  .appel__info {
+    width: 70%;
+    display: inline-block;
+    margin-left: 15px;
+  }
+
+  i.show-vue-eleves{
+    @include fonticon;
+    font-size: 24px;
+    opacity: 0.2;
+
+    &::after{
+      content:"\e8b5";
+    }
+
+    &.selected{
+      opacity: 0.6;
+    }
+  }
+
+  i.show-vue-classes{
+    @include fonticon;
+    font-size: 24px;
+    opacity: 0.2;
+
+    &::after{
+      content:"\e8bc";
+    }
+
+    &.selected{
+      opacity: 0.6;
+    }
+  }
+
+  /**
+    $CPE-PAGE-ACCUEIL
+  **/
+
+  .menu-accueil {
+    padding: 5px !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .action-acc-cpe {
+    margin-left: 4%;
+    margin-right: 4%;
+  }
+
+  .box-accueil {
+
+    > h2 {
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    table{
+      overflow-y: scroll;
+      max-height: 220px !important;
+      display: block;
+    }
+
+    .content-box-accueil--table{
+
+      .content-box-accueil--table--header{
+        background: $primary;
+
+        h5{
+          color: $white !important;
+          text-indent: 10px;
+        }
+      }
+
+      .content-box-accueil--table--content{
+        font-size: 12px;
+        padding: 5px 0;
+        overflow-y: scroll;
+        height: 260px;
+
+        > .row{
+          padding: 5px 0;
+        }
+
+        > .row:nth-child(2n){
+          background-color: $light-grey;
+        }
+      }
+    }
+  }
+  .content-box-accueil {
+    padding: 5px;
+  }
+
+  .help{
+    ul{
+      list-style-type: none;
+    }
+    h1, h2{
+      text-transform: capitalize;
+    }
+    .help--color-absences{
+      width: 40px;
+      height:20px;
+      display: inline-block;
+    }
+  }
+
+  /**
+    $CPE-FILTRES
+  **/
+  .filtre{
+    height: auto;
+    max-height: 20px;
+    overflow: hidden;
+    padding: 10px;
+    @include border-radius(2px);
+    @include transition(all 0.4s ease);
+    margin-bottom:10px;
+    background-color: $white;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
+
+    .ellipsis {
+      margin-right: 30px;
+    }
+
+    &.filtre-responsables{
+      font-size: 14px;
+
+      .fa{
+        font-size: 16px;
+      }
+
+      &.opened {
+        max-height: 500px;
+      }
+
+      i {
+        margin: 10px 10px 10px 0px;
+        display: inline;
+      }
+    }
+
+    .plus-input::after {
+      content: "\e87b";
+      position: absolute;
+      top: -9px;
+      right: 0px;
+    }
+
+    .accordions .toggle {
+      height: auto;
+      overflow-y: hidden;
+      padding: 0px 10px;
+    }
+
+    &.opened {
+      height: 5%;
+      max-height: 350px;
+
+      .plus-input::after {
+        content: "\e841";
+      }
+    }
+
+    > h4{
+      margin: 0 0 10px 0;
+      padding: 0;
+      font-weight: 300;
+      position: relative;
+      line-height: 23px;
+    }
+
+    .selectable-list{
+      max-height: 200px;
+      overflow-y: scroll;
+      margin: 0;
+
+      li{
+        font-size: 12px;
+        padding: 2px;
+      }
+    }
+
+    > .filter__input--icon{
+      position: relative;
+
+      &:after{
+        content : "\f002";
+        font-family: "FontAwesome";
+        position: absolute;
+        top: 0;
+        right: 10px;
+        color: #888;
+      }
+      > input[type="text"] {
+        width: 100%;
+      }
+    }
+    .filtre__toolbar{
+      padding: 3px 0 0 0;
+
+      .filtre__toolbar__button{
+        width: 30px;
+        height: 25px;
+        margin-right: 10px;
+        padding: 0 !important;
+        float: none;
+        display: inline-block;
+
+        &.select{
+          background-image: url(/public/img/glyphicons-halflings-white.png);
+          background-position: 14.5% 68%;
+          background-repeat: no-repeat;
+        }
+        &.deselect{
+          margin-left: 10px;
+          background-image: url(/public/img/glyphicons-halflings-white.png);
+          background-position: 9% 68%;
+          background-repeat: no-repeat;
+        }
+      }
+    }
+  }
+  /**
+    $CPE-ABSENCES-SANS-MOTIFS
+  **/
+  .abscSM-content{
+    @include transition(all 0.2s ease);
+
+    .abscSM-content--student-search-input, .abscSM-content--SM-list{
+      margin: 0 0 0 8.5%;
+    }
+
+    .abscSM-content--student-search-input{
+      padding: 10px;
+      background: $white;
+      border: solid 1px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+    }
+
+    .abscSM-content--SMSelectable-list{
+      width: 200px !important;
+      margin-left: 8.5%;
+
+      li{
+        text-align: center;
+
+        > i.fa{
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .abscSM-content--SM-list{
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+      .abscSM-content--SM-list--header{
+        background-color: $primary;
+        padding: 5px 0;
+
+        div{
+          text-transform: capitalize;
+          display: inline-block !important;
+          float: none;
+          color: $white;
+
+          .fa{
+            font-size: 12px;
+          }
+        }
+      }
+      .abscSM-content--SM-list--item{
+        @include transition(all 0.4ms ease);
+        //text-align: center;
+
+        &:nth-child(even){
+
+          > .abscSM-content--SM-list--item--eleve{
+            background-color: $light-grey !important;
+          }
+
+          > .abscSM-content--SM-list--item--subevents{
+
+            > div{
+              background-color:$white;
+
+              &:nth-child(even){
+                background-color: $light-grey;
+              }
+            }
+          }
+        }
+
+        > .abscSM-content--SM-list--item--eleve{
+          border-left: solid 1px $light-grey !important;
+          border-right: solid 1px $light-grey;
+          border-top: solid 1px $light-grey;
+          background-color: $white;
+
+          .expand {
+            font-size: 30px;
+            color: $grey;
+            font-weight: 400;
+            opacity: 0.8;
+            border: none;
+            background-color: inherit;
+            left: 40px;
+            &:hover {
+              color: $cyan;
+            }
+          }
+
+          &.displayed{
+            border-bottom: solid 1px $light-grey;
+          }
+
+          div{
+
+            &:last-child{
+              text-align: center;
+
+              button{
+                display: inline-block;
+                float: none !important;
+              }
+            }
+          }
+
+        }
+
+        > .abscSM-content--SM-list--item--eleve, > .abscSM-content--SM-list--item--subevents{
+          text-align: left !important;
+          padding: 0 !important;
+        }
+
+        > .abscSM-content--SM-list--item--subevents{
+          display: none !important;
+
+          &.displayed{
+            display: inline-block !important;
+          }
+
+          > div{
+            border-left: solid 1px $light-grey !important;
+            border-right: solid 1px $light-grey;
+            border-bottom: solid 1px $light-grey;
+            background-color: $white;
+
+            &:last-child{
+              border-bottom: solid 1px transparent;
+            }
+
+            &:nth-child(even){
+              background-color: $light-grey;
+            }
+          }
+
+
+        }
+
+        //> .abscSM-content--SM-list--item--subevents{
+        //  border-left: solid 1px $grey;
+        //  border-bottom: solid 1px $grey;
+        //  border-right: solid 1px $grey;
+        //}
+
+        .cell{
+          float: none;
+          display: inline-block;
+          padding: 5px 0;
+          font-size: 13px;
+          border-left: none;
+          text-indent: 5px;
+          vertical-align: middle;
+
+          select{
+            margin-bottom: 0px;
+          }
+        }
+      }
+    }
+  }
+
+  .header-nav__date-pickers{
+    > label:nth-child(1), > label:nth-child(3){
+      margin-right: 10px;
+    }
+  }
+
+  /**
+    $SELECT
+  **/
+  .select-input{
+    position: relative;
+    height: 38px;
+    display: block;
+    overflow: inherit;
+
+    select{
+      border: solid 1px rgba(0, 0, 0, 0.3) !important;
+      background: #fff !important;
+      width: 100% !important;
+      outline: none !important;
+      padding: 8px 15px 8px 5px;
+      height: 35px !important;
+      color: #444;
+      -webkit-appearance: none;
+      -moz-appearance:    none;
+      appearance:         none;
+    }
+
+    &:after{
+      content: "\f078";
+      font-family: 'FontAwesome';
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      padding: 2px 10px;
+      background: #29b2e6;
+      color: #fff;
+      pointer-events: none;
+      border-radius: 2px;
+      font-size: 9px;
+      text-align: center;
+      height: 22px;
+      vertical-align: middle;
+      text-indent: -2px;
+      width: 15px;
+    }
+  }
+
+  .appel__container-icon{
+    text-align: center;
+  }
+
+  .appel_absc_last{
+    color: $red;
+  }
+}

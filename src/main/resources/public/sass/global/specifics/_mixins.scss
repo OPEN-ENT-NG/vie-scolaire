@@ -39,3 +39,20 @@
   -moz-animation: $animation;
   -webkit-animation: $animation;
 }
+
+/**
+  $ENSEIGNANT-APPEL
+**/
+@mixin appel__evenement-icon($font-size, $rotate, $color) {
+  font-size: $font-size;
+  color: $color;
+  -webkit-transform: rotate($rotate);
+  -moz-transform: rotate($rotate);
+  -ms-transform: rotate($rotate);
+  -o-transform: rotate($rotate);
+}
+
+@mixin appel__historiques-creneau($in) {
+  height : $in;
+  display: inline-block;
+}

@@ -52,13 +52,11 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
  */
 public class AppelController extends ControllerHelper {
     private final AppelService miAbscAppelService;
-    private final EventService eventService;
     private final EventRegister eventRegister = new EventRegister();
 
     public AppelController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscAppelService = new DefaultAppelService();
-        eventService = new DefaultEventService();
     }
 
     @Get("/appel/cours/:coursId")

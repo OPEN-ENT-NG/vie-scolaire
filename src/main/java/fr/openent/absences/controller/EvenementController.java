@@ -49,13 +49,11 @@ public class EvenementController extends ControllerHelper {
     private static final String CLASSE_ID = "classeId";
 
     private final EvenementService miAbscEvenementService;
-    private final EventService eventService;
     private final EventRegister eventRegister = new EventRegister();
 
     public EvenementController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscEvenementService = new DefaultEvenementService();
-        eventService = new DefaultEventService();
     }
 
     @Put("/evenement/:idEvenement/updatemotif")

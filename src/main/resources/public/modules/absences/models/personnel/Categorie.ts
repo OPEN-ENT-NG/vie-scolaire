@@ -15,8 +15,8 @@ export class Categorie extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/categorieAbs',
-            UPDATE: '/viescolaire/presences/categorieAbs'
+            POST: '/viescolaire/presences/absences/categorie',
+            UPDATE: '/viescolaire/presences/absences/categorie'
         };
     }
 

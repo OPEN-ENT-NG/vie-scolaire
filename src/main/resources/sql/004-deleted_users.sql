@@ -1,0 +1,3 @@
+ALTER TABLE viesco.personnes_supp
+  ADD COLUMN first_name CHARACTER VARYING,
+  ADD COLUMN last_name CHARACTER VARYING;

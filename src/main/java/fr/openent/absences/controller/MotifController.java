@@ -130,7 +130,7 @@ public class MotifController extends ControllerHelper {
         });
     }
 
-    @Post("/categorieAbs")
+    @Post("/absences/categorie")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createCategorieMotifAbs(final HttpServerRequest request){
@@ -147,7 +147,7 @@ public class MotifController extends ControllerHelper {
         });
     }
 
-    @Put("/categorieAbs")
+    @Put("/absences/categorie")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateCategorieMotifAbs(final HttpServerRequest request){

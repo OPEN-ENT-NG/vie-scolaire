@@ -67,4 +67,17 @@ public interface ClasseService extends CrudService {
      */
     public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.
+     * @param idClasses Tableau des id des classes
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Recupere les id des etablissements auxquels appartiennent les classes dont l'id est passé en paramètre.
+     * @param idClasses Tableau des id des classes
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 }

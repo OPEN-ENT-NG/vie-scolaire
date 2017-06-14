@@ -183,12 +183,14 @@ public class DefaultUserService implements UserService {
             final JsonObject user = (JsonObject) u;
             // Insert user in the right table
             String uQuery =
-                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type) " +
-                    "VALUES (?, ?, ?);";
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, first_name, last_name) " +
+                    "VALUES (?, ?, ?, ?, ?);";
             JsonArray uParams = new JsonArray()
                     .addString(user.getString("id"))
                     .addString(user.getString("displayName"))
-                    .addString(user.getString("type"));
+                    .addString(user.getString("type"))
+					.addString(user.getString("firstName"))
+					.addString(user.getString("lastName"));
 
             statements.prepared(uQuery, uParams);
 

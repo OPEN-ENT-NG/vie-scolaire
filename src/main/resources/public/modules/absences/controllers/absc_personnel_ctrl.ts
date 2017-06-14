@@ -129,7 +129,7 @@ export let absencesController = ng.controller('AbsencesController', [
                     && $scope.structure.matieres.all.length > 0) {
                     _.map($scope.structure.appels.all, (appel) => {
                         let matiere = $scope.structure.matieres.findWhere({id: appel.id_matiere});
-                        appel.cours_matiere = matiere.name;
+                        appel.cours_matiere = matiere != null ? matiere.name : "";
                         return appel;
                     });
                 }

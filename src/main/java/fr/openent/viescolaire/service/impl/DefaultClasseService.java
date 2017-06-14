@@ -38,7 +38,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     private final Neo4j neo4j = Neo4j.getInstance();
 
     private static final String mParameterIdClasse = "idClasse";
-    
+
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
     }
@@ -124,5 +124,32 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                     .putString("idEtablissement", idEtablissement);
         }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName ")
+                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+        query.append("MATCH (g:Class)-[BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure ")
+            .append("UNION MATCH (g:FunctionalGroup)-[DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 }

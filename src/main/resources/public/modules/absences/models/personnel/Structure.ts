@@ -79,8 +79,8 @@ export class Structure extends DefaultStructure {
                 categorie : '/viescolaire/presences/motifs/categorie'
             },
             MOTIF_APPEL : {
-                synchronization : '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifsAppel/categorie'
+                synchronization : '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
+                categorie : '/viescolaire/presences/motifs/appel/categorie'
             },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id

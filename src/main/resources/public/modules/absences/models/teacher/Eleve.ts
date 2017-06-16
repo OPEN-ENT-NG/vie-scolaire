@@ -71,7 +71,7 @@ export class Eleve extends DefaultEleve implements IModel {
                  * la liste des evenements relatifs à la plage horaire.
                  */
                 _.each(otEvt.all, (evenement) => {
-                    let otCurrentCours = otCours.findWhere({id : evenement.id});
+                    let otCurrentCours = otCours.findWhere({id : evenement.id_cours});
                     let otCurrentPlage = that.filter((plage) => {
                         let dt = parseInt(moment(otCurrentCours.timestamp_dt).format('HH'));
                         return plage.heure === dt;

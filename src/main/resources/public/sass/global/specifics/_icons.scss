@@ -1,0 +1,9 @@
+body.vsco--global {
+  i.check-empty::after{
+    content: "\e83d";
+  }
+
+  i.ok::after{
+    content: "\e871";
+  }
+}

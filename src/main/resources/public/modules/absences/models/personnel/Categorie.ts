@@ -5,6 +5,8 @@ export class Categorie extends Model {
     id: number;
     libelle: string;
     id_etablissement: string;
+    slided: boolean;
+    is_appel_oublie:boolean;
 
     motifs: Collection< Motif >;
 

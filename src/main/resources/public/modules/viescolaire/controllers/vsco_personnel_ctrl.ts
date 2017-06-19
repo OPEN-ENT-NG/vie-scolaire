@@ -46,11 +46,11 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 return false;
             }
         };
+
         // scroller vers un élément donné
         $scope.scrollToElement = function(idElement) {
-            $location.hash(idElement);
-            $anchorScroll();
-            // $scope.safeApply($scope);
+            let top = document.getElementById(idElement).offsetTop; //Getting Y of target element
+            window.scrollTo(0, top);
         };
 
 
@@ -74,6 +74,18 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         };
         $scope.createCategorie = function (isAppel) {
             $scope.isAppel = isAppel;
+            if (isAppel !== undefined) {
+                $scope.isAppel = isAppel;
+            }
+            else if ($scope.selected !== undefined
+                && $scope.selected.motifs !== undefined
+                && $scope.selected.motifs[0] !== undefined
+                && $scope.selected.motifs[0].is_appel_oublie !== undefined) {
+                $scope.isAppel = $scope.selected.motifs[0].is_appel_oublie;
+            }
+            else {
+                $scope.isAppel = false;
+            }
             $scope.displayCreateCategorie = true;
             $scope.displayText = lang.translate("viescolaire.create.categorie");
             $scope.newCategorie = {
@@ -97,6 +109,16 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             }
         };
 
+        $scope.isStringUndefinedOrEmpty = function (libelle) {
+            if(libelle === undefined || null === libelle){
+                return true;
+            }else if(libelle.length === 0 || libelle.trim().length === 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
         // sélection d'une Catégorie
         $scope.selectCategorie = function (categorie) {
             let index = _.indexOf($scope.selected.categories, categorie);
@@ -116,16 +138,24 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             _newMotif.save().then((res) => {
                 $scope.opened.lightboxCreateMotif = false;
                 $scope.structure.motifs.sync().then(() => {
-                    $scope.structure.categories.sync().then( () => {
-                        $scope.safeApply($scope);
-                    });
+                    if(_newMotif.is_appel_oublie){
+                        $scope.structure.categorieAppels.sync().then( () => {
+                            $scope.safeApply($scope);
+                        });
+                    } else {
+                        $scope.structure.categories.sync().then( () => {
+                            $scope.safeApply($scope);
+                        });
+                    }
                 });
             });
         };
 
         // enregistrement d'une categorie de motif
-        $scope.saveCategorie = function () {
-            if ($scope.isAppel) {
+        $scope.saveCategorie = function (isAppel, categorie) {
+
+            let isAppelOublie = (isAppel !== undefined && isAppel) || (categorie !== undefined && categorie.is_appel_oublie !== undefined && categorie.is_appel_oublie);
+            if (isAppelOublie) {
                 $scope.saveCategorieAppel();
             }
             else {
@@ -206,7 +236,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.changeEtablissementAccueil = function (structure) {
             $scope.structure = structure;
             $scope.structure.sync().then(() => {
-                if ($scope.currParam = undefined) {
+                if ($scope.currParam === undefined) {
                     $scope.currParam = 0;
                 }
                 $scope.safeApply($scope);

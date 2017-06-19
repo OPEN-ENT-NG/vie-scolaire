@@ -19,7 +19,7 @@
             </div>
 
             <div class="nine cell twelve-mobile">
-                <input type="text" class="eleven twelve-mobile" ng-model="newMotif.libelle">
+                <input type="text" class="eleven twelve-mobile" ng-model="newMotif.libelle"  ng-required="true">
             </div>
         </section>
         <!-- commentaire -->
@@ -29,14 +29,16 @@
                 <i class="asterisk obligatoire"></i>
             </div>
             <div class="nine cell twelve-mobile">
-                <input type="text" class="eleven twelve-mobile" ng-model="newMotif.commentaire">
+                <input type="text" class="eleven twelve-mobile" ng-model="newMotif.commentaire" ng-required="true">
             </div>
         </section>
 
         <!-- justifiant -->
         <section class="row twelve-mobile">
-            <span class="three"><i18n>viescolaire.justifiant</i18n></span>
-            <div class="cell one">
+            <div class="three cell">
+                <span><i18n>viescolaire.justifiant</i18n></span>
+            </div>
+            <div class="nine cell">
                 <label class="checkbox">
                     <input type="checkbox"
                            ng-change="newMotif.justifiant = !newMotif.justifiant"
@@ -58,20 +60,20 @@
                 <i18n>viescolaire.categorie</i18n>
             </div>
 
-            <div class="six cell twelve-mobile">
+            <div class="five cell twelve-mobile">
                 <label class="select twelve twelve-mobile">
-                    <select ng-if="!isAppel" ng-model="newMotif.id_categorie"
+                    <select ng-if="(isAppel !== undefined && !isAppel) || (newMotif !== undefined && newMotif.is_appel_oublie !== undefined && !newMotif.is_appel_oublie)" ng-model="newMotif.id_categorie"
                             ng-options="categorie.id as
                             categorie.libelle for categorie in structure.categories.all">
                     </select>
-                    <select ng-if="isAppel" ng-model="newMotif.id_categorie"
+                    <select ng-if="(isAppel !== undefined && isAppel) || (newMotif !== undefined && newMotif.is_appel_oublie !== undefined && newMotif.is_appel_oublie) " ng-model="newMotif.id_categorie"
                             ng-options="categorie.id as
                             categorie.libelle for categorie in structure.categorieAppels.all">
                     </select>
                 </label>
             </div>
-            <div class="three cell right-magnet">
-                <button data-ng-click="createCategorie()" class="right-magnet cancel">
+            <div class="four cell right-magnet">
+                <button data-ng-click="createCategorie(isAppel)" class="right-magnet cancel">
                     <span><i18n>viescolaire.create.categorie</i18n></span>
                 </button>
             </div>
@@ -80,13 +82,13 @@
 
         <div ng-if="!isAppel" class="twelve cell">
             <input class="right-magnet" type="button"
-                   ng-disabled="newMotif.id_categorie === undefined"
+                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle) || isStringUndefinedOrEmpty(newMotif.commentaire)"
                    ng-click="saveMotif()"
                     i18n-value="viescolaire.utils.save">
         </div>
         <div ng-if="isAppel" class="twelve cell">
             <input class="right-magnet" type="button"
-                   ng-disabled="newMotif.id_categorie === undefined"
+                   ng-disabled="newMotif.id_categorie === undefined || isStringUndefinedOrEmpty(newMotif.libelle) || isStringUndefinedOrEmpty(newMotif.commentaire)"
                    ng-click="saveMotifAppel()"
                    i18n-value="viescolaire.utils.save">
         </div>
@@ -105,13 +107,9 @@
         </div>
     </section>
         <div class="twelve cell">
-            <input ng-if="!isAppel" class="right-magnet" type="button"
-                   ng-disabled="newCategorie.libelle === undefined"
-                   ng-click="saveCategorie()"
-                   i18n-value="viescolaire.utils.save">
-            <input ng-if="isAppel" class="right-magnet" type="button"
-                   ng-disabled="newCategorie.libelle === undefined"
-                   ng-click="saveCategorieAppel()"
+            <input type="button"
+                   ng-disabled="isStringUndefinedOrEmpty(newCategorie.libelle)"
+                   ng-click="saveCategorie(isAppel,newCategorie)"
                    i18n-value="viescolaire.utils.save">
 
             <div ng-if="!isModif" class="three cell right-magnet">

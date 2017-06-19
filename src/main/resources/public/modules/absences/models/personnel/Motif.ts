@@ -13,6 +13,7 @@ export class Motif extends Model {
     justifiant_libelle: string;
     libelle: string;
     id_categorie: string;
+    is_appel_oublie:boolean;
 
     constructor (o?: any) {
         super();
@@ -22,7 +23,8 @@ export class Motif extends Model {
     get api () {
         return {
             POST: '/viescolaire/presences/motif',
-            UPDATE: '/viescolaire/presences/motif'
+            UPDATE: '/viescolaire/presences/motif',
+            UPDATE_APPEL: '/viescolaire/presences/motif/appel'
         };
     }
 
@@ -59,7 +61,11 @@ export class Motif extends Model {
 
     update(): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().putJson(this.api.UPDATE, this.toJson())
+            let url = this.api.UPDATE;
+            if(this.is_appel_oublie){
+                url = this.api.UPDATE_APPEL;
+            }
+            http().putJson(url, this.toJson())
                 .done((data) => {
                     if (resolve && typeof resolve === 'function') {
                         resolve();

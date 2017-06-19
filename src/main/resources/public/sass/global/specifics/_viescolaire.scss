@@ -1,0 +1,35 @@
+body.viescolaire {
+  .responsive-table table thead i {
+    top: 13%;
+    margin-top: 0px;
+  }
+
+  table.fixed-head tr {
+    background: #FFF;
+  }
+
+  table thead tr {
+    background: #c7edfc;
+    border: none;
+  }
+
+  table thead tr:hover {
+    background: #97defa;
+    border: none;
+  }
+
+  .responsive-table table tbody tr td:first-child {
+    text-indent: 45px;
+  }
+
+  .responsive-table .fixed-head {
+    border-collapse: collapse;
+  }
+
+  td i.close-2x {
+    color: red;
+  }
+  td i.ok {
+    color: green;
+  }
+}

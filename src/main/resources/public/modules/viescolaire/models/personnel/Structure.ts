@@ -5,7 +5,6 @@ import {DefaultStructure} from '../common/DefaultStructure';
 import { Motif } from '../../../absences/models/personnel/Motif';
 import {Categorie} from "../../../absences/models/personnel/Categorie";
 import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
-import {Structure as StructurePresence } from '../../../absences/models/personnel/Structure';
 import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
 
 
@@ -18,6 +17,19 @@ export class Structure extends DefaultStructure {
     motifAppels: Collection<MotifAppel>;
     categorieAppels: Collection<CategorieAppel>;
 
+    get api () {
+        return  {
+            MOTIF_ABS : {
+                synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
+                categorie : '/viescolaire/presences/motifs/categorie?idEtablissement=' + this.id
+            },
+            MOTIF_APPEL : {
+                synchronization : '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
+                categorie : '/viescolaire/presences/motifs/appel/categorie?idEtablissement=' + this.id
+            }
+        };
+    }
+
     constructor(o?: any) {
         super();
         if (o && typeof o === 'object') {
@@ -25,16 +37,16 @@ export class Structure extends DefaultStructure {
         }
     }
     async sync(): Promise<any> {
-        let presence = new StructurePresence();
         this.collection(Motif, {
             sync : async function () {
                 // Récupération des motifs pour l'établissement en cours
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
-                    let url = presence.api.MOTIF_ABS.synchronization + '?idEtablissement=' + that.id;
+                    let url = that.api.MOTIF_ABS.synchronization;
                     http().getJson(url).done(function (motifs) {
                         that.motifs.load(motifs);
                         that.motifs.map((motif) => {
+                            motif.is_appel_oublie = false;
                             motif.justifiant_libelle = motif.justifiant ?
                                 lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
                             return motif;
@@ -49,7 +61,7 @@ export class Structure extends DefaultStructure {
                 let that = this.composer;
                 // Récupération (sous forme d'arbre) des catégories des motifs d'absence pour l'établissement en cours
                 return new Promise((resolve, reject) => {
-                    let url = presence.api.MOTIF_ABS.categorie + '?idEtablissement=' + that.id;
+                    let url = that.api.MOTIF_ABS.categorie;
 
                     http().getJson(url).done(function (categories) {
                         let _categorieTree = categories;
@@ -59,6 +71,8 @@ export class Structure extends DefaultStructure {
                                 let _currentMotifs = that.motifs.filter( function(motif) {
                                     return motif.id_categorie === categorie.id;
                                 });
+                                categorie.slided= false;
+                                categorie.is_appel_oublie = false;
                                 categorie.motifs = {
                                     all: _currentMotifs
                                 };
@@ -75,10 +89,11 @@ export class Structure extends DefaultStructure {
                 // Récupération des motifs pour l'établissement en cours
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
-                    let url = presence.api.MOTIF_APPEL.synchronization + '?idEtablissement=' + that.id;
+                    let url = that.api.MOTIF_APPEL.synchronization;
                     http().getJson(url).done(function (motifs) {
                         that.motifAppels.load(motifs);
                         that.motifAppels.map((motif) => {
+                            motif.is_appel_oublie = true;
                             motif.justifiant_libelle = motif.justifiant ?
                                 lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
                             return motif;
@@ -93,7 +108,7 @@ export class Structure extends DefaultStructure {
                 let that = this.composer;
                 // Récupération (sous forme d'arbre) des catégories des motifs d'absence pour l'établissement en cours
                 return new Promise((resolve, reject) => {
-                    let url = presence.api.MOTIF_APPEL.categorie + '?idEtablissement=' + that.id;
+                    let url = that.api.MOTIF_APPEL.categorie;
 
                     http().getJson(url).done(function (categories) {
                         let _categorieTree = categories;
@@ -103,6 +118,8 @@ export class Structure extends DefaultStructure {
                                 let _currentMotifs = that.motifAppels.filter( function(motif) {
                                     return motif.id_categorie === categorie.id;
                                 });
+                                categorie.slided= false;
+                                categorie.is_appel_oublie = true;
                                 categorie.motifAppels = {
                                     all: _currentMotifs
                                 };

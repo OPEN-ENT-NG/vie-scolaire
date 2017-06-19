@@ -47,11 +47,11 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT motif.id, motif.id_etablissement, motif.libelle, justifiant, commentaire, defaut")
-                .append(",categorie_motif_absence.libelle as categorie, categorie_motif_absence.id as id_categorie" )
-                .append("   FROM "+ Viescolaire.ABSC_SCHEMA +".motif\n ")
-                .append("  INNER JOIN "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence\n")
-                .append("  ON (id_categorie = categorie_motif_absence.id)\n")
+        query.append("SELECT motif.id, motif.id_etablissement, motif.libelle, justifiant, commentaire, defaut ")
+                .append(",categorie_motif_absence.libelle as categorie, categorie_motif_absence.id as id_categorie " )
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".motif ")
+                .append("INNER JOIN "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence ")
+                .append("ON (id_categorie = categorie_motif_absence.id) ")
                 .append("WHERE motif.id_etablissement = ?");
 
         values.addString(psIdEtablissement);
@@ -65,8 +65,8 @@ public class DefaultMotifService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT id, libelle, id_etablissement ")
-                .append(" FROM "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence\n")
-                .append(" WHERE "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence.id_etablissement = ?");
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence ")
+                .append("WHERE "+ Viescolaire.ABSC_SCHEMA +".categorie_motif_absence.id_etablissement = ?");
 
         values.addString(psIdEtablissement);
 

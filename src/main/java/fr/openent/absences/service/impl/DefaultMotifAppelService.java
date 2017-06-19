@@ -26,11 +26,11 @@ public class DefaultMotifAppelService extends SqlCrudService implements fr.opene
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT motif_appel.id, motif_appel.id_etablissement, motif_appel.libelle, justifiant, commentaire, defaut")
-                .append(",categorie_motif_appel.libelle as categorie, categorie_motif_appel.id as id_categorie" )
-                .append("   FROM "+ Viescolaire.ABSC_SCHEMA +"." + Viescolaire.ABSC_MOTIF_APPEL_TABLE + "\n ")
-                .append("  INNER JOIN "+ Viescolaire.ABSC_SCHEMA + "." + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + "\n")
-                .append("  ON (id_categorie = " + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + ".id)\n")
+        query.append("SELECT motif_appel.id, motif_appel.id_etablissement, motif_appel.libelle, justifiant, commentaire, defaut ")
+                .append(",categorie_motif_appel.libelle as categorie, categorie_motif_appel.id as id_categorie " )
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +"." + Viescolaire.ABSC_MOTIF_APPEL_TABLE + " ")
+                .append("INNER JOIN "+ Viescolaire.ABSC_SCHEMA + "." + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + " ")
+                .append("ON (id_categorie = " + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + ".id) ")
                 .append("WHERE "+ Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL+ ".id_etablissement = ?");
 
         values.addString(psIdEtablissement);
@@ -44,8 +44,8 @@ public class DefaultMotifAppelService extends SqlCrudService implements fr.opene
         JsonArray values = new JsonArray();
 
         query.append("SELECT id, libelle, id_etablissement ")
-                .append(" FROM "+ Viescolaire.ABSC_SCHEMA +"." + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + "\n")
-                .append(" WHERE "+ Viescolaire.ABSC_SCHEMA +"."+ Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + ".id_etablissement = ?");
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +"." + Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + " ")
+                .append("WHERE "+ Viescolaire.ABSC_SCHEMA +"."+ Viescolaire.ABSC_CATEGORIE_MOTIF_APPEL + ".id_etablissement = ?");
 
         values.addString(psIdEtablissement);
 

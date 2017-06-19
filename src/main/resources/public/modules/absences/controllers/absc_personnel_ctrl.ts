@@ -204,9 +204,9 @@ export let absencesController = ng.controller('AbsencesController', [
             return ($scope.structure.enseignants.findWhere({id : event.id_personnel, selected: true}) !== undefined);
         };
 
-        $scope.alert = function(message) {
-            alert(message);
-        };
+        // $scope.alert = function(message) {
+        //     alert(message);
+        // };
 
         $scope.resetFilter = () => {
             $rootScope.$broadcast("resetFilter");

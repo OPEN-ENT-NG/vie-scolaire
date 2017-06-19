@@ -9,6 +9,7 @@ export class CategorieAppel extends Model {
     id: number;
     libelle: string;
     id_etablissement: string;
+    slided: boolean;
 
     motifs: Collection< Motif >;
 
@@ -19,8 +20,8 @@ export class CategorieAppel extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/categorieAppel',
-            UPDATE: '/viescolaire/presences/categorieAppel'
+            POST: '/viescolaire/presences/categorie/appel',
+            UPDATE: '/viescolaire/presences/categorie/appel'
         };
     }
 

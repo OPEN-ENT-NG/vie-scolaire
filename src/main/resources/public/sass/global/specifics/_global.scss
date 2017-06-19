@@ -596,4 +596,50 @@ body.vsco--global {
   .error{
     @include animation(error 1000ms infinite);
   }
+
+  @include keyframes(spinner) {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .offline-message {
+    width: 50%;
+    left: 25%;
+    position: fixed;
+    top: 80px;
+    text-align: center;
+    @include transition(all 0.15s ease);
+    color: $white;
+    font-weight: bold;
+
+    &.offline {
+      background-color: $red;
+
+      i::before {
+        content: '\e862';
+      }
+    }
+
+    &.attempting {
+      background-color: $yellow;
+
+      i{
+        animation: spinner 1.25s linear infinite;
+
+        &::before {
+          content: '\e85a';
+        }
+      }
+    }
+
+    &.online {
+      background-color: $green;
+
+      i::before {
+        content: '\e871';
+      }
+    }
+  }
+
 }

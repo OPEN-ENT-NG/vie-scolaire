@@ -70,6 +70,22 @@ public class EvenementController extends ControllerHelper {
             }
         });
     }
+//    @Put("/evenements/motif")
+//    @ApiDoc("Met à jours le motif des évènements.")
+//    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+//    public void updateMotifEvenements(final HttpServerRequest request){
+//        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+//            @Override
+//            public void handle(JsonObject event) {
+//                Integer[] piIdEvenements;
+//                piIdEvenements = Integer.parseInt(request.params().get("EventsIds"))
+//
+//                Integer piIdMotif = event.getInteger("MotifId");
+//                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+//                miAbscEvenementService.updateEventsMotif(piIdEvenements, piIdMotif, handler);
+//            }
+//        });
+//    }
 
     @Put("/evenement")
     @ApiDoc("Met à jours l'évènement.")

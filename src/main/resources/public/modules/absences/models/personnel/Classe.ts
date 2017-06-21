@@ -7,7 +7,7 @@ export class Classe extends DefaultClasse {
 
     get api () {
         return {
-            syncClasse: '/directory/class/' + this.id + '/users?type=Student',
+            syncClasse: '/viescolaire/classe/'+this.id+'/eleves',
             syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student'
         };
     }

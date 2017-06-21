@@ -144,8 +144,7 @@ public class ClasseController extends BaseController {
                                     classes.addObject(classe);
                                 }
 
-                                if (!idGroupes.isEmpty()
-                                        && idGroupes.size() > 0) {
+                                if (!idGroupes.isEmpty()) {
                                     utilsService.getCycle(idGroupes, new Handler<Either<String, JsonArray>>() {
                                         @Override
                                         public void handle(Either<String, JsonArray> event) {

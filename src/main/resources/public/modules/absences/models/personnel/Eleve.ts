@@ -2,15 +2,22 @@ import { Collection, Model } from 'entcore/entcore';
 import { Evenement } from './Evenement';
 import { Responsable } from './Responsable';
 import {DefaultEleve} from "../common/DefaultEleve";
+import {Cours} from "./Cours";
+import {AbsencePrev} from "./AbsencePrev";
 
 export class Eleve extends DefaultEleve {
 
     responsables: Collection<Responsable>;
     evenements: Collection<Evenement>;
-
+    abscprev : Collection<AbsencePrev>;
+    cours: Collection<Cours>;
     get api() {
         return {
-            GET_RESPONSABLES: '/viescolaire/eleves/' + this.id + '/responsables'
+            GET_RESPONSABLES: '/viescolaire/eleves/' + this.id + '/responsables',
+            GET_EVENT_ELEVE:'/viescolaire/presences/eleve/',
+            GET_Eleve_COURS:'/viescolaire/cours',
+            GET_CLASSE_COURS:'/viescolaire',
+            GET_ABSC_PREV:'/viescolaire/presences/eleve/' + this.id + '/absencesprev/'
         };
     }
 
@@ -27,5 +34,78 @@ export class Eleve extends DefaultEleve {
             }
         });
         this.collection(Evenement);
+        this.collection(Cours);
+        this.collection(AbsencePrev);
+
+    }
+    syncCoursByStud(structureId, DateD, timeDb, DateF, timeFn): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let Url = this.api.GET_Eleve_COURS+'/'+structureId+'/'+this.id+'/'+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')+'/time/'+timeDb+'/'+timeFn;
+
+            http().getJson(Url).done((data) => {
+                    if (resolve && typeof resolve === 'function') {
+                        resolve();
+                    }
+
+                    this.cours = data ;
+                })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+    syncCoursByClasseStud(ClasseId, DateD,timeDb, DateF, timeFn): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let Url = this.api.GET_CLASSE_COURS+'/'+ClasseId+'/cours/'+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')+'/time/'+timeDb+'/'+timeFn;
+            http().getJson(Url).done((data) => {
+                if (resolve && typeof resolve === 'function') {
+                    resolve();
+                }
+
+                this.cours = data ;
+            })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+
+    syncEvenment(DateD, DateF): Promise<any> {
+        return new Promise((resolve,reject) => {
+            http().getJson(this.api.GET_EVENT_ELEVE+this.id+'/evenements/'+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')).done((data) => {
+                this.evenements.load(data);
+                if (resolve && typeof resolve === 'function') {
+                    resolve();
+                }
+            })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+    syncAbscPrev(DateD, DateF): Promise<any> {
+        return new Promise((resolve,reject) => {
+            http().getJson(this.api.GET_ABSC_PREV+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')).done((data) => {
+                this.abscprev = data;
+                if (resolve && typeof resolve === 'function') {
+                    resolve();
+                }
+            })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+
+    toString () {
+        return this.hasOwnProperty("displayName") ? this.displayName : this.firstName+" "+this.lastName;
     }
 }

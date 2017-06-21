@@ -52,14 +52,62 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         JsonArray values = new JsonArray();
 
         query.append("SELECT cours.* ")
-        .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
-        .append("WHERE cours.id_classe = ? ")
-        .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-        .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-        .append("ORDER BY cours.timestamp_fn ASC");
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("WHERE cours.id_classe = ? ")
+                .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("ORDER BY cours.timestamp_fn ASC");
 
 
         values.addString(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+    @Override
+    public void getClasseCoursBytime(String pSDateDebut, String pSDateFin, String pLIdClasse, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT cours.* ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("WHERE cours.id_classe = ? ")
+                .append("AND ( cours.timestamp_dt < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("OR (cours.timestamp_fn > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
+                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("ORDER BY cours.timestamp_fn ASC");
+
+
+        values.addString(pLIdClasse).addString(pSDateFin).addString(pSDateDebut).addString(pSDateDebut).addString(pSDateFin);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+    @Override
+    public void getCoursByStudentId(String pSDateDebut, String pSDateFin, String[] pLIdClasse, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT cours.*, appel.id id_appel ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("LEFT JOIN "+Viescolaire.ABSC_SCHEMA+".appel ON appel.id_cours = cours.id ")
+                .append("WHERE cours.id_classe in  (");
+        for(int i = 0; i < pLIdClasse.length; i++) {
+            if(i == pLIdClasse.length-1){
+                query.append("?) ");
+                values.addString(pLIdClasse[i]);
+            }else{
+                query.append("?,");
+                values.addString(pLIdClasse[i]);
+            }
+        }
+        query.append("AND ( cours.timestamp_dt < to_timestamp(? ,'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("OR (cours.timestamp_fn > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
+                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("ORDER BY cours.timestamp_fn ASC");
+
+
+        values.addString(pSDateFin).addString(pSDateDebut).addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

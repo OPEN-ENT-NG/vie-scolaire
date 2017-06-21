@@ -80,4 +80,7 @@ public interface ClasseService extends CrudService {
      * @param handler Handler portant le résultat de la requête.
      */
     public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+
+    public void getClasseEleve(String idEtablissement, String EleveId, Handler<Either<String, JsonArray>> handler);
+
 }

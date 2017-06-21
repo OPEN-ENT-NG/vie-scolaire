@@ -38,6 +38,7 @@ public interface EleveService extends CrudService {
     public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin,
                               Handler<Either<String, JsonArray>> handler);
 
+
     /**
      * Réccupération des absences prévisionnelles d'un élève
      * @param psIdEleve identifiant de l'élève

@@ -8,5 +8,7 @@ export class DefaultEleve extends Model {
     composer: any;
     id: string;
     absc_precedent_cours: boolean;
-
+    displayName: string;
+    firstName : string;
+    lastName:string;
 }

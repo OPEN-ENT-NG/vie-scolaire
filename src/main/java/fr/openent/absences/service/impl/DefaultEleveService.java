@@ -48,11 +48,12 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append(SELECT+ Viescolaire.ABSC_SCHEMA +".evenement.*, to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_arrive, 'hh24:mi'), " +
-                "to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_depart, 'hh24:mi') ")
-                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours,"+ Viescolaire.ABSC_SCHEMA +".appel ")
+                "to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_depart, 'hh24:mi'), type_evt.libelle ")
+                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours,"+ Viescolaire.ABSC_SCHEMA +".appel , "+Viescolaire.ABSC_SCHEMA+".type_evt ")
                 .append("WHERE evenement.id_eleve = ? ")
                 .append("AND evenement.id_appel = appel.id ")
                 .append(FILTER_COURS_ID)
+                .append("AND evenement.id_type = type_evt.id ")
                 .append("AND to_date(?, 'YYYY-MM-DD') <= cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'YYYY-MM-DD')");
 

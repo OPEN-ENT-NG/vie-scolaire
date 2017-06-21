@@ -3,7 +3,24 @@ body.vsco--global {
     content: "\e83d";
   }
 
+  i.clock::after {
+    content: '\f017';
+  }
+  i.plus::after{
+    content:  '\e85e';
+    font-size: large;
+  }
+  i.moins::after{
+    content:  '-';
+    font-size: xx-large;
+  }
   i.ok::after{
-    content: "\e871";
+    content:  '\e871';
+    font-size: large;
+  }
+  i.alerte::after{
+    content: '!';
+    font-size: xx-large;
+
   }
 }

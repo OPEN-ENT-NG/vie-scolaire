@@ -13,13 +13,15 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.open('menu', '../templates/absences/absc_personnel_menu');
                 template.open('header', '../templates/absences/absc_personnel_header');
                 template.open('main', '../templates/absences/absc_personnel_abssm');
-                $scope.display.menu = false;
+                $scope.display.menu = true;
+                $scope.display.dates = true;
             },
             AppelsOublies : function(params) {
                 template.open('menu', '../templates/absences/absc_personnel_menu');
                 template.open('header', '../templates/absences/absc_personnel_header');
                 template.open('main', '../templates/absences/absc_personnel_appo');
                 $scope.display.menu = false;
+                $scope.display.dates = true;
             },
             Redirect : function(params) {
                 template.close('menu');
@@ -37,7 +39,15 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.close('header');
                 template.open('main', '../templates/absences/absc_disabled_structure');
                 utils.safeApply($scope);
-            }
+            },
+           SaisieAbsEleve: function (params) {
+               template.open('header', '../templates/absences/absc_personnel_header');
+               template.open('menu', '../templates/absences/absc_personnel_menu');
+               template.open('main', '../templates/absences/absc_personnel_saisie_abs_eleve');
+               $scope.display.menu = false;
+               $scope.display.dates = false;
+               utils.safeApply($scope);
+           }
         };
 
         route(routesActions);

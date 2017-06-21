@@ -27,11 +27,11 @@ body.presences {
     padding: 15px;
     background-color: white;
     @include border-radius(5px);
-    @include box-shadow(rgba(0,0,0,0.15) 0px 0px 5px 0px);
+    @include box-shadow(rgba(0, 0, 0, 0.15) 0px 0px 5px 0px);
   }
 
   .appel__calendar {
-    color : rgba(85, 85, 85, 0.7);
+    color: rgba(85, 85, 85, 0.7);
     width: 100%;
 
     > input[type="text"] {
@@ -46,9 +46,9 @@ body.presences {
     display: inline-block;
     position: relative;
     border: solid 1px;
-    @include box-shadow(rgba(0,0,0,0.15) 0px 0px 5px 0px);
+    @include box-shadow(rgba(0, 0, 0, 0.15) 0px 0px 5px 0px);
 
-    &.appel__absence-icon--cpe{
+    &.appel__absence-icon--cpe {
       border: solid 1px;
       background-color: $grey;
     }
@@ -60,11 +60,11 @@ body.presences {
   //$absence-color:rgb(224, 103, 103);
   //$absence-prev-color:#DDD238;
   //$commentaire-color: $primary-light;
-  $retard-color:#4981ff;
-  $depart-color:#009688;
-  $incident-color:#f16601;
-  $absence-color:#F44336;
-  $absence-prev-color:#e0e0e0;
+  $retard-color: #4981ff;
+  $depart-color: #009688;
+  $incident-color: #f16601;
+  $absence-color: #F44336;
+  $absence-prev-color: #e0e0e0;
   $commentaire-color: #a261ed;
 
   .absence-color {
@@ -91,8 +91,6 @@ body.presences {
     background-color: $incident-color;
   }
 
-
-
   .appel__evenement-icon {
     width: 30px;
     height: 30px;
@@ -113,7 +111,7 @@ body.presences {
   }
 
   .appel__journee-calendar {
-    width:100%;
+    width: 100%;
     background-color: white;
   }
   .appel__journee-calendar-creneau-header {
@@ -162,7 +160,7 @@ body.presences {
     @include appel__historiques-creneau(29px);
   }
 
-  .appel__historique{
+  .appel__historique {
     display: inline-block;
     margin-top: -1px;
   }
@@ -203,30 +201,30 @@ body.presences {
     margin-left: 15px;
   }
 
-  i.show-vue-eleves{
+  i.show-vue-eleves {
     @include fonticon;
     font-size: 24px;
     opacity: 0.2;
 
-    &::after{
-      content:"\e8b5";
+    &::after {
+      content: "\e8b5";
     }
 
-    &.selected{
+    &.selected {
       opacity: 0.6;
     }
   }
 
-  i.show-vue-classes{
+  i.show-vue-classes {
     @include fonticon;
     font-size: 24px;
     opacity: 0.2;
 
-    &::after{
-      content:"\e8bc";
+    &::after {
+      content: "\e8bc";
     }
 
-    &.selected{
+    &.selected {
       opacity: 0.6;
     }
   }
@@ -253,34 +251,34 @@ body.presences {
       margin-bottom: 0;
     }
 
-    table{
+    table {
       overflow-y: scroll;
       max-height: 220px !important;
       display: block;
     }
 
-    .content-box-accueil--table{
+    .content-box-accueil--table {
 
-      .content-box-accueil--table--header{
+      .content-box-accueil--table--header {
         background: $primary;
 
-        h5{
+        h5 {
           color: $white !important;
           text-indent: 10px;
         }
       }
 
-      .content-box-accueil--table--content{
+      .content-box-accueil--table--content {
         font-size: 12px;
         padding: 5px 0;
         overflow-y: scroll;
         height: 260px;
 
-        > .row{
+        > .row {
           padding: 5px 0;
         }
 
-        > .row:nth-child(2n){
+        > .row:nth-child(2n) {
           background-color: $light-grey;
         }
       }
@@ -290,16 +288,16 @@ body.presences {
     padding: 5px;
   }
 
-  .help{
-    ul{
+  .help {
+    ul {
       list-style-type: none;
     }
-    h1, h2{
+    h1, h2 {
       text-transform: capitalize;
     }
-    .help--color-absences{
+    .help--color-absences {
       width: 40px;
-      height:20px;
+      height: 20px;
       display: inline-block;
     }
   }
@@ -307,14 +305,14 @@ body.presences {
   /**
     $CPE-FILTRES
   **/
-  .filtre{
+  .filtre {
     height: auto;
     max-height: 20px;
     overflow: hidden;
     padding: 10px;
     @include border-radius(2px);
     @include transition(all 0.4s ease);
-    margin-bottom:10px;
+    margin-bottom: 10px;
     background-color: $white;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
 
@@ -322,10 +320,10 @@ body.presences {
       margin-right: 30px;
     }
 
-    &.filtre-responsables{
+    &.filtre-responsables {
       font-size: 14px;
 
-      .fa{
+      .fa {
         font-size: 16px;
       }
 
@@ -361,7 +359,7 @@ body.presences {
       }
     }
 
-    > h4{
+    > h4 {
       margin: 0 0 10px 0;
       padding: 0;
       font-weight: 300;
@@ -369,23 +367,23 @@ body.presences {
       line-height: 23px;
     }
 
-    .selectable-list{
+    .selectable-list {
       max-height: 200px;
       overflow-y: scroll;
       margin: 0;
 
-      li{
+      li {
         font-size: 12px;
         padding: 2px;
       }
     }
 
-    > .filter__input--icon{
+    > .filter__input--icon {
       position: relative;
 
-      &:after{
-        content : "\f002";
-        font-family: "FontAwesome";
+      &:after {
+        content: "\e8d0";
+        font-family: "generic-icons";
         position: absolute;
         top: 0;
         right: 10px;
@@ -395,10 +393,10 @@ body.presences {
         width: 100%;
       }
     }
-    .filtre__toolbar{
+    .filtre__toolbar {
       padding: 3px 0 0 0;
 
-      .filtre__toolbar__button{
+      .filtre__toolbar__button {
         width: 30px;
         height: 25px;
         margin-right: 10px;
@@ -406,12 +404,12 @@ body.presences {
         float: none;
         display: inline-block;
 
-        &.select{
+        &.select {
           background-image: url(/public/img/glyphicons-halflings-white.png);
           background-position: 14.5% 68%;
           background-repeat: no-repeat;
         }
-        &.deselect{
+        &.deselect {
           margin-left: 10px;
           background-image: url(/public/img/glyphicons-halflings-white.png);
           background-position: 9% 68%;
@@ -423,74 +421,74 @@ body.presences {
   /**
     $CPE-ABSENCES-SANS-MOTIFS
   **/
-  .abscSM-content{
+  .abscSM-content {
     @include transition(all 0.2s ease);
 
-    .abscSM-content--student-search-input, .abscSM-content--SM-list{
+    .abscSM-content--student-search-input, .abscSM-content--SM-list {
       margin: 0 0 0 8.5%;
     }
 
-    .abscSM-content--student-search-input{
+    .abscSM-content--student-search-input {
       padding: 10px;
       background: $white;
-      border: solid 1px rgba(0,0,0,0.1);
+      border: solid 1px rgba(0, 0, 0, 0.1);
       margin-bottom: 10px;
     }
 
-    .abscSM-content--SMSelectable-list{
+    .abscSM-content--SMSelectable-list {
       width: 200px !important;
       margin-left: 8.5%;
 
-      li{
+      li {
         text-align: center;
 
-        > i.fa{
+        > i.fa {
           margin-right: 10px;
         }
       }
     }
 
-    .abscSM-content--SM-list{
+    .abscSM-content--SM-list {
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 
-      .abscSM-content--SM-list--header{
+      .abscSM-content--SM-list--header {
         background-color: $primary;
         padding: 5px 0;
 
-        div{
+        div {
           text-transform: capitalize;
           display: inline-block !important;
           float: none;
           color: $white;
 
-          .fa{
+          .fa {
             font-size: 12px;
           }
         }
       }
-      .abscSM-content--SM-list--item{
+      .abscSM-content--SM-list--item {
         @include transition(all 0.4ms ease);
         //text-align: center;
 
-        &:nth-child(even){
+        &:nth-child(even) {
 
-          > .abscSM-content--SM-list--item--eleve{
+          > .abscSM-content--SM-list--item--eleve {
             background-color: $light-grey !important;
           }
 
-          > .abscSM-content--SM-list--item--subevents{
+          > .abscSM-content--SM-list--item--subevents {
 
-            > div{
-              background-color:$white;
+            > div {
+              background-color: $white;
 
-              &:nth-child(even){
+              &:nth-child(even) {
                 background-color: $light-grey;
               }
             }
           }
         }
 
-        > .abscSM-content--SM-list--item--eleve{
+        > .abscSM-content--SM-list--item--eleve {
           border-left: solid 1px $light-grey !important;
           border-right: solid 1px $light-grey;
           border-top: solid 1px $light-grey;
@@ -509,16 +507,16 @@ body.presences {
             }
           }
 
-          &.displayed{
+          &.displayed {
             border-bottom: solid 1px $light-grey;
           }
 
-          div{
+          div {
 
-            &:last-child{
+            &:last-child {
               text-align: center;
 
-              button{
+              button {
                 display: inline-block;
                 float: none !important;
               }
@@ -527,33 +525,32 @@ body.presences {
 
         }
 
-        > .abscSM-content--SM-list--item--eleve, > .abscSM-content--SM-list--item--subevents{
+        > .abscSM-content--SM-list--item--eleve, > .abscSM-content--SM-list--item--subevents {
           text-align: left !important;
           padding: 0 !important;
         }
 
-        > .abscSM-content--SM-list--item--subevents{
+        > .abscSM-content--SM-list--item--subevents {
           display: none !important;
 
-          &.displayed{
+          &.displayed {
             display: inline-block !important;
           }
 
-          > div{
+          > div {
             border-left: solid 1px $light-grey !important;
             border-right: solid 1px $light-grey;
             border-bottom: solid 1px $light-grey;
             background-color: $white;
 
-            &:last-child{
+            &:last-child {
               border-bottom: solid 1px transparent;
             }
 
-            &:nth-child(even){
+            &:nth-child(even) {
               background-color: $light-grey;
             }
           }
-
 
         }
 
@@ -563,7 +560,7 @@ body.presences {
         //  border-right: solid 1px $grey;
         //}
 
-        .cell{
+        .cell {
           float: none;
           display: inline-block;
           padding: 5px 0;
@@ -572,7 +569,7 @@ body.presences {
           text-indent: 5px;
           vertical-align: middle;
 
-          select{
+          select {
             margin-bottom: 0px;
           }
         }
@@ -580,8 +577,8 @@ body.presences {
     }
   }
 
-  .header-nav__date-pickers{
-    > label:nth-child(1), > label:nth-child(3){
+  .header-nav__date-pickers {
+    > label:nth-child(1), > label:nth-child(3) {
       margin-right: 10px;
     }
   }
@@ -589,13 +586,13 @@ body.presences {
   /**
     $SELECT
   **/
-  .select-input{
+  .select-input {
     position: relative;
     height: 38px;
     display: block;
     overflow: inherit;
 
-    select{
+    select {
       border: solid 1px rgba(0, 0, 0, 0.3) !important;
       background: #fff !important;
       width: 100% !important;
@@ -604,13 +601,13 @@ body.presences {
       height: 35px !important;
       color: #444;
       -webkit-appearance: none;
-      -moz-appearance:    none;
-      appearance:         none;
+      -moz-appearance: none;
+      appearance: none;
     }
 
-    &:after{
-      content: "\f078";
-      font-family: 'FontAwesome';
+    &:after {
+      content: "\e841";
+      font-family: 'generic-icons';
       position: absolute;
       right: 5px;
       top: 5px;
@@ -628,11 +625,192 @@ body.presences {
     }
   }
 
-  .appel__container-icon{
+  .appel__container-icon {
     text-align: center;
   }
 
-  .appel_absc_last{
+  .appel_absc_last {
     color: $red;
+  }
+  .divider {
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    bottom: 10%;
+    border-left: 1px solid #b7b6b9;
+    > h2 {
+      position: relative;
+      right: 9.5%;
+      top: 33%;
+    }
+  }
+  .selection-head-saisie-abs {
+    position: relative;
+    left: 5%;
+    margin-top: 6.5%;
+    margin-bottom: 4.5%;
+  }
+  .calender-saisie_abs_cpe {
+
+    position: relative;
+    > h1 {
+
+    }
+    @media screen and (max-device-width: 670px){
+      >div{
+        width :300px;
+      }
+    }
+    > div {
+      float: none;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 670px;
+      min-width: 300px;
+      > div {
+        left:2%;
+        position: relative;
+        float: left;
+        margin: 0% 1% 0% 0%;
+      }
+      > button {
+        left:2%;
+        position: relative;
+        float: left;
+        margin: 0% 1% 0% 0%;
+      }
+    }
+  }
+  .header-saisie-abs-cpe {
+    border-radius: 20px 20px 20px 20px;
+    padding-left: 1%;
+    padding-right: 1%;
+    padding-top: 1%;
+    margin-left: 2%;
+  }
+  .head-of-body-saisie-abs-cpe{
+    height: 220px;
+    > div {
+      > h2 {
+        text-align: left !important;
+      }
+
+    }
+  }
+  .body-saisie-abs-cpe {
+
+
+    border-radius: 20px 20px 20px 20px;
+    padding-left: 1%;
+    padding-right: 1%;
+    padding-top: 1%;
+    margin-top: 1%;
+    text-align: center;
+    margin-left: 2%;
+
+  }
+  .search-card {
+    position: relative;
+    margin-left: 1.5%;
+    float: left;
+    margin-top: 5.5%;
+    margin-bottom: 4%;
+    &::after {
+      content: ' ';
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      margin-left: 13%;
+      background-color: #cac8c8;
+    }
+  }
+  .label {
+    text-align: center !important;
+  }
+  .timeline .event-row {
+
+    .date-label {
+      text-align: left;
+      line-height: 54px;
+      height: 54px;
+    }
+    .date-label-NotEnd{
+      text-align: right;
+      line-height: 54px;
+      height: 54px;
+    }
+  }
+  .container-line{
+    padding-left: 8%;
+    >article{
+      border-radius: 10px;
+      text-align: left;
+    }
+  }
+  .timeline::before{
+    left: 50%!important;
+
+  }
+  .now{
+    margin-bottom: 1%;
+    background: white;
+    margin-top: -2%;
+  }
+  .expanded{
+    max-height: 184px !important;
+  }
+  .isAbs{
+    background: rgba(255, 0, 12, 0.3);
+  }
+  .centre-element{
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .round{
+    &.green{
+      background: green;
+    }
+    &.blue{
+      background: blue;
+    }
+    &.purple{
+      background: purple;
+    }
+    &.grey {
+      background: grey;
+    }
+  }
+  i.moins{
+    ::after{
+      content:  '-' !important;
+      font-size: xx-large !important;
+    }
+  }
+  i.alerte::after{
+    color: red;
+    font-weight: bold;
+  }
+  .timeline .event-row .event-description {
+    max-height: 62px ;
+  }
+  article.isAbsPrev{
+    background: #e0e0e0;
+  }
+  .horizontal-spacing {
+    padding-top: 8px !important;
+  }
+  div.evenement-detail{
+    padding-right: 2%;
+    margin-left: 2%;
+    &::after{
+      content: ' ';
+      position: absolute;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      margin-left: 98%;
+      background-color: #cac8c8;
+    }
   }
 }

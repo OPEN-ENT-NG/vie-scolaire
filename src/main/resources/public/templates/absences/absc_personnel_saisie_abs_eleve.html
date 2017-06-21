@@ -1,0 +1,97 @@
+<div ng-controller="AbscSaisieElevePersonnel" >
+
+    <div class="eleven cell card ten-mobile header-saisie-abs-cpe" >
+
+        <div class="eleven cell eleven-mobile">
+            <!-- select structure -->
+        </div>
+
+        <div class="six cell six-mobile search-card " >
+            <article class="ten cell ">
+                <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
+                <autocomplete options="structure.eleves.all" ng-change="selectEleve('Search')" ng-model="selected.eleve"></autocomplete>
+            </article>
+        </div>
+
+        <div class="five cell six-mobile selection-head-saisie-abs" >
+            <div   >
+                <label class="select " >
+                    <select ng-model="selected.classe" ng-change="syncEleveClasse()"
+                            ng-options="classe.name for classe in structure.classes.all">
+                        <option value="" class="header-opt">
+                            Classes
+                        </option>
+                    </select>
+                </label>
+            </div>
+
+            <div  ng-hide="display.selection.eleve === false" >
+                <label class="select centre-element " >
+                    <select ng-model="selected.eleve" ng-change="selectEleve('Input')"
+                            ng-options="eleve as (eleve.firstName + ' ' + eleve.lastName) for eleve in selected.classe.eleves.all">
+                        <option value="" class="header-opt">
+                            Eleves
+                        </option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="eleven cell card eleven-mobile body-saisie-abs-cpe"  ng-if="display.calendarDate" >
+        <article class="head-of-body-saisie-abs-cpe " sticky offset="65px" >
+            <div class="calender-saisie_abs_cpe">
+                <div class="cell eleven-mobile">
+                    <h1 class="twelve cell">[[selected.eleve.firstName]] [[selected.eleve.lastName]]</h1>
+                    <div>
+                        <label><i18n>viescolaire.utils.from</i18n></label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class="calendar"></i>
+                            <date-picker ng-model="selected.dateDb" ng-change=""></date-picker>
+                        </label>
+                        <input type="time" ng-model="selected.timeDb"
+                        >
+                    </div>
+                    <div>
+                        <label><i18n>viescolaire.utils.to</i18n></label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class="calendar"></i>
+                            <date-picker ng-model="selected.dateFn" ng-change=""></date-picker>
+                        </label>
+                        <input type="time" ng-model="selected.timeFn"
+                        >
+                    </div>
+
+                    <button class="" ng-click="searchCours()"><i18n>presence.devoir.ok</i18n></button>
+                </div>
+            </div>
+            <div class="twelve cell eleven-mobile " ng-if="display.coursDetail===true" >
+                <label class="select three centre-element" >
+                    <select ng-model="selected.motif"
+                            ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all  | orderBy:['justifiant_libelle','libelle']"
+                            ng-change="detectDiffMotif(selected.motif)"
+                            >
+                        <option value="" class="header-opt">
+                            Motifs absence
+                        </option>
+                    </select>
+                </label>
+                <h2 class="ten cell "><i18n>evaluations.devoir.recaputilatif</i18n></h2>
+                <button class="right-magnet" ng-click="saveAbsc()">
+                    <i18n>viescolaire.save</i18n>
+                </button>
+            </div>
+        </article>
+        <div class="twelve cell eleven-mobile " ng-if="display.coursDetail===true">
+
+
+            <div  class="twelve cell " >
+                <container template="abscDetailTimelineTemplate"></container>
+            </div>
+
+        </div>
+    </div>
+</div>

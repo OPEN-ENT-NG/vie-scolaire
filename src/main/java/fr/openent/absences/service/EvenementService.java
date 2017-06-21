@@ -39,6 +39,7 @@ public interface EvenementService extends CrudService {
      */
     public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler);
 
+
     /**
      * Créé un evenement en base de données
      * @param poEvenement l'objet JSON représentant l'évenement

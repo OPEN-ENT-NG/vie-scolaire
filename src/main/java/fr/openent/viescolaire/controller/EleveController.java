@@ -60,7 +60,10 @@ public class EleveController extends ControllerHelper {
 
         eleveService.getEleveClasse(idClasse, handler);
     }
-
+    /**
+     * récupère les éleves d'un etablissement juste avec leurs classes
+     * @param request
+     */
     @Get("/etab/eleves/:idEtab")
     @ApiDoc("Recupere tous les élèves d'un etablissment.")
     @ResourceFilter(AccessAuthorozed.class)
@@ -69,6 +72,20 @@ public class EleveController extends ControllerHelper {
         String idEtab = request.params().get("idEtab");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         eleveService.getEleve(idEtab, handler);
+    }
+
+    /**
+     * récupère les éleves d'un etablissement avec leurs classes et groupes
+     * @param request
+     */
+    @Get("/etab/eleves/classes/groupes/:idEtab")
+    @ApiDoc("Recupere tous les élèves d'un etablissment.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getElevesEtab(final HttpServerRequest request){
+        String idEtab = request.params().get("idEtab");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        eleveService.getEleves(idEtab, handler);
     }
 
     @Get("/eleves/:idEleve/responsables")

@@ -106,6 +106,8 @@ public class Viescolaire extends BaseServer {
 	public static final String SCHEMA_MOTIF_UPDATE = "absc_updateMotif";
 	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
 	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
+	public static final String SCHEMA_ABSPREV_CREATE = "absc_createAbscPrev";
+	public static final String SCHEMA_ABSPREV_UPDATE = "absc_updateAbscPrev";
 
 	public final static String DEVOIR_RESOURCE_ID = "devoirsid";
 	public final static String DEVOIR_TABLE = "devoirs";
@@ -158,6 +160,7 @@ public class Viescolaire extends BaseServer {
 		addController(new MotifController());
 		addController(new MotifAppelController());
 		addController(new AppelController());
+		addController(new AbsencePrevisionnelleController());
 		addController(new EvenementController());
 
 		/*

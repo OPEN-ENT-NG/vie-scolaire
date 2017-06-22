@@ -691,6 +691,8 @@ body.presences {
   }
   .head-of-body-saisie-abs-cpe{
     height: 220px;
+    background: #ffffff;
+    border-bottom: solid 1px $light-grey;;
     > div {
       > h2 {
         text-align: left !important;

@@ -439,7 +439,7 @@ export let absencesController = ng.controller('AbsencesController', [
             // template.close('rightSide_absc_eleve_appel_detail');
             $scope.initEvtTime();
             $scope.detailEleveOpen.displayed = $scope.currentEleve === undefined ||
-                ($scope.currentEleve !== undefined && $scope.currentEleve.id_eleve !== poEleve.id_eleve);
+                ($scope.currentEleve !== undefined && $scope.currentEleve.id !== poEleve.id);
 
             if ($scope.detailEleveOpen.displayed) {
                 $scope.currentEleve = poEleve;

@@ -47,15 +47,22 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
 
         $scope.syncResponsable = () => {
             let eleve = _.findWhere($scope.structure.eleves.all, {id: $scope.$parent.pOSelectedEvent.id});
-            if (_.isEmpty(eleve.responsables.all)) {
+            if (eleve.responsables == undefined || _.isEmpty(eleve.responsables.all)) {
                 eleve.responsables.sync().then(() => {
                     $scope.pOResponsable = eleve.responsables.all;
-                    $scope.pOFilterCtrl.responsables = true;
+                    if(_.isEmpty($scope.pOResponsable)) {
+                        $scope.$parent.psDisplayResponsables = false;
+                        $scope.pOFilterCtrl.responsables = false;
+                    } else {
+                        $scope.$parent.psDisplayResponsables = true;
+                        $scope.pOFilterCtrl.responsables = true;
+                    }
                     utils.safeApply($scope);
                 })
             } else {
                 $scope.pOResponsable = eleve.responsables.all;
                 $scope.pOFilterCtrl.responsables = true;
+                $scope.$parent.psDisplayResponsables = true;
                 utils.safeApply($scope);
             }
         };

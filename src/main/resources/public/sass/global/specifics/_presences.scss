@@ -728,7 +728,7 @@ body.presences {
   .label {
     text-align: center !important;
   }
-  .timeline .event-row {
+  .timeline-story .event-row {
 
     .date-label {
       text-align: left;
@@ -748,7 +748,7 @@ body.presences {
       text-align: left;
     }
   }
-  .timeline::before{
+  .timeline-story::before{
     left: 50%!important;
 
   }
@@ -791,7 +791,7 @@ body.presences {
     color: red;
     font-weight: bold;
   }
-  .timeline .event-row .event-description {
+  .timeline-story .event-row .event-description {
     max-height: 62px ;
   }
   article.isAbsPrev{

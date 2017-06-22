@@ -1,5 +1,5 @@
 <div class="ten centered twelve-mobile"  >
-    <div class="timeline vertical-spacing row " ng-if="selected.eleve.cours.length > 0">
+    <div class="timeline-story vertical-spacing row " ng-if="selected.eleve.cours.length > 0">
         <div ng-repeat="cours in selected.eleve.cours track by $index" class="twelve cell event-row container-line" >
             <div class= "eleven cell now" ng-if="verifierCoursPrev($index)" >
                 [[getNowDate()]]

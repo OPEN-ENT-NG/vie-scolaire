@@ -531,6 +531,8 @@ body.presences {
         }
 
         > .abscSM-content--SM-list--item--subevents {
+          margin: 0px calc(100% / 12);
+          //le "calc(100%/12)" permet d'avoir un margin équivalent à gauche et à droite correspondant à une cellule
           display: none !important;
 
           &.displayed {

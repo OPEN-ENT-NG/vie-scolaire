@@ -66,7 +66,7 @@
                     </span>
                 <span ng-if="!eleve.hasRetard && !eleve.hasDepart && !eleve.hasIncident">&nbsp;</span>
             </div>
-            <div class="five cell">
+            <div class="five cell" style="padding-left: 24px;">
                 <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
                     <div ng-repeat="evt in plage.evenements.all track by $index"
                          ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"

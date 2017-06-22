@@ -68,8 +68,9 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.* ")
+        query.append("SELECT cours.* , appel.id id_appel ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("LEFT JOIN "+Viescolaire.ABSC_SCHEMA+".appel ON appel.id_cours = cours.id ")
                 .append("WHERE cours.id_classe = ? ")
                 .append("AND ( cours.timestamp_dt < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")

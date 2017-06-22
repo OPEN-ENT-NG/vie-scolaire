@@ -7,20 +7,18 @@
         </div>
 
         <div class="six cell six-mobile search-card " >
-            <article class="ten cell ">
+            <div class="ten cell ">
                 <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
                 <autocomplete options="structure.eleves.all" ng-change="selectEleve('Search')" ng-model="selected.eleve"></autocomplete>
-            </article>
+            </div>
         </div>
 
         <div class="five cell six-mobile selection-head-saisie-abs" >
-            <div   >
-                <label class="select " >
+            <div>
+                <label class="select">
                     <select ng-model="selected.classe" ng-change="syncEleveClasse()"
-                            ng-options="classe.name for classe in structure.classes.all">
-                        <option value="" class="header-opt">
-                            Classes
-                        </option>
+                            ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in structure.classes.all | orderBy:['type_groupe_libelle','name']">
+                        <option value="" class="header-opt">Classe / Groupe</option>
                     </select>
                 </label>
             </div>
@@ -38,7 +36,7 @@
         </div>
     </div>
     <div class="eleven cell card eleven-mobile body-saisie-abs-cpe"  ng-if="display.calendarDate" >
-        <article class="head-of-body-saisie-abs-cpe " sticky offset="65px" >
+        <div class="head-of-body-saisie-abs-cpe " sticky offset="65px" >
             <div class="calender-saisie_abs_cpe">
                 <div class="cell eleven-mobile">
                     <h1 class="twelve cell">[[selected.eleve.firstName]] [[selected.eleve.lastName]]</h1>
@@ -79,14 +77,13 @@
                         </option>
                     </select>
                 </label>
-                <h2 class="ten cell "><i18n>evaluations.devoir.recaputilatif</i18n></h2>
-                <button class="right-magnet" ng-click="saveAbsc()">
+                <button ng-disabled="selected.eleve.cours === undefined || selected.eleve.cours.length === 0" class="right-magnet" ng-click="saveAbsc()">
                     <i18n>viescolaire.save</i18n>
                 </button>
             </div>
-        </article>
+        </div>
         <div class="twelve cell eleven-mobile " ng-if="display.coursDetail===true">
-
+            <h2 class="twelve cell "><i18n>evaluations.devoir.recaputilatif</i18n></h2>
 
             <div  class="twelve cell " >
                 <container template="abscDetailTimelineTemplate"></container>

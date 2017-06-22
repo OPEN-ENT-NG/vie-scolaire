@@ -1,0 +1,17 @@
+
+<div class="header-nav-date ">
+    <div>
+        <div class="header-nav__date-pickers right-magnet"  >
+            <label><i18n>viescolaire.utils.from</i18n></label>
+            <label>
+                <i class="calendar"></i>
+                <date-picker ng-model="periode.debut" ng-change="showDate = true; loadData(); resetFilter();"></date-picker>
+            </label>
+            <label><i18n>viescolaire.utils.to</i18n></label>
+            <label>
+                <i class="calendar"></i>
+                <date-picker ng-model="periode.fin" ng-change="showDate = true; loadData(); resetFilter();"></date-picker>
+            </label>
+        </div>
+    </div>
+</div>

@@ -10,18 +10,23 @@ export let absencesController = ng.controller('AbsencesController', [
     function ($scope, route, model, $rootScope, $location, $route) {
        const routesActions = {
             AbsencesSansMotifs: function (params) {
+                $scope.display.menu = true;
+                $scope.display.dates =true;
                 template.open('menu', '../templates/absences/absc_personnel_menu');
                 template.open('header', '../templates/absences/absc_personnel_header');
+                template.open('AbscHeadDate', '../templates/absences/absc_personnel_head_date');
                 template.open('main', '../templates/absences/absc_personnel_abssm');
-                $scope.display.menu = true;
-                $scope.display.dates = true;
+                utils.safeApply($scope);
             },
             AppelsOublies : function(params) {
+                $scope.display.menu = false;
+                $scope.display.dates =true;
+
                 template.open('menu', '../templates/absences/absc_personnel_menu');
                 template.open('header', '../templates/absences/absc_personnel_header');
+                template.open('AbscHeadDate', '../templates/absences/absc_personnel_head_date');
                 template.open('main', '../templates/absences/absc_personnel_appo');
-                $scope.display.menu = false;
-                $scope.display.dates = true;
+                utils.safeApply($scope);
             },
             Redirect : function(params) {
                 template.close('menu');
@@ -41,17 +46,20 @@ export let absencesController = ng.controller('AbsencesController', [
                 utils.safeApply($scope);
             },
            SaisieAbsEleve: function (params) {
+               $scope.display.menu = false;
+               $scope.display.dates = false;
                template.open('header', '../templates/absences/absc_personnel_header');
                template.open('menu', '../templates/absences/absc_personnel_menu');
                template.open('main', '../templates/absences/absc_personnel_saisie_abs_eleve');
-               $scope.display.menu = false;
-               $scope.display.dates = false;
                utils.safeApply($scope);
            }
         };
 
         route(routesActions);
-
+        $scope.display = {
+            responsables : false,
+            menu : false
+        };
         let getCurrentAction = function (): string {
             return $route.current.$$route.action;
         };
@@ -61,10 +69,6 @@ export let absencesController = ng.controller('AbsencesController', [
             routesActions[getCurrentAction()]($route.current.params);
         };
 
-        $scope.display = {
-            responsables : false,
-            menu : false
-        };
 
         /**
          * Critères de tris

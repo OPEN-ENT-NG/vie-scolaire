@@ -77,7 +77,7 @@
                         </option>
                     </select>
                 </label>
-                <button ng-disabled="selected.eleve.cours === undefined || selected.eleve.cours.length === 0" class="right-magnet" ng-click="saveAbsc()">
+                <button ng-disabled="selected.motif === undefined || selected.motif === '*' || selected.eleve.cours === undefined || selected.eleve.cours.length === 0" class="right-magnet" ng-click="saveAbsc()">
                     <i18n>viescolaire.save</i18n>
                 </button>
             </div>

@@ -17,7 +17,7 @@
                 </div>
                 <div class="row  ">
                     <div class="eleven cell" ng-if="!cours.isAbsent && cours.edt_matiere!== undefined && cours.id_matiere!== null "> [[getMatiere(cours.id_matiere)]] </div>
-                    <div class="eleven cell" ng-if="cours.isAbsent && cours.id_matiere!== undefined && cours.id_matiere!== null ">[[getMatiere(cours.id_matiere)]] - Motif : [[cours.evenement.motifs.libelle]]</div>
+                    <div class="eleven ellipsis cell" ng-if="cours.isAbsent && cours.id_matiere!== undefined && cours.id_matiere!== null ">[[getMatiere(cours.id_matiere)]] - Motif : [[cours.evenement.motifs.libelle]]</div>
                     <a class="right-magnet"
                        ng-click="cours.expanded = !cours.expanded"
                        ng-if="cours.evenement!==undefined && cours.isAbsent!== true "

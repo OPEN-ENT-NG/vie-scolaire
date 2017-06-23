@@ -23,4 +23,8 @@ body.vsco--global {
     font-size: xx-large;
 
   }
+
+  i.phone::after {
+    content: '\f095'
+  }
 }

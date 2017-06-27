@@ -72,11 +72,14 @@ export class Eleve extends DefaultEleve implements IModel {
                  */
                 _.each(otEvt.all, (evenement) => {
                     let otCurrentCours = otCours.findWhere({id : evenement.id_cours});
-                    let otCurrentPlage = that.filter((plage) => {
-                        let dt = parseInt(moment(otCurrentCours.timestamp_dt).format('HH'));
-                        return plage.heure === dt;
-                    })[0];
-                    otCurrentPlage.evenements.push(evenement, false);
+                    for (let i = parseInt(moment(otCurrentCours.timestamp_dt).format('HH'));
+                         i < parseInt(moment(otCurrentCours.timestamp_fn).format('HH')); i++) {
+
+                        let otCurrentPlage = that.filter((plage) => {
+                            return plage.heure === i;
+                        })[0];
+                        otCurrentPlage.evenements.push(evenement, false);
+                    }
                 });
                 /**
                  * Si il y a des absences previsionnelles, on les rajoutes dans le tableau d'évènements

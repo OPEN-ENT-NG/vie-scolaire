@@ -254,9 +254,11 @@ export let absencesController = ng.controller('AbsencesController', [
 
         $scope.addEvtPlage = function(poEvt) {
             let otCours = $scope.currentEleve.courss.findWhere({id : $scope.currentCours.id});
-            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.timestamp_dt).format('HH'))});
-
-            otPlage.evenements.push(poEvt);
+            for (let i = parseInt(moment(otCours.timestamp_dt).format('HH'));
+                 i < parseInt(moment(otCours.timestamp_fn).format('HH')); i++) {
+                let otPlage = $scope.currentEleve.plages.findWhere({heure : i});
+                otPlage.evenements.push(poEvt);
+            }
             $scope.safeApply();
         };
 
@@ -334,9 +336,12 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.supprimerEvenementEleve = function(poEleve, poEvenement) {
             let otCours = $scope.currentEleve.courss.findWhere({id : $scope.currentCours.id});
-            let otPlage = $scope.currentEleve.plages.findWhere({heure : parseInt(moment(otCours.timestamp_dt).format('HH'))});
-
-            otPlage.evenements.remove(otPlage.evenements.findWhere({id : poEvenement.id}));
+            for (let i = parseInt(moment(otCours.timestamp_dt).format('HH'));
+                 i < parseInt(moment(otCours.timestamp_fn).format('HH')); i++) {
+                let otPlage = $scope.currentEleve.plages.findWhere({heure : i});
+                otPlage.evenements.remove(otPlage.evenements.findWhere({id_type : poEvenement.id_type,
+                    id_cours: otCours.id}));
+            }
             $scope.safeApply();
         };
 

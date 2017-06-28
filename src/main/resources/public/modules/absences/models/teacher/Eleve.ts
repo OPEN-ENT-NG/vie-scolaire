@@ -25,6 +25,7 @@ import { Evenement } from './Evenement';
 import { Plage } from './Plage-old';
 import { presences } from '../absc_enseignant_mdl';
 import {DefaultEleve} from "../common/DefaultEleve";
+import {PLAGES} from "../../constants/plages";
 
 
 export class Eleve extends DefaultEleve implements IModel {
@@ -70,17 +71,39 @@ export class Eleve extends DefaultEleve implements IModel {
                  * Pour chaque plage, on récupere le cours correspondant, puis pour la plage, on ajoute au tableau evenements
                  * la liste des evenements relatifs à la plage horaire.
                  */
+
                 _.each(otEvt.all, (evenement) => {
                     let otCurrentCours = otCours.findWhere({id : evenement.id_cours});
                     for (let i = parseInt(moment(otCurrentCours.timestamp_dt).format('HH'));
                          i < parseInt(moment(otCurrentCours.timestamp_fn).format('HH')); i++) {
-
                         let otCurrentPlage = that.filter((plage) => {
                             return plage.heure === i;
                         })[0];
                         otCurrentPlage.evenements.push(evenement, false);
                     }
                 });
+
+                // Fusion des plages d'un même cours
+                _.each(otCours.all, (cours) => {
+                    let fusion_plages_cours = [];
+                    for (let i = parseInt(moment(cours.timestamp_dt).format('HH'));
+                         i < parseInt(moment(cours.timestamp_fn).format('HH')); i++) {
+                        let otCurrentPlage = that.filter((plage) => {
+                            return plage.heure === i;
+                        })[0];
+                        fusion_plages_cours.push(otCurrentPlage);
+                    }
+                    if ( fusion_plages_cours.length > 0 ) {
+                        let width = parseFloat(fusion_plages_cours[0].style.width.split('%')[0]);
+                        for (let i = 1; i < fusion_plages_cours.length; i++) {
+                            fusion_plages_cours[0].duree += fusion_plages_cours[i].duree;
+                            width += parseFloat(fusion_plages_cours[i].style.width.split('%')[0]);
+                            fusion_plages_cours[i].style.width = '0%';
+                            fusion_plages_cours[0].style.width = width.toString() + '%';
+                        }
+                    }
+                });
+
                 /**
                  * Si il y a des absences previsionnelles, on les rajoutes dans le tableau d'évènements
                  */
@@ -113,4 +136,5 @@ export class Eleve extends DefaultEleve implements IModel {
         });
 
     }
+
 }

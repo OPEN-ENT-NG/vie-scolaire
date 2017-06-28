@@ -6,4 +6,12 @@ export class Plage extends Model {
     heure: number;
     duree: number;
     style: any;
+    id_cours: number;
+
+    constructor (o?: any) {
+        super();
+        if (o && typeof o === 'object') {
+            this.updateData(o);
+        }
+    }
 }

@@ -59,9 +59,10 @@ public interface CoursService extends CrudService{
      * @param pSDateDebut Date de début de la période
      * @param pSDateFin Date de fin de la période
      * @param psUserId Identifiant de l'enseignant
+     * @param structureId Identifiant de l'établissement en cours
      * @param handler Handler de retour
      */
-    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, Handler<Either<String, JsonArray>> handler);
+    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId, Handler<Either<String, JsonArray>> handler);
 
 
 }

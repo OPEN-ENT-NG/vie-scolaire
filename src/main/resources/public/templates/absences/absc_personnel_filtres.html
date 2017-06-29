@@ -1,4 +1,18 @@
 <div ng-controller="AbscFiltresPersonnelController">
+    <div ng-if="structures.all.length > 1"
+            class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.structures}">
+        <h4 ng-click="pOFilterCtrl.structures = ! pOFilterCtrl.structures">
+            <div class="ellipsis"><i18n>viescolaire.utils.school</i18n></div>
+            <span class="plus-input"></span>
+        </h4>
+        <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomStructure" placeholder="Rechercher"></span>
+
+        <ul class="selectable-list">
+            <li ng-repeat="etab in structures.all | filter:pORecherche.pSNomStructure | orderBy : 'name'"
+                ng-click="changeStructure(etab);"
+                ng-class="{selected : etab.id === structure.id }">[[etab.name]]</li>
+        </ul>
+    </div>
     <div class="filtre filtre-enseignants" ng-class="{opened : pOFilterCtrl.enseignants}">
         <h4 ng-click="pOFilterCtrl.enseignants = !pOFilterCtrl.enseignants">
             <div class="ellipsis">Enseignants</div>

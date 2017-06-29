@@ -114,18 +114,20 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     }
 
     @Override
-    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, Handler<Either<String, JsonArray>> handler) {
+    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
         query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("WHERE id_personnel = ? ")
+                .append("AND id_etablissement = ?")
                 .append("AND to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS') ")
                 .append("ORDER BY cours.timestamp_dt ASC");
 
         values.addString(psUserId);
+        values.addString(structureId);
         values.addString(pSDateDebut);
         values.addString(pSDateFin);
 

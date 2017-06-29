@@ -3,6 +3,8 @@
  */
 import {ng } from 'entcore/entcore';
 import * as utils from '../utils/personnel';
+import {presences} from "../models/absc_personnel_mdl";
+
 
 let moment = require('moment');
 declare let _: any;
@@ -16,7 +18,8 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
         $scope.pOFilterCtrl = {
             enseignants : false,
             classes : false,
-            responsables : false
+            responsables : false,
+            structures: false
         };
 
         $scope.switchAll = function(oListe, b) {
@@ -36,7 +39,7 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
         });
 
         $scope.syncEleve = () => {
-            if ($scope.structure.synchronized.eleves == false) {
+            if ($scope.structure.synchronized.eleves === false) {
                 $scope.structure.eleves.sync().then(() => {
                     $scope.syncResponsable();
                 });
@@ -47,10 +50,10 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
 
         $scope.syncResponsable = () => {
             let eleve = _.findWhere($scope.structure.eleves.all, {id: $scope.$parent.pOSelectedEvent.id});
-            if (eleve.responsables == undefined || _.isEmpty(eleve.responsables.all)) {
+            if (eleve.responsables === undefined || _.isEmpty(eleve.responsables.all)) {
                 eleve.responsables.sync().then(() => {
                     $scope.pOResponsable = eleve.responsables.all;
-                    if(_.isEmpty($scope.pOResponsable)) {
+                    if ( _.isEmpty($scope.pOResponsable)) {
                         $scope.$parent.psDisplayResponsables = false;
                         $scope.pOFilterCtrl.responsables = false;
                     } else {
@@ -58,7 +61,7 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
                         $scope.pOFilterCtrl.responsables = true;
                     }
                     utils.safeApply($scope);
-                })
+                });
             } else {
                 $scope.pOResponsable = eleve.responsables.all;
                 $scope.pOFilterCtrl.responsables = true;

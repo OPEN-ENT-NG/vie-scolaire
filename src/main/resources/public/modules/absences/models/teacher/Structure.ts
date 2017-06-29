@@ -39,7 +39,7 @@ export class Structure extends DefaultStructure {
 
     get api () {
         return {
-            GET_COURS :  '/viescolaire/enseignant/' + model.me.userId + '/cours/',
+            GET_COURS :  '/viescolaire/enseignant/' + model.me.userId + '/' + this.id + '/cours/',
             CLASSE : {
                 synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
             }

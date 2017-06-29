@@ -10,31 +10,50 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
     '$scope', 'route', '$rootScope', '$location',
     function ($scope, route, $rootScope, $location) {
         template.open('AbscFiltres', '../templates/absences/absc_personnel_filtres');
-        $scope.psDisplayResponsables = false;
-        $scope.pOFilterAbsences = { // Objet permettant le filtre des appels oubliés / non oubliés
-            sansmotifs : true,
-            limitTo : 15
+        let syncAbs = (reload) => {
+            $scope.psDisplayResponsables = false;
+            $scope.pOFilterAbsences = { // Objet permettant le filtre des appels oubliés / non oubliés
+                sansmotifs: true,
+                limitTo: 15
+            };
+            $scope.pOSelectedEvent = null;
+            $scope.structure.isWidget = false;
+            if (reload) {
+                $scope.structure.eleves.sync().then(() => {
+                    $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                });
+            }
+            else {
+                $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+            }
+
+            /**
+             * A la synchronisation des évènements, on récupères toutes les absences et le motif par défaut
+             */
+            $scope.structure.evenements.on('sync', function () {
+                // $scope.structure.evenements.synced = true;
+                $scope.structure.absences = $scope.structure.evenements;
+                $scope.defaultMotif = $scope.structure.motifs.first();
+                $scope.synchronized.absences = true;
+                initAllEvenement();
+                utils.safeApply($scope);
+            });
+
+            $scope.structure.motifs.on('sync', function () {
+                // $scope.structure.motifs.synced = true;
+                $scope.synchronized.motifs = true;
+                initAllEvenement();
+                utils.safeApply($scope);
+            });
         };
-        $scope.pOSelectedEvent = null;
-        $scope.structure.isWidget = false;
-        $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+        syncAbs(false);
 
-        /**
-         * A la synchronisation des évènements, on récupères toutes les absences et le motif par défaut
-         */
-        $scope.structure.evenements.on('sync', function() {
-            // $scope.structure.evenements.synced = true;
-            $scope.structure.absences = $scope.structure.evenements;
-            $scope.defaultMotif = $scope.structure.motifs.first();
-            initAllEvenement();
-            utils.safeApply($scope);
+        // synchronisation des absences et des motifs lors du changement de structure
+        $scope.$on('reloadAbsences', function () {
+            syncAbs(true);
         });
 
-        $scope.structure.motifs.on('sync', function() {
-            // $scope.structure.motifs.synced = true;
-            initAllEvenement();
-            utils.safeApply($scope);
-        });
+
 
         $scope.getJourDate = function(evt) {
             return moment(evt.timestamp_dt).format('DD/MM/YYYY') + ' ' + moment(evt.timestamp_dt).format('HH:mm') + ' - ' + moment(evt.timestamp_fn).format('HH:mm');
@@ -61,14 +80,17 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         let initAllEvenement = function () {
-            _.each($scope.structure.evenements, function (e) {
-                _.each(e.evenements, function(evt) {
-                    if (evt.id_type === 1) {
-                        $scope.initEvenement(evt);
-                    }
+            if ($scope.synchronized.absences && $scope.synchronized.motifs ) {
+                _.each($scope.structure.evenements, function (e) {
+                    _.each(e.evenements, function(evt) {
+                        if (evt.id_type === 1) {
+                            $scope.initEvenement(evt);
+                        }
+                    });
                 });
-            });
-            utils.safeApply($scope);
+                $scope.$emit('AbsencesLoaded');
+                utils.safeApply($scope);
+            }
         };
 
         $scope.initEvenement = function (event) {

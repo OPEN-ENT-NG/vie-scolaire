@@ -81,17 +81,18 @@ public class CoursController extends ControllerHelper{
         coursService.getClasseCoursBytime(dateDebut,dateFin, idClasse, handler);
     }
     // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
-    @Get("/enseignant/:userId/cours/:dateDebut/:dateFin")
+    @Get("/enseignant/:userId/:structureId/cours/:dateDebut/:dateFin")
     @ApiDoc("Récupère tous les cours d'un utilisateur dans une période donnée.")
     @SecuredAction(value="", type= ActionType.AUTHENTICATED)
     public void getCoursByUserId(final HttpServerRequest request){
         String userId = request.params().get("userId");
+        String structureId = request.params().get("structureId");
         String dateDebut= request.params().get("dateDebut")+" 00:00:00";
         String dateFin= request.params().get("dateFin")+" 00:00:00";
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        coursService.getCoursByUserId(dateDebut, dateFin, userId, handler);
+        coursService.getCoursByUserId(dateDebut, dateFin, userId, structureId, handler);
     }
 
     //

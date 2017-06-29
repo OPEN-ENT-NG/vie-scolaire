@@ -6,7 +6,7 @@ import {abscAbssmPersonnelController} from '../controllers/absc_abssm_personnel_
 import {vscoAppoPersonnelController} from '../controllers/absc_appo_personnel_ctrl';
 import {abscFiltresPersonnelController} from '../controllers/absc_filt_personnel_ctrl';
 import {abscSaisieElevePersonnel} from '../controllers/absc_saisie_eleve_personnel_ctrl';
-
+import { structureLoader } from '../../utils/directives/structureLoading';
 
 ng.controllers.push(absencesController);
 ng.controllers.push(abscAbssmPersonnelController);
@@ -14,7 +14,9 @@ ng.controllers.push(vscoAppoPersonnelController);
 ng.controllers.push(abscFiltresPersonnelController);
 ng.controllers.push(abscSaisieElevePersonnel);
 
+
 ng.directives.push(sticky);
+ng.directives.push(structureLoader);
 
 routes.define(function($routeProvider) {
     $routeProvider

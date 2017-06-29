@@ -13,17 +13,20 @@
             <li><a href="/viescolaire/presences#/sansmotifs"><i18n>viescolaire.viescolaire.absences.sans.motif</i18n></a></li>
         </ul>
     </nav>
-
     <!--  Contenu (zone centrale)  -->
     <div class="ten cell main-content">
         <section class="eleven cell action-acc-cpe">
+            <div class="twelve cell">
+                <label ng-if="structures.all.length > 1"  class="select right-magnet">
+                    <select ng-model="structure" ng-options="structure.name for structure in structures.all
+                            track by structure.id" ng-change="changeStructure(structure)">
+                    </select>
+                </label>
+            </div>
             <div class="twelve cell ">
                 <header>
                     <button class="marginFive right-magnet" ng-click="goTo('#')"><i18n>viescolaire.viescolaire.saisir.appel</i18n></button>
                     <button class="marginFive right-magnet" ng-click="goTo('/saisie/abs/eleve')"><i18n>viescolaire.viescolaire.saisir.absence</i18n></button>
-                    <label class="select right-magnet" ng-if="evaluations.structures.all.length > 1">
-                        <select ng-model="evaluations.structure" ng-options="structure.libelle for structure in structures.all track by structure.id"  ng-change="changeEtablissementAccueil()"></select>
-                    </label>
                 </header>
             </div>
         </section>

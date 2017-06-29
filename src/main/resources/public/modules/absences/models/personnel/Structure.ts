@@ -49,6 +49,10 @@ export class Structure extends DefaultStructure {
     isSynchronized: boolean;
     isWidget: boolean;
 
+
+    pODateDebut: any;
+    pODateFin: any;
+
     get api () {
         return  {
             CLASSE : {
@@ -58,7 +62,7 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
             },
             ELEVE : {
-               synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
+                synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
             },
             MATIERE : {
                 synchronization : '/viescolaire/matieres?idEtablissement=' + this.id
@@ -207,6 +211,9 @@ export class Structure extends DefaultStructure {
                                 resolve();
                             }.bind(this));
                         }
+                        else {
+                            resolve();
+                        }
                     }
 
                 });
@@ -214,78 +221,89 @@ export class Structure extends DefaultStructure {
         });
         this.collection(Evenement, {
             sync : function (psDateDebut, psDateFin) {
-                if (that.isWidget) {
-                    http().getJson(that.api.EVENEMENT.absencesSansMotifs + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
-                        if (data !== undefined
-                            && that.eleves.all !== undefined
-                            && that.eleves.all.length > 0 ) {
-                            _.map(data, (evenement) => {
-                                let tempEleve = _.findWhere(that.eleves.all, {id: evenement.id_eleve});
-                                evenement.eleve_nom = tempEleve.firstName;
-                                evenement.eleve_prenom = tempEleve.lastName ;
-                                return evenement;
-                            });
-                        }
-                        this.load(data);
-                    }.bind(this));
-                } else {
-                    if (psDateDebut !== undefined && psDateDebut !== undefined) {
-                        http().getJson(that.api.EVENEMENT.synchronization + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
-                            let aLoadedData = [];
+                that.pODateDebut = psDateDebut;
+                that.pODateFin = psDateFin;
+                return new Promise((resolve, reject) => {
+                    if (that.isWidget) {
+                        http().getJson(that.api.EVENEMENT.absencesSansMotifs + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
+                            if (data !== undefined
+                                && that.eleves.all !== undefined
+                                && that.eleves.all.length > 0) {
+                                _.map(data, (evenement) => {
+                                    let tempEleve = _.findWhere(that.eleves.all, {id: evenement.id_eleve});
+                                    evenement.eleve_nom = tempEleve.firstName;
+                                    evenement.eleve_prenom = tempEleve.lastName;
+                                    return evenement;
+                                });
+                            }
+                            this.load(data);
+                            this.trigger('sync');
+                            resolve();
+                        }.bind(this));
+                    } else {
+                        if (psDateDebut !== undefined && psDateFin !== undefined && moment(psDateDebut)._isValid && moment(psDateFin)._isValid) {
+                            http().getJson(that.api.EVENEMENT.synchronization + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
+                                let aLoadedData = [];
 
-                            // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
-                            _.map(data, function (e) {
-                                e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
+                                // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
+                                _.map(data, function (e) {
+                                    e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
+                                    let loadedEleve = _.findWhere(that.eleves.all, {id: e.id_eleve});
+                                    if (loadedEleve) {
+                                        e.firstName = loadedEleve.firstName;
+                                        e.lastName = loadedEleve.lastName;
+                                    }
+                                    let loadedMatiere = _.findWhere(that.matieres.all, {id: e.id_matiere});
+                                    if (loadedMatiere) {
+                                        e.cours_matiere = loadedMatiere.name;
+                                    }
+                                    return e;
+                                });
 
-                                let loadedEleve = _.findWhere(that.eleves.all, {id: e.id_eleve});
-                                e.firstName = loadedEleve.firstName;
-                                e.lastName = loadedEleve.lastName;
-
-                                let loadedMatiere = _.findWhere(that.matieres.all, {id: e.id_matiere});
-                                if(loadedMatiere) {
-                                    e.cours_matiere = loadedMatiere.name;
-                                }
-                                return e;
-                            });
-
-                            // regroupement par date de début d'un cours
-                            let aDates = _.groupBy(data, 'cours_date');
+                                // regroupement par date de début d'un cours
+                                let aDates = _.groupBy(data, 'cours_date');
 
 
-                            // parcours des absences par date
-                            for (let k in aDates) {
-                                if (!aDates.hasOwnProperty(k)) {
-                                    continue;
-                                }
-
-                                // regroupement des absences par élève
-                                let aEleves = _.groupBy(aDates[k], 'id_eleve');
-
-                                // parcours des élèves d'une date (évenement lié à un élève)
-                                for (let e in aEleves) {
-                                    if (!aEleves.hasOwnProperty(e)) {
+                                // parcours des absences par date
+                                for (let k in aDates) {
+                                    if (!aDates.hasOwnProperty(k)) {
                                         continue;
                                     }
-                                    let t = aEleves[e];
+
+                                    // regroupement des absences par élève
+                                    let aEleves = _.groupBy(aDates[k], 'id_eleve');
+
+                                    // parcours des élèves d'une date (évenement lié à un élève)
+                                    for (let e in aEleves) {
+                                        if (!aEleves.hasOwnProperty(e)) {
+                                            continue;
+                                        }
+                                        let t = aEleves[e];
 
 
-                                    let tempEleve = {
-                                        id: t[0].id_eleve,
-                                        id_classe: t[0].id_classe,
-                                        id_personnel: t[0].id_personnel,
-                                        eleve_nom: t[0].lastName,
-                                        eleve_prenom: t[0].firstName,
-                                        cours_date: t[0].cours_date,
-                                        displayed: false,
-                                        evenements: t
-                                    };
-                                    aLoadedData.push(tempEleve);
+                                        let tempEleve = {
+                                            id: t[0].id_eleve,
+                                            id_classe: t[0].id_classe,
+                                            id_personnel: t[0].id_personnel,
+                                            eleve_nom: t[0].lastName,
+                                            eleve_prenom: t[0].firstName,
+                                            cours_date: t[0].cours_date,
+                                            displayed: false,
+                                            evenements: t
+                                        };
+                                        aLoadedData.push(tempEleve);
+                                    }
                                 }
-                            }
-                            this.load(aLoadedData);
-                        }.bind(this));
+                                this.load(aLoadedData);
+                                this.trigger('sync');
+                                resolve();
+                            }.bind(this));
+                        }
+                        else {
+                            resolve();
+                        }
                     }
-                }
+                });
             }
         });
         this.collection(Classe, {
@@ -322,14 +340,17 @@ export class Structure extends DefaultStructure {
                 if (b) {
                     // On souhaite récupérer les appels à la toute fin car les libellés (Matières, Classes, Enseignants, Eleves)
                     // sont utilisés par la suite dans les appels
-                    this.appels.sync();
                     this.isSynchronized = true;
-                    resolve();
+
+                    this.appels.sync().then(() => {
+                        resolve();
+                    });
                 }
             };
             this.enseignants.sync().then(isSynced);
             this.eleves.sync().then(() => {
-                this.evenements.sync(isSynced);
+                this.evenements.sync(this.pODateDebut, this.pODateFin);
+                isSynced();
             });
             this.classes.sync().then(isSynced);
             this.matieres.sync().then(isSynced);

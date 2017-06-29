@@ -287,7 +287,6 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.mapToTimestamp(poEvenement, oMomentDebutCours);
             } else {
                 if (poEvenement[poUpdatedField] === '' || poEvenement[poUpdatedField] === null || poEvenement[poUpdatedField] === undefined) {
-                    console.log($scope.oEvtTime);
                     if (poEvenement.id !== undefined) {
                         poEvenement.delete(function() {
                             $scope.supprimerEvenementEleve($scope.currentEleve, poEvenement);
@@ -354,7 +353,7 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         $scope.refreshVuesAppel = function() {
-            //fermeture ouverture du template pour rafraichir la vue
+            // fermeture ouverture du template pour rafraichir la vue
             template.close('absc_teacher_appel_eleves_container');
             $scope.safeApply();
             template.open('absc_teacher_appel_eleves_container', '../templates/absences/absc_teacher_appel_eleves');
@@ -368,6 +367,24 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.showVueClasses = function(bShowOrHide) {
             $scope.bClassesVue = bShowOrHide;
             $scope.refreshVuesAppel();
+        };
+
+        /**
+         *  permet de changer l'établissement courrant
+         * @param structure
+         */
+        $scope.changeStructure = function (structure) {
+            $scope.$parent.displayStructureLoader = true;
+            presences.structure = structure;
+            presences.structure.sync().then(() => {
+                $scope.structure = presences.structure;
+                $scope.structure.cours = presences.structure.courss;
+                $scope.structure.creneaus = presences.structure.creneaus;
+                $scope.plages = presences.structure.plages;
+                $scope.$parent.displayStructureLoader = false;
+                $scope.refreshVuesAppel();
+                $scope.selectAppel();
+            });
         };
 
         /**
@@ -606,6 +623,7 @@ export let absencesController = ng.controller('AbsencesController', [
 
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
+                $scope.structures = presences.structures;
                 $scope.structure = presences.structures.first();
                 presences.structure = $scope.structure;
                 presences.structure.sync().then(() => {

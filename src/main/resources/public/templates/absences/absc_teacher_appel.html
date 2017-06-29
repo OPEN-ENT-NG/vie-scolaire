@@ -1,6 +1,15 @@
 <div class="row twelve cell">
-
     <!-- Header -->
+    <header class="header-viescolaire">
+        <label ng-if="structures.all.length > 1"  class="select right-magnet">
+            <select ng-model="structure" ng-options="structure.name for structure in structures.all
+                            track by structure.id" ng-change="changeStructure(structure)">
+            </select>
+        </label>
+    </header>
+</div>
+<div class="row twelve cell">
+    <!-- Fil d'ariane -->
     <div class="header-nav__fil-ariane-appel">
         <a href="/viescolaire/presences#/"><i18n>viescolaire.viescolaire.title</i18n></a> > <i18n>viescolaire.presences.title</i18n></span>
 

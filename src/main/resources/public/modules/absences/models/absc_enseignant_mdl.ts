@@ -1,8 +1,5 @@
 import { model, http, Model, Collection } from 'entcore/entcore';
 
-// import { AbsencePrev } from './teacher/AbsencePrev';
-// import { Appel } from './teacher/Appel';
-// import { Cours } from './teacher/Cours';
 import { Evenement } from './teacher/Evenement';
 import { Structure } from './teacher/Structure';
 
@@ -53,7 +50,6 @@ class Presences extends Model {
 
 let presences = new Presences();
 
-// export { AbsencePrev, Appel, Cours, Evenement, vieScolaire }
 export { presences, Evenement };
 
 model.build = function () {

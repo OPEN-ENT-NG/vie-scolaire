@@ -47,15 +47,14 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append(SELECT+ Viescolaire.ABSC_SCHEMA +".evenement.*, to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_arrive, 'hh24:mi'), " +
-                "to_char("+ Viescolaire.ABSC_SCHEMA +".evenement.timestamp_depart, 'hh24:mi'), type_evt.libelle ")
-                .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours,"+ Viescolaire.ABSC_SCHEMA +".appel , "+Viescolaire.ABSC_SCHEMA+".type_evt ")
+        query.append("SELECT evenement.*, cours.id as id_cours ")
+                .append("FROM presences.evenement, viesco.cours, presences.appel, presences.type_evt ")
                 .append("WHERE evenement.id_eleve = ? ")
                 .append("AND evenement.id_appel = appel.id ")
-                .append(FILTER_COURS_ID)
+                .append("AND appel.id_cours = cours.id ")
                 .append("AND evenement.id_type = type_evt.id ")
-                .append("AND to_date(?, 'YYYY-MM-DD') <= cours.timestamp_dt ")
-                .append("AND cours.timestamp_fn < to_date(?, 'YYYY-MM-DD')");
+                .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')");
 
         values.addString(psIdEleve);
         values.addString(psDateDebut);
@@ -89,9 +88,9 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append(FROM+ Viescolaire.ABSC_SCHEMA +TABLE_ABSENCE)
                 .append("WHERE absence_prev.id_eleve = ? ")
                 .append("AND ( ")
-                .append("(to_timestamp(?, 'YYYY-MM-DD') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_timestamp(?, 'YYYY-MM-DD')) ")
+                .append("(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') <= absence_prev.timestamp_dt AND absence_prev.timestamp_dt < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')) ")
                 .append("OR ")
-                .append("(to_timestamp(?, 'YYYY-MM-DD') <= absence_prev.timestamp_fn  AND absence_prev.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD')) ")
+                .append("(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') <= absence_prev.timestamp_fn  AND absence_prev.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')) ")
                 .append(")");
 
         values.addString(psIdEleve)

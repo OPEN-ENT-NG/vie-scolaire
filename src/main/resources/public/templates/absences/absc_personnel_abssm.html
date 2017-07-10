@@ -37,11 +37,11 @@
                 </div>
                 <div class="abscSM-content--SM-list--list panel-in-cell">
                     <div class="abscSM-content--SM-list--item cell-indent"
-                         ng-repeat="eleve in structure.absences.all | filter:personnelFilter | filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo"
+                         ng-repeat="eleve in eleveEvts | filter:abssmPersonnelFilter | filter:absencesFilter|filter:poRecherche.nom| orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse|limitTo:pOFilterAbsences.limitTo"
                          ng-init="initList(eleve);">
                         <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}"
                              ng-click="displayList(eleve)">
-                            <div class="three cell ellipsis">[[eleve.eleve_nom]] [[eleve.eleve_prenom]]</div>
+                            <div class="three cell ellipsis">[[eleve.lastName]] [[eleve.firstName]]</div>
                             <div class="three cell ellipsis">[[eleve.cours_date]]</div>
                             <div class="four cell" ng-click="$event.stopPropagation()">
                                 <label class="select-input">
@@ -57,9 +57,9 @@
                         </div>
                         <div class="abscSM-content--SM-list--item--subevents ten cell" ng-class="{displayed : eleve.displayed}">
                             <div ng-repeat="evt in eleve.evenements|filter:absencesNonJustifieesFilter">
-                                <div class="two cell">[[getPeriodeCours(evt)]]</div>
-                                <div class="three cell ellipsis">[[getEnseignantNom(evt)]]</div>
-                                <div class="three cell ellipsis">[[evt.cours_matiere]]</div>
+                                <div class="two cell">[[evt.periode]]</div>
+                                <div class="three cell ellipsis">[[evt.enseignant]]</div>
+                                <div class="three cell ellipsis">[[evt.matiere]]</div>
                                 <div class="three cell">
                                     <label class="select-input">
                                         <select ng-model="evt.motif" class="twelve" ng-init="initEvenement(evt);initEleveSelect(eleve)" ng-change="updateEvtMotif(evt)"

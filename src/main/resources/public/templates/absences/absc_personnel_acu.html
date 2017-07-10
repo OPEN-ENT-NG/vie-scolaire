@@ -25,7 +25,7 @@
             </div>
             <div class="twelve cell ">
                 <header>
-                    <button class="marginFive right-magnet" ng-click="goTo('#')"><i18n>viescolaire.viescolaire.saisir.appel</i18n></button>
+                    <button class="marginFive right-magnet" ng-click="goTo('/appel')"><i18n>viescolaire.viescolaire.saisir.appel</i18n></button>
                     <button class="marginFive right-magnet" ng-click="goTo('/saisie/abs/eleve')"><i18n>viescolaire.viescolaire.saisir.absence</i18n></button>
                 </header>
             </div>
@@ -77,7 +77,7 @@
                         <div class="content-box-accueil--table--content">
                                 <div class="row" ng-repeat="appel in structure.appels.all">
                                 <div class="four cell">
-                                    [[appel.personnel_nom]] [[appel.personnel_prenom]]
+                                    [[appel.personnel]]
                                 </div>
                                 <div class="four cell">
                                     [[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]

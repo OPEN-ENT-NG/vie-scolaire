@@ -21,7 +21,38 @@ body.vsco--global {
   i.alerte::after{
     content: '!';
     font-size: xx-large;
+  }
+  i.warning::before, i.report::before {
+    content: '\e903';
+    font-size: 18px;
+  }
 
+  .left-arrow::after {
+    content: "\e87b";
+    opacity: 0.8;
+    cursor: pointer;
+    border: none;
+    background-color: inherit;
+    color: $grey;
+    &:hover {
+      color: $cyan;
+    }
+  }
+
+  .right-arrow::after {
+    content: "\e823";
+    opacity: 0.8;
+    cursor: pointer;
+    border: none;
+    background-color: inherit;
+    color: $grey;
+    &:hover {
+      color: $cyan;
+    }
+  }
+
+  .clock::after {
+    content: "\f017";
   }
 
   i.phone::after {

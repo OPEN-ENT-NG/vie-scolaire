@@ -19,45 +19,39 @@
 
 import { Collection, http, idiom as lang } from 'entcore/entcore';
 
-import { DefaultStructure } from '../../../viescolaire/models/common/DefaultStructure';
+import { Structure as SharedStructure } from '../shared/Structure';
 import { Enseignant } from "./Enseignant";
 import { Eleve } from "./Eleve";
 import { Appel } from "./Appel";
-import { Classe } from "./Classe";
 import { Justificatif } from "./Justificatif";
 import { Motif } from "./Motif";
 import { Evenement } from "./Evenement";
 import {Matiere} from "./Matiere";
 import {Observation} from "./Observation";
 import {MotifAppel} from "./MotifAppel";
+import {FORMAT} from "../../constants/formats";
 
 let moment = require('moment');
 
-export class Structure extends DefaultStructure {
+export class Structure extends SharedStructure {
 
     enseignants: Collection<Enseignant>;
     eleves: Collection<Eleve>;
     matieres: Collection<Matiere>;
     appels: Collection<Appel>;
-    classes: Collection<Classe>;
     justificatifs: Collection<Justificatif>;
     motifs: Collection<Motif>;
     motifAppels: Collection<MotifAppel>;
     evenements: Collection<Evenement>;
     observations: Collection<Observation>;
     synchronized: any;
-    isSynchronized: boolean;
     isWidget: boolean;
-
 
     pODateDebut: any;
     pODateFin: any;
 
     get api () {
-        return  {
-            CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id
-            },
+        return _.extend(this.apiList, {
             ENSEIGNANT : {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
             },
@@ -83,92 +77,80 @@ export class Structure extends DefaultStructure {
                 categorie : '/viescolaire/presences/motifs/categorie'
             },
             MOTIF_APPEL : {
-                synchronization : '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifs/appel/categorie'
+                synchronization : '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
+                categorie : '/viescolaire/presences/motifsAppel/categorie'
             },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
             }
-        };
+        });
     }
     constructor (o?: any) {
-        super();
+        super(o);
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
 
         // Constantes utiles pour la synchro des appels
-        this.isSynchronized = false;
         this.synchronized = {
             matieres : false,
-            classes : false,
             enseignants: false,
             eleves: false
         };
 
-        // Constantes utiles pour la récupération de classes et groupes d'enseignements
-        const libelle = {
-            CLASSE: 'Classe',
-            GROUPE: "Groupe d'enseignement"
-        };
-        const castClasses = (classes) => {
-            return _.map(classes, (classe) => {
-                let libelleClasse;
-                if (classe.type_groupe_libelle = classe.type_groupe === 0) {
-                    libelleClasse = libelle.CLASSE;
-                } else {
-                    libelleClasse = libelle.GROUPE;
-                }
-                classe.type_groupe_libelle = libelleClasse;
-                if (!classe.hasOwnProperty("remplacement")) classe.remplacement = false;
-                classe = new Classe(classe);
-                return classe;
-            });
-        };
-
-        let that: Structure = this;
         this.collection(Motif, {
-            sync : function () {
-                http().getJson(that.api.MOTIF_ABS.synchronization  ).done(function (motifs) {
-                    this.load(motifs);
-                    this.map(function (motif) {
-                        motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
-                        return motif;
+            sync : () => {
+                return new Promise((resolve, reject) => {
+                    http().getJson(this.api.MOTIF_ABS.synchronization).done((motifs) => {
+                        this.motifs.load(motifs);
+                        this.motifs.map(function (motif) {
+                            motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
+                            return motif;
+                        });
+                        resolve();
                     });
-                }.bind(this));
+                });
             }
         });
+
         this.collection(MotifAppel, {
-            sync : function () {
-                http().getJson(that.api.MOTIF_APPEL.synchronization + '?idEtablissement=' + this.id ).done(function (motifs) {
-                    this.load(motifs);
-                    this.map(function (motif) {
-                        motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
-                        return motif;
+            sync : () => {
+                return new Promise((resolve, reject) => {
+                    http().getJson(this.api.MOTIF_APPEL.synchronization + '?idEtablissement=' + this.id ).done((motifs) => {
+                        this.motifAppels.load(motifs);
+                        this.motifAppels.map(function (motif) {
+                            motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
+                            return motif;
+                        });
+                        resolve();
                     });
-                }.bind(this));
+                });
             }
         });
 
         this.collection(Enseignant, {
-            sync : function () {
+            sync : () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson(that.api.ENSEIGNANT.synchronization).done(function(res) {
-                        this.load(res);
-                        that.synchronized.enseignants = true;
+                    http().getJson(this.api.ENSEIGNANT.synchronization).done((res) => {
+                        this.enseignants.load(res);
+                        _.each(this.enseignants.all, (enseignant) => {
+                            enseignant.selected = true;
+                        });
+                        this.synchronized.enseignants = true;
                         resolve();
-                    }.bind(this));
+                    });
                 });
             }
         });
 
         this.collection(Eleve, {
-            sync : function () {
+            sync : () => {
                 return new Promise((resolve, reject) => {
                     // chargement des élèves
-                    http().getJson(that.api.ELEVE.synchronization).done((res) => {
-                        this.load(res);
-                        that.synchronized.eleves = true;
+                    http().getJson(this.api.ELEVE.synchronization).done(async (res) => {
+                        this.eleves.load(res);
+                        this.synchronized.eleves = true;
+                        await this.evenements.sync(this.pODateDebut, this.pODateFin);
                         resolve();
                     });
                 });
@@ -176,188 +158,117 @@ export class Structure extends DefaultStructure {
         });
 
         this.collection(Matiere, {
-            sync : function () {
+            sync : () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson(that.api.MATIERE.synchronization).done(function(res) {
-                        this.load(res);
-                        that.synchronized.matieres = true;
+                    http().getJson(this.api.MATIERE.synchronization).done((res) => {
+                        this.matieres.load(res);
+                        this.synchronized.matieres = true;
                         resolve();
-                    }.bind(this));
+                    });
                 });
             }
         });
+
         this.collection(Observation, {
-            sync : function () {
+            sync : () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson(that.api.OBSERVATION.synchronization).done(function(res) {
-                        this.load(res);
+                    http().getJson(this.api.OBSERVATION.synchronization).done((res) => {
+                        this.observations.load(res);
                         resolve();
-                    }.bind(this));
+                    });
                 });
             }
         });
         this.collection(Appel, {
-            sync : function (pODateDebut, pODateFin) {
+            sync : (pODateDebut, pODateFin) => {
+
+                let addInfoAppel = () => {
+                    _.each(this.appels.all, (appel) => {
+                        let enseignant = this.enseignants.findWhere({id: appel.id_personnel});
+                        appel.personnel = enseignant != null ? enseignant.firstName + " " + enseignant.lastName : "";
+                        let classe = this.classes.findWhere({id: appel.id_classe});
+                        appel.classe_libelle = classe != null ? classe.name : "";
+                        let matiere = this.matieres.findWhere({id: appel.id_matiere});
+                        appel.cours_matiere = matiere != null ? matiere.name : "";
+                    });
+                };
+
                 return new Promise((resolve, reject) => {
-                    if (that.isWidget) {
-                        http().getJson(that.api.APPEL.appelsNonEffectues  + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
-                            this.load(data);
+                    if (this.isWidget) {
+                        http().getJson(this.api.APPEL.appelsNonEffectues  + moment().format('YYYY-MM-DD') + '/' + moment().format('YYYY-MM-DD') + '?idEtablissement=' + this.id).done((data) => {
+                            this.appels.load(data);
+                            addInfoAppel();
                             resolve();
-                        }.bind(this));
+                        });
                     }else {
                         if (pODateDebut !== undefined && pODateFin !== undefined) {
-                            http().getJson(that.api.APPEL.synchronization  + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function(data) {
-                                this.load(data);
+                            http().getJson(this.api.APPEL.synchronization  + moment(pODateDebut).format('YYYY-MM-DD') + '/' + moment(pODateFin).format('YYYY-MM-DD') + '?idEtablissement=' + this.id).done((data) => {
+                                this.appels.load(data);
+                                addInfoAppel();
                                 resolve();
-                            }.bind(this));
+                            });
                         }
                         else {
                             resolve();
                         }
                     }
-
                 });
             }
         });
+
         this.collection(Evenement, {
-            sync : function (psDateDebut, psDateFin) {
-                that.pODateDebut = psDateDebut;
-                that.pODateFin = psDateFin;
+            sync : (psDateDebut?, psDateFin?) : Promise<any> => {
                 return new Promise((resolve, reject) => {
-                    if (that.isWidget) {
-                        http().getJson(that.api.EVENEMENT.absencesSansMotifs + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
+                    if (this.isWidget) {
+                        http().getJson(this.api.EVENEMENT.absencesSansMotifs + moment().format('YYYY-MM-DD') + '/' + moment().format('YYYY-MM-DD') + '?idEtablissement=' + this.id).done((data) => {
                             if (data !== undefined
-                                && that.eleves.all !== undefined
-                                && that.eleves.all.length > 0) {
-                                _.map(data, (evenement) => {
-                                    let tempEleve = _.findWhere(that.eleves.all, {id: evenement.id_eleve});
-                                    evenement.eleve_nom = tempEleve.firstName;
-                                    evenement.eleve_prenom = tempEleve.lastName;
-                                    return evenement;
+                                && this.eleves.all !== undefined
+                                && this.eleves.all.length > 0) {
+                                _.each(data, (evenement) => {
+                                    let tempEleve = _.findWhere(this.eleves.all, {id: evenement.id_eleve});
+                                    evenement.eleve_prenom = tempEleve.firstName;
+                                    evenement.eleve_nom = tempEleve.lastName;
                                 });
                             }
-                            this.load(data);
+                            this.evenements.load(data);
                             this.trigger('sync');
                             resolve();
-                        }.bind(this));
+                        });
                     } else {
                         if (psDateDebut !== undefined && psDateFin !== undefined && moment(psDateDebut)._isValid && moment(psDateFin)._isValid) {
-                            http().getJson(that.api.EVENEMENT.synchronization + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD') + '?idEtablissement=' + that.id).done(function (data) {
-                                let aLoadedData = [];
-
-                                // conversion date et set du nom/prénom de l'élève ainsi que le nom de la matiere
-                                _.map(data, function (e) {
-                                    e.cours_date = moment(e.timestamp_dt).format('DD/MM/YYYY');
-                                    let loadedEleve = _.findWhere(that.eleves.all, {id: e.id_eleve});
-                                    if (loadedEleve) {
-                                        e.firstName = loadedEleve.firstName;
-                                        e.lastName = loadedEleve.lastName;
-                                    }
-                                    let loadedMatiere = _.findWhere(that.matieres.all, {id: e.id_matiere});
-                                    if (loadedMatiere) {
-                                        e.cours_matiere = loadedMatiere.name;
-                                    }
-                                    return e;
-                                });
-
-                                // regroupement par date de début d'un cours
-                                let aDates = _.groupBy(data, 'cours_date');
-
-
-                                // parcours des absences par date
-                                for (let k in aDates) {
-                                    if (!aDates.hasOwnProperty(k)) {
-                                        continue;
-                                    }
-
-                                    // regroupement des absences par élève
-                                    let aEleves = _.groupBy(aDates[k], 'id_eleve');
-
-                                    // parcours des élèves d'une date (évenement lié à un élève)
-                                    for (let e in aEleves) {
-                                        if (!aEleves.hasOwnProperty(e)) {
-                                            continue;
-                                        }
-                                        let t = aEleves[e];
-
-
-                                        let tempEleve = {
-                                            id: t[0].id_eleve,
-                                            id_classe: t[0].id_classe,
-                                            id_personnel: t[0].id_personnel,
-                                            eleve_nom: t[0].lastName,
-                                            eleve_prenom: t[0].firstName,
-                                            cours_date: t[0].cours_date,
-                                            displayed: false,
-                                            evenements: t
-                                        };
-                                        aLoadedData.push(tempEleve);
-                                    }
-                                }
-                                this.load(aLoadedData);
+                            http().getJson(this.api.EVENEMENT.synchronization + moment(psDateDebut).format('YYYY-MM-DD') + '/' + moment(psDateFin).format('YYYY-MM-DD') + '?idEtablissement=' + this.id).done((data) => {
+                                this.evenements.load(data);
                                 this.trigger('sync');
                                 resolve();
-                            }.bind(this));
-                        }
-                        else {
+                            });
+                        } else {
                             resolve();
                         }
                     }
                 });
             }
         });
-        this.collection(Classe, {
-            sync: function () {
-                return new Promise((resolve, reject) => {
-                    http().getJson(that.api.CLASSE.synchronization).done((res) => {
-                        this.load(castClasses(res));
-                        that.synchronized.classes = true;
-                        resolve();
-                    }).bind(this);
-                });
-            },
-        });
+
         this.collection(Justificatif, {
-            sync : function () {
+            sync : () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson(that.api.JUSTIFICATIF.synchronization).done(function(res) {
-                        this.load(res);
+                    http().getJson(this.api.JUSTIFICATIF.synchronization).done((res) => {
+                        this.justificatifs.load(res);
                         resolve();
-                    }.bind(this));
+                    });
                 });
             }
         });
     }
 
-    async sync (): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let isSynced = () => {
-                let b =
-                    this.synchronized.matieres &&
-                    this.synchronized.classes &&
-                    this.synchronized.enseignants &&
-                    this.synchronized.eleves;
-                if (b) {
-                    // On souhaite récupérer les appels à la toute fin car les libellés (Matières, Classes, Enseignants, Eleves)
-                    // sont utilisés par la suite dans les appels
-                    this.isSynchronized = true;
-
-                    this.appels.sync().then(() => {
-                        resolve();
-                    });
-                }
-            };
-            this.enseignants.sync().then(isSynced);
-            this.eleves.sync().then(() => {
-                this.evenements.sync(this.pODateDebut, this.pODateFin);
-                isSynced();
-            });
-            this.classes.sync().then(isSynced);
-            this.matieres.sync().then(isSynced);
-            this.justificatifs.sync();
-            this.motifs.sync();
-            this.motifAppels.sync();
-            this.observations.sync();
+    sync (): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            await Promise.all([this.enseignants.sync(), this.classes.sync(), this.eleves.sync(), this.matieres.sync(),
+                this.justificatifs.sync(), this.motifs.sync(), this.motifAppels.sync(), this.observations.sync()]);
+            await this.evenements.sync(this.pODateDebut, this.pODateFin);
+            await this.appels.sync();
+            this.trigger('synchronized');
+            resolve();
         });
-    }
+    };
 }

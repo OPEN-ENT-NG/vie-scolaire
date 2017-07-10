@@ -43,7 +43,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         JsonArray value = new JsonArray();
 
         query.append("SELECT cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
-                "appel.id_etat, cours.id_classe, cours.id_personnel " +
+                "appel.id_etat, cours.id_classe, cours.id_personnel, cours.id as id_cours " +
                 "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +
                 "WHERE cours.id_etablissement = ? " +
@@ -64,7 +64,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
-                "appel.id_etat, cours.id_classe, cours.id_personnel " +
+                "appel.id_etat, cours.id_classe, cours.id_personnel, cours.id as id_cours " +
                 "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +
                 "WHERE cours.id_etablissement = ? " +
@@ -92,7 +92,7 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
     public void getAppelCours(Integer poCoursId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
-        query.append("SELECT appel.id, appel.id_personnel, appel.id_cours, appel.id_etat, appel.id_justificatif " +
+        query.append("SELECT appel.id, appel.id_personnel, appel.id_cours, appel.id_etat, appel.id_justificatif, appel.saisie_cpe " +
                 "FROM "+ Viescolaire.ABSC_SCHEMA +".appel ")
                 .append("WHERE appel.id_cours = ?");
 

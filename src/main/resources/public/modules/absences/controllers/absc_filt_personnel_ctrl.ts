@@ -48,26 +48,21 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
             }
         };
 
-        $scope.syncResponsable = () => {
+        $scope.syncResponsable = async () => {
             let eleve = _.findWhere($scope.structure.eleves.all, {id: $scope.$parent.pOSelectedEvent.id});
-            if (eleve.responsables === undefined || _.isEmpty(eleve.responsables.all)) {
-                eleve.responsables.sync().then(() => {
-                    $scope.pOResponsable = eleve.responsables.all;
-                    if ( _.isEmpty($scope.pOResponsable)) {
-                        $scope.$parent.psDisplayResponsables = false;
-                        $scope.pOFilterCtrl.responsables = false;
-                    } else {
-                        $scope.$parent.psDisplayResponsables = true;
-                        $scope.pOFilterCtrl.responsables = true;
-                    }
-                    utils.safeApply($scope);
-                });
-            } else {
-                $scope.pOResponsable = eleve.responsables.all;
-                $scope.pOFilterCtrl.responsables = true;
-                $scope.$parent.psDisplayResponsables = true;
-                utils.safeApply($scope);
+            if (eleve.responsables === undefined || _.isEmpty(eleve.responsables.all))  {
+                await eleve.responsables.sync();
             }
+
+            $scope.pOResponsable = eleve.responsables.all;
+            if (_.isEmpty($scope.pOResponsable)) {
+                $scope.$parent.psDisplayResponsables = false;
+                $scope.pOFilterCtrl.responsables = false;
+            } else {
+                $scope.$parent.psDisplayResponsables = true;
+                $scope.pOFilterCtrl.responsables = true;
+            }
+            utils.safeApply($scope);
         };
 
         $scope.openResponsable = (id) => {

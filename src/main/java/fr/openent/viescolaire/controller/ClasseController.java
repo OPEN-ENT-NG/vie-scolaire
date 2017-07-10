@@ -73,7 +73,6 @@ public class ClasseController extends BaseController {
                     } else {
                         if (("Personnel".equals(user.getType())
                                 && !user.getFunctions().isEmpty()
-                                && user.getFunctions().containsKey("DIR")
                             ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");

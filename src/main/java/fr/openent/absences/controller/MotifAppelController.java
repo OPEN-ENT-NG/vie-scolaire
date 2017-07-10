@@ -39,7 +39,7 @@ public class MotifAppelController extends ControllerHelper {
         eventRegister = new EventRegister();
     }
 
-    @Get("/motifs/appel")
+    @Get("/motifsAppel")
     @ApiDoc("Récupère tous les motifs d'appels oubliés en fonction de l'id de l'établissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbscMotifsAppelEtablissement(final HttpServerRequest request){
@@ -52,7 +52,7 @@ public class MotifAppelController extends ControllerHelper {
             }
         });
     }
-    @Get("/motifs/appel/categorie")
+    @Get("/motifsAppel/categorie")
     @ApiDoc("Récupère toutes les catégories de motifs d'appels oublié en fonction de l'id de l'établissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getCategorieAbscMotifsEtablissement(final HttpServerRequest request){
@@ -66,7 +66,7 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Post("/motif/appel")
+    @Post("/motifAppel")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createMotifAbs(final HttpServerRequest request){
@@ -83,7 +83,7 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Put("/motif/appel")
+    @Put("/motifAppel")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateMotifAbs(final HttpServerRequest request){
@@ -100,7 +100,7 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Post("/categorie/appel")
+    @Post("/categorieAppel")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createCategorieMotifAbs(final HttpServerRequest request){
@@ -117,7 +117,7 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Put("/categorie/appel")
+    @Put("/categorieAppel")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateCategorieMotifAbs(final HttpServerRequest request){

@@ -62,8 +62,8 @@ public class EleveController extends ControllerHelper {
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEvenements(final HttpServerRequest request){
         String sIdEleve = request.params().get(ID_ELEVE);
-        String sDateDebut = request.params().get(DATE_DEBUT);
-        String sDateFin = request.params().get(DATE_FIN);
+        String sDateDebut = request.params().get(DATE_DEBUT) + " " + MINUIT;
+        String sDateFin = request.params().get(DATE_FIN) + " " + PRESQUE_MINUIT;
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -86,8 +86,8 @@ public class EleveController extends ControllerHelper {
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbsencesPrevInPeriod (final HttpServerRequest request){
         String sIdEleve = request.params().get(ID_ELEVE);
-        String sDateDebut = request.params().get(DATE_DEBUT);
-        String sDateFin = request.params().get(DATE_FIN);
+        String sDateDebut = request.params().get(DATE_DEBUT) + " " + MINUIT;
+        String sDateFin = request.params().get(DATE_FIN) + " " + PRESQUE_MINUIT;
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 

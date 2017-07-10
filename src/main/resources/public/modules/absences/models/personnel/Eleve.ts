@@ -1,24 +1,23 @@
 import { Collection, Model } from 'entcore/entcore';
-import { Evenement } from './Evenement';
 import { Responsable } from './Responsable';
-import {DefaultEleve} from "../common/DefaultEleve";
-import {Cours} from "./Cours";
-import {AbsencePrev} from "./AbsencePrev";
+import { Eleve as SharedEleve} from "../shared/Eleve";
+import { Cours } from "./Cours";
+import { AbsencePrev } from "./AbsencePrev";
 
-export class Eleve extends DefaultEleve {
+export class Eleve extends SharedEleve {
 
     responsables: Collection<Responsable>;
-    evenements: Collection<Evenement>;
     abscprev : Collection<AbsencePrev>;
     cours: Collection<Cours>;
+
     get api() {
-        return {
+        return _.extend(this.apiList, {
             GET_RESPONSABLES: '/viescolaire/eleves/' + this.id + '/responsables',
             GET_EVENT_ELEVE:'/viescolaire/presences/eleve/',
             GET_Eleve_COURS:'/viescolaire/cours',
             GET_CLASSE_COURS:'/viescolaire',
             GET_ABSC_PREV:'/viescolaire/presences/eleve/' + this.id + '/absencesprev/'
-        };
+        });
     }
 
     constructor () {
@@ -33,7 +32,6 @@ export class Eleve extends DefaultEleve {
                 });
             }
         });
-        this.collection(Evenement);
         this.collection(Cours);
         this.collection(AbsencePrev);
 

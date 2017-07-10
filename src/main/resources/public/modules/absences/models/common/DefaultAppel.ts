@@ -3,9 +3,11 @@ import { Model, http } from 'entcore/entcore';
 export class DefaultAppel extends Model {
     id?: number;
     id_personnel: string;
-    id_cours: string;
+    id_cours: number;
     id_etat: number;
     owner: string;
+    saisie_cpe: boolean;
+
     get api () {
         return {
             CREATE: 'presences/appel',
@@ -13,6 +15,7 @@ export class DefaultAppel extends Model {
             DELETE: 'presences/appel/' + this.id
         };
     }
+
     create(): Promise<any> {
         return new Promise((resolve, reject) => {
             http().postJson(this.api.CREATE, this)

@@ -8,7 +8,7 @@ declare let _: any;
 export let absencesController = ng.controller('AbsencesController', [
     '$scope', 'route', 'model', '$rootScope', '$location', '$route',
     function ($scope, route, model, $rootScope, $location, $route) {
-       const routesActions = {
+        const routesActions = {
             AbsencesSansMotifs: function (params) {
                 $scope.display.menu = false;
                 $scope.display.dates = true;
@@ -27,6 +27,11 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.open('main', '../templates/absences/absc_personnel_appo');
                 utils.safeApply($scope);
             },
+            Appel : function(params) {
+                template.close('menu');
+                template.close('header');
+                template.open('main', '../templates/absences/absc_appel');
+            },
             Redirect : function(params) {
                 template.close('menu');
                 template.close('header');
@@ -44,14 +49,14 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.open('main', '../templates/absences/absc_disabled_structure');
                 utils.safeApply($scope);
             },
-           SaisieAbsEleve: function (params) {
-               $scope.display.menu = false;
-               $scope.display.dates = false;
-               template.open('header', '../templates/absences/absc_personnel_header');
-               template.open('menu', '../templates/absences/absc_personnel_menu');
-               template.open('main', '../templates/absences/absc_personnel_saisie_abs_eleve');
-               utils.safeApply($scope);
-           }
+            SaisieAbsEleve: function (params) {
+                $scope.display.menu = false;
+                $scope.display.dates = false;
+                template.open('header', '../templates/absences/absc_personnel_header');
+                template.open('menu', '../templates/absences/absc_personnel_menu');
+                template.open('main', '../templates/absences/absc_personnel_saisie_abs_eleve');
+                utils.safeApply($scope);
+            }
         };
 
         route(routesActions);
@@ -63,11 +68,9 @@ export let absencesController = ng.controller('AbsencesController', [
             return $route.current.$$route.action;
         };
 
-
         let executeAction = function (): void {
             routesActions[getCurrentAction()]($route.current.params);
         };
-
 
         /**
          * Critères de tris
@@ -75,6 +78,17 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.pOSortParameters = {
             sortType : '',
             sortReverse : false
+        };
+
+        $scope.openAppel = (appel) => {
+            $scope.selectedAppel = {
+                timestamp: appel.timestamp_dt,
+                id_cours: appel.id_cours,
+                id_personnel: appel.id_personnel
+            };
+            $location.path("/appel");
+            $location.replace();
+            utils.safeApply($scope);
         };
 
         $scope.formatDate = function(pODateDebut, pODateFin) {
@@ -105,6 +119,27 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.structure = presences.structure;
             utils.safeApply($scope);
         });
+
+        $scope.loadData = function () {
+
+            if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
+                if ($location.path() === "/sansmotifs") {
+                    $scope.structure.isWidget = false;
+                    $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
+                    utils.safeApply($scope);
+                } else if ($location.path() === "/appels/noneffectues") {
+                    $scope.structure.isWidget = false;
+                    $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
+                    utils.safeApply($scope);
+                } else {
+                    $scope.structure.isWidget = true;
+                    $scope.structure.appels.sync();
+                    $scope.structure.evenements.sync();
+                    utils.safeApply($scope);
+                }
+            }
+        };
+
         $scope.changeStructure = function (structure) {
             template.close('main');
             $scope.$parent.displayStructureLoader = true;
@@ -123,111 +158,29 @@ export let absencesController = ng.controller('AbsencesController', [
                         $scope.displayStructureLoader = false;
                     });
                 }
-                else if ($location.path() !== '/appels/noneffectues') {
-                $scope.$parent.displayStructureLoader = false;
-                $scope.displayStructureLoader = false;
+                else if ($location.path() == '/appel') {
+                    $rootScope.$broadcast('syncAppel');
+                    $scope.$on('AppelLoaded', function () {
+                        $scope.$parent.displayStructureLoader = false;
+                        $scope.displayStructureLoader = false;
+                    });
+                } else if ($location.path() !== '/appels/noneffectues') {
+                    $scope.$parent.displayStructureLoader = false;
+                    $scope.displayStructureLoader = false;
                 }
                 utils.safeApply($scope);
             });
-        };
-        /**
-         * Fonction permettant l'initialisation des appels une fois que les champs indispensables sont chargés
-         */
-        let initAfterSynchronized = () => {
-            if ($scope.synchronized.enseignants && $scope.synchronized.classes && $scope.synchronized.matieres &&
-                $scope.synchronized.appels) {
-
-                if ($scope.structure.enseignants !== undefined
-                    && $scope.structure.enseignants.all.length > 0) {
-                    _.map($scope.structure.appels.all, (appel) => {
-                        let enseignant = $scope.structure.enseignants.findWhere({id: appel.id_personnel});
-                        appel.personnel_prenom = enseignant.firstName;
-                        appel.personnel_nom = enseignant.lastName;
-                        return appel;
-                    });
-                }
-                if ($scope.structure.classes !== undefined
-                    && $scope.structure.classes.all.length > 0) {
-                    _.map($scope.structure.appels.all, (appel) => {
-                        let classe = $scope.structure.classes.findWhere({id: appel.id_classe});
-                        appel.classe_libelle = classe.name;
-                        return appel;
-                    });
-                }
-                if ($scope.structure.matieres !== undefined
-                    && $scope.structure.matieres.all.length > 0) {
-                    _.map($scope.structure.appels.all, (appel) => {
-                        let matiere = $scope.structure.matieres.findWhere({id: appel.id_matiere});
-                        appel.cours_matiere = matiere != null ? matiere.name : "";
-                        return appel;
-                    });
-                }
-                $scope.$parent.displayStructureLoader = false;
-                $scope.displayStructureLoader = false;
-            }
         };
 
         /** Fonction D'initialisation de structure **/
         $scope.initialiseStructure = function (structure) {
             $scope.structure = structure;
-            $scope.synchronized = {
-                enseignants : false,
-                classes : false,
-                appels : false,
-                matieres : false
-            };
-
-            $scope.structure.classes.on('sync', function () {
-                $scope.structure.classes.map(function (classe) {
-                    classe.selected = true;
-                    return classe;
-                });
-                $scope.synchronized.classes = true;
-                initAfterSynchronized();
-            });
-            $scope.structure.matieres.on('sync', function () {
-               $scope.synchronized.matieres = true;
-               initAfterSynchronized();
-            });
-            $scope.structure.enseignants.on('sync', function () {
-                $scope.structure.enseignants.map(function (enseignant) {
-                    enseignant.selected = true;
-                    return enseignant;
-                });
-                $scope.synchronized.enseignants = true;
-                initAfterSynchronized();
-            });
-
-            $scope.structure.motifs.on('sync', function() {
-                $scope.structure.motifs.synced = true;
-            });
-
-            $scope.structure.appels.on('sync', function () {
-                $scope.synchronized.appels = true;
-                initAfterSynchronized();
-            });
 
             $scope.structure.isWidget = true;
             $scope.structure.sync().then(() => {
-                $scope.structure.isWidget = true;
-                $scope.loadData = function () {
-
-                    if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {
-                        if ($location.path() === "/sansmotifs") {
-                            $scope.structure.isWidget = false;
-                            $scope.structure.evenements.sync($scope.periode.debut, $scope.periode.fin);
-                            utils.safeApply($scope);
-                        } else if ($location.path() === "/appels/noneffectues") {
-                            $scope.structure.isWidget = false;
-                            $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                            utils.safeApply($scope);
-                        } else {
-                            $scope.structure.isWidget = true;
-                            $scope.structure.appels.sync($scope.periode.debut, $scope.periode.fin);
-                            utils.safeApply($scope);
-                        }
-                    }
-                };
+                $scope.$parent.displayStructureLoader = false;
+                $scope.displayStructureLoader = false;
+                $scope.loadData();
             });
 
             if ($location.path() === '/disabled') {
@@ -237,7 +190,6 @@ export let absencesController = ng.controller('AbsencesController', [
                 executeAction();
             }
         };
-
 
         presences.structures.sync().then(() => {
             if (!presences.structures.empty()) {
@@ -289,6 +241,5 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.resetFilter = () => {
             $rootScope.$broadcast("resetFilter");
         };
-
     }
 ]);

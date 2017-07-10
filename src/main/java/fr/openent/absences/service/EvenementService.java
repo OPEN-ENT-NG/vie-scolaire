@@ -71,21 +71,13 @@ public interface EvenementService extends CrudService {
     public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Recupère tous les évènements pour une classe donnée sur un cours donné.
-     * @param psClasseId identifiant de la classe.
+     * Recupere les absences sur le cours précédent d'une classe ou d'un enseignant.
      * @param psCoursId identifiant du cours.
+     * @param pbTeacher boolean indiquant si l'on désire les absences pour le dernier cours prodigué par l'enseignant
+     *                  de psCoursId, ou pour le cours précédent de cette classe.
      * @param handler handler portant le résultat de la requête.
      */
-
-    /**
-     * Recupere les absences sur le cours précédent en fonction de l'identifiant de l'utilisateur, de l'identifiant
-     * de la classe et qui n'est pas le cours donné.
-     * @param psUserId identifiant de l'utilisateur.
-     * @param psClasseId identifiant de la classe.
-     * @param psCoursId identifiant du cours.
-     * @param handler handler portant le résultat de la requête.
-     */
-    public void getAbsencesDernierCours(String psUserId, String psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler);
+    public void getAbsencesDernierCours(Integer psCoursId, Boolean pbTeacher, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere tous les évènements pour une classe donnée sur une période donnée

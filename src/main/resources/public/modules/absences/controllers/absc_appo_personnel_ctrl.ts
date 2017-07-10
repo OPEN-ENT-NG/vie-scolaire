@@ -11,7 +11,7 @@ export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelControl
         $scope.pOFilterAppel = { // Objet permettant le filtre des appels oubliés / non oubliés
             noneffectues : true
         };
-        $scope.psDisplayReponsables = false;
+        $scope.psDisplayResponsables = false;
         $scope.selectedAppels = [];
         $scope.periode.fin = new Date();
         $scope.structure.isWidget = false;

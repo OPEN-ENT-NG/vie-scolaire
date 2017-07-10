@@ -1,0 +1,32 @@
+<div class="one cell cell-indent appel__container-icon">
+    <span class="appel__absence-icon appel__absence-icon--cpe"
+          ng-if="getEvenement(eleve, oEvtType.giIdEvenementAbsence).saisie_cpe && !isResponsable()">
+    </span>
+    <span class="appel__absence-icon"
+          ng-model="detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+          ng-class="{'absence-color' : getEvenement(eleve, oEvtType.giIdEvenementAbsence) != null}"
+          ng-click="isEditable() && checkEvenement(eleve, oEvtType.giIdEvenementAbsence)"
+          ng-if="!getEvenement(eleve, oEvtType.giIdEvenementAbsence).saisie_cpe || isResponsable()">
+     </span>
+</div>
+<div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)"
+     ng-class="{appel_absc_last : eleve.absc_precedent_cours}">
+    [[eleve.lastName]] [[eleve.firstName]]
+</div>
+<div class="two cell cell-indent">
+    <i tooltip="Retard" class="clock appel__evenement-icon retard-color-icon" ng-if="getEvenement(eleve, oEvtType.giIdEvenementRetard) != null"></i>
+    <i tooltip="Départ" class="clock appel__evenement-icon depart-color-icon" ng-if="getEvenement(eleve, oEvtType.giIdEvenementDepart) != null"></i>
+    <i tooltip="Incident" class="report appel__evenement-icon incident-color-icon" ng-if="getEvenement(eleve, oEvtType.giIdEvenementIncident) != null"></i>
+    <span ng-if="getEvenement(eleve, oEvtType.giIdEvenementRetard) == null &&
+    getEvenement(eleve, oEvtType.giIdEvenementDepart) == null &&
+    getEvenement(eleve, oEvtType.giIdEvenementIncident) == null">&nbsp;</span>
+</div>
+<div class="five cell" style="padding-left: 24px;">
+    <div ng-repeat="plage in eleve.plages.all" ng-style="plage.style" class="appel__historique">
+        <div ng-repeat="evt in plage.evenements.all track by $index"
+             ng-style="{width : (99.9/plage.evenements.all.length)+'%'}"
+             ng-class="{'absence-color' : evt.id_type === 1, 'retard-color' : evt.id_type === 2, 'depart-color' : evt.id_type === 3, 'absence-prev-color' : evt.id_type === 'abs-prev','incident-color' : evt.id_type === 4, 'commentaire-color' : evt.id_type === 5}"
+             class="appel__historiques-creneau-eleve"
+        ></div>
+    </div>
+</div>

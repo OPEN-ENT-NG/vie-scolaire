@@ -8,9 +8,32 @@ body.presences {
   /**
     $ENSEIGNANT-APPEL
   **/
+
+  //TODO SWITCH VERS ICONS
+  .close-input {
+    right: 18px;
+    position: absolute;
+    top: 0px;
+    @include fonticon;
+    &::after {
+      content: '\e866';
+      font-size: 15px;
+      color: $grey;
+      font-weight: 300;
+      opacity: 0.8;
+      cursor: pointer;
+      border: none;
+      background-color: inherit;
+    }
+    &:hover::after {
+      color: $cyan;
+    }
+  }
+
   .header-nav__fil-ariane-appel {
     padding-left: 15px;
     margin-right: 10px;
+    margin-bottom: 10px;
     height: 40px;
   }
 
@@ -23,19 +46,18 @@ body.presences {
   }
 
   .pannel-in-cell {
-    margin: 10px;
+    margin: 0px 0px 0px 15px;
     padding: 15px;
     background-color: white;
     @include border-radius(5px);
-    @include box-shadow(rgba(0, 0, 0, 0.15) 0px 0px 5px 0px);
+    @include box-shadow(0px 1px 1px rgba(0, 0, 0, 0.4));
   }
 
   .appel__calendar {
-    color: rgba(85, 85, 85, 0.7);
-    width: 100%;
+    color : rgba(85, 85, 85, 0.7);
 
-    > input[type="text"] {
-      width: 80%;
+    input[type=text] {
+      width: 60%;
     }
   }
 
@@ -95,7 +117,6 @@ body.presences {
     width: 30px;
     height: 30px;
     display: inline-block;
-    position: relative;
   }
 
   .retard-color-icon {
@@ -162,7 +183,12 @@ body.presences {
 
   .appel__historique {
     display: inline-block;
-    margin-top: -1px;
+
+    i {
+      width: auto;
+      height: auto;
+      text-indent: 0px;
+    }
   }
 
   .appel__detail-eleve-close {
@@ -196,7 +222,6 @@ body.presences {
   }
 
   .appel__info {
-    width: 70%;
     display: inline-block;
     margin-left: 15px;
   }
@@ -318,6 +343,49 @@ body.presences {
 
     .ellipsis {
       margin-right: 30px;
+    }
+
+    &.filtre-creneaux {
+      max-height: 25px;
+
+      .date-selection {
+        -webkit-user-select: none; /* Chrome all / Safari all */
+        -moz-user-select: none; /* Firefox all */
+        -ms-user-select: none; /* IE 10+ */
+        display: flex;
+        margin: 0px 10px 20px 10px;
+        height: auto;
+        width: auto;
+        line-height: normal;
+        padding: 0px;
+        font-size: medium;
+        flex-direction: row;
+        align-items: center;
+
+        .appel__calendar {
+          margin: 0px 20px;
+          display: flex;
+          flex-direction: row;
+
+          i.calendar {
+            height: auto;
+            width: auto;
+          }
+
+          input[type=text] {
+            margin: 0px 0px 0px 10px;
+            flex: 1 1;
+          }
+        }
+
+        .right-arrow, .left-arrow {
+          flex: 0 0;
+        }
+      }
+
+      &.opened{
+        max-height: none;
+      }
     }
 
     &.filtre-responsables {
@@ -767,6 +835,10 @@ body.presences {
   }
   .isAbs{
     background: rgba(255, 0, 12, 0.3);
+  }
+  .greyed {
+    filter: grayscale(80%);
+    -webkit-filter: grayscale(80%);
   }
   .centre-element{
     margin-left: auto !important;

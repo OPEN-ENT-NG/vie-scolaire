@@ -163,6 +163,7 @@ CREATE TABLE presences.appel
   id_cours bigint,
   id_etat bigint,
   id_justificatif bigint,
+  saisie_cpe boolean,
   owner character varying(36),
   created timestamp without time zone DEFAULT now(),
   modified timestamp without time zone,
@@ -243,7 +244,8 @@ CREATE TABLE presences.evenement
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_type_evt_id FOREIGN KEY (id_type)
       REFERENCES presences.type_evt (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT evenement_unique UNIQUE (id_eleve, id_appel, id_type)
 );
 
 CREATE TABLE presences.evenement_hist

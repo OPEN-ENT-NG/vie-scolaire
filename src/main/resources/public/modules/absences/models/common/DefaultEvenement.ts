@@ -2,7 +2,7 @@ import { Model, IModel, http } from 'entcore/entcore';
 
 export class DefaultEvenement extends Model implements IModel {
     id?: number;
-    timestamp_arrivee?: string;
+    timestamp_arrive?: string;
     timestamp_depart?: string;
     commentaire?: string;
     saisie_cpe: boolean;
@@ -11,6 +11,9 @@ export class DefaultEvenement extends Model implements IModel {
     id_type: number;
     id_pj?: number;
     id_motif: number;
+    id_personnel: string;
+    id_matiere: string;
+    id_cours?: number;
 
     get api () {
         return {
@@ -62,14 +65,23 @@ export class DefaultEvenement extends Model implements IModel {
     }
 
     toJSON() {
-        return {
+        let JSONformat = {
             id: this.id,
-            commentaire: this.commentaire,
             saisie_cpe: this.saisie_cpe,
             id_eleve: this.id_eleve,
             id_appel: this.id_appel,
             id_type: this.id_type,
             id_motif: this.id_motif
         };
+        if(this.commentaire != null) {
+            JSONformat = _.extend(JSONformat, { commentaire: this.commentaire});
+        }
+        if (this.timestamp_depart != null) {
+            JSONformat = _.extend(JSONformat, {timestamp_depart: this.timestamp_depart});
+        }
+        if (this.timestamp_arrive != null) {
+            JSONformat = _.extend(JSONformat, {timestamp_arrive: this.timestamp_arrive});
+        }
+        return JSONformat;
     }
 }

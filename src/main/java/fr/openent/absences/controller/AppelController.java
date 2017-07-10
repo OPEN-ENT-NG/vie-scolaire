@@ -41,6 +41,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,6 +55,8 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 public class AppelController extends ControllerHelper {
     private final AppelService miAbscAppelService;
     private final EventRegister eventRegister = new EventRegister();
+
+    protected static final Logger log = LoggerFactory.getLogger(AppelController.class);
 
     public AppelController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;

@@ -95,25 +95,27 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
 
     @Override
-    public void getAbsencesDernierCours(String psUserId, String psClasseId, Integer psCoursId, Handler<Either<String, JsonArray>> handler) {
+    public void getAbsencesDernierCours(Integer psCoursId, Boolean pbTeacher, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT evenement.id_eleve " +
-                FROM+ Viescolaire.ABSC_SCHEMA +".evenement " +
-                "WHERE evenement.id_appel = ( " +
-                "SELECT appel.id " +
-                FROM+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +TABLE_APPEL +
-                "WHERE cours.id_personnel = ? " +
-                "AND cours.id_classe = ? " +
-                FILTRE_COURS_ID +
-                "AND cours.id != ? " +
-                "AND cours.timestamp_dt < (SELECT cours.timestamp_dt FROM "+ Viescolaire.VSCO_SCHEMA +".cours WHERE cours.id = ?) " +
-                "ORDER BY cours.timestamp_dt DESC " +
-                "LIMIT 1) " +
-                "AND evenement.id_type = 1 ");
+        query.append("SELECT evenement.id_eleve "
+                + "FROM presences.evenement "
+                + "WHERE evenement.id_appel = "
+                + "(SELECT appel.id FROM presences.appel WHERE appel.id_cours = "
+                    + "(SELECT cours1.id FROM viesco.cours cours1 "
+                    + "INNER JOIN viesco.cours cours2 ON cours1.id_classe = cours2.id_classe "
+                        + "AND cours2.id = ? ");
+        if(pbTeacher) {
+            query.append("AND cours1.id_personnel = cours2.id_personnel ");
+        }
 
-        values.addString(psUserId).addString(psClasseId).addNumber(psCoursId).addNumber(psCoursId);
+        query.append("AND cours1.timestamp_dt<cours2.timestamp_dt "
+                + "ORDER BY cours1.timestamp_dt DESC "
+                + "LIMIT 1)) "
+                + "AND evenement.id_type = 1");
+
+        values.addNumber(psCoursId);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

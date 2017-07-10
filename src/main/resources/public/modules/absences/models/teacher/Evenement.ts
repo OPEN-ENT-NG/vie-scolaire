@@ -1,4 +1,10 @@
-import { DefaultEvenement } from '../common/DefaultEvenement';
-import {IModel} from "../../../entcore/modelDefinitions";
+import { Evenement as SharedEvenement } from '../shared/Evenement';
 
-export class Evenement extends DefaultEvenement implements IModel {}
+export class Evenement extends SharedEvenement {
+    constructor(o?: any) {
+        super();
+        if (o && typeof o === 'object') {
+            this.updateData(o);
+        }
+    }
+}

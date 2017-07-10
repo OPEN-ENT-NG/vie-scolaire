@@ -1,0 +1,123 @@
+<mobile-panel side="right" displayed="detailEleve.displayed">
+    <div class="six cell">
+        <h2 class="appel__detail-eleve_nom">[[currentEleve.lastName]] [[currentEleve.firstName]]</h2>
+        <h4 class="appel__detail-eleve_naissance">[[localeDate(currentEleve.birthDate)]]</h4>
+    </div>
+    <div class="six cell">
+        <div class="two cell">
+            <a href="#" ng-click="alertNonImplementee();" class="appel__detail-eleve-icon-mail"
+               tooltip="Contacter la personne">
+                <i class="mail"></i>
+            </a>
+            <a href="#" ng-click="alertNonImplementee();"
+               class="appel__detail-eleve-icon-stats" tooltip="Statistiques">
+                <i class="stats"></i>
+            </a>
+        </div>
+        <div class="ten cell">
+            <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.id]]" alt=""/>
+        </div>
+    </div>
+
+    <div class="twelve cell">
+        <section>
+              <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementObservation].commentaire"
+                        ng-required="false"
+                        ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementObservation])"
+                        ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementObservation);"
+                        placeholder="Observations"
+                        rows="3">
+              </textarea>
+        </section>
+
+        <section>
+            <input id="hasRetard" type="checkbox"
+                   ng-model="detailEleve.evenements[oEvtType.giIdEvenementRetard].check"
+                   ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
+                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+
+            <label for="hasRetard">
+                <i18n>viescolaire.absences.retard</i18n>
+            </label>
+
+            <input type="time"
+                   ng-model="oEvtTime.retard"
+                   placeholder="Heure d'arrivée"
+                   ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
+                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+
+            <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementRetard].evt.commentaire"
+                      ng-required="false"
+                      ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
+                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+                      placeholder="Motif"
+                      rows="3">
+            </textarea>
+        </section>
+
+        <section>
+            <input id="hasDepart" type="checkbox"
+                   ng-model="detailEleve.evenements[oEvtType.giIdEvenementDepart].check"
+                   ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
+                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+
+            <label for="hasDepart">
+                <i18n>viescolaire.absences.depart</i18n>
+            </label>
+
+            <input type="time"
+                   ng-model="oEvtTime.depart"
+                   placeholder="Heure de départ"
+                   ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
+                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+
+            <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementDepart].evt.commentaire"
+                      ng-required="false"
+                      ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
+                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+                      placeholder="Motif"
+                      rows="3">
+            </textarea>
+        </section>
+
+        <section>
+
+            <input id="hasIncident" type="checkbox"
+                   ng-model="detailEleve.evenements[oEvtType.giIdEvenementIncident].check"
+                   ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementIncident)"
+                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt)">
+
+            <label for="hasIncident">
+                <i18n>viescolaire.absences.incident</i18n>
+            </label>
+
+            <select ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt) || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check">
+                <option value="1" selected="selected">Punition</option>
+            </select>
+
+            <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementIncident].evt.commentaire"
+                      ng-required="false"
+                      ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementIncident)"
+                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt) || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check"
+                      placeholder="Motif"
+                      rows="3">
+            </textarea>
+        </section>
+
+        <section ng-if="isResponsable()">
+            <input id="isAbsent" type="checkbox"
+                   ng-model="detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+                   ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementAbsence)">
+
+            <label for="isAbsent">
+                <i18n>viescolaire.absences.absence</i18n>
+            </label>
+
+            <select ng-model="detailEleve.evenements[oEvtType.giIdEvenementAbsence].evt.id_motif"
+                    ng-options="motif.id as motif.libelle for motif in structure.motifs.all"
+                    ng-change="updateEvenement(currentEleve, oEvtType.giIdEvenementAbsence);"
+                    ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+            </select>
+        </section>
+    </div>
+</mobile-panel>

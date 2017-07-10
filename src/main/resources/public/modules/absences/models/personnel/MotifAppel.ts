@@ -20,8 +20,8 @@ export class MotifAppel extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/motif/appel',
-            UPDATE: '/viescolaire/presences/motif/appel'
+            POST: '/viescolaire/presences/motifAppel',
+            UPDATE: '/viescolaire/presences/motifAppel'
         };
     }
 

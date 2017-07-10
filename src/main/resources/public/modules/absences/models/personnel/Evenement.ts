@@ -1,6 +1,6 @@
-import { DefaultEvenement } from '../common/DefaultEvenement';
+import { Evenement as SharedEvenement } from '../shared/Evenement';
 
-export class Evenement extends DefaultEvenement {
+export class Evenement extends SharedEvenement {
     libelle : string;
 
     constructor (o?: any) {

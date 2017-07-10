@@ -1,0 +1,46 @@
+<article class="filtre opened" ng-if="isResponsable() && poClasseRecherche == null">
+    <h2>Enseignant</h2>
+    <autocomplete options="structure.enseignants.all"
+                  ng-model="poEnseignantRecherche"
+                  ng-change="setFiltre(true, ngModel)"></autocomplete>
+    <h4 ng-show="poEnseignantRecherche != null">
+        <div class="ellipsis">[[poEnseignantRecherche.toString()]]</div>
+        <span class="close-input right-magnet" ng-click="poEnseignantRecherche = null; setFiltre(true);"></span>
+    </h4>
+</article>
+<article class="filtre opened" ng-if="isResponsable() && poEnseignantRecherche == null">
+    <h2>Classe</h2>
+    <autocomplete options="structure.classes.all"
+                  ng-model="poClasseRecherche"
+                  ng-change="setFiltre(false, ngModel)"></autocomplete>
+    <h4 ng-show="poClasseRecherche != null">
+        <div class="ellipsis">[[poClasseRecherche.toString()]]</div>
+        <span class="close-input right-magnet" ng-click="poClasseRecherche = null; setFiltre(false);"></span>
+    </h4>
+</article>
+<div class="filtre filtre-creneaux" ng-show="!isResponsable() || poEnseignantRecherche != null || poClasseRecherche != null" ng-class="{opened : appel.date != null && structure.creneaus.all.length > 0}">
+
+    <div class="date-selection">
+        <i class="left-arrow" ng-click="setDate(false); $event.stopPropagation();"></i>
+        <label class="pointer appel__calendar">
+            <i class="calendar"></i>
+            <date-picker class="pointer" ng-model="appel.date" ng-change="showDate = true;ouvrirAppel()"></date-picker>
+        </label>
+        <i class="right-arrow" ng-click="setDate(true); $event.stopPropagation();"></i>
+    </div>
+
+    <div class="appel__journee-calendar" ng-if="structure.creneaus.all.length > 0">
+        <div ng-repeat="creneau in structure.creneaus.all"
+             ng-class="{'appel__journee-calendar__creneau-selected' :currentCours !== undefined && currentCours.id === creneau.cours.id,'appel__journee-calendar__creneau' : creneau.cours !== undefined, 'appel__journee-calendar__creneau-vide': creneau.cours === undefined}"
+             ng-style="creneau.style">
+            <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.timestamp_dt]]</div>
+            <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined"
+                 ng-click="selectCours(creneau.cours)">[[getLibelleClasse(creneau.cours.id_classe)]]
+            </div>
+            <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours === undefined">
+                <!--<i18n>viescolaire.absences.appel.crenau.vide</i18n>-->
+            </div>
+            <div class="twelve cell appel__journee-calendar-creneau-footer">[[creneau.timestamp_fn]]</div>
+        </div>
+    </div>
+</div>

@@ -119,8 +119,6 @@ public class EvenementController extends ControllerHelper {
                     @Override
                     public void handle(JsonObject poEvenement) {
                         poEvenement.removeField("id_cours");
-                        poEvenement.removeField("timestamp_arrive");
-                        poEvenement.removeField("timestamp_depart");
                         miAbscEvenementService.createEvenement(poEvenement, user,
                                 eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.CREATE_EVENEMENT.toString()));
                     }
@@ -171,20 +169,19 @@ public class EvenementController extends ControllerHelper {
         });
     }
 
-    @Get("/precedentes/classe/:classeId/cours/:coursId")
+    @Get("/precedentes/cours/:coursId/:isTeacher")
     @ApiDoc("Recupere toutes les absences du cours précédent en fonction de l'identifiant de la classe et de l'identifiant du cours")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAbsencesDernierCours(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
-                String psClasseId = request.params().get(CLASSE_ID);
                 Integer psCoursId = Integer.parseInt(request.params().get("coursId"));
-                String psUserId = user.getUserId();
+                Boolean pbTeacher = Boolean.getBoolean(request.params().get("isTeacher"));
 
                 Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-                miAbscEvenementService.getAbsencesDernierCours(psUserId, psClasseId, psCoursId, handler);
+                miAbscEvenementService.getAbsencesDernierCours( psCoursId, pbTeacher, handler);
             }
         });
     }

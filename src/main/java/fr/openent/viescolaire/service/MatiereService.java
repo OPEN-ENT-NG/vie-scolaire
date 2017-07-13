@@ -57,4 +57,12 @@ public interface MatiereService extends CrudService {
      */
    public void listMatieresEtab(String idStructure, UserInfos user, Handler<Either<String, JsonArray>> handler );
 
+    /**
+     * Récupère les matieres en fonction d'une liste de matières données
+     * @param idMatieres Liste de matières
+     * @param result handler portant le résulat de la requête
+     */
+    public void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result);
+
+
 }

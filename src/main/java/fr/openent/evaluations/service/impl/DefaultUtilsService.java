@@ -143,7 +143,7 @@ public class DefaultUtilsService  implements UtilsService {
     public void getEnfants(String id, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         //query.append("MATCH (m:`User` {id: {id}})-[:COMMUNIQUE_DIRECT]->(n:`User`) RETURN n");
-        query.append("MATCH (m:`User` {id: {id}})-[:COMMUNIQUE_DIRECT]->(n:`User`)-[:ADMINISTRATIVE_ATTACHMENT]->(s:`Structure`) RETURN n.id,n.displayName, n.classes , s.id");
+        query.append("MATCH (m:`User` {id: {id}})<-[:RELATED]-(n:`User`)-[:ADMINISTRATIVE_ATTACHMENT]->(s:`Structure`) RETURN n.id,n.displayName, n.classes , s.id");
         neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validResultHandler(handler));
     }
     /**

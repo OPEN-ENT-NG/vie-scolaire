@@ -20,8 +20,8 @@
 <div class="row">
     <div class="twelve cell">
 
-        <header style="padding: 8px;margin-bottom: 20px;background: white;border-radius: 5px;">
-            <h2><i18n>transcript</h2>
+        <header class="header-viescolaire" style="padding: 8px;margin-bottom: 20px;background: white;border-radius: 5px;">
+            <h1><span class="no-style ng-scope"><i18n>ariane.viescolaire.displayReleveNotes</i18n></span></h1>
 
             <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row">
                 <label class="select cell two">
@@ -48,7 +48,6 @@
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="periode.libelle for periode in periodes.all">
-                        <option value="" class="header-opt"><i18n>viescolaire.utils.periodes</i18n></option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">
@@ -59,30 +58,43 @@
 
         <content ng-show="dataReleve.devoirs.all.length > 0">
 
-            <table class="list-view tableReleve tableRelevePadding" navigable>
+            <table class="list-view tableRelevePadding" navigable>
                 <thead>
                 <tr>
-                    <th class="fontLarge col1ReleveEleve"><i18n>subject</i18n></th>
-                    <th class="fontLarge center"><i18n>transcript.grades</i18n></th>
-                    <th class="fontLarge colMoyenneReleveEleve center"><i18n>transcript.average</i18n></th>
+                    <th class="fontLarge col1ReleveEleve"><i18n>viescolaire.utils.matiere</i18n></th>
+                    <th class="fontLarge center"><i18n>evaluations.grade</i18n></th>
+                    <th class="fontLarge colMoyenneReleveEleve center"><i18n>average</i18n></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr class="ligneReleve"
-                    ng-repeat="matiere in matieres.all | uniqueMatieres:matieres:'id':dataReleve.devoirs" >
+                    ng-repeat="matiere in matieres.all ">
                     <td class="col1ReleveEleve">
                         <span class="alignMatiere">[[matiere.name]]</span>
-                        <span class="nomEnseignant">[[matiere.firstNameInitialeEnseignant]]. [[matiere.surnameEnseignant | lowercase]]</span></td>
+                        <ul>
+                            <li ng-repeat="ens in matiere.ens track by ens.id">
+                                <span class="nomEnseignant">[[ens.firstName]]. [[ens.name]]</span>
+                            </li>
+                        </ul>
+                    </td>
+
                     <td class="notesDevoir">
-                        <div class="noteDevoir alignCenterVertically" ng-repeat="devoirReleveNotes in dataReleve.devoirs.all | filter:matiere.id">
-                            <div>
+                        <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all">
+                        <div    class=" alignCenterVertically"
+                                ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
+                            <div ng-if="devoirReleveNotes.id_matiere === matiere.id">
                                 <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span><span> / [[devoirReleveNotes.diviseur]]</span>
                                 <span class="releve-coef" ng-show='devoirReleveNotes.coefficient != null && devoirReleveNotes.coefficient != 1'>
                                     (<i18n>viescolaire.utils.coef</i18n>. [[devoirReleveNotes.coefficient]])
                                 </span>
                             </div>
-                            <div class="gradetooltip" ng-if="me.type === 'PERSRELELEVE'" tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>
-                            <div class="gradetooltip" ng-if="me.type === 'ELEVE'" tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<br>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</div>"></div>
+                            <div class="gradetooltip"
+                                 ng-if="devoirReleveNotes.id_matiere === matiere.id && me.type === 'PERSRELELEVE'"
+                                 tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>
+                            <div class="gradetooltip"
+                                 ng-if="me.type === 'ELEVE' && devoirReleveNotes.id_matiere === matiere.id"
+                                 tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<br>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</div>"></div>
+                        </div>
                         </div>
                     </td>
                     <td class="colMoyenneReleveEleve">
@@ -97,7 +109,7 @@
 
         </content>
         <content ng-show="dataReleve.devoirs.all.length === 0">
-            <h1 style="color: grey;"><i18n>transcript.none</i18n></h1>
+            <h1 style="color: grey;"><i18n>evaluations.no.summary</i18n></h1>
         </content>
 
     </div>

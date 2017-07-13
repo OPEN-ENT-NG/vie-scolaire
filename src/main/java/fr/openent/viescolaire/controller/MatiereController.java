@@ -126,7 +126,7 @@ public class MatiereController extends ControllerHelper {
                             libelleClasses = r.getArray("libelleClasses");
                             libelleGroups = libelleGroups == null ? new JsonArray() : libelleGroups;
                             libelleClasses = libelleClasses == null ? new JsonArray() : libelleClasses;
-                             r.putArray("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
+                            r.putArray("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
                             r.removeField("libelleGroupes");
                             reponseJA.addObject(r);
                             ids.add(r.getString("id"));
@@ -178,29 +178,70 @@ public class MatiereController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
             @Override
             public void handle(final UserInfos user){
-				if(user != null && null != request.params().get("idEtablissement")){
-					if("Personnel".equals(user.getType())){
-						final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-						matiereService.listMatieresEtab(request.params().get("idEtablissement"), user, handler);
-					}else{
-						utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
-									@Override
-									public void handle(Either<String, JsonArray> event) {
-										if (event.isRight()) {
-											JsonArray oTitulairesIdList = event.right().getValue();
-											listMatieres(user, request.params().get("idEtablissement"), oTitulairesIdList, request);
-										} else {
-											leftToResponse(request, event.left());
-										}
-									}
-								}
-						);
-					}
-				}else{
-					badRequest(request);
-				}
+                if(user != null && null != request.params().get("idEtablissement")){
+                    if("Personnel".equals(user.getType())){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        matiereService.listMatieresEtab(request.params().get("idEtablissement"), user, handler);
+                    }else{
+                        utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonArray> event) {
+                                        if (event.isRight()) {
+                                            JsonArray oTitulairesIdList = event.right().getValue();
+                                            listMatieres(user, request.params().get("idEtablissement"), oTitulairesIdList, request);
+                                        } else {
+                                            leftToResponse(request, event.left());
+                                        }
+                                    }
+                                }
+                        );
+                    }
+                }else{
+
+                    badRequest(request);
+                }
+            }
+        });
+    }
+    /**
+     * Retourne les suivies par un élève donné
+     * Ou les matiére de l'établissement, si (Chef ETab).
+     * @param request
+     */
+    @Get("/matieres/eleve/:idEleve")
+    @ApiDoc("Retourne les matières suivie par l'élève")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void matieresEleve(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null && null != request.params().get("idEleve")) {
+                    if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                        matiereService.listMatieresEleve(request.params().get("idEleve"), handler);
+                    }
+                }
             }
         });
     }
 
+    /**
+     * Retourne les information des matières dont il reçoit les 'id'
+     * @param request
+     */
+    @Get("/matieres/infos")
+    @ApiDoc("Retourne les information des matières dont il reçoit les id")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void getMatieresInfo(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                    final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    final JsonArray idMatieres = new JsonArray(request.params().getAll("idMatiere").toArray());
+                    matiereService.getMatieres(idMatieres,handler);
+                }
+            }
+        });
+    }
 }

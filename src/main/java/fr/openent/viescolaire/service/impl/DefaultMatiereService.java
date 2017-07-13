@@ -49,7 +49,9 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
 
-        query.append("MATCH (u:`User` {id:{userId}}),(f:`FieldOfStudy`) WHERE f.externalId in u.fieldOfStudy return f");
+        query.append("MATCH (u:`User` {id:{userId}}),(s:Structure)<-[:SUBJECT]-(f:Subject)")
+        .append(" WHERE f.code in u.fieldOfStudy and s.externalId in u.structures")
+        .append(" return f.id as id, f.code as externalId, f.label as name");
         values.putString("userId", userId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
@@ -108,7 +110,17 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             }
         }
         query.append("RETURN n");
-        query.toString();
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+    }
+
+    @Override
+    public void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (f:`Subject`) WHERE f.id IN {idMatieres} ")
+        .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
+        params.putArray("idMatieres", idMatieres);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 }

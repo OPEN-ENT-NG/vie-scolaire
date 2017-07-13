@@ -88,7 +88,8 @@ public class DevoirController extends ControllerHelper {
                     if(user.getType().equals("Personnel") && user.getFunctions().containsKey("DIR")){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         devoirsService.listDevoirsEtab(user, handler);
-                    }else{
+                    }
+                    else{
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         if (request.params().size() == 2) {
                             String idEtablissement = request.params().get("idEtablissement");
@@ -99,17 +100,27 @@ public class DevoirController extends ControllerHelper {
                             String idMatiere = request.params().get("idMatiere");
 
                             Long idPeriode;
-                            try {
-                                idPeriode = Long.parseLong(request.params().get("idPeriode"));
-                            } catch(NumberFormatException e) {
-                                log.error("Error : idPeriode must be a long object", e);
-                                badRequest(request, e.getMessage());
-                                return;
+                            if(request.params().get("idPeriode") != null) {
+                                try {
+
+                                    idPeriode = Long.parseLong(request.params().get("idPeriode"));
+                                } catch (NumberFormatException e) {
+                                    log.error("Error : idPeriode must be a long object", e);
+                                    badRequest(request, e.getMessage());
+                                    return;
+                                }
+                            }
+                            else {
+                                idPeriode = null;
                             }
 
-                            if (idEtablissement != "undefined" && idClasse != "undefined"
+                            if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                                String idEleve = request.params().get("idEleve");
+                                devoirsService.listDevoirs(idEleve,idEtablissement, idClasse, null, idPeriode, handler);
+
+                            } else if (idEtablissement != "undefined" && idClasse != "undefined"
                                     && idMatiere != "undefined" && request.params().get("idPeriode") != "undefined") {
-                                devoirsService.listDevoirs(idEtablissement, idClasse, idMatiere, idPeriode, handler);
+                                devoirsService.listDevoirs(null,idEtablissement, idClasse, idMatiere, idPeriode, handler);
                             } else {
                                 Renders.badRequest(request, "Invalid parameters");
                             }

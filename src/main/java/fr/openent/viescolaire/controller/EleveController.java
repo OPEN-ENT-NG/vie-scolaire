@@ -36,6 +36,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.List;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 
@@ -97,4 +99,25 @@ public class EleveController extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         eleveService.getResponsables(idEleve, handler);
     }
+
+    @Get("/eleve/enseignants")
+    @ApiDoc("Récupère les enseingants d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getEnseignantsEleve(final HttpServerRequest request) {
+        String idEleve = request.params().get("idEleve");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        eleveService.getEnseignants(idEleve, handler);
+    }
+
+    @Get("/enseignants")
+    @ApiDoc("Récupère les enseingants d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getUsersById(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        final JsonArray idUsers = new JsonArray(request.params().getAll("idUser").toArray());
+        eleveService.getUsers(idUsers,handler);
+    }
+
 }

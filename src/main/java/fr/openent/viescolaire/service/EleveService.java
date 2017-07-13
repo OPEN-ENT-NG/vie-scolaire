@@ -24,6 +24,8 @@ import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.ArrayList;
+
 /**
  * Created by ledunoiss on 10/02/2016.
  */
@@ -67,9 +69,23 @@ public interface EleveService extends CrudService {
     public void getResponsables(String idEleve, Handler<Either<String, JsonArray>> handler);
 
     /**
+            * Récupération de la liste d'enseignants d'un eleve
+            * @param idEleve  Identifiant de l'eleve
+            * @param handler  Handler de retour
+     */
+    public void getEnseignants(String idEleve, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Récupère le nom, le prénom de chacun des élèves passés en paramètre, ainsi que l'id et le nom de sa classe
      * @param idEleves tableau contenant les ids des élèves
      * @param handler Handler portant le résultat de la requête.
      */
     public void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère le nom, le prénom de chacun d'un ensemble d'Id passé en paramètre
+     * @param idUsers
+     * @param result
+     */
+    public void getUsers(JsonArray idUsers, Handler<Either<String, JsonArray>> result);
 }

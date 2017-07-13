@@ -31,6 +31,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
@@ -103,7 +105,24 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
+    @Override
+    public void getEnseignants(String idEleve, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
 
+        query.append(" MATCH (u:User {id:{idEleve}}), ")
+                .append("(s:Structure)<-[:SUBJECT]-(f:Subject)<-[r:TEACHES]-(ens:User)")
+                .append("  WHERE f.code in u.fieldOfStudy and s.externalId in u.structures ")
+                .append(" WITH u, r, ens, f, s ")
+                .append(" UNWIND ens.classes as j")
+                .append(" WITH u,r, ens, f, j, s ")
+                .append(" WHERE j in u.classes and f.code in u.fieldOfStudy and s.externalId in u.structures ")
+                .append("  return ens.id as id, ens.firstName as firstName, ens.surname as name, f.id as id_matiere")
+                .append(" , f.label as name_matiere");
+        params.putString("idEleve", idEleve);
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
     @Override
     public void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -117,4 +136,16 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getUsers(JsonArray idUsers, Handler<Either<String, JsonArray>> result) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:`User`) WHERE u.id IN {idUsers} ")
+                .append("RETURN u.id as id, u.firstName as firstName, u.surname as name, u as data ");
+        params.putArray("idUsers", idUsers);
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+    }
+
 }

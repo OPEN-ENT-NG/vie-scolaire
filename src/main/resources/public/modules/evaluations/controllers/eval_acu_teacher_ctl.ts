@@ -65,7 +65,8 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                     let calcPercent = () => {
                         if (!idDevoirs) {
                             idDevoirs = _.pluck(_.filter($scope.devoirs.all, (devoir) => {
-                                return _.contains(_.pluck($scope.classes.all, 'id'), devoir.id_groupe) && devoir.is_evaluated === true
+                                return _.contains(_.pluck($scope.classes.all, 'id'),
+                                        devoir.id_groupe) && devoir.is_evaluated === true;
                             }), 'id');
                         }
                         evaluations.structure.devoirs.getPercentDone(idDevoirs).then(() => {
@@ -89,9 +90,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.getDevoirsNotDone().then((devoirs) => {
                     $scope.devoirsNotDone = devoirs;
                     $scope.devoirsClasses = _.filter($scope.classes.all, (classe) => {
-                        return _.contains(_.uniq(_.pluck($scope.devoirsNotDone, 'id_groupe')), classe.id) && classe.remplacement != true;
+                        return _.contains(_.uniq(_.pluck($scope.devoirsNotDone, 'id_groupe')), classe.id) && classe.remplacement !== true;
                     });
-                    $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses,'name')).id;
+                    $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses, 'name')).id;
                     $scope.loadChart($scope.chartOptions.selectedClasse);
                     utils.safeApply;
                 });
@@ -99,14 +100,14 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         };
 
         // Initialisation du Controler
-        if(evaluations.structure !== undefined){
+        if (evaluations.structure !== undefined) {
             $scope.initControler(false);
-        }else{
+        }else {
             console.log("Aucun établissement actif pour l'utilisateur");
         }
 
         $scope.loadChart = function (idClasse) {
-            let idDevoirs = _.pluck(_.where($scope.devoirsNotDone,{id_groupe: idClasse}), 'id');
+            let idDevoirs = _.pluck(_.where($scope.devoirsNotDone, {id_groupe: idClasse}), 'id');
             $scope.getDevoirsNotDone(idDevoirs).then((devoirs) => {
                 if (devoirs) {
                     $scope.chartOptions.classes[idClasse] = {
@@ -132,7 +133,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         $scope.openSuiviEleve = (Eleve) => {
             let path = '/competences/eleve';
             let idOfpath = {idEleve : Eleve.id, idClasse: Eleve.idClasse};
-            $scope.goTo(path,idOfpath);
+            $scope.goTo(path, idOfpath);
         };
 
         $scope.changeEtablissementAccueil = () => {
@@ -160,13 +161,13 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         /**
          * ouvrir la page de création devoir
          */
-        $scope.openCreateEval = () =>{
+        $scope.openCreateEval = () => {
             let path = '/devoir/create';
             $scope.goTo(path);
         };
         $scope.FilterGroupEmpty = (item) => {
             let nameofclasse = $scope.getClasseData(item.id_groupe, 'name');
-            if( item.id_groupe !== '' && nameofclasse !== undefined && nameofclasse !== ''){
+            if ( item.id_groupe !== '' && nameofclasse !== undefined && nameofclasse !== '') {
                 return item;
             }
         };
@@ -187,14 +188,14 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.search.periode =  $scope.getDefaultPeriode();
         });
 
-        //permet de basculer sur l' écran de saisie de note en cliquant sur le diagramme
-        $scope.SaisieNote = (points, evt) =>{
-            if(points.length>0 && points !== undefined ){
-                let path = '/devoir/'+
+        // permet de basculer sur l' écran de saisie de note en cliquant sur le diagramme
+        $scope.SaisieNote = (points, evt) => {
+            if ( points.length > 0 && points !== undefined ) {
+                let path = '/devoir/' +
                     $scope.chartOptions.classes[$scope.chartOptions.selectedClasse].id[points[0]._index];
                 $scope.goTo(path);
             }
 
-        }
+        };
     }
 ]);

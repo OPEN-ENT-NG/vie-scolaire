@@ -62,6 +62,8 @@ public class DisplayController extends ControllerHelper {
                     renderView(request, null, "absences/absc_teacher.html", null);
                 }else if(user.getType().equals("Personnel")){
                     renderView(request, null, "absences/absc_personnel.html", null);
+                }else if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                    renderView(request, null,  "absences/absc_parents.html", null);
                 }
             }
         });

@@ -546,28 +546,54 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void listDevoirs(String idEleve, String idEtablissement, String idClasse, String idMatiere, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
+        String matiere = idMatiere;
 
         query.append("SELECT devoirs.*, ")
-                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle ")
-                .append("FROM ")
+                .append("type.nom as _type_libelle, periode.libelle as _periode_libelle ");
+        if (idEleve != null) {
+            query.append(", notes.valeur as note ");
+        }
+        query.append("FROM ")
                 .append(Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.VSCO_SCHEMA +".periode on devoirs.id_periode = periode.id ")
-                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
-                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes on rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe =? ")
-                .append("WHERE ")
-                .append("devoirs.id_etablissement = ? ")
-                .append("AND ")
-                .append("devoirs.id_matiere = ? ")
-                .append("AND ")
-                .append("devoirs.id_periode = ? ")
-                .append("ORDER BY devoirs.date ASC, devoirs.id ASC");
-        values.addString(idClasse);
+                .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ");
+        if(idClasse != null) {
+            query.append("inner join " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes on rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe =? ");
+        }
+        if (idEleve != null) {
+            query.append("inner join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir ");
+        }
+        query.append("WHERE ")
+                .append("devoirs.id_etablissement = ? ");
+        if( matiere != null ) {
+            query.append("AND ")
+                    .append("devoirs.id_matiere = ? ");
+        }
+        if (idEleve !=  null){
+            query.append(" AND  notes.id_eleve = ? ");
+        }
+        if (idPeriode != null) {
+            query.append("AND ")
+                    .append("devoirs.id_periode = ? ");
+        }
+                query.append("ORDER BY devoirs.date ASC, devoirs.id ASC");
+        if(idClasse != null) {
+            values.addString(idClasse);
+        }
         values.addString(idEtablissement);
-        values.addString(idMatiere);
-        values.addNumber(idPeriode);
+
+        if (matiere != null) {
+            values.addString(idMatiere);
+        }
+        if (idEleve != null) {
+            values.add(idEleve);
+        }
+        if(idPeriode != null) {
+            values.addNumber(idPeriode);
+        }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

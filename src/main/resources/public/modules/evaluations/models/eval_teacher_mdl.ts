@@ -1627,7 +1627,7 @@ export class CompetenceNote extends Model implements IModel {
 }
 
 
-export class Evaluations extends Model{
+export class Evaluations extends Model {
     periodes : Collection<Periode>;
     types : Collection<Type>;
     devoirs : Devoirs;

@@ -7,7 +7,7 @@ import {evaluationsController} from '../controllers/eval_parent_ctl';
 
 ng.controllers.push(evaluationsController);
 
-routes.define(function($routeProvider){
+routes.define(function($routeProvider) {
     $routeProvider
         .when('/releve', {action:'displayReleveNotes'})
         .otherwise({

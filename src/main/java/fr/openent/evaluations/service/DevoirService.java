@@ -77,16 +77,16 @@ public interface DevoirService extends CrudService {
     public void listDevoirs(UserInfos user,String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Liste des devoirs pour un établissement, une classe, une matière et une période donnée.
+     * Liste des devoirs (avec ou sans note) pour un établissement, une classe, une matière et une période donnée.
      * La liste est ordonnée selon la date du devoir (du plus ancien au plus récent).
-     *
+     * @param idEleve identifiant de l'elève lorsqu'on veut récupérer les notes
      * @param idEtablissement identifiant de l'établissement
      * @param idClasse identifiant de la classe
      * @param idMatiere identifiant de la matière
      * @param idPeriode identifiant de la période
      * @param handler handler portant le résultat de la requête
      */
-    public void listDevoirs(String idEtablissement, String idClasse, String idMatiere, Long
+    public void listDevoirs(String idEleve, String idEtablissement, String idClasse, String idMatiere, Long
             idPeriode, Handler<Either<String, JsonArray>> handler);
 
     /**

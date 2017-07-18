@@ -7,7 +7,8 @@
             <input type="text" class="twelve cell" ng-model="poRecherche.nom" placeholder="Rechercher un élève">
         </div> -->
         <ul class="selectable-list abscSM-content--SMSelectable-list">
-            <li ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs"
+            <li class="chip with-icone"
+                ng-click="pOFilterAbsences.sansmotifs = !pOFilterAbsences.sansmotifs"
                 ng-class="{ selected : pOFilterAbsences.sansmotifs }"><i class="report"></i>
                 <i18n>viescolaire.absences.ariane.AbsencesSansMotifs</i18n>
             </li>

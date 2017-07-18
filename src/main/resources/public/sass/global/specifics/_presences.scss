@@ -406,7 +406,7 @@ body.presences {
     }
 
     .plus-input::after {
-      content: "\e87b";
+      content: "\e823";
       position: absolute;
       top: -9px;
       right: 0px;
@@ -493,7 +493,7 @@ body.presences {
     @include transition(all 0.2s ease);
 
     .abscSM-content--student-search-input, .abscSM-content--SM-list {
-      margin: 0 0 0 8.5%;
+      margin: 0 0 0 4%;
     }
 
     .abscSM-content--student-search-input {
@@ -505,7 +505,7 @@ body.presences {
 
     .abscSM-content--SMSelectable-list {
       width: 200px !important;
-      margin-left: 8.5%;
+      margin-left: 4%;
 
       li {
         text-align: center;
@@ -699,7 +699,7 @@ body.presences {
     text-align: center;
   }
   div.header-nav-date{
-  margin-right: 7%;}
+  margin-right: 10.5%;}
   .appel_absc_last {
     color: $red;
   }
@@ -890,4 +890,17 @@ body.presences {
       background-color: #cac8c8;
     }
   }
+  li.chip {
+    background: #ccc ;
+    color: #fff !important;
+    border: #ccc !important;
+    &.with-icone {
+      padding-left: 5%;
+    }
+    &.selected {
+      background: #FF8500 !important;
+      border: #FF8500 !important;
+    }
+  }
+
 }

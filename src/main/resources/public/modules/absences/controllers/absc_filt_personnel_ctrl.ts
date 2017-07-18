@@ -14,19 +14,25 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
     function ($scope, route, model, $rootScope, $location) {
         $scope.pOResponsable = [];
         $scope.pOOpenedResponsable = null;
-
+        $scope.bSelectAllEnseignants = true;
         $scope.pOFilterCtrl = {
-            enseignants : false,
-            classes : false,
+            enseignants : true,
+            classes : true,
             responsables : false,
             structures: false
         };
+        //
+        // $scope.switchAll = function(oListe, b) {
+        //     oListe.each(function(o) {
+        //         o.selected = b;
+        //     });
+        // };
+        $scope.switchAll = function(oListe) {
+                oListe.each(function(o) {
+                    o.selected = $scope.bSelectAllEnseignants;
+                });
+            };
 
-        $scope.switchAll = function(oListe, b) {
-            oListe.each(function(o) {
-                o.selected = b;
-            });
-        };
 
         $scope.$watch('$parent.pOSelectedEvent', () => {
             if ($scope.$parent.pOSelectedEvent == null) {

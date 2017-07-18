@@ -19,10 +19,11 @@
             <span class="plus-input"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomEnseignant" placeholder="Rechercher"></span>
-        <div class="filtre__toolbar">
-            <button ng-click="switchAll(structure.enseignants, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
-            <button ng-click="switchAll(structure.enseignants, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
-        </div>
+
+        <label class="chip multiselect right-magnet margin-left">
+            <span><i18n>viescolaire.utils.all.none</i18n></span>
+            <input type="checkbox" ng-model="bSelectAllEnseignants" ng-change="switchAll(structure.enseignants)" ng-class="{ selected: bSelectAllEnseignants }"/>
+        </label>
         <ul class="selectable-list">
             <li ng-repeat="enseignant in structure.enseignants.all | filter:pORecherche.pSNomEnseignant | orderBy : 'lastName'" ng-click="enseignant.selected = !enseignant.selected"
                 ng-class="{selected : enseignant.selected}">[[enseignant.lastName]] [[enseignant.firstName]]</li>
@@ -34,10 +35,10 @@
             <span class="plus-input"></span>
         </h4>
         <span class="filter__input--icon"><input type="text" ng-model="pORecherche.pSNomClasse" placeholder="Rechercher"></span>
-        <div class="filtre__toolbar">
-            <button ng-click="switchAll(structure.classes, true)" tooltip="viescolaire.utils.selectAll" class="filtre__toolbar__button select"></button>
-            <button ng-click="switchAll(structure.classes, false)" tooltip="viescolaire.utils.deselectAll" class="filtre__toolbar__button deselect"></button>
-        </div>
+        <label class="chip multiselect right-magnet margin-left">
+            <span><i18n>viescolaire.utils.all.none</i18n></span>
+            <input type="checkbox" ng-model="bSelectAllEnseignants" ng-change="switchAll(structure.classes)" ng-class="{ selected: bSelectAllEnseignants }"/>
+        </label>
         <ul class="selectable-list">
             <li ng-repeat="classe in structure.classes.all | filter:{name:pORecherche.pSNomClasse} | orderBy : 'name'" ng-click="classe.selected = !classe.selected"
                 ng-class="{selected : classe.selected}">[[classe.name]]</li>

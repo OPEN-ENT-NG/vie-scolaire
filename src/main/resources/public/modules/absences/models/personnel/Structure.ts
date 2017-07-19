@@ -74,11 +74,11 @@ export class Structure extends SharedStructure {
             },
             MOTIF_ABS : {
                 synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifs/categorie'
+                categorie : '/viescolaire/presences/motifs/categorie?idEtablissement=' + this.id,
             },
             MOTIF_APPEL : {
                 synchronization : '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifsAppel/categorie'
+                categorie : '/viescolaire/presences/motifsAppel/categorie?idEtablissement=' + this.id,
             },
             OBSERVATION : {
                 synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
@@ -116,7 +116,7 @@ export class Structure extends SharedStructure {
         this.collection(MotifAppel, {
             sync : () => {
                 return new Promise((resolve, reject) => {
-                    http().getJson(this.api.MOTIF_APPEL.synchronization + '?idEtablissement=' + this.id ).done((motifs) => {
+                    http().getJson(this.api.MOTIF_APPEL.synchronization).done((motifs) => {
                         this.motifAppels.load(motifs);
                         this.motifAppels.map(function (motif) {
                             motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");

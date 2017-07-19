@@ -25,7 +25,7 @@ export class Structure extends DefaultStructure {
             },
             MOTIF_APPEL: {
                 synchronization: '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
-                categorie: '/viescolaire/presences/motifsAppel/categorie'
+                categorie: '/viescolaire/presences/motifsAppel/categorie?idEtablissement=' + this.id,
             },
         };
     }

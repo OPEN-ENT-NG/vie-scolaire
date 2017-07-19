@@ -23,10 +23,10 @@ export class Structure extends DefaultStructure {
                 synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
                 categorie : '/viescolaire/presences/motifs/categorie?idEtablissement=' + this.id
             },
-            MOTIF_APPEL : {
-                synchronization : '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifs/appel/categorie?idEtablissement=' + this.id
-            }
+            MOTIF_APPEL: {
+                synchronization: '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
+                categorie: '/viescolaire/presences/motifsAppel/categorie'
+            },
         };
     }
 

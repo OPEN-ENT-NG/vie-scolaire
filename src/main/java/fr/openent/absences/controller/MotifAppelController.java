@@ -27,6 +27,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyRe
 
 /**
  * Created by anabah on 06/06/2017.
+ *
  */
 public class MotifAppelController extends ControllerHelper {
 
@@ -39,7 +40,7 @@ public class MotifAppelController extends ControllerHelper {
         eventRegister = new EventRegister();
     }
 
-    @Get("/motifsAppel")
+    @Get("/motifs/appel")
     @ApiDoc("Récupère tous les motifs d'appels oubliés en fonction de l'id de l'établissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getAbscMotifsAppelEtablissement(final HttpServerRequest request){
@@ -52,24 +53,11 @@ public class MotifAppelController extends ControllerHelper {
             }
         });
     }
-    @Get("/motifsAppel/categorie")
-    @ApiDoc("Récupère toutes les catégories de motifs d'appels oublié en fonction de l'id de l'établissement")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getCategorieAbscMotifsEtablissement(final HttpServerRequest request){
-        final String psIdEtablissement = request.params().get("idEtablissement");
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                miAbscMotifService.getCategorieAbscMotifsAppelEtbablissement(psIdEtablissement, handler);
-            }
-        });
-    }
 
-    @Post("/motifAppel")
+    @Post("/motif/appel")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void createMotifAbs(final HttpServerRequest request){
+    public void createMotifAppel(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
@@ -83,10 +71,10 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Put("/motifAppel")
+    @Put("/motif/appel")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void updateMotifAbs(final HttpServerRequest request){
+    public void updateMotifAppel(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
@@ -100,10 +88,24 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Post("/categorieAppel")
+    @Get("/categorie/appels")
+    @ApiDoc("Récupère toutes les catégories de motifs d'appels oublié en fonction de l'id de l'établissement")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void getCategorieAbscMotifsEtablissement(final HttpServerRequest request){
+        final String psIdEtablissement = request.params().get("idEtablissement");
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                miAbscMotifService.getCategorieAbscMotifsAppelEtbablissement(psIdEtablissement, handler);
+            }
+        });
+    }
+
+    @Post("/categorie/appels")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void createCategorieMotifAbs(final HttpServerRequest request){
+    public void createCategorieMotifAppel(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
@@ -117,10 +119,10 @@ public class MotifAppelController extends ControllerHelper {
         });
     }
 
-    @Put("/categorieAppel")
+    @Put("/categorie/appels")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void updateCategorieMotifAbs(final HttpServerRequest request){
+    public void updateCategorieMotifAppel(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {

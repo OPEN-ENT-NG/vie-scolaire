@@ -20,8 +20,8 @@ export class CategorieAppel extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/categorie/appel',
-            UPDATE: '/viescolaire/presences/categorie/appel'
+            POST: '/viescolaire/presences/categorie/appels',
+            UPDATE: '/viescolaire/presences/categorie/appels'
         };
     }
 

@@ -6,7 +6,9 @@
   * [getCategorieAbscMotifsEtablissement](#getCategorieAbscMotifsEtablissement)
   * [createMotifAbs](#createMotifAbs)
   * [updateMotifAbs](#updateMotifAbs)
-  
+  * [createCategorieMotifAbs](#createCategorieMotifAbs)
+  * [updateCategorieMotifAbs](#updateCategorieMotifAbs)
+
 
 <a name="getAbscMotifsEtablissement" />
 
@@ -163,6 +165,71 @@ Récupère toutes les catégories de motifs d'absences en fonction de l'id de l'
          "justifiant": true,
          "commentaire": "comment updated",
          "id_categorie": 1
+     }
+     ```    
+     **Required:**           
+            `id`.
+                
+        
+ * **Response:**
+    
+     * **Code:** 200 <br />
+     * **Content**:  
+     ```json
+    {"rows":1}
+     ```
+<a name="createCategorieMotifAbs" />
+
+## createCategorieMotifAbs
+
+   Créé une Catégorie de Motif d'appel d'absence.
+  
+ * **URL**
+  
+   `viescolaire/presences/categorie/absence`
+  
+ * **Method:**
+    
+   `POST` 
+
+ * **Data Params**
+    ```json
+     {  
+         "id_etablissement": "0c03ee92-7ca0-4025-9971-df3e63a2ce64",
+         "libelle": "CATEGORIE"
+     }
+     ```
+     **Required:**           
+            `id_etablissement`,
+                `libelle`
+            
+ * **Response:**
+    
+     * **Code:** 200 <br />
+     * **Content**:  
+     ```json
+     {
+      "id":11 
+     }
+     ```
+<a name="updateCategorieMotifAbs" />
+
+## updateCategorieMotifAppel
+   met à jour une catégorie de motif d'absence.
+  
+ * **URL**
+  
+   `viescolaire/categorie/absences`
+  
+ * **Method:**
+    
+   `PUT` 
+
+ * **Data Params**
+    ```json
+     {   "id": 1,
+         "id_etablissement": "0c03ee92-7ca0-4025-9971-df3e63a2ce64",
+         "libelle": "update"    
      }
      ```    
      **Required:**           

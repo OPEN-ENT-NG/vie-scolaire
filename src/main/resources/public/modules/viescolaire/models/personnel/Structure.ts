@@ -21,11 +21,11 @@ export class Structure extends DefaultStructure {
         return  {
             MOTIF_ABS : {
                 synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/motifs/categorie?idEtablissement=' + this.id
+                categorie : '/viescolaire/presences/categorie/absences?idEtablissement=' + this.id
             },
             MOTIF_APPEL: {
-                synchronization: '/viescolaire/presences/motifsAppel?idEtablissement=' + this.id,
-                categorie: '/viescolaire/presences/motifsAppel/categorie?idEtablissement=' + this.id,
+                synchronization: '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
+                categorie: '/viescolaire/presences/categorie/appels?idEtablissement=' + this.id,
             },
         };
     }

@@ -2,10 +2,11 @@
 
 ##### Table of Contents
   * [getAbscMotifsAppelEtablissement](#getAbscMotifsAppelEtablissement)
-  * [getCategorieAbscMotifsAppelEtablissement](#getCategorieAbscMotifsAppelEtablissement)
   * [createMotifAppel](#createMotifAppel)
   * [updateMotifAppel](#updateMotifAppel)
-  
+  * [getCategorieAbscMotifsAppelEtablissement](#getCategorieAbscMotifsAppelEtablissement)
+  * [createCategorieMotifAppel](#createCategorieMotifAppel)
+  * [updateCategorieMotifAppel](#updateCategorieMotifAppel)
 
 <a name="getAbscMotifsAppelEtablissement" />
 
@@ -15,7 +16,7 @@ Récupère tous les motifs d'appel oublié en fonction de l'id de l'établisseme
 
 * **URL**
 
-  `viescolaire/presences/motifsAppel`
+  `viescolaire/presences/motif/appel`
 
 * **Method:**
  
@@ -39,38 +40,6 @@ Récupère tous les motifs d'appel oublié en fonction de l'id de l'établisseme
     }]
     ``` 
     
-<a name="getCategorieAbscMotifsAppelEtablissement" />
-    
-## getCategorieAbscMotifsAppelEtablissement
-
-Récupère toutes les catégories de motifs d'appel oublié en fonction de l'id de l'établissement.
-
-* **URL**
-
-  `viescolaire/presences/motifsAppel/categorie`
-
-* **Method:**
- 
-  `GET`
-  
-*  **URL Params**
-
-    **Required:**
-  
-    `idEtablissement = String`
-
-* **Réponse:**
-  
-   * **Status**: `200`
-   * **Content**: 
-    ```json
-    [{        
-      "id":1,
-      "libelle":"defaut",
-      "id_etablissement":"7d6b93f1-064c-4a15-88c7-815ebf33815b"
-    }]
-    ``` 
-
 <a name="createMotifAppel" />
 
 ## createMotifAppel
@@ -79,7 +48,7 @@ Récupère toutes les catégories de motifs d'appel oublié en fonction de l'id 
   
  * **URL**
   
-   `viescolaire/presences/motifAppel`
+   `viescolaire/presences/motif/appel`
   
  * **Method:**
     
@@ -143,4 +112,101 @@ Récupère toutes les catégories de motifs d'appel oublié en fonction de l'id 
      ```json
     {"rows":1}
      ```
+   
+<a name="getCategorieAbscMotifsAppelEtablissement" />
     
+## getCategorieAbscMotifsAppelEtablissement
+
+Récupère toutes les catégories de motifs d'appel oublié en fonction de l'id de l'établissement.
+
+* **URL**
+
+  `viescolaire/presences/motifs/categorie/appel`
+
+* **Method:**
+ 
+  `GET`
+  
+*  **URL Params**
+
+    **Required:**
+  
+    `idEtablissement = String`
+
+* **Réponse:**
+  
+   * **Status**: `200`
+   * **Content**: 
+    ```json
+    [{        
+      "id":1,
+      "libelle":"defaut",
+      "id_etablissement":"7d6b93f1-064c-4a15-88c7-815ebf33815b"
+    }]
+    ``` 
+
+<a name="createCategorieMotifAppel" />
+
+## createCategorieMotifAppel
+
+   Créé une Catégorie de Motif d'appel oublié.
+  
+ * **URL**
+  
+   `viescolaire/presences/categorie/appels`
+  
+ * **Method:**
+    
+   `POST` 
+
+ * **Data Params**
+    ```json
+     {  
+         "id_etablissement": "0c03ee92-7ca0-4025-9971-df3e63a2ce64",
+         "libelle": "CATEGORIE"
+     }
+     ```
+     **Required:**           
+            `id_etablissement`,
+                `libelle`
+            
+ * **Response:**
+    
+     * **Code:** 200 <br />
+     * **Content**:  
+     ```json
+     {
+      "id":11 
+     }
+     ```
+<a name="updateCategorieMotifAppel" />
+
+## updateCategorieMotifAppel
+   met à jour une catégorie de motif d'appel oublié.
+  
+ * **URL**
+  
+   `viescolaire/categorie/appels`
+  
+ * **Method:**
+    
+   `PUT` 
+
+ * **Data Params**
+    ```json
+     {   "id": 1,
+         "id_etablissement": "0c03ee92-7ca0-4025-9971-df3e63a2ce64",
+         "libelle": "update"    
+     }
+     ```    
+     **Required:**           
+            `id`.
+                
+        
+ * **Response:**
+    
+     * **Code:** 200 <br />
+     * **Content**:  
+     ```json
+    {"rows":1}
+     ```

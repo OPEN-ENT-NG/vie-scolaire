@@ -266,7 +266,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                         $scope.structures = vieScolaire.structures;
                         vieScolaire.structure.sync().then(() => {
                             $scope.structure = vieScolaire.structure;
-                            if ($scope.currParam = undefined) {
+                            if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
                             $scope.safeApply($scope);
@@ -276,7 +276,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 else {
                     $scope.structures = vieScolaire.structures;
                     $scope.structure.sync().then(() => {
-                        if ($scope.currParam = undefined) {
+                        if ($scope.currParam === undefined) {
                             $scope.currParam = 0;
                         }
                         $scope.safeApply($scope);

@@ -67,7 +67,7 @@ public class MotifController extends ControllerHelper {
             }
         });
     }
-    @Get("/motifs/categorie")
+    @Get("/categorie/absences")
     @ApiDoc("Recupere toutes les catégories de motifs d'absences en fonction de l'id de l'établissement")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getCategorieAbscMotifsEtablissement(final HttpServerRequest request){
@@ -130,7 +130,7 @@ public class MotifController extends ControllerHelper {
         });
     }
 
-    @Post("/categorieAbs")
+    @Post("/categorie/absences")
     @ApiDoc("Créé un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void createCategorieMotifAbs(final HttpServerRequest request){
@@ -147,7 +147,7 @@ public class MotifController extends ControllerHelper {
         });
     }
 
-    @Put("/categorieAbs")
+    @Put("/categorie/absences")
     @ApiDoc("Met à jour un motif.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateCategorieMotifAbs(final HttpServerRequest request){

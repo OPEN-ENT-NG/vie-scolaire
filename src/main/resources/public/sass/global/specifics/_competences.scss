@@ -117,6 +117,29 @@ body.evaluations {
       }
     }
 
+    .tableReleveEleve {
+      box-shadow: 0 0 1px 0 grey;
+      tbody {
+        tr {
+          &:nth-child(2n) {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+          }
+          td {
+            border-left: solid 1px #e0d8d8;
+          }
+          .col1ReleveEleve {
+            line-height: 1px;
+            color: black !important;
+            ul {
+              -webkit-margin-after: 0px !important;
+            }
+          }
+        }
+      }
+    }
     .tableReleve {
       tr{
         display: flex !important;
@@ -518,7 +541,7 @@ body.evaluations {
     font-weight: lighter;
   }
   .alignMatiere {
-    margin-top: 5px;
+    padding-top: 3px;
     display: block;
     font-weight: 500;
   }

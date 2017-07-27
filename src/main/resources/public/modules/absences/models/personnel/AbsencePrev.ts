@@ -1,10 +1,9 @@
-import {DefaultAbsencePrev} from "../common/DefaultAbsencePrev";
-import {Model} from "../../../entcore/modelDefinitions";
+import { AbsencePrev as SharedAbsencePrev } from "../shared/AbsencePrev";
 
 /**
  * Created by rahnir on 15/06/2017.
  */
-export class AbsencePrev extends DefaultAbsencePrev  {
+export class AbsencePrev extends SharedAbsencePrev  {
 
 
     constructor (o?: any) {

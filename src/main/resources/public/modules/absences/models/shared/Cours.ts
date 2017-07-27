@@ -1,4 +1,4 @@
-import { Collection, http, IModel } from 'entcore/entcore';
+import { http, IModel } from 'entcore/entcore';
 import { Appel } from './Appel';
 import { DefaultCours } from "../common/DefaultCours";
 import { Evenement } from "./Evenement";

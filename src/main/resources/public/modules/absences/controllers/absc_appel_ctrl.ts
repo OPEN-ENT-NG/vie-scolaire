@@ -197,11 +197,12 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 switch (piTypeEvent) {
                     case $scope.oEvtType.giIdEvenementObservation:
                         if (_.isEmpty($scope.detailEleve.evenements[$scope.oEvtType.giIdEvenementObservation].commentaire)) {
-                            await $scope.deleteEvenement(poEvent);
+                            if(poEvent.id != null) {
+                                await $scope.deleteEvenement(poEvent);
+                            }
                             break;
                         } else {
                             poEvent.commentaire = $scope.detailEleve.evenements[$scope.oEvtType.giIdEvenementObservation].commentaire;
-                            /* FALLTHROUGH */
                         }
                     case $scope.oEvtType.giIdEvenementDepart:
                     case $scope.oEvtType.giIdEvenementRetard:
@@ -212,14 +213,13 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                         if (_return.bool) {
                             poEvent.id = _return.id;
                         }
+                        if (poEleve.evenements.addEvt(poEvent)) {
+                            poEleve.plages.addEvtPlage(poEvent);
+                        }
+                        $scope.updateDetailEleve(piTypeEvent);
+                        $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelEnCours);
+                        $scope.calcNbElevesPresents();
                 }
-
-                if (poEleve.evenements.addEvt(poEvent)) {
-                    poEleve.plages.addEvtPlage(poEvent);
-                }
-                $scope.updateDetailEleve(piTypeEvent);
-                $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelEnCours);
-                $scope.calcNbElevesPresents();
                 utils.safeApply($scope);
                 resolve();
             });
@@ -269,7 +269,10 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 let _id = poEvt != null ? poEvt.id_type : 0;
                 switch (_id) {
                     case $scope.oEvtType.giIdEvenementObservation:
-                        $scope.detailEleve.evenements[piTypeEvt].commentaire = poEvt != null ? poEvt.commentaire : "";
+                        $scope.detailEleve.evenements[piTypeEvt] = {
+                            evt: poEvt,
+                            commentaire: poEvt.commentaire
+                        };
                         break;
                     case $scope.oEvtType.giIdEvenementRetard:
                     case $scope.oEvtType.giIdEvenementDepart:

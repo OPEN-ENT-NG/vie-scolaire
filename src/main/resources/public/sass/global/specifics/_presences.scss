@@ -46,9 +46,10 @@ body.presences {
   }
 
   .pannel-in-cell {
-    margin: 0px 0px 0px 15px;
-    padding: 15px;
+    margin: 10px;
+    padding: 10px;
     background-color: white;
+    overflow: hidden;
     @include border-radius(5px);
     @include box-shadow(0px 1px 1px rgba(0, 0, 0, 0.4));
   }
@@ -335,9 +336,9 @@ body.presences {
     max-height: 20px;
     overflow: hidden;
     padding: 10px;
+    margin: 10px;
     @include border-radius(2px);
     @include transition(all 0.4s ease);
-    margin-bottom: 10px;
     background-color: $white;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
 

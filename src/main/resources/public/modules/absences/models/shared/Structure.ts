@@ -29,7 +29,6 @@ import { FORMAT } from '../../constants/formats';
 import { PLAGES } from '../../constants/plages';
 
 import { getPlage } from '../../../utils/functions/getPlages'
-import * as util from "util";
 
 export class Structure extends DefaultStructure {
     isSynchronized: boolean;

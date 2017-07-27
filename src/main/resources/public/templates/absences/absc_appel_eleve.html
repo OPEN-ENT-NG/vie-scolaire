@@ -1,12 +1,16 @@
 <div class="one cell cell-indent appel__container-icon">
     <span class="appel__absence-icon appel__absence-icon--cpe"
-          ng-if="getEvenement(eleve, oEvtType.giIdEvenementAbsence).saisie_cpe && !isResponsable()">
+          ng-if="!(isEditable(getEvenement(eleve, oEvtType.giIdEvenementAbsence))
+                    && isEditable(getEvenement(eleve, oEvtType.giIdEvenementRetard))
+                    && isEditable(getEvenement(eleve, oEvtType.giIdEvenementDepart)))">
     </span>
     <span class="appel__absence-icon"
           ng-model="detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
           ng-class="{'absence-color' : getEvenement(eleve, oEvtType.giIdEvenementAbsence) != null}"
           ng-click="isEditable() && checkEvenement(eleve, oEvtType.giIdEvenementAbsence)"
-          ng-if="!getEvenement(eleve, oEvtType.giIdEvenementAbsence).saisie_cpe || isResponsable()">
+          ng-if="isEditable(getEvenement(eleve, oEvtType.giIdEvenementAbsence))
+                    && isEditable(getEvenement(eleve, oEvtType.giIdEvenementRetard))
+                    && isEditable(getEvenement(eleve, oEvtType.giIdEvenementDepart))">
      </span>
 </div>
 <div class="four cell cell-indent" ng-click="detailEleveAppel(eleve)"

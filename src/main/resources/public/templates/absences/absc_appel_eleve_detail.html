@@ -23,7 +23,7 @@
         <section>
               <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementObservation].commentaire"
                         ng-required="false"
-                        ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementObservation])"
+                        ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementObservation].evt)"
                         ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementObservation);"
                         placeholder="Observations"
                         rows="3">

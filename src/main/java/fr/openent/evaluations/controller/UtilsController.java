@@ -94,8 +94,7 @@ public class UtilsController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if(user != null){
-                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    utilsService.getEnfants(request.params().get("userId"), handler);
+                    utilsService.getEnfants(request.params().get("userId"), arrayResponseHandler(request));
                 }else{
                     unauthorized(request);
                 }

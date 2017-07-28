@@ -27,6 +27,8 @@ import fr.openent.evaluations.service.impl.DefaultNoteService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
@@ -46,6 +48,7 @@ public class DefaultUserService implements UserService {
 
     private final UtilsService utilsService;
     private final NoteService noteService;
+    private final Neo4j neo4j = Neo4j.getInstance();
 
     public DefaultUserService() {
         utilsService = new DefaultUtilsService();
@@ -307,4 +310,31 @@ public class DefaultUserService implements UserService {
         Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
     }
 
+    /**
+     * Retourne la liste des enfants pour un utilisateur donné
+     * @param idUser    Id de l'utilisateur
+     * @param handler   Handler comportant le resultat de la requete
+     */
+    @Override
+    public void getEnfants(String idUser, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (m:User {id: {id}})<-[:RELATED]-(n:User)")
+                .append("RETURN n.id as id, n.firstName as firstName, n.lastName as lastName,  n.level as level, n.classes as classes, n.birthDate as birthDate ORDER BY lastName");
+        neo4j.execute(query.toString(), new JsonObject().putString("id", idUser), Neo4jResult.validResultHandler(handler));
+    }
+
+    /**
+     * Retourne la liste des personnels pour une liste d'id donnée
+     *
+     * @param idPersonnels ids des personnels
+     * @param handler      Handler comportant le resultat de la requete
+     */
+    public void getPersonnels(List<String> idPersonnels, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (u:User)")
+                .append("WHERE ANY (x IN u.profiles WHERE x IN ['Teacher', 'Personnel']) AND u.id IN {idPersonnel}")
+                .append("RETURN u.lastName, u.firstName, u.emailAcademy, u.id");
+        neo4j.execute(query.toString(), new JsonObject().putArray("idPersonnel", new JsonArray(idPersonnels.toArray())), Neo4jResult.validResultHandler(handler));
+
+    }
 }

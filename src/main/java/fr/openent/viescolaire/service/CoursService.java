@@ -24,6 +24,8 @@ import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.List;
+
 /**
  * Created by ledunoiss on 10/02/2016.
  */
@@ -68,5 +70,10 @@ public interface CoursService extends CrudService{
     void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId,
                           Handler<Either<String, JsonArray>> handler);
 
-
+    /**
+     * Recupere les cours en fonction de la liste d'id passee en parametre
+     * @param idCours   Liste des id
+     * @param handler   Handler de retour
+     */
+    public void getCoursById(List<Long> idCours, Handler<Either<String, JsonArray>> handler);
 }

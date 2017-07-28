@@ -42,6 +42,10 @@ body.vsco--global {
     font-size: 18px;
   }
 
+  i.cancel::before {
+    content: '\e866';
+  }
+
   i.eye-slash::before {
     content: '\e904';
   }

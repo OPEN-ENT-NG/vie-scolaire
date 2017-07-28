@@ -31,11 +31,17 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.impl.DefaultCoursService;
 import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
@@ -44,8 +50,11 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  * Created by ledunoiss on 10/02/2016.
  */
 public class CoursController extends ControllerHelper{
+
     private final CoursService coursService;
     private final ClasseService classeService;
+    protected static final Logger log = LoggerFactory.getLogger(CoursController.class);
+
     public CoursController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         coursService = new DefaultCoursService();
@@ -134,7 +143,37 @@ public class CoursController extends ControllerHelper{
                 }
             }
         });
+    }
 
-
+    @Get("/cours")
+    @ApiDoc("Recupere tous les cours en fonction de leur id")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCours(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    List<Long> idCours = new ArrayList<>();
+                    for(String s : request.params().getAll("idCours")) {
+                        idCours.add(Long.valueOf(s));
+                    }
+                    coursService.getCoursById(idCours, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                            if (stringJsonArrayEither.isRight()) {
+                                Renders.renderJson(request, stringJsonArrayEither.right().getValue());
+                            } else {
+                                JsonObject error = new JsonObject()
+                                        .putString("error", stringJsonArrayEither.left().getValue());
+                                log.error(stringJsonArrayEither.left().getValue());
+                                Renders.renderJson(request, error, 400);
+                            }
+                        }
+                    });
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
     }
 }

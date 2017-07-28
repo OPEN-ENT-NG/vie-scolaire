@@ -1,0 +1,58 @@
+<div class="twelve cell absc_parent" ng-controller="AbscParentController">
+    <container template="selectEnfants"
+               class="twelve cell"></container>
+
+    <section>
+        <article class="five cell box-accueil twelve-mobile">
+            <div class="content-box-accueil">
+                <div class="titre-widget">
+                    <h2 class="inline-block">
+                        <i18n>viescolaire.absences.parent.widgetAbsc</i18n>
+                    </h2>
+                </div>
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header parent_absc_header row">
+                        <div class="five cell"
+                             ng-click="pOSortParameters.sortType = 'cours.timestamp_dt'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
+                            <i class="sort-desc"
+                               ng-show="pOSortParameters.sortType == 'cours.timestamp_dt' && !pOSortParameters.sortReverse"></i>
+                            <i class="sort-asc"
+                               ng-show="pOSortParameters.sortType == 'cours.timestamp_dt' && pOSortParameters.sortReverse"></i>
+                            <h5>
+                                <i18n>date</i18n>
+                            </h5>
+                        </div>
+                        <div class="five cell"
+                             ng-click="pOSortParameters.sortType = 'cours.matiere'; pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
+                            <i class="sort-desc"
+                               ng-show="pOSortParameters.sortType == 'cours.matiere' && !pOSortParameters.sortReverse"></i>
+                            <i class="sort-asc"
+                               ng-show="pOSortParameters.sortType == 'cours.matiere' && pOSortParameters.sortReverse"></i>
+                            <h5>
+                                <i18n>viescolaire.utils.subject</i18n>
+                            </h5>
+                        </div>
+                        <div class="two cell">
+                            <h5>
+                                <i18n>viescolaire.absences.justifee</i18n>
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="content-box-accueil--table--content">
+                        <div ng-repeat="event in evenements | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse"
+                             class="row">
+                            <div class="six cell cell-indent">
+                                [[ formatDate(event.cours.timestamp_dt, event.cours.timestamp_fn) ]]                                    </div>
+                            <div class="five cell">
+                                [[ event.matiere.name ]]
+                            </div>
+                            <div class="one cell">
+                                <i ng-if="event.id_motif == 8" class="cancel"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+</div>

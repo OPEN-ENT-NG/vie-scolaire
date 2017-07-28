@@ -27,6 +27,10 @@ body.vsco--global {
     font-size: 18px;
   }
 
+  i.cancel::before {
+    content: '\e866';
+  }
+
   .left-arrow::after {
     content: "\e87b";
     opacity: 0.8;

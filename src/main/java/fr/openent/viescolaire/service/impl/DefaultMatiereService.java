@@ -118,7 +118,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (f:`Subject`) WHERE f.id IN {idMatieres} ")
+        query.append("MATCH (f:Subject) WHERE f.id IN {idMatieres} ")
         .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
         params.putArray("idMatieres", idMatieres);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));

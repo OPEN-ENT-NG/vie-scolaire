@@ -26,6 +26,8 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.json.impl.Json;
 
+import java.util.List;
+
 /**
  * Created by ledunoiss on 08/11/2016.
  */
@@ -66,5 +68,19 @@ public interface UserService {
      */
     public void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Retourne la liste des enfants pour un utilisateur donné
+     *
+     * @param idUser  Id de l'utilisateur
+     * @param handler Handler comportant le resultat de la requete
+     */
+    public void getEnfants(String idUser, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Retourne la liste des personnels pour une liste d'id donnée
+     *
+     * @param idPersonnels  ids des personnels
+     * @param handler Handler comportant le resultat de la requete
+     */
+    public void getPersonnels(List<String> idPersonnels, Handler<Either<String, JsonArray>> handler);
 }

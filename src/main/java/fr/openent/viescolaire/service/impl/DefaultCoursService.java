@@ -30,6 +30,8 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
+import java.util.List;
+
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
@@ -134,5 +136,19 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
+    @Override
+    public void getCoursById(List<Long> idCours, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
 
+        query.append("SELECT cours.*")
+                .append("FROM " + Viescolaire.VSCO_SCHEMA + ".cours ")
+                .append("WHERE id IN " + Sql.listPrepared(idCours.toArray()));
+
+        for(Long l : idCours) {
+            values.addNumber(l);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

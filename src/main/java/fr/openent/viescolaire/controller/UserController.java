@@ -29,6 +29,7 @@ import fr.wseduc.rs.Post;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
@@ -37,6 +38,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -46,6 +49,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 public class UserController extends ControllerHelper {
 
     private UserService userService;
+    protected static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
@@ -125,4 +129,43 @@ public class UserController extends ControllerHelper {
 
     }
 
+    /**
+     * Retourne la liste des enfants pour un utilisateur donné
+     * @param request
+     */
+    @Get("/user/:idUser/enfants")
+    @ApiDoc("Retourne la liste des enfants pour un utilisateur donné")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getEnfants(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user.getUserId().equals(request.params().get("idUser"))) {
+                    userService.getEnfants(request.params().get("idUser"), arrayResponseHandler(request));
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
+
+    /**
+     * Retourne la liste des personnels dont l'id est passe en parametre
+     * @param request
+     */
+    @Get("/personnels")
+    @ApiDoc("Retourne la liste des personnels pour des ids donnes")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getPersonnel(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null) {
+                    userService.getPersonnels(request.params().getAll("idPersonnel"), arrayResponseHandler(request));
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
 }

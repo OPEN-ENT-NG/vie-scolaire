@@ -1,0 +1,11 @@
+
+<div class="display-children">
+    <div ng-repeat="e in eleves.all"
+         ng-click="chooseChild(e)"
+         ng-class="{'selected': e == eleve }"
+         class="round-avatar">
+
+        <img ng-src="/userbook/avatar/[[ e.id ]]" alt="[[e.displayName]]"/>
+        <span>[[ e.firstName ]]</span>
+    </div>
+</div>

@@ -27,6 +27,7 @@ var glob = require('glob');
 
 module.exports = {
     entry: {
+        absc_parents: glob.sync('./src/main/resources/public/temp/absences/apps/parents.js'),
         absc_personnels: glob.sync('./src/main/resources/public/temp/absences/apps/personnels.js'),
         absc_teachers: glob.sync('./src/main/resources/public/temp/absences/apps/teachers.js')
     },

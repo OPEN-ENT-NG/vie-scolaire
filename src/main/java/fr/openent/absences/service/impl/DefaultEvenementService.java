@@ -65,7 +65,27 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
 
     @Override
     public void updateEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler) {
-        super.update(poEvenement.getInteger("id").toString(), poEvenement, handler);
+        if(poEvenement.getInteger("id_type") == 2 || poEvenement.getInteger("id_type") == 3) {
+            StringBuilder query = new StringBuilder();
+            JsonArray values = new JsonArray();
+
+            query.append("UPDATE " + Viescolaire.ABSC_SCHEMA + ".evenement ")
+                    .append("SET ");
+
+            for (String attr : poEvenement.getFieldNames()) {
+                if(attr.split("_")[0].equals("timestamp")) {
+                    query.append(attr).append(" = (?::timestamptz), ");
+                } else {
+                    query.append(attr).append(" = ?, ");
+                }
+                values.add(poEvenement.getValue(attr));
+            }
+
+            query.append("modified = NOW() WHERE id = ? ");
+            Sql.getInstance().prepared(query.toString(), values.add(poEvenement.getInteger("id")), SqlResult.validRowsResultHandler(handler));
+        } else {
+            super.update(poEvenement.getInteger("id").toString(), poEvenement, handler);
+        }
     }
 
     @Override

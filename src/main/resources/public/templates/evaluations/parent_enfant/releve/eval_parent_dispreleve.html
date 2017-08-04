@@ -28,7 +28,7 @@
                     <select ng-model="searchReleve.eleve" ng-change="getPeriodes(); getMatieres()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="eleve.displayName for eleve in eleves.all">
-                        <option value="" class="header-opt"><i18n>viescolaire.utils.students</i18n></option>
+                        <option value="" class="header-opt">Elèves</option>
                     </select>
                 </label>
 
@@ -36,7 +36,7 @@
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="periode.libelle for periode in searchReleve.eleve.periodes.all">
-                        <option value="" class="header-opt"><i18n>viescolaire.utils.periodes</i18n></option>
+                        <option value="" class="header-opt">Périodes</option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null && searchReleve.periode !== null" class="print-icon" ng-click="getReleve()">

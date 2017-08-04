@@ -166,7 +166,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * @param piTypeEvent   Le type d'évènement à créer ou supprimer.
          */
         $scope.checkEvenement = async (poEleve, piTypeEvent) => {
-            let _evt = $scope.getEvenement(poEleve, piTypeEvent);
+            let _evt = await $scope.getEvenement(poEleve, piTypeEvent);
             if (_evt) {
                 await $scope.deleteEvenement(_evt);
             } else {

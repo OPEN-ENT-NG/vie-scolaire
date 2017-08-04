@@ -126,9 +126,7 @@ export class Periode extends Model {
                 if (this.id !== undefined) {
                     uri = uri + '&idPeriode=' + this.id;
                 }
-                classes.forEach((classe) => {
-                    uri = uri + '&idClasse=' + classe.id;
-                });
+
 
                 http().getJson(uri)
                     .done((devoirs) => {

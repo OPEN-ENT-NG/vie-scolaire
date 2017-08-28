@@ -103,10 +103,18 @@ public interface DevoirService extends CrudService {
     /**
      * Récupère le nombre de notes en fonction du devoir pour un utilisateur donné
      * @param user l'utilisateur connecté
-     * @param idGroupes La liste des devoirs désirés
+     * @param idDevoirs La liste des devoirs désirés
      * @param handler handler portant le résultat de la requête
      */
-    public void getNbNotesDevoirs(UserInfos user, Long[] idGroupes, Handler<Either<String, JsonArray>> handler);
+    public void getNbNotesDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère le nombre d'annotations en fonction du devoir pour un utilisateur donné
+     * @param user l'utilisateur connecté
+     * @param idDevoirs La liste des devoirs désirés
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getNbAnnotationsDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler);
 
     /**
      * verifie si le devoir est evalué ou pas

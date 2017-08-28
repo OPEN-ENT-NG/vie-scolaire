@@ -43,7 +43,7 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
 
             scope.findInput = function(row){
                 for(var i = 0; i < row.children.length; i++){
-                    if(row.children[i].tagName === 'INPUT'){
+                    if(row.children[i].tagName === 'INPUT' || row.children[i].tagName === 'LABEL'){
                         return row.children[i];
                     }
                 }
@@ -53,7 +53,7 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
             scope.findInputs = function(row){
                 var inputs = [];
                 for(var i = 0 ; i < row.children.length; i++){
-                    if(row.children[i].tagName === 'INPUT'){
+                    if(row.children[i].tagName === 'INPUT' || row.children[i].tagName === 'LABEL'){
                         inputs.push(row.children[i]);
                     }
                 }

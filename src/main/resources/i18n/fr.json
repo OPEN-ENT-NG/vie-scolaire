@@ -318,5 +318,7 @@
   "evaluation.bfc.export.button.eleve" : "Exporter le bilan de fin de cycle de l'élève au format PDF",
   "evaluation.bfc.export.button.classe" : "Exporter le bilan de fin de cycle de la classe au format PDF",
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
-  "presence.devoir.ok":"Ok"
+  "presence.devoir.ok":"Ok",
+  "delete.annotation":"Supprime l'annotation pour revenir à la saisie de notes/compétences.",
+  "add.annotation":"Ajouter une annotation"
 }

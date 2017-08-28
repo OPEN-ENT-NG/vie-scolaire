@@ -16,6 +16,7 @@ export class Structure extends Model implements IModel{
     matieres: Collection<Matiere>;
     types: Collection<Type>;
     enseignements: Collection<Enseignement>;
+    annotations: Collection<Annotation>;
     periodes: Collection<Periode>;
     releveNotes: Collection<ReleveNote>;
     isSynchronized: boolean;
@@ -45,7 +46,10 @@ export class Structure extends Model implements IModel{
                 synchronizationRemplacement : '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
             },
             ELEVE : {
-                synchronization : '/viescolaire/eleves?idEtablissement='+this.id
+                synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
+            },
+            ANNOTATION : {
+                synchronization : '/viescolaire/evaluations/annotations?idEtablissement=' + this.id
             }
         }
     }
@@ -60,6 +64,7 @@ export class Structure extends Model implements IModel{
             matieres: false,
             periodes: false,
             types: false,
+            annotations: false,
             enseignements: false
         };
         if (isChefEtab()) {
@@ -174,6 +179,19 @@ export class Structure extends Model implements IModel{
                 });
             }
         });
+        this.collection(Annotation, {
+            sync: function () {
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.ANNOTATION.synchronization).done(function (res) {
+                        this.load(res);
+                        evaluations.annotations = this;
+                        that.synchronized.annotations = true;
+                        this.trigger('sync');
+                        resolve();
+                    }.bind(this));
+                });
+            }
+        });
         this.collection(ReleveNote);
         const libelle = {
             CLASSE: 'Classe',
@@ -240,6 +258,7 @@ export class Structure extends Model implements IModel{
                     this.synchronized.periodes &&
                     this.synchronized.types &&
                     this.synchronized.classes &&
+                    this.synchronized.annotations &&
                     this.synchronized.devoirs;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
@@ -251,6 +270,7 @@ export class Structure extends Model implements IModel{
             };
             this.matieres.sync().then(isSynced);
             this.periodes.sync().then(isSynced);
+            this.annotations.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
             this.syncDevoirs().then(isSynced);
@@ -435,6 +455,13 @@ export class ReleveNote extends  Model implements IModel{
                             if (_e) {
                                 _e.oldValeur = _e.valeur;
                                 _e.oldAppreciation = _e.appreciation !== undefined ? _e.appreciation : '';
+                                if (_e.annotation !== undefined
+                                    && _e.annotation !== null
+                                    && _e.annotation > 0 ) {
+                                    _e.oldAnnotation = _e.annotation;
+                                    _e.annotation_libelle_court = evaluations.structure.annotations.findWhere({id: _e.annotation}).libelle_court;
+                                    _e.is_annotation = true;
+                                }
                                 _e.endSaisie = endSaisie;
                                 _evals.push(_e);
                             }
@@ -682,6 +709,7 @@ export class Evaluation extends Model implements IModel{
     id_eleve : string;
     id_devoir : number;
     id_appreciation : number;
+    selected_annotation;
     valeur : any;
     appreciation : any;
     coefficient : number;
@@ -690,6 +718,8 @@ export class Evaluation extends Model implements IModel{
     oldValeur : any;
     is_evaluated  : boolean;
     oldAppreciation : any;
+    oldId_annotation : number;
+    id_annotation : number;
 
     get api () {
         return {
@@ -698,8 +728,11 @@ export class Evaluation extends Model implements IModel{
             delete : '/viescolaire/evaluations/note?idNote=' + this.id,
             createAppreciation : '/viescolaire/evaluations/appreciation',
             updateAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation,
-            deleteAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation
-        }
+            deleteAppreciation : '/viescolaire/evaluations/appreciation?idAppreciation=' + this.id_appreciation,
+            updateAnnotation : '/viescolaire/evaluations/annotation?idDevoir=' + this.id_devoir,
+            deleteAnnotation : '/viescolaire/evaluations/annotation?idDevoir=' + this.id_devoir+'&idEleve='+this.id_eleve,
+            createAnnotation : '/viescolaire/evaluations/annotation'
+        };
     }
 
     constructor (o? : any) {
@@ -817,10 +850,68 @@ export class Evaluation extends Model implements IModel{
         });
     }
 
+    saveAnnotation (): Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            if (this.oldId_annotation !== undefined && this.oldId_annotation > 0) {
+                this.updateAnnotationDevoir().then((data) => {
+                    resolve(data);
+                });
+            } else {
+                this.createAnnotationDevoir().then((data) =>  {
+                    resolve(data);
+                });
+            }
+        });
+    }
+
+    createAnnotationDevoir (): Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            let _annotation = {
+                id_devoir : this.id_devoir,
+                id_annotation  : this.id_annotation,
+                id_eleve    : this.id_eleve
+            };
+            http().postJson(this.api.createAnnotation, _annotation).done ( function (data) {
+                if (resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+
+    }
+
+    updateAnnotationDevoir (): Promise<Evaluation> {
+        return new Promise((resolve, reject) => {
+            let _annotation = {
+                id_devoir : this.id_devoir,
+                id_annotation  : parseInt(this.id_annotation),
+                id_eleve    : this.id_eleve
+            };
+            http().putJson(this.api.updateAnnotation, _annotation).done ( function (data) {
+                if (resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
+    deleteAnnotationDevoir () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            let _annotation = {
+                id_devoir : this.id_devoir,
+                id_eleve    : this.id_eleve
+            };
+            http().delete(this.api.deleteAnnotation,_annotation).done(function (data) {
+                if(resolve && typeof(resolve) === 'function') {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
     deleteAppreciation () : Promise<any> {
         return new Promise((resolve, reject) => {
             http().delete(this.api.deleteAppreciation).done(function (data) {
-                if(resolve && typeof(resolve) === 'function'){
+                if(resolve && typeof(resolve) === 'function') {
                     resolve(data);
                 }
             });
@@ -938,6 +1029,11 @@ export class Devoir extends Model implements IModel{
                                 _e.evaluation = new Evaluation(res[i]);
                                 _e.evaluation.oldValeur = _e.evaluation.valeur;
                                 _e.evaluation.oldAppreciation = _e.evaluation.appreciation !== undefined ? _e.evaluation.appreciation : '';
+                                if (_e.evaluation.id_annotation === undefined
+                                    || _e.evaluation.id_annotation === null) {
+                                    _e.evaluation.id_annotation = -1;
+                                }
+                                _e.evaluation.oldId_annotation = _e.evaluation.id_annotation;
                                 delete _e.evaluations;
                             }
                         }
@@ -1544,7 +1640,13 @@ export class Matiere extends Model {
         this.collection(SousMatiere);
     }
 }
-
+export class Annotation extends Model {
+    libelle: string;
+    libelle_court: string;
+    toString () {
+        return this.libelle;
+    }
+}
 export class SousMatiere extends Model {}
 export class CompetenceNote extends Model implements IModel {
     id: number;
@@ -1635,6 +1737,7 @@ export class Evaluations extends Model {
     matieres : Collection<Matiere>;
     releveNotes : Collection<ReleveNote>;
     classes : Collection<Classe>;
+    annotations: Collection<Annotation>;
     structure : Structure;
     synchronized : any;
     competencesDevoir : any[];

@@ -384,7 +384,7 @@ public class DevoirController extends ControllerHelper {
                     final HashMap<Long, Integer> nbNotesByDevoir = new HashMap<>();
                     List<String> idDevoirsList = request.params().getAll("devoirs");
 
-                    Long[] idDevoirsArray = new Long[idDevoirsList.size()];
+                    final Long[] idDevoirsArray = new Long[idDevoirsList.size()];
 
                     for (int i = 0; i < idDevoirsList.size(); i++) {
                         idDevoirsArray[i] = Long.valueOf(idDevoirsList.get(i));
@@ -399,7 +399,7 @@ public class DevoirController extends ControllerHelper {
                                 if(event.right().getValue() != null) {
                                     JsonArray resultNbNotesDevoirs = event.right().getValue();
 
-                                    JsonArray idGroupes = new JsonArray();
+                                    final JsonArray idGroupes = new JsonArray();
 
                                     for (int i = 0; i < resultNbNotesDevoirs.size(); i++) {
                                         JsonObject o = resultNbNotesDevoirs.get(i);
@@ -409,27 +409,62 @@ public class DevoirController extends ControllerHelper {
                                         }
                                         if (o != null) {
                                             idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+
                                             nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_notes"));
                                         }
                                     }
 
-                                    classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                    devoirsService.getNbAnnotationsDevoirs(user, idDevoirsArray , new Handler<Either<String, JsonArray>>() {
                                         @Override
                                         public void handle(Either<String, JsonArray> event) {
                                             if (event.isRight()) {
-                                                JsonArray resultNbElevesGroupes = event.right().getValue();
+                                                JsonArray resultNbAnnotationsDevoirs = event.right().getValue();
 
-                                                for (int i = 0; i < resultNbElevesGroupes.size(); i++) {
-                                                    JsonObject o = resultNbElevesGroupes.get(i);
-                                                    nbElevesByGroupe.put(o.getString("id_groupe"), o.getInteger("nb"));
+                                                for (int i = 0; i < resultNbAnnotationsDevoirs.size(); i++) {
+                                                    JsonObject o = resultNbAnnotationsDevoirs.get(i);
+
+                                                    if (null != o && !idGroupes.contains(o.getString("id_groupe"))) {
+                                                        idGroupes.add(o.getString("id_groupe"));
+                                                    }
+                                                    if (o != null) {
+                                                        if (!idDevoirToGroupe.containsKey(o.getLong("id"))) {
+                                                            idDevoirToGroupe.put(o.getLong("id"), o.getString("id_groupe"));
+                                                        }
+                                                        // On ajoute le nombre d'annotations au nombre de notes pour déterminer le taux d'avancement
+
+                                                        if(!nbNotesByDevoir.containsKey(o.getLong("id"))){
+                                                            nbNotesByDevoir.put(o.getLong("id"), o.getInteger("nb_annotations"));
+                                                        }else{
+                                                            Integer nbNotesEtAnnotations = nbNotesByDevoir.get(o.getLong("id")) + o.getInteger("nb_annotations");
+                                                            nbNotesByDevoir.put(o.getLong("id"),nbNotesEtAnnotations);
+                                                        }
+                                                    }
                                                 }
-                                                for (Map.Entry devoirToGroupe : idDevoirToGroupe.entrySet()) {
-                                                    JsonObject o = new JsonObject();
-                                                    o.putNumber("id", (Number)devoirToGroupe.getKey());
-                                                    o.putNumber("percent", nbNotesByDevoir.get(devoirToGroupe.getKey()) * 100 / nbElevesByGroupe.get(devoirToGroupe.getValue()));
-                                                    result.add(o);
-                                                }
-                                                Renders.renderJson(request, result);
+
+
+                                                classesService.getNbElevesGroupe(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                                    @Override
+                                                    public void handle(Either<String, JsonArray> event) {
+                                                        if (event.isRight()) {
+                                                            JsonArray resultNbElevesGroupes = event.right().getValue();
+
+                                                            for (int i = 0; i < resultNbElevesGroupes.size(); i++) {
+                                                                JsonObject o = resultNbElevesGroupes.get(i);
+                                                                nbElevesByGroupe.put(o.getString("id_groupe"), o.getInteger("nb"));
+                                                            }
+                                                            for (Map.Entry devoirToGroupe : idDevoirToGroupe.entrySet()) {
+                                                                JsonObject o = new JsonObject();
+                                                                o.putNumber("id", (Number)devoirToGroupe.getKey());
+                                                                o.putNumber("percent", nbNotesByDevoir.get(devoirToGroupe.getKey()) * 100 / nbElevesByGroupe.get(devoirToGroupe.getValue()));
+                                                                result.add(o);
+                                                            }
+                                                            Renders.renderJson(request, result);
+                                                        } else {
+                                                            leftToResponse(request, event.left());
+                                                        }
+                                                    }
+                                                });
+
                                             } else {
                                                 leftToResponse(request, event.left());
                                             }

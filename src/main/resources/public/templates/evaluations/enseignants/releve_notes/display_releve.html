@@ -96,14 +96,14 @@
                         <tr ng-repeat="eleve in releveNote.classe.eleves.all">
                             <td class="col1 text-overflow" ng-click="getEleveInfo(eleve)">[[eleve.lastName]] [[eleve.firstName]]</td>
                             <td ng-class="{'nav-input' : evaluation.is_evaluated}" class="colDevoir" ng-repeat="evaluation in eleve.evaluations.all" data-label="[[getLibelleDevoir(evaluation.id_devoir)]]">
-                                <input ng-if="evaluation.is_evaluated && evaluation.endSaisie && !isChefEtab()"
+                                <input ng-if="evaluation.is_evaluated && evaluation.endSaisie && !isChefEtab() && !evaluation.is_annotation"
                                        ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
                                        ng-model="evaluation.valeur"
                                        ng-disabled="true"
                                        max="20" min="0" step="0.01">
-                                <input ng-if="evaluation.is_evaluated && (!evaluation.endSaisie || isChefEtab())"
+                                <input ng-if="evaluation.is_evaluated && (!evaluation.endSaisie || isChefEtab()) && !evaluation.is_annotation"
                                        ng-focus="focusMe($event); getEleveInfo(eleve); getDevoirInfo(evaluation)"
                                        class="input-note"
                                        type="text"
@@ -111,8 +111,14 @@
                                        ng-blur="saveNoteDevoirEleve(evaluation, $event, eleve)"
                                        ng-disabled="false"
                                        max="20" min="0" step="0.01">
-                                <input ng-if="!evaluation.is_evaluated"
+                                <input ng-if="!evaluation.is_evaluated && !evaluation.is_annotation"
                                        class="input-note"
+                                       type="text"
+                                       ng-disabled="true"
+                                       max="20" min="0" step="0.01">
+                                <input ng-if="evaluation.is_annotation"
+                                       class="input-note"
+                                       ng-model="evaluation.annotation_libelle_court"
                                        type="text"
                                        ng-disabled="true"
                                        max="20" min="0" step="0.01">

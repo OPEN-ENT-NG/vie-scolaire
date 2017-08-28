@@ -42,6 +42,8 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         super(schema, table);
     }
 
+
+
     @Override
     public void createNote(JsonObject note, UserInfos user, Handler<Either<String, JsonObject>> handler) {
         super.create(note, user, handler);
@@ -54,6 +56,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         //tables
         String table_appreciation = Viescolaire.EVAL_SCHEMA + "." +Viescolaire.EVAL_APPRECIATIONS_TABLE;
         String table_note         = Viescolaire.EVAL_SCHEMA + "." +Viescolaire.EVAL_NOTES_TABLE;
+        String table_annotations  = Viescolaire.EVAL_SCHEMA + "." +Viescolaire.EVAL_REL_ANNOTATIONS_DEVOIRS_TABLE;
 
         //colonne note
         String note_id        = table_note + ".id";
@@ -67,20 +70,49 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         String appreciation_id_eleve  = table_appreciation + ".id_eleve";
         String appreciation_id_devoir = table_appreciation + ".id_devoir";
 
-        query.append("SELECT res.*,devoirs.date, devoirs.coefficient, devoirs.ramener_sur  ")
-                .append(" FROM ( SELECT "+ appreciation_id_devoir +" as id_devoir, " + appreciation_id_eleve+", " + note_id + " as id, ")
-                .append(note_valeur + " as valeur, " + appreciation_id +" as id_appreciation, " + appreciation_valeur)
-                .append(" as appreciation FROM " + table_appreciation +
-                        "\n LEFT JOIN " + table_note)
-                .append( "\n ON ( " + appreciation_id_devoir + " = " + note_id_devoir + " AND " )
-                .append(appreciation_id_eleve + " = " + note_id_eleve + " ) UNION ")
+        //colonne annotations
+        String annotations_id_devoir = table_annotations + ".id_devoir";
+        String annotations_id_eleve = table_annotations + ".id_eleve";
+        String annotations_id_annotation = table_annotations + ".id_annotation";
 
-                .append("\n SELECT " +  note_id_devoir +" as id_devoir, " +note_id_eleve + ", " + note_id + " as id, ")
-                .append(note_valeur + " as valeur, null, null FROM " + table_note + " WHERE NOT EXISTS ( ")
-                .append("\n SELECT 1 FROM " + table_appreciation + " WHERE "+ note_id_devoir +" = " + appreciation_id_devoir)
+        query.append("SELECT res.*,devoirs.date, devoirs.coefficient, devoirs.ramener_sur  ")
+                .append(" FROM ( ")
+
+                // Récupération des appréciations avec/ou sans notes avec/ou sans annotation
+                .append("SELECT "+ appreciation_id_devoir +" as id_devoir, " + appreciation_id_eleve+", " + note_id + " as id, ")
+                .append(note_valeur + " as valeur, " + appreciation_id +" as id_appreciation, " + appreciation_valeur)
+                .append(" as appreciation , " + annotations_id_annotation +" FROM " + table_appreciation)
+                .append(" LEFT JOIN " + table_note + " ON ( " + appreciation_id_devoir + " = " + note_id_devoir)
+                .append(" AND " + appreciation_id_eleve + " = " + note_id_eleve + " )")
+                .append(" LEFT JOIN " + table_annotations + " ON ( " + appreciation_id_devoir + " = "+ annotations_id_devoir)
+                .append(" AND " + appreciation_id_eleve + " = " + annotations_id_eleve +")")
+                .append(" WHERE " + appreciation_id_devoir + " = ? ")
+
+                .append(" UNION ")
+
+                // Récupération des annotations sans appréciation
+                .append("SELECT " + annotations_id_devoir + " AS id_devoir ," + annotations_id_eleve + " ,NULL ,NULL ,NULL ,NULL ," + annotations_id_annotation)
+                .append(" FROM " + table_annotations)
+                .append("  WHERE " + annotations_id_devoir + " = ? ")
+                .append("   AND NOT EXISTS ( ")
+                .append("    SELECT 1 ")
+                .append("    FROM " + table_appreciation)
+                .append("    WHERE " + annotations_id_devoir + " = " +  appreciation_id_devoir)
+                .append("     AND " + annotations_id_eleve + " = " + appreciation_id_eleve + ")" )
+
+                .append(" UNION ")
+
+                // Récupération des notes sans appréciation sans annotation
+                .append(" SELECT " +  note_id_devoir +" as id_devoir, " +note_id_eleve + ", " + note_id + " as id, ")
+                .append(note_valeur + " as valeur, null, null, null FROM " + table_note + " WHERE " + note_id_devoir + " = ? AND NOT EXISTS ( ")
+                .append(" SELECT 1 FROM " + table_appreciation + " WHERE ")
+                .append(note_id_devoir +" = " + appreciation_id_devoir)
                 .append(" AND " + note_id_eleve + " = " + appreciation_id_eleve + " ) " +
-                        "ORDER BY 1, 2")
-                .append(") AS res, notes.devoirs WHERE res.id_devoir = devoirs.id AND devoirs.id = ? ");
+                        "ORDER BY 2")
+                .append(") AS res, notes.devoirs WHERE res.id_devoir = devoirs.id");
+
+        values.add(devoirId);
+        values.add(devoirId);
         values.add(devoirId);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
@@ -170,7 +202,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated " +
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated, null as annotation " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
@@ -181,7 +213,20 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
             query.append("AND devoirs.id_periode = ? ");
             values.addNumber(periodeId);
         }
-        query.append("ORDER BY devoirs.date ASC ;");
+        query.append(" UNION ");
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,null as valeur, null as id, rel_annotations_devoirs.id_eleve, devoirs.is_evaluated, rel_annotations_devoirs.id_annotation as annotation " +
+                "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
+                "LEFT JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_annotations_devoirs ON devoirs.id = rel_annotations_devoirs.id_devoir " +
+                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
+                "WHERE devoirs.id_etablissement = ? " +
+                "AND devoirs.id_matiere = ? " );
+        values.addString(classeId).addString(etablissementId).addString(matiereId);
+        if(periodeId != null) {
+            query.append("AND devoirs.id_periode = ? ");
+            values.addNumber(periodeId);
+        }
+
+        query.append("ORDER BY date ASC ;");
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 }

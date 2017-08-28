@@ -1809,6 +1809,58 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
         /**
+         * Séquence d'enregistrement d'une annotation
+         * @param evaluation évaluation à enregistrer
+         * @param $event evenement déclenchant
+         * @param eleve élève propriétaire de l'évaluation
+         */
+        $scope.saveAnnotationDevoirEleve = function (evaluation, $event, eleve) {
+            if (evaluation.id_annotation !== undefined
+                && evaluation.id_annotation > 0) {
+               if (evaluation.oldId_annotation !== evaluation.id_annotation) {
+                   evaluation.saveAnnotation().then((res) => {
+                       for (let i = 0 ; i < evaluation.competenceNotes.all.length; i++) {
+                           evaluation.competenceNotes.all[i].evaluation = -1;
+                       }
+                       evaluation.valeur = null;
+                       evaluation.oldId_annotation =  evaluation.id_annotation;
+                       $scope.calculStatsDevoir();
+                       utils.safeApply($scope);
+                   });
+               }
+            }
+        };
+
+        /**
+         * Ouvre le champs de saisie d'une annotation
+         * @param evaluation évaluation à ouvrir
+
+         */
+        $scope.openAddAnnotation = function (evaluation) {
+            evaluation.id_annotation = 0;
+            utils.safeApply($scope);
+        };
+
+        /**
+         * Supppression d'une annotation
+         * @param evaluation évaluation à enregistrer
+         */
+        $scope.deleteAnnotationDevoir = function (evaluation) {
+            if (evaluation.id_annotation !== undefined
+                && evaluation.id_annotation !== null
+                && evaluation.id_annotation > 0 ) {
+                evaluation.deleteAnnotationDevoir().then((res) => {
+                    evaluation.oldId_annotation = -1;
+                    evaluation.id_annotation = -1;
+                });
+            } else {
+                evaluation.id_annotation = evaluation.oldId_annotation;
+            }
+            $scope.calculStatsDevoir();
+            utils.safeApply($scope);
+        };
+
+        /**
          * Séquence d'enregistrement d'une évaluation
          * @param evaluation évaluation à enregistrer
          * @param $event evenement déclenchant
@@ -1930,6 +1982,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
+
+        /**
+         * Ouvre le détail de l'élève correspondant à l'index passé en paramètre et affiche l'appréciation
+         * @param index index du devoir
+         * @param bool état du détail
+         */
+        $scope.getLibelleCourtAnnotation = function(annotations, id_annotation) {
+            let libelle_court = $scope.translate('search.annotation');
+            if ( id_annotation !== undefined && id_annotation !== null && id_annotation !== '') {
+                let list_annotations = _.where(annotations, {id: id_annotation});
+                if ( list_annotations.length === 1) {
+                    libelle_court = list_annotations.get(0).libelle_court;
+                }
+            }
+            return libelle_court;
+        };
+
 
         /**
          * Ouvre le détail de l'élève correspondant à l'index passé en paramètre et affiche l'appréciation

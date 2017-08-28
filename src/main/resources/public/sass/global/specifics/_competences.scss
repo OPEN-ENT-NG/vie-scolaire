@@ -2020,4 +2020,13 @@ body.evaluations {
       }
     }
   }
+
+  label.select-evaluation {
+    margin: 0!important;
+  }
+
+  i.cross-annotation{
+    padding-left: 5px;
+    line-height: 34px;
+  }
 }

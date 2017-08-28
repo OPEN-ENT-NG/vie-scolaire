@@ -75,7 +75,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT competences_notes.*,competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +"competences_notes, "+ Viescolaire.EVAL_SCHEMA +"competences ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes, "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("WHERE competences_notes.id_competence = competences.id ")
                 .append("AND competences_notes.id_devoir = ? AND competences_notes.id_eleve = ? ")
                 .append("ORDER BY competences_notes.id ASC;");

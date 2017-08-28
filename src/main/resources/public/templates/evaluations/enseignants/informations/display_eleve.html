@@ -23,5 +23,5 @@
     <div class="imgEleve">
         <img src="/userbook/avatar/[[informations.eleve.id]]" alt="" ng-if="informations.eleve !== null" />
     </div>
-    <p style="padding: 0 5px;"><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
+    <p ng-if="informations.eleve.birthDate!= 'undefined'" style="padding: 0 5px;"><i18n>viescolaire.utils.user.birthdate</i18n> : <span class="italic">[[getDateFormated(informations.eleve.birthDate)]]</span></p>
 </div>

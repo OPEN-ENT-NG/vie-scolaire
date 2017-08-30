@@ -51,21 +51,22 @@
                     <i18n>viescolaire.absences.historique</i18n>
                 </div>
             </div>
-
-            <div class="one cell cell-indent">
-                <div ng-if="currentCours.classesOfGroup !== undefined">
-                    <i tooltip="viescolaire.absences.vue.eleves" class="show-vue-eleves" ng-class="{ selected: !bClassesVue }" ng-click="showVueClasses(false)"></i>
-                    <i tooltip="viescolaire.absences.vue.classes" class="show-vue-classes" ng-class="{ selected: bClassesVue }" ng-click="showVueClasses(true)"></i>
+            <div class="twelve cell">
+                <div class="one cell cell-indent inline">
+                    <div ng-if="currentCours.classesOfGroup !== undefined">
+                        <i tooltip="viescolaire.absences.vue.eleves" class="show-vue-eleves" ng-class="{ selected: !bClassesVue }" ng-click="showVueClasses(false)"></i>
+                        <i tooltip="viescolaire.absences.vue.classes" class="show-vue-classes" ng-class="{ selected: bClassesVue }" ng-click="showVueClasses(true)"></i>
+                    </div>
                 </div>
-            </div>
-            <div class="six cell cell-indent">
-                <div class="appel_eleves-presents"><i18n>viescolaire.absences.nb.presents</i18n> : [[appel.piPresents]] / [[appel.piTotal]]</div>
-            </div>
-            <div class="five cell cell-indent right-magnet ">
-                <div ng-repeat="plage in structure.plages.all"
-                     ng-style="plage.style"
-                     class="appel__historiques-creneau-plage">
-                    [[plage.heure]]
+                <div class="six cell cell-indent inline">
+                    <div class="appel_eleves-presents"><i18n>viescolaire.absences.nb.presents</i18n> : [[appel.piPresents]] / [[appel.piTotal]]</div>
+                </div>
+                <div class="five cell cell-indent right-magnet inline">
+                    <div ng-repeat="plage in structure.plages.all"
+                         ng-style="plage.style"
+                         class="appel__historiques-creneau-plage">
+                        [[plage.heure]]
+                    </div>
                 </div>
             </div>
 

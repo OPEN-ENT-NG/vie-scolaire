@@ -122,7 +122,7 @@
                         </label>
                     </section>
                     <section>
-                        <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[currentDevoir._periode_libelle]]</label>
+                        <label><i18n class="bold">viescolaire.utils.periode</i18n> : [[getI18nPeriode(currentDevoir.periode) + currentDevoir._periode_ordre]]</label>
                     </section>
                     <section ng-if="currentDevoir.is_evaluated">
                         <label><i18n class="bold">viescolaire.utils.coefficient</i18n> : [[currentDevoir.coefficient]]</label>

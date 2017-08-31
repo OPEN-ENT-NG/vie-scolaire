@@ -1,0 +1,140 @@
+<lightbox on-close="" show="selected.modifAcces">
+    <h2>Paramétrage des classes sélectionnées</h2>
+    <section>
+        <p>Type de configuration : </p>
+        <div>
+            <label>
+                <input type="radio"
+                       ng-model="selected.param.typePeriode" value="2" ng-disabled="disabelchangeTypePeriode">
+                <span>
+                    <i18n>semestre</i18n>
+            </span>
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio"
+                       ng-model="selected.param.typePeriode" value="3" ng-disabled="disabelchangeTypePeriode">
+                <span>
+                    <i18n>trimestre</i18n>
+                </span>
+            </label>
+        </div>
+    </section>
+
+    <div ng-show="selected.param.typePeriode == 2 ">
+        <div class="twelve row head-param-periode">
+            <div class="cell two "><i class="table"></i></div>
+            <div class="cell three"><i class="calendar"></i> Début</div>
+            <div class="cell three"><i class="calendar"></i> Fin</div>
+            <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
+        </div>
+        <div class="twelve row">
+            <div class="cell two"> Semestre 1</div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_debut" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_fin" min-date="selected.param[0].date_debut"
+                                 ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_finSaisie" min-date="selected.param[0].date_fin"
+                                 ng-change=""></date-picker>
+                </label>
+            </div>
+        </div>
+        <div class="twelve row">
+            <div class="cell two"> Semestre 2</div>
+            <div class="cell three">
+                <label>
+
+                    <date-picker ng-model="selected.param[1].date_debut" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[1].date_fin" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[1].date_finSaisie" ng-change=""></date-picker>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="selected.param.typePeriode == 3 ">
+
+        <div class="twelve row head-param-periode">
+            <div class="cell two "><i class="table "></i></div>
+            <div class="cell three"><i class="calendar"></i> Début</div>
+            <div class="cell three"><i class="calendar"></i> Fin</div>
+            <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
+        </div>
+        <div class="twelve row">
+            <div class="cell two"> Trimestre 1</div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_debut" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_fin" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[0].date_finSaisie" ng-change=""></date-picker>
+                </label>
+            </div>
+        </div>
+        <div class="twelve row">
+            <div class="cell two"> Trimestre 2</div>
+            <div class="cell three">
+                <label>
+
+                    <date-picker ng-model="selected.param[1].date_debut" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[1].date_fin" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[1].date_finSaisie" ng-change=""></date-picker>
+                </label>
+            </div>
+        </div>
+        <div class="twelve row">
+            <div class="cell two"> Trimestre 3</div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[2].date_debut" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[2].date_fin" ng-change=""></date-picker>
+                </label>
+            </div>
+            <div class="cell three">
+                <label>
+                    <date-picker ng-model="selected.param[2].date_finSaisie" ng-change=""></date-picker>
+                </label>
+            </div>
+        </div>
+    </div>
+    <button class="marginFive magnet-right" ng-click="savePeriode()">
+        <i18n>Enregistrer</i18n>
+    </button>
+</lightbox>

@@ -1,4 +1,4 @@
-<div autoscroll="true" class="twelve cell" ng-controller="VscoAdminController">
+<div autoscroll="true" class="twelve cell">
     <section class="twelve cell row headerAccueil">
         <div class="twelve cell ">
             <header class="header-viescolaire">
@@ -34,20 +34,17 @@
             </a>
         </header>
     </div>
-    <div class="twelve cell">
-        <div ng-if="!hasParam('filter')">
-            <div class="twelve">
-                <i18n>evaluations.devoir.information.enconstruction</i18n>
-            </div>
-        </div>
-        <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
-            <article class="twelve">
-                <span class="three"><i18n>activated.module</i18n></span>
+    <div ng-if="findParam('filter') === lang.translate('viescolaire.utils.school')">
+        <div ng-include="/viescolaire/public/templates/viescolaire/param_etab.html"></div>
+    </div>
+    <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
+        <article class="twelve">
+            <span class="three"><i18n>activated.module</i18n></span>
 
-                <div class="cell one">
-                    <label class="checkbox">
-                        <input type="checkbox"
-                               ng-change="structure.activate('notes', structure.isActived.evaluation, structure.id);
+            <div class="cell one">
+                <label class="checkbox">
+                    <input type="checkbox"
+                           ng-change="structure.activate('notes', structure.isActived.evaluation, structure.id);
                                               structure.isActived.evaluation = !structure.isActived.evaluation;"
                                ng-click="structure.isActived.evaluation = !structure.isActived.evaluation;"
                                ng-model="structure.isActived.evaluation"
@@ -57,7 +54,6 @@
                 </div>
             </article>
             <div ng-include="'/viescolaire/public/templates/viescolaire/param_competence.html'"></div>
-        </div>
         <div ng-if="findParam('filter') === lang.translate('viescolaire.presences.title')">
             <article class="twelve">
                 <label for="structure.isActived.presence" ><i18n>activated.module</i18n></label>
@@ -75,11 +71,7 @@
             </article>
             <div ng-include="'/viescolaire/public/templates/viescolaire/param_presence.html'"></div>
         </div>
-
-
     </div>
 </div>
-</div>
-
 
 

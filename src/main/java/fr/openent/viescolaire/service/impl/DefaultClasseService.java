@@ -149,8 +149,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
-        query.append("MATCH (g:Class)-[BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure ")
-            .append("UNION MATCH (g:FunctionalGroup)-[DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return s.id AS idStructure");
+        query.append("MATCH (g:Class)-[:BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses ")
+            .append("UNION MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
         params.putArray("idClasses", new JsonArray(idClasses));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
@@ -180,5 +180,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         params.putString("idClasse", idClasse);
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+    }
+    @Override
+    public void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (g:FunctionalGroup)--(u:User {profiles:['Student']})--(:profileGroup)--(c:Class) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as id_classe, COLLECT(DISTINCT g.id) AS id_groupes");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 }

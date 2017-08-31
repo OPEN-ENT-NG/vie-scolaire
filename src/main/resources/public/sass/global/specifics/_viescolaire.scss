@@ -32,6 +32,115 @@ body.viescolaire {
   td i.ok {
     color: green;
   }
+  .head-param-periode{
+    > div{
+      margin-bottom: 3%;
+    }
+  }
+  .head-tableau-periode{
+    border-bottom: solid;
+    margin-bottom: 8px;
+    border-left: solid;
+    border-right: solid;
+    border-width: thin;
+    border-color: #ccc;
+  }
+
+  .config-periode {
+
+    & article > * {
+      margin-bottom: 0;
+    }
+
+    .expandable-list-header, .expandable-list-item-main, .expandable-list-item-expand > .row {
+      padding: 0;
+      overflow: hidden;
+      height: 40px;
+
+      & > div {
+        padding: 10px;
+        width: 20%;
+      }
+
+      & > div:nth-child(2) {
+        width: 10%;
+      }
+
+      & > div:nth-child(3) {
+        color: $primary;
+        font-weight: bold;
+      }
+
+      & > div:first-child, & > div:last-child {
+        width: 5%;
+        text-align: center;
+      }
+    }
+
+    .expandable-list-header > div{
+      background-color: $primary;
+      color: $white !important;
+      font-weight: bold;
+    }
+
+    .expandable-list-item {
+      border-bottom: solid 1px $grey;
+
+      .classe {
+        height: auto;
+        background-color: $primary-lighter;
+        border-radius: 12px;
+        padding: 0 5px;
+        text-align: center;
+        @include box-shadow(0px 1px 1px rgba(0, 0, 0, 0.8));
+
+        span {
+          margin: 5px;
+        }
+      }
+
+      .expandable-list-item-main {
+        color: $black;
+        font-weight: bold;
+
+        .down-open::before {
+          opacity: 0.8;
+          background-color: inherit;
+          color: $grey;
+          display: block;
+        }
+
+        &:hover .down-open::before {
+          color: $cyan;
+        }
+      }
+
+      &:not(.displayed) {
+
+        .down-open::before {
+          transform: rotate(90deg);
+          @include transition(rotate 1s ease);
+        }
+
+        .expandable-list-item-expand {
+          @include transition(max-height 1s ease);
+          max-height: 0;
+          overflow: hidden
+        }
+      }
+
+      &.displayed > .expandable-list-item-expand > .row:first-child {
+
+        div {
+          border-top: solid 2px $primary;
+        }
+
+        div:nth-child(1), div:nth-child(2) {
+          border-top: none;
+        }
+      }
+    }
+  }
 
   .rounded {
     width: 20px;

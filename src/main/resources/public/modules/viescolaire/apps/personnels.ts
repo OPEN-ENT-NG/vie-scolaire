@@ -7,10 +7,13 @@ import { idiom as lang, routes, ng } from 'entcore/entcore';
 import { sticky } from '../../utils/directives/sticky';
 import  {cSkillsBubble } from "../../evaluations/directives/cSkillsBubble"
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
-import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl';
 
 ng.controllers.push(viescolaireController);
-ng.controllers.push(adminVieScolaireController);
+
+
+
+import {customSearchClasse} from "../filtres/customSearchClasse";
+ng.filters.push(customSearchClasse);
 
 ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);

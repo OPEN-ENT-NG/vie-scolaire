@@ -42,6 +42,10 @@ body.vsco--global {
     font-size: 18px;
   }
 
+  i.down-open {
+    content: '\e841';
+  }
+
   .left-arrow::after {
     content: "\e87b";
     opacity: 0.8;

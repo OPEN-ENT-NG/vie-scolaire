@@ -32,9 +32,19 @@
             <article class="five cell box-accueil twelve-mobile">
                 <div class="content-box-accueil">
                     <div class="titre-widget">
-                        <h2 class="inline-block"><i18n>evaluations.mes.evaluations.par.peridoe</i18n>&nbsp;:</h2>
+                        <h2 class="inline-block "><i18n>evaluations.mes.evaluations.par.peridoe</i18n>&nbsp;:</h2>
+                        <label class="select right-magnet" ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
+                            <select ng-model="search.periode"
+                                    ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
+                                    ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
+                                <option class="header-opt" value="">[[translate('viescolaire.utils.periode')]]</option>
+                            </select>
+                        </label>
                         <label class="select right-magnet">
-                            <select ng-model="search.periode" ng-options="periode.libelle for periode in periodes.all">
+                            <select ng-model="search.classe"
+                                    ng-change="syncPeriode(search.classe.id); search.periode = '*'"
+                                    ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | orderBy:['type_groupe_libelle','name']">
+                                <option value="" class="header-opt">Classe / Groupe</option>
                             </select>
                         </label>
                     </div>
@@ -51,8 +61,7 @@
                             </div>
                         </div>
                         <div class="content-box-accueil--table--content">
-                            <div
-                                    ng-repeat="devoir in devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
+                            <div  ng-repeat="devoir in devoirs.all | filter:filterValidClasse() | customSearchFilters:search | orderBy:'date':true" class="row">
                                 <a ng-href="#/devoir/[[devoir.id]]" >
                                     <div class="four cell">
                                         [[getDateFormated(devoir.date)]]
@@ -115,7 +124,7 @@
                     </h2>
                     <label class="select right-magnet">
                         <select class="padding-select-accueil" ng-change="loadChart(chartOptions.selectedClasse);" ng-model="chartOptions.selectedClasse" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in devoirsClasses | orderBy:['type_groupe_libelle','name'] "
-                                >
+                        >
 
                         </select>
                     </label>

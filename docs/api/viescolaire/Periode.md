@@ -1,9 +1,7 @@
-# CoursController
+# PeriodeController
 
 ##### Table of Contents
-  * [viewPeriodes](#viewPeriodes)
-  
-<a name="viewPeriodes" />
+
 
 ## viewPeriodes
   Retourne les periodes pour un établissement donné.

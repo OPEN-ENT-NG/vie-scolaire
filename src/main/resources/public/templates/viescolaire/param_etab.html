@@ -1,0 +1,156 @@
+<div class="twelve cell config-periode">
+    <div class="two cell">
+        <div class="side-col twelve-mobile" offset="65" sticky>
+            <div class="row">
+                <nav class="vertical">
+                    <ul>
+                        <li>
+                            <a href="">
+                                <i18n>viescolaire.periode.set</i18n>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="ten cell">
+        <div class="twelve tabs vertical-spacing-twice heading-tabs">
+            <header ng-class="{selected : selected.periode === 3}"
+                    class="horizontal-spacing-twice ng-scope">
+                <a class="horizontal-spacing" ng-click="selectPeriodeType(3)">
+                    <span><i18n>viescolaire.periode.t </i18n></span>
+                </a>
+            </header>
+            <header ng-class="{selected : selected.periode === 2}"
+                    class="horizontal-spacing-twice ng-scope">
+                <a class="horizontal-spacing" ng-click="selectPeriodeType(2)">
+                    <span><i18n>viescolaire.periode.s </i18n></span>
+                </a>
+            </header>
+            <header ng-class="{selected : selected.periode === 0}"
+                    class="horizontal-spacing-twice ng-scope">
+                <a class="horizontal-spacing" ng-click="selectPeriodeType(0)">
+                    <span><i18n><span>NI</span></i18n></span>
+                </a>
+            </header>
+        </div>
+
+        <article class="twelve cell ">
+            <h2 class="two cell">
+                <i18n><span class="no-style ng-scope">Recherche Classe</span></i18n>
+            </h2>
+            <input class="ten cell"
+                   type="text" ng-model="search.name" placeholder="Nom de la classe">
+        </article>
+
+        &nbsp
+
+        <div class="card expandable-list twelve row">
+            <div class="expandable-list-header twelve cell"
+                 ng-if="selected.listeGroupeClasse[selected.periode].length > 0">
+                <div class="cell">&nbsp</div>
+                <div class="cell">
+                    <i18n>viescolaire.utils.class</i18n>
+                </div>
+                <div class="cell">
+                    <i18n>viescolaire.utils.periode</i18n>
+                </div>
+                <div class="cell">
+                    <i18n>viescolaire.utils.datedebut</i18n>
+                </div>
+                <div class="cell">
+                    <i18n>viescolaire.utils.datefin</i18n>
+                </div>
+                <div class="cell">
+                    <i18n>viescolaire.utils.datefinsaisie</i18n>
+                </div>
+                <div class="cell">&nbsp</div>
+            </div>
+            <div class="twelve cell expandable-list-body">
+                <div class="row expandable-list-item"
+                     ng-repeat="classe in selected.listeGroupeClasse[selected.periode] | customSearchClasse:search"
+                     ng-class="{ displayed : classe.displayed }">
+                    <div class="row expandable-list-item-main" ng-click="classe.displayed = !classe.displayed">
+                        <div class="cell">
+                            <label class="checkbox">
+                                <input type="checkbox" ng-model="classe.selected"
+                                       ng-change="selectDevoir(classe)">
+                                <span></span>
+                            </label>
+                        </div>
+                        <div class="cell">
+                            <div class="classe">
+                                <span>[[ classe.name ]]</span>
+                            </div>
+                        </div>
+                        <div class="cell">
+                            <span><i18n>viescolaire.periode.encours</i18n> : [[ getI18n(getCurrentPeriode(classe).libelle) ]]</span>
+                        </div>
+                        <div class="cell">
+                            <span>[[ formatDate(getCurrentPeriode(classe).timestamp_dt) ]]</span>
+                        </div>
+                        <div class="cell">
+                            <span>[[ formatDate(getCurrentPeriode(classe).timestamp_fn) ]]</span>
+                        </div>
+                        <div class="cell">
+                            <span>[[ formatDate(getCurrentPeriode(classe).date_fin_saisie) ]]</span>
+                        </div>
+                        <div class="cell">
+                            <i class="down-open"></i>
+                        </div>
+                    </div>
+                    <div class="row expandable-list-item-expand">
+                        <div class="row" ng-repeat="periode in classe.periodes.all">
+                            <div class="cell">&nbsp</div>
+                            <div class="cell">&nbsp</div>
+                            <div class="cell">[[ getI18n(periode.libelle) ]]</div>
+                            <div class="cell">
+                                [[ formatDate(periode.timestamp_dt) ]]
+                            </div>
+                            <div class="cell">
+                                [[ formatDate(periode.timestamp_fn,
+                                "YYYY/MM/DD") ]]
+                            </div>
+                            <div class="cell">
+                                [[ formatDate(periode.date_fin_saisie) ]]
+                            </div>
+                            <div class="cell">&nbsp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--<div class="expandable twelve  row"-->
+            <!--ng-repeat="classe in selected.listeGroupeClasse[selected.periode] | customSearchClasse:search " >-->
+            <!--<div class="expandable twelve cell row" >-->
+            <!--<div class="one cell cell-check expandable-content two-mobile">-->
+
+            <!--</div>-->
+            <!--<div class="cell cell-indent expandable-content four-mobile ng-binding two">-->
+            <!--[[classe.name]]-->
+            <!--</div>-->
+
+            <!--</div>-->
+
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+<section class="toggle-buttons"
+         ng-class="{ hide: selected.classes[selected.periode].length == 0 || selected.classes[selected.periode].length == undefined }">
+    <div class="toggle">
+        <div class="row">
+            <button class="cell ng-scope"
+                    ng-click="displayLightboxParam();">
+                <i18n>
+                    <span class="no-style">evaluations.test.edit</span>
+                </i18n>
+            </button>
+
+        </div>
+    </div>
+</section>

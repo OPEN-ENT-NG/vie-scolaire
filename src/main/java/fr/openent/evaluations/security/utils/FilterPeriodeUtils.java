@@ -41,7 +41,7 @@ public class FilterPeriodeUtils {
         JsonArray params = new JsonArray().addString(idEtablissement);
 
         if(idPeriode != null) {
-            query.append("AND  periode.id = ? ");
+            query.append("AND  periode.id_type = ? ");
             params.addNumber(idPeriode);
         }
 

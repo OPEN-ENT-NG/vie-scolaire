@@ -35,9 +35,10 @@
                 <label class="select cell two" ng-hide="searchReleve.eleve===null" style="margin-left:8px">
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="periode.libelle for periode in searchReleve.eleve.periodes.all">
-                        <option value="" class="header-opt">Périodes</option>
-                    </select>
+                            ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.periodes.all">
+                        <option class="header-opt" value="">
+                            [[translate('viescolaire.utils.periode')]]
+                        </option>                    </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
                     &nbsp;  <i class="download"> </i><i18n>print</i18n>
@@ -47,7 +48,10 @@
                 <label class="select cell two" style="margin-left:8px">
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="periode.libelle for periode in periodes.all">
+                            ng-options="getI18nPeriode(periode) for periode in periodes.all">
+                        <option class="header-opt" value="">
+                            [[translate('viescolaire.utils.periode')]]
+                        </option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">

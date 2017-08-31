@@ -41,8 +41,20 @@
                 </section>
                 <section>
                     <label class="select">
-                        <select ng-model="search.classe" ng-change="getReleve()" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | filter:filterValidClasse() | orderBy:['type_groupe_libelle','name']">
+                        <select ng-model="search.classe"
+                                ng-change="syncPeriode(search.classe.id); search.periode = '*'; getReleve();"
+                                ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | filter:filterValidClasse() | orderBy:['type_groupe_libelle','name']">
                             <option value="" class="header-opt">[[translate('viescolaire.utils.class.groupe')]]</option>
+                        </select>
+                    </label>
+                </section>
+                <section>
+                    <label class="select" ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
+                        <select ng-model="search.periode"
+                                ng-change="getReleve()"
+                                ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
+                                ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
+                            <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                         </select>
                     </label>
                 </section>
@@ -54,15 +66,7 @@
                         </select>
                     </label>
                 </section>
-                <section>
-                    <label class="select">
-                        <select ng-model="periodesList.value"
-                                ng-change="search.periode = periodesList.value;getReleve()"
-                                ng-options="periode.libelle for periode in periodesList.values">
-                            <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
-                        </select>
-                    </label>
-                </section>
+
             </div>
             <div class="marginFive">
                 <container class="left card tailleMax" template="leftSide-devoirInfo"></container>

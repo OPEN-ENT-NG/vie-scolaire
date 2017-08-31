@@ -1,9 +1,12 @@
-import {notify, idiom as lang, template, routes, model, ng } from 'entcore/entcore';
-import {vieScolaire} from '../models/vsco_personnel_mdl';
+import {idiom as lang, template, ng} from "entcore/entcore";
+import {vieScolaire} from "../models/vsco_personnel_mdl";
 import {Motif} from "../../absences/models/personnel/Motif";
 import {Categorie} from "../../absences/models/personnel/Categorie";
 import {MotifAppel} from "../../absences/models/personnel/MotifAppel";
 import {CategorieAppel} from "../../absences/models/personnel/CategorieAppel";
+import {safeApply} from "../../utils/functions/safeApply";
+import {getFormatedDate} from "../../utils/functions/formatDate";
+import {Periode} from "../models/personnel/Periode";
 
 let moment = require('moment');
 declare let _: any;
@@ -19,8 +22,43 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.selected = {
             categories: [],
             motifs: [],
-            all: []
+            all: [],
+            listeGroupeClasse : [],
+            periode : 0,
+            classes: {
+                0:[],
+                2:[],
+                3:[]
+            },
+            modifAcces : false,
+            param : {
+                typePeriode : "2",
+                0: {
+                    date_debut: new Date(),
+                    date_fin : new Date(),
+                    date_finSaisie : new Date()
+                },
+                1: {
+                    date_debut: new Date(),
+                    date_fin : new Date(),
+                    date_finSaisie : new Date()
+                },
+                2: {
+                    date_debut: new Date(),
+                    date_fin : new Date(),
+                    date_finSaisie : new Date()
+                }
+            }
         };
+        $scope.justClasses = [];
+        $scope.isSelected = {
+            classe : true,
+            groupe: true
+        };
+        $scope.search = {
+            name:''
+        };
+        $scope.disabelchangeTypePeriode = true;
         $scope.safeApply = function(fn) {
             let phase = this.$root.$$phase;
             if (phase === '$apply' || phase === '$digest') {
@@ -32,6 +70,43 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             }
         };
 
+        $scope.selectPeriodeType = (nbr) =>{
+            $scope.selected.periode = nbr;
+            safeApply($scope);
+        };
+
+        $scope.displayLightboxParam = () => {
+            $scope.selected.modifAcces = true;
+            if($scope.selected.periode === 0 )  {$scope.selected.param.typePeriode = "2" ; $scope.disabelchangeTypePeriode = false;}
+            else {$scope.selected.param.typePeriode = $scope.selected.periode ;$scope.hasEvaluation() ; }
+
+        };
+
+        $scope.initparamPeriode = () => {
+            $scope.selected.classes[$scope.selected.periode] = [];
+
+            $scope.selected.param [0]= {
+                date_debut: new Date(),
+                date_fin : new Date(),
+                date_finSaisie : new Date()
+            };
+            $scope.selected.param [1]=  {
+                date_debut: new Date(),
+                date_fin : new Date(),
+                date_finSaisie : new Date()
+            };
+            $scope.selected.param [2]=  {
+                date_debut: new Date(),
+                date_fin : new Date(),
+                date_finSaisie : new Date()
+            }
+        };
+
+        $scope.UndesplayLightboxParam = () => {
+            $scope.initparamPeriode ();
+            $scope.syncClassePeriodes();
+            $scope.selected.modifAcces = false;
+        };
         // check si on doit afficher le menu viescolaire.
         $scope.hasParam = function (param) {
             return Object.prototype.hasOwnProperty.call($location.search(), param);
@@ -53,7 +128,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             window.scrollTo(0, top);
         };
 
-
         $scope.openCreateMotif = function () {
             $scope.displayCreateCategorie = false;
             $scope.displayText = lang.translate("viescolaire.create.motif");
@@ -70,7 +144,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             else {
                 $scope.structure.categories.slidedAll = !$scope.structure.categories.slidedAll;
                 $scope.structure.categories.map(function (categorie) {
-                  categorie.slided = $scope.structure.categories.slidedAll;
+                    categorie.slided = $scope.structure.categories.slidedAll;
                 });
             }
             $scope.safeApply($scope);
@@ -233,6 +307,10 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             });
         };
 
+        $scope.getI18n = (libelle: string) => {
+            return lang.translate(libelle);
+        };
+
         $scope.updateMotif = function () {
             $scope.displayText = lang.translate("viescolaire.update.motif");
             $scope.newMotif = $scope.selected.motifs[0];
@@ -258,12 +336,73 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 $scope.safeApply($scope);
             });
         };
+        $scope.hasEvaluation = () => {
+            if($scope.selected.periode != 0){
+                let MyClasses = [];
+                MyClasses =_.pluck($scope.selected.classes[$scope.selected.periode],'id') ;
+                $scope.structure.hasEvaluations(MyClasses).then((data)=>{
+                    if(data.length === 0){$scope.disabelchangeTypePeriode = false;}
+                    else{$scope.disabelchangeTypePeriode = true;}
+                    $scope.safeApply($scope);
+                });
+            }
+        };
+        $scope.savePeriode = () => {
+            let periodes =  {};
+
+            let z=0;
+            //initialisation
+            if($scope.selected.periode == 0){
+                $scope.structure.createPeriodes($scope.structure.id,$scope.selected.classes[$scope.selected.periode],$scope.selected.param);
+            }else if($scope.selected.periode == $scope.selected.param.typePeriode){
+                //Update dates
+                $scope.structure.updatePeriodes($scope.selected.classes[$scope.selected.periode],$scope.selected.param);
+            }else {
+
+                $scope.structure.updateTypePeriode($scope.selected.classes[$scope.selected.periode],$scope.selected.periode,$scope.selected.param.typePeriode,$scope.selected.param);
+
+            }
+            $scope.UndesplayLightboxParam();
+            $scope.safeApply($scope);
+
+        };
+        $scope.syncClassePeriodes = () => {
+            $scope.structure.classes.sync().then((data) => {
+                $scope.structure.periodes.sync().then(() => {
+                    $scope.justClasses = _.filter($scope.structure.classes.all, (classe) => {
+                        return classe.type_groupe == 0 ;
+                    });
+                    $scope.selected.listeGroupeClasse = _.groupBy($scope.justClasses, (classe) => { return classe.periodes.length(); });
+                });
+
+                $scope.safeApply($scope);
+            });
+        };
+
+        $scope.formatDate = (pODate) => {
+            return getFormatedDate(pODate, 'DD MMMM YYYY');
+        };
+
+        $scope.formatDate = function (pODateDebut, pODateFin) {
+            return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
+        };
+
+        $scope.getCurrentPeriode = (classe):Periode => {
+            let now = moment();
+            _.each(classe.periodes.all, (periode) => {
+                if(moment(periode.timestamp_dt).isBefore(now) && moment(periode.timestamp_fn).isAfter(now)) {
+                    return periode;
+                }
+            });
+            return _.first(classe.periodes.all);
+        };
 
         $scope.currentCycle = function(cycle) {
             return cycle.selected;
         };
         route({
             accueil: function (params) {
+                moment.locale('fr');
                 $scope.hasFilterParam = params.filter === undefined;
                 if ( $scope.structure === undefined ) {
                     vieScolaire.structures.sync().then(() => {
@@ -278,6 +417,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                             if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
+                            $scope.syncClassePeriodes();
                             $scope.safeApply($scope);
                         });
                     });

@@ -77,7 +77,8 @@ public class FilterDevoirUtils {
                 .append("SELECT count(*) FROM " + Viescolaire.EVAL_SCHEMA + ".devoirs ");
 
         if (modification) {
-            query.append("INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".periode on (devoirs.id_periode = periode.id)");
+            query.append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes on (devoirs.id = rel_devoirs_groupes.id_devoir)");
+            query.append("INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".periode on (rel_devoirs_groupes.id_groupe = periode.id_classe)");
         }
 
         query.append("WHERE devoirs.id = ? ")

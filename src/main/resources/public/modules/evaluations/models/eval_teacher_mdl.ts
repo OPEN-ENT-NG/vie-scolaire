@@ -7,7 +7,7 @@ let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 
-export class Structure extends Model implements IModel {
+export class Structure extends Model {
     id: string;
     libelle: string;
     eleves: Collection<Eleve>;
@@ -20,11 +20,11 @@ export class Structure extends Model implements IModel {
     enseignements: Collection<Enseignement>;
     annotations: Collection<Annotation>;
     annotationsfull: [Annotation];
-    periodes: Collection<Periode>;
     releveNotes: Collection<ReleveNote>;
     isSynchronized: boolean;
     cycles: Array<Cycle>;
     cycle: Cycle;
+    typePeriodes : Collection<TypePeriode>;
     niveauCompetences: Collection<NiveauCompetence>;
     usePerso: any;
     private syncRemplacement: () => any;
@@ -45,9 +45,6 @@ export class Structure extends Model implements IModel {
                 synchronizationCE: '/viescolaire/matieres?idEtablissement=' + this.id,
                 synchronization: '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
             },
-            PERIODE: {
-                synchronization: '/viescolaire/periodes?idEtablissement=' + this.id
-            },
             CLASSE: {
                 synchronization: '/viescolaire/classes?idEtablissement=' + this.id,
                 synchronizationRemplacement: '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
@@ -61,6 +58,9 @@ export class Structure extends Model implements IModel {
             NIVEAU_COMPETENCES: {
                 synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
                 use: '/viescolaire/evaluations/maitrise/perso/use/' + model.me.userId
+            },
+            TYPEPERIODES : {
+                synchronisation: '/viescolaire/periodes/types'
             }
         }
     }
@@ -73,7 +73,7 @@ export class Structure extends Model implements IModel {
             devoirs: false,
             classes: false,
             matieres: false,
-            periodes: false,
+            typePeriodes: false,
             types: false,
             annotations: false,
             enseignements: false,
@@ -244,19 +244,6 @@ export class Structure extends Model implements IModel {
                 });
             }
         });
-        this.collection(Periode, {
-            sync: function () {
-                return new Promise((resolve, reject) => {
-                    http().getJson(that.api.PERIODE.synchronization).done(function (res) {
-                        this.load(res);
-                        evaluations.periodes = this;
-                        that.synchronized.periodes = true;
-                        this.trigger('sync');
-                        resolve();
-                    }.bind(this));
-                });
-            }
-        });
         this.collection(Annotation, {
             sync: function () {
                 return new Promise((resolve, reject) => {
@@ -327,6 +314,14 @@ export class Structure extends Model implements IModel {
                 });
             },
         });
+        this.collection(TypePeriode, {
+            sync: async () : Promise<any> => {
+                return await http().getJson(this.api.TYPEPERIODES.synchronisation).done((res) => {
+                    this.typePeriodes.load(res);
+                    this.synchronized.typePeriodes = true;
+                });
+            }
+        });
 
         this.devoirs.on('sync', function () {
             that.synchronized.devoirs = true;
@@ -338,12 +333,12 @@ export class Structure extends Model implements IModel {
             let isSynced = () => {
                 let b =
                     this.synchronized.matieres &&
-                    this.synchronized.periodes &&
                     this.synchronized.types &&
                     this.synchronized.classes &&
                     this.synchronized.annotations &&
                     this.synchronized.niveauCompetences &&
-                    this.synchronized.devoirs;
+                    this.synchronized.devoirs &&
+                    this.synchronized.typePeriodes;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
                 }
@@ -353,7 +348,6 @@ export class Structure extends Model implements IModel {
                 }
             };
             this.matieres.sync().then(isSynced);
-            this.periodes.sync().then(isSynced);
             this.annotations.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
@@ -366,6 +360,7 @@ export class Structure extends Model implements IModel {
             if (isChefEtab()) {
                 this.syncEnseignants().then(isSynced);
             }
+            this.typePeriodes.sync().then(isSynced);
         });
     }
 
@@ -443,6 +438,7 @@ export class ReleveNote extends  Model implements IModel{
     idClasse: string;
     idMatiere: string;
     idPeriode: number;
+    idEtablissement: string;
     _tmp : any;
 
     get api () {
@@ -454,7 +450,6 @@ export class ReleveNote extends  Model implements IModel{
     constructor (o? : any) {
         super();
         if (o && o !== undefined) this.updateData(o);
-        var that = this;
         this.synchronized = {
             classe : false,
             devoirs : false,
@@ -462,32 +457,23 @@ export class ReleveNote extends  Model implements IModel{
             releve : false
         };
         this.structure = evaluations.structure;
-        this.periode = evaluations.structure.periodes.findWhere({id : this.idPeriode});
-        this.matiere = evaluations.structure.matieres.findWhere({id : this.idMatiere});
+        this.matiere = _.findWhere(evaluations.structure.matieres.all, {id : this.idMatiere});
         let c = _.findWhere(evaluations.structure.classes.all, {id : this.idClasse});
         this.classe = new Classe({id : c.id, name: c.name });
 
         this.collection(Devoir, {
-            sync : function () {
+            sync : () => {
                 if (evaluations.structure.synchronized.devoirs) {
-                    let _devoirs=[];
-                    if(this.composer.idPeriode !== undefined) {
-                        _devoirs = evaluations.devoirs.where({
-                            id_periode: this.composer.idPeriode,
-                            id_groupe: this.composer.idClasse,
-                            id_matiere: this.composer.idMatiere,
-                            id_etablissement: this.composer.idEtablissement
-                        });
-                    }
-                    else {
-                        _devoirs = evaluations.devoirs.where({
-                            id_groupe: this.composer.idClasse,
-                            id_matiere: this.composer.idMatiere,
-                            id_etablissement: this.composer.idEtablissement
-                        });
+                    let _devoirs = evaluations.devoirs.where({
+                        id_groupe: this.idClasse,
+                        id_matiere: this.idMatiere,
+                        id_etablissement: this.idEtablissement
+                    });
+                    if(this.idPeriode) {
+                        _devoirs = _.where(_devoirs, { id_periode: this.idPeriode });
                     }
                     if (_devoirs.length > 0) {
-                        this.load(_devoirs);
+                        this.devoirs.load(_devoirs);
                     }
                 }
             }
@@ -495,32 +481,28 @@ export class ReleveNote extends  Model implements IModel{
     }
 
     syncClasse () : Promise<any> {
-        return new Promise((resolve, reject) => {
-            let c = _.findWhere(evaluations.classes.all, {id : this.idClasse});
-            if (c.eleves.all.length === 0) {
-                this.classe.eleves.sync().then(() => {
-                    this.synchronized.classe = true;
-                    resolve();
-                });
-            } else {
-                this.classe.eleves.load($.extend(true, [], c.eleves.all));
-                this.synchronized.classe = true;
-                resolve();
+        return new Promise(async (resolve, reject) => {
+            if (this.classe.eleves.length() === 0) {
+                await this.classe.eleves.sync();
             }
+            if(this.classe.periodes.length() === 0) {
+                await this.classe.periodes.sync();
+            }
+            this.synchronized.classe = true;
+            resolve();
         });
     }
 
     syncEvaluations () : Promise<any> {
         return new Promise((resolve, reject) => {
-            let that = this;
             let url = this.api.get;
-            if(that.periode !== undefined && that.periode !== null && that.periode.id !== undefined) {
-                url += '&idPeriode=' + that.idPeriode;
+            if(this.idPeriode) {
+                url += '&idPeriode=' + this.idPeriode;
             }
             http().getJson(url)
-                .done(function (res) {
-                    that._tmp = res;
-                    that.synchronized.evaluations = true;
+                .done((res) => {
+                    this._tmp = res;
+                    this.synchronized.evaluations = true;
                     resolve();
                 });
         });
@@ -535,95 +517,73 @@ export class ReleveNote extends  Model implements IModel{
     }
 
     sync () : Promise<any> {
-        return new Promise((resolve, reject) => {
-            var that = this;
+        return new Promise(async (resolve, reject) => {
+            await Promise.all([this.syncEvaluations(), this.syncDevoirs(), this.syncClasse()]);
+            let _notes ,_devoirs, _eleves;
+            if(this._tmp) {
+                _notes = this._tmp.notes;
+                _devoirs = this._tmp.devoirs;
+                _eleves = this._tmp.eleves;
+            }
+            _.each(this.classe.eleves.all, (eleve) => {
+                var _evals = [];
+                let _t = _.where(_notes, {id_eleve: eleve.id});
+                _.each(this.devoirs.all, async (devoir) => {
+                    let periode = _.findWhere(this.classe.periodes.all, {id_type : devoir.id_periode});
+                    let endSaisie = moment(periode.date_fin_saisie).isAfter(moment(), "days");
+                    if (_t && _t.length !== 0) {
+                        var _e = _.findWhere(_t, {id_devoir : devoir.id});
 
-            this.on('format', function () {
-                let _notes ,_devoirs, _eleves;
-                if(that._tmp) {
-                    _notes = that._tmp.notes;
-                    _devoirs = that._tmp.devoirs;
-                    _eleves = that._tmp.eleves;
-                }
-                _.each(that.classe.eleves.all, (eleve) => {
-                    var _evals = [];
-                    let _t = _.where(_notes, {id_eleve: eleve.id});
-                    _.each(that.devoirs.all, (devoir) => {
-                        let devoirPeriode = evaluations.structure.periodes.findWhere({id: devoir.id_periode});
-                        let endSaisie: boolean;
-                        let date_saisie = devoirPeriode.date_fin_saisie;
-                        let current_date = new Date();
-                        endSaisie = moment(date_saisie).diff(moment(current_date), "days") < 0;
-                        if (_t && _t.length !== 0) {
-                            var _e = _.findWhere(_t, {id_devoir : devoir.id});
-
-                            if (_e) {
-                                _e.oldValeur = _e.valeur;
-                                _e.oldAppreciation = _e.appreciation !== undefined ? _e.appreciation : '';
-                                if (_e.annotation !== undefined
-                                    && _e.annotation !== null
-                                    && _e.annotation > 0 ) {
-                                    _e.oldAnnotation = _e.annotation;
-                                    _e.annotation_libelle_court = evaluations.structure.annotations.findWhere({id: _e.annotation}).libelle_court;
-                                    _e.is_annotation = true;
-                                }
-                                _e.endSaisie = endSaisie;
-                                _evals.push(_e);
+                        if (_e) {
+                            _e.oldValeur = _e.valeur;
+                            _e.oldAppreciation = _e.appreciation !== undefined ? _e.appreciation : '';
+                            if (_e.annotation !== undefined
+                                && _e.annotation !== null
+                                && _e.annotation > 0 ) {
+                                _e.oldAnnotation = _e.annotation;
+                                _e.annotation_libelle_court = evaluations.structure.annotations.findWhere({id: _e.annotation}).libelle_court;
+                                _e.is_annotation = true;
                             }
-                            else {
-                                _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
-                                    oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
-                                    ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
-                                    is_evaluated : devoir.is_evaluated, endSaisie : endSaisie}));
-                            }
-                        } else {
+                            _e.endSaisie = endSaisie;
+                            _evals.push(_e);
+                        }
+                        else {
                             _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
                                 oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
                                 ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
                                 is_evaluated : devoir.is_evaluated, endSaisie : endSaisie}));
                         }
-                    });
-                    eleve.evaluations.load(_evals);
-
+                    } else {
+                        _evals.push(new Evaluation({valeur:"", oldValeur : "", appreciation : "",
+                            oldAppreciation : "", id_devoir : devoir.id, id_eleve : eleve.id,
+                            ramener_sur : devoir.ramener_sur, coefficient : devoir.coefficient,
+                            is_evaluated : devoir.is_evaluated, endSaisie : endSaisie}));
+                    }
                 });
-                _.each(_devoirs, (devoir) => {
-                    let d = _.findWhere(that.devoirs.all, {id: devoir.id});
-                    if (d) {
-                        d.statistiques = devoir;
-                        if(!d.percent) {
-                            evaluations.devoirs.getPercentDone(d).then(() => {
-                                d.statistiques.percentDone = d.percent;
-                            });
-                        } else {
+                eleve.evaluations.load(_evals);
+
+            });
+            _.each(_devoirs, (devoir) => {
+                let d = _.findWhere(this.devoirs.all, {id: devoir.id});
+                if (d) {
+                    d.statistiques = devoir;
+                    if(!d.percent) {
+                        evaluations.devoirs.getPercentDone(d).then(() => {
                             d.statistiques.percentDone = d.percent;
-                        }
+                        });
+                    } else {
+                        d.statistiques.percentDone = d.percent;
                     }
-                });
-                _.each(_eleves, (eleve) => {
-                    let e = _.findWhere(that.classe.eleves.all, {id: eleve.id});
-                    if (e) {
-                        e.moyenne = eleve.moyenne;
-                    }
-                });
-                this.trigger('noteOK');
-                resolve();
+                }
             });
-
-            var callFormating = function () {
-                if(that.synchronized.devoirs && that.synchronized.classe && that.synchronized.evaluations) that.trigger('format');
-            };
-
-            this.syncEvaluations().then(() => {
-                callFormating();
+            _.each(_eleves, (eleve) => {
+                let e = _.findWhere(this.classe.eleves.all, {id: eleve.id});
+                if (e) {
+                    e.moyenne = eleve.moyenne;
+                }
             });
-
-            this.syncDevoirs().then(() => {
-                callFormating();
-            });
-
-            this.syncClasse().then(() => {
-                callFormating();
-            });
+            this.trigger('noteOK');
+            resolve();
         });
     }
 
@@ -712,11 +672,13 @@ function isChefEtab () {
         model.me.functions.DIR !== undefined &&
         model.me.functions.DIR.code === 'DIR';
 }
+
 export class Classe extends Model {
     eleves : Collection<Eleve>;
     id : number;
     name : string;
     type_groupe : number;
+    periodes : Collection<Periode>;
     type_groupe_libelle : string;
     suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
     mapEleves : any;
@@ -727,7 +689,8 @@ export class Classe extends Model {
         return {
             syncClasse: '/viescolaire/classes/' + this.id + '/users?type=Student',
             syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student',
-            syncClasseChefEtab : '/viescolaire/classes/'+this.id+'/users'
+            syncClasseChefEtab : '/viescolaire/classes/'+this.id+'/users',
+            syncPeriode : '/viescolaire/periodes?idGroupe=' + this.id
         }
     }
 
@@ -756,10 +719,20 @@ export class Classe extends Model {
             }
         });
         this.collection(SuiviCompetenceClasse);
+        this.collection(Periode, {
+            sync : async (): Promise<any> => {
+                return new Promise((resolve, reject) => {
+                    http().getJson(this.api.syncPeriode).done((res) => {
+                        this.periodes.load(res);
+                        resolve();
+                    });
+                });
+            }
+        });
     }
 }
 
-export class Eleve extends Model implements IModel{
+export class Eleve extends Model {
     moyenne: number;
     evaluations : Collection<Evaluation>;
     evaluation : Evaluation;
@@ -1571,6 +1544,15 @@ export class Periode extends Model {
     timestamp_dt : any;
     timestamp_fn : any;
     date_fin_saisie : any;
+    id_type : number;
+    type : number;
+    ordre : number;
+}
+
+export class TypePeriode extends Model {
+    id : number;
+    ordre : number;
+    type : number;
 }
 
 export class Enseignement extends Model {
@@ -1882,11 +1864,7 @@ export class CompetenceNote extends Model implements IModel {
                     }
                 });
             } else {
-                this.update().then((data) => {
-                    if (resolve && (typeof (resolve) === 'function')) {
-                        resolve();
-                    }
-                });
+                this.update();
             }
         });
     }
@@ -1968,7 +1946,7 @@ export class Evaluations extends Model {
     }
 }
 
-export class SuiviCompetenceClasse extends Model implements IModel{
+export class SuiviCompetenceClasse extends Model {
     domaines : Collection<Domaine>;
     competenceNotes : Collection<CompetenceNote>;
     periode : Periode;
@@ -1992,7 +1970,7 @@ export class SuiviCompetenceClasse extends Model implements IModel{
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotesClasse + classe.id+"/"+ classe.type_groupe;
                         if (periode !== null && periode !== undefined && periode !== '*') {
-                            if(periode.id !== undefined)url += "?idPeriode="+periode.id;
+                            if(periode.id_type !== undefined)url += "?idPeriode="+periode.id_type;
                         }
                         http().getJson(url).done((resCompetencesNotes) => {
                             if(resDomaines) {
@@ -2046,7 +2024,7 @@ export class TableConversion extends  Model {
         super();
     }
 }
-export class SuiviCompetence extends Model implements IModel{
+export class SuiviCompetence extends Model {
     competenceNotes : Collection<CompetenceNote>;
     domaines : Collection<Domaine>;
     periode : Periode;
@@ -2075,7 +2053,7 @@ export class SuiviCompetence extends Model implements IModel{
                     http().getJson(url).done((resDomaines) => {
                         var url = that.api.getCompetencesNotes + eleve.id;
                         if (periode !== null && periode !== undefined && periode !== '*') {
-                            if(periode.id !== undefined)url += "?idPeriode=" + periode.id;
+                            if(periode.id_type) url += "?idPeriode=" + periode.id_type;
                         }
                         http().getJson(url).done((resCompetencesNotes) => {
                             if (resDomaines) {

@@ -54,7 +54,7 @@ public interface ClasseService extends CrudService {
 
     /**²
      * Récupère toutes les classes d'une Liste de classe donné en fonction de son id Neo4j.
-      *@param idEtablissement
+     *@param idEtablissement
      * @param idClasse
      * @param isTeacher
      * @param handler
@@ -90,4 +90,5 @@ public interface ClasseService extends CrudService {
      * @param handler
      */
     public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
+    public void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 }

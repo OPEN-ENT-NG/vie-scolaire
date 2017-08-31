@@ -11,7 +11,9 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
     '$scope', 'route', 'model',
     function ($scope, route, model) {
         $scope.structures = vieScolaire.structures;
-
+        $scope.chargeStructure = (structure) =>  {
+            structure.classes.sync();
+        };
         $scope.changeSelection = function (elem){
             if (elem) {
                 elem = ! elem;

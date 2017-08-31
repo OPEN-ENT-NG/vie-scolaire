@@ -26,23 +26,25 @@
         </label>
     </section>
     <section>
-        <label class="select">
-            <select ng-model="search.classe" ng-change="synchronizeStudents(search.classe.id);selectSuivi(route.current.$$route.originalPath)" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | filter:filterValidClasse() | orderBy:['type_groupe_libelle','name']">
+        <label class="select" >
+            <select ng-model="search.classe" ng-change="syncPeriode(search.classe.id); search.periode = '*'; synchronizeStudents(search.classe.id);selectSuivi(route.current.$$route.originalPath);" ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in classes.all | filter:filterValidClasse() | orderBy:['type_groupe_libelle','name']">
                 <option class="header-opt" value="">[[translate('viescolaire.utils.class.groupe')]]</option>
             </select>
         </label>
     </section>
     <section>
-        <label class="select">
-            <select ng-model="periodesList.value"
-                    ng-change="search.periode = periodesList.value;selectSuivi(route.current.$$route.originalPath)"
-                    ng-options="periode.libelle for periode in periodesList.values">
-                <option class="header-opt" value="" ng-if = "search.periode === textPeriode">[[translate('viescolaire.utils.periode')]]</option>
+        <label class="select" ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
+            <select ng-model="search.periode"
+                    ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
+                    ng-change="selectSuivi(route.current.$$route.originalPath)"
+                    ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
+                <option class="header-opt" value="">[[translate('viescolaire.utils.periode')]]</option>
             </select>
         </label>
     </section>
     <section ng-if="route.current.$$route.originalPath === '/competences/eleve'">
-        <label class="select" ng-class="{disabled : search.classe === '*'}">
+        <label class="select"
+               ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
             <select ng-disabled="search.classe === '*' || search.classe === null" ng-model="search.eleve"
                     ng-options="eleve as (eleve.lastName + ' ' + eleve.firstName) for eleve in search.classe.eleves.all"
                     ng-change="selectSuivi(route.current.$$route.originalPath)">

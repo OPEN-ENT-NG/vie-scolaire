@@ -6,6 +6,8 @@ import { Motif } from '../../../absences/models/personnel/Motif';
 import {Categorie} from "../../../absences/models/personnel/Categorie";
 import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
 import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
+import {Classe} from "./Classe";
+import {Periode} from "./Periode";
 import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
 import {Cycle} from "../../../evaluations/models/eval_cycle";
 
@@ -20,6 +22,8 @@ export class Structure extends DefaultStructure {
     categories: Collection<Categorie>;
     motifAppels: Collection<MotifAppel>;
     categorieAppels: Collection<CategorieAppel>;
+    classes : Collection<Classe>;
+    periodes : Collection<Periode>;
     // evaluation
     niveauCompetences: Collection<NiveauCompetence>;
     cycles: Array<Cycle>;
@@ -34,6 +38,16 @@ export class Structure extends DefaultStructure {
             MOTIF_APPEL: {
                 synchronization: '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
                 categorie: '/viescolaire/presences/categorie/appels?idEtablissement=' + this.id,
+            },
+            CLASSE : {
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id
+            },
+            PERIODE : {
+                synchronization: '/viescolaire/periodes?idEtablissement=' + this.id,
+                create : '/viescolaire/periodes',
+                update : '/viescolaire/periodes',
+                delete : '/viescolaire/periodes',
+                evalOnPeriode : '/viescolaire/periodes/eval'
             },
             NIVEAU_COMPETENCES : {
                 synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
@@ -63,6 +77,36 @@ export class Structure extends DefaultStructure {
                             motif.justifiant_libelle = motif.justifiant ?
                                 lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
                             return motif;
+                        });
+                        resolve();
+                    });
+                });
+            }
+        });
+        this.collection(Classe,{
+            sync :  async function () {
+                // Récupération des classes et groupes de l'etab
+                let that = this.composer;
+                return new Promise((resolve, reject) => {
+                    let url = that.api.CLASSE.synchronization;
+                    http().getJson(url).done(function (classe) {
+                        that.classes.load(classe);
+                        resolve();
+                    });
+                });
+            }
+        });
+        this.collection(Periode, {
+            sync :  () => {
+                return new Promise((resolve, reject) => {
+                    let url = this.api.PERIODE.synchronization;
+                    http().getJson(url).done((periode) => {
+                        this.periodes.all = periode;
+                        _.each(this.periodes.all, (_periode) => {
+                            let _classe = _.findWhere(this.classes.all, {id: _periode.id_classe});
+                            if(_classe) {
+                                _classe.periodes.push(_periode);
+                            }
                         });
                         resolve();
                     });
@@ -176,7 +220,7 @@ export class Structure extends DefaultStructure {
         });
 
         // Récupération du niveau de compétences et construction de l'abre des cycles.
-       this.getMaitrise();
+        this.getMaitrise();
 
         // motifs et Catégorie d'appel
         await this.motifAppels.sync();
@@ -184,6 +228,9 @@ export class Structure extends DefaultStructure {
         // motifs et Catégrorie d'absences
         await this.motifs.sync();
         await this.categories.sync();
+        //classes
+        await this.classes.sync();
+        await this.periodes.sync();
     }
 
     async  activate(module: string, isActif, idStructure) {
@@ -193,6 +240,62 @@ export class Structure extends DefaultStructure {
         else {
             let res = await createActiveStructure(module, idStructure);
         }
+    }
+    toPeriodeJsonCreate (idClasses, periodes){
+        return {
+            "idEtablissement" : this.id,
+            "idClasses" : idClasses,
+            "periodes" : periodes
+        };
+    };
+
+    hasEvaluations(MyClasses){
+        return new Promise((resolve, reject) => {
+            let URL = this.api.PERIODE.evalOnPeriode;
+            for(let classe of MyClasses){
+                URL += "idGroupe=" + classe + "&";
+            }
+            URL = URL.substring(0, URL.length - 1);
+            http().getJson(URL).done(function (data) {
+                if(resolve && (typeof(resolve) === 'function')) {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
+    async createPeriodes(idClasses, periodes): Promise<{id: number, bool: boolean}> {
+        let data = await http().postJson(this.api.PERIODE.create, this.toPeriodeJsonCreate(idClasses, periodes))
+        this.id = data.id;
+        return {id: data.id, bool: true};
+    }
+
+    async updatePeriodes (idClasses, periodes):Promise <{id: number, bool: boolean}> {
+        let data = await http().putJson(this.api.PERIODE.update, this);
+        return {id: data.id, bool: false};
+    }
+
+    savePeriodes (idClasses, periodes): Promise<{id: number, bool: boolean}> {
+        return new Promise((resolve, reject) => {
+            if (this.id) {
+                this.updatePeriodes(idClasses, periodes).then((data) => {
+                    resolve(data);
+                });
+            } else {
+                this.createPeriodes(idClasses, periodes).then((data) => {
+                    resolve(data);
+                });
+            }
+        });
+    }
+
+    deletePeriodes (idPeriodes):Promise <any> {
+        return new Promise((resolve, reject) => {
+            http().delete(this.api.PERIODE.delete + this.id).done(() => {
+                this.id = undefined;
+                resolve();
+            });
+        });
     }
 
     async getMaitrise() {

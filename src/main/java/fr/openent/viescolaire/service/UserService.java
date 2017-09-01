@@ -26,6 +26,8 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.json.impl.Json;
 
+import java.util.List;
+
 /**
  * Created by ledunoiss on 08/11/2016.
  */
@@ -65,6 +67,36 @@ public interface UserService {
      * @param handler handler comportant le resultat
      */
     public void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
+
+    /**
+     *récupère UAI d'un établissement
+     * @param idEtabl
+     * @param handler
+     */
+    public void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
+
+    /**
+     * récupère les responsables d'établissement
+     * @param idsResponsable
+     * @param handler
+     */
+    public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>>handler);
+
+
+    /**
+     * récupère les externalId, firstName, lastName et relative des élèves et nom de la class
+     * @param idsClass
+     * @param handler
+     */
+    public void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
+
+    /**
+     * Récupère les idDomaine, codification du domaine et le code des domaines
+     * @param idClass
+     * @param handler
+     */
+    public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
+
 
 
 }

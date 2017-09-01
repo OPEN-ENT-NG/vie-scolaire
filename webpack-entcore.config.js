@@ -47,6 +47,7 @@ module.exports = {
             'angular-sanitize': path.resolve('./bower_components/angular-sanitize/angular-sanitize.min.js'),
             'entcore-toolkit': path.resolve('./node_modules/toolkit/index.js'),
             'toolkit': path.resolve('./node_modules/toolkit/index.js'),
+            'entcore-toolkit': path.resolve('./node_modules/toolkit/index.js'),
             'axios': path.resolve('./node_modules/axios/dist/axios.js')
         },
         extensions: ['', '.js']

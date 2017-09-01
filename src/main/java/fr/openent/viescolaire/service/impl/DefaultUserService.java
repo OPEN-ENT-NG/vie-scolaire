@@ -27,6 +27,8 @@ import fr.openent.evaluations.service.impl.DefaultNoteService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
@@ -306,5 +308,47 @@ public class DefaultUserService implements UserService {
         String query = "DELETE FROM " + module + ".etablissements_actifs WHERE id_etablissement = ?";
         Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler){
+        StringBuilder query= new StringBuilder();
+        query.append("MATCH(s:Structure) WHERE s.id={id} RETURN s.UAI as uai");
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().putString("id", idEtabl), Neo4jResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>>handler){
+        StringBuilder query=new StringBuilder();
+        query.append("MATCH (u:User) WHERE u.id IN {id} RETURN u.externalId as externalId, u.displayName as displayName");
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().putArray("id",new JsonArray(idsResponsable.toArray())), Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler){
+        StringBuilder query = new StringBuilder();
+        JsonObject param = new JsonObject();
+        query.append("MATCH (c:Class)<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']}) WHERE c.id IN {idClass}");
+        query.append("RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.firstName as firstName,u.relative as relative,");
+        query.append("r.externalId as externalIdRelative, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
+        query.append("c.id as idClass, c.name as nameClass ORDER BY nameClass, lastName");
+        param.putArray("idClass", new JsonArray(idsClass.toArray()));
+        Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
+    }
+    @Override
+    public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+          query.append("SELECT id_groupe,id as id_domaine, code_domaine as code_domaine ");
+          query.append("FROM notes.domaines INNER JOIN notes.rel_groupe_cycle ");
+          query.append("ON notes.domaines.id_cycle= notes.rel_groupe_cycle.id_cycle ");
+          query.append("WHERE notes.rel_groupe_cycle.id_groupe = ? AND code_domaine IS NOT NULL");
+        JsonArray params = new JsonArray();
+
+        params.addString(idClass);
+
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+
+    }
+
 
 }

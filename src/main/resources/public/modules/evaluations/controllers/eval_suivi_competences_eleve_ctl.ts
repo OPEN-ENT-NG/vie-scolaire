@@ -431,6 +431,23 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             location.replace(url);
         };
 
+
+        $scope.exportLSU = function() {
+
+            let url = "/viescolaire/evaluations/exportLSU/lsu?";
+            // renseigner les params pour compléter l'url : :idStructure/:idClass/:idResponsable/:idPeriode
+            url+="idStructure=7d6b93f1-064c-4a15-88c7-815ebf33815b";
+            url+="&idClasse=19a692ce-ba10-4b1b-bce7-709acc3c9a59&idClasse=3e2800cd-7756-4d3e-af76-402de0cf1b14";
+            url+="&idResponsable=95dbe1c5-7960-451b-877d-edddc7a6a5a4";
+            url+="&idPeriode=4";
+            //$location.path(url);
+           //$location.replace(url);
+            http().getJson(url).done((res) => {
+                console.dir(res);
+            });
+            location.replace(url);
+        };
+
         /**
          * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"
          * @param listeEvaluations Tableau d'évaluations de compétences

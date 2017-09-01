@@ -54,4 +54,12 @@ public interface BFCService extends CrudService {
      * @param handler handler portant le résultat du calcul de moyenne
      */
     public void buildBFC(String[] idEleves, String idClasse, String idStructure, Long idPeriode, Handler<Either<String, Map<String, Map<Long, Integer>>>> handler);
+
+    /**
+     * retourne la date de creation du BFC, si null la date de modification sinon la date du jour
+     * pour un idEleve
+     * @param idEleve
+     * @param handler
+     */
+    public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler);
 }

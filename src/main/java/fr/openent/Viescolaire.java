@@ -35,6 +35,7 @@ import org.entcore.common.sql.SqlConf;
 import org.entcore.common.sql.SqlConfs;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,11 +144,15 @@ public class Viescolaire extends BaseServer {
 
 	public final static Integer MAX_NBR_COMPETENCE = 12;
 
+	public static JsonObject LSUN_CONFIG;
+
 	@Override
 	public void start() {
 		super.start();
 
 		final EventBus eb = getEventBus(vertx);
+
+		LSUN_CONFIG = config.getObject("lsun");
 
 		EmailFactory emailFactory = new EmailFactory(vertx, container, container.config());
 		EmailSender notification = emailFactory.getSender();
@@ -210,10 +215,9 @@ public class Viescolaire extends BaseServer {
 		addController(new UtilsController());
 		addController(new BFCController());
 		addController(new AnnotationController());
+        addController(new LSUController());
 
-		addController(new RepriseController());
-
-		setRepositoryEvents(new VieScolaireRepositoryEvents());
+		addController(new RepriseController());setRepositoryEvents(new VieScolaireRepositoryEvents());
 	}
 
 }

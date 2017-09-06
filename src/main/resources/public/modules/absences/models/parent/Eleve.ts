@@ -21,9 +21,9 @@ import { IModel, Collection, http } from 'entcore/entcore';
 
 import { Evenement } from './Evenement';
 import { DefaultEleve } from "../common/DefaultEleve";
-import {Matiere} from "./Matiere";
-import {Enseignant} from "./Enseignant";
-import {Cours} from "./Cours";
+import { Matiere } from "./Matiere";
+import { Enseignant } from "./Enseignant";
+import { Cours } from "./Cours";
 
 
 export class Eleve extends DefaultEleve {
@@ -101,8 +101,8 @@ export class Eleve extends DefaultEleve {
                         url += "idPersonnel=" + idPersonnel + "&";
                     }
                     http().get(url.slice(0, -1))
-                        .done((peronnels) => {
-                            this.enseignants.load(peronnels);
+                        .done((personnels) => {
+                            this.enseignants.load(personnels);
                             resolve();
                         });
                 });
@@ -150,5 +150,9 @@ export class Eleve extends DefaultEleve {
                     });
             });
         });
+    }
+
+    toString = () : String => {
+        return this.lastName.toUpperCase() + " " + this.firstName;
     }
 }

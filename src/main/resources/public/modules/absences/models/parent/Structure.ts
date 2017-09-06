@@ -27,20 +27,16 @@ export class Structure extends DefaultStructure {
 
     eleves: Collection<Eleve>;
 
-
     get api () {
         return {
             VIESCOLAIRE: {
                 enfants: '/viescolaire/user/' + model.me.userId + '/enfants',
-            },
+            }
         };
     }
 
     constructor (o?: any) {
         super(o);
-        if (o && typeof o === 'object') {
-            this.updateData(o);
-        }
 
         this.collection(Eleve, {
             sync: () => {

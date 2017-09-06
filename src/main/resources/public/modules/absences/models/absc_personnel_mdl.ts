@@ -49,5 +49,3 @@ model.build = function () {
     (this as any).presences = presences;
     presences.sync();
 };
-
-

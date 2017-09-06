@@ -4,20 +4,16 @@ import { presences } from '../models/absc_parent_mdl';
 
 export let abscParentController = ng.controller('AbscParentController', [
     '$scope', 'route', 'model', '$rootScope', '$location', '$route',
-    function ($scope, route, model, $rootScope, $location, $route) {
-        route({
-            AbsencesParentAccueil : async (params) =>  {
-                await presences.sync();
-                $scope.structure = presences.structure;
-                await $scope.structure.eleves.sync();
-                $scope.eleves = $scope.structure.eleves;
-                template.open('menu','../templates/absences/absc_parent_menu');
-                template.open('main','../templates/absences/absc_parent_absEnfants');
-                utils.safeApply($scope);
-            }
-        });
+    async ($scope, route, model, $rootScope, $location, $route) => {
 
-        template.open('selectEnfants', '../templates/absences/absc_parent_selectEnfants');
+        route({
+            Accueil: (params) => {
+                template.open('header', '../templates/absences/absc_parent_selectEnfants');
+                template.open('menu', '../templates/absences/absc_parent_menu');
+                template.open('main', '../templates/absences/absc_parent_acu');
+                utils.safeApply($scope);
+            },
+        });
 
         $scope.evenements = [];
 
@@ -26,25 +22,49 @@ export let abscParentController = ng.controller('AbscParentController', [
             sortReverse: false
         };
 
-        // Permet le choix d'un élève et la synchronisation des évènements de l'élève
-        $scope.chooseChild = async (eleve) => {
-            if($scope.eleve == null || $scope.eleve.id != eleve.id) {
-                $scope.eleve = eleve;
-                await $scope.eleve.syncEvents();
-                $scope.evenements = $scope.eleve.evenements.all;
+        $scope.piFilterAbsences = 20;
+
+        // Permet le choix d'un élève et la synchronisation des évènements et déclarations de l'élève
+        $scope.chooseChild = async (eleve, number?) => {
+            if ($scope.selectedEleve == null || $scope.selectedEleve.id != eleve.id) {
+                $scope.selectedEleve = eleve;
+                await $scope.selectedEleve.syncEvents();
+                $scope.evenements = $scope.selectedEleve.evenements.all;
                 utils.safeApply($scope);
             }
         };
 
-        $scope.formatDate = (dateDt, dateFn) => {
-            return moment(dateDt).format('DD/MM/YYYY HH:mm') + " à " + moment(dateFn).format('DD/MM/YYYY HH:mm');
+        $rootScope.$on('$routeChangeSuccess', async () => {
+            if($scope.selectedEleve != null) {
+                await $scope.selectedEleve.syncEvents();
+                $scope.evenements = $scope.selectedEleve.evenements.all;
+            }
+        });
+
+        $scope.formatDate = (dateDt, dateFn?, format?) => {
+            let _return = "";
+            let _dateDt = moment(dateDt);
+            let _format = format ? format : "DD/MM/YYYY HH:mm";
+            if(dateFn) {
+                let _dateFn = moment(dateFn);
+
+                if(_dateDt.diff(_dateFn, 'days') < 1) {
+                    _return = _dateDt.format(_format) + " - " + _dateFn.format('HH:mm');
+                } else {
+                    _return = _dateDt.format(_format) + " " + _dateFn.format(_format);
+                }
+            } else {
+                _return = _dateDt.format(_format);
+            }
+            return _return;
         };
 
-        // $scope.convertDate = (date) => {
-        //     if(date instanceof String) {
-        //         return moment(date);
-        //     } else {
-        //         return date.format()
-        //     }
-        // }
+        await presences.sync();
+        $scope.structure = presences.structure;
+        await $scope.structure.eleves.sync();
+        $scope.eleves = $scope.structure.eleves.all;
+        $scope.selectedEleve = _.first($scope.eleves);
+        await $scope.selectedEleve.syncEvents();
+        $scope.evenements = $scope.selectedEleve.evenements.all;
+        utils.safeApply($scope);
     }]);

@@ -1,11 +1,8 @@
-
 <div class="display-children">
-    <div ng-repeat="e in eleves.all"
-         ng-click="chooseChild(e)"
-         ng-class="{'selected': e == eleve }"
-         class="round-avatar">
+    <div ng-repeat="eleve in eleves track by $index"
+         ng-click="chooseChild(eleve)"
+         ng-class="{'selected': eleve == selectedEleve }">
 
-        <img ng-src="/userbook/avatar/[[ e.id ]]" alt="[[e.displayName]]"/>
-        <span>[[ e.firstName ]]</span>
+        <c-round-avatar eleve="eleve"></c-round-avatar>
     </div>
 </div>

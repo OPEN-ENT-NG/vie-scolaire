@@ -333,7 +333,7 @@ public class DefaultUserService implements UserService {
         StringBuilder query = new StringBuilder();
         query.append("MATCH (u:User)")
                 .append("WHERE ANY (x IN u.profiles WHERE x IN ['Teacher', 'Personnel']) AND u.id IN {idPersonnel}")
-                .append("RETURN u.lastName, u.firstName, u.emailAcademy, u.id");
+                .append("RETURN u.id as id, u.lastName as lastName, u.firstName as firstName, u.emailAcademy as emailAcademy");
         neo4j.execute(query.toString(), new JsonObject().putArray("idPersonnel", new JsonArray(idPersonnels.toArray())), Neo4jResult.validResultHandler(handler));
 
     }

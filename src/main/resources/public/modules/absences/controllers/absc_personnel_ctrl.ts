@@ -87,10 +87,11 @@ export let absencesController = ng.controller('AbsencesController', [
         };
 
         $scope.formatDate = function(pODateDebut, pODateFin?) {
-            if(pODateFin != null)
+            if (pODateFin != null) {
                 return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
-            else
+            } else {
                 return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm'));
+            }
         };
 
         /**
@@ -111,7 +112,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * @param declaration l'objet declaration sélectionné
          */
         $scope.detailDeclarationAppel = function (declaration?) {
-            if(declaration) {
+            if (declaration) {
                 $scope.updateDetailDeclaration = declaration;
                 $scope.detailDeclaration = true;
             } else {
@@ -169,7 +170,7 @@ export let absencesController = ng.controller('AbsencesController', [
                         $scope.displayStructureLoader = false;
                     });
                 }
-                else if ($location.path() == '/appel') {
+                else if ($location.path() === '/appel') {
                     $rootScope.$broadcast('syncAppel');
                     $scope.$on('AppelLoaded', function () {
                         $scope.$parent.displayStructureLoader = false;

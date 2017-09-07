@@ -1,4 +1,8 @@
 <div class="">
+    <div class="row">
+        <button class="decl_button right-magnet" ng-click="openLightBoxDeclaration()">Déclarer</button>
+    </div>
+    <container template="lightbox_declaration"></container>
     <section>
         <article class="eleven cell box-accueil twelve-mobile">
             <div class="content-box-accueil">
@@ -68,6 +72,82 @@
                             </div>
                             <div class="one cell one-mobile">
                                 <i ng-if="event.id_motif == 8" class="cancel"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+    <section>
+        <article class="eleven cell box-accueil twelve-mobile">
+            <div class="content-box-accueil">
+                <div class="titre-widget">
+                    <h2 class="inline-block">
+                        <i18n>presences.declaration</i18n>
+                    </h2>
+                </div>
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header parent_absc_header row">
+                        <div class="three cell"
+                             ng-click="pOSortParameters.sortType = 'declaration.timestamp_creation';
+                             pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
+                            <i class="sort-desc"
+                               ng-show="pOSortParameters.sortType == 'declaration.timestamp_creation'
+                               && !pOSortParameters.sortReverse"></i>
+                            <i class="sort-asc"
+                               ng-show="pOSortParameters.sortType == 'declaration.timestamp_creation'
+                               && pOSortParameters.sortReverse"></i>
+                            <h5>
+                                <i18n>presences.declaration.titre</i18n>
+                            </h5>
+                        </div>
+                        <div class="three cell" ng-click="pOSortParameters.sortType = 'declaration.created';
+                             pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
+                            <i class="sort-desc"
+                               ng-show="pOSortParameters.sortType == 'declaration.created'
+                               && !pOSortParameters.sortReverse"></i>
+                            <i class="sort-asc"
+                               ng-show="pOSortParameters.sortType == 'declaration.created'
+                               && pOSortParameters.sortReverse"></i>
+                            <h5>
+                                <i18n>presences.declaration.creation</i18n>
+                            </h5>
+                        </div>
+                        <div class="five cell">
+                            <h5>
+                                <i18n>presences.declaration.periode</i18n>
+                            </h5>
+                        </div>
+                        <div class="one cell"
+                             ng-click="pOSortParameters.sortType = 'declaration.traitee';
+                             pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
+                            <i class="sort-desc"
+                               ng-show="pOSortParameters.sortType == 'declaration.traitee'
+                               && !pOSortParameters.sortReverse"></i>
+                            <i class="sort-asc"
+                               ng-show="pOSortParameters.sortType == 'declaration.traitee'
+                               && pOSortParameters.sortReverse"></i>
+
+                            <h5>
+                                <i18n>presences.declaration.etat</i18n>
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="cell-indent content-box-accueil--table--content">
+                        <div ng-repeat="decl in declarations | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse | limitTo:10"
+                             ng-click="openLightBoxDeclaration(decl)">
+                            <div class="three cell ellipsis">
+                                [[ decl.titre ]]
+                            </div>
+                            <div class="three cell ellipsis">
+                                [[ formatDate(decl.created) ]]
+                            </div>
+                            <div class="five cell ellipsis">
+                                [[ formatDate(decl.timestamp_dt, decl.timestamp_fn) ]]
+                            </div>
+                            <div class="one cell">
+                                <i ng-show="!decl.traitee" class="cancel"></i>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,82 @@
+<lightbox class="saisie_declaration" show="lightbox_declaration" on-close="closeLightBoxDeclaration()">
+    <c-round-avatar eleve="selectedEleve"></c-round-avatar>
+
+    <h2><i18n>presences.declaration.titre</i18n></h2>
+    <input ng-disabled="declaration.id != null" class="five" type="text" ng-model="declaration.titre">
+
+    <h2><i18n>presences.declaration.periode</i18n></h2>
+    <div class="select_date_hours">
+        <div class="row">
+            <div class="five twelve-mobile cell">
+                <label class="twelve cell">
+                    <span><i18n>presences.declaration.datedebut</i18n></span>
+                </label>
+                <date-picker ng-if="declaration.id == null"
+                             ng-model="poDateHeure.pdDateDebut"
+                             ng-change="showDate = true; updateDateHeure(declaration, true)"></date-picker>
+                <input ng-if="declaration.id != null"
+                       disabled
+                       placeholder="[[ formatDate(poDateHeure.pdDateDebut, null, 'DD/MM/YYYY') ]]"/>
+            </div>
+            <div class="two twelve-mobile cell">
+                <label class="twelve cell">
+                    <span><i18n>presences.declaration.heuredebut</i18n></span>
+                </label>
+                <input type="time"
+                       ng-disabled="declaration.id != null"
+                       ng-model="poDateHeure.phHeureDebut"
+                       ng-blur="updateDateHeure(declaration, true)"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="five twelve-mobile cell">
+                <label class="twelve cell">
+                    <span><i18n>presences.declaration.datefin</i18n></span>
+                </label>
+                <date-picker ng-if="declaration.id == null"
+                             ng-model="poDateHeure.pdDateFin"
+                             ng-change="showDate = true; updateDateHeure(declaration, true)"></date-picker>
+                <input ng-if="declaration.id != null"
+                       disabled
+                       placeholder="[[ formatDate(poDateHeure.pdDateFin, null, 'DD/MM/YYYY') ]]"/>
+            </div>
+            <div class="two twelve-mobile cell">
+                <label class="twelve cell">
+                    <span><i18n>presences.declaration.heurefin</i18n></span>
+                </label>
+                <input type="time"
+                       ng-disabled="declaration.id != null"
+                       ng-model="poDateHeure.phHeureFin"
+                       ng-blur="updateDateHeure(declaration, true)"/>
+            </div>
+        </div>
+    </div>
+
+
+    <h2><i18n>viescolaire.absences.commentaire</i18n></h2>
+
+    <textarea class="height-four" ng-disabled="declaration.id != null" ng-model="declaration.commentaire"></textarea>
+
+    <div class="twelve cell">
+        <button class="right-magnet"
+                ng-if="declaration.id == null"
+                ng-click="saveDeclaration(declaration)">
+            <i18n>viescolaire.save</i18n>
+        </button>
+        <!--<button class="right-magnet"-->
+        <!--ng-if="declaration.id != null"-->
+        <!--ng-click="">-->
+        <!--<i18n>viescolaire.supprimer</i18n>-->
+        <!--</button>-->
+        <!--<button class="right-magnet"-->
+        <!--ng-if="declaration.id != null"-->
+        <!--ng-click="saveDeclaration(declaration)">-->
+        <!--<i18n>viescolaire.edit</i18n>-->
+        <!--</button>-->
+        <button class="right-magnet"
+                ng-click="closeLightBoxDeclaration()">
+            <i18n>viescolaire.fermer</i18n>
+        </button>
+    </div>
+</lightbox>

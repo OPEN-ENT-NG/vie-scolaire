@@ -15,6 +15,7 @@ ng.directives.push(cRoundAvatar);
 routes.define(function($routeProvider) {
     $routeProvider
         .when('/accueil', {action: 'Accueil' })
+        .when('/declarations', {action: 'Declarations' })
         .when('/absences', {action: 'Absences' })
         .otherwise({
             redirectTo : '/accueil'

@@ -24,6 +24,8 @@ import { DefaultEleve } from "../common/DefaultEleve";
 import { Matiere } from "./Matiere";
 import { Enseignant } from "./Enseignant";
 import { Cours } from "./Cours";
+import { Declaration } from "./Declaration";
+import { presences } from "../absc_parent_mdl";
 
 
 export class Eleve extends DefaultEleve {
@@ -32,11 +34,13 @@ export class Eleve extends DefaultEleve {
     matieres: Collection<Matiere>;
     enseignants: Collection<Enseignant>;
     courss: Collection<Cours>;
+    declarations: Collection<Declaration>;
 
     get api () {
         return {
             PRESENCES : {
                 evenements: '/viescolaire/presences/eleve/' + this.id + '/evenements/',
+                declarations: '/viescolaire/presences/declarations?',
             },
             VIESCOLAIRE : {
                 matieres: '/viescolaire/matieres/infos?',
@@ -124,6 +128,24 @@ export class Eleve extends DefaultEleve {
                 });
             }
         });
+
+        this.collection(Declaration, {
+            sync: (number?: Number) => {
+                return new Promise((resolve, reject) => {
+                    let url = this.api.PRESENCES.declarations
+                        + "idEtablissement=" + presences.structure.id
+                        + "&idOwner=" + model.me.userId
+                        + "&idStudent=" + this.id;
+                    if (number != null) {
+                        url += "&number=" + number;
+                    }
+                    http().getJson(url).done((data) => {
+                        this.declarations.load(data);
+                        resolve();
+                    });
+                });
+            }
+        })
     }
 
     syncEvents = () => {

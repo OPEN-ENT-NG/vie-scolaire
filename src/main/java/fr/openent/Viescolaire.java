@@ -66,6 +66,7 @@ public class Viescolaire extends BaseServer {
 	public final static String ABSC_EVENEMENT_TABLE = "evenement";
 	public final static String ABSC_CATEGORIE_MOTIF = "categorie_motif_absence";
 	public final static String ABSC_CATEGORIE_MOTIF_APPEL = "categorie_motif_appel";
+	public final static String ABSC_DECLARATION_TABLE = "declaration";
 
 	public static final String EVAL_NOTES_TABLE = "notes";
 	public static final String EVAL_DEVOIR_TABLE = "devoirs";
@@ -116,6 +117,8 @@ public class Viescolaire extends BaseServer {
 	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
 	public static final String SCHEMA_ABSPREV_CREATE = "absc_createAbscPrev";
 	public static final String SCHEMA_ABSPREV_UPDATE = "absc_updateAbscPrev";
+	public static final String SCHEMA_DECLARATION_CREATE = "absc_createDeclaration";
+	public static final String SCHEMA_DECLARATION_UPDATE = "absc_updateDeclaration";
 
 	public final static String DEVOIR_RESOURCE_ID = "devoirsid";
 	public final static String DEVOIR_TABLE = "devoirs";
@@ -179,6 +182,7 @@ public class Viescolaire extends BaseServer {
 		addController(new AppelController());
 		addController(new AbsencePrevisionnelleController());
 		addController(new EvenementController());
+		addController(new DeclarationController(eb));
 
 		/*
 			CONTROLEURS NOTES

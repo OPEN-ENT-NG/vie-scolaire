@@ -78,7 +78,7 @@ export class Periode extends Model {
             calculMoyenne : '/viescolaire/eleve/',
             GET_EVALUATIONS : '/viescolaire/evaluations/devoirs?idEtablissement=',
             GET_MATIERES : '/viescolaire/matieres/infos?',
-            GET_ENSEIGNANTS: '/viescolaire/enseignants?'
+            GET_ENSEIGNANTS: '/viescolaire/users?'
         };
     }
 

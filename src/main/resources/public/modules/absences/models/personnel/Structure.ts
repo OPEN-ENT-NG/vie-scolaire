@@ -30,6 +30,7 @@ import {Matiere} from "./Matiere";
 import {Observation} from "./Observation";
 import {MotifAppel} from "./MotifAppel";
 import {FORMAT} from "../../constants/formats";
+import {Declaration} from "./Declaration";
 
 let moment = require('moment');
 
@@ -44,6 +45,7 @@ export class Structure extends SharedStructure {
     motifAppels: Collection<MotifAppel>;
     evenements: Collection<Evenement>;
     observations: Collection<Observation>;
+    declarations: Collection<Declaration>;
     synchronized: any;
     isWidget: boolean;
 
@@ -81,7 +83,12 @@ export class Structure extends SharedStructure {
                 categorie : '/viescolaire/presences/motifs/appel/categorie?idEtablissement=' + this.id,
             },
             OBSERVATION : {
-                synchronization: '/viescolaire/presences/observations/' + moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
+                synchronization: '/viescolaire/presences/observations/'+ moment(new Date()).format('YYYY-MM-DD') + '/' + moment(new Date()).format('YYYY-MM-DD') + '?idEtablissement=' + this.id
+            },
+            DECLARATION : {
+                synchronization: '/viescolaire/presences/declarations?',
+                infosParent : '/viescolaire/users?',
+                infosEleve : '/viescolaire/eleves?'
             }
         });
     }
@@ -179,6 +186,64 @@ export class Structure extends SharedStructure {
                 });
             }
         });
+        this.collection(Declaration, {
+            sync : (number?) => {
+                let addInfoEleve = (_tabEleves) : Promise<any> => {
+                    return new Promise((resolve, reject) => {
+                        let url = this.api.DECLARATION.infosEleve;
+                        _.each(_tabEleves, (idEleve) => {
+                            url += "idUser=" + idEleve + "&";
+                        });
+                        url = url.slice(0, url.length - 1);
+                        http().getJson(url).done((res) => {
+                            _.each(this.declarations.all, (declaration) => {
+                                let _eleve = _.findWhere(res, {idEleve: declaration.id_eleve})
+                                declaration.nom_eleve = _eleve.firstName + " " + _eleve.lastName;
+                                declaration.classe = _eleve.classeName;
+                            });
+                            resolve();
+                        });
+                    });
+                };
+                let addInfoOwner = (_tabParents) : Promise<any> => {
+                    return new Promise((resolve,reject) => {
+                        let url = this.api.DECLARATION.infosParent;
+                        _.each(_tabParents, (idParent) => {
+                            url += "idUser=" + idParent + "&";
+                        });
+                        url = url.slice(0, url.length - 1);
+                        http().getJson(url).done((res) => {
+                            _.each(this.declarations.all, (declaration) => {
+                                declaration.nom_parent = _.findWhere(res, {id: declaration.owner}).displayName;
+                            });
+                            resolve();
+                        });
+                    });
+                };
+                let addInfoDeclaration = (resolve) => {
+                    let _tabEleves = [];
+                    let _tabParents = [];
+                    _.each(this.declarations.all, (declaration) => {
+                        _tabEleves.push(declaration.id_eleve);
+                        _tabParents.push(declaration.owner);
+                    });
+                    _tabEleves = _.uniq(_tabEleves);
+                    _tabParents = _.uniq(_tabParents);
+                    Promise.all([addInfoEleve(_tabEleves), addInfoOwner(_tabParents)]).then(resolve);
+                };
+                return new Promise((resolve, reject) => {
+                    let url = this.api.DECLARATION.synchronization + '&idEtablissement=' + this.id + '&etat=false';
+                    if(number) {
+                        url += '&number=10';
+                    }
+                    http().getJson(url).done((res) => {
+                        this.declarations.load(res);
+                        addInfoDeclaration(resolve());
+                    });
+                });
+            }
+        });
+
         this.collection(Appel, {
             sync : (pODateDebut, pODateFin) => {
 
@@ -264,7 +329,7 @@ export class Structure extends SharedStructure {
     sync (): Promise<any> {
         return new Promise(async (resolve, reject) => {
             await Promise.all([this.enseignants.sync(), this.classes.sync(), this.eleves.sync(), this.matieres.sync(),
-                this.justificatifs.sync(), this.motifs.sync(), this.motifAppels.sync(), this.observations.sync()]);
+                this.justificatifs.sync(), this.motifs.sync(), this.motifAppels.sync(), this.observations.sync(), this.declarations.sync(10)]);
             await this.evenements.sync(this.pODateDebut, this.pODateFin);
             await this.appels.sync();
             this.trigger('synchronized');

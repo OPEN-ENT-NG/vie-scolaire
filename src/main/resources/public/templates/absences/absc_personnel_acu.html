@@ -107,7 +107,7 @@
                         <div class="content-box-accueil--table--content">
                             <div class="row" ng-repeat="observation in structure.observations.all">
                                 <div class="four cell">
-                                    [[formatDate(observation.cours_timestamp_dt, observation.cours_timestamp_fn)]]
+                                    [[formatDate(observation.timestamp_dt, observation.timestamp_fn)]]
                                 </div>
                                 <div class="eight cell">
                                     [[observation.commentaire]]
@@ -120,15 +120,39 @@
         </section>
         <section>
             <article class="five cell box-accueil">
+                <h2><i18n>presences.declaration</i18n></h2>
                 <div class="content-box-accueil">
-                    <select name="" id="">
-                        <option value="">Nombre d'absences de la semaine</option>
-                    </select>
-                    <img src="/viescolaire/public/img/chart.png" alt="">
+                    <div class="content-box-accueil--table">
+                        <div class="content-box-accueil--table--header row">
+                            <div class="four cell">
+                                <h5><i18n>viescolaire.utils.class</i18n></h5>
+                            </div>
+                            <div class="four cell">
+                                <h5><i18n>viescolaire.absences.student</i18n></h5>
+                            </div>
+                            <div class="four cell">
+                                <h5><i18n>presences.declaration.creation</i18n></h5>
+                            </div>
+                        </div>
+                        <div class="content-box-accueil--table--content">
+                            <div class="row" ng-repeat="declaration in structure.declarations.all" ng-click="detailDeclarationAppel(declaration)">
+                                <div class="four cell cell-indent">
+                                    [[declaration.classe]]
+                                </div>
+                                <div class="four cell">
+                                    [[declaration.nom_eleve]]
+                                </div>
+                                <div class="four cell">
+                                    [[formatDate(declaration.created)]]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </section>
+        <lightbox show="detailDeclaration">
+            <container template="AbscDeclDetail"></container>
+        </lightbox>
     </div>
-
-
 </div>

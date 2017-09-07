@@ -28,9 +28,9 @@ routes.define(function($routeProvider) {
         .when('/appels/noneffectues', {action: 'AppelsOublies' })
         .when('/appel', { action : 'Appel' })
         .when('/disabled', { action : 'disabled' })
-        .when('/redirect', {action: 'Redirect' })
+        .when('/accueil', {action: 'Accueil' })
         .when('/saisie/abs/eleve', {action: 'SaisieAbsEleve'})
         .otherwise({
-            redirectTo : '/redirect'
+            redirectTo : '/accueil'
         });
 });

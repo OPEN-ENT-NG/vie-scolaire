@@ -109,8 +109,18 @@ public class EleveController extends ControllerHelper {
         eleveService.getEnseignants(idEleve, handler);
     }
 
-    @Get("/enseignants")
-    @ApiDoc("Récupère les enseingants ayant créé les devoir d'un élève.")
+    @Get("/eleves")
+    @ApiDoc("Récupère les informations des élèves.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getEleves(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        String[] idEleves = request.params().getAll("idUser").toArray(new String[0]);
+        eleveService.getInfoEleve(idEleves, handler);
+    }
+
+    @Get("/users")
+    @ApiDoc("Récupère les informations des users.")
     @ResourceFilter(AccessAuthorozed.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getUsersById(final HttpServerRequest request) {

@@ -32,16 +32,11 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.close('header');
                 template.open('main', '../templates/absences/absc_appel');
             },
-            Redirect : function(params) {
-                template.close('menu');
-                template.close('header');
-                template.open('main', '../templates/absences/absc_personnel_acu');
-
-            },
             Accueil: function (params) {
                 template.close('menu');
                 template.close('header');
                 template.open('main', '../templates/absences/absc_personnel_acu');
+                template.open('AbscDeclDetail', '../templates/absences/absc_personnel_decl_detail');
             },
             disabled : (params) => {
                 template.close('menu');
@@ -76,7 +71,7 @@ export let absencesController = ng.controller('AbsencesController', [
          * Critères de tris
          */
         $scope.pOSortParameters = {
-            sortType : '',
+            sortType : null,
             sortReverse : false
         };
 
@@ -91,8 +86,11 @@ export let absencesController = ng.controller('AbsencesController', [
             utils.safeApply($scope);
         };
 
-        $scope.formatDate = function(pODateDebut, pODateFin) {
-            return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
+        $scope.formatDate = function(pODateDebut, pODateFin?) {
+            if(pODateFin != null)
+                return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
+            else
+                return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm'));
         };
 
         /**
@@ -106,6 +104,19 @@ export let absencesController = ng.controller('AbsencesController', [
         $scope.periode = {
             debut : new Date(),
             fin : new Date()
+        };
+
+        /**
+         * Sélection d'une déclaration : affiche la lightbox contenant les détails
+         * @param declaration l'objet declaration sélectionné
+         */
+        $scope.detailDeclarationAppel = function (declaration?) {
+            if(declaration) {
+                $scope.updateDetailDeclaration = declaration;
+                $scope.detailDeclaration = true;
+            } else {
+                $scope.detailDeclaration = false;
+            }
         };
 
         /**

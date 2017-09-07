@@ -59,7 +59,7 @@ export class Evaluations extends Model {
             EVAL_ENFANTS: '/viescolaire/evaluations/enfants?userId=' + model.me.userId,
             GET_EVALUATIONS : '/viescolaire/evaluations/devoirs?idEtablissement=',
             GET_MATIERES : '/viescolaire/matieres/infos?',
-            GET_ENSEIGNANTS : '/viescolaire/enseignants?',
+            GET_ENSEIGNANTS : '/viescolaire/users?',
             GET_COMPETENCES :'/viescolaire/competences/eleve/',
             GET_ANNOTATION : '/viescolaire/annotations/eleve/',
             GET_ARBRE_DOMAINE : '/viescolaire/evaluations/domaines/classe/',

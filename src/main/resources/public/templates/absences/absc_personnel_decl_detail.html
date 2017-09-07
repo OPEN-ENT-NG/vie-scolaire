@@ -1,0 +1,67 @@
+<div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>title</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p class="detail_decl">[[updateDetailDeclaration.titre]]</p>
+        </div>
+    </div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>presences.declaration.owner</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p class="detail_decl">[[updateDetailDeclaration.nom_parent]]</p>
+        </div>
+    </div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>presences.declaration.eleve</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p class="detail_decl">[[updateDetailDeclaration.nom_eleve]]</p>
+        </div>
+    </div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>presences.declaration.creation</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p>
+                <span class="detail_decl">[[formatDate(updateDetailDeclaration.created)]]</span>
+            </p>
+
+        </div>
+    </div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>viescolaire.utils.from</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p>
+                <span class="detail_decl">[[formatDate(updateDetailDeclaration.timestamp_dt)]]</span>
+            </p>
+        </div>
+    </div>
+    <div>
+        <div class="four cell">
+            <h2><i18n>viescolaire.utils.to</i18n> : </h2>
+        </div>
+        <div class="eight cell">
+            <p>
+                <span class="detail_decl">[[formatDate(updateDetailDeclaration.timestamp_fn)]]</span>
+            </p>
+        </div>
+    </div>
+    <div>
+        <h2><i18n>viescolaire.absences.commentaire</i18n> : </h2>
+        <p class="commentaire_detail_decl">[[updateDetailDeclaration.commentaire]]</p>
+    </div>
+    <button ng-click="detailDeclarationAppel()" class="right-magnet">
+        <i18n>viescolaire.fermer</i18n>
+    </button>
+    <button ng-click="" class="right-magnet">
+        <i18n>presences.declaration.saisir</i18n>
+    </button>
+</div>

@@ -187,7 +187,7 @@ export class Structure extends SharedStructure {
             }
         });
         this.collection(Declaration, {
-            sync : (number?) => {
+            sync : (nb?) => {
                 let addInfoEleve = (_tabEleves) : Promise<any> => {
                     return new Promise((resolve, reject) => {
                         let url = this.api.DECLARATION.infosEleve;
@@ -197,7 +197,7 @@ export class Structure extends SharedStructure {
                         url = url.slice(0, url.length - 1);
                         http().getJson(url).done((res) => {
                             _.each(this.declarations.all, (declaration) => {
-                                let _eleve = _.findWhere(res, {idEleve: declaration.id_eleve})
+                                let _eleve = _.findWhere(res, {idEleve: declaration.id_eleve});
                                 declaration.nom_eleve = _eleve.firstName + " " + _eleve.lastName;
                                 declaration.classe = _eleve.classeName;
                             });
@@ -233,7 +233,7 @@ export class Structure extends SharedStructure {
                 };
                 return new Promise((resolve, reject) => {
                     let url = this.api.DECLARATION.synchronization + '&idEtablissement=' + this.id + '&etat=false';
-                    if(number) {
+                    if (nb) {
                         url += '&number=10';
                     }
                     http().getJson(url).done((res) => {

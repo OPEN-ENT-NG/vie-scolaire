@@ -66,7 +66,7 @@ export class Eleve extends DefaultEleve {
                 });
             },
             addEvt : (poEvt) => {
-                if(!_.findWhere(this.evenements.all, {id : poEvt.id})) {
+                if (!_.findWhere(this.evenements.all, {id : poEvt.id})) {
                     this.evenements.push(poEvt);
                     return true;
                 } else {
@@ -130,14 +130,14 @@ export class Eleve extends DefaultEleve {
         });
 
         this.collection(Declaration, {
-            sync: (number?: Number) => {
+            sync: (nb?: Number) => {
                 return new Promise((resolve, reject) => {
                     let url = this.api.PRESENCES.declarations
                         + "idEtablissement=" + presences.structure.id
                         + "&idOwner=" + model.me.userId
                         + "&idStudent=" + this.id;
-                    if (number != null) {
-                        url += "&number=" + number;
+                    if (nb != null) {
+                        url += "&number=" + nb;
                     }
                     http().getJson(url).done((data) => {
                         this.declarations.load(data);
@@ -145,7 +145,7 @@ export class Eleve extends DefaultEleve {
                     });
                 });
             }
-        })
+        });
     }
 
     syncEvents = () => {
@@ -153,7 +153,7 @@ export class Eleve extends DefaultEleve {
             let dateDebut = moment().day(moment.localeData().firstDayOfWeek());
             let dateFin = dateDebut.clone().day(7);
             await this.evenements.sync(dateDebut.format('YYYY-MM-DD'), dateFin.format('YYYY-MM-DD'));
-            if(_.isEmpty(this.evenements.all)) {
+            if (_.isEmpty(this.evenements.all)) {
                 resolve();
                 return;
             }

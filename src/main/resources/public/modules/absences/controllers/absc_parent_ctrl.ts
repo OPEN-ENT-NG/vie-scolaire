@@ -48,7 +48,7 @@ export let abscParentController = ng.controller('AbscParentController', [
         };
 
         // Permet le choix d'un élève et la synchronisation des évènements et déclarations de l'élève
-        $scope.chooseChild = async (eleve, number?) => {
+        $scope.chooseChild = async (eleve, nb?) => {
             if ($scope.selectedEleve == null || $scope.selectedEleve.id != eleve.id) {
                 $scope.selectedEleve = eleve;
                 $scope.syncEleve();
@@ -57,17 +57,17 @@ export let abscParentController = ng.controller('AbscParentController', [
         };
 
         $scope.syncEleve = async () => {
-            let number;
-            if($route.current.$$route.action == 'Accueil') {
-                number = 10;
+            let nb;
+            if ($route.current.$$route.action === 'Accueil') {
+                nb = 10;
             }
-            await Promise.all([$scope.selectedEleve.syncEvents(), $scope.selectedEleve.declarations.sync(number)]);
+            await Promise.all([$scope.selectedEleve.syncEvents(), $scope.selectedEleve.declarations.sync(nb)]);
             $scope.evenements = $scope.selectedEleve.evenements.all;
             $scope.declarations = $scope.selectedEleve.declarations.all;
         };
 
         $rootScope.$on('$routeChangeSuccess', (event, next, current) => {
-            if($scope.selectedEleve != null) {
+            if ($scope.selectedEleve != null) {
                 $scope.syncEleve();
             }
         });
@@ -76,13 +76,13 @@ export let abscParentController = ng.controller('AbscParentController', [
             let _return = "";
             let _dateDt = moment(dateDt);
             let _format = format ? format : "DD/MM/YYYY HH:mm";
-            if(dateFn) {
+            if (dateFn) {
                 let _dateFn = moment(dateFn);
 
-                if(_dateDt.diff(_dateFn, 'days') < 1) {
+                if (_dateFn.isSame(_dateDt, 'day')) {
                     _return = _dateDt.format(_format) + " - " + _dateFn.format('HH:mm');
                 } else {
-                    _return = _dateDt.format(_format) + " " + _dateFn.format(_format);
+                    _return = _dateDt.format(_format) + " -  " + _dateFn.format(_format);
                 }
             } else {
                 _return = _dateDt.format(_format);
@@ -91,7 +91,7 @@ export let abscParentController = ng.controller('AbscParentController', [
         };
 
         $scope.openLightBoxDeclaration = (decl?: Declaration) => {
-            if(!decl) {
+            if (!decl) {
                 $scope.declaration = new Declaration({
                     id_eleve: $scope.selectedEleve.id,
                     id_etablissement: $scope.structure.id
@@ -112,7 +112,7 @@ export let abscParentController = ng.controller('AbscParentController', [
         };
 
         $scope.updateDateHeure = (decl, updateDecl?) => {
-            if(updateDecl === true && decl !== null) {
+            if (updateDecl === true && decl !== null) {
                 decl.timestamp_dt = moment(moment($scope.poDateHeure.pdDateDebut).format("DD/MM/YYYY") + " "
                     + $scope.poDateHeure.phHeureDebut,
                     "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm");

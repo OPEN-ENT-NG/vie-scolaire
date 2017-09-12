@@ -15,7 +15,9 @@ export let proportionSuiviCompetence = ng.directive('proportionSuiviCompetence',
             evaluations : '=',
             filter : '=',
             user : '=',
-            isClasse : '='
+            isClasse : '=',
+            mapCouleurs : '=',
+            mapLettres : '='
         },
         templateUrl : "/"+appPrefix+"/public/components/cProportionSuiviCompetence.html",
         controller : ['$scope', function ($scope) {

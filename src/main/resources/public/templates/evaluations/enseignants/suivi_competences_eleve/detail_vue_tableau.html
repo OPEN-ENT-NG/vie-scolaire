@@ -44,18 +44,18 @@
         </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">
-                <td>[[evaluation.evaluation_libelle]]</td>
-                <td>[[evaluation.owner_name]]</td>
-                <td>[[getDateFormated(evaluation.evaluation_date)]]</td>
-                <td>
-                    <span class="competence-eval rounded"
-                          ng-class="{grey : evaluation.evaluation == -1, red : evaluation.evaluation == 0,
-                          orange : evaluation.evaluation == 1, yellow : evaluation.evaluation == 2,
-                          green : evaluation.evaluation == 3}">
-                    </span>
-                </td>
-            </tr>
+        <tr ng-repeat="evaluation in detailCompetence.competencesEvaluations|filter:filterOwnerSuivi | orderBy:sortType:sortReverse">
+            <td>[[evaluation.evaluation_libelle]]</td>
+            <td>[[evaluation.owner_name]]</td>
+            <td>[[getDateFormated(evaluation.evaluation_date)]]</td>
+            <td>
+                <c-skills-bubble text="(mapLettres[evaluation.evaluation])"
+                                 color="(mapCouleurs[evaluation.evaluation])"
+                                 classes="'competence-eval'">
+                </c-skills-bubble>
+            </td>
+            </td>
+        </tr>
         </tbody>
     </table>
 </div>

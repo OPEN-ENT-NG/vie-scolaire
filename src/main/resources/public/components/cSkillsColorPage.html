@@ -17,11 +17,16 @@
   ~
   -->
 <ul class="skills-color-page">
-    <li ng-click="confirme(3)"><span class="tooltip-overlay" tooltip="Très bonne maîtrise" ></span><span class="rounded green"><span class="rounded green"></span></span></li>
-    <li ng-click="confirme(2)"><span class="tooltip-overlay" tooltip="Maîtrise satisfaisante" ></span><span class="rounded yellow"><span class="rounded yellow"></span></span></li>
-    <li ng-click="confirme(1)"><span class="tooltip-overlay" tooltip="Maîtrise fragile" ></span><span class="rounded orange"><span class="rounded orange"></span></span></li>
-    <li ng-click="confirme(0)"><span class="tooltip-overlay" tooltip="Maîtrise insuffisante" ></span><span class="rounded red"><span class="rounded red"></span></span></li>
-    <li ng-click="confirme(-1)"><span class="tooltip-overlay" tooltip="Compétence non évaluée." ></span><span class="rounded grey-skill-page"><span class="rounded grey-skill-page"></span></span></li>
+    <li ng-repeat="niveau in niveauCompetences"  ng-click="confirme(niveau.ordre -1)">
+        <span class="tooltip-overlay" tooltip="[[niveau.libelle]]." ></span>
+        <c-skills-bubble text="niveau.lettre" color="niveau.couleur" classes="'textColorPage'">
+        </c-skills-bubble>
+    </li>
+    <li ng-click="confirme(-1)">
+        <span class="tooltip-overlay" tooltip="Compétence non évaluée." >
+        </span>
+        <span class="rounded grey-skill-page"></span>
+    </li>
 </ul>
 
 <lightbox show="opened.lightbox" on-close="opened.lightbox=false">

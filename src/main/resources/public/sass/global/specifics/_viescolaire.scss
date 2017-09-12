@@ -32,4 +32,13 @@ body.viescolaire {
   td i.ok {
     color: green;
   }
+
+  .rounded {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    transition: all 200ms ease;
+  }
 }

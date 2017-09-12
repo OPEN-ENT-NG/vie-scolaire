@@ -1,18 +1,20 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
 import * as utils from '../utils/teacher';
+import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
+import {Cycle} from "./eval_cycle";
 
 let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 
-export class Structure extends Model implements IModel{
+export class Structure extends Model implements IModel {
     id: string;
     libelle: string;
-    eleves : Collection<Eleve>;
-    enseignants : Collection<Enseignant>;
-    devoirs : Devoirs;
+    eleves: Collection<Eleve>;
+    enseignants: Collection<Enseignant>;
+    devoirs: Devoirs;
     synchronized: any;
-    classes : Collection<Classe>;
+    classes: Collection<Classe>;
     matieres: Collection<Matiere>;
     types: Collection<Type>;
     enseignements: Collection<Enseignement>;
@@ -20,70 +22,145 @@ export class Structure extends Model implements IModel{
     periodes: Collection<Periode>;
     releveNotes: Collection<ReleveNote>;
     isSynchronized: boolean;
+    cycles: Array<Cycle>;
+    cycle: Cycle;
+    niveauCompetences: Collection<NiveauCompetence>;
+    usePerso: string;
     private syncRemplacement: () => any;
 
-    get api () {
-        return  {
-            getEleves : '/viescolaire/evaluations/eleves?idEtablissement=' + this.id,
-            getEnseignants : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=',
+    get api() {
+        return {
+            getEleves: '/viescolaire/evaluations/eleves?idEtablissement=' + this.id,
+            getEnseignants: '/viescolaire/evaluations/user/list?profile=Teacher&structureId=',
             getDevoirs: '/viescolaire/evaluations/etab/devoirs/',
             getClasses: '/viescolaire/classes?idEtablissement=' + this.id,
-            TYPE : {
-                synchronization : '/viescolaire/evaluations/types?idEtablissement=' + this.id
+            TYPE: {
+                synchronization: '/viescolaire/evaluations/types?idEtablissement=' + this.id
             },
-            ENSEIGNEMENT : {
-                synchronization : '/viescolaire/evaluations/enseignements'
+            ENSEIGNEMENT: {
+                synchronization: '/viescolaire/evaluations/enseignements'
             },
-            MATIERE : {
-                synchronizationCE : '/viescolaire/matieres?idEtablissement=' + this.id,
-                synchronization : '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
+            MATIERE: {
+                synchronizationCE: '/viescolaire/matieres?idEtablissement=' + this.id,
+                synchronization: '/viescolaire/matieres?idEnseignant=' + model.me.userId + '&idEtablissement=' + this.id
             },
-            PERIODE : {
-                synchronization : '/viescolaire/periodes?idEtablissement=' + this.id
+            PERIODE: {
+                synchronization: '/viescolaire/periodes?idEtablissement=' + this.id
             },
-            CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id,
-                synchronizationRemplacement : '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
+            CLASSE: {
+                synchronization: '/viescolaire/classes?idEtablissement=' + this.id,
+                synchronizationRemplacement: '/viescolaire/evaluations/remplacements/classes?idEtablissement=' + this.id
             },
-            ELEVE : {
-                synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
+            ELEVE: {
+                synchronization: '/viescolaire/eleves?idEtablissement=' + this.id
             },
-            ANNOTATION : {
-                synchronization : '/viescolaire/evaluations/annotations?idEtablissement=' + this.id
+            ANNOTATION: {
+                synchronization: '/viescolaire/evaluations/annotations?idEtablissement=' + this.id
+            },
+            NIVEAU_COMPETENCES: {
+                synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
+                use: '/viescolaire/evaluations/maitrise/perso/use/' + model.me.userId
             }
         }
     }
 
-    constructor (o? : any) {
+    constructor(o?: any) {
         super();
         if (o) this.updateData(o);
         this.isSynchronized = false;
         this.synchronized = {
-            devoirs : false,
-            classes : false,
+            devoirs: false,
+            classes: false,
             matieres: false,
             periodes: false,
             types: false,
             annotations: false,
-            enseignements: false
+            enseignements: false,
+            niveauCompetences: false
         };
         if (isChefEtab()) {
             this.synchronized.enseignants = false;
         }
         let that: Structure = this;
+        this.collection(NiveauCompetence, {
+            sync: async function (defaut) {
+                if (typeof(defaut) == 'undefined') {
+                    defaut = true;
+                }
+                // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
+                return new Promise((resolve, reject) => {
+                    http().getJson(that.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
+                        if (niveauCompetences[0].couleur === null) {
+                            that.usePerso = 'noPerso';
+                        }
+                        if (niveauCompetences[0].couleur === null || defaut) {
+                            if (that.usePerso != 'noPerso') {
+                                that.usePerso = 'false';
+                            }
+
+                            niveauCompetences.forEach((niveauCompetence) => {
+                                if (niveauCompetence.couleur === null || defaut) {
+                                    niveauCompetence.couleur = Defaultcolors[niveauCompetence.default];
+                                }
+                                if (niveauCompetence.lettre === null || defaut) {
+                                    niveauCompetence.lettre = " ";
+                                }
+                                niveauCompetence.id_etablissement = this.composer.id;
+                            });
+                        }
+                        else {
+                            if (that.usePerso != 'noPerso') {
+                                that.usePerso = 'true';
+                            }
+                        }
+                        that.niveauCompetences.load(niveauCompetences);
+                        let cycles = [];
+                        let tree = _.groupBy(niveauCompetences, "id_cycle");
+
+                        _.map(tree, function (node) {
+                            let cycleNode = {
+                                id_cycle: node[0].id_cycle,
+                                libelle: node[0].cycle,
+                                selected: false,
+                                niveauCompetencesArray: _.sortBy(node, function (niv) {
+                                    return niv.ordre;
+                                })
+                            }
+                            cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
+                            cycles.push(cycleNode);
+                        });
+                        that.cycles = cycles;
+                        if (that.cycles.length > 0) {
+                            that.cycle = cycles[0];
+                        }
+                        that.synchronized.niveauCompetences = true;
+
+                        if (resolve && typeof resolve === 'function') {
+                            resolve();
+                        }
+                    }.bind(this))
+                        .error(function () {
+                            if (reject && typeof reject === 'function') {
+                                reject();
+                            }
+                        })
+                })
+
+            }
+        });
         this.collection(Enseignant);
         this.collection(Eleve, {
-            sync : function () {
+            sync: function () {
                 return new Promise((resolve, reject) => {
                     //chargement des élèves Pour les enseignants ou personnel de l'établissement
                     let url = that.api.ELEVE.synchronization;
                     //filtre par classe pour les enseignants
-                    if((model.me.type === 'ENSEIGNANT')){
-                        evaluations.classes.forEach((classe) => {
+                    if ((model.me.type === 'ENSEIGNANT')) {
+                        that.classes.forEach((classe) => {
                             url += '&idClasse=' + classe.id;
                         });
                     }
-                    if(model.me.type === 'PERSEDUCNAT'
+                    if (model.me.type === 'PERSEDUCNAT'
                         || model.me.type === 'ENSEIGNANT') {
                         http().getJson(url).done((res) => {
                             that.eleves.load(res);
@@ -94,7 +171,7 @@ export class Structure extends Model implements IModel{
                 });
             }
         });
-    this.collection(Type, {
+        this.collection(Type, {
             sync: function () {
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.TYPE.synchronization).done(function (res) {
@@ -154,7 +231,7 @@ export class Structure extends Model implements IModel{
                             .done(function (res) {
                                 this.load(res);
                                 this.each(function (matiere) {
-                                    if (matiere.hasOwnProperty('sous_matieres')){
+                                    if (matiere.hasOwnProperty('sous_matieres')) {
                                         matiere.sousMatieres.load(matiere.sous_matieres);
                                         delete matiere.sous_matieres;
                                     }
@@ -250,7 +327,7 @@ export class Structure extends Model implements IModel{
         });
     }
 
-    sync () {
+    sync() {
         return new Promise((resolve, reject) => {
             let isSynced = () => {
                 let b =
@@ -259,6 +336,7 @@ export class Structure extends Model implements IModel{
                     this.synchronized.types &&
                     this.synchronized.classes &&
                     this.synchronized.annotations &&
+                    this.synchronized.niveauCompetences &&
                     this.synchronized.devoirs;
                 if (isChefEtab()) {
                     b = b && this.synchronized.enseignants;
@@ -273,15 +351,20 @@ export class Structure extends Model implements IModel{
             this.annotations.sync().then(isSynced);
             this.types.sync().then(isSynced);
             this.classes.sync().then(isSynced);
+            this.usePersoFun(model.me.userId).then((res) => {
+                let useDefautTheme = !res;
+                this.niveauCompetences.sync(useDefautTheme).then(isSynced);
+            });
             this.syncDevoirs().then(isSynced);
             if (isChefEtab()) {
                 this.syncEnseignants().then(isSynced);
             }
         });
     }
-    syncDevoirs () :  Promise<any> {
+
+    syncDevoirs(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.devoirs.sync().then((data) =>{
+            this.devoirs.sync().then((data) => {
                 this.synchronized.devoirs = true;
                 this.devoirs.trigger('devoirs-sync');
                 resolve();
@@ -289,32 +372,32 @@ export class Structure extends Model implements IModel{
         });
     }
 
-    syncEnseignants () : Promise<any> {
+    syncEnseignants(): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().getJson(this.api.getEnseignants+this.id).done(function(res) {
+            http().getJson(this.api.getEnseignants + this.id).done(function (res) {
                 this.enseignants.load(res);
                 this.synchronized.enseignants = true;
-                if(resolve && (typeof(resolve) === 'function')) {
+                if (resolve && (typeof(resolve) === 'function')) {
                     resolve();
                 }
             }.bind(this));
         });
     }
 
-    syncClasses (idEtab) : Promise<any>{
+    syncClasses(idEtab): Promise<any> {
         return new Promise((resolve, reject) => {
             var that = this;
             const libelle = {
-                CLASSE : "Classe",
-                GROUPE : "Groupe d'enseignement"
+                CLASSE: "Classe",
+                GROUPE: "Groupe d'enseignement"
             };
             http().getJson(this.api.getClasses).done((res) => {
                 _.map(res, (classe) => {
                     let libelleClasse;
-                    if(classe.type_groupe === 0){
+                    if (classe.type_groupe === 0) {
                         libelleClasse = libelle.CLASSE;
                     } else {
-                        libelleClasse =  libelle.GROUPE;
+                        libelleClasse = libelle.GROUPE;
                     }
                     classe.type_groupe_libelle = libelleClasse;
                     return classe;
@@ -326,8 +409,23 @@ export class Structure extends Model implements IModel{
         });
     }
 
-}
+    usePersoFun(idUser): Promise<boolean> {
+        return new Promise((resolve, reject) => {
 
+            http().getJson(this.api.NIVEAU_COMPETENCES.use).done((res) => {
+                if (!res) {
+                    reject();
+                }
+                if (res.length > 0) {
+                    resolve(true)
+                }
+                else {
+                    resolve(false)
+                }
+            });
+        });
+    }
+}
 export class ReleveNote extends  Model implements IModel{
     synchronized : any;
     periode : Periode;
@@ -1243,7 +1341,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-     saveCompetencesNotes (_data) {
+    saveCompetencesNotes (_data) {
         var that = this;
         if (_data[0].evaluation !== -1){
             var _post = _.filter(_data, function (competence) {
@@ -2129,8 +2227,8 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
                 // TODO récupérer la vrai valeur numérique :
                 // par exemple 0 correspond à rouge ce qui mais ça correspond à une note de 1 ou 0.5 ou 0 ?
                 poMaxEvaluationsDomaines.push(_.max(_t, function (_t) {
-                        return _t.evaluation;
-                    }).evaluation + 1);
+                    return _t.evaluation;
+                }).evaluation + 1);
             }
         }
     }
@@ -2394,6 +2492,7 @@ export class GestionRemplacement extends Model implements IModel{
         });
 
         this.selectedRemplacements = [];
+
     }
 
 }

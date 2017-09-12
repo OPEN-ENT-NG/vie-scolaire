@@ -3,8 +3,9 @@
  */
 
 import {ng, template, model} from 'entcore/entcore';
-import {SuiviCompetence, Domaine,SuiviCompetenceClasse} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Domaine, SuiviCompetenceClasse, evaluations} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {Defaultcolors} from "../models/eval_niveau_comp";
 
 declare let _:any;
 
@@ -51,6 +52,15 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     $scope.classes.sync();
                     $scope.classes.on('classes-sync', function () {
                         $scope.search.classe = $scope.classes.findWhere({id: $route.current.params.idClasse});
+                        let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
+                            id_cycle: $scope.search.classe.id_cycle
+                        }).niveauCompetencesArray;
+                        $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+                        $scope.mapLettres = {"-1": " "};
+                        _.forEach(niveauCompetence, function (niv) {
+                            $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                            $scope.mapLettres[niv.ordre-1] = niv.lettre;
+                        });
                     });
                 }
             }
@@ -68,13 +78,6 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             };
             $scope.initFilterMine();
 
-            $scope.selected.colors = {
-                0 : true,
-                1 : true,
-                2 : true,
-                3 : true,
-                4 : true
-            };
             utils.safeApply($scope);
 
             template.open('container', '../templates/layouts/2_10_layout');
@@ -89,7 +92,53 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             delete $scope.informations.classe;
             $scope.changeEtablissement();
         };
+        $scope.updateColorAndLetterForSkills = function () {
+            let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
+                id_cycle: $scope.search.classe.id_cycle
+            });
+            if (niveauCompetence!== undefined){
+                niveauCompetence = niveauCompetence.niveauCompetencesArray;
+            }
+            else{
+                niveauCompetence = evaluations.structure.cycles[0].niveauCompetencesArray;
+            }
+            $scope.niveauCompetences = [];
+            $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+            $scope.mapLettres = {"-1": " "};
+            $scope.selected.colors = {
+                0 : true,
+            };
+            _.forEach(niveauCompetence, function (niv) {
+                $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                $scope.mapLettres[niv.ordre-1] = niv.lettre;
+                niv.selected = true;
+                $scope.niveauCompetences.push(niv);
+                $scope.selected.colors[niv.ordre] = true;
+            });
+            utils.safeApply($scope);
+        };
 
+        $scope.updateNiveau = function (usePerso) {
+            if(usePerso == 'true' ){
+                evaluations.structure.niveauCompetences.sync(false).then( () => {
+                    evaluations.structure.niveauCompetences.first().markUser().then( () => {
+                        $scope.structure.usePerso = 'true';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
+                    });
+                });
+
+            }
+            else if (usePerso == 'false'){
+                evaluations.structure.niveauCompetences.sync(true).then( () => {
+                    evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
+                        $scope.structure.usePerso = 'false';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
+                    });
+                });
+            }
+        }
         /**
          * Créer une suivi de compétence
          */
@@ -98,6 +147,22 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             $scope.informations.classe = $scope.search.classe;
             if ($scope.informations.classe !== null && $scope.search.classe !== '' && $scope.search.classe !== '*') {
                 $scope.suiviCompetence = new SuiviCompetenceClasse($scope.search.classe, $scope.search.periode);
+                let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
+                    id_cycle: $scope.search.classe.id_cycle
+                }).niveauCompetencesArray;
+                $scope.niveauCompetences = [];
+                $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+                $scope.mapLettres = {"-1": " "};
+                $scope.selected.colors = {
+                    0 : true,
+                };
+                _.forEach(niveauCompetence, function (niv) {
+                    $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                    $scope.mapLettres[niv.ordre-1] = niv.lettre;
+                    niv.selected = true;
+                    $scope.niveauCompetences.push(niv);
+                    $scope.selected.colors[niv.ordre] = true;
+                });
                 // on met à jour le fil d'ariane
                 let updatedUrl = '/competences/classe?idClasse='+$scope.search.classe.id;
                 if ($scope.search.periode.hasOwnProperty('id') && $scope.search.periode.id !== undefined)
@@ -155,18 +220,13 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          * @param eleveId identifiant de l'élève
          * @returns {String} Nom de la classe
          */
-        $scope.getEvaluationResult = function (eleveId) {
+        $scope.getEvaluationResultColor = function (eleveId) {
             var evaluation = $scope.getMaxEvaluations(eleveId);
             if (evaluation !== -Infinity) {
-                switch (evaluation.evaluation) {
-                    case 0 : return "border-red";
-                    case 1 : return "border-orange";
-                    case 2 : return "border-yellow";
-                    case 3 : return "border-green";
-                    default : return "border-grey";
-                }
+                return $scope.mapCouleurs[evaluation.evaluation];
             }
         };
+
 
         $scope.FilterColor = function (item){
             var evaluation = $scope.getMaxEvaluations(item.id);

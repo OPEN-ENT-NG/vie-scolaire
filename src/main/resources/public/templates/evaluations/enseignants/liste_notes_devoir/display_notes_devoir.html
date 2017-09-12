@@ -17,6 +17,9 @@
   ~
   -->
 <div class="row">
+    <!-- Panneau de choix des thèmes -->
+    <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
+
     <div class="twelve cell">
 
         <input type="button" ng-click="goTo('/devoir/[[currentDevoir.id]]/edit')" i18n-value="evaluations.test.edit"
@@ -33,7 +36,9 @@
         <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
                 <c-skills-color-page devoir="currentDevoir" selected-competences="selected.competences.list"
-                         selected-eleves="selected.eleves" ng-if="currentDevoir.competences.all.length > 0"></c-skills-color-page>
+                         selected-eleves="selected.eleves" ng-if="currentDevoir.competences.all.length > 0"
+                                     niveau-competences="niveauCompetences"
+                ></c-skills-color-page>
             </h2>
         </header>
         <aside class="two cell">
@@ -197,6 +202,8 @@
                                                                              index-row="$parent.$index"
                                                                              index-column="$index"
                                                                              selected-competences="selected.competences.list"
+                                                                             map-couleurs="mapCouleurs"
+                                                                             map-lettres="mapLettres"
                                                         ></c-skill-note-devoir>
                                                     </li>
                                                 </ul>

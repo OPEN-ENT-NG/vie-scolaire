@@ -10,7 +10,8 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
         scope : {
             devoir : '=',
             selectedEleves : '=',
-            selectedCompetences : '='
+            selectedCompetences : '=',
+            niveauCompetences: '='
         },
         templateUrl: "/"+appPrefix+"/public/components/cSkillsColorPage.html",
         controller : ['$scope', function($scope){
@@ -60,7 +61,9 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                     $scope.annuler();
                 //}
             };
-            $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.\n\n Souhaitez vous continuer ?\n";
+            $scope.text =lang.translate('evaluation.action.confirme.initialise.skills') + "\n\n"
+                            + lang.translate('evaluation.continue')+ "\n";
+
             $scope.eval = "";
             $scope.opened = {
                 lightbox : false
@@ -70,22 +73,21 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                     $scope.text= lang.translate('evaluations.devoir.uncancelable');
                 } // des élèves et des compétences sélectionnées
                 else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length > 0) {
-                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour les compétences choisies.";
+                    $scope.text = lang.translate('evaluation.action.evaluate.students.for.skills');
 
                     // des élèves et aucune compétence sélectionnée
                 } else if($scope.selectedEleves.list.length > 0 && $scope.selectedCompetences.length === 0) {
-                    $scope.text = "Cette action va évaluer les élèves sélectionnés pour l'ensemble des compétences.";
+                    $scope.text = lang.translate('evaluation.action.evaluate.students.for.all.skills');
 
-                    // aucune élève et des compétences sélectionnées
+                    // aucun élève et des compétences sélectionnées
                 } else  if($scope.selectedEleves.list.length === 0 && $scope.selectedCompetences.length === 0) {
-                    $scope.text = "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.";
+                    $scope.text = lang.translate('evaluation.action.evaluate.all.students.for.skills');
                 }
                 $scope.eval = evaluation;
                 $scope.opened.lightbox = true;
-
             };
             $scope.annuler = function () {
-                $scope.text = "Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.";
+                $scope.text = lang.translate('evaluation.action.confirme.initialise.skills');
                 $scope.eval = "";
                 $scope.opened.lightbox = false;
 

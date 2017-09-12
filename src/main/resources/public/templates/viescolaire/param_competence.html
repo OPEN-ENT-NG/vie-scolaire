@@ -1,0 +1,100 @@
+<div ng-if="structure.isActived.evaluation" class="row" xmlns="http://www.w3.org/1999/html">
+    <div class="row cell two">
+        <div class="side-col twelve-mobile" offset="65" sticky>
+            <div class="row">
+                <nav class="vertical">
+                    <ul>
+                        <li>
+                            <a href="" ng-class="{'selected': true}" ng-click="currParam = 1; scrollToElement(1)">
+                                <i18n>evaluations.level</i18n></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left">
+        <div class="hash-magnet twelve cell" id="1">
+            <article >
+                <div class="twelve">
+                    <h3>
+                        <i18n>evaluations.level</i18n>
+
+                    </h3>
+                    <button class="marginFive magnet-right" ng-click="openDeletePerso()">
+                        <i18n>evaluations.perso.delete</i18n>
+                    </button>
+                    <lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">
+                        <p><i18n>evaluations.perso.delete.message</i18n></p>
+                        <button class="marginFive magnet-right" ng-click="deletePerso()">
+                            <i18n>evaluations.perso.ok</i18n>
+                        </button>
+                        <button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">
+                            <span><i18n>evaluations.perso.cancel</i18n></span>
+                        </button>
+                    </lightbox>
+                    <div class="twelve tabs vertical-spacing-twice heading-tabs">
+                        <header ng-repeat="cycle in structure.cycles "
+                                ng-class="{selected : cycle.selected}"
+                                class="horizontal-spacing-twice ng-scope">
+                            <div class="horizontal-spacing"  ng-click="selectCycle(cycle);">
+                                <span><i18n><span class="no-style ng-scope">[[cycle.libelle]]</span></i18n></span>
+                            </div>
+                        </header>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="responsive-table">
+                        <table  ng-repeat="cy in structure.cycles | filter:currentCycle"
+                                class="fixed-head">
+                            <thead>
+                            <tr></tr>
+                            <tr>
+                                <th ng-repeat="libelle in cy.niveauCompetencesArray "
+                                    class="text-white">[[libelle.libelle]]</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td ng-repeat="couleur in cy.niveauCompetencesArray "
+                                    style="text-indent: 0px;text-align: center;">
+                                    <input type="color" name="favcolor"
+                                           ng-change="saveNiveau(couleur)"
+                                           ng-model="couleur.couleur" >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td ng-repeat="lettre in cy.niveauCompetencesArray ">
+                                    <ng-form name="skillsTextForm">
+                                        <input style="text-indent: 0px;text-align: center;"
+                                               autofocus=""
+                                               type="text"
+                                               name="letter"
+                                               ng-maxlength="2"
+                                               ng-blur="saveNiveau(lettre)"
+                                               ng-model="lettre.lettre">
+                                        <div ng-if="skillsTextForm.letter.$error.maxlength" class="warning">
+                                            <i18n>evaluation.skill.text.invalid</i18n>
+                                        </div>
+                                    </ng-form>
+                                </td>
+                            </tr>
+                            <tr >
+                                <td ng-repeat="result in cy.niveauCompetencesArray "
+                                    style="text-indent: 0px;text-align: center;">
+
+                                    <c-skills-bubble color="result.couleur"
+                                                     text="result.lettre">
+                                    </c-skills-bubble>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>

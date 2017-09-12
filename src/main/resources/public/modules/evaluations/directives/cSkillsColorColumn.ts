@@ -2,6 +2,7 @@
  * Created by ledunoiss on 21/09/2016.
  */
 import {ng, appPrefix} from 'entcore/entcore';
+import {Defaultcolors} from "../models/eval_niveau_comp";
 
 export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
     return {
@@ -61,7 +62,7 @@ export let cSkillsColorColumn = ng.directive("cSkillsColorColumn", function(){
 
             $scope.switchColor = function(competenceHeader){
                 if(competenceHeader.evaluation === -1){
-                    competenceHeader.evaluation = 3;
+                    competenceHeader.evaluation = $scope.devoir.maxOrdre;
                 }else{
                     competenceHeader.evaluation = competenceHeader.evaluation -1;
                 }

@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import {ng} from 'entcore/entcore';
+import {ng, appPrefix} from 'entcore/entcore';
 
 export let $ = require('jquery');
 
@@ -21,12 +21,11 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             eleve:'=',
             eleves:'=',
             getEleveInfo:'=',
-            selectedCompetences: '='
+            selectedCompetences: '=',
+            mapCouleurs: '=',
+            mapLettres: '='
         },
-        template : '<span autofocus ng-if="indexRow === 0 && indexColumn ===0 && !currentDevoir.is_evaluated && !currentDevoir.endSaisie" ng-disabled="currentDevoir.endSaisie" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span> ' +
-        '<span ng-if="(indexRow !== 0 || indexColumn !==0 || currentDevoir.is_evaluated) && !currentDevoir.endSaisie" ng-disabled="currentDevoir.endSaisie" ng-click="switchColor()" tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); saveCompetence()" ng-keydown="keyColor($event)"  ng-mouseleave="saveCompetence()" ng-blur="saveCompetence()" ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>' +
-        '<span autofocus ng-if="indexRow === 0 && indexColumn ===0 && !currentDevoir.is_evaluated && currentDevoir.endSaisie"  tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); " ng-keydown="keyColor($event)"   ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span> ' +
-        '<span ng-if="(indexRow !== 0 || indexColumn !==0 || currentDevoir.is_evaluated) && currentDevoir.endSaisie "  tabindex="0" ng-focus="focus(competence.id_competence, true);getEleveInfo(eleve);" ng-blur="blur(competence.id_competence, false); " ng-keydown="keyColor($event)"    ng-init="init()"  class="competence-eval rounded" ng-class="{compselected : highlightCompetenceNote(), grey : competence.evaluation == -1, red : competence.evaluation == 0, orange : competence.evaluation == 1, yellow : competence.evaluation == 2, green : competence.evaluation == 3}"></span>',
+        templateUrl : "/"+appPrefix+"/public/components/cSkillNoteDevoir.html",
         controller : ['$scope', function($scope){
             $scope.color = -1;
             $scope.modified = false;
@@ -34,7 +33,7 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
             $scope.switchColor = function(){
                 if (!$scope.disabled) {
                     if ($scope.competence.evaluation === -1) {
-                        $scope.competence.evaluation = 3;
+                        $scope.competence.evaluation = $scope.currentDevoir.maxOrdre;
                     } else {
                         $scope.competence.evaluation = $scope.competence.evaluation - 1;
                     }

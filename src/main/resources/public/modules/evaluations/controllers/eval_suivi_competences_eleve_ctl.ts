@@ -5,6 +5,7 @@
 import {ng, template, model} from 'entcore/entcore';
 import {SuiviCompetence, Devoir, CompetenceNote, evaluations, Structure, Classe, Eleve} from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {Defaultcolors} from "../models/eval_niveau_comp";
 
 
 
@@ -136,8 +137,13 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.switchColor = function () {
             // recupération de la compétence (il n'y en a qu'une)
             var competenceEvaluee = $scope.evaluationLibre.competenceEvaluee;
+            let niveauCompetenceMax = -1;
+            for (let o in $scope.mapCouleurs){
+                niveauCompetenceMax ++;
+            }
+
             if (competenceEvaluee.evaluation === -1) {
-                competenceEvaluee.evaluation = 3;
+                competenceEvaluee.evaluation = niveauCompetenceMax -1;
             } else {
                 competenceEvaluee.evaluation = competenceEvaluee.evaluation - 1;
             }
@@ -241,6 +247,48 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             delete $scope.suiviCompetence;
             $scope.changeEtablissement();
         };
+        $scope.updateColorAndLetterForSkills = function () {
+            let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
+                id_cycle: $scope.search.classe.id_cycle
+            });
+            if (niveauCompetence!== undefined){
+                niveauCompetence = niveauCompetence.niveauCompetencesArray;
+            }
+            else{
+                niveauCompetence = evaluations.structure.cycles[0].niveauCompetencesArray;
+            }
+            $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+            $scope.mapLettres = {"-1": " "};
+            _.forEach(niveauCompetence, function (niv) {
+                $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                $scope.mapLettres[niv.ordre-1] = niv.lettre;
+            });
+            $scope.initChartsEval();
+            utils.safeApply($scope);
+        };
+
+        $scope.updateNiveau = function (usePerso) {
+            if(usePerso == 'true' ){
+                evaluations.structure.niveauCompetences.sync(false).then( () => {
+                    evaluations.structure.niveauCompetences.first().markUser().then( () => {
+                        $scope.structure.usePerso = 'true';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
+                    });
+                });
+
+            }
+            else if (usePerso == 'false'){
+                evaluations.structure.niveauCompetences.sync(true).then( () => {
+                    evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
+                        $scope.structure.usePerso = 'false';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
+                    });
+                });
+            }
+
+        };
 
         /**
          * Créer une suivi de compétence
@@ -256,6 +304,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "" && $scope.informations.eleve !== undefined) {
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
+                let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
+                    id_cycle: $scope.search.classe.id_cycle
+                }).niveauCompetencesArray;
+                $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+                $scope.mapLettres = {"-1": " "};
+                _.forEach(niveauCompetence, function (niv) {
+                    $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                    $scope.mapLettres[niv.ordre-1] = niv.lettre;
+                });
                 $scope.suiviCompetence.sync().then(() => {
                     // On récupère d'abord les bilans de fin de cycle enregistrés par le chef d'établissement
                     $scope.suiviCompetence.bilanFinDeCycles.all =[];
@@ -594,11 +651,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.chartOptionsEval.datasets.data.push(ListEval[i].evaluation + 2);
                     $scope.chartOptionsEval.datasets.labels.push($scope.getDateFormated(ListEval[i].evaluation_date));
                     let colorValue;
-                    if(ListEval[i].evaluation == 0){colorValue = '#E13A3A';}
-                    else if(ListEval[i].evaluation == 1){colorValue = '#FF8500';}
-                    else if(ListEval[i].evaluation == 2){colorValue = '#ECBE30';}
-                    else if(ListEval[i].evaluation == 3){colorValue = '#46BFAF';}
-                    else{colorValue = '#555555';}
+                    if(ListEval[i].evaluation !== -1){colorValue = $scope.mapCouleurs[ListEval[i].evaluation];}
+                    else{colorValue = Defaultcolors.unevaluated;}
                     $scope.chartOptionsEval.colors.push(colorValue);
                     $scope.chartOptionsEval.tooltipLabels.push(ListEval[i].evaluation_libelle+' : '+ListEval[i].owner_name);
 
@@ -610,6 +664,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 $scope.chartOptionsEval.colors.push('#FFFFFF');
                 $scope.chartOptionsEval.tooltipLabels.push(' ');
             }
+            utils.safeApply($scope);
         };
         $scope.$watch($scope.detailCompetence, function () {
             $scope.initChartsEval();

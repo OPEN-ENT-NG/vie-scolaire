@@ -132,7 +132,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             }else{
                 return false;
             }
-        }
+        };
 
         // sélection d'une Catégorie
         $scope.selectCategorie = function (categorie) {
@@ -251,6 +251,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.changeEtablissementAccueil = function (structure) {
             $scope.structure = structure;
             $scope.structure.sync().then(() => {
+                $scope.structure.niveauCompetences = _.groupBy($scope.structure.niveauCompetences,"id_cycle");
                 if ($scope.currParam === undefined) {
                     $scope.currParam = 0;
                 }
@@ -258,6 +259,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             });
         };
 
+        $scope.currentCycle = function(cycle) {
+            return cycle.selected;
+        };
         route({
             accueil: function (params) {
                 $scope.hasFilterParam = params.filter === undefined;
@@ -266,6 +270,11 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                         $scope.structures = vieScolaire.structures;
                         vieScolaire.structure.sync().then(() => {
                             $scope.structure = vieScolaire.structure;
+                            if ($scope.structure.cycles.length > 0) {
+                                $scope.lastSelectedCycle = $scope.structure.cycles[0];
+                                $scope.lastSelectedCycle.selected = true;
+                            }
+
                             if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
@@ -275,12 +284,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 }
                 else {
                     $scope.structures = vieScolaire.structures;
-                    $scope.structure.sync().then(() => {
-                        if ($scope.currParam === undefined) {
-                            $scope.currParam = 0;
-                        }
-                        $scope.safeApply($scope);
-                    });
+
                 }
                 template.open('main', '../templates/viescolaire/vsco_acu_personnel');
                 template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');

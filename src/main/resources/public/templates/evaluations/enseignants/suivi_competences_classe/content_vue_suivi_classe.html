@@ -43,7 +43,12 @@
                         [[competence.nom]]
                     </div>
                     <div class="five inline-block align-center">
-                        <proportion-suivi-competence evaluations="competence.competencesEvaluations" is-classe="true" filter="suiviFilter" user="me"></proportion-suivi-competence>
+                        <proportion-suivi-competence
+                                evaluations="competence.competencesEvaluations"
+                                is-classe="true" filter="suiviFilter" user="me"
+                                map-lettres="mapLettres"
+                                map-couleurs="mapCouleurs"
+                        ></proportion-suivi-competence>
                     </div>
                 </div>
             </div>

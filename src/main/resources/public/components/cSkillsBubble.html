@@ -16,8 +16,7 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="suivi_container" ng-controller="EvalSuiviCompetenceClasseCtl">
-    <!-- Panneau de choix des thèmes -->
-    <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
-    <container template="container"></container>
-</div>
+<span ng-class="{selected : selectCond}"
+      class="rounded [[classes]]" style='background-color:[[color]]' ">
+<span class="lettreNiv" style="color: [[color]]; filter: invert(100%); -webkit-filter: invert(100%);">[[text]]</span>
+</span>

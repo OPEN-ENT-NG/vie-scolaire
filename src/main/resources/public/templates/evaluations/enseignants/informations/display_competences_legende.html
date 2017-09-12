@@ -31,20 +31,28 @@
 
 <ul ng-if="template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_suivi_eleve')
            || route.current.$$route.originalPath.startsWith('/competences/classe')" class="padding-five">
-    <li><span class="rounded green"></span><i18n>evaluations.competences.proficiency</i18n>.</li>
-    <li><span class="rounded yellow"></span><i18n>evaluations.competences.satisfying</i18n>.</li>
-    <li><span class="rounded orange"></span><i18n>evaluations.competences.fragile</i18n>.</li>
-    <li><span class="rounded red"></span><i18n>evaluations.competences.poor</i18n>.</li>
+    <li ng-repeat="niveau in structure.cycle.niveauCompetencesArray ">
+        <!-- <span class="rounded" style='background-color:[[niveau.couleur]]'>
+        <span>[[niveau.lettre]]</span>
+       </span>
+       -->
+        <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
+        <span>[[niveau.libelle]].</span>
+    </li>
     <li><span class="rounded grey"></span><i18n>evaluations.competence.unevaluated</i18n>.</li>
 </ul>
 
 
 <ul ng-if="template.contains('suivi-competence-content', '../templates/evaluations/enseignants/suivi_competences_eleve/content_vue_bilan_eleve')
             && route.current.$$route.originalPath.startsWith('/competences/classe')" class="padding-five">
-    <li><span class="rounded green"></span>&nbsp 4</li>
-    <li><span class="rounded yellow"></span> &nbsp 3</li>
-    <li><span class="rounded orange"></span> &nbsp 2</li>
-    <li><span class="rounded red"></span> &nbsp 1</li>
+    <li ng-repeat="niveau in structure.cycle.niveauCompetencesArray ">
+                  <!-- <span class="rounded" style='background-color:[[niveau.couleur]]'>
+                    <span>[[niveau.lettre]]</span>
+                   </span>
+                   -->
+        <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
+        <span>[[niveau.ordre]].</span>
+    </li>
     <li><span class="rounded grey"></span> &nbsp <i18n>evaluations.competence.unevaluated.abreviation</i18n></li>
 </ul>
 

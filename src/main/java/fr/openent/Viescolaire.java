@@ -78,6 +78,10 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_REL_ANNOTATIONS_DEVOIRS_TABLE = "rel_annotations_devoirs";
 	public static final String EVAL_APPRECIATIONS_TABLE = "appreciations";
 	public static final String EVAL_BFC_TABLE = "bilan_fin_cycle";
+	public static final String EVAL_PERSO_NIVEAU_COMPETENCES_TABLE = "perso_niveau_competences";
+	public static final String EVAL_NIVEAU_COMPETENCES_TABLE = "niveau_competences";
+	public static final String EVAL_USE_PERSO_NIVEAU_COMPETENCES_TABLE = "use_perso";
+	public static final String EVAL_CYCLE_TABLE = "cycle";
 
 	/**
 	 * Déclaration des router préfixs
@@ -124,6 +128,10 @@ public class Viescolaire extends BaseServer {
 	//public final static String SCHEMA_ANNOTATION_CREATE = "eval_createAnnotation";
 	public final static String SCHEMA_ANNOTATION_UPDATE = "eval_updateAnnotation";
 	public final static String SCHEMA_ANNOTATION_DELETE = "eval_deleteAnnotation";
+
+	public final static String SCHEMA_MAITRISE_CREATE = "eval_createMaitrise";
+	public final static String SCHEMA_MAITRISE_UPDATE = "eval_updateMaitrise";
+	public final static String SCHEMA_USE_PERSO_NIVEAU_COMPETENCE = "eval_usePersoNiveauCompetence";
 
 	public static final Integer CLASSE_TYPE = 0;
 	public static final Integer GROUPE_TYPE = 1;
@@ -176,6 +184,7 @@ public class Viescolaire extends BaseServer {
 		addController(new CompetenceController());
 		addController(new CompetenceNoteController());
 		addController(new RemplacementController());
+		addController(new NiveauDeMaitriseController());
 
 		// devoir table
 		SqlConf confDevoir = SqlConfs.createConf(DevoirController.class.getName());

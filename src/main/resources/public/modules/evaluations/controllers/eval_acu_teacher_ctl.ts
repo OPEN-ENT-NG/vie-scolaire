@@ -6,8 +6,8 @@ let moment = require('moment');
 declare let _: any;
 
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
-    '$scope', 'route', 'model',
-    function ($scope, route, model) {
+    '$scope', 'route', 'model', '$rootScope',
+    function ($scope, route, model, $rootScope) {
         // Méthode d'initialisation ou de réinitialisation du Controler : notamment lors du changement d'établissement
         $scope.initControler = function () {
             $scope.evaluations = evaluations;
@@ -55,6 +55,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
 
             // Récupération des structures
             $scope.structures = evaluations.structures;
+            $scope.usePerso = evaluations.structure.usePerso;
 
             $scope.getDefaultPeriode = function () {
                 return utils.getDefaultPeriode($scope.periodes.all);
@@ -144,6 +145,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                 $scope.search = $scope.$parent.initSearch();
                 $scope.search.periode =  $scope.getDefaultPeriode();
                 $scope.devoirs = evaluations.structure.devoirs;
+                $scope.usePerso = evaluations.structure.usePerso;
                 $scope.initChartListNotDone();
                 utils.safeApply($scope);
             };
@@ -197,5 +199,6 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             }
 
         };
+
     }
 ]);

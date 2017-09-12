@@ -6,16 +6,24 @@ import { Motif } from '../../../absences/models/personnel/Motif';
 import {Categorie} from "../../../absences/models/personnel/Categorie";
 import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
 import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
+import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
+import {Cycle} from "../../../evaluations/models/eval_cycle";
 
 
 export class Structure extends DefaultStructure {
     // Fields
     id: string;
     isActived = {presence: false, evaluation: false};
+
+    // presence
     motifs: Collection<Motif>;
     categories: Collection<Categorie>;
     motifAppels: Collection<MotifAppel>;
     categorieAppels: Collection<CategorieAppel>;
+    // evaluation
+    niveauCompetences: Collection<NiveauCompetence>;
+    cycles: Array<Cycle>;
+
 
     get api () {
         return  {
@@ -27,6 +35,11 @@ export class Structure extends DefaultStructure {
                 synchronization: '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
                 categorie: '/viescolaire/presences/categorie/appels?idEtablissement=' + this.id,
             },
+            NIVEAU_COMPETENCES : {
+                synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
+                delete : '/viescolaire/evaluations/maitrise/level/' + this.id
+
+            }
         };
     }
 
@@ -131,7 +144,39 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
+        this.collection(NiveauCompetence, {
+            sync : async function () {
+                // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
+                return new Promise((resolve, reject) => {
+                    http().getJson(this.composer.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
+                        niveauCompetences.forEach((niveauCompetence) => {
+                            if(niveauCompetence.couleur === null ){
+                                niveauCompetence.couleur = Defaultcolors[niveauCompetence.default];
+                            }
+                            if (niveauCompetence.lettre === null ) {
+                                niveauCompetence.lettre = " ";
+                            }
+                            niveauCompetence.id_etablissement = this.composer.id;
+                        });
 
+                        this.load(niveauCompetences);
+
+                        if (resolve && typeof resolve === 'function') {
+                            resolve();
+                        }
+                    }.bind(this))
+                        .error(function () {
+                            if (reject && typeof reject === 'function') {
+                                reject();
+                            }
+                        })
+                })
+
+            }
+        });
+
+        // Récupération du niveau de compétences et construction de l'abre des cycles.
+       this.getMaitrise();
 
         // motifs et Catégorie d'appel
         await this.motifAppels.sync();
@@ -148,5 +193,37 @@ export class Structure extends DefaultStructure {
         else {
             let res = await createActiveStructure(module, idStructure);
         }
+    }
+
+    async getMaitrise() {
+        await this.niveauCompetences.sync();
+        let cycles = [];
+        let tree = _.groupBy(this.niveauCompetences.all,"id_cycle");
+
+        _.map(tree, function (node) {
+            let cycleNode  = {
+                id_cycle: node[0].id_cycle,
+                libelle: node[0].cycle,
+                selected: false,
+                niveauCompetencesArray: _.sortBy(node, function(niv) {
+                    return niv.ordre;
+                })
+            }
+            cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
+            cycles.push(cycleNode);
+        });
+        this.cycles = cycles;
+    }
+
+    deletePerso () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().deleteJson(this.api.NIVEAU_COMPETENCES.delete).done(() => {
+                this.getMaitrise().then(() => {
+                    if (resolve && (typeof(resolve) === 'function')) {
+                        resolve();
+                    }
+                });
+            });
+        });
     }
 }

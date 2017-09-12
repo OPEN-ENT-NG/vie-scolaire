@@ -3,6 +3,7 @@ import {
     Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {Defaultcolors} from "../models/eval_niveau_comp";
 
 let moment = require('moment');
 
@@ -23,6 +24,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             });
             $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
         };
+
+        $scope.selectCycleForViewNote = function (idGroupe) {
+            evaluations.structure.cycle = _.findWhere(evaluations.structure.cycles, {
+                id_cycle: $scope.classes.findWhere({id: idGroupe}).id_cycle
+            });
+            $scope.structure.cycle = evaluations.structure.cycle;
+            return $scope.structure.cycle.niveauCompetencesArray;
+        };
+
+
 
         $scope.initSearch = () =>  {
             return {
@@ -231,6 +242,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                     if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                     $scope.currentDevoir = _.findWhere(evaluations.structure.devoirs.all, {id: parseInt(params.devoirId)});
+                    $scope.updateColorAndLetterForSkills();
+
                     let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
                     let date_saisie = current_periode.date_fin_saisie;
 
@@ -301,6 +314,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
                         $scope.getReleve();
                     }
+                    $scope.usePerso = evaluations.structure.usePerso;
                     utils.safeApply($scope);
                     template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 }
@@ -315,6 +329,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                         $scope.sortType = 'title'; // set the default sort type
                         $scope.sortReverse = false;  // set the default sort order
+                        $scope.usePerso = evaluations.structure.usePerso;
                         utils.safeApply($scope);
                     };
                     if (params.idEleve != undefined && params.idClasse != undefined) {
@@ -339,6 +354,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.allRefreshed = false;
                         $scope.sortType = 'title'; // set the default sort type
                         $scope.sortReverse = false;  // set the default sort order
+                        $scope.usePerso = evaluations.structure.usePerso;
                         utils.safeApply($scope);
                     };
                     if (params.idClasse != undefined) {
@@ -461,6 +477,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.synchronizeStudents = (idClasse) : boolean => {
             let _classe = evaluations.structure.classes.findWhere({id : idClasse});
+            evaluations.structure.cycle = _.findWhere(evaluations.structure.cycles, {id_cycle: _classe.id_cycle});
+            $scope.structure.cycle = evaluations.structure.cycle;
+            utils.safeApply($scope);
             if (_classe !== undefined && !_classe.remplacement && _classe.eleves.empty()) {
                 _classe.eleves.sync().then(() => {
                     utils.safeApply($scope);
@@ -900,7 +919,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 && $scope.devoir.ramener_sur !== undefined
                 && $scope.devoir.id_etat !== undefined
                 && ($scope.devoir.is_evaluated
-                || $scope.evaluations.competencesDevoir.length > 0)
+                    || $scope.evaluations.competencesDevoir.length > 0)
                 && $scope.evaluations.competencesDevoir.length <= $scope.MAX_NBR_COMPETENCE
             );
         };
@@ -2458,6 +2477,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.types = evaluations.structure.types;
             $scope.eleves = evaluations.structure.eleves;
             $scope.enseignants = evaluations.structure.enseignants;
+            $scope.usePerso = evaluations.structure.usePerso;
+            $scope.useDefaut = !$scope.usePerso;
             $scope.initPeriodesList();
             utils.safeApply($scope);
         };
@@ -2495,5 +2516,56 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $location.path('/disabled');
                 $location.replace();
             });
+
+        $scope.saveTheme = function(){
+            $rootScope.chooseTheme();
+        };
+        $scope.updateColorAndLetterForSkills = function () {
+            $scope.niveauCompetences = $scope.selectCycleForViewNote($scope.currentDevoir.id_groupe);
+            $scope.currentDevoir.niveauCompetences = $scope.niveauCompetences;
+
+            // chargement dynamique des couleurs du niveau de compétences
+            // et de la valeur max (maxOrdre)
+            $scope.currentDevoir.maxOrdre = $scope.niveauCompetences[0].ordre -1;
+            $scope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+            $scope.mapLettres = {"-1": " "};
+            _.forEach($scope.currentDevoir.niveauCompetences, function (niv) {
+                $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
+                $scope.mapLettres[niv.ordre-1] = niv.lettre;
+            });
+            utils.safeApply($scope);
+        };
+
+        $scope.updateNiveau = function (usePerso) {
+            if(usePerso == 'true' ){
+                evaluations.structure.niveauCompetences.sync(false).then( () => {
+                    evaluations.structure.niveauCompetences.first().markUser().then( () => {
+                        $scope.structure.usePerso = 'true';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
+                    });
+                });
+
+            }
+            else if (usePerso == 'false'){
+                evaluations.structure.niveauCompetences.sync(true).then( () => {
+                    evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
+                       $scope.structure.usePerso = 'false';
+                       $scope.updateColorAndLetterForSkills();
+                       utils.safeApply($scope);
+                    });
+                });
+            }
+        }
+
+        $scope.togglePanel = function($event){
+            $scope.showPanel = !$scope.showPanel;
+            $event.stopPropagation();
+        };
+
+
+        $rootScope.$on('close-panel', function(e){
+            $scope.showPanel = false;
+        })
     }
 ]);

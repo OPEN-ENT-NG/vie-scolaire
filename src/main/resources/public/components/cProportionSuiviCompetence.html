@@ -18,7 +18,8 @@
   -->
 <div class="inline-block suivi-proportion"
      ng-repeat="prop in proportion"
-     ng-class="{green : prop.eval === 3, yellow : prop.eval === 2, orange: prop.eval === 1, red : prop.eval === 0, grey : prop.eval === -1}"
-     ng-style="{'width': prop.percent + '%'}"
+     ng-style="{'width': prop.percent + '%', 'background-color': mapCouleurs[prop.eval]}"
+     style="vertical-align:top"
      tooltip="[[prop.percent.toFixed(0)]] [[translate('%')]]">
+    <span ng-if="prop.percent>0" class="lettreNiv">[[(mapLettres[prop.eval])]]</span>
 </div>

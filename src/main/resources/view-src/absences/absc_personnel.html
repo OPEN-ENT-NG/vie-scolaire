@@ -20,25 +20,24 @@
 
 <html>
 
-	<head>
-		<title>{{#i18n}}viescolaire.absences.title{{/i18n}}</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<link rel="stylesheet" href="/viescolaire/public/css/fontawesome/css/font-awesome.css">
-		<script src="/viescolaire/public/dist/entcore/ng-app.js" id="context" type="text/javascript"></script>
-		<script src="/viescolaire/public/dist/absences/absc_personnels.js" type="text/javascript"></script>
-		<script type="text/ng-template" id="empty"></script>
-	</head>
+<head>
+	<title>{{#i18n}}viescolaire.absences.title{{/i18n}}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1"/>
+	<link rel="stylesheet" href="/viescolaire/public/css/fontawesome/css/font-awesome.css">
+	<script src="/viescolaire/public/dist/entcore/ng-app.js" id="context" type="text/javascript"></script>
+	<script src="/viescolaire/public/dist/absences/absc_personnels.js" type="text/javascript"></script>
+	<script type="text/ng-template" id="empty"></script>
+</head>
 
-	<body ng-controller="AbsencesController" class="presences vsco--global">
-		<portal>
-            <offline></offline>
-			<div class="row">
-				<container template="header"></container>
-				<container ng-class="{two : display.menu, 'menu-zero' : !display.menu}" class="cell" template="menu"></container>
-				<container ng-class="{ten : display.menu, twelve : !display.menu}" class="cell" template="main"></container>
-			</div>
-			<structure-loader display="displayStructureLoader" structure-name="structure.name"></structure-loader>
-		</portal>
-	</body>
+<body ng-controller="AbsencesController" class="presences vsco--global">
+	<portal>
+		<offline></offline>
+		<container template="header"></container>
+		<container ng-class="{two : display.menu, 'menu-zero' : !display.menu}" class="zero-mobile cell" template="menu"></container>
+		<container ng-class="{ten : display.menu, twelve : !display.menu}" class="twelve-mobile cell" template="main"></container>
+		<structure-loader display="displayStructureLoader" structure-name="structure.name"></structure-loader>
+	</portal>
+</body>
 
 </html>

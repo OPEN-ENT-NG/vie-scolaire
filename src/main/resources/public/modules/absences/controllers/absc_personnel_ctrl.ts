@@ -35,6 +35,7 @@ export let absencesController = ng.controller('AbsencesController', [
             Accueil: function (params) {
                 template.close('menu');
                 template.close('header');
+                template.open('menuBis', '../templates/absences/absc_personnel_menu');
                 template.open('main', '../templates/absences/absc_personnel_acu');
                 template.open('AbscDeclDetail', '../templates/absences/absc_personnel_decl_detail');
             },

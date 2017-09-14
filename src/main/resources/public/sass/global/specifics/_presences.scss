@@ -9,6 +9,10 @@ body.presences {
     $ENSEIGNANT-APPEL
   **/
 
+  .acu_button {
+    margin-right: 4% !important;
+  }
+
   //TODO SWITCH VERS ICONS
   .close-input {
     right: 18px;
@@ -264,10 +268,6 @@ body.presences {
     margin: 0 !important;
     white-space: nowrap;
     overflow: hidden;
-  }
-  .action-acc-cpe {
-    margin-left: 4%;
-    margin-right: 4%;
   }
 
   .box-accueil {
@@ -931,6 +931,7 @@ body.presences {
   }
 
   .absc_parent {
+
     .titre-widget {
       text-align: center;
     }
@@ -939,7 +940,7 @@ body.presences {
       color: $white;
     }
 
-    .parent_absc_header {
+    .content-box-accueil--table--header {
       box-sizing: border-box;
       padding: 10px;
 
@@ -1026,6 +1027,11 @@ body.presences {
       color: $red;
     }
 
+    i.obligatoire  {
+      margin: 0;
+      padding: 0;
+    }
+
     .display-children {
       height: 150px;
       width: 100%;
@@ -1078,20 +1084,60 @@ body.presences {
       }
 
       .round-avatar {
-        //position: absolute;
-        display: inline-block ;
-        float: right;
-        margin-top: 10px;
-        margin-right: 10px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      .row + .row {
+        margin-top: 15px;
+      }
+
+      .content {
+        min-height: 0;
       }
     }
   }
 
-  .commentaire_detail_decl{
-    font-size: 14px;
-    padding-right: 20px;
-    word-break: break-all;
-    max-height: 200px;
-    overflow-y: auto;
+  .detail_declaration {
+
+    .content {
+      min-height: 0;
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 0;
+
+      tr {
+        border: 0;
+
+        &:hover {
+          background: none;
+        }
+      }
+
+      td:first-child {
+        width: 40%;
+      }
+
+      td {
+        vertical-align: text-bottom;
+        height: 50px;
+        padding: 0;
+      }
+
+      h2 {
+        margin: 0;
+      }
+    }
+
+    .commentaire_detail_decl{
+      font-size: 14px;
+      padding-right: 20px;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+    }
   }
 }

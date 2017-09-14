@@ -1,10 +1,15 @@
-<div class="">
-    <div class="row">
-        <button class="decl_button right-magnet" ng-click="openLightBoxDeclaration()">Déclarer</button>
+<container template="lightbox_declaration"></container>
+<row>
+    <div class="six cell zero-mobile">
+        &nbsp
     </div>
-    <container template="lightbox_declaration"></container>
-    <section>
-        <article class="eleven cell box-accueil twelve-mobile">
+    <div class="six cell twelve-mobile">
+        <button class="marginFive right-magnet acu_button" ng-click="openLightBoxDeclaration()">Déclarer</button>
+    </div>
+</row>
+<section>
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
             <div class="content-box-accueil">
                 <div class="titre-widget">
                     <h2 class="inline-block">
@@ -12,7 +17,7 @@
                     </h2>
                 </div>
                 <div class="content-box-accueil--table">
-                    <div class="content-box-accueil--table--header parent_absc_header row">
+                    <div class="content-box-accueil--table--header row">
                         <div class="five cell seven-mobile"
                              ng-click="pOSortParameters.sortType = 'cours.timestamp_dt';
                              pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
@@ -78,9 +83,9 @@
                 </div>
             </div>
         </article>
-    </section>
-    <section>
-        <article class="eleven cell box-accueil twelve-mobile">
+    </div>
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
             <div class="content-box-accueil">
                 <div class="titre-widget">
                     <h2 class="inline-block">
@@ -88,7 +93,7 @@
                     </h2>
                 </div>
                 <div class="content-box-accueil--table">
-                    <div class="content-box-accueil--table--header parent_absc_header row">
+                    <div class="content-box-accueil--table--header row">
                         <div class="three cell"
                              ng-click="pOSortParameters.sortType = 'declaration.timestamp_creation';
                              pOSortParameters.sortReverse = !pOSortParameters.sortReverse">
@@ -136,7 +141,8 @@
                     </div>
                     <div class="cell-indent content-box-accueil--table--content">
                         <div ng-repeat="decl in declarations | orderBy:pOSortParameters.sortType:pOSortParameters.sortReverse | limitTo:10"
-                             ng-click="openLightBoxDeclaration(decl)">
+                             ng-click="openLightBoxDeclaration(decl)"
+                             class="row">
                             <div class="three cell ellipsis">
                                 [[ decl.titre ]]
                             </div>
@@ -154,5 +160,5 @@
                 </div>
             </div>
         </article>
-    </section>
-</div>
+    </div>
+</section>

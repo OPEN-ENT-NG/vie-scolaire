@@ -47,6 +47,8 @@ export let abscParentController = ng.controller('AbscParentController', [
             phHeureFin: "",
         };
 
+        $scope.pbDateHeureCoherent = false;
+
         // Permet le choix d'un élève et la synchronisation des évènements et déclarations de l'élève
         $scope.chooseChild = async (eleve, nb?) => {
             if ($scope.selectedEleve == null || $scope.selectedEleve.id != eleve.id) {
@@ -134,6 +136,27 @@ export let abscParentController = ng.controller('AbscParentController', [
             $scope.poDateHeure.phHeureFin = moment().format('HH:mm');
         };
 
+        $scope.isDateHeureCoherent = () => {
+            let poDateHeureDebut = moment($scope.poDateHeure.pdDateDebut);
+            let hours = $scope.poDateHeure.phHeureDebut.split(':');
+            poDateHeureDebut.set({'hour' : hours[0], 'minute' : hours[1]});
+            let poDateHeureFin = moment($scope.poDateHeure.pdDateFin);
+            hours = $scope.poDateHeure.phHeureFin.split(':');
+            poDateHeureFin.set({'hour': hours[0], 'minute': hours[1]});
+            if(!poDateHeureDebut.isValid()
+                || !poDateHeureFin.isValid()) {
+                return false;
+            } else {
+                return poDateHeureDebut.isBefore(poDateHeureFin);
+            }
+        };
+
+        $scope.watchDateHour = (expr) => {
+            $scope.$watch(expr, () => {
+                $scope.pbDateHeureCoherent = $scope.isDateHeureCoherent();
+            });
+        };
+
         $scope.saveDeclaration = async (decl) => {
             await decl.save();
             $scope.closeLightBoxDeclaration();
@@ -150,5 +173,11 @@ export let abscParentController = ng.controller('AbscParentController', [
         $scope.eleves = $scope.structure.eleves.all;
         $scope.selectedEleve = _.first($scope.eleves);
         $scope.syncEleve();
+
+        $scope.watchDateHour("poDateHeure.pdDateDebut");
+        $scope.watchDateHour("poDateHeure.phHeureDebut");
+        $scope.watchDateHour("poDateHeure.pdDateFin");
+        $scope.watchDateHour("poDateHeure.phHeureFin");
+
         utils.safeApply($scope);
     }]);

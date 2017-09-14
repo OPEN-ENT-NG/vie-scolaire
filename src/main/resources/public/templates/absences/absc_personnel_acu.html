@@ -1,158 +1,140 @@
-<div class="twelve cell" ng-controller="AbsencesController">
-
-    <!-- Header -->
-    <header class="header-viescolaire">
-        <h1><i18n>viescolaire.viescolaire.title</i18n></h1>
-    </header>
-
-    <!--  Menu de gauche  -->
-    <nav class="two cell vertical menu-accueil">
-        <ul>
-
-            <li><a href="/viescolaire/presences#/appels/noneffectues"><i18n>viescolaire.absences.ariane.AppelsOublies</i18n></a></li>
-            <li><a href="/viescolaire/presences#/sansmotifs"><i18n>viescolaire.viescolaire.absences.sans.motif</i18n></a></li>
-        </ul>
-    </nav>
-    <!--  Contenu (zone centrale)  -->
-    <div class="ten cell main-content">
-        <section class="eleven cell action-acc-cpe">
-            <div class="twelve cell">
-                <label ng-if="structures.all.length > 1"  class="select right-magnet">
-                    <select ng-model="structure" ng-options="structure.name for structure in structures.all
+<div class="twelve cell">
+    <label ng-if="structures.all.length > 1"  class="select right-magnet">
+        <select ng-model="structure" ng-options="structure.name for structure in structures.all
                             track by structure.id" ng-change="changeStructure(structure)">
-                    </select>
-                </label>
-            </div>
-            <div class="twelve cell ">
-                <header>
-                    <button class="marginFive right-magnet" ng-click="goTo('/appel')"><i18n>viescolaire.viescolaire.saisir.appel</i18n></button>
-                    <button class="marginFive right-magnet" ng-click="goTo('/saisie/abs/eleve')"><i18n>viescolaire.viescolaire.saisir.absence</i18n></button>
-                </header>
-            </div>
-        </section>
-
-        <section>
-            <article class="five cell box-accueil">
-                <h2><i18n>viescolaire.viescolaire.absences.sans.motif</i18n></h2>
-                <div class="content-box-accueil">
-                    <div class="content-box-accueil--table">
-                        <div class="content-box-accueil--table--header row">
-                            <div class="six cell">
-                                <h5><i18n>viescolaire.utils.name</i18n> <i18n>viescolaire.utils.firstName</i18n></h5>
-                            </div>
-                            <div class="six cell">
-                                <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
-                            </div>
+        </select>
+    </label>
+</div>
+<row>
+    <div class="six cell zero-mobile">
+        &nbsp
+    </div>
+    <div class="six cell twelve-mobile">
+        <button class="marginFive acu_button right-magnet" ng-click="goTo('/appel')"><i18n>viescolaire.viescolaire.saisir.appel</i18n></button>
+        <button class="marginFive right-magnet" ng-click="goTo('/saisie/abs/eleve')"><i18n>viescolaire.viescolaire.saisir.absence</i18n></button>
+    </div>
+</row>
+<container class="two cell" template="menuBis"></container>
+<section class="ten cell">
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
+            <h2><i18n>viescolaire.viescolaire.absences.sans.motif</i18n></h2>
+            <div class="content-box-accueil">
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header row">
+                        <div class="six cell">
+                            <h5><i18n>viescolaire.utils.name</i18n> <i18n>viescolaire.utils.firstName</i18n></h5>
                         </div>
-                        <div class="content-box-accueil--table--content">
-                            <div class="row" ng-repeat="evenement in structure.evenements.all">
-                                <div class="six cell">
-                                    [[evenement.eleve_nom]] [[evenement.eleve_prenom]]
-                                </div>
-                                <div class="six cell">
-                                    [[formatDate(evenement.cours_timestamp_dt, evenement.cours_timestamp_fn)]]
-                                </div>
+                        <div class="six cell">
+                            <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
+                        </div>
+                    </div>
+                    <div class="content-box-accueil--table--content">
+                        <div class="row" ng-repeat="evenement in structure.evenements.all">
+                            <div class="six cell">
+                                [[evenement.eleve_nom]] [[evenement.eleve_prenom]]
+                            </div>
+                            <div class="six cell">
+                                [[formatDate(evenement.cours_timestamp_dt, evenement.cours_timestamp_fn)]]
                             </div>
                         </div>
                     </div>
                 </div>
-            </article>
-        </section>
-        <section>
-            <article class="five cell box-accueil">
-                <h2><i18n>viescolaire.viescolaire.appels.oublies</i18n></h2>
-                <div class="content-box-accueil">
-                    <div class="content-box-accueil--table">
-                        <div class="content-box-accueil--table--header row">
-                            <div class="four cell">
-                                <h5><i18n>viescolaire.utils.teacher</i18n></h5>
-                            </div>
-                            <div class="four cell">
-                                <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
-                            </div>
-                            <div class="four cell">
-                                <h5><i18n>viescolaire.utils.class</i18n></h5>
-                            </div>
+            </div>
+        </article>
+    </div>
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
+            <h2><i18n>viescolaire.viescolaire.appels.oublies</i18n></h2>
+            <div class="content-box-accueil">
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header row">
+                        <div class="four cell">
+                            <h5><i18n>viescolaire.utils.teacher</i18n></h5>
                         </div>
-                        <div class="content-box-accueil--table--content">
-                                <div class="row" ng-repeat="appel in structure.appels.all">
-                                <div class="four cell">
-                                    [[appel.personnel]]
-                                </div>
-                                <div class="four cell">
-                                    [[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]
-                                </div>
-                                <div class="four cell">
-                                    [[appel.classe_libelle]]
-                                </div>
+                        <div class="four cell">
+                            <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
+                        </div>
+                        <div class="four cell">
+                            <h5><i18n>viescolaire.utils.class</i18n></h5>
+                        </div>
+                    </div>
+                    <div class="content-box-accueil--table--content">
+                        <div class="row" ng-repeat="appel in structure.appels.all">
+                            <div class="four cell">
+                                [[appel.personnel]]
+                            </div>
+                            <div class="four cell">
+                                [[formatDate(appel.timestamp_dt, appel.timestamp_fn)]]
+                            </div>
+                            <div class="four cell">
+                                [[appel.classe_libelle]]
                             </div>
                         </div>
                     </div>
                 </div>
-            </article>
-        </section>
-        <section>
-            <article class="five cell box-accueil">
-                <h2><i18n>viescolaire.viescolaire.observations</i18n></h2>
-                <div class="content-box-accueil">
-                    <div class="content-box-accueil--table">
-                        <div class="content-box-accueil--table--header row">
+            </div>
+        </article>
+    </div>
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
+            <h2><i18n>viescolaire.viescolaire.observations</i18n></h2>
+            <div class="content-box-accueil">
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header row">
+                        <div class="four cell">
+                            <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
+                        </div>
+                        <div class="eight cell">
+                            <h5><i18n>viescolaire.viescolaire.observation</i18n></h5>
+                        </div>
+                    </div>
+                    <div class="content-box-accueil--table--content">
+                        <div class="row" ng-repeat="observation in structure.observations.all">
                             <div class="four cell">
-                                <h5><i18n>date</i18n>/<i18n>hour</i18n></h5>
+                                [[formatDate(observation.timestamp_dt, observation.timestamp_fn)]]
                             </div>
                             <div class="eight cell">
-                                <h5><i18n>viescolaire.viescolaire.observation</i18n></h5>
-                            </div>
-                        </div>
-                        <div class="content-box-accueil--table--content">
-                            <div class="row" ng-repeat="observation in structure.observations.all">
-                                <div class="four cell">
-                                    [[formatDate(observation.timestamp_dt, observation.timestamp_fn)]]
-                                </div>
-                                <div class="eight cell">
-                                    [[observation.commentaire]]
-                                </div>
+                                [[observation.commentaire]]
                             </div>
                         </div>
                     </div>
                 </div>
-            </article>
-        </section>
-        <section>
-            <article class="five cell box-accueil">
-                <h2><i18n>presences.declaration</i18n></h2>
-                <div class="content-box-accueil">
-                    <div class="content-box-accueil--table">
-                        <div class="content-box-accueil--table--header row">
-                            <div class="four cell">
-                                <h5><i18n>viescolaire.utils.class</i18n></h5>
-                            </div>
-                            <div class="four cell">
-                                <h5><i18n>viescolaire.absences.student</i18n></h5>
-                            </div>
-                            <div class="four cell">
-                                <h5><i18n>presences.declaration.creation</i18n></h5>
-                            </div>
-                        </div>
-                        <div class="content-box-accueil--table--content">
-                            <div class="row" ng-repeat="declaration in structure.declarations.all" ng-click="detailDeclarationAppel(declaration)">
-                                <div class="four cell cell-indent">
-                                    [[declaration.classe]]
-                                </div>
-                                <div class="four cell">
-                                    [[declaration.nom_eleve]]
-                                </div>
-                                <div class="four cell">
-                                    [[formatDate(declaration.created)]]
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </section>
-        <lightbox show="detailDeclaration">
-            <container template="AbscDeclDetail"></container>
-        </lightbox>
+            </div>
+        </article>
     </div>
-</div>
+    <div class="six cell twelve-mobile">
+        <article class="box-accueil">
+            <h2><i18n>presences.declaration</i18n></h2>
+            <div class="content-box-accueil">
+                <div class="content-box-accueil--table">
+                    <div class="content-box-accueil--table--header row">
+                        <div class="four cell">
+                            <h5><i18n>viescolaire.utils.class</i18n></h5>
+                        </div>
+                        <div class="four cell">
+                            <h5><i18n>viescolaire.absences.student</i18n></h5>
+                        </div>
+                        <div class="four cell">
+                            <h5><i18n>presences.declaration.creation</i18n></h5>
+                        </div>
+                    </div>
+                    <div class="content-box-accueil--table--content">
+                        <div class="row" ng-repeat="declaration in structure.declarations.all" ng-click="detailDeclarationAppel(declaration)">
+                            <div class="four cell cell-indent">
+                                [[declaration.classe]]
+                            </div>
+                            <div class="four cell">
+                                [[declaration.nom_eleve]]
+                            </div>
+                            <div class="four cell">
+                                [[formatDate(declaration.created)]]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+<container template="AbscDeclDetail"></container>

@@ -41,20 +41,30 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                 return -1;
             };
 
-            scope.findInput = function(row){
-                for(var i = 0; i < row.children.length; i++){
-                    if(row.children[i].tagName === 'INPUT' || row.children[i].tagName === 'LABEL'){
-                        return row.children[i];
+            scope.findInput = function(row) {
+                for (let i = 0; i < row.children.length; i++) {
+                    if (row.children[i].tagName === 'INPUT-TEXT-LIST') {
+                        let inputTextList = row.children[i];
+                        for (let j = 0 ; j < inputTextList.children.length; j++) {
+                            if (inputTextList.children[j].tagName === 'INPUT') {
+                                return inputTextList.children[j];
+                            }
+                        }
                     }
                 }
                 return null;
             };
 
-            scope.findInputs = function(row){
-                var inputs = [];
-                for(var i = 0 ; i < row.children.length; i++){
-                    if(row.children[i].tagName === 'INPUT' || row.children[i].tagName === 'LABEL'){
-                        inputs.push(row.children[i]);
+            scope.findInputs = function(row) {
+                let inputs = [];
+                for (let i = 0 ; i < row.children.length; i++) {
+                    if (row.children[i].tagName === 'INPUT-TEXT-LIST') {
+                        let inputTextList = row.children[i];
+                        for (let j = 0 ; j < inputTextList.children.length; j++) {
+                            if (inputTextList.children[j].tagName === 'INPUT') {
+                                inputs.push(inputTextList.children[j]);
+                            }
+                        }
                     }
                 }
                 return inputs;
@@ -215,23 +225,37 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                         break;
                     case keys.arrow.up:
                     case keys.enter:
-                    case keys.arrow.down:{
+                    case keys.arrow.down: {
                         var tr = scope.findAncestor(td, 'navigable-row');
                         var pos = scope.findIndex(td, children);
                         var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'),'navigable-row');
                         var trIndex = scope.findIndex(tr, expandChildren);
                         var moveToRow = null;
-                        if (key == keys.arrow.down || key == keys.enter) {
-                            if(trIndex < expandChildren.length -1){
-                                moveToRow = expandChildren[trIndex+1];
+                        if (key === keys.arrow.down || key === keys.enter) {
+                            if (trIndex < expandChildren.length - 1) {
+                                let index = trIndex + 1;
+                                moveToRow = expandChildren[index];
+                                let findNavigableCell = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell').length;
+                                while (moveToRow !== null && findNavigableCell === 0 && index < expandChildren.length - 1) {
+                                    index ++;
+                                    moveToRow = expandChildren[index];
+                                    findNavigableCell = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell').length;
+                                }
                             }
                         }
-                        else if (key == keys.arrow.up) {
-                            if(trIndex > 0){
-                                moveToRow = expandChildren[trIndex-1];
+                        else if (key === keys.arrow.up) {
+                            if (trIndex > 0) {
+                                let index = trIndex - 1;
+                                moveToRow = expandChildren[index];
+                                let findNavigableCell = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell').length;
+                                while (moveToRow !== null && findNavigableCell === 0 && index !== 0 ) {
+                                    index --;
+                                    moveToRow = expandChildren[index];
+                                    findNavigableCell = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell').length;
+                                }
                             }
                         }
-                        if(moveToRow !== null){
+                        if (moveToRow !== null) {
                             if (moveToRow.children.length) {
                                 var targets = [];
                                 var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');

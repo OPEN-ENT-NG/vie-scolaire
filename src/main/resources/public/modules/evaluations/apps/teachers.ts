@@ -43,6 +43,7 @@ import {sticky} from '../../utils/directives/sticky';
 import {proportionSuiviCompetence} from '../directives/ProportionSuiviCompetence';
 import {rzslider} from '../../utils/directives/slider';
 import { structureLoader } from '../../utils/directives/structureLoading';
+import {inputTextList} from '../directives/inputTextList';
 import { cSkillsBubble } from '../directives/cSkillsBubble';
 
 ng.directives.push(cFilAriane);
@@ -60,6 +61,8 @@ ng.directives.push(sticky);
 ng.directives.push(proportionSuiviCompetence);
 ng.directives.push(rzslider);
 ng.directives.push(structureLoader);
+ng.directives.push(inputTextList);
+
 ng.directives.push(cSkillsBubble);
 
 routes.define(function($routeProvider){

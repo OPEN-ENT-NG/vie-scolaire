@@ -2,7 +2,22 @@ body.vsco--global {
   i.check-empty::after{
     content: "\e83d";
   }
-
+  i.up-open::after{
+    font-size: large;
+    &:hover {
+      color: $cyan;
+    }
+  }
+  i.down-open::after{
+    font-size: large;
+    &:hover {
+      color: $cyan;
+    }
+  }
+  i.table::after{
+    content: '\e913';
+    color : #ffffff;
+  }
   i.clock::after {
     content: '\f017';
   }

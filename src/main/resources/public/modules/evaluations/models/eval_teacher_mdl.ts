@@ -260,6 +260,11 @@ export class Structure extends Model implements IModel {
             sync: function () {
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.ANNOTATION.synchronization).done(function (res) {
+
+                        res.push(new Annotation({
+                            id: 0, libelle: lang.translate('no.annotation'), id_etablissement: this.id,
+                            libelle_court: ""
+                        }));
                         this.load(res);
                         evaluations.annotations = this;
                         that.synchronized.annotations = true;
@@ -713,6 +718,7 @@ export class Classe extends Model {
     suiviCompetenceClasse : Collection<SuiviCompetenceClasse>;
     mapEleves : any;
     remplacement: boolean;
+    id_cycle: any;
 
     get api () {
         return {
@@ -807,7 +813,6 @@ export class Evaluation extends Model implements IModel{
     id_eleve : string;
     id_devoir : number;
     id_appreciation : number;
-    selected_annotation;
     valeur : any;
     appreciation : any;
     coefficient : number;
@@ -1125,12 +1130,17 @@ export class Devoir extends Model implements IModel{
                             var _e = that.eleves.findWhere({id : res[i].id_eleve});
                             if (_e !== undefined) {
                                 _e.evaluation = new Evaluation(res[i]);
-                                _e.evaluation.oldValeur = _e.evaluation.valeur;
                                 _e.evaluation.oldAppreciation = _e.evaluation.appreciation !== undefined ? _e.evaluation.appreciation : '';
                                 if (_e.evaluation.id_annotation === undefined
                                     || _e.evaluation.id_annotation === null) {
                                     _e.evaluation.id_annotation = -1;
+                                } else {
+                                    let annotation = _.findWhere(evaluations.structure.annotations.all, {id : _e.evaluation.id_annotation});
+                                    if (annotation !== undefined && annotation !== null) {
+                                        _e.evaluation.valeur = annotation.libelle_court;
+                                    }
                                 }
+                                _e.evaluation.oldValeur = _e.evaluation.valeur;
                                 _e.evaluation.oldId_annotation = _e.evaluation.id_annotation;
                                 delete _e.evaluations;
                             }

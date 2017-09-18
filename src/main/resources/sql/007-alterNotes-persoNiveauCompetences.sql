@@ -15,7 +15,7 @@ CREATE TABLE notes.perso_niveau_competences
 CREATE INDEX idx_perso_niveau_competences  ON notes.perso_niveau_competences  USING btree
   (id_etablissement COLLATE pg_catalog."default");
 
-REATE TABLE notes.use_perso
+CREATE TABLE notes.use_perso
 (
   id_user character varying(36) NOT NULL,
   id bigserial NOT NULL,

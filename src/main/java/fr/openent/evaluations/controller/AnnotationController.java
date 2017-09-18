@@ -78,7 +78,7 @@ public class AnnotationController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_ANNOTATION_UPDATE, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject annotation) {
-                            annotationService.createAnnotationDevoir(annotation.getLong("id_devoir"),Long.parseLong(annotation.getString("id_annotation")),annotation.getString("id_eleve"),defaultResponseHandler(request) );
+                            annotationService.createAnnotationDevoir(annotation.getLong("id_devoir"),annotation.getLong("id_annotation"),annotation.getString("id_eleve"),defaultResponseHandler(request) );
                         }
 
                     });

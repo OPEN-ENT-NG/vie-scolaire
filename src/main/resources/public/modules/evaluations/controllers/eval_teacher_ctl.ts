@@ -920,12 +920,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {boolean} Validité du formulaire
          */
         $scope.controleNewDevoirForm = function () {
+            let name = $scope.devoir.name || '';
             return !(
                 $scope.devoir.controlledDate
                 && $scope.devoir.id_etablissement !== undefined
                 && $scope.devoir.id_groupe !== undefined
                 && $scope.devoir.id_matiere !== undefined
-                && $scope.devoir.name !== undefined
+                && name.trim() !== ''
                 && $scope.devoir.id_periode !== undefined
                 && $scope.devoir.coefficient !== undefined
                 && $scope.devoir.coefficient > 0

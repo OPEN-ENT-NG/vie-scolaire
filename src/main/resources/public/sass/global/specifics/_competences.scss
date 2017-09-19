@@ -81,6 +81,7 @@ z-index: 1;
   .lettreNiv {
     position: relative;
     vertical-align: initial;
+    font-size: 10.5px;
   }
   &.evaluations {
     .datepicker{
@@ -2178,5 +2179,8 @@ z-index: 1;
   i.cross-annotation{
     padding-left: 5px;
     line-height: 34px;
+  }
+  span.competence-eval.rounded.ng-scope {
+    vertical-align: middle;
   }
 }

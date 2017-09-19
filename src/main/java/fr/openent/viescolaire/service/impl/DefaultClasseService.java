@@ -57,12 +57,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     //TODO Revoir avec getEleveClasses
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
-        StringBuilder query = new StringBuilder();
-        query.append("Match (c:Class{id: {idClasse} }) with c ")
-                .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
-                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes, ")
-                .append(" CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ORDER BY lastName");
-
+		String RETURN_VALUES = "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes, "+
+                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ORDER BY lastName ";
+		StringBuilder query = new StringBuilder();
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id: {idClasse}}) ")
+				.append(RETURN_VALUES)
+				.append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id: {idClasse}}) ")
+				.append(RETURN_VALUES);
         neo4j.execute(query.toString(), new JsonObject().putString(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
 
     }
@@ -83,6 +84,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 
+    //TODO Revoir avec getEleveClasse
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();

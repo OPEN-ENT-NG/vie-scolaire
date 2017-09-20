@@ -267,17 +267,18 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                                 // alors on effectue un traitement particulier
                                 if(children.length  !== navigableCells.length) {
                                     // si la ligne n'a qu'un cellule on se positionne sur celle ci
-                                    if(navigableCells.length === 1) {
-                                        moveTo = navigableCells[0];
-                                    } else {
-                                        // sinon on se positionne sur la dernière si l'on remonte
-                                        if (key == keys.arrow.up) {
-                                            moveTo = navigableCells[navigableCells.length - 1];
-                                        } else {
-                                            // la première si l'on descends
-                                            moveTo = navigableCells[0];
-                                        }
-                                    }
+                                    // if(navigableCells.length === 1) {
+                                    //     moveTo = navigableCells[0];
+                                    // } else {
+                                    //     // sinon on se positionne sur la dernière si l'on remonte
+                                    //     if (key == keys.arrow.up) {
+                                    //         moveTo = navigableCells[navigableCells.length - 1];
+                                    //     } else {
+                                    //         // la première si l'on descends
+                                    //         moveTo = navigableCells[0];
+                                    //     }
+                                    // }
+                                    moveTo = navigableCells[0];
                                 } else {
                                     moveTo = navigableCells[pos];
                                 }

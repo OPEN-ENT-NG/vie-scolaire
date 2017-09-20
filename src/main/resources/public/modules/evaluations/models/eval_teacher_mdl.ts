@@ -19,6 +19,7 @@ export class Structure extends Model implements IModel {
     types: Collection<Type>;
     enseignements: Collection<Enseignement>;
     annotations: Collection<Annotation>;
+    annotationsfull: [Annotation];
     periodes: Collection<Periode>;
     releveNotes: Collection<ReleveNote>;
     isSynchronized: boolean;
@@ -260,13 +261,13 @@ export class Structure extends Model implements IModel {
             sync: function () {
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.ANNOTATION.synchronization).done(function (res) {
-
-                        res.push(new Annotation({
+                        this.load(res);
+                        evaluations.annotations = this;
+                        evaluations.annotationsfull = _.clone(evaluations.annotations.all);
+                        evaluations.annotationsfull.push(new Annotation({
                             id: 0, libelle: lang.translate('no.annotation'), id_etablissement: this.id,
                             libelle_court: ""
                         }));
-                        this.load(res);
-                        evaluations.annotations = this;
                         that.synchronized.annotations = true;
                         this.trigger('sync');
                         resolve();
@@ -1846,6 +1847,7 @@ export class Evaluations extends Model {
     releveNotes : Collection<ReleveNote>;
     classes : Collection<Classe>;
     annotations: Collection<Annotation>;
+    annotationsfull: Collection<Annotation>;
     structure : Structure;
     synchronized : any;
     competencesDevoir : any[];

@@ -9,6 +9,37 @@ export let navigatable = ng.directive('cNavigaTable', function(){
     return {
         restrict : 'A',
         link: function(scope, element, attrs) {
+
+            /**
+             * Détermine si l'élément peut être sélectionner
+             * @param moveToRow
+             * @param pos
+             * @param up
+             * @returns {any}
+             */
+            scope.canMove = function (moveToRow, pos, up) {
+
+                while (moveToRow !== undefined && moveToRow.length){
+                    let moveTo = $(moveToRow[0].cells[pos]);
+                    let inputs =  moveTo.find('input,textarea');
+                    if (inputs.length > 0) {
+                        let i = 0 ;
+                        while (i < inputs.length){
+                            if(!inputs[i].disabled) {
+                                //hasFundInputDisabled = true;
+                                return moveTo;
+                            }
+                            i++;
+                        }
+                    }
+                    if (up) {
+                        moveToRow = moveToRow.prev('tr');
+                    }else{
+                        moveToRow = moveToRow.next('tr');
+                    }
+                }
+            }
+
             element.bind('keydown', function(event){
                 var keys = {
                     enter : 13,
@@ -46,7 +77,7 @@ export let navigatable = ng.directive('cNavigaTable', function(){
                             moveToRow = tr.prev('tr');
                         }
                         if (moveToRow.length) {
-                            moveTo = $(moveToRow[0].cells[pos]);
+                            moveTo = scope.canMove(moveToRow , pos , key == keys.arrow.up);
                         }
                         break;
                     }

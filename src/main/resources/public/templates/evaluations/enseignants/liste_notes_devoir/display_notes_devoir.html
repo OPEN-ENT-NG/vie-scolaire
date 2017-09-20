@@ -164,7 +164,7 @@
 
                                         <div ng-class="{'navigable-cell' : currentDevoir.is_evaluated}" class="one cell cell-input">
 
-                                            <input-text-list items="evaluations.annotations.all"
+                                            <input-text-list items="getListeAnnotations(evaluations,eleve.evaluation)"
                                                              display-attribute-list="libelle"
                                                              display-attribute-input="libelle_court"
                                                              disabled-input="!currentDevoir.is_evaluated || endSaisie"

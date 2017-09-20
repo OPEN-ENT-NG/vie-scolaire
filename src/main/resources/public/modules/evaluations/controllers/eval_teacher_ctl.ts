@@ -1,6 +1,6 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {
-    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure
+    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure, Annotation
 } from '../models/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {Defaultcolors} from "../models/eval_niveau_comp";
@@ -1845,12 +1845,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                            evaluation.competenceNotes.all[i].evaluation = -1;
                        }
                        evaluation.oldId_annotation =  evaluation.id_annotation;
-                       if (evaluation.is_evaluated) {
-                           $scope.calculStatsDevoir();
-                       }
-                       if (!evaluation.valid) {
-                           evaluation.valid = true;
-                       }
+                       $scope.calculStatsDevoir();
+                       evaluation.valid = true;
                        utils.safeApply($scope);
                    });
                }
@@ -1858,13 +1854,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         /**
-         * Ouvre le champs de saisie d'une annotation
+         * get liste des annotations
          * @param evaluation évaluation à ouvrir
 
          */
-        $scope.openAddAnnotation = function (evaluation) {
-            evaluation.id_annotation = 0;
-            utils.safeApply($scope);
+        $scope.getListeAnnotations = function (evaluations,evaluation) {
+            if(evaluation !== undefined &&
+                evaluation.id_annotation !== undefined  && evaluation.id_annotation > 0) {
+                return evaluations.annotationsfull;
+            }else{
+                return evaluations.annotations.all;
+            }
         };
 
         /**
@@ -1882,9 +1882,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         evaluation.oldValeur = "";
                         evaluation.valeur = "";
                     }
-                    if (evaluation.is_evaluated) {
-                        $scope.calculStatsDevoir();
-                    }
+                    $scope.calculStatsDevoir();
                     if (!evaluation.valid) {
                         evaluation.valid = true;
                     }
@@ -1938,8 +1936,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             evaluation.id = evaluation.data.id;
                         }
                         let annotation = _.findWhere($scope.evaluations.annotations.all, {libelle_court: evaluation.valeur});
-                        if (annotation !== undefined && annotation !== null && annotation.id !== evaluation.oldId_annotation) {
-                            if (annotation.id === 0) {
+                        let oldAnnotation = _.findWhere($scope.evaluations.annotations.all, {id: evaluation.oldId_annotation});
+                        if (!reg.test(evaluation.valeur) && ((annotation !== undefined && annotation !== null && annotation.id !== evaluation.oldId_annotation)||
+                            (oldAnnotation !== undefined && annotation === undefined))) {
+                            if (oldAnnotation !== undefined && annotation === undefined) {
                                 $scope.deleteAnnotationDevoir(evaluation, true);
                             } else {
                                 evaluation.id_annotation = annotation.id;
@@ -1964,6 +1964,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                                     $scope.calculerMoyenneEleve(eleve, $scope.releveNote.devoirs.all);
                                                     $scope.calculStatsDevoirReleve(_.findWhere($scope.releveNote.devoirs.all, {id: evaluation.id_devoir}));
                                                 } else {
+                                                    $scope.calculStatsDevoir();
                                                     if (evaluation.id_annotation !== undefined && evaluation.id_annotation > 0) {
                                                         $scope.deleteAnnotationDevoir(evaluation, false);
                                                     }
@@ -2010,7 +2011,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                     } else {
                                         if (evaluation.valeur !== "" && !_.findWhere($scope.evaluations.annotations.all, {libelle_court: evaluation.valeur})) {
                                             // notify.error(lang.translate("error.note.invalid"));
-                                            evaluation.valid = false;
+                                            // evaluation.valid = false;
                                             if ($event !== undefined && $event.target !== undefined) {
                                                 $event.target.focus();
                                             }

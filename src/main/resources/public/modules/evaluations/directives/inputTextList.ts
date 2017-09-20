@@ -43,9 +43,8 @@ export let inputTextList = ng.directive('inputTextList', function() {
                 $scope.model[$scope.modelAttribute] = item[$scope.displayAttributeInput];
                 let inputElement = element.find('input[type=text]');
                 if (inputElement !== undefined && inputElement.length > 0) {
-                    if (inputElement.get(0).disabled) {
-                        $scope.validationItemFunction();
-                    } else {
+                    $scope.validationItemFunction();
+                    if (!inputElement.get(0).disabled) {
                         inputElement.get(0).focus();
                     }
                 }

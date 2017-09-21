@@ -296,6 +296,7 @@
   "viescolaire.utils.structure.disabled.message": "Aucun de vos établissements n'est activé. Adressez vous à votre administrateur local.",
   "evaluations.homework.details":"Détails de l'évaluation",
   "viescolaire.utils.user.birthdate":"Date de naissance",
+  "viescolaire.utils.user.birthdate.undefined": "Date de naissance non renseignée",
   "ariane.viescolaire.createDevoir":"Ajouter une évaluation",
   "ariane.viescolaire.editDevoir":"Modifier une évaluation",
   "ariane.viescolaire.displayReleveNotes":"Relevé de notes",

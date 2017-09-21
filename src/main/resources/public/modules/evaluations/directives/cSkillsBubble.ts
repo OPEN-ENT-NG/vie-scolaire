@@ -20,16 +20,20 @@ export let cSkillsBubble = ng.directive('cSkillsBubble', function () {
             color : '=',
             text : '=',
             classes : '=?',
-            selectCond : '=?'
+            selectCond : '=?',
+            onClick: '=?'
         },
         templateUrl : "/"+appPrefix+"/public/components/cSkillsBubble.html",
         controller : ['$scope', function ($scope) {
-
+            $scope.activeClick = false;
             if($scope.classes === undefined){
                 $scope.classes = ' ';
             }
             if ($scope.selectCond === undefined) {
                 $scope.selected = false;
+            }
+            if ($scope.onClick != undefined) {
+                $scope.activeClick = true;
             }
             $scope.$watch('color', function (newValue, oldValue) {
                 if (newValue !== oldValue) {

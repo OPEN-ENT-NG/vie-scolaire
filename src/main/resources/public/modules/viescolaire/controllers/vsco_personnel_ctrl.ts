@@ -49,7 +49,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         // scroller vers un élément donné
         $scope.scrollToElement = function(idElement) {
-            let top = document.getElementById(idElement).offsetTop; //Getting Y of target element
+            let top = document.getElementById(idElement).offsetTop; // Getting Y of target element
             window.scrollTo(0, top);
         };
 

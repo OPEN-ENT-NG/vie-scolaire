@@ -7,9 +7,8 @@ import {SuiviCompetence, Devoir, CompetenceNote, evaluations, Structure, Classe,
 import * as utils from '../utils/teacher';
 import {Defaultcolors} from "../models/eval_niveau_comp";
 
-
-
 declare let _:any;
+declare let Chart:any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
@@ -627,7 +626,48 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             //les couleurs des points
             colors: []
         };
+        /**
+         * MISE A JOUR POUR LA PRISE EN COMPTE DE LA PERSONNALISATION DES COULEURS DE COMPETENCES DANS LE GRAPHE
+         */
+        Chart.plugins.register({
+            afterDatasetsDraw: function(chart, easing) {
+                // To only draw at the end of animation, check for easing === 1
+                let ctx = chart.chart.ctx;
 
+                chart.data.datasets.forEach(function (dataset, i) {
+                    let meta = chart.getDatasetMeta(i);
+                    if (!meta.hidden) {
+                        meta.data.forEach(function(element, index) {
+                            // Draw the text invert color of buble, with the specified font
+                            let rgba = dataset.backgroundColor[index];
+                            rgba = rgba.split('(')[1].split(')')[0].split(',');
+                            let r = 255 - parseInt(rgba[0]);
+                            let g = 255 - parseInt(rgba[1]);
+                            let b = 255 - parseInt(rgba[2]);
+                            let a = rgba[3];
+
+                            ctx.fillStyle = "rgba(" + r.toString()+ ","+ g.toString() +","+ b.toString() +"," + a + ")";
+                            let fontSize = 10.5;
+                            let fontStyle = 'normal';
+                            let fontFamily = 'Helvetica Neue';
+                            ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                            // Just naively convert to string for now
+                            let dataString = dataset.data[index].label;
+                            // Make sure alignment settings are correct
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            //var padding = 5;
+                            let position = element.tooltipPosition();
+                            if (dataString == undefined){
+                                dataString = " ";
+                            }
+                                ctx.fillText(dataString, position.x, position.y);
+
+                        });
+                    }
+                });
+            }
+        });
         /**
          *
          */
@@ -648,7 +688,15 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 ListEval =  _.sortBy(ListEval, function(evalu){ return evalu.evaluation_date; });
 
                 for (let i = 0; i < ListEval.length; i++) {
-                    $scope.chartOptionsEval.datasets.data.push(ListEval[i].evaluation + 2);
+
+                    let fontText = $scope.mapLettres[ListEval[i].evaluation];
+                    if (!fontText) {
+                        fontText = " ";
+                    }
+                    $scope.chartOptionsEval.datasets.data.push({y :ListEval[i].evaluation + 2,
+                        x: $scope.getDateFormated(ListEval[i].evaluation_date),
+                        r: 10,
+                        label: fontText});
                     $scope.chartOptionsEval.datasets.labels.push($scope.getDateFormated(ListEval[i].evaluation_date));
                     let colorValue;
                     if(ListEval[i].evaluation !== -1){colorValue = $scope.mapCouleurs[ListEval[i].evaluation];}

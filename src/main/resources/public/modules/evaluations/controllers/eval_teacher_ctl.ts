@@ -25,10 +25,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
         };
 
-        $scope.selectCycleForViewNote = function (idGroupe) {
+        $scope.selectCycleForView = function (location) {
+            let idCycle;
+            if(location == 'saisieNote'){
+                idCycle = $scope.classes.findWhere({id: $scope.currentDevoir.id_groupe}).id_cycle;
+            }
+
+            if(!idCycle){
+                idCycle = $scope.search.classe.id_cycle;
+            }
             evaluations.structure.cycle = _.findWhere(evaluations.structure.cycles, {
-                id_cycle: $scope.classes.findWhere({id: idGroupe}).id_cycle
+                id_cycle: idCycle
             });
+            if (!evaluations.structure.cycle) {
+                evaluations.structure.cycle = evaluations.structure.cycles[0];
+            }
             $scope.structure.cycle = evaluations.structure.cycle;
             return $scope.structure.cycle.niveauCompetencesArray;
         };
@@ -242,7 +253,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                     if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                     $scope.currentDevoir = _.findWhere(evaluations.structure.devoirs.all, {id: parseInt(params.devoirId)});
-                    $scope.updateColorAndLetterForSkills();
+                    $scope.updateColorAndLetterForSkills('saisieNote');
 
                     let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
                     let date_saisie = current_periode.date_fin_saisie;
@@ -308,13 +319,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                     if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                     if ($scope.releveNote !== undefined && (($scope.search.matiere === undefined || $scope.search.matiere === null ) || $scope.search.matiere.id !== $scope.releveNote.idMatiere
-                        || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
+                            || $scope.search.classe.id !== $scope.releveNote.idClasse || $scope.search.periode.id !== $scope.releveNote.idPeriode)) {
                         $scope.releveNote = undefined;
                     }
                     if ($scope.search.classe !== '*' && ($scope.search.matiere !== null && $scope.search.matiere.id !== '*') && $scope.search.periode !== '*') {
                         $scope.getReleve();
                     }
                     $scope.usePerso = evaluations.structure.usePerso;
+                    $scope.updateColorAndLetterForSkills();
                     utils.safeApply($scope);
                     template.open('main', '../templates/evaluations/enseignants/releve_notes/display_releve');
                 }
@@ -330,6 +342,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.sortType = 'title'; // set the default sort type
                         $scope.sortReverse = false;  // set the default sort order
                         $scope.usePerso = evaluations.structure.usePerso;
+                        $scope.updateColorAndLetterForSkills();
                         utils.safeApply($scope);
                     };
                     if (params.idEleve != undefined && params.idClasse != undefined) {
@@ -418,6 +431,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 model.me.functions.DIR !== undefined &&
                 model.me.functions.DIR.code === 'DIR';
         };
+
         $scope.evaluations = evaluations;
         $scope.competencesSearchKeyWord = "";
         $scope.devoirs = evaluations.devoirs;
@@ -1836,20 +1850,20 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.saveAnnotationDevoirEleve = function (evaluation, $event, eleve) {
             if (evaluation.id_annotation !== undefined
                 && evaluation.id_annotation > 0) {
-               if (evaluation.oldId_annotation !== evaluation.id_annotation && evaluation.oldValeur !== evaluation.valeur) {
-                   evaluation.saveAnnotation().then((res) => {
-                       let annotation = _.findWhere($scope.evaluations.annotations.all, {id : evaluation.id_annotation});
-                       evaluation.oldValeur = annotation.libelle_court;
-                       evaluation.valeur = annotation.libelle_court;
-                       for (let i = 0 ; i < evaluation.competenceNotes.all.length; i++) {
-                           evaluation.competenceNotes.all[i].evaluation = -1;
-                       }
-                       evaluation.oldId_annotation =  evaluation.id_annotation;
-                       $scope.calculStatsDevoir();
-                       evaluation.valid = true;
-                       utils.safeApply($scope);
-                   });
-               }
+                if (evaluation.oldId_annotation !== evaluation.id_annotation && evaluation.oldValeur !== evaluation.valeur) {
+                    evaluation.saveAnnotation().then((res) => {
+                        let annotation = _.findWhere($scope.evaluations.annotations.all, {id : evaluation.id_annotation});
+                        evaluation.oldValeur = annotation.libelle_court;
+                        evaluation.valeur = annotation.libelle_court;
+                        for (let i = 0 ; i < evaluation.competenceNotes.all.length; i++) {
+                            evaluation.competenceNotes.all[i].evaluation = -1;
+                        }
+                        evaluation.oldId_annotation =  evaluation.id_annotation;
+                        $scope.calculStatsDevoir();
+                        evaluation.valid = true;
+                        utils.safeApply($scope);
+                    });
+                }
             }
         };
 
@@ -1938,7 +1952,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         let annotation = _.findWhere($scope.evaluations.annotations.all, {libelle_court: evaluation.valeur});
                         let oldAnnotation = _.findWhere($scope.evaluations.annotations.all, {id: evaluation.oldId_annotation});
                         if (!reg.test(evaluation.valeur) && ((annotation !== undefined && annotation !== null && annotation.id !== evaluation.oldId_annotation)||
-                            (oldAnnotation !== undefined && annotation === undefined))) {
+                                (oldAnnotation !== undefined && annotation === undefined))) {
                             if (oldAnnotation !== undefined && annotation === undefined) {
                                 $scope.deleteAnnotationDevoir(evaluation, true);
                             } else {
@@ -2125,7 +2139,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param $event évènement
          */
         $scope.focusMe = function($event) {
-                $event.target.select();
+            $event.target.select();
         };
 
         /**
@@ -2560,8 +2574,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.saveTheme = function(){
             $rootScope.chooseTheme();
         };
-        $scope.updateColorAndLetterForSkills = function () {
-            $scope.niveauCompetences = $scope.selectCycleForViewNote($scope.currentDevoir.id_groupe);
+        $scope.updateColorAndLetterForSkills = function (location) {
+
+            $scope.niveauCompetences = $scope.selectCycleForView(location);
             $scope.currentDevoir.niveauCompetences = $scope.niveauCompetences;
 
             // chargement dynamique des couleurs du niveau de compétences
@@ -2590,9 +2605,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             else if (usePerso == 'false'){
                 evaluations.structure.niveauCompetences.sync(true).then( () => {
                     evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
-                       $scope.structure.usePerso = 'false';
-                       $scope.updateColorAndLetterForSkills();
-                       utils.safeApply($scope);
+                        $scope.structure.usePerso = 'false';
+                        $scope.updateColorAndLetterForSkills();
+                        utils.safeApply($scope);
                     });
                 });
             }

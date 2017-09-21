@@ -16,7 +16,11 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<span ng-class="{selected : selectCond}"
-      class="rounded [[classes]]" style='background-color:[[color]]' ">
+<span ng-if="!activeClick" ng-class="{selected : selectCond}"
+      class="rounded [[classes]]" style='background-color:[[color]]'>
+<span class="lettreNiv" style="color: [[color]]; filter: invert(100%); -webkit-filter: invert(100%);">[[text]]</span>
+</span>
+<span ng-if="activeClick" ng-class="{selected : selectCond}"
+      class="rounded [[classes]]" style="background-color:[[color]]" ng-click="onClick()">
 <span class="lettreNiv" style="color: [[color]]; filter: invert(100%); -webkit-filter: invert(100%);">[[text]]</span>
 </span>

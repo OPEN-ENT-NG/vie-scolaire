@@ -1,8 +1,16 @@
 body.evaluations {
   -webkit-font-smoothing:antialiased !important;
+  /* tooltip sur l'écran de saisie des notes */
+  .skills-color-page > li > span.tooltip-overlay {
+    width: 22px !important;
+    height: 34px !important;
+    z-index: 100 !important;
+  }
+  .alignVertical > span.lettreNiv {
+    vertical-align: middle !important;
+  }
 
-  /* code du tutoriel ci-dessous */
-
+  /* Classes pour le choix du mode couleur de compétence */
 #volet {
 width: 250px;
 padding: 10px;
@@ -80,8 +88,10 @@ z-index: 1;
   }
   .lettreNiv {
     position: relative;
-    vertical-align: initial;
     font-size: 10.5px;
+    vertical-align: top;
+    bottom: 1px;
+    font-family: Helvetica Neue;
   }
   &.evaluations {
     .datepicker{

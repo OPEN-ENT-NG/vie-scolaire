@@ -1,0 +1,41 @@
+<div ng-controller="ExportController">
+    <article class="row">
+        <h1>export XML</h1>
+        <div ng-if="evaluations.structures.all.length > 1">
+            <h4>Choix de la structure</h4>
+            <div>
+                <select ng-model="lsu.idStructure"
+                        ng-options="structure.id as structure.libelle for structure in evaluations.structures.all"
+                        ng-change="getResponsables()">
+                </select>
+            </div>
+        </div>
+        <h4>Choix de la classe</h4>
+
+        <div>
+            <select ng-model="lsu.classe"
+                    ng-options="classe as classe.name for classe in evaluations.classes.all|filter:criteriaMatch()"
+
+                    ng-change="addClasse()">
+            </select>
+            <ul>
+                <li ng-repeat="classe in lsu.classes "
+                    ng-click="deselectClasse(classe)">[[classe.name]]
+                </li>
+            </ul>
+        </div>
+        <h4>Choix du responsable</h4>
+        <div>
+            <select ng-model="lsu.responsable"
+                    ng-options="responsable as responsable.displayName for responsable in structure.responsables.all"
+                    ng-change="addResponsable()">
+            </select>
+            <ul>
+                <li ng-repeat="responsable in lsu.responsables"
+                    ng-click="deselectResponsable(responsable)">[[responsable.displayName]]
+                </li>
+            </ul>
+        </div>
+        <button ng-click="exportLSU()" ng-disabled="controleExportLSU()">Export xml pour le LSU</button>
+    </article>
+</div>

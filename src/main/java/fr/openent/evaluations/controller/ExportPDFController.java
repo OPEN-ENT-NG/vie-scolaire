@@ -541,7 +541,7 @@ public class ExportPDFController extends ControllerHelper {
                 }
             });
 
-            bfcService.buildBFC(idEleves.toArray(new String[0]), classe.getKey(), idStructure, idPeriode, new Handler<Either<String, Map<String, Map<Long, Integer>>>>() {
+            bfcService.buildBFC(idEleves.toArray(new String[0]), classe.getKey(), idStructure, idPeriode,null, new Handler<Either<String, Map<String, Map<Long, Integer>>>>() {
                 @Override
                 public void handle(final Either<String, Map<String, Map<Long, Integer>>> event) {
                     if (event.isRight()) {

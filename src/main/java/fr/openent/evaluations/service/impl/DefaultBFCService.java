@@ -74,18 +74,26 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
      * @param handler
      */
     @Override
-    public void getBFCsByEleve(String[] idEleves, String idEtablissement, Handler<Either<String,JsonArray>> handler) {
+    public void getBFCsByEleve(String[] idEleves, String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler) {
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
                 .append("SELECT * ")
                 .append("FROM notes.bilan_fin_cycle ")
+                .append("INNER JOIN notes.domaines ON bilan_fin_cycle.id_domaine=domaines.id ")
                 .append("WHERE bilan_fin_cycle.id_eleve IN " + Sql.listPrepared(idEleves))
-                .append(" AND bilan_fin_cycle.id_etablissement = ? AND valeur >= 0");
+                .append(" AND bilan_fin_cycle.id_etablissement = ? AND valeur >= 0 ");
 
         for(String s : idEleves) {
             values.addString(s);
         }
+
         values.addString(idEtablissement);
+
+        if(idCycle != null) {
+            query.append("AND domaines.id_cycle = ? ");
+            values.addNumber(idCycle);
+        }
+
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
@@ -168,8 +176,8 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
      * @param idPeriode  Identifiant de la periode au cours de laquelle on souhaite recuperer les evaluations. Peut etre null.
      * @param handler    Handler contenant une map de note par competence, pour chaque eleve.
      */
-    private void getMaxNoteCompetenceEleve(final String[] idEleves, Long idPeriode, final Handler<Either<String, Map<String, Map<Long, Long>>>> handler) {
-        competenceNoteService.getMaxCompetenceNoteEleve(idEleves, idPeriode, new Handler<Either<String, JsonArray>>() {
+    private void getMaxNoteCompetenceEleve(final String[] idEleves, Long idPeriode, Long idCycle, final Handler<Either<String, Map<String, Map<Long, Long>>>> handler) {
+        competenceNoteService.getMaxCompetenceNoteEleve(idEleves, idPeriode,idCycle, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle (Either <String, JsonArray> event){
                 if (event.isRight()) {
@@ -300,7 +308,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
     }
 
     @Override
-    public void buildBFC(final String[] idEleves, final String idClasse, final String idStructure, final Long idPeriode, final Handler<Either<String, Map<String, Map<Long, Integer>>>> handler) {
+    public void buildBFC(final String[] idEleves, final String idClasse, final String idStructure, final Long idPeriode,final Long idCycle, final Handler<Either<String, Map<String, Map<Long, Integer>>>> handler) {
 
         final Map<String, Map<Long, Long>> notesCompetencesEleve = new HashMap<>();
         final Map<String, Map<Long, Integer>> bfcEleve = new HashMap<>();
@@ -313,7 +321,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
         // mais n'effectue le calcul du BFC qu'une fois que ces 4 paramètres sont remplis.
         // Cette vérification de la présence des 4 paramètres est effectuée par calcMoyBFC().
 
-        getMaxNoteCompetenceEleve(idEleves, idPeriode, new Handler<Either<String, Map<String, Map<Long, Long>>>>() {
+        getMaxNoteCompetenceEleve(idEleves, idPeriode,idCycle, new Handler<Either<String, Map<String, Map<Long, Long>>>>() {
             @Override
             public void handle(Either<String, Map<String, Map<Long, Long>>> event) {
                 if (event.isRight()) {
@@ -330,7 +338,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
             }
         });
 
-        getBFCsByEleve(idEleves, idStructure, new Handler<Either<String, JsonArray>>() {
+        getBFCsByEleve(idEleves, idStructure,idCycle, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if (event.isRight()) {

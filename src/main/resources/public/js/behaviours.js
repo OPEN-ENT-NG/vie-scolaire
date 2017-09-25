@@ -20,8 +20,13 @@
 /**
  * Created by ledunoiss on 09/08/2016.
  */
-Behaviours.register('viescolaire.evaluations', {
-    rights: {},
+console.log('Behaviours vsco');
+Behaviours.register('viescolaire', {
+    rights: {
+        workflow: {
+            'export-lsun': 'fr.openent.evaluations.controller.LSUController|getXML'
+        }
+    },
     dependencies: {},
     resource: function(resource){},
     resourceRights: function(){},

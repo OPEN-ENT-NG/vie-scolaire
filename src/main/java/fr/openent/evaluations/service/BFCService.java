@@ -41,9 +41,10 @@ public interface BFCService extends CrudService {
      * Récupère les BFCs d'un élève pour chaque domaine
      * @param idEleves
      * @param idEtablissement
+     * @param idCycle
      * @param handler
      */
-    public void getBFCsByEleve(String[] idEleves, String idEtablissement, Handler<Either<String,JsonArray>> handler);
+    public void getBFCsByEleve(String[] idEleves, String idEtablissement, Long idCycle, Handler<Either<String,JsonArray>> handler);
 
     /**
      * Retourne les moyennes par domaines des élève dont l'id est passé en paramètre.
@@ -53,7 +54,7 @@ public interface BFCService extends CrudService {
      * @param idStructure l'id de l'établissement auquel appartient la classe
      * @param handler handler portant le résultat du calcul de moyenne
      */
-    public void buildBFC(String[] idEleves, String idClasse, String idStructure, Long idPeriode, Handler<Either<String, Map<String, Map<Long, Integer>>>> handler);
+    public void buildBFC(String[] idEleves, String idClasse, String idStructure, Long idPeriode, Long idCycle, Handler<Either<String, Map<String, Map<Long, Integer>>>> handler);
 
     /**
      * retourne la date de creation du BFC, si null la date de modification sinon la date du jour

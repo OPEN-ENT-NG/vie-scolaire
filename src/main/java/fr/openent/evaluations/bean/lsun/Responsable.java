@@ -71,11 +71,9 @@ public class Responsable {
 
     /**
      * Gets the value of the adresse property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Adresse }
-     *     
+     *
+     * @return possible object is
+     * {@link Adresse }
      */
     public Adresse getAdresse() {
         return adresse;
@@ -83,11 +81,9 @@ public class Responsable {
 
     /**
      * Sets the value of the adresse property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Adresse }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link Adresse }
      */
     public void setAdresse(Adresse value) {
         this.adresse = value;
@@ -95,11 +91,9 @@ public class Responsable {
 
     /**
      * Gets the value of the civilite property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Civilite }
-     *     
+     *
+     * @return possible object is
+     * {@link Civilite }
      */
     public Civilite getCivilite() {
         return civilite;
@@ -107,11 +101,9 @@ public class Responsable {
 
     /**
      * Sets the value of the civilite property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Civilite }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link Civilite }
      */
     public void setCivilite(Civilite value) {
         this.civilite = value;
@@ -119,11 +111,9 @@ public class Responsable {
 
     /**
      * Gets the value of the nom property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getNom() {
         return nom;
@@ -131,11 +121,9 @@ public class Responsable {
 
     /**
      * Sets the value of the nom property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setNom(String value) {
         this.nom = value;
@@ -143,11 +131,9 @@ public class Responsable {
 
     /**
      * Gets the value of the prenom property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getPrenom() {
         return prenom;
@@ -155,11 +141,9 @@ public class Responsable {
 
     /**
      * Sets the value of the prenom property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setPrenom(String value) {
         this.prenom = value;
@@ -167,11 +151,9 @@ public class Responsable {
 
     /**
      * Gets the value of the legal1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public Boolean isLegal1() {
         return legal1;
@@ -179,11 +161,9 @@ public class Responsable {
 
     /**
      * Sets the value of the legal1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setLegal1(Boolean value) {
         this.legal1 = value;
@@ -191,11 +171,9 @@ public class Responsable {
 
     /**
      * Gets the value of the legal2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public Boolean isLegal2() {
         return legal2;
@@ -203,11 +181,9 @@ public class Responsable {
 
     /**
      * Sets the value of the legal2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setLegal2(Boolean value) {
         this.legal2 = value;
@@ -215,11 +191,9 @@ public class Responsable {
 
     /**
      * Gets the value of the lienParente property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getLienParente() {
         return lienParente;
@@ -227,14 +201,63 @@ public class Responsable {
 
     /**
      * Sets the value of the lienParente property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param codeParent allowed object is
+     *              {@link String }
      */
-    public void setLienParente(String value) {
+   /* public void setLienParente(String value) {
         this.lienParente = value;
+    }*/
+
+    public void setLienParente(String codeParent) {
+
+        switch (codeParent) {
+            case "1":
+                this.lienParente="PERE";
+                break;
+            case "2":
+                this.lienParente="MERE";
+                break;
+            case "3":
+                this.lienParente="TUTEUR";
+                break;
+            case "4":
+                this.lienParente="AUTRE MEMBRE DE LA FAMILLE";
+                break;
+            case "5":
+                this.lienParente="DDASS";
+                break;
+            case "6":
+                this.lienParente="AUTRE CAS";
+                break;
+            case "7":
+                this.lienParente="ELEVE LUI-MEME";
+                break;
+            default:
+                break;
+        }
     }
+
+    public void setLegals(String code){
+        Boolean[] tab = new Boolean[2];
+        switch (code) {
+            case "0":
+                setLegal1(false);
+                setLegal2(false);
+                break;
+            case "1":
+                setLegal1(true);
+                setLegal2(false);
+                break;
+            case "2":
+                setLegal1(false);
+                setLegal2(true);
+                break;
+            default:
+                break;
+        }
+
+    }
+
 
 }

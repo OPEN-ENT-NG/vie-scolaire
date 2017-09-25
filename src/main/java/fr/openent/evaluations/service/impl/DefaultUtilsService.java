@@ -394,7 +394,7 @@ public class DefaultUtilsService  implements UtilsService {
         StringBuilder query =new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT id_groupe, id_cycle, libelle ")
+        query.append("SELECT id_groupe, id_cycle, libelle, value_cycle ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle,  ")
                 .append( Viescolaire.EVAL_SCHEMA +".cycle ")
                 .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()))
@@ -405,6 +405,8 @@ public class DefaultUtilsService  implements UtilsService {
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
+
+
 
     @Override
     public void getNameEntity(String[] name, Handler<Either<String, JsonArray>> handler) {

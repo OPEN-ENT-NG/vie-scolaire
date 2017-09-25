@@ -262,7 +262,7 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
-    public void getMaxCompetenceNoteEleve(String[] id_eleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void getMaxCompetenceNoteEleve(String[] id_eleve, Long idPeriode,Long idCycle, Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder()
                 .append("SELECT competences_notes.id_eleve, rel_competences_domaines.id_domaine, competences.id as id_competence, max(competences_notes.evaluation) as evaluation ")
@@ -274,6 +274,12 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
 
         for(String s : id_eleve) {
             values.addString(s);
+        }
+
+
+        if(idCycle != null) {
+            query.append("AND competences.id_cycle = ? ");
+            values.addNumber(idCycle);
         }
 
         if(idPeriode != null) {

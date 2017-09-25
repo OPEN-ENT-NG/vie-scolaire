@@ -51,11 +51,11 @@ public class Entete {
     @XmlElement(required = true)
     protected String etablissement;
 
-    public Entete(String editeur, String application, String etablissement) {
+  /*  public Entete(String editeur, String application, String etablissement) {
         this.editeur = editeur;
         this.application = application;
         this.etablissement = etablissement;
-    }
+    }*/
     /**
      * Gets the value of the editeur property.
      * 

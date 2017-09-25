@@ -1036,7 +1036,6 @@ public class Donnees {
                 }else{
                     List<String> idsEleve = mapIdClassIdEleve.get(el.getId_Class());
                     idsEleve.add(el.getIdNeo4j());
-                    mapIdClassIdEleve.put(el.getId_Class(),idsEleve);
                 }
 
 //                idsEleve.add(el.getIdNeo4j());

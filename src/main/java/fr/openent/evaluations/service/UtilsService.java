@@ -110,10 +110,11 @@ public interface UtilsService {
 
     /**
      * Récupère le cycle de la classe dans la relation classe_cycle
-     * @param idClasse Identifiant de l'établissement.
+     * @param idClasse Identifiant de la classe.
      * @param handler Handler portant le résultat de la requête.
      */
     public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler);
+
 
     /**
      * Récupère la liste des utilisateurs selon les paramètres précisés

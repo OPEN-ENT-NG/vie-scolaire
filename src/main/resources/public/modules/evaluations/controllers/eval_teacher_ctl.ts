@@ -378,36 +378,38 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         display();
                     }
 
-                }
-            },
-            displaySuiviCompetencesClasse: function (params) {
-                if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
-                    $scope.cleanRoot();
-                    let display = () => {
-                        template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
-                        $scope.allRefreshed = false;
-                        $scope.sortType = 'title'; // set the default sort type
-                        $scope.sortReverse = false;  // set the default sort order
-                        $scope.usePerso = evaluations.structure.usePerso;
-                        utils.safeApply($scope);
-                    };
-                    if (params.idClasse != undefined) {
-                        let classe: Classe = evaluations.classes.findWhere({id: params.idClasse});
-                        $scope.search.classe = classe;
-                        if (classe !== undefined) {
-                            if (classe.eleves.empty()) classe.eleves.sync();
+                    }
+                },
+                displaySuiviCompetencesClasse: function (params) {
+                    if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
+                        $scope.cleanRoot();
+                        let display = () => {
+                            template.open('main', '../templates/evaluations/enseignants/suivi_competences_classe/container');
+                            $scope.allRefreshed = false;
+                            $scope.sortType = 'title'; // set the default sort type
+                            $scope.sortReverse = false;  // set the default sort order
+                            $scope.usePerso = evaluations.structure.usePerso;
+                            utils.safeApply($scope);
+                        };
+                        if (params.idClasse != undefined) {
+                            let classe: Classe = evaluations.classes.findWhere({id: params.idClasse});
+                            $scope.search.classe = classe;
+                            if (classe !== undefined) {
+                                if (classe.eleves.empty()) classe.eleves.sync();
+                                display();
+                            }
+                        } else {
                             display();
                         }
-                    } else {
-                        display();
                     }
-                }
-            },
-            disabled: () => {
-                template.open('main', '../templates/disabled_structure');
+                },export : function () {
+                template.open('main','../templates/evaluations/export/lsun');
                 utils.safeApply($scope);
-            }
-        };
+                },disabled: () => {
+                    template.open('main', '../templates/disabled_structure');
+                    utils.safeApply($scope);
+                }
+            };
 
         route(routesActions);
 

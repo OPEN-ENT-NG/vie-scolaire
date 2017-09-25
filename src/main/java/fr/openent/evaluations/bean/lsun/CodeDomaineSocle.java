@@ -54,4 +54,6 @@ public enum CodeDomaineSocle {
         return valueOf(v);
     }
 
+
+
 }

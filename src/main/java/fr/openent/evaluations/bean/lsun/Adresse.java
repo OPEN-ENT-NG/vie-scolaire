@@ -170,7 +170,11 @@ public class Adresse {
      *     
      */
     public void setCodePostal(String value) {
-        this.codePostal = value;
+       // if(value!=null) {
+            this.codePostal = value;
+       /* }else{
+            this.codePostal = "00000";
+        }*/
     }
 
     /**

@@ -260,10 +260,12 @@ public class ObjectFactory {
      * Create an instance of {@link Entete }
      * 
      */
-    public Entete createEntete(String editeur, String application, String etablissement) {
+    /*public Entete createEntete(String editeur, String application, String etablissement) {
         return new Entete(editeur, application, etablissement);
+    }*/
+    public Entete Entete() {
+        return new Entete();
     }
-
     /**
      * Create an instance of {@link Acquis }
      * 

@@ -97,6 +97,12 @@ public interface UserService {
      */
     public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
 
+    /**
+     *
+     * @param idStructure
+     * @param handler
+     */
 
+    public void getResponsablesDirection(String idStructure,Handler<Either<String,JsonArray>> handler);
 
 }

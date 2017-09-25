@@ -344,10 +344,18 @@ public class DefaultUserService implements UserService {
         JsonArray params = new JsonArray();
 
         params.addString(idClass);
-
-
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
 
+    }
+
+    @Override
+    public void getResponsablesDirection(String idStructure, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH (u:User{profiles:['Personnel']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{structureId}}) " +
+                "WHERE ANY(function IN u.functions WHERE function =~ '(?i).*\\\\$DIR\\\\$.*')" +
+                " RETURN u.id as id, u.displayName as displayName, u.externalId as externalId";
+        JsonObject param = new JsonObject();
+        param.putString("structureId",idStructure);
+        Neo4j.getInstance().execute(query,param,Neo4jResult.validResultHandler(handler));
     }
 
 

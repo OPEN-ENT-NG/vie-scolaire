@@ -377,7 +377,6 @@
   "evaluation.last.child": "Les dernières évaluations de ",
   "evaluation.change.devoir": "Changer de devoir",
   "evaluation.access.to.list": "Accès à la liste des évaluations",
-  "devoir.errDatePubli" : "Vous ne pouvez pas saisir une date de publication antérieure à la date du devoir.",
   "evaluation.bfc.export.button.eleve" : "Exporter le bilan de fin de cycle de l'élève au format PDF",
   "evaluation.bfc.export.button.classe" : "Exporter le bilan de fin de cycle de la classe au format PDF",
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
@@ -393,4 +392,5 @@
   "last" : "dernières",
   "evaluation.search.by.enseignements" : "Vue par enseignements",
   "evaluation.search.by.domaines" : "Vue par domaines"
+ "evaluation.lsu.export.button.classes" : "Exporter le bilan de fin de cycle de la classe au format XML"
 }

@@ -1,5 +1,6 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
 import * as utils from '../../utils/teacher';
+import * from './common/LSU';
 import {Defaultcolors, NiveauCompetence} from "../eval_niveau_comp";
 import {Cycle} from "../eval_cycle";
 import {TypePeriode} from "../common/TypePeriode";
@@ -33,6 +34,7 @@ export class Structure extends Model {
     niveauCompetences: Collection<NiveauCompetence>;
     usePerso: any;
     private syncRemplacement: () => any;
+    responsables: Collection<Responsable>;
 
     get api() {
         return {
@@ -59,6 +61,9 @@ export class Structure extends Model {
             },
             ANNOTATION: {
                 synchronization: '/viescolaire/evaluations/annotations?idEtablissement=' + this.id
+            },
+            RESPONSABLE : {
+                synchronisation : '/viescolaire/evaluations/responsablesDirection?idStructure=' + this.id
             },
             NIVEAU_COMPETENCES: {
                 synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
@@ -154,6 +159,16 @@ export class Structure extends Model {
             }
         });
         this.collection(Enseignant);
+        this.collection(Responsable, {
+           sync :  function(){
+               return new Promise ((resolve, reject)=>{
+                   http().getJson(that.api.RESPONSABLE.synchronisation).done(function (res) {
+                       that.responsables.load(res);
+                       resolve();
+                   });
+               })
+           }
+            });
         this.collection(Eleve, {
             sync: function () {
                 return new Promise((resolve, reject) => {
@@ -2564,6 +2579,13 @@ export class GestionRemplacement extends Model {
         this.selectedRemplacements = [];
 
     }
+
+}
+export class Responsable extends Model implements IModel{
+    id: string;
+    externalId : string;
+    displayName : string;
+
 
 }
 

@@ -823,7 +823,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                             Either<String, JsonObject> result;
 
                             if(!notes.isEmpty()) {
-                                result = new Either.Right<>(utilsService.calculMoyenne(notes, stats, 20));
+                                result = new Either.Right<>(utilsService.calculMoyenneParDiviseur(notes, stats));
                             } else {
                                 result = new Either.Right<>(new JsonObject());
                             }

@@ -31,7 +31,7 @@ public class NoteDevoir {
     /**
      * Sur combien est la note.
      */
-    private Integer diviseur;
+    private Double diviseur;
 
     /**
      * Booleen pour savoir s'il faut ramner la note sur le diviseur.
@@ -43,7 +43,7 @@ public class NoteDevoir {
      */
     private Double coefficient;
 
-    public static final Integer DIVISEUR_DEFAULT_VALUE = 20;
+    public static final Double DIVISEUR_DEFAULT_VALUE = 20.0;
 
     /**
      * @param note valeur de la note
@@ -51,7 +51,7 @@ public class NoteDevoir {
      * @param ramenerSur booleen pour savoir s'il faut ramner la note sur le diviseur.
      * @param coefficient coefficient de la note.
      */
-    public NoteDevoir(Double note, Integer diviseur, Boolean ramenerSur, Double coefficient) {
+    public NoteDevoir(Double note, Double diviseur, Boolean ramenerSur, Double coefficient) {
         this.note = note;
         this.diviseur = diviseur;
         this.ramenerSur = ramenerSur;
@@ -80,11 +80,11 @@ public class NoteDevoir {
         this.note = note;
     }
 
-    public Integer getDiviseur() {
+    public Double getDiviseur() {
         return diviseur;
     }
 
-    public void setDiviseur(Integer diviseur) {
+    public void setDiviseur(Double diviseur) {
         this.diviseur = diviseur;
     }
 

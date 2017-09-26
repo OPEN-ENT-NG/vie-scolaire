@@ -125,7 +125,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         boolean eleves = idEleves.length != 0;
         boolean devoirs = idDevoirs.length != 0;
 
-        query.append("SELECT notes.id_devoir, notes.id_eleve, notes.valeur, devoirs.coefficient, devoirs.ramener_sur " +
+        query.append("SELECT notes.id_devoir, notes.id_eleve, notes.valeur, devoirs.coefficient, devoirs.diviseur, devoirs.ramener_sur " +
                 "FROM notes.notes LEFT JOIN notes.devoirs ON devoirs.id = notes.id_devoir WHERE devoirs.is_evaluated = true");
 
         if(eleves || devoirs) {
@@ -181,7 +181,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur, devoirs.is_evaluated, ")
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.diviseur, devoirs.ramener_sur, devoirs.is_evaluated, ")
                 .append(" notes.valeur, notes.id ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir and notes.id_eleve = ? ")
@@ -202,7 +202,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
         JsonArray values = new JsonArray();
 
 
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated, null as annotation " +
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.diviseur, devoirs.ramener_sur,notes.valeur, notes.id, notes.id_eleve, devoirs.is_evaluated, null as annotation " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "left join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +
@@ -214,7 +214,7 @@ public class DefaultNoteService extends SqlCrudService implements fr.openent.eva
             values.addNumber(periodeId);
         }
         query.append(" UNION ");
-        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.ramener_sur,null as valeur, null as id, rel_annotations_devoirs.id_eleve, devoirs.is_evaluated, rel_annotations_devoirs.id_annotation as annotation " +
+        query.append("SELECT devoirs.id as id_devoir, devoirs.date, devoirs.coefficient, devoirs.diviseur, devoirs.ramener_sur,null as valeur, null as id, rel_annotations_devoirs.id_eleve, devoirs.is_evaluated, rel_annotations_devoirs.id_annotation as annotation " +
                 "FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs " +
                 "LEFT JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_annotations_devoirs ON devoirs.id = rel_annotations_devoirs.id_devoir " +
                 "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes ON (rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe = ? ) " +

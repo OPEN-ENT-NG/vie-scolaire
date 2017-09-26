@@ -82,7 +82,7 @@ public interface UtilsService {
 
     /**
      * Fonction de calcul générique de la moyenne
-     *
+     * La formule suivante est utilisée :(SUM ( ni *m *ci /di)  + SUM ( nj *cj)  ) / (S ( ci)  + SUM ( cj  *dj /m)  )
      * @param listeNoteDevoirs : contient une liste de NoteDevoir.
      *                         Dans le cas ou les objets seraient des moyennes, toutes les propriétés ramener sur devront
      *                         être à false.
@@ -91,6 +91,14 @@ public interface UtilsService {
      **/
     public JsonObject calculMoyenne(List<NoteDevoir> listeNoteDevoirs, Boolean statistiques, Integer diviseurM);
 
+    /**
+     * Fonction de calcul générique de la moyenne
+     * La formule suivante est utilisée : SUM(notes)/ nombre/Notes
+     * @param listeNoteDevoirs : contient une liste de NoteDevoir.
+
+     * @return Double : moyenne calculée
+     **/
+    public JsonObject calculMoyenneParDiviseur(List<NoteDevoir> listeNoteDevoirs, Boolean statistiques);
     /**
      * Recupere un établissemnt sous sa representation en BDD
      *

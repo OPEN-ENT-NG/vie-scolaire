@@ -290,6 +290,7 @@ public class NoteController extends ControllerHelper{
 
                         NoteDevoir noteDevoir = new NoteDevoir(
                                 Double.valueOf(note.getString("valeur")),
+                                Double.valueOf(note.getLong("diviseur")),
                                 note.getBoolean("ramener_sur"),
                                 Double.valueOf(note.getString("coefficient")));
 
@@ -301,7 +302,7 @@ public class NoteController extends ControllerHelper{
                     }
 
                     for(Map.Entry<Long, ArrayList<NoteDevoir>> entry : notesByDevoir.entrySet()) {
-                        JsonObject moyenne = utilsService.calculMoyenne(entry.getValue(), true, 20);
+                        JsonObject moyenne = utilsService.calculMoyenneParDiviseur(entry.getValue(), true);
                         moyenne.putValue("id", entry.getKey());
                         listMoyDevoirs.add(moyenne);
                     }

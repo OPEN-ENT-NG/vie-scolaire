@@ -152,6 +152,7 @@ public class DefaultUserService implements UserService {
 
                                 NoteDevoir noteDevoir = new NoteDevoir(
                                         Double.valueOf(note.getString("valeur")),
+                                        Double.valueOf(note.getLong("diviseur")),
                                         note.getBoolean("ramener_sur"),
                                         Double.valueOf(note.getString("coefficient")));
 

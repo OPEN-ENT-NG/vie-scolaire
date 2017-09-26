@@ -149,8 +149,7 @@ public class DefaultUtilsService  implements UtilsService {
     /**
      * Fonction de calcul générique de la moyenne
      * @param listeNoteDevoirs : contient une liste de NoteDevoir.
-     * Dans le cas ou les objets seraient des moyennes, toutes les propriétés ramener sur devront
-     * être à false.
+     * La formule suivante est utilisée :(SUM ( ni *m *ci /di)  + SUM ( nj *cj)  ) / (S ( ci)  + SUM ( cj  *dj /m)  )
      *
      * @param diviseurM : diviseur de la moyenne. Par défaut, cette valeur est égale à 20 (optionnel).
      **/
@@ -164,21 +163,29 @@ public class DefaultUtilsService  implements UtilsService {
         Double notes = new Double(0);
         Double diviseur = new Double(0);
 
+        // (SUM ( ni *m *ci /di)  + SUM ( nj *cj)  ) / (S ( ci)  + SUM ( cj  *dj /m)  )
+        // avec d : diviseurs, n : note, c : coefficient, m = 20 : si ramené sur
+        // avec i les notes non ramenées sur m, et j les notes ramenées sur m
+
+        Double sumCI = new Double(0);
+        Double sumCJDJParM = new Double(0);
+        Double sumCJDJ = new Double(0);
+        Double sumNIMCIParD = new Double(0);
+
         for (NoteDevoir noteDevoir : listeNoteDevoirs) {
             Double currNote = noteDevoir.getNote();
             Double currCoefficient = noteDevoir.getCoefficient();
-            Integer currDiviseur = noteDevoir.getDiviseur();
-            if(noteDevoir.getRamenerSur()){
-                if(currNote != null){
-                    notes = notes + ((currNote * currCoefficient) * (new Double(diviseurM)/new Double(currDiviseur)));
-                }
-                diviseur = diviseur + (diviseurM*currCoefficient);
-            }else{
-                if(currNote != null){
-                    notes = notes + (currNote * currCoefficient);
-                }
-                diviseur = diviseur + (currDiviseur * currCoefficient);
+            Double currDiviseur = noteDevoir.getDiviseur();
+
+            if (noteDevoir.getRamenerSur()) {
+                sumCJDJParM += (currCoefficient * currDiviseur / diviseurM);
+                sumCJDJ += (currNote * currCoefficient);
+            } else {
+                sumNIMCIParD += ((currNote * diviseurM * currCoefficient ) / currDiviseur);
+                sumCI += currCoefficient;
             }
+
+            // Calcul de la note min et max
             if (statistiques) {
                 if (currNote > noteMax) {
                     noteMax = currNote;
@@ -188,7 +195,53 @@ public class DefaultUtilsService  implements UtilsService {
                 }
             }
         }
-        Double moyenne = (notes/diviseur)*diviseurM;
+
+        Double moyenne = ((sumNIMCIParD + sumCJDJ)/(sumCI + sumCJDJParM));
+
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("fr", "FR"));
+        symbols.setDecimalSeparator('.');
+
+        DecimalFormat df = new DecimalFormat("##.##", symbols);
+        try {
+            moyenne = Double.valueOf(df.format(moyenne));
+        } catch (NumberFormatException e) {
+            log.error("Moyenne : "+String.valueOf(moyenne), e);
+        }
+        JsonObject r = new JsonObject().putNumber("moyenne", moyenne);
+        if (statistiques) {
+            r.putNumber("noteMax", noteMax).putNumber("noteMin", noteMin);
+        }
+        return r;
+    }
+
+    /**
+     * Fonction de calcul générique de la moyenne
+     * La formule suivante est utilisée : SUM(notes)/ nombre/Notes
+     * @param listeNoteDevoirs : contient une liste de NoteDevoir.
+     **/
+    @Override
+    public JsonObject calculMoyenneParDiviseur(List<NoteDevoir> listeNoteDevoirs, Boolean statistiques) {
+
+        Double noteMax = new Double(0);
+        Double noteMin = new Double(0);
+        Double notes = new Double(0);
+        //Double diviseur = new Double(0);
+
+        for (NoteDevoir noteDevoir : listeNoteDevoirs) {
+            Double currNote = noteDevoir.getNote();
+            notes+= currNote;
+            // Calcul de la note min et max
+            if (statistiques) {
+                if (currNote > noteMax) {
+                    noteMax = currNote;
+                }
+                if (currNote < noteMin) {
+                    noteMin = currNote;
+                }
+            }
+        }
+
+        Double moyenne = ((notes)/(listeNoteDevoirs.size()));
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("fr", "FR"));
         symbols.setDecimalSeparator('.');

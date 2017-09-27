@@ -455,6 +455,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     .putString("statement", queryDeleteAppreciations.toString())
                     .putArray("values", paramsDelete)
                     .putString("action", "prepared"));
+
+            StringBuilder queryDeleteCompetences = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".competences_notes WHERE id_devoir = ? ");
+            statements.add(new JsonObject()
+                    .putString("statement", queryDeleteCompetences.toString())
+                    .putArray("values", paramsDelete)
+                    .putString("action", "prepared"));
         }
 
         StringBuilder query = new StringBuilder()

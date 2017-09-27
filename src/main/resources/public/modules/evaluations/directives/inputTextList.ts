@@ -32,6 +32,11 @@ export let inputTextList = ng.directive('inputTextList', function() {
                 if ($scope.openedList) {
                     $scope.itemsToDisplay = $scope.items;
                 }
+
+                let inputElement = element.find('input[type=text]');
+                if (inputElement !== undefined && inputElement.length > 0) {
+                    inputElement.get(0).focus();
+                }
             };
 
             /**

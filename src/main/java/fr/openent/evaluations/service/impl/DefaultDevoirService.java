@@ -331,6 +331,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     @Override
     public void updateDevoir(String id, JsonObject devoir, Handler<Either<String, JsonArray>> handler) {
         JsonArray statements = new JsonArray();
+        String old_id_groupe = "";
+        if(devoir.containsField("old_id_groupe")
+                && !devoir.getString("old_id_groupe").isEmpty()){
+            old_id_groupe = devoir.getString("old_id_groupe");
+            devoir.removeField("old_id_groupe");
+        }
         if (devoir.containsField("competencesAdd") &&
                 devoir.getArray("competencesAdd").size() > 0) {
             JsonArray competenceAdd = devoir.getArray("competencesAdd");
@@ -422,7 +428,34 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             log.info("Attribut type_groupe non renseigné pour le devoir relation avec la classe inexistante : Evaluation Libre :  " + id);
         }
 
+        // Lors du changement de classe, on supprimes : annotations, notes et appréciations du devoir
+        if(!old_id_groupe.isEmpty()
+                && !devoir.getString(attributeIdGroupe).equalsIgnoreCase(old_id_groupe)){
 
+            JsonArray paramsDelete = new JsonArray();
+            paramsDelete.addNumber(Integer.parseInt(id));
+
+            StringBuilder queryDeleteNote = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".notes WHERE id_devoir = ? ");
+            statements.add(new JsonObject()
+                    .putString("statement", queryDeleteNote.toString())
+                    .putArray("values", paramsDelete)
+                    .putString("action", "prepared"));
+
+            StringBuilder queryDeleteAnnotations = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".rel_annotations_devoirs WHERE id_devoir = ? ");
+            statements.add(new JsonObject()
+                    .putString("statement", queryDeleteAnnotations.toString())
+                    .putArray("values", paramsDelete)
+                    .putString("action", "prepared"));
+
+            StringBuilder queryDeleteAppreciations = new StringBuilder()
+                    .append("DELETE FROM "+ Viescolaire.EVAL_SCHEMA +".appreciations WHERE id_devoir = ? ");
+            statements.add(new JsonObject()
+                    .putString("statement", queryDeleteAppreciations.toString())
+                    .putArray("values", paramsDelete)
+                    .putString("action", "prepared"));
+        }
 
         StringBuilder query = new StringBuilder()
                 .append("UPDATE " + resourceTable +" SET " + queryParams.toString() + "modified = NOW() WHERE id = ? ");
@@ -430,6 +463,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .putString("statement", query.toString())
                 .putArray("values", params.addNumber(Integer.parseInt(id)))
                 .putString("action", "prepared"));
+
+
         Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
     }
 

@@ -435,12 +435,17 @@
 </lightbox>
 
 <lightbox  show="opened.lightboxs.updateDevoir.firstConfirmSupp" on-close="opened.lightboxs.updateDevoir.firstConfirmSupp = false">
-    <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part1</i18n></p>
-    <div ng-if="(evaluatedCompetencesSupp.length < 15)">
+    <div ng-if="(evaluatedCompetencesSupp.length > 0)">
+        <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part1</i18n></p>
+    </div>
+    <div ng-if="(evaluatedCompetencesSupp.length > 0 && evaluatedCompetencesSupp.length < 15)">
         <p><i18n>evaluations.devoir.recaputilatif</i18n>:</p>
         <ul>
             <li ng-repeat="competence in evaluatedCompetencesSupp">[[competence.nom]]</li>
         </ul>
+    </div>
+    <div ng-if="(devoir.old_id_groupe !== undefined && devoir.old_id_groupe !== devoir.id_groupe)">
+        <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.change.classe</i18n></p>
     </div>
     <p><i18n>evaluations.devoir.updateDevoir.firstConfirmSupp.part2</i18n></p>
 

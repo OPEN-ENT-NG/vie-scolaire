@@ -113,6 +113,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
                     $scope.devoir = $scope.initDevoir();
                     $scope.devoir.id_groupe = devoirTmp.id_groupe;
+                    $scope.devoir.old_id_groupe = devoirTmp.id_groupe;
                     $scope.devoir.id = devoirTmp.id;
                     $scope.devoir.name = devoirTmp.name;
                     $scope.devoir.owner = devoirTmp.owner;
@@ -873,6 +874,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.initDevoir = function () {
             return new Devoir({
                 name : undefined,
+                old_id_devoir : undefined,
                 date_publication : new Date(),
                 date : new Date(),
                 diviseur : 20,
@@ -1413,8 +1415,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.ConfirmeUpdateDevoir = function () {
             if($scope.opened.lightboxs.updateDevoir.firstConfirmSupp === true){
                 $scope.firstConfirmSuppSkill = true;
-                $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = true;
-                $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = false;
+                if($scope.evaluatedCompetencesSupp.length > 0 ) {
+                    $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = true;
+                    $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = false;
+                } else {
+                    $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
+                }
+
             }else if($scope.opened.lightboxs.updateDevoir.secondConfirmSupp === true){
                 $scope.secondConfirmSuppSkill = true;
                 $scope.opened.lightboxs.updateDevoir.secondConfirmSupp = false;
@@ -1453,13 +1460,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 $scope.evaluatedCompetencesSupp.push($scope.competencesSupp[i]);
                             }
                         }
-                        if( $scope.evaluatedCompetencesSupp.length > 0)
+                        if( $scope.evaluatedCompetencesSupp.length > 0 || ($scope.devoir.is_evaluated === true && $scope.devoir.old_id_groupe !== undefined && $scope.devoir.old_id_groupe !== $scope.devoir.id_groupe) ){
                             $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
-                        else{
+                            if($scope.evaluatedCompetencesSupp.length == 0 ) {
+                                $scope.secondConfirmSuppSkill = true;
+                                $scope.evaluatedDisabel = true;
+                            }
+                        } else {
                             $scope.firstConfirmSuppSkill = true;
                             $scope.secondConfirmSuppSkill = true;
                         }
-                    }else{
+                    }else if($scope.devoir.is_evaluated === true && $scope.devoir.old_id_groupe !== undefined && $scope.devoir.old_id_groupe !== $scope.devoir.id_groupe) {
+                        $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
+                        $scope.secondConfirmSuppSkill = true;
+                        $scope.evaluatedDisabel = true;
+                    } else {
                         $scope.firstConfirmSuppSkill = true;
                         $scope.secondConfirmSuppSkill = true;
                     }

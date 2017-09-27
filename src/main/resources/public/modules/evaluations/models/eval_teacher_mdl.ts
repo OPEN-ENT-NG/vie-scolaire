@@ -1054,6 +1054,7 @@ export class Devoir extends Model implements IModel{
 
     // DATABASE FIELDS
     id : number;
+    old_id_groupe : string;
     id_groupe : string;
     type_groupe : number;
     ramener_sur : boolean;
@@ -1190,6 +1191,7 @@ export class Devoir extends Model implements IModel{
             name            : this.name,
             owner           : this.owner,
             libelle         : this.libelle,
+            old_id_groupe   : this.old_id_groupe,
             id_groupe       : id_groupe,
             type_groupe     : type_groupe,
             id_sousmatiere   : parseInt(this.id_sousmatiere),

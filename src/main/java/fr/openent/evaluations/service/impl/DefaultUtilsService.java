@@ -223,7 +223,7 @@ public class DefaultUtilsService  implements UtilsService {
     public JsonObject calculMoyenneParDiviseur(List<NoteDevoir> listeNoteDevoirs, Boolean statistiques) {
 
         Double noteMax = new Double(0);
-        Double noteMin = new Double(0);
+        Double noteMin = null;
         Double notes = new Double(0);
         //Double diviseur = new Double(0);
 
@@ -232,6 +232,9 @@ public class DefaultUtilsService  implements UtilsService {
             notes+= currNote;
             // Calcul de la note min et max
             if (statistiques) {
+                if(null == noteMin){
+                    noteMin = new Double(noteDevoir.getDiviseur());;
+                }
                 if (currNote > noteMax) {
                     noteMax = currNote;
                 }

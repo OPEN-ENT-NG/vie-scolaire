@@ -26,7 +26,7 @@ export class Structure extends Model implements IModel {
     cycles: Array<Cycle>;
     cycle: Cycle;
     niveauCompetences: Collection<NiveauCompetence>;
-    usePerso: string;
+    usePerso: any;
     private syncRemplacement: () => any;
 
     get api() {
@@ -91,14 +91,18 @@ export class Structure extends Model implements IModel {
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
-                        if (niveauCompetences[0].couleur === null) {
+                        if (_.filter(niveauCompetences, {couleur: null}).length == niveauCompetences.length) {
                             that.usePerso = 'noPerso';
                         }
-                        if (niveauCompetences[0].couleur === null || defaut) {
-                            if (that.usePerso != 'noPerso') {
+                        else {
+                            if (that.usePerso) {
+                                that.usePerso = 'true';
+                            }
+                            else  {
                                 that.usePerso = 'false';
                             }
-
+                        }
+                        if (_.filter(niveauCompetences, {couleur: null}).length > 0 || defaut) {
                             niveauCompetences.forEach((niveauCompetence) => {
                                 if (niveauCompetence.couleur === null || defaut) {
                                     niveauCompetence.couleur = Defaultcolors[niveauCompetence.default];
@@ -109,11 +113,7 @@ export class Structure extends Model implements IModel {
                                 niveauCompetence.id_etablissement = this.composer.id;
                             });
                         }
-                        else {
-                            if (that.usePerso != 'noPerso') {
-                                that.usePerso = 'true';
-                            }
-                        }
+
                         that.niveauCompetences.load(niveauCompetences);
                         let cycles = [];
                         let tree = _.groupBy(niveauCompetences, "id_cycle");
@@ -359,6 +359,7 @@ export class Structure extends Model implements IModel {
             this.classes.sync().then(isSynced);
             this.usePersoFun(model.me.userId).then((res) => {
                 let useDefautTheme = !res;
+                this.usePerso = res;
                 this.niveauCompetences.sync(useDefautTheme).then(isSynced);
             });
             this.syncDevoirs().then(isSynced);

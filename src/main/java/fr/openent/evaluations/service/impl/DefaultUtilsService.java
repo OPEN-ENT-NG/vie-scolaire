@@ -165,7 +165,7 @@ public class DefaultUtilsService  implements UtilsService {
 
         // (SUM ( ni *m *ci /di)  + SUM ( nj *cj)  ) / (S ( ci)  + SUM ( cj  *dj /m)  )
         // avec d : diviseurs, n : note, c : coefficient, m = 20 : si ramené sur
-        // avec i les notes non ramenées sur m, et j les notes ramenées sur m
+        // avec i les notes ramenées sur m, et j les notes non ramenées sur m
 
         Double sumCI = new Double(0);
         Double sumCJDJParM = new Double(0);
@@ -177,7 +177,7 @@ public class DefaultUtilsService  implements UtilsService {
             Double currCoefficient = noteDevoir.getCoefficient();
             Double currDiviseur = noteDevoir.getDiviseur();
 
-            if (noteDevoir.getRamenerSur()) {
+            if (!noteDevoir.getRamenerSur()) {
                 sumCJDJParM += (currCoefficient * currDiviseur / diviseurM);
                 sumCJDJ += (currNote * currCoefficient);
             } else {

@@ -40,6 +40,28 @@ export let navigatable = ng.directive('cNavigaTable', function(){
                 }
             }
 
+            /**
+             * Détermine si l'élément td peut être sélectionner
+             * @param td
+             * @returns {any}
+             */
+            scope.canMoveTd = function (tds) {
+                let j = 0;
+                while (j < tds.length ) {
+                    let inputs = tds[j].children;
+                    if (inputs.length > 0) {
+                        let i = 0;
+                        while (i < inputs.length){
+                            if(!inputs[i].disabled) {
+                                return tds[j];
+                            }
+                            i++;
+                        }
+                    }
+                    j++;
+                }
+            }
+
             element.bind('keydown', function(event){
                 var keys = {
                     enter : 13,
@@ -54,13 +76,13 @@ export let navigatable = ng.directive('cNavigaTable', function(){
                 switch(key){
                     case keys.arrow.left:{
                         if (input.selectionStart === 0) {
-                            moveTo = td.prevAll('td.nav-input')[0]
+                            moveTo = scope.canMoveTd(td.prevAll('td.nav-input'))
                         }
                         break;
                     }
                     case keys.arrow.right:{
                         if (input.selectionEnd == input.value.length) {
-                            moveTo = td.nextAll('td.nav-input')[0];
+                            moveTo = scope.canMoveTd(td.nextAll('td.nav-input'));
                         }
                         break;
                     }

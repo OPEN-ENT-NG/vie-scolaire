@@ -1467,7 +1467,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             $scope.firstConfirmSuppSkill = true;
                             $scope.secondConfirmSuppSkill = true;
                         }
-                    }else if($scope.devoir.is_evaluated === true && $scope.devoir.old_id_groupe !== undefined && $scope.devoir.old_id_groupe !== $scope.devoir.id_groupe) {
+                    }else if($scope.devoir.old_id_groupe !== undefined && $scope.devoir.old_id_groupe !== $scope.devoir.id_groupe) {
                         $scope.opened.lightboxs.updateDevoir.firstConfirmSupp = true;
                         $scope.secondConfirmSuppSkill = true;
                         $scope.evaluatedDisabel = true;

@@ -338,5 +338,5 @@
   "delete.annotation":"Supprime l'annotation pour revenir à la saisie de notes/compétences.",
   "add.annotation":"Ajouter une annotation. Sélectionner 'Evaluer' pour enlever l'annotation.",
   "no.annotation":"Evaluer",
-  "evaluations.devoir.updateDevoir.firstConfirmSupp.change.classe":"Suite au changement de classe, les notes, annotations et appréciations ne seront pas conservées."
+  "evaluations.devoir.updateDevoir.firstConfirmSupp.change.classe":"Suite au changement de classe, les évaluations, annotations et appréciations ne seront pas conservées."
 }

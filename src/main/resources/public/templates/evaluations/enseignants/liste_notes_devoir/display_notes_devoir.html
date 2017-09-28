@@ -154,7 +154,8 @@
                                             <label class="checkbox">
                                                 <input type="checkbox" ng-model="eleve.selected"
                                                        ng-init="eleve.selected = false"
-                                                       ng-click="selectEleveListe(eleve)">
+                                                       ng-click="selectEleveListe(eleve)"
+                                                       ng-disabled="eleve.evaluation.id_annotation !== undefined && eleve.evaluation.id_annotation > 0">
                                                 <span></span>
                                             </label>
                                         </div>

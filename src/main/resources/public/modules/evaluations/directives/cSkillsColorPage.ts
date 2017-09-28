@@ -44,8 +44,10 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                             }
                         } else {
                             for (var j = 0; j < _eval.competenceNotes.all.length; j++) {
-                                _eval.competenceNotes.all[j].evaluation = evaluation;
-                                _datas.push(_eval.competenceNotes.all[j]);
+                                if (_eval.id_annotation === undefined || _eval.id_annotation < 1) {
+                                    _eval.competenceNotes.all[j].evaluation = evaluation;
+                                    _datas.push(_eval.competenceNotes.all[j]);
+                                }
                             }
                         }
                     }

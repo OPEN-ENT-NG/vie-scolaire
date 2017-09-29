@@ -2099,10 +2099,13 @@ export class SuiviCompetence extends Model implements IModel{
         return false;
     }
 
-    getConversionTable(idetab, idClasse) : Promise<any> {
+    getConversionTable(idetab, idClasse, mapCouleur) : Promise<any> {
         return new Promise((resolve, reject) => {
             var that = this;
             http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data){
+                _.map(data, (_d) => {
+                   _d.couleur = mapCouleur[_d.ordre -1];
+                });
                 that.tableConversions.load(data);
 
                 if (resolve && (typeof (resolve) === 'function')) {
@@ -2210,7 +2213,8 @@ function setSliderOptions(poDomaine,tableConversions) {
         poDomaine.slider.options.getSelectionBarClass = function(value){
             let ConvertionOfValue = _.find(tableConversions,{ordre: value});
             if(ConvertionOfValue !== undefined)
-                return ConvertionOfValue.couleur;};
+                return ConvertionOfValue.couleur;
+        };
         poDomaine.slider.options.translate = function(value,sliderId,label){
             let l = '#label#';
             if (label === 'model') {

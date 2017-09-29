@@ -394,6 +394,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             thrHigh();
                         }
                         self.resetSlider();
+                        self.minH[0].style.backgroundColor= self.getSelectionBarClass();
+                        self.maxH[0].style.backgroundColor= self.getSelectionBarClass();
                     });
 
                     // Watchers (order is important because in case of simultaneous change,
@@ -406,6 +408,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                         if (self.range)
                             self.syncHighValue();
                         self.resetSlider();
+                        self.minH[0].style.backgroundColor= self.getSelectionBarClass();
+                        self.maxH[0].style.backgroundColor= self.getSelectionBarClass();
                     }, true);
 
                     this.scope.$watch('rzSliderModel', function (newValue, oldValue) {
@@ -427,6 +431,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             self.applyOptions();
                             self.resetSlider();
                         }
+                        self.minH[0].style.backgroundColor= self.getSelectionBarClass();
+                        self.maxH[0].style.backgroundColor= self.getSelectionBarClass();
                     });
 
                     this.scope.$on('$destroy', function () {
@@ -733,6 +739,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
 
                     if (this.intermediateTicks && this.options.showTicksValues)
                         this.ticks.addClass('rz-ticks-values-under');
+                    this.minH[0].style.backgroundColor= this.getSelectionBarClass();
+                    this.maxH[0].style.backgroundColor= this.getSelectionBarClass();
                 },
 
                 alwaysHide: function (el, hide) {
@@ -880,6 +888,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                         this.applyHighValue();
 
                     this.valueRange = this.maxValue - this.minValue;
+                    this.minH[0].style.backgroundColor= this.getSelectionBarClass();
+                    this.maxH[0].style.backgroundColor= this.getSelectionBarClass();
                 },
 
                 /**
@@ -928,6 +938,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             'aria-valuemax': this.maxValue
                         });
                     }
+                    this.minH[0].style.backgroundColor= this.getSelectionBarClass();
+                    this.maxH[0].style.backgroundColor= this.getSelectionBarClass();
                 },
 
                 /**
@@ -995,6 +1007,7 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                         };
                         if (tick.selected && self.options.getSelectionBarClass) {
                             tick.className = self.getSelectionBarClass();
+                            tick.style['background-color'] = self.getSelectionBarClass();
                         }
                         if (!tick.selected && self.options.getTickColor) {
                             tick.style['background-color'] = self.getTickColor(value);
@@ -2245,6 +2258,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             pointerType = this.tracking === 'lowValue' ? 'min' : 'max';
                         this.scope.$evalAsync(function () {
                             self.options.onChange(self.options.id, self.scope.rzSliderModel, self.scope.rzSliderHigh, pointerType);
+                            self.minH[0].style.backgroundColor= self.getSelectionBarClass();
+                            self.maxH[0].style.backgroundColor= self.getSelectionBarClass();
                         });
                     }
                 },
@@ -2261,6 +2276,8 @@ export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$documen
                             pointerType = this.tracking === 'lowValue' ? 'min' : 'max';
                         this.scope.$evalAsync(function () {
                             self.options.onEnd(self.options.id, self.scope.rzSliderModel, self.scope.rzSliderHigh, pointerType);
+                            self.minH[0].style.backgroundColor= self.getSelectionBarClass();
+                            self.maxH[0].style.backgroundColor= self.getSelectionBarClass();
                         });
                     }
                     this.scope.$emit('slideEnded');

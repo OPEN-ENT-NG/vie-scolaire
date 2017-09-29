@@ -344,7 +344,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
 
         };
         $scope.initSliderBFC = function () {
-            $scope.suiviCompetence.getConversionTable($scope.evaluations.structure.id,$scope.search.classe.id).then(
+            $scope.suiviCompetence.getConversionTable($scope.evaluations.structure.id,$scope.search.classe.id,$scope.mapCouleurs).then(
                 function(data){
                     return $scope.suiviCompetence.tableConversions;
                 }

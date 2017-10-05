@@ -17,16 +17,17 @@
   ~
   -->
 <ul class="skills-color-page">
-    <li ng-repeat="niveau in niveauCompetences"  ng-click="confirme(niveau.ordre -1)">
-        <span class="tooltip-overlay" tooltip="[[niveau.libelle]]." ></span>
-        <c-skills-bubble text="niveau.lettre" color="niveau.couleur" classes="'textColorPage'">
-        </c-skills-bubble>
-    </li>
     <li ng-click="confirme(-1)">
         <span class="tooltip-overlay" tooltip="Compétence non évaluée." >
         </span>
         <span class="rounded grey-skill-page"></span>
     </li>
+    <li ng-repeat="niveau in niveauCompetences | orderBy:'ordre'"  ng-click="confirme(niveau.ordre -1)">
+        <span class="tooltip-overlay" tooltip="[[niveau.libelle]]." ></span>
+        <c-skills-bubble text="niveau.lettre" color="niveau.couleur" classes="'textColorPage'">
+        </c-skills-bubble>
+    </li>
+
 </ul>
 
 <lightbox show="opened.lightbox" on-close="opened.lightbox=false">

@@ -22,8 +22,8 @@
             <i18n>viescolaire.utils.legend</i18n>
         </h4>
         <ul>
-           <li ng-repeat="niveau in cycle">
-               <c-skills-bubble color="niveau.couleur" text="niveau.lettre"></c-skills-bubble>
+           <li ng-repeat="niveau in structure.cycle.niveauCompetencesArray">
+               <c-skills-bubble color="niveau.couleur" text="niveau.lettre" classes="'alignVertical'"></c-skills-bubble>
                     <span>[[niveau.libelle]].</span>
 
             </li>

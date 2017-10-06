@@ -50,6 +50,12 @@ public class ResponsableEtab {
     @XmlAttribute(name = "libelle", required = true)
     protected String libelle;
 
+    public ResponsableEtab (){}
+    public ResponsableEtab(String externalId,String displayName){
+        this.id ="RESP_"+externalId;
+        this.libelle=displayName;
+    }
+
     /**
      * Gets the value of the id property.
      * 

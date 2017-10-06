@@ -53,6 +53,12 @@ public class Adresse {
     @XmlAttribute(name = "commune", required = true)
     protected String commune;
 
+    public Adresse(){}
+    public Adresse(String ligne1,String codePostal, String commune){
+        this.ligne1=ligne1;
+        this.codePostal=codePostal;
+        this.commune=commune;
+    }
     /**
      * Gets the value of the ligne1 property.
      * 

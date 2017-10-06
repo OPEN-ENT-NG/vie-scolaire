@@ -8,6 +8,8 @@
 
 package fr.openent.evaluations.bean.lsun;
 
+import org.vertx.java.core.json.JsonArray;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
@@ -215,6 +217,16 @@ public class ObjectFactory {
     public Responsable createResponsable() {
         return new Responsable();
     }
+    /*Attention pour la civilité il faudra tenir compte de la class enum Civilte*/
+    public Responsable createResponsable(String externalId, Civilite civilite,String nom, String prenom, JsonArray relatives,Adresse adresse){
+        return new Responsable( externalId, civilite, nom,  prenom, relatives,adresse);
+    }
+    public Responsable createResponsable(String externalId, String nom, String prenom, JsonArray relatives,Adresse adresse){
+        return new Responsable( externalId, nom, prenom, relatives,adresse );
+    }
+    public Responsable createResponsable(String externalId, Civilite civilite,String nom, String prenom, JsonArray relatives){
+        return new Responsable( externalId, civilite, nom,  prenom, relatives);
+    }
 
     /**
      * Create an instance of {@link Eleve }
@@ -223,7 +235,9 @@ public class ObjectFactory {
     public Eleve createEleve() {
         return new Eleve();
     }
-
+    public Eleve createEleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass){
+        return new Eleve( externalId, attachementId, firstName, lastName,  nameClass,  idNeo4j, idClass);
+    }
     /**
      * Create an instance of {@link AccPerso }
      * 
@@ -239,13 +253,18 @@ public class ObjectFactory {
     public ResponsableEtab createResponsableEtab() {
         return new ResponsableEtab();
     }
-
+    public ResponsableEtab createResponsableEtab(String externalId,String displayName){
+        return new ResponsableEtab(externalId,displayName);
+    }
     /**
      * Create an instance of {@link Adresse }
      * 
      */
     public Adresse createAdresse() {
         return new Adresse();
+    }
+    public Adresse createAdresse(String ligne1,String codePostal, String commune){
+        return new Adresse( ligne1, codePostal, commune);
     }
 
     /**
@@ -260,12 +279,12 @@ public class ObjectFactory {
      * Create an instance of {@link Entete }
      * 
      */
-    /*public Entete createEntete(String editeur, String application, String etablissement) {
+    public Entete createEntete(String editeur, String application, String etablissement) {
         return new Entete(editeur, application, etablissement);
-    }*/
-    public Entete Entete() {
-        return new Entete();
     }
+   /*public Entete Entete() {
+        return new Entete();
+    }*/
     /**
      * Create an instance of {@link Acquis }
      * 

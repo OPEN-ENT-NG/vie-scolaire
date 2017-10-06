@@ -159,7 +159,7 @@ export class Structure extends Model {
             }
         });
         this.collection(Enseignant);
-        this.collection(Responsable, {
+        this.collection(Responsable, {//responsable de Direction
            sync :  function(){
                return new Promise ((resolve, reject)=>{
                    http().getJson(that.api.RESPONSABLE.synchronisation).done(function (res) {
@@ -705,6 +705,7 @@ export class Classe extends Model {
     mapEleves : any;
     remplacement: boolean;
     id_cycle: any;
+    selected : boolean;
 
     get api () {
         return {
@@ -2060,6 +2061,19 @@ export class TableConversion extends  Model {
         super();
     }
 }
+/*
+export class Synthese extends Model implements IModel {
+    get api() {
+        return {
+            saveSynthese : '/viescolaire/evaluations/....'//nom methode côté back
+        }
+    }
+
+    saveSynthese() {
+
+    }
+}*/
+
 export class SuiviCompetence extends Model {
     competenceNotes : Collection<CompetenceNote>;
     domaines : Collection<Domaine>;
@@ -2067,6 +2081,7 @@ export class SuiviCompetence extends Model {
     classe : Classe;
     bilanFinDeCycles : Collection<BilanFinDeCycle>;
     tableConversions : Collection<TableConversion>;
+   // synthese : Synthese;
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
@@ -2579,13 +2594,12 @@ export class GestionRemplacement extends Model {
         this.selectedRemplacements = [];
 
     }
-
 }
 export class Responsable extends Model implements IModel{
     id: string;
     externalId : string;
     displayName : string;
-
+    selected : boolean;
 
 }
 

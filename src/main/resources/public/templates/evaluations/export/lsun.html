@@ -1,41 +1,80 @@
-<div ng-controller="ExportController">
-    <article class="row">
-        <h1>export XML</h1>
-        <div ng-if="evaluations.structures.all.length > 1">
-            <h4>Choix de la structure</h4>
-            <div>
-                <select ng-model="lsu.idStructure"
-                        ng-options="structure.id as structure.libelle for structure in evaluations.structures.all"
-                        ng-change="getResponsables()">
-                </select>
-            </div>
+<div ng-controller="ExportController" class="ng-scope">
+      <div class="row">
+           <div class="two cell height-two">
+                <div ng-if="evaluations.structures.all.length > 1">
+                    <h4>Choix de la structure</h4>
+                    <div>
+                        <select ng-model="lsu.idStructure"
+                                ng-options="structure.id as structure.libelle for structure in evaluations.structures.all"
+                                ng-change="getResponsables()">
+                        </select>
+                    </div>
+                </div>
+                <div class="filtre filtre-classe" ng-class="{opened : pOFilterCtrl.bOFClasse}">
+                    <h4  ng-click="pOFilterCtrl.bOFClasse=!pOFilterCtrl.bOFClasse">Classes
+                        <span class="plus-input"></span>
+                    </h4>
+                    <label class="chip multiselect right-magnet margin-leftt">
+                        <span><i18n>viescolaire.utils.all.none</i18n></span>
+                        <input type="checkbox" ng-model="bSelectAllClasses" ng-change="switchAllClasses(lsu.classes)"
+                               ng-class="{selected:bSelectAllClasses}">
+                    </label>
+                    <ul class="selectable-list">
+                        <li ng-repeat="classe in lsu.classes.all|filter:criteriaMatch()|orderBy : 'name'"
+                        ng-click="classe.selected = !classe.selected"
+                        ng-class="{selected : classe.selected}">[[classe.name]]</li>
+                    </ul>
+                </div>
+               <div class="filtre filtre-responsable" ng-class="{opened : pOFilterCtrl.bOFResponsable}">
+                   <h4  ng-click="pOFilterCtrl.bOFResponsable=!pOFilterCtrl.bOFResponsable">Responsables
+                       <span class="plus-input"></span>
+                   </h4>
+                   <label class="chip multiselect right-magnet margin-leftt">
+                       <span><i18n>viescolaire.utils.all.none</i18n></span>
+                       <input type="checkbox" ng-model="bSelectAllResponsables" ng-change="switchAllResponsables(lsu.responsables)"
+                              ng-class="{selected:bSelectAllResponsables}">
+                   </label>
+                   <ul class="selectable-list">
+                       <li ng-repeat="responsable in lsu.responsables.all|orderBy : 'name'"
+                           ng-click="responsable.selected = !responsable.selected"
+                           ng-class="{selected : responsable.selected}">[[responsable.displayName]]</li>
+                   </ul>
+               </div>
+               <button ng-click="exportLSU()" ng-disabled="controleExportLSU()">
+                   <i18n>evaluation.lsu.export.button</i18n>
+               </button>
+           </div>
         </div>
-        <h4>Choix de la classe</h4>
-
-        <div>
-            <select ng-model="lsu.classe"
-                    ng-options="classe as classe.name for classe in evaluations.classes.all|filter:criteriaMatch()"
-
-                    ng-change="addClasse()">
-            </select>
-            <ul>
-                <li ng-repeat="classe in lsu.classes "
-                    ng-click="deselectClasse(classe)">[[classe.name]]
-                </li>
-            </ul>
-        </div>
-        <h4>Choix du responsable</h4>
-        <div>
-            <select ng-model="lsu.responsable"
-                    ng-options="responsable as responsable.displayName for responsable in structure.responsables.all"
-                    ng-change="addResponsable()">
-            </select>
-            <ul>
-                <li ng-repeat="responsable in lsu.responsables"
-                    ng-click="deselectResponsable(responsable)">[[responsable.displayName]]
-                </li>
-            </ul>
-        </div>
-        <button ng-click="exportLSU()" ng-disabled="controleExportLSU()">Export xml pour le LSU</button>
-    </article>
 </div>
+
+    <!--
+       <article class="row">
+           <h1>export XML</h1>
+               <h4>Choix de la classe</h4>
+               <div>
+                   <select ng-model="lsu.classe"
+                           ng-options="classe as classe.name for classe in evaluations.classes.all|filter:criteriaMatch()"
+                           ng-change="addClasse()">
+                   </select>
+                   <ul>
+                       <li ng-repeat="classe in lsu.classes "
+                           ng-click="deselectClasse(classe)">[[classe.name]]
+                       </li>
+                   </ul>
+               </div>
+               <h4>Choix du responsable</h4>
+               <div>
+                   <select ng-model="lsu.responsable"
+                           ng-options="responsable as responsable.displayName for responsable in structure.responsables.all"
+                           ng-change="addResponsable()">
+                   </select>
+                   <ul>
+                       <li ng-repeat="responsable in lsu.responsables"
+                           ng-click="deselectResponsable(responsable)">[[responsable.displayName]]
+                       </li>
+                   </ul>
+               </div>
+           <button ng-click="exportLSU()" ng-disabled="controleExportLSU()">Export xml pour le LSU</button>
+       </article>
+   </div>
+    -->

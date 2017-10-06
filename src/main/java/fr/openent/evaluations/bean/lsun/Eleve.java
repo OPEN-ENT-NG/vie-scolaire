@@ -73,7 +73,16 @@ public class Eleve {
     public Eleve() {
         responsableList = new ArrayList<>();
     }
-
+    public Eleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass){
+        this.id="EL_"+externalId;
+        this.idBe=new BigInteger(attachementId);
+        this.prenom=firstName;
+        this.nom=lastName;
+        this.codeDivision=nameClass;
+        this.idNeo4j=idNeo4j;
+        this.id_Class=idClass;
+        responsableList = new ArrayList<>();
+    }
     public String getId_Class() {
         return id_Class;
     }

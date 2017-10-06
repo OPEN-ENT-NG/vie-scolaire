@@ -18,6 +18,7 @@ import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
+import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -40,6 +41,8 @@ import java.io.*;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
@@ -74,11 +77,8 @@ public class LSUController extends ControllerHelper {
             public void handle(Either<String, JsonObject> response) {
                 if (response.isRight()) {
                     JsonObject valueUAI = response.right().getValue();
-                    Entete entete = objectFactory.Entete();
-                    entete.setEditeur("EDITEUR");
-                    entete.setApplication("LOGICIEL");
                     if (valueUAI != null) {
-                        entete.setEtablissement(valueUAI.getString("uai"));
+                    Entete entete = objectFactory.createEntete("EDITEUR","LOGICIEL",valueUAI.getString("uai"));
                         lsunBilans.setEntete(entete);
                         handler.handle("success");
 
@@ -102,13 +102,12 @@ public class LSUController extends ControllerHelper {
                 if (response.isRight()) {
                     JsonArray value = response.right().getValue();
                     Donnees.ResponsablesEtab responsablesEtab = objectFactory.createDonneesResponsablesEtab();
-                    ResponsableEtab responsableEtab = objectFactory.createResponsableEtab();
+
                     try {
                         for (int i = 0; i < value.size(); i++) {
                             JsonObject responsableJson = value.get(i);
-                            if (responsableJson.getString("externalId") != null && responsableJson.getString("displayName") != null) {
-                                responsableEtab.setId("RESP_"+ responsableJson.getString("externalId"));
-                                responsableEtab.setLibelle(responsableJson.getString("displayName"));
+                            if (!responsableJson.getString("externalId").isEmpty()  && !responsableJson.getString("displayName").isEmpty()) {
+                                ResponsableEtab responsableEtab = objectFactory.createResponsableEtab(responsableJson.getString("externalId"),responsableJson.getString("displayName"));
                                 responsablesEtab.getResponsableEtab().add(responsableEtab);
                             } else {
                                 throw new Exception("attributs responsableEtab null");
@@ -129,7 +128,7 @@ public class LSUController extends ControllerHelper {
     }
 
     /**
-     * pour une liste de classe mise a jour des attributs de l'eleve et de son responsable(responsable est un attribut de l'eleve).
+     * pour une liste de classe mise a jour des attributs de l'eleve et de son responsable.
      *
      * @param donnees la liste des eleves est ajoutee a la balise donnees
      * @param Classids liste des classes pour lesquelles le fichier xml doit etre genere
@@ -143,7 +142,6 @@ public class LSUController extends ControllerHelper {
             public void handle(Either<String, JsonArray> response) {
                 if (response.isRight()) {
                     JsonArray jsonElevesRelatives = response.right().getValue();
-
                     Eleve eleve;
                     Responsable responsable;
                     Donnees.Eleves eleves = objectFactory.createDonneesEleves();
@@ -152,42 +150,18 @@ public class LSUController extends ControllerHelper {
                             for (int i = 0; i < jsonElevesRelatives.size(); i++) {
                                 JsonObject o = jsonElevesRelatives.get(i);
                                 if (!eleves.containIdEleve(o.getString("idNeo4j"))) {
-                                    eleve = objectFactory.createEleve();
-                                    eleve.setCodeDivision(o.getString("nameClass"));
-                                    eleve.setPrenom(o.getString("firstName"));
-                                    eleve.setNom(o.getString("lastName"));
-                                    eleve.setIdBe(new BigInteger(o.getString("attachmentId")));
-                                    eleve.setIdNeo4j(o.getString("idNeo4j"));
-                                    eleve.setId("EL_"+o.getString("externalId"));
-                                    eleve.setId_Class(o.getString("idClass"));
+                                    eleve = objectFactory.createEleve(o.getString("externalId"), o.getString("attachmentId"), o.getString("firstName"),
+                                    o.getString("lastName"),o.getString("nameClass"),o.getString("idNeo4j"),o.getString("idClass"));
                                     eleves.add(eleve);
                                 } else {
                                     eleve = eleves.getEleveById(o.getString("idNeo4j"));
                                 }
-                                responsable = objectFactory.createResponsable();
-                                Adresse adresse = objectFactory.createAdresse();
-                                responsable.setExternalId(o.getString("externalIdRelative"));
-                                responsable.setNom(o.getString("lastNameRelative"));
-                                responsable.setPrenom(o.getString("firstNameRelative"));
-                                                /*faire une méthode if(o.getString("title").equals("M.")){
-                                                responsable.setCivilite(Civilite.M);}
-                                                else{responsable.setCivilite(Civilite.MME);} sur NG1 seulement*/
-                                adresse.setCodePostal(o.getString("zipCode"));
-                                adresse.setCommune(o.getString("city"));
-                                adresse.setLigne1(o.getString("address"));
-                                responsable.setAdresse(adresse);
-                                //création du tableau des responsables avec leurs propriétés joinKey=externalIdRelative,type de relation,responsableFinancier..
-                                //pour le second degré seulement
-                                if (o.getArray("relative").size() > 0) {
-                                    JsonArray relativesJson = o.getArray("relative");
-
-                                    for (int j = 0; j < relativesJson.size(); j++) {
-                                        String[] relative = relativesJson.get(j).toString().split("\\$");
-                                        if (responsable.getExternalId().equals(relative[0])) {
-                                            responsable.setLienParente(relative[1]);
-                                            responsable.setLegals(relative[3]);
-                                        }
-                                    }
+                                Adresse adresse = objectFactory.createAdresse(o.getString("address"),o.getString("zipCode"),o.getString("city"));
+                                if (!o.getString("externalIdRelative").isEmpty()&& !o.getString("lastNameRelative").isEmpty()&&
+                                        !o.getString("firstNameRelative").isEmpty()&& o.getArray("relative").size() > 0) {
+                                   //création d'un responsable Eleve /*Attention responsable sans sa civilite car non present sur NG2 mais obligatoire*/
+                                    responsable = objectFactory.createResponsable(o.getString("externalIdRelative"),o.getString("lastNameRelative"),
+                                            o.getString("firstNameRelative"),o.getArray("relative"),adresse);
                                 } else {
                                     throw new Exception("responsable Eleve non renseigné ");
                                 }
@@ -281,8 +255,13 @@ public class LSUController extends ControllerHelper {
                            throw new Exception("getMapCodeDomaine : map incomplete" );
                        }
                    }catch (Exception e) {
-                        handler.handle(new Either.Left<String, Map<Long, String>>("getMapCodeDomaineById : "));
-                        log.error("getMapCodeDomaineById : "+e.getMessage());
+
+                        if(e instanceof IllegalArgumentException){
+                            handler.handle(new Either.Left<String,Map<Long,String>>("code_domaine en base de données non valide"));
+                        }else{
+                            handler.handle(new Either.Left<String, Map<Long, String>>("getMapCodeDomaineById : "));
+                            log.error("getMapCodeDomaineById : "+e.getMessage());
+                        }
                     }
                 } else {
                     handler.handle(new Either.Left<String, Map<Long, String>>("getMapCodeDomaineById : error when collecting codeDomaineById : " + response.left().getValue()));
@@ -306,7 +285,9 @@ public class LSUController extends ControllerHelper {
         final Date dateVerrou = new Date();
         final SimpleDateFormat formatDateVerrou = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         final Donnees.BilansCycle bilansCycle = objectFactory.createDonneesBilansCycle();
+        //donnees.setBilansCycle(objectFactory.createDonneesBilansCycle());
         final Donnees.Eleves eleves = donnees.getEleves();
+
         final Map<String, List<String>> mapIdClassIdsEleve = eleves.getMapIdClassIdsEleve();
 
         getIdClassIdCycleValue(idsClass, new Handler<Either<String, List<Map>>>() {
@@ -317,7 +298,9 @@ public class LSUController extends ControllerHelper {
                     final List<Map> mapIdClassIdCycleValue = repIdClassIdCycleValue.right().getValue();
                     final Map mapIdClassIdCycle = mapIdClassIdCycleValue.get(0);
                     final Map mapIdCycleValue = mapIdClassIdCycleValue.get(1);
-
+                    //final int[] nbIdEleves = {0};
+                   // nbIdEleves[0]=0;
+                    final AtomicInteger ndIdEleve = new AtomicInteger(0);
                     for (Map.Entry<String, List<String>> stringListEntry : mapIdClassIdsEleve.entrySet()) {
                         final String[] idsEleve = stringListEntry.getValue().toArray(new String[stringListEntry.getValue().size()]);
                         final String idClass = stringListEntry.getKey();
@@ -332,8 +315,10 @@ public class LSUController extends ControllerHelper {
                                         public void handle(Either<String, Map<Long, String>> repMapCodeDomaineId) {
                                             if (repMapCodeDomaineId.isRight()) {
                                                 final Map<Long, String> mapCodeDomaineByIdDomaine = repMapCodeDomaineId.right().getValue();
-
-                                                for (Eleve eleve : eleves.getEleve()) {
+                                                //nbIdEleves[0] += idsEleve.length;
+                                                ndIdEleve.addAndGet(idsEleve.length);
+                                                for (String idEleve : idsEleve) {
+                                                    Eleve eleve = eleves.getEleveById(idEleve);
                                                     final BilanCycle bilanCycle = objectFactory.createBilanCycle();
                                                     final BilanCycle.Responsables responsables = objectFactory.createBilanCycleResponsables();
                                                     final BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
@@ -345,11 +330,8 @@ public class LSUController extends ControllerHelper {
                                                     bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
                                                     responsables.getResponsable().addAll(eleve.getResponsableList());
                                                     bilanCycle.setResponsables(responsables);
-
                                                     for (Map.Entry<Long, String> idDomaineCode : mapCodeDomaineByIdDomaine.entrySet()) {
-
                                                         DomaineSocleCycle domaineSocleCycle = objectFactory.createDomaineSocleCycle();
-
                                                         //cas où les positionnement des domaines doivent tous être différents de zéro sauf "CPD_ETR"
                                                         if (mapIdEleveIdDomainePosition.containsKey(eleve.getIdNeo4j())) {
                                                             Map<Long, Integer> mapIdDomainePosition = mapIdEleveIdDomainePosition.get(eleve.getIdNeo4j());
@@ -391,15 +373,22 @@ public class LSUController extends ControllerHelper {
                                                     }
                                                     // if(socle.getDomaine().size()==mapCodeDomaineByIdDomaine.size()) {
                                                     bilanCycle.setSocle(socle);
+                                                    //donnees.getBilansCycle().getBilanCycle().add(bilanCycle);
                                                     bilansCycle.getBilanCycle().add(bilanCycle);
                                                     // }
                                                 }
                                                 donnees.setBilansCycle(bilansCycle);
-                                                handler.handle("success");
+                                               if(bilansCycle.getBilanCycle().size()==eleves.getEleve().size()){
+                                                   handler.handle("success");
+                                               }else if(bilansCycle.getBilanCycle().size()!=eleves.getEleve().size()&& eleves.getEleve().size()== ndIdEleve.intValue()){
+                                                   handler.handle("Bilancycle no completed");
+                                               }
+
                                             } else {
                                                 handler.handle("getBaliseBilansCycle :  " + repMapCodeDomaineId.left().getValue());
                                                 log.error("getBaliseBilansCycle :  " + repMapCodeDomaineId.left().getValue());
                                             }
+
                                         }
                                     });
                                 } else {
@@ -418,6 +407,12 @@ public class LSUController extends ControllerHelper {
         });
     }
 
+    void finbfc(int nbClassesTraitees, int nbClasses, Handler<String> handler ){
+        if(nbClassesTraitees == nbClasses){
+            handler.handle("success");
+        }
+    }
+
     /**
      * génère le fichier xml et le valide
      * @param request
@@ -430,10 +425,10 @@ public class LSUController extends ControllerHelper {
             JAXBContext jc = JAXBContext.newInstance(LsunBilans.class);
             Marshaller marshaller = jc.createMarshaller();
            // écriture de la réponse
-         //   marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "urn:fr:edu:scolarite:lsun:bilans:import import-bilan-complet.xsd");// //
+            marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "urn:fr:edu:scolarite:lsun:bilans:import import-bilan-complet.xsd");
             marshaller.marshal(lsunBilans, response);
 
             /* Vérification du fichier xml généré par rapport au xsd */

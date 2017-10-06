@@ -8,6 +8,8 @@
 
 package fr.openent.evaluations.bean.lsun;
 
+import org.vertx.java.core.json.JsonArray;
+
 import javax.xml.bind.annotation.*;
 
 
@@ -60,6 +62,33 @@ public class Responsable {
     protected String lienParente;
     @XmlTransient
     protected String externalId;
+
+
+    public Responsable(){}
+    /*Attention pour la civilité il faudra tenir compte de la class enum Civilte*/
+    public Responsable(String externalId, Civilite civilite,String nom, String prenom, JsonArray relatives,Adresse adresse ){
+        this.externalId=externalId;
+        this.civilite=civilite;
+        this.nom=nom;
+        this.prenom=prenom;
+        this.addProprietesResponsable(relatives);
+        this.adresse=adresse;
+    }
+    public Responsable(String externalId, String nom, String prenom, JsonArray relatives,Adresse adresse ){
+        this.externalId=externalId;
+        this.nom=nom;
+        this.prenom=prenom;
+        this.addProprietesResponsable(relatives);
+        this.adresse=adresse;
+    }
+    public Responsable (String externalId, Civilite civilite,String nom, String prenom, JsonArray relatives){
+        this.externalId=externalId;
+        this.civilite=civilite;
+        this.nom=nom;
+        this.prenom=prenom;
+        this.addProprietesResponsable(relatives);
+    }
+
 
     public String getExternalId() {
         return externalId;
@@ -257,6 +286,16 @@ public class Responsable {
                 break;
         }
 
+    }
+    //méthode qui permet de compléter les attributs legal1, legal2 et lienParente
+    public void addProprietesResponsable(JsonArray relatives){
+        for (int j = 0; j < relatives.size(); j++) {
+            String[] relative = relatives.get(j).toString().split("\\$");
+            if (this.externalId.equals(relative[0])) {
+                this.setLienParente(relative[1]);
+                this.setLegals(relative[3]);
+            }
+        }
     }
 
 

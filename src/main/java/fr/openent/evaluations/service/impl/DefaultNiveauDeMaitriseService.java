@@ -118,6 +118,7 @@ public class DefaultNiveauDeMaitriseService extends SqlCrudService implements Ni
 
                 if (event.isRight()) {
                     final Long niveauCompetenceId = event.right().getValue().getLong("id");
+                    maitrise.putNumber("id", niveauCompetenceId);
                    doCreate(handler,niveauCompetenceId,maitrise,resourceTable);
                 }
                 else {

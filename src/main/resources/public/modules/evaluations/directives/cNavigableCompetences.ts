@@ -86,6 +86,23 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                 return $(cell).find('.competence-eval')[0];
             };
 
+            /**
+             * Détermine si l'élément peut être sélectionner
+             * @param moveToRow
+             * @param index
+             * @returns {any}
+             */
+            scope.canMove = function (expandChildren, index) {
+                while (index < expandChildren.length) {
+                    index ++;
+                    let moveToRow = expandChildren[index];
+                    let navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
+                    if (moveToRow !== undefined && navigableCells.length > 0) {
+                        return navigableCells[0];
+                    }
+                }
+            }
+
             element.bind('keydown', function(event){
                 var keys = {
                     enter : 13,
@@ -171,11 +188,7 @@ export let navigableCompetences = ng.directive('cNavigableCompetences', function
                                 var pos = scope.findIndex(td, children);
                                 var expandChildren = scope.findChildren(scope.findAncestor(tr, 'expandable-liste'), 'navigable-row');
                                 var trIndex = scope.findIndex(tr, expandChildren);
-                                var moveToRow = expandChildren[trIndex + 1];
-                                if (moveToRow !== null) {
-                                    var navigableCells = scope.findChildren(scope.findNavigableRow(moveToRow), 'navigable-cell');
-                                    moveTo = navigableCells[0];
-                                }
+                                moveTo = scope.canMove(expandChildren, trIndex);
                             }
                         }
                     }

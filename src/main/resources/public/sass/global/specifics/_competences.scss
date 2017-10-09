@@ -318,6 +318,9 @@ z-index: 1;
       background: #0499e2;
       color: white;
       padding: 2px 9px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .col1 {
       width: 200px !important;

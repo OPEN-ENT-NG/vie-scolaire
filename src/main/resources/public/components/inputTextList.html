@@ -23,5 +23,5 @@
         ng-if="!autofocus" />
 
 <ul ng-if="openedList" class="input-list">
-    <li class="input-list" ng-repeat="item in itemsToDisplay"  ng-click="addItem(item);">[[(item[displayAttributeList])]]</li>
+    <li class="input-list" tooltip="[[(item[displayAttributeList])]]" ng-repeat="item in itemsToDisplay"  ng-click="addItem(item);">[[(item[displayAttributeList])]]</li>
 </ul>

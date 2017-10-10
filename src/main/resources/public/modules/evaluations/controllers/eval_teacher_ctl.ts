@@ -1908,6 +1908,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (resetValeur) {
                         evaluation.oldValeur = "";
                         evaluation.valeur = "";
+                        for (let i = 0 ; i < evaluation.competenceNotes.all.length; i++) {
+                            evaluation.competenceNotes.all[i].evaluation = -1;
+                        }
                     }
                     $scope.calculStatsDevoir();
                     if (!evaluation.valid) {

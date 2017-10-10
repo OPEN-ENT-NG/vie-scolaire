@@ -96,11 +96,30 @@
                 </div>
             </div>
         </aside>
+        <section ng-if="currentDevoir.competences.all.length > 0"
+                class="cell eight" ng-class="{eight : currentDevoir.competences.all.length > 0, ten : currentDevoir.competences.all.length === 0}">
+            <div class="marginFive">
+                <div class="card">
+                    <content class="block row" style="position: fixed;top: 64px; z-index: 9;">
+                        <div class="devoirs-header"
+                             current-devoir="currentDevoir"
+                             confine="true" style="display: block;
+                             z-index: 10; width:
+                             951px; top: auto;
+                              position: static;
+                              left: auto;
+                              margin-top: 0px;
+                              height: 45px;">
+                        </div>
+                    </content>
+                </div>
+            </div>
+        </section>
         <section class="cell" ng-class="{eight : currentDevoir.competences.all.length > 0, ten : currentDevoir.competences.all.length === 0}">
             <div class="marginFive">
                 <div class="card">
                     <content class="block row">
-                        <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
+                        <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="94" confine="true">
                             <div ng-if="currentDevoir.competences.all.length > 0" class="one inline-block  cell coche-case">
                                 <label class="checkbox">
                                     <input type="checkbox" ng-checked="selected.eleves.all || (selected.eleves.list.length === currentDevoir.eleves.all.length)"

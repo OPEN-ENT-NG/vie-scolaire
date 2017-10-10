@@ -1316,8 +1316,9 @@ z-index: 1;
     padding: 0;
     margin: 0;
     position: fixed;
-    right: 0.2%;
-    top: 136px;
+    right: 44% !important;
+    top: 68px !important;
+    z-index: 10;
     li{
       display: inline-block;
       height: 34px;
@@ -1623,6 +1624,7 @@ z-index: 1;
     position: fixed !important;
     right: 1%;
     top: 85px;
+    z-index: 11;
   }
 
   .button-edit-devoir-not-fixed {

@@ -1910,6 +1910,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         evaluation.valeur = "";
                         for (let i = 0 ; i < evaluation.competenceNotes.all.length; i++) {
                             evaluation.competenceNotes.all[i].evaluation = -1;
+                            delete evaluation.competenceNotes.all[i].id;
                         }
                     }
                     $scope.calculStatsDevoir();

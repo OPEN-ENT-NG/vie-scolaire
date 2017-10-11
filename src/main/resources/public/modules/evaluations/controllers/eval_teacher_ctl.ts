@@ -59,6 +59,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 duplication: ''
             }
         };
+        $scope.togglePanel = function($event){
+            $scope.showPanel = !$scope.showPanel;
+            $event.stopPropagation();
+        };
+        $rootScope.$on('close-panel', function(e){
+            $scope.showPanel = false;
+        })
 
         let routesActions = {
 
@@ -254,7 +261,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (!template.isEmpty('leftSide-userInfo')) template.close('leftSide-userInfo');
                     if (!template.isEmpty('leftSide-devoirInfo')) template.close('leftSide-devoirInfo');
                     $scope.currentDevoir = _.findWhere(evaluations.structure.devoirs.all, {id: parseInt(params.devoirId)});
+                    $scope.usePerso = evaluations.structure.usePerso;
                     $scope.updateColorAndLetterForSkills('saisieNote');
+                    $scope.updateNiveau($scope.usePerso);
 
                     let current_periode = $scope.periodes.findWhere({id: $scope.currentDevoir.id_periode});
                     let date_saisie = current_periode.date_fin_saisie;

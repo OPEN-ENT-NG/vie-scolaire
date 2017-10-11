@@ -338,5 +338,9 @@
   "delete.annotation":"Supprime l'annotation pour revenir à la saisie de notes/compétences.",
   "add.annotation":"Ajouter une annotation. Sélectionner 'Evaluer' pour enlever l'annotation.",
   "no.annotation":"Evaluer",
-  "evaluations.devoir.updateDevoir.firstConfirmSupp.change.classe":"Suite au changement de classe, les évaluations, annotations et appréciations ne seront pas conservées."
+  "evaluations.devoir.updateDevoir.firstConfirmSupp.change.classe":"Suite au changement de classe, les évaluations, annotations et appréciations ne seront pas conservées.",
+  "tuto.title":"Astuce",
+  "tuto.bienvenu":"Bienvenue sur l'écran de saisie de notes et de compétences.Vous avez la possiblité d'évaluer les compétences au clavier. ",
+  "tuto.raccourci":"Il suffit pour cela , de se positionner sur une pastille et utiliser la touche numérique correspondante :",
+  "keyboard.button":"Raccourci clavier"
 }

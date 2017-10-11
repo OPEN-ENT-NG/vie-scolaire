@@ -20,6 +20,8 @@
     <!-- Panneau de choix des thèmes -->
     <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
 
+
+
     <div class="twelve cell">
 
         <input type="button" ng-click="goTo('/devoir/[[currentDevoir.id]]/edit')" i18n-value="evaluations.test.edit"
@@ -35,10 +37,6 @@
 
         <header style="margin-left: 5px;" class="header-releve header-notes twelve">
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
-                <c-skills-color-page devoir="currentDevoir" selected-competences="selected.competences.list"
-                         selected-eleves="selected.eleves" ng-if="currentDevoir.competences.all.length > 0"
-                                     niveau-competences="niveauCompetences"
-                ></c-skills-color-page>
             </h2>
         </header>
         <aside class="two cell">
@@ -96,30 +94,36 @@
                 </div>
             </div>
         </aside>
-        <section ng-if="currentDevoir.competences.all.length > 0"
-                class="cell eight" ng-class="{eight : currentDevoir.competences.all.length > 0, ten : currentDevoir.competences.all.length === 0}">
-            <div class="marginFive">
-                <div class="card">
-                    <content class="block row" style="position: fixed;top: 64px; z-index: 9;">
-                        <div class="devoirs-header"
-                             current-devoir="currentDevoir"
-                             confine="true" style="display: block;
-                             z-index: 10; width:
-                             951px; top: auto;
-                              position: static;
-                              left: auto;
-                              margin-top: 0px;
-                              height: 45px;">
-                        </div>
-                    </content>
-                </div>
-            </div>
+        <section class="cell eight" ng-if="currentDevoir.competences.all.length > 0">
+            <infotip name="saisie-notes-tutorial" class="info marginFive">
+                <strong><i18n>tuto.title</i18n></strong>
+                <br /><i18n>tuto.bienvenu</i18n>
+                <br /><i18n>tuto.raccourci</i18n>
+                <ul class="tuto-legend">
+                    <li>
+                        <c-skills-bubble color="'#555'" text="'0'" classes="'alignVertical'">
+                        </c-skills-bubble>
+                    </li>
+                    <li ng-repeat="niveau in structure.cycle.niveauCompetencesArray | orderBy:'ordre'" class="ng-scope">
+                        <c-skills-bubble color="niveau.couleur" text="niveau.ordre" classes="'alignVertical'">
+                        </c-skills-bubble>
+                    </li>
+
+                </ul>
+            </infotip>
         </section>
         <section class="cell" ng-class="{eight : currentDevoir.competences.all.length > 0, ten : currentDevoir.competences.all.length === 0}">
             <div class="marginFive">
                 <div class="card">
                     <content class="block row">
-                        <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="94" confine="true">
+
+                        <div class="devoirs-header" id="liste-notes-devoir-header" current-devoir="currentDevoir" sticky offset="64" confine="true">
+                            <div class="align-center">
+                                <c-skills-color-page devoir="currentDevoir" selected-competences="selected.competences.list"
+                                                     selected-eleves="selected.eleves" ng-if="currentDevoir.competences.all.length > 0"
+                                                     niveau-competences="niveauCompetences"
+                                ></c-skills-color-page>
+                            </div>
                             <div ng-if="currentDevoir.competences.all.length > 0" class="one inline-block  cell coche-case">
                                 <label class="checkbox">
                                     <input type="checkbox" ng-checked="selected.eleves.all || (selected.eleves.list.length === currentDevoir.eleves.all.length)"
@@ -136,8 +140,9 @@
                             <div ng-if="currentDevoir.is_evaluated" class="one inline-block cell-indent cell">
                                 <i18n>evaluations.grade</i18n>
                             </div>
-                            <div ng-class="{'six' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
-                                 class="inline-block cell-indent competence-text-overflow cell" ng-if="currentDevoir.competences.all.length > 0">
+                            <!--ng-class="{'six' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"-->
+                            <div
+                                 class="inline-block cell-indent competence-text-overflow cell six" ng-if="currentDevoir.competences.all.length > 0">
                                 <i18n style="padding-left: 20px;">evaluations.test.competences</i18n>
                                 <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
                                 <span id="competence-detail" tooltip=""></span>
@@ -145,8 +150,9 @@
                             <div class="inline-block cell-indent cell nine" ng-if="currentDevoir.competences.all.length === 0">
                                 <i18n>viescolaire.utils.appreciation</i18n>
                             </div>
-                            <div ng-class="{'two' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"
-                                 class="inline-block cell-indent cell" ng-if="currentDevoir.competences.all.length > 0">
+                            <!--ng-class="{'two' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"-->
+                            <div
+                                 class="inline-block cell-indent cell two" ng-if="currentDevoir.competences.all.length > 0 && currentDevoir.competences.all.length < 8">
                                 <i18n>viescolaire.utils.appreciation</i18n>
                             </div>
                         </div>

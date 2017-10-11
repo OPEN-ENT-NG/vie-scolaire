@@ -18,7 +18,7 @@ export let cSkillsBubble = ng.directive('cSkillsBubble', function () {
         restrict : 'E',
         scope : {
             color : '=',
-            text : '=',
+            text : '=?',
             classes : '=?',
             selectCond : '=?',
             onClick: '=?'
@@ -35,6 +35,7 @@ export let cSkillsBubble = ng.directive('cSkillsBubble', function () {
             if ($scope.onClick != undefined) {
                 $scope.activeClick = true;
             }
+            $scope.text = $scope.text || '';
             $scope.$watch('color', function (newValue, oldValue) {
                 if (newValue !== oldValue) {
                     utils.safeApply($scope);

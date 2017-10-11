@@ -1,4 +1,26 @@
 body.evaluations {
+  c-skills-color-page c-skills-bubble > span.rounded {
+    border: none;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+  }
+  .tuto-saisie {
+    margin-top: 0px;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 10px;
+  }
+  .FloatRight{
+    float: right;
+  }
+  .tuto-legend{
+      display: inline;
+      list-style-type: none;
+      padding-left: 0px;
+  }
+  .tuto-legend > li {
+    display: inline;
+    padding: 5px;
+  }
   -webkit-font-smoothing:antialiased !important;
   /* tooltip sur l'écran de saisie des notes */
   .skills-color-page > li > span.tooltip-overlay {
@@ -81,9 +103,11 @@ z-index: 1;
     top: 0px;
     text-align: center;
     font-size: 70%;
+    left: 11px;
 
     > span.lettreNiv.ng-binding {
-      bottom: 4px;
+      bottom: 0px;
+      top: 0px;
     }
   }
   .lettreNiv {
@@ -509,7 +533,7 @@ z-index: 1;
     .devoirs-header{
       display: block;
       background-color: $white;
-      height: 45px !important;
+      height: 90px !important;
       padding: 12px 5px;
       box-sizing: border-box;
       vertical-align: middle;
@@ -1312,12 +1336,13 @@ z-index: 1;
   **/
   .skills-color-page{
     list-style-type: none;
-    float: right;
+    //float: right;
     padding: 0;
     margin: 0;
-    position: fixed;
-    right: 44% !important;
-    top: 68px !important;
+    position: relative;
+    //right: 44% !important;
+    //top: 68px !important;
+    //margin-top: 5px !important;
     z-index: 10;
     li{
       display: inline-block;
@@ -1328,7 +1353,17 @@ z-index: 1;
         position: absolute;
         left: 0;
         top:0;
+        border: none;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.4);
       }
+    }
+
+    .tooltip-overlay {
+      position: relative;
+      width: 43px !important;
+      height: 34px !important;
+      z-index: 10;
+      display: block;
     }
   }
   .grey-skill-page {
@@ -1337,7 +1372,7 @@ z-index: 1;
 
   .skills-color-column {
     list-style-type: none;
-    padding: 0px 0px 0px 9px !important;
+    padding: 0 0 0 9px !important;
     margin: 0;
     li{
       display: inline-block;
@@ -1622,10 +1657,11 @@ z-index: 1;
 
   .button-edit-devoir {
     position: fixed !important;
-    right: 1%;
-    top: 85px;
-    z-index: 11;
+    right: 1% !important;
+    top: 116px !important;
+    z-index: 11 !important;
   }
+
 
   .button-edit-devoir-not-fixed {
     margin-top: -18px !important;

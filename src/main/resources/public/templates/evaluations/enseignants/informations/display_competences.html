@@ -24,10 +24,13 @@
         <ul>
            <li ng-repeat="niveau in structure.cycle.niveauCompetencesArray">
                <c-skills-bubble color="niveau.couleur" text="niveau.lettre" classes="'alignVertical'"></c-skills-bubble>
-                    <span>[[niveau.libelle]].</span>
+                    <span>[[niveau.libelle]]<span class="FloatRight"><i18n>keyboard.button</i18n>:&nbsp[[niveau.ordre]]</span></span>
 
             </li>
-            <li><span class="rounded grey"></span><i18n>evaluations.competence.unevaluated</i18n>.</li>
+            <li><span class="rounded grey">
+            </span><i18n>evaluations.competence.unevaluated</i18n> <span class="FloatRight"><i18n>keyboard.button</i18n>:&nbsp[['0']]</span>
+                </span>
+            </li>
         </ul>
     </div>
     <div class="cell eleven">

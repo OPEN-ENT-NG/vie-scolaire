@@ -20,7 +20,7 @@
     <li ng-click="confirme(-1)">
         <span class="tooltip-overlay" tooltip="Compétence non évaluée." >
         </span>
-        <span class="rounded grey-skill-page"></span>
+        <c-skills-bubble color="'#555'" classes="'textColorPage'">
     </li>
     <li ng-repeat="niveau in niveauCompetences | orderBy:'ordre'"  ng-click="confirme(niveau.ordre -1)">
         <span class="tooltip-overlay" tooltip="[[niveau.libelle]]." ></span>

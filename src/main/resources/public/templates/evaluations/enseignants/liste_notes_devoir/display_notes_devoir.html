@@ -39,7 +39,9 @@
             <h2><i18n>title</i18n> : <span>[[currentDevoir.name]]</span>
             </h2>
         </header>
+
         <aside class="two cell">
+            <floating-navigation  class="zero-mobile">
             <div class="menuLeftStyle detail-devoir criterion card" ng-class="{opened : openedDetails === true}">
                 <div class="header">
                     <span class="plus-input" ng-click="openedDetails = !openedDetails"></span>
@@ -87,13 +89,17 @@
                     <progress-bar max="100" filled="currentDevoir.statistiques.percentDone" unit="%"></progress-bar>
                 </div>
             </div>
-            <div class="marginFive card">
-                <div class="fiche student-info" ng-class="{opened : openedStudentInfo === true}">
-                    <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
-                    <container class="cell tailleMax" template="leftSide-userInfo"></container>
-                </div>
-            </div>
+
+                    <div class="marginFive card">
+                        <div class="fiche student-info" ng-class="{opened : openedStudentInfo == true}">
+                            <span class="plus-input" ng-click="openedStudentInfo = !openedStudentInfo"></span>
+                            <container class="cell tailleMax" template="leftSide-userInfo"
+                                       id="notes-devoir-student-info"></container>
+                        </div>
+                    </div>
+            </floating-navigation>
         </aside>
+
         <section class="cell eight" ng-if="currentDevoir.competences.all.length > 0">
             <infotip name="saisie-notes-tutorial" class="info marginFive">
                 <strong><i18n>tuto.title</i18n></strong>

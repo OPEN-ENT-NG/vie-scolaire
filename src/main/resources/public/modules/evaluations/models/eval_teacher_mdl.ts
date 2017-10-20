@@ -724,7 +724,7 @@ export class Classe extends Model {
 
     get api () {
         return {
-            syncClasse: '/directory/class/' + this.id + '/users?type=Student',
+            syncClasse: '/viescolaire/classes/' + this.id + '/users?type=Student',
             syncGroupe : '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student',
             syncClasseChefEtab : '/viescolaire/classes/'+this.id+'/users'
         }

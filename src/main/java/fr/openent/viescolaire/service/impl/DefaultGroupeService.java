@@ -45,7 +45,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         }
         query.append( "RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, ")
                 .append("users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
-                .append("users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER BY lastName");
+                .append("users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER BY lastName, firstName ");
         values.putString("groupeEnseignementId", groupeEnseignementId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));

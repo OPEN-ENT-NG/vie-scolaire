@@ -58,7 +58,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
 		String RETURN_VALUES = "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes, "+
-                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ORDER BY lastName ";
+                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ORDER BY lastName, firstName ";
 		StringBuilder query = new StringBuilder();
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id: {idClasse}}) ")
 				.append(RETURN_VALUES)
@@ -136,10 +136,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
                 .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ")
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
                 .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName");
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
         params.putArray("idClasses", new JsonArray(idClasses));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

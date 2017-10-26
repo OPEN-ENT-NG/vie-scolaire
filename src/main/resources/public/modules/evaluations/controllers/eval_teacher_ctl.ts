@@ -1181,16 +1181,30 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 // Parcours de chaque compétences / sous compétences
                 for (var i = 0; i < item.competences.all.length; i++) {
                     var sousCompetence = item.competences.all[i];
+                    let matchDomaine = false;
 
                     // check si la compétence / sous compétence match le mot clef
                     // on la déplie / replie en conséquence
                     sousCompetence.open = utils.containsIgnoreCase(sousCompetence.nom, psKeyword);
+
+                    if (sousCompetence.code_domaine != null) {
+                        if (matchDomaine = utils.containsIgnoreCase(sousCompetence.code_domaine, psKeyword))
+                            sousCompetence.open = true;
+                    }
+
                     if(sousCompetence.open) {
 
                         var nomHtml = $scope.highlight(sousCompetence.nom, psKeyword);
                         var DisplayNomSousCompetence = nomHtml;
+
                         if(sousCompetence.code_domaine!=null){
-                            DisplayNomSousCompetence = sousCompetence.code_domaine + " - "+ nomHtml;
+                            let nomDomaine;
+                            if (matchDomaine) {
+                                nomDomaine = $scope.highlight(sousCompetence.code_domaine, psKeyword);
+                            } else {
+                                nomDomaine = sousCompetence.code_domaine;
+                            }
+                            DisplayNomSousCompetence = nomDomaine + " - "+ nomHtml;
                         }
                         // mise à jour que si la réelle valeur de la chaine html est différente ($sce.trustAsHtml renvoie systématiquement une valeur différente)
                         if($sce.getTrustedHtml($scope.competencesFilter[sousCompetence.id+"_"+sousCompetence.id_enseignement].nomHtml) !== $sce.getTrustedHtml(nomHtml)) {

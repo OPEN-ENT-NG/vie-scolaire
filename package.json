@@ -1,10 +1,10 @@
 {
   "name": "VieScolaire",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "main": "gulpfile.js",
   "dependencies": {
     "angular-chart.js": "^1.1.1",
-    "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0"
+    "entcore-toolkit": "^1.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

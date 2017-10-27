@@ -33,6 +33,14 @@
                 <span><i18n><span class="no-style ng-scope">viescolaire.presences.title</span></i18n></span>
             </a>
         </header>
+        <header workflow="edt.manage"
+                ng-class="{selected: findParam('filter') == lang.translate('viescolaire.edt.title')}"
+                class="horizontal-spacing-twice">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.edt.title')]]"
+               class="horizontal-spacing">
+                <span><i18n><span class="no-style">viescolaire.edt.title</span></i18n></span>
+            </a>
+        </header>
     </div>
     <div class="twelve cell">
         <div ng-if="!hasParam('filter')">
@@ -292,6 +300,12 @@
 
             </div>
 
+        </div>
+        <div workflow="edt.manage" ng-if="findParam('filter') === lang.translate('viescolaire.edt.title')">
+            <sniplet
+                    template="settings"
+                    application="edt"
+            ></sniplet>
         </div>
     </div>
 </div>

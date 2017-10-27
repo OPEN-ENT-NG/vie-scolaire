@@ -1,4 +1,4 @@
-import { model, Model, Collection} from 'entcore/entcore';
+import { model, Model, Collection, idiom as lang } from 'entcore/entcore';
 import { getActiveStructures } from "../../utils/functions/activeStructures";
 import {Structure} from './personnel/Structure';
 
@@ -62,6 +62,7 @@ export class VieScolaire extends Model {
 export let vieScolaire = new VieScolaire();
 
 model.build = function () {
+    lang.addBundle('/edt/i18n');
     (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();
 };

@@ -56,7 +56,8 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                     .append("WHERE competencesChildren.id_parent = competences.id ")
                     .append("AND competences.id_cycle = (SELECT id_cycle FROM "+ Viescolaire.EVAL_SCHEMA +
                             ".rel_groupe_cycle WHERE id_groupe = ?) ")
-                .append(")");
+                .append(") ")
+                .append("ORDER BY competences.nom ASC");
 
         JsonArray params = new JsonArray();
         params.addString(idClasse);
@@ -124,7 +125,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
                 .append("WHERE competences_devoirs.id_devoir = ? ")
                 .append("GROUP BY competences_devoirs.id, competences.nom, competences.id_type, competences.id_parent, competences.id ")
-                .append("ORDER BY competences_devoirs.id ASC;");
+                .append("ORDER BY competences.nom ASC;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
     }
@@ -190,7 +191,8 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
             params.addString(idClasse);
         }
 
-        query.append(" GROUP BY competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle");
+        query.append(" GROUP BY competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
+        .append("ORDER BY competences.nom ASC;");
 
         Sql.getInstance().prepared(query.toString(), params , SqlResult.validResultHandler(handler));
     }

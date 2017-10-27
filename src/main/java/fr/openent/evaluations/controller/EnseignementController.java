@@ -35,7 +35,12 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
+import java.text.Collator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
@@ -58,6 +63,7 @@ public class EnseignementController extends ControllerHelper {
 
     /**
      * Récupère la liste des enseignements et ses sous-compétences
+     * Trie les enseignements par nom
      * @param request
      */
     @Get("/enseignements")
@@ -74,7 +80,27 @@ public class EnseignementController extends ControllerHelper {
                         idClasse = request.params().get("idClasse");
                     }
 
-                    _datas.putArray("enseignements", event.right().getValue());
+                    JsonArray sortedJsonArray = new JsonArray();
+                    List<JsonObject> jsonList = new ArrayList<JsonObject>();
+                    for (int i = 0; i < event.right().getValue().size(); i++) {
+                        jsonList.add((JsonObject) event.right().getValue().get(i));
+                    }
+
+                    Collections.sort(jsonList, new Comparator<JsonObject>() {
+                        private static final String KEY_NAME = "nom";
+
+                        @Override
+                        public int compare(JsonObject a, JsonObject b) {
+                            Collator frCollator = Collator.getInstance(Locale.FRENCH);
+                            return frCollator.compare(a.getString(KEY_NAME), b.getString(KEY_NAME));
+                        }
+                    });
+
+                    for (JsonObject obj : jsonList) {
+                        sortedJsonArray.add(obj);
+                    }
+
+                    _datas.putArray("enseignements", sortedJsonArray);
 
                     final String finalIdClasse = idClasse;
 

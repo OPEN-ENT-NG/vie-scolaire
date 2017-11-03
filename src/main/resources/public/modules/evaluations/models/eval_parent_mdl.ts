@@ -75,7 +75,6 @@ export class Periode extends Model {
 
     get api () {
         return {
-            calculMoyenne : '/viescolaire/eleve/',
             GET_EVALUATIONS : '/viescolaire/evaluations/devoirs?idEtablissement=',
             GET_MATIERES : '/viescolaire/matieres/infos?',
             GET_ENSEIGNANTS: '/viescolaire/enseignants?'
@@ -177,25 +176,6 @@ export class Periode extends Model {
         }
         location.replace(uri);
     }
-
-    calculMoyenne (idEleve, devoirsMatiers): Promise<number> {
-        return new Promise((resolve, reject) => {
-            if (devoirsMatiers > 0) {
-                let uri = this.api.calculMoyenne + idEleve + '/moyenne';
-                devoirsMatiers.forEach((devoir) => {
-                    uri += '&devoirs=' + devoir.id;
-                });
-                http().getJson(uri).done((res) => {
-                    if (_.has(res, "moyenne")) {
-                        this.moyenne = res.moyenne;
-                        if (resolve && typeof(resolve) === 'function') {
-                            resolve(res.moyenne);
-                        }
-                    }
-                });
-            }
-        });
-    }
 }
 
 export class Matiere extends Model {
@@ -203,6 +183,37 @@ export class Matiere extends Model {
     name: string;
     externalId: string;
     ens: any = [];
+    moyenne: number;
+
+    get api () {
+        return {
+            calculMoyenne: '/viescolaire/evaluations/eleve/'
+        }
+    }
+
+    getMoyenne (id_eleve, devoirs?) : Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (devoirs) {
+                let idDevoirsURL = "";
+
+                _.each(_.pluck(devoirs,'id'), (id) => {
+                    idDevoirsURL += "devoirs=" + id + "&";
+                });
+                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length - 1);
+
+                http().getJson(this.api.calculMoyenne + id_eleve + "/moyenne?" + idDevoirsURL).done(function (res) {
+                    if (!res.error) {
+                        this.moyenne = res.moyenne;
+                    } else {
+                        this.moyenne = "";
+                    }
+                    if(resolve && typeof(resolve) === 'function'){
+                        resolve();
+                    }
+                }.bind(this));
+            }
+        });
+    }
 }
 
 export class Evaluations extends Model {

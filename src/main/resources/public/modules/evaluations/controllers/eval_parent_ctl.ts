@@ -37,7 +37,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.periodes = evaluations.periodes;
                     $scope.searchReleve.eleve = model.me;
                     $scope.getPeriodes();
-                    $scope.loadReleveNote();
                 }else if (model.me.type === 'PERSRELELEVE') {
                     evaluations.eleves.sync().then(() => {
                         $scope.eleves = evaluations.eleves;
@@ -96,30 +95,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.showNoteLightBox.bool = false;
         };
 
-        $scope.calculMoyenne = function(idMatiere) {
+        $scope.calculMoyenneMatieres = function() {
             if ($scope.dataReleve === undefined) {
                 return ;
             }
-            let devoirsMatieres = $scope.dataReleve.devoirs.where({id_matiere : idMatiere});
-            let res = undefined;
-            if (devoirsMatieres !== undefined) {
-                // calcul de la moyenne back
-                // $scope.searchReleve.periode.calculMoyenne($scope.searchReleve.eleve.id, devoirsMatieres).then((moyenne) => {
-                //    return moyenne;
-                // });
-                let somme_produit_note_coef = 0;
-                let somme_coef = 0;
-                devoirsMatieres.forEach((devoir) => {
-                    somme_produit_note_coef = somme_produit_note_coef
-                        + (parseFloat(devoir.note) * parseInt(devoir.coefficient));
-                    somme_coef += parseInt(devoir.coefficient);
-                });
-                if (somme_coef === 0) { return ; }
-                res = (somme_produit_note_coef / somme_coef);
-            }
-            if (res !== null && res !== undefined) {
-                return  res.toString();
-            }
+
+            $scope.matieres.forEach((matiere) => {
+                let devoirsMatieres = $scope.dataReleve.devoirs.where({id_matiere : matiere.id});
+
+                if (devoirsMatieres !== undefined && matiere !== undefined) {
+                    let id_eleve;
+                    if (model.me.type === 'PERSRELELEVE') {
+                        id_eleve = $scope.searchReleve.eleve.id;
+                    } else {
+                        id_eleve = $scope.searchReleve.eleve.userId;
+                    }
+                    matiere.getMoyenne(id_eleve, devoirsMatieres).then(() => {
+                        utils.safeApply($scope);
+                    });
+                }
+            });
         };
 
         $scope.loadReleveNote = function() {
@@ -133,6 +128,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.dataReleve = periode;
                         $scope.matieres = periode.matieres;
                         utils.safeApply($scope);
+                        $scope.calculMoyenneMatieres();
                     });
                 }else {
                     periode = evaluations.periodes.findWhere({id : $scope.searchReleve.periode.id});
@@ -141,6 +137,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.matieres = periode.matieres;
                         $scope.dataReleve = periode;
                         utils.safeApply($scope);
+                        $scope.calculMoyenneMatieres();
                     });
                 }
             }
@@ -183,8 +180,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.isCurrentPeriode = function(periode) {
-            let isCurrentPeriodeBln = (periode.id === $scope.currentPeriodeId);
-            return isCurrentPeriodeBln;
+            return (periode.id === $scope.currentPeriodeId);
         };
 
         // Impression du releve de l'eleve

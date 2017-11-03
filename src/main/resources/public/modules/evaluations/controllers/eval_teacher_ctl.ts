@@ -1851,8 +1851,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {any} libelle de la matière
          */
         $scope.getLibelleMatiere = function(idMatiere) {
-            if (idMatiere == null || idMatiere === "") return "";
-            return _.findWhere($scope.matieres.all, { id: idMatiere }).name;
+            if (idMatiere == undefined || idMatiere == null || idMatiere === "") return "";
+            let matiere = _.findWhere($scope.matieres.all, {id: idMatiere});
+            if (matiere !== undefined && matiere.hasOwnProperty('name')) {
+                return matiere.name;
+            } else {
+                return '';
+            }
         };
 
         /**

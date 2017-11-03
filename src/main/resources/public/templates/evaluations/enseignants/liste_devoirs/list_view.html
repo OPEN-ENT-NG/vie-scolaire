@@ -128,18 +128,20 @@
             <div class="row">
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.subject</i18n>
-                    : <span class="italic">[[devoir.matiere.name]] <span
+                    : <span class="italic">[[getLibelleMatiere(devoir.id_matiere)]] <span
                         ng-if="devoir.id_sousmatiere !== null">([[devoir._sousmatiere_libelle]])</span></span>
                 </div>
                 <div class="six cell cell-indent expandable-content">
-                    <i18n>evaluations.test.ramenersur</i18n>
-                    : <span class="italic">
+                    <span ng-if="devoir.is_evaluated">
+                        <i18n>evaluations.test.ramenersur</i18n>
+                        : <span class="italic">
                             <span ng-if="devoir.ramener_sur === true">
                                 <i18n>evaluations.test.ramenersur.true</i18n>
                             </span>
-							<span ng-if="devoir.ramener_sur === false">
+                            <span ng-if="devoir.ramener_sur === false">
                                 <i18n>evaluations.test.ramenersur.false</i18n>
                             </span>
+                        </span>
                     </span>
                 </div>
             </div>
@@ -150,7 +152,7 @@
                 </div>
                 <div class="six cell cell-indent expandable-content">
                     <i18n>viescolaire.utils.type</i18n>
-                    : <span class="italic">[[devoir.type.nom]]</span>
+                    : <span class="italic">[[getLibelleType(devoir.id_type)]]</span>
                 </div>
             </div>
         </div>

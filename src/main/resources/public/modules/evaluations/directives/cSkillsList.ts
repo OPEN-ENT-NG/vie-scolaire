@@ -20,7 +20,8 @@ export let cSkillsList = ng.directive("cSkillsList", function(){
             devoir : '=',
             functionFilter : '=',
             functionSearch : '=',
-            enseignementsFilter :'=',
+            functionFilterCompetencesByDomaines : '=',
+            enseignementsFilter : '=',
             competencesFilter: '=',
             search: '='
         },

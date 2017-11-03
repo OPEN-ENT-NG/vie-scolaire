@@ -285,7 +285,34 @@
                     <!-- Competences filtrees / recherchees -->
 
                     <div class="nine cell twelve-mobile">
+                        <div class="filter-domaine">
+                            <div class="row drop-down-block" ng-class="{slided: displayFilterDomaine}">
+                                <div class="drop-down-label" ng-click="displayFilterDomaine = !displayFilterDomaine">
+                                    <div class="twelve cell">
+                                        <i class="arrow"></i>
+                                        <label>
+                                            <i18n>evaluations.filtre.domaines</i18n>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-hide="!displayFilterDomaine">
+                                <label class="chip multiselect margin-left">
+                                    <span><i18n>viescolaire.utils.all.none</i18n></span>
+                                    <input type="checkbox"
+                                           ng-model="bSelectAllDomaines"
+                                           ng-change="showHideDomaines()"
+                                           ng-class="{ selected: bSelectAllDomaines }"/>
+                                </label>
+                                <label class="chip margin-left checkbox-domaine"
+                                       ng-repeat="domaine in domaines" ng-class="{ selected: showCompetencesDomaine[domaine.id] }">
+                                    <span>[[domaine.code_domaine]]</span>
+                                    <input type="checkbox" ng-click="showCompetencesDomaine[domaine.id] = !showCompetencesDomaine[domaine.id];"/>
+                                </label>
+                            </div>
+                        </div>
                         <c-skills-list devoir="devoir" function-filter="enseignementsFilterFunction"
+                                       function-filter-competences-by-domaines="competencesByDomainesFilterFunction"
                                        function-search="enseignementsSearchFunction"
                                        data="devoir.enseignements"
                                        enseignements-filter="enseignementsFilter"

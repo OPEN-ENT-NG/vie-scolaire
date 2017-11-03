@@ -411,6 +411,12 @@ z-index: 1;
       }
     }
   }
+
+  .checkbox-domaine{
+    background-color: #4bafd5;
+    margin-left: 6px !important;
+  }
+
   .tableReleve {
     box-shadow: 0 0 1px 0 grey;
     tbody{
@@ -2267,5 +2273,20 @@ z-index: 1;
   }
   span.competence-eval.rounded.ng-scope {
     vertical-align: middle;
+  }
+
+  .filter-domaine {
+    margin: 0 0 0 5% !important;
+    width: 95% !important;
+    .drop-down-block,.drop-down-block .drop-down-label {
+      margin-bottom: 0px;
+    }
+    .checkbox-domaine {
+      background-color: $medium-grey !important;
+      margin-right: 4px !important;
+    }
+    label.chip.checkbox-domaine.selected {
+      background-color: $orange !important;
+    }
   }
 }

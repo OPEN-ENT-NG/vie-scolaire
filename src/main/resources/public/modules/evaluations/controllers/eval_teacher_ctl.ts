@@ -453,6 +453,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.devoirs = evaluations.devoirs;
         $scope.enseignements = evaluations.enseignements;
         $scope.bSelectAllEnseignements = false;
+        $scope.bSelectAllDomaines = false;
         $scope.matieres = evaluations.matieres;
         $scope.releveNotes = evaluations.releveNotes;
         $scope.releveNote = null;
@@ -1024,9 +1025,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *
          * @param pbInitSelected booleen indiuant si l'enseignement doit être sélectionnée ou non.
          */
+        $scope.domaines = [];
+        $scope.showCompetencesDomaine = {};
+        $scope.displayFilterDomaine = false;
         $scope.initFilter = function (pbInitSelected) {
             $scope.enseignementsFilter = {};
             $scope.competencesFilter = {};
+            $scope.domaines = [];
             for (var i = 0; i < $scope.enseignements.all.length; i++) {
                 var currEnseignement = $scope.enseignements.all[i];
                 $scope.enseignementsFilter[currEnseignement.id] = {
@@ -1034,8 +1039,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     nomHtml :currEnseignement.nom
                 };
                 // on initialise aussi les compétences
-                $scope.initFilterRec(currEnseignement.competences, pbInitSelected)
+                $scope.initFilterRec(currEnseignement.competences, pbInitSelected);
             }
+            $scope.domaines = _.sortBy($scope.domaines, "code_domaine");
         };
 
         /**
@@ -1044,21 +1050,24 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @param poCompetences la liste des compétences
          * @param pbInitSelected boolean d'initialisation
          */
+
         $scope.initFilterRec = function (poCompetences, pbInitSelected) {
             if(poCompetences !== undefined) {
                 var _b = false;
                 var comp : any = null;
                 for (var i = 0; i < poCompetences.all.length; i++) {
                     var currCompetence = poCompetences.all[i];
-                    comp = _.findWhere(poCompetences.all, {id : poCompetences.all[i].id}) !== undefined
-                    if (comp !== undefined) _b = false;
-                    $scope.competencesFilter[currCompetence.id+"_"+currCompetence.id_enseignement] = {
-                        isSelected : _b,
-                        nomHtml :  $scope.buildCompetenceNom(currCompetence),
-                        data : currCompetence
-                    };
+                    if ((currCompetence.ids_domaine_int !== undefined && currCompetence.ids_domaine_int[0].lengh === 1 && $scope.showCompetencesDomaine[currCompetence.ids_domaine_int[0]] === true) || $scope.showCompetencesDomaine.length == undefined){
+                        comp = _.findWhere(poCompetences.all, {id : poCompetences.all[i].id}) !== undefined
+                        if (comp !== undefined) _b = false;
+                        $scope.competencesFilter[currCompetence.id+"_"+currCompetence.id_enseignement] = {
+                            isSelected : _b,
+                            nomHtml :  $scope.buildCompetenceNom(currCompetence),
+                            data : currCompetence
+                        };
 
                     $scope.initFilterRec(currCompetence.competences, pbInitSelected);
+                    }
                 }
             }
         };
@@ -1071,10 +1080,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {le nom construis sous forme d'une chaine de caractères}
          */
         $scope.buildCompetenceNom = function(poCompetence) {
-
-            if(poCompetence.code_domaine !== null && poCompetence.code_domaine !== undefined) {
-                return poCompetence.code_domaine+ " - " +poCompetence.nom;
-            } else{
+            if (poCompetence.code_domaine !== null && poCompetence.code_domaine !== undefined) {
+                if (poCompetence.ids_domaine_int !== null && poCompetence.ids_domaine_int !== undefined
+                    && poCompetence.ids_domaine_int.length === 1 ) {
+                    let id_domaine = poCompetence.ids_domaine_int[0];
+                    if (_.findIndex($scope.domaines, function(domaine) {return domaine.id === id_domaine; } ) === -1) {
+                        $scope.domaines.push({"code_domaine" : poCompetence.code_domaine, "id" : id_domaine});
+                        $scope.showCompetencesDomaine[id_domaine] = true;
+                    }
+                }
+                return poCompetence.code_domaine + " - " + poCompetence.nom;
+            } else {
                 return poCompetence.nom;
             }
         };
@@ -1100,9 +1116,52 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.enseignementsFilterFunction = function (enseignement) {
             // si valeur est rensiegnée on la retourne sinon on considère qu'elle est sélectionné (gestion du CTRL-F5)
-            if($scope.enseignementsFilter !== undefined){
-                return ($scope.enseignementsFilter[enseignement.id] && $scope.enseignementsFilter[enseignement.id].isSelected);
+            if ($scope.enseignementsFilter !== undefined) {
+                if ($scope.enseignementsFilter[enseignement.id] && $scope.enseignementsFilter[enseignement.id].isSelected) {
+                    if (enseignement.ids_domaine_int !== undefined && enseignement.ids_domaine_int.length > 0 ) {
+                        for (let i = 0; i < enseignement.ids_domaine_int.length; i++) {
+                            if ($scope.showCompetencesDomaine[enseignement.ids_domaine_int[i]]) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } else {
+                        //Si un enseignement n'a pas de domaines (pas de conncompétence liés on ne l'affiche pas
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
             }
+        };
+
+        /**
+         * Methode qui determine si une compétences doit être affichée ou non
+         * (pour chaque compétence on rentre dans cette fonction et on check le booleen stocké
+         * dans le tableau  $scope.enseignementsFilter[])
+         *
+         * @param compétence à tester
+         * @returns {true si compétence est sélectionnée, false sinon.}
+         */
+        $scope.competencesByDomainesFilterFunction = function (competence) {
+            // si valeur est rensiegnée on la retourne sinon on considère qu'elle est sélectionné (gestion du CTRL-F5)
+            if ($scope.showCompetencesDomaine !== undefined) {
+                if (competence.ids_domaine_int !== undefined) {
+                    if (competence.ids_domaine_int.length === 1) {
+                        return $scope.showCompetencesDomaine[competence.ids_domaine_int[0]];
+                    } else {
+                        for (let i = 0; i < competence.ids_domaine_int.length; i++) {
+                            if ($scope.showCompetencesDomaine[competence.ids_domaine_int[i]]) {
+                                return true;
+                            }
+                        }
+                    }
+                } else {
+                    // Par défaut on affiche la compétence
+                    return true;
+                }
+            }
+            return false;
         };
 
 
@@ -1129,6 +1188,26 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.bSelectAllEnseignements = !$scope.bSelectAllEnseignements;
         };
 
+        /**
+         * affiche/masque toutes les compétences lors de la création d'un devoir.
+         *
+         * @param pbIsSelected booleen pour afficher ou masquer les compétences.
+         */
+        $scope.showDomaine = function(pbIsSelected) {
+            for (let i = 0; i < $scope.domaines.length; i++) {
+                let currdomaine = $scope.domaines[i];
+                $scope.showCompetencesDomaine[currdomaine.id] = pbIsSelected;
+            }
+        };
+
+        /**
+         * affiche/masque tous les domaines lors de la création d'un devoir.
+         *
+         */
+        $scope.showHideDomaines = function() {
+            $scope.showDomaine($scope.bSelectAllDomaines);
+            $scope.bSelectAllDomaines = !$scope.bSelectAllDomaines;
+        };
 
         /**
          *

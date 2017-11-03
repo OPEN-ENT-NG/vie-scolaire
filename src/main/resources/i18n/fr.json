@@ -323,6 +323,7 @@
   "evaluation.action.evaluate.all.students.for.skills": "Cette action va évaluer l'ensemble des élèves pour les compétences choisies.",
   "evaluation.continue": "Souhaitez vous continuer ?",
   "evaluation.skill.text.invalid": "Deux caractères maximum autorisés.",
+  "evaluations.filtre.domaines" : "Filtrer par domaines",
   "open.devoir" : "Ouvrir l'évaluation",
   "save.devoir" : "Enregistrer l'évaluation",
   "end.saisie" : "Il n'est plus possible de créer une évaluation sur cette période",

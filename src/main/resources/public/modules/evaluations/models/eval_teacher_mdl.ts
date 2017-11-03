@@ -1751,6 +1751,7 @@ export class Competence extends Model {
     id_competence : number;
     nom : string;
     code_domaine : string;
+    ids_domaine : string;
     composer : any;
 
     constructor () {

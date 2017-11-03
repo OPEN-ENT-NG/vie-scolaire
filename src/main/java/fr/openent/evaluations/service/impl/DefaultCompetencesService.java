@@ -118,7 +118,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
     public void getDevoirCompetences(Long devoirId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("SELECT string_agg(domaines.codification, ', ') as code_domaine, competences.id as id_competence, competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
+        query.append("SELECT string_agg(domaines.codification, ', ') as code_domaine, string_agg( cast (domaines.id as text), ',') as ids_domaine, competences.id as id_competence, competences_devoirs.*, competences.nom as nom, competences.id_type as id_type, competences.id_parent as id_parent ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ON (competences.id = competences_devoirs.id_competence ) ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_domaines ON (competences.id = rel_competences_domaines.id_competence) ")
@@ -173,7 +173,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
-        query.append("SELECT DISTINCT string_agg(domaines.codification, ', ') as code_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
+        query.append("SELECT DISTINCT string_agg(domaines.codification, ', ') as code_domaine, string_agg( cast (domaines.id as text), ',') as ids_domaine, competences.id, competences.nom, competences.id_parent, competences.id_type, rel_competences_enseignements.id_enseignement, competences.id_cycle ")
 
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".competences ")
                 .append("INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".rel_competences_enseignements ON (competences.id = rel_competences_enseignements.id_competence) ");

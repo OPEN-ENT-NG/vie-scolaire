@@ -139,6 +139,7 @@ public class EnseignementController extends ControllerHelper {
                                                                     _competence_2.getInteger("id_enseignement").equals(idEnseignement)) {
                                                                 // J'ajoute la compétence de niveau 2 dans la liste de compétences de la compétence de niveau 1
                                                                 _competence_1_competences_l2.addObject(_competence_2);
+                                                                setIdsDomaineFromCompetence(_competence_2,_competence_1,enseignement);
                                                             }
                                                         }
                                                         // Dans la compétence de niveau 1, j'ajoute la liste de compétences de niveau 2
@@ -166,5 +167,51 @@ public class EnseignementController extends ControllerHelper {
                 }
             }
         });
+    }
+
+    private static final String mField_Ids_Domaine = "ids_domaine";
+    private static final String mField_Ids_Domaine_Int = "ids_domaine_int";
+
+    /**
+     * Si la compétence est liée à des ids domaine on transforme cet objet en une liste de d'identifiants
+     * @param pCompetence
+     */
+    private void setIdsDomaineFromCompetence(JsonObject pCompetence,JsonObject pConnaissance, JsonObject pEnseignement) {
+        if(pCompetence.getString(mField_Ids_Domaine) != null
+                && !pCompetence.getString(mField_Ids_Domaine).isEmpty()){
+            String[] vIdsDomaine = pCompetence.getString(mField_Ids_Domaine).split(",");
+            JsonArray vJsonArrayIdsDomaine = new JsonArray();
+            for (int h = 0; h< vIdsDomaine.length; h++){
+                vJsonArrayIdsDomaine.addNumber(Long.valueOf(vIdsDomaine[h]));
+            }
+            if(vJsonArrayIdsDomaine.size()>0){
+                pCompetence.putArray(mField_Ids_Domaine_Int,vJsonArrayIdsDomaine);
+
+                JsonArray tempArrayConnaissances;
+                JsonArray tempArrayEnseignement;
+                if(pConnaissance.getArray(mField_Ids_Domaine_Int) != null){
+                    tempArrayConnaissances = pConnaissance.getArray(mField_Ids_Domaine_Int);
+                }else{
+                    tempArrayConnaissances = new JsonArray();
+                }
+                if(pEnseignement.getArray(mField_Ids_Domaine_Int) != null){
+                    tempArrayEnseignement = pEnseignement.getArray(mField_Ids_Domaine_Int);
+                }else{
+                    tempArrayEnseignement = new JsonArray();
+                }
+                for (int i = 0 ; i < vJsonArrayIdsDomaine.size();i++){
+                    Long idDomaine = (Long) vJsonArrayIdsDomaine.get(i);
+                    if(!tempArrayConnaissances.contains(idDomaine)){
+                        tempArrayConnaissances.addNumber(idDomaine);
+                    }
+                    if(!tempArrayEnseignement.contains(idDomaine)){
+                        tempArrayEnseignement.addNumber(idDomaine);
+                    }
+                }
+
+                pConnaissance.putArray(mField_Ids_Domaine_Int,tempArrayConnaissances);
+                pEnseignement.putArray(mField_Ids_Domaine_Int,tempArrayEnseignement);
+            }
+        }
     }
 }

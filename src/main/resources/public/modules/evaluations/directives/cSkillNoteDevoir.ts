@@ -2,6 +2,7 @@
  * Created by ledunoiss on 21/09/2016.
  */
 import {ng, appPrefix} from 'entcore/entcore';
+import * as utils from '../utils/teacher';
 
 export let $ = require('jquery');
 
@@ -132,6 +133,9 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
                 if (!$scope.disabled) {
                     if ($scope.modified === true) {
                         $scope.competence.save();
+                        $scope.currentDevoir.calculStats().then(() => {
+                            utils.safeApply($scope);
+                        });
                         $scope.modified = false;
                     }
                 }

@@ -591,7 +591,7 @@ export class ReleveNote extends  Model implements IModel{
                     if (d) {
                         d.statistiques = devoir;
                         if(!d.percent) {
-                            evaluations.devoirs.getPercentDone(d.id).then(() => {
+                            evaluations.devoirs.getPercentDone(d).then(() => {
                                 d.statistiques.percentDone = d.percent;
                             });
                         } else {
@@ -654,8 +654,9 @@ export class ReleveNote extends  Model implements IModel{
                             if (d !== undefined) {
                                 d.statistiques = devoir;
                                 if (nbN !== undefined) {
-                                    d.statistiques.percentDone = Math.round((nbN.evaluations.length / nbEleves) * 100);
-                                    d.percent = d.statistiques.percentDone;
+                                    that.devoirs.getPercentDone(d).then(() => {
+                                        d.statistiques.percentDone = d.percent;
+                                    });
                                     if (resolve && typeof(resolve) === 'function') {
                                         resolve();
                                     }
@@ -1306,7 +1307,7 @@ export class Devoir extends Model implements IModel{
                     that.statistiques = res;
                     let id = [];
                     id.push(that.id);
-                    evaluations.devoirs.getPercentDone(id).then(() => {
+                    evaluations.devoirs.getPercentDone(that).then(() => {
                         that.statistiques.percentDone = _.findWhere(evaluations.structure.devoirs.all,{id : that.id}).percent;
                     });
                 } else {
@@ -1365,7 +1366,10 @@ export class Devoir extends Model implements IModel{
                 http().postJson(this.api.saveCompetencesNotes, {data : _post}).done(function (res) {
                     if (_post.length === _data.length) {
                         that.syncCompetencesNotes().then(() => {
-                            evaluations.trigger('apply');
+                            evaluations.devoirs.getPercentDone(that).then(()=> {
+                                that.statistiques.percentDone = that.percent;
+                                evaluations.trigger('apply');
+                            });
                         });
                     } else {
                         var _put = _.filter(_data, function (competence) {
@@ -1379,7 +1383,10 @@ export class Devoir extends Model implements IModel{
                             url = url.slice(0, -1);
                             http().putJson(url, {data : _put}).done(function (res) {
                                 that.syncCompetencesNotes().then(() => {
-                                    evaluations.trigger('apply');
+                                    evaluations.devoirs.getPercentDone(that).then(()=> {
+                                        that.statistiques.percentDone = that.percent;
+                                        evaluations.trigger('apply');
+                                    });
                                 });
                             });
                         }
@@ -1397,7 +1404,10 @@ export class Devoir extends Model implements IModel{
                     url = url.slice(0, -1);
                     http().putJson(url, {data : _put}).done(function (res) {
                         that.syncCompetencesNotes().then(() => {
-                            evaluations.trigger('apply');
+                            evaluations.devoirs.getPercentDone(that).then(()=> {
+                                that.statistiques.percentDone = that.percent;
+                                evaluations.trigger('apply');
+                            });
                         });
                     });
                 }
@@ -1410,7 +1420,10 @@ export class Devoir extends Model implements IModel{
             if (_delete.length > 0) {
                 http().delete(this.api.deleteCompetencesNotes, {id : _delete}).done(function (res) {
                     that.syncCompetencesNotes().then(() => {
-                        evaluations.trigger('apply');
+                        evaluations.devoirs.getPercentDone(that).then(()=> {
+                            that.statistiques.percentDone = that.percent;
+                            evaluations.trigger('apply');
+                        });
                     });
                 });
             }
@@ -1493,22 +1506,52 @@ export class DevoirsCollection {
     }
 
 
-    getPercentDone (idDevoirs?) : Promise<any> {
+    getPercentDone (devoir?) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if(idDevoirs.length > 0 && evaluations.structure.synchronized.devoirs) {
-                let idDevoirsURL = "?";
-                _.each(idDevoirs, (id) => {
-                    idDevoirsURL += "devoirs=" + id + "&";
-                });
-                idDevoirsURL = idDevoirsURL.slice(0, idDevoirsURL.length - 1);
-                http().getJson(this.api.done + idDevoirsURL)
+            if(devoir && evaluations.structure.synchronized.devoirs) {
+                let url = this.api.done + "?idDevoir="+devoir.id + "&is_evaluated=" +devoir.is_evaluated;
+                url += "&idGroupe=" + devoir.id_groupe;
+                url += "&has_competence=" + (devoir.competences.all.length > 0);
+                /*
+                if(front){
+                    let calculatedFrontPercent = 0;
+                    let _devoir = _.findWhere(this.all, {id : devoir.id});
+
+                    let is_evaluated = devoir.is_evaluated;
+                    let has_competence = devoir.nbcompetences > 0 ? true : false;
+                    let nbEleves = devoir.eleves.all.length;
+                    let nbNotesEtAnnotations = devoir.eleves.filter((eleve) => { return eleve.evaluation.valeur != "" }).length;
+                    let nbNotes = devoir.eleves.filter((eleve) => { return (parseInt(eleve.evaluation.valeur) > 0)}).length;
+                    let nbAnnotations = nbNotesEtAnnotations - nbNotes;
+                    let nbCompetences = devoir.eleves.filter((eleve) => {
+                        return eleve.evaluation.competenceNotes.filter(
+                            (cnote) => {return cnote.evaluation!=-1}).length > 0
+                    }).length;
+
+                    if (is_evaluated && !has_competence) {
+                        calculatedFrontPercent = Math.round((nbNotesEtAnnotations* 100 / nbEleves));
+                    }
+                    else if (is_evaluated && has_competence){
+                        calculatedFrontPercent = Math.round((((nbNotes+nbCompetences)/2 + nbAnnotations)*100/(nbEleves)));
+                    }
+                    else if (has_competence && !is_evaluated) {
+                        calculatedFrontPercent = Math.round((nbCompetences * 100 / nbEleves ));
+                    }
+
+                    if (_devoir !== undefined) {
+                        _devoir.percent = calculatedFrontPercent;
+                        model.trigger('apply');
+                        resolve();
+                    }
+
+                }
+                */
+                http().getJson(url)
                     .done((res) => {
-                        for (let id of idDevoirs) {
-                            let calculatedPercent = _.findWhere(res, {id : id});
-                            let devoir = _.findWhere(this.all, {id : id});
-                            if (devoir !== undefined) {
-                                devoir.percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
-                            }
+                        let calculatedPercent = _.findWhere(res, {id : devoir.id});
+                        let _devoir = _.findWhere(this.all, {id : devoir.id});
+                        if (_devoir !== undefined) {
+                            _devoir.percent = calculatedPercent === undefined ? 0 : calculatedPercent.percent;
                         }
                         model.trigger('apply');
                         resolve();
@@ -2104,7 +2147,7 @@ export class SuiviCompetence extends Model implements IModel{
             var that = this;
             http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data){
                 _.map(data, (_d) => {
-                   _d.couleur = mapCouleur[_d.ordre -1];
+                    _d.couleur = mapCouleur[_d.ordre -1];
                 });
                 that.tableConversions.load(data);
 

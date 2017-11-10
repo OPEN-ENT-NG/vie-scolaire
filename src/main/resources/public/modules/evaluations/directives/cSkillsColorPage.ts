@@ -62,6 +62,7 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                     $scope.selectedEleves.list = [];
                     $scope.selectedEleves.all = false;
                     $scope.devoir.saveCompetencesNotes(_datas);
+
                     $scope.annuler();
                 //}
             };
@@ -89,6 +90,7 @@ export let cSkillsColorPage = ng.directive("cSkillsColorPage", function(){
                 }
                 $scope.eval = evaluation;
                 $scope.opened.lightbox = true;
+                $scope.devoir.calculStats();
             };
             $scope.annuler = function () {
                 $scope.text = lang.translate('evaluation.action.confirme.initialise.skills');

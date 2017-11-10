@@ -70,11 +70,9 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                                         devoir.id_groupe) && devoir.is_evaluated === true;
                             }), 'id');
                         }
-                        evaluations.structure.devoirs.getPercentDone(idDevoirs).then(() => {
-                            resolve($scope.devoirs.filter((devoir) => {
-                                return (devoir.percent < 100 && _.contains(idDevoirs, devoir.id));
-                            }));
-                        });
+                        resolve($scope.devoirs.filter((devoir) => {
+                            return (devoir.percent < 100 && _.contains(idDevoirs, devoir.id));
+                         }));
                     };
                     if (!evaluations.structure.synchronized.devoirs) {
                         evaluations.structure.devoirs.one('sync', function () {

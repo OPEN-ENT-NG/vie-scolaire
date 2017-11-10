@@ -921,7 +921,8 @@ z-index: 1;
   }
   .statistiques-devoir{
     &.opened{
-      height: 152px;
+      height: auto !important;
+      max-height: 152px;
     }
   }
   .children-list{

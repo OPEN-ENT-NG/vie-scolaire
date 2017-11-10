@@ -487,7 +487,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
         query.append("SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
-                .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, ")
+                .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, devoirs.percent, ")
                 .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
                 .append("type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
@@ -537,7 +537,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
         query.append(" SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe , rel_devoirs_groupes.type_groupe , devoirs.is_evaluated, " )
-                .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
+                .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, devoirs.percent, ")
                 .append("   devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur,  ")
                 .append("   type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date,  ")
                 .append("   type.nom as _type_libelle, periode.libelle as _periode_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
@@ -664,16 +664,18 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbNotesDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+    public void getNbNotesDevoirs(UserInfos user, Long idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
 
         query.append("SELECT count(notes.id) as nb_notes , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes,"+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
-                .append("WHERE notes.id_devoir = devoirs.id ")
+                .append("WHERE notes.id_devoir = devoirs.id AND "+ Viescolaire.EVAL_NOTES_TABLE + ".id_eleve")
+                .append(" NOT IN (SELECT " + Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ".id_user FROM ")
+                .append(Viescolaire.VSCO_SCHEMA+"."+ Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ") " )
                 .append("AND rel_devoirs_groupes.id_devoir = devoirs.id ")
-                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs) + " ");
+                .append("AND devoirs.id = ? ");
         if(!isChefEtab) {
             query.append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
                     .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
@@ -693,9 +695,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         JsonArray values =  new JsonArray();
 
         //Ajout des id désirés
-        for (Long l : idDevoirs) {
-            values.addNumber(l);
-        }
+        values.addNumber(idDevoir);
         if(!isChefEtab) {
             // Ajout des params pour les devoirs dont on est le propriétaire
             values.add(user.getUserId());
@@ -714,7 +714,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void getNbAnnotationsDevoirs(UserInfos user, Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+    public void getNbAnnotationsDevoirs(UserInfos user, Long idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
         boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
@@ -722,10 +722,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         query.append("SELECT count(rel_annotations_devoirs.id_annotation) AS nb_annotations , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
                 .append("WHERE rel_devoirs_groupes.id_devoir = devoirs.id ")
-                .append("AND rel_annotations_devoirs.id_devoir = devoirs.id ")
-                .append("AND devoirs.id IN " + Sql.listPrepared(idDevoirs) + " ");
+                .append("AND rel_annotations_devoirs.id_devoir = devoirs.id AND rel_annotations_devoirs.id_eleve")
+                .append(" NOT IN (SELECT " + Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ".id_user FROM ")
+                .append(Viescolaire.VSCO_SCHEMA+"."+ Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ") " )
+                .append("AND devoirs.id = ? ");
+
         if(!isChefEtab) {
-            query.append("AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
+            query.append(" AND (devoirs.owner = ? OR ") // devoirs dont on est le propriétaire
                     .append("devoirs.owner IN (SELECT DISTINCT id_titulaire ") // ou dont l'un de mes tiulaires le sont (on regarde sur tous mes établissments)
                     .append("FROM " + Viescolaire.EVAL_SCHEMA + ".rel_professeurs_remplacants ")
                     .append("INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON devoirs.id_etablissement = rel_professeurs_remplacants.id_etablissement  ")
@@ -743,9 +746,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         JsonArray values =  new JsonArray();
 
         //Ajout des id désirés
-        for (Long l : idDevoirs) {
-            values.addNumber(l);
-        }
+        values.addNumber(idDevoir);
         if(!isChefEtab) {
             // Ajout des params pour les devoirs dont on est le propriétaire
             values.add(user.getUserId());
@@ -879,7 +880,6 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 });
     }
 
-
     public void getNbCompetencesDevoirs(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
@@ -893,6 +893,58 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         //Ajout des id désirés
         for (Long idDevoir : idDevoirs) {
             values.addNumber(idDevoir);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    public void getNbCompetencesDevoirsByEleve(Long idDevoir, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SELECT count(competences_notes.id_competence) AS nb_competences, id_eleve, id_devoir as id" )
+                .append(" FROM  "+ Viescolaire.EVAL_SCHEMA +'.'+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE)
+                .append(" WHERE id_devoir = ?  AND "+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE + ".id_eleve")
+                .append(" NOT IN (SELECT " + Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ".id_user FROM ")
+                .append(Viescolaire.VSCO_SCHEMA+"."+ Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ") " )
+                .append(" GROUP BY (id_eleve, id_devoir)");
+
+        JsonArray values =  new JsonArray();
+        values.addNumber(idDevoir);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    public void updatePercent(Long idDevoir, Integer percent, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append(" UPDATE " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.DEVOIR_TABLE )
+                .append(" SET percent = ? ")
+                .append(" WHERE id = ? ");
+
+        JsonArray values =  new JsonArray();
+        values.addNumber(percent);
+        values.addNumber(idDevoir);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+
+    }
+
+    public void getDevoirsInfos(Long[] idDevoirs, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values =  new JsonArray();
+
+        query.append("SELECT id, is_evaluated, CASE WHEN nb_competences > 0 THEN TRUE ELSE FALSE END AS ")
+                .append("has_competences, id_groupe FROM notes.rel_devoirs_groupes,")
+                .append(" (SELECT count(competences_devoirs.id_devoir) AS nb_competences,")
+                .append(" devoirs.id,devoirs.is_evaluated FROM  notes.devoirs LEFT OUTER JOIN notes.competences_devoirs")
+                .append(" ON devoirs.id = competences_devoirs.id_devoir  GROUP by (devoirs.id) ) AS res ")
+                .append(" WHERE id = id_devoir");
+
+        if (idDevoirs != null) {
+            query.append(" AND id IN " + Sql.listPrepared(idDevoirs) + " ");
+            //Ajout des id désirés
+            for (Long l : idDevoirs) {
+                values.addNumber(l);
+            }
         }
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

@@ -240,15 +240,21 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.modificationDevoir = false;
                         if(!$scope.structure.synchronized.classes) {
                             $scope.structure.classes.sync();
+                            /* TODO PERCENT DONE
                             evaluations.structure.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id')).then(() => {
                                 utils.safeApply($scope);
                             });
+                            */
+                            utils.safeApply($scope);
                             openTemplates();
                         }else{
                             openTemplates();
                         }
                     }else{
+                        /* TODO PERCENT DONE
                         evaluations.devoirs.getPercentDone(_.pluck(evaluations.devoirs.all,'id'));
+                        */
+                        utils.safeApply($scope);
                         openTemplates();
                     }
                 }
@@ -1588,7 +1594,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 evaluations.structure.devoirs.sync().then(() => {
                     if ($location.path() === "/devoir/create") {
                         if (res !== undefined) {
-                            $location.path("/devoir/" + res.id);
+                            let _devoir = evaluations.structure.devoirs.findWhere({id : res.id});
+                            evaluations.structure.devoirs.getPercentDone(_devoir).then(() => {
+                                utils.safeApply($scope);
+                                $location.path("/devoir/" + res.id);
+                            });
                         }
 
                     } else if ($location.path() === "/releve") {

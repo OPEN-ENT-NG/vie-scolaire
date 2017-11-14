@@ -1,4 +1,21 @@
 body.evaluations {
+  .all.selected {
+    background: grey !important;
+  }
+
+  .all {
+    background: $orange;
+  }
+  .selectable-list li:hover {
+    background: $white;
+    color: $orange;
+    border-bottom-color: grey;
+  }
+  .selectable-list li.selected:hover {
+    background: $orange !important;
+    color: $white !important;
+    border-bottom-color: grey;
+  }
   nav.vertical.floating.hash-magnet {
     padding-top: 0px;
     width: 100%;

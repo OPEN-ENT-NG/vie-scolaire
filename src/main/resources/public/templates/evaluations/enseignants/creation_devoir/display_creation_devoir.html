@@ -268,9 +268,9 @@
                         <!--<button ng-click="selectAllEnseignements()" style="height: 25px" class="instantButtons select right-magnet" tooltip="viescolaire.utils.select.all"></button>-->
                         <!--</div>-->
 
-                        <label class="chip multiselect right-magnet margin-left">
+                        <label class="chip multiselect right-magnet margin-left all" ng-class="{ selected: bSelectAllEnseignements }">
                             <span><i18n>viescolaire.utils.all.none</i18n></span>
-                            <input type="checkbox" ng-model="bSelectAllEnseignements" ng-change="selectUnselectEnseignements()" ng-class="{ selected: bSelectAllEnseignements }"/>
+                            <input type="checkbox" ng-model="bSelectAllEnseignements" ng-change="selectUnselectEnseignements()" />
                         </label>
 
                         <ul class="selectable-list twelve-mobile">

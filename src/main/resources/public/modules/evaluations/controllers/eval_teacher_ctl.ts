@@ -1032,6 +1032,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.enseignementsFilter = {};
             $scope.competencesFilter = {};
             $scope.domaines = [];
+            $scope.showCompetencesDomaine = {};
+            $scope.displayFilterDomaine = false;
             for (var i = 0; i < $scope.enseignements.all.length; i++) {
                 var currEnseignement = $scope.enseignements.all[i];
                 $scope.enseignementsFilter[currEnseignement.id] = {
@@ -1126,7 +1128,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                         return false;
                     } else {
-                        //Si un enseignement n'a pas de domaines (pas de conncompétence liés on ne l'affiche pas
+                        // Si un enseignement n'a pas de domaines (pas de conncompétence lié on ne l'affiche pas
                         return false;
                     }
                 } else {
@@ -1134,6 +1136,28 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
+
+        $scope.checkDomainesSelected = function (idDomaine) {
+            $scope.showCompetencesDomaine[idDomaine] = !$scope.showCompetencesDomaine[idDomaine];
+            let isAllDomainesSelected = true;
+            let isAllDomainesUnSelected = true;
+            for (let i = 0; i < $scope.domaines.length; i++) {
+                if ($scope.showCompetencesDomaine[$scope.domaines[i].id]) {
+                    isAllDomainesUnSelected = false;
+                } else {
+                    isAllDomainesSelected = false;
+                }
+            }
+
+            if (isAllDomainesSelected) {
+                $scope.bSelectAllDomaines = false;
+            }
+
+            if (isAllDomainesUnSelected) {
+                $scope.bSelectAllDomaines = true;
+            }
+        }
+
 
         /**
          * Methode qui determine si une compétences doit être affichée ou non

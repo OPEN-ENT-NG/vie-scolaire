@@ -307,7 +307,7 @@
                                 <label class="chip margin-left checkbox-domaine"
                                        ng-repeat="domaine in domaines" ng-class="{ selected: showCompetencesDomaine[domaine.id] }">
                                     <span>[[domaine.code_domaine]]</span>
-                                    <input type="checkbox" ng-click="showCompetencesDomaine[domaine.id] = !showCompetencesDomaine[domaine.id];"/>
+                                    <input type="checkbox" ng-click="checkDomainesSelected(domaine.id);"/>
                                 </label>
                             </div>
                         </div>

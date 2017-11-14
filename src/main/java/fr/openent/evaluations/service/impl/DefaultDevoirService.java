@@ -903,7 +903,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
         query.append("SELECT count(competences_notes.id_competence) AS nb_competences, id_eleve, id_devoir as id" )
                 .append(" FROM  "+ Viescolaire.EVAL_SCHEMA +'.'+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE)
-                .append(" WHERE id_devoir = ?  AND "+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE + ".id_eleve")
+                .append(" WHERE id_devoir = ?  AND "+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE + ".evaluation >= 0 ")
+                .append(" AND "+ Viescolaire.EVAL_COMPETENCES_NOTES_TABLE + ".id_eleve")
                 .append(" NOT IN (SELECT " + Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ".id_user FROM ")
                 .append(Viescolaire.VSCO_SCHEMA+"."+ Viescolaire.VSCO_PERSONNES_SUPP_TABLE + ") " )
                 .append(" GROUP BY (id_eleve, id_devoir)");

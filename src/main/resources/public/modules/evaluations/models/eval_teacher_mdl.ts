@@ -1838,7 +1838,7 @@ export class CompetenceNote extends Model implements IModel {
         return new Promise((resolve, reject) => {
             http().postJson(this.api.create, this.toJSON()).done((data) => {
                 this.id = data.id;
-                if (resolve && (typeof (resolve) === 'undefined')) {
+                if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data.id);
                 }
             });
@@ -1848,7 +1848,7 @@ export class CompetenceNote extends Model implements IModel {
     update(): Promise<any> {
         return new Promise((resolve, reject) => {
             http().putJson(this.api.update, this.toJSON()).done(function (data) {
-                if (resolve && (typeof (resolve) === 'undefined')) {
+                if (resolve && (typeof (resolve) === 'function')) {
                     resolve();
                 }
             });
@@ -1860,7 +1860,7 @@ export class CompetenceNote extends Model implements IModel {
             let that = this;
             http().delete(this.api.delete).done(function (data) {
                 delete that.id;
-                if (resolve && (typeof (resolve) === 'undefined')) {
+                if (resolve && (typeof (resolve) === 'function')) {
                     resolve();
                 }
             });
@@ -1871,14 +1871,22 @@ export class CompetenceNote extends Model implements IModel {
         return new Promise((resolve, reject) => {
             if (!this.id) {
                 this.create().then((data) => {
-                    if (resolve && (typeof (resolve) === 'undefined')) {
+                    if (resolve && (typeof (resolve) === 'function')) {
                         resolve(data);
                     }
                 });
-            } else if (this.evaluation == -1) {
-                this.delete();
+            } else if (this.evaluation === -1) {
+                this.delete().then((data) => {
+                    if (resolve && (typeof (resolve) === 'function')) {
+                        resolve();
+                    }
+                });
             } else {
-                this.update();
+                this.update().then((data) => {
+                    if (resolve && (typeof (resolve) === 'function')) {
+                        resolve();
+                    }
+                });
             }
         });
     }

@@ -129,14 +129,16 @@ export let cSkillNoteDevoir = ng.directive('cSkillNoteDevoir', function($compile
                 }
             };
 
-            $scope.saveCompetence = function(){
+            $scope.saveCompetence = function() {
                 if (!$scope.disabled) {
                     if ($scope.modified === true) {
-                        $scope.competence.save();
-                        $scope.currentDevoir.calculStats().then(() => {
-                            utils.safeApply($scope);
+                        $scope.competence.save().then(() => {
+                            $scope.currentDevoir.calculStats().then(() => {
+                                utils.safeApply($scope);
+                            });
+                            $scope.modified = false;
+                            $scope.competence.oldValeur = $scope.competence.evaluation;
                         });
-                        $scope.modified = false;
                     }
                 }
             };

@@ -39,6 +39,7 @@ import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.http.filter.SuperAdminFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
@@ -612,9 +613,18 @@ public class DevoirController extends ControllerHelper {
                                                     }
 
                                                     JsonObject o = new JsonObject();
-                                                    if( nbElevesByGroupe.get(idGroupe) != 0) {
-                                                        final Integer percent = (int) (nbNotesByDevoir.get(idDevoir)
-                                                                * 100 / nbElevesByGroupe.get(idGroupe));
+
+                                                    if( nbElevesByGroupe.get(idGroupe) != Integer.valueOf(0)) {
+                                                        final float nbElevesEvalues = nbNotesByDevoir.get(idDevoir);
+                                                        final Integer nbEleves = nbElevesByGroupe.get(idGroupe);
+
+                                                        int _percent = 0;
+                                                        if(nbEleves != Integer.valueOf(0) && nbEleves != null){
+                                                            _percent = (int) (nbElevesEvalues*100/ nbEleves);
+                                                        }
+
+                                                        final Integer percent = _percent;
+
                                                         o.putNumber("id", idDevoir);
                                                         o.putNumber("percent", percent);
                                                         result.add(o);
@@ -673,7 +683,8 @@ public class DevoirController extends ControllerHelper {
 
 
     @Get("/devoirs/updatedone")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SuperAdminFilter.class)
     @ApiDoc("Met à jour le pourcentage réalisé pour chaque devoir")
     public void updatePercentDone (final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -711,7 +722,7 @@ public class DevoirController extends ControllerHelper {
                                     JsonObject o = devoirsInfos.get(i);
                                     if (o != null) {
                                         updatePercentageWithNotes (Long.valueOf(o.getInteger("id")),
-                                                user,o.getString("id_groupe"),
+                                                null,o.getString("id_groupe"),
                                                 nbNotesByDevoir,String.valueOf(o.getBoolean("is_evaluated")),request,
                                                 String.valueOf(o.getBoolean("has_competence")), false, i, devoirsInfos.size()-1);
                                     }

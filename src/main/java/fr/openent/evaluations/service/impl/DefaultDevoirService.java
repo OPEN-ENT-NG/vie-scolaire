@@ -667,7 +667,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbNotesDevoirs(UserInfos user, Long idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
+        // Si l'utilisateur est null c'est qu'on essait de mettre à jour le taux de completude des devoirs
+        boolean isChefEtab = (user!= null)?(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")):true;
 
         query.append("SELECT count(notes.id) as nb_notes , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes,"+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
@@ -717,7 +718,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getNbAnnotationsDevoirs(UserInfos user, Long idDevoir, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        boolean isChefEtab = user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR");
+        // Si l'utilisateur est null c'est qu'on essait de mettre à jour le taux de completude des devoirs
+        boolean isChefEtab = (user!= null)?(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")):true ;
 
         query.append("SELECT count(rel_annotations_devoirs.id_annotation) AS nb_annotations , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )

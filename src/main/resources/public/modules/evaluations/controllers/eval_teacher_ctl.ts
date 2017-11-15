@@ -2314,6 +2314,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             if ($location.$$path === '/releve') {
                 $scope.openLeftMenu("openedDevoirInfo", false);
+                if ($scope.informations.devoir != undefined && $scope.informations.devoir.statistiques == undefined) {
+                    $scope.informations.devoir.statistiques = {
+                        percentDone : $scope.informations.devoir.percent
+                    };
+                }
+                utils.safeApply($scope);
             }
         };
 

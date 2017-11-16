@@ -571,7 +571,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 .append("   and id_groupe is not null ")
                 .append("   GROUP BY devoirs.id, devoirs.name, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, devoirs.is_evaluated, users.username,  ")
                 .append("   devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur,  ")
-                .append("   devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, rel_type_periode.type, type.nom  ")
+                .append("   devoirs.id_etat, devoirs.date_publication, devoirs.date, devoirs.id_matiere, rel_devoirs_groupes.type_groupe , devoirs.coefficient, devoirs.ramener_sur, type_sousmatiere.libelle, type.nom  ")
                 .append("   ORDER BY devoirs.date ASC; ");
         for (int i = 0; i < user.getStructures().size(); i++) {
             values.add(user.getStructures().get(i));

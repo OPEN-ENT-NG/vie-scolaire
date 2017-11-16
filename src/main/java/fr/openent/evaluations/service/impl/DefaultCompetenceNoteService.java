@@ -26,8 +26,8 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
-import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
@@ -47,18 +47,42 @@ public class DefaultCompetenceNoteService extends SqlCrudService implements fr.o
     }
 
     @Override
-    public void createCompetenceNote(JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
-        super.create(competenceNote, user, handler);
-        /*StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
-            query.append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_notes (id_devoir, id_competence, evaluation, owner, id_eleve, created) VALUES (?, ?, ?, ?, ?, now());");
-            values.addNumber(competenceNote.getNumber("id_devoir"))
-                    .addNumber(competenceNote.getNumber("id_competence"))
-                    .addNumber(competenceNote.getNumber("evaluation"))
-                    .add(user.getUserId())
-                    .add(competenceNote.getString("id_eleve"));
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validRowsResultHandler(handler));*/
+    public void createCompetenceNote(final JsonObject competenceNote, final UserInfos user, final Handler<Either<String, JsonObject>> handler) {
+        String query = "SELECT id FROM " +  Viescolaire.EVAL_SCHEMA +".competences_notes " +
+                "WHERE id_competence = ? AND id_devoir = ? AND id_eleve = ?;";
+        JsonArray params = new JsonArray()
+                .addNumber(competenceNote.getNumber("id_competence"))
+                .addNumber(competenceNote.getNumber("id_devoir"))
+                .addString(competenceNote.getString("id_eleve"));
+        Sql.getInstance().prepared(query, params, new Handler<Message<JsonObject>>() {
+            public void handle(Message<JsonObject> result) {
+                JsonArray values = result.body().getArray("results");
+                if (values.size() == 0) {
+                    add(competenceNote, user, handler);
+                } else {
+                    update(competenceNote, handler);
+                }
+            }
+        });
     }
+
+    private void add(JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {
+        super.create(competenceNote, user, handler);
+    }
+
+    private void update(JsonObject competenceNote, Handler<Either<String, JsonObject>> handler) {
+        String query = "UPDATE notes.competences_notes SET evaluation = ? " +
+                "WHERE id_competence = ? AND id_devoir = ? AND id_eleve = ?;";
+
+        JsonArray params = new JsonArray()
+                .addNumber(competenceNote.getNumber("evaluation"))
+                .addNumber(competenceNote.getNumber("id_competence"))
+                .addNumber(competenceNote.getNumber("id_devoir"))
+                .addString(competenceNote.getString("id_eleve"));
+
+        Sql.getInstance().prepared(query, params, SqlResult.validRowsResultHandler(handler));
+    }
+
 
     @Override
     public void updateCompetenceNote(String id, JsonObject competenceNote, UserInfos user, Handler<Either<String, JsonObject>> handler) {

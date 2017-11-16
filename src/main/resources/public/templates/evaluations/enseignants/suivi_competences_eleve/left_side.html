@@ -46,7 +46,7 @@
         <label class="select"
                ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
             <select ng-disabled="search.classe === '*' || search.classe === null" ng-model="search.eleve"
-                    ng-options="eleve as (eleve.lastName + ' ' + eleve.firstName) for eleve in search.classe.eleves.all"
+                    ng-options="eleve as (eleve.lastName + ' ' + eleve.firstName) for eleve in search.classe.eleves.all track by eleve.id"
                     ng-change="selectSuivi(route.current.$$route.originalPath)">
                 <option value="" class="header-opt">[[translate('viescolaire.utils.student')]]</option>
             </select>

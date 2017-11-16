@@ -1371,7 +1371,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.devoir.id_matiere = $scope.searchOrFirst("matiere", $scope.structure.matieres.all).id;
                 $scope.devoir.id_type = $scope.searchOrFirst("type", $scope.structure.types.all).id;
 
-                $scope.devoir.id_periode = await $scope.getCurrentPeriode(_.findWhere($scope.structure.classes.all, {id: $scope.devoir.id_groupe})).id_type;
+                $scope.getCurrentPeriode(_.findWhere($scope.structure.classes.all, {id: $scope.devoir.id_groupe})).then(function (res)  {
+                    $scope.devoir.id_periode = res.id_type;
+                    utils.safeApply($scope);
+                });
             }
 
             $scope.searchOrFirst = (key, collection) => {

@@ -530,7 +530,7 @@ export class ReleveNote extends  Model implements IModel{
                 let _t = _.where(_notes, {id_eleve: eleve.id});
                 _.each(this.devoirs.all, async (devoir) => {
                     let periode = _.findWhere(this.classe.periodes.all, {id_type : devoir.id_periode});
-                    let endSaisie = moment(periode.date_fin_saisie).isAfter(moment(), "days");
+                    let endSaisie = moment(periode.date_fin_saisie).isBefore(moment(), "days");
                     if (_t && _t.length !== 0) {
                         var _e = _.findWhere(_t, {id_devoir : devoir.id});
 

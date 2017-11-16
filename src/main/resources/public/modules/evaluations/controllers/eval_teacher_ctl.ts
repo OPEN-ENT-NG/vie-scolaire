@@ -299,7 +299,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                     $scope.currentDevoir.groupe = _.findWhere($scope.structure.classes.all, {id: $scope.currentDevoir.id_groupe});
 
-                    if($scope.structure.typePeriodes.empty()) {
+                    if ($scope.currentDevoir.groupe.periodes.empty()) {
+                        await $scope.currentDevoir.groupe.periodes.sync();
+                    }
+                    if ($scope.structure.typePeriodes.empty()) {
                         await $scope.structure.typePeriodes.sync();
                     }
                     $scope.currentDevoir.periode = _.findWhere($scope.currentDevoir.groupe.periodes.all,

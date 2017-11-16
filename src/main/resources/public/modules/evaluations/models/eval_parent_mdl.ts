@@ -191,6 +191,13 @@ export class Matiere extends Model {
         }
     }
 
+    /**
+     * Recupère la moyenne d'un élève en fonction de devoirs
+     * donnés en paramètre
+     * @param id_eleve id de l'élève
+     * @param devoirs Les devoirs pris en compte pour le calcul de moyenne
+     * @returns {Promise<any>} Promesse de retour
+     */
     getMoyenne (id_eleve, devoirs?) : Promise<any> {
         return new Promise((resolve, reject) => {
             if (devoirs) {

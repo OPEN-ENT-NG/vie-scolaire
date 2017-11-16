@@ -95,6 +95,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.showNoteLightBox.bool = false;
         };
 
+        /**
+         * Calcul la moyenne pour chaque matière
+         * contenue dans $scope.matieres
+         */
         $scope.calculMoyenneMatieres = function() {
             if ($scope.dataReleve === undefined) {
                 return ;
@@ -161,9 +165,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             periodes.on('sync', function() {
                 let formatStr = "DD/MM/YYYY";
                 let momentCurrDate = moment(moment().format(formatStr), formatStr);
+                let foundPeriode = false;
                 $scope.currentPeriodeId = -1;
 
-                for (let i = 0; i < periodes.all.length; i++) {
+                for (let i = 0; i < periodes.all.length && !foundPeriode; i++) {
                     let momentCurrPeriodeDebut = moment(moment(periodes.all[i].timestamp_dt).format(formatStr),
                         formatStr);
                     let momentCurrPeriodeFin = moment(moment(periodes.all[i].timestamp_fn).format(formatStr),
@@ -171,6 +176,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                     if ( momentCurrPeriodeDebut.diff(momentCurrDate) <= 0
                         && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
+                        foundPeriode = true;
                         $scope.searchReleve.periode = periodes.findWhere({id : periodes.all[i].id});
                         $scope.loadReleveNote();
                     }

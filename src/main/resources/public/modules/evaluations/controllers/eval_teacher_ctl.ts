@@ -1414,7 +1414,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if ($scope.devoir.classe.periodes.length() == 0) {
                     $scope.devoir.classe.periodes.sync();
                 }
-                $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
+
+                if(!$location.path() === "/devoir/create") {
+                    $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
+                }
                 utils.safeApply($scope);
             });
 

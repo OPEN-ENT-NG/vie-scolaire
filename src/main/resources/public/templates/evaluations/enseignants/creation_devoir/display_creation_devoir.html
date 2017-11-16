@@ -210,11 +210,13 @@
                                         <label class="select four twelve-mobile"
                                                ng-class="{disabled : devoir.id_groupe == null || devoir.id_groupe == '*'}">
                                             <select ng-disabled="devoir.id_groupe == null || devoir.id_groupe == ''"
-                                                    ng-model="devoir.id_periode" ng-change="controleDate(devoir)"
-                                                    ng-options="periode.id_type as getI18nPeriode(periode) for periode in devoir.classe.periodes.all ">
+                                                    ng-model="devoir.id_periode" ng-change="controleDate(devoir)">
                                                 <option class="header-opt" disabled value="">
                                                     [[translate('viescolaire.utils.periode')]]
                                                 </option>
+                                                <option ng-repeat="periode in devoir.classe.periodes.all"
+                                                        ng-selected="periode.id_type == devoir.id_periode"
+                                                        value="[[periode.id_type]]">[[getI18nPeriode(periode)]]</option>
                                             </select>
                                         </label>
                                     </div>

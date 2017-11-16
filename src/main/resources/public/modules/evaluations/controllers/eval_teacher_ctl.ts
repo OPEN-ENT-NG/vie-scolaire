@@ -257,8 +257,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     let openTemplates = async () => {
                         $scope.search.enseignant = "*";
                         //rajout de la periode Annee
-                        await $scope.periodes.sync();
-                        $scope.initPeriodesList();
+                        //await $scope.periodes.sync();
+                        //$scope.initPeriodesList();
                         template.open('main', '../templates/evaluations/enseignants/liste_devoirs/display_devoirs_structure');
                         template.open('evaluations', '../templates/evaluations/enseignants/liste_devoirs/list_view');
                         utils.safeApply($scope);
@@ -402,6 +402,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     };
                     if (params.idEleve != undefined && params.idClasse != undefined) {
                         $scope.search.classe = _.findWhere(evaluations.classes.all, {'id': params.idClasse});
+                        $scope.syncPeriode($scope.search.classe.id); $scope.search.periode = '*';
                         $scope.search.classe.eleves.sync().then(() => {
                             $scope.search.eleve = _.findWhere($scope.search.classe.eleves.all, {'id': params.idEleve});
                             if ($scope.displayFromClass) $scope.displayFromClass = false;

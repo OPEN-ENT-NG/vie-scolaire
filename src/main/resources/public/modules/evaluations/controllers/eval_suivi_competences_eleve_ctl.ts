@@ -380,6 +380,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         $scope.updateSuiviEleve = (Eleve) => {
             $scope.selected.grey = true;
             $scope.search.classe = _.findWhere(evaluations.classes.all,{ 'id': Eleve.idClasse} );
+            $scope.syncPeriode($scope.search.classe.id); $scope.search.periode = '*';
             $scope.search.classe.eleves.sync().then(() =>{
                 $scope.search.eleve =  _.findWhere($scope.search.classe.eleves.all,{'id': Eleve.id});
                 $scope.selectSuivi($scope.route.current.$$route.originalPath);

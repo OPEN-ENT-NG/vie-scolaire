@@ -527,8 +527,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          */
         $scope.incrementEleve = function (num) {
             $scope.selected.grey = true;
-            //var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
-            let index = _.findIndex($scope.classes.all, {id: $scope.search.classe.id});
+            // var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
+            let index = _.findIndex($scope.search.classe.eleves.all, { id: $scope.search.eleve.id });
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
                 $scope.search.eleve = $scope.search.classe.eleves.all[index + parseInt(num)];

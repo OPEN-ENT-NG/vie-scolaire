@@ -2597,7 +2597,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if (classe.periodes.empty()) {
                 await classe.periodes.sync();
             }
-            let current_periode = _.findWhere(classe.periodes.all, {id_type: devoir.id_periode});
+            let current_periode = _.findWhere(classe.periodes.all, parseInt({id_type: devoir.id_periode}));
             let start_datePeriode = current_periode.timestamp_dt;
             let end_datePeriode = current_periode.timestamp_fn;
             let date_saisie = current_periode.date_fin_saisie;

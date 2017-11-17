@@ -322,16 +322,6 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             return evaluation.owner === $scope.me.userId;
         };
 
-        /**
-         * Recherche l'index de l'objet dans le tableau
-         * @param array tableau d'objets
-         * @param obj objet
-         * @returns {number} index de l'objet
-         */
-        var searchIndex = function (array, obj) {
-            return _.indexOf(array, obj);
-        };
-
         // /**
         //  * Return la periode scolaire courante
         //  * @returns {any}
@@ -358,7 +348,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
          */
         $scope.incrementClasse = function (num) {
             $scope.Display = {EvaluatedCompetences : true};
-            var index = searchIndex($scope.classes.all, $scope.search.classe);
+            let index = _.findIndex($scope.classes.all, {id: $scope.search.classe.id});
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.classes.all.length) {
                 $scope.search.classe = $scope.classes.all[index + parseInt(num)];

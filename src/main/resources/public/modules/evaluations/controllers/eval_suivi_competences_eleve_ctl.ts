@@ -510,15 +510,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             return evaluation.owner === $scope.me.userId;
         };
 
-        /**
-         * Recherche l'index de l'objet dans le tableau
-         * @param array tableau d'objets
-         * @param obj objet
-         * @returns {number} index de l'objet
-         */
-        var searchIndex = function (array, obj) {
-            return _.indexOf(array, obj);
-        };
         $scope.EvaluationExiste = function (list) {
             let ListOfOwner = _.map(list, function (item) {
                 if (item.owner === $scope.me.userId)
@@ -536,7 +527,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          */
         $scope.incrementEleve = function (num) {
             $scope.selected.grey = true;
-            var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
+            //var index = searchIndex($scope.search.classe.eleves.all, $scope.search.eleve);
+            let index = _.findIndex($scope.classes.all, {id: $scope.search.classe.id});
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
                 $scope.search.eleve = $scope.search.classe.eleves.all[index + parseInt(num)];

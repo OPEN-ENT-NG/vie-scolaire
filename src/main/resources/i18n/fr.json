@@ -1,4 +1,5 @@
 {
+
  "viescolaire.title":"Vie Scolaire",
  "viescolaire.notify.saved":"La donnée a été sauvegardée",
  "viescolaire.save":"sauvegarder",
@@ -62,7 +63,12 @@
  "evaluations.devoir.updateDevoir.firstConfirmSupp.part2" : "Souhaitez vous continuer ?",
  "evaluations.devoir.updateDevoir.secondConfirmSupp.part1" : "Confirmez-vous le choix de retirer une ou plusieurs compétences évaluées ?",
  "evaluations.devoir.updateDevoir.evaluatedSkillDisabel.part1" : "Des notes ont été saisies pour cette évaluation, souhaitez-vous retirer l'évaluation numérique ?",
-  "evaluation.suivieleve.filtre.competence":"Afficher uniquement les compétences évaluées",
+ "evaluation.devoir.print.cartouches" : "Imprimer les cartouches",
+ "evaluation.devoir.print.form.saisie" : "Imprimer le formulaire de saisie",
+ "evaluation.devoir.cartouche.eleve" : "Afficher les noms des élèves",
+ "evaluation.devoir.cartouche.couleur" : "En couleur",
+ "evaluation.devoir.cartouche.number": "Nombre de cartouches",
+ "evaluation.suivieleve.filtre.competence":"Afficher uniquement les compétences évaluées",
  "evaluations.evaluation.theme":"Couleur des Compétences",
   "viescolaire.classe.moyenne" :"Moyenne de la classe",
   "viescolaire.classe.note.min":"Note min",

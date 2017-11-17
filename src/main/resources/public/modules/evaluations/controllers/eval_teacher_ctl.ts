@@ -46,8 +46,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
 
-
-        $scope.initSearch = () =>  {
+        $scope.printOption = {
+            display: false,
+            fileType: "formSaisie",
+            cartoucheNmb : 1,
+            byEleve: false,
+            inColor: false,
+        };
+        $scope.initSearch = () => {
             return {
                 matiere: '*',
                 periode : $scope.periodeParDefault(),
@@ -698,7 +704,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $scope.afficherRecap = function () {
-            if($scope.opened.accOp === 1 ){
+            if ($scope.opened.accOp === 1) {
                 $scope.opened.accOp = 0;
             }else {
                 $scope.opened.accOp = 1;
@@ -1012,7 +1018,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 list[i].selected = !list[i].selected;
             }
         };
-
 
 
         /**
@@ -2757,6 +2762,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.saveTheme = function(){
             $rootScope.chooseTheme();
         };
+
         $scope.updateColorAndLetterForSkills = function (location) {
 
             $scope.niveauCompetences = $scope.selectCycleForView(location);
@@ -2804,6 +2810,23 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $rootScope.$on('close-panel', function(e){
             $scope.showPanel = false;
-        })
+        });
+
+
+        $scope.printCartouche = (unType?: String) => {
+
+            let Url = '/viescolaire/evaluations/devoirs/print/' + $scope.currentDevoir.id +"/";
+            if(unType){
+                Url += "formsaisie";
+            }else{
+                if($scope.printOption.fileType =="cartouche"){
+                    Url += "cartouche"+ '?eleve=' + $scope.printOption.byEleve + '&color=' + $scope.printOption.inColor+"&nbr="+$scope.printOption.cartoucheNmb;
+                }else {
+                    Url += "formsaisie";
+                }
+            }
+            location.replace(Url);
+            $scope.printOption.display = false;
+        }
     }
 ]);

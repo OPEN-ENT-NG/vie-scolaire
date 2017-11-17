@@ -30,13 +30,16 @@ import fr.openent.evaluations.service.impl.DefaultDevoirService;
 import fr.openent.evaluations.service.impl.DefaultNoteService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultMatiereService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
+import io.netty.channel.MessageSizeEstimator;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.SuperAdminFilter;
@@ -69,6 +72,7 @@ public class DevoirController extends ControllerHelper {
     private final ClasseService classesService;
     private final NoteService notesService;
     private final CompetencesService competencesService;
+    private final MatiereService matiereService;
 
     public DevoirController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
@@ -77,6 +81,7 @@ public class DevoirController extends ControllerHelper {
         utilsService = new DefaultUtilsService();
         notesService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
         competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
+        matiereService = new DefaultMatiereService();
     }
 
     @Get("/devoirs")

@@ -22,6 +22,8 @@ package fr.openent.evaluations.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
@@ -49,7 +51,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
 
     private DefaultUtilsService utilsService;
     private DefaultNoteService noteService;
-
+    private final Neo4j neo4j = Neo4j.getInstance();
     public DefaultDevoirService(String schema, String table) {
         super(schema, table);
         utilsService = new DefaultUtilsService();
@@ -78,7 +80,6 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     private static final int typeClasse_GroupeEnseignement = 1;
     // private static final String typeClasse_Grp_Ens = "groupeEnseignement";
     private static final String attributeIdGroupe = "id_groupe";
-
 
     @Override
 
@@ -119,6 +120,25 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 }
             }
         }));
+    }
+
+
+    @Override
+    public void getDevoirInfo(final Long idDevoir, final Handler<Either<String, JsonObject>> handler){
+        StringBuilder query = new StringBuilder();
+
+        query.append( "select devoir.id, devoir.name, devoir.created, devoir.id_etablissement, devoir.coefficient ,devoir.id_matiere ,devoir.diviseur ,devoir.is_evaluated ,periode.libelle periode, Gdevoir.id_groupe , comp.* ")
+                .append(  " From notes.devoirs devoir ")
+                .append(  " INNER JOIN  viesco.periode periode  ON periode.id = devoir.id_periode ")
+                .append(  " NATURAL  JOIN (SELECT COALESCE(count(*), 0) NbrCompetence " )
+                .append(  " FROM notes.competences_devoirs c " )
+                .append(  " where c.id_devoir =?) comp  ")
+                .append(  " INNER Join notes.rel_devoirs_groupes  Gdevoir ON Gdevoir.id_devoir = ? ")
+                .append(  " and devoir.id = ? ;");
+
+        JsonArray values =  new JsonArray();
+        values.addNumber(idDevoir).addNumber(idDevoir).addNumber(idDevoir);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(handler));
     }
 
     @Override

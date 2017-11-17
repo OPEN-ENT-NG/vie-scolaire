@@ -43,6 +43,13 @@ public interface DevoirService extends CrudService {
     public void createDevoir(final JsonObject devoir, UserInfos user,final Handler<Either<String, JsonObject>> handler);
 
     /**
+     * récupère les information d'un devoir. ne récupère pas les notes.
+     * @param idDevoir
+     * @param handler handler portant le résultat de la requête
+     */
+    public void getDevoirInfo(final Long idDevoir, final Handler<Either<String, JsonObject>> handler);
+
+    /**
      * Créer le statement SQL de création d'un devoir.
      * @param idDevoir Identifiant du devoir
      * @param devoir devoir

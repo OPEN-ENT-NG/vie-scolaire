@@ -24,6 +24,7 @@ import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -83,4 +84,10 @@ public interface ClasseService extends CrudService {
 
     public void getClasseEleve(String idEtablissement, String EleveId, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * récupère les informations d'une classe
+     * @param idClasse
+     * @param handler
+     */
+    public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
 }

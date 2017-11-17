@@ -76,6 +76,20 @@ public class DefaultNiveauDeMaitriseService extends SqlCrudService implements Ni
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
+    public void getNiveauDeMaitriseofCycle(Long Cycle, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT niv1.libelle, niv1.ordre, niv1.couleur couleurDefault, niv1.id_cycle  ")
+                .append( " FROM notes.niveau_competences niv1 ")
+                .append("    where id_cycle = ? ")
+                      .append(  "  order By (ordre);" );
+
+
+        values.addNumber(Cycle);
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
     public void getPersoNiveauMaitrise(String idUser,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();

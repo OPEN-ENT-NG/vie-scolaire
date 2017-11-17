@@ -16,11 +16,54 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
+
+<lightbox show="printOption.display" class="" on-close="printOption.display=false">
+    <h2><i18n>print</i18n></h2>
+    <div class="checkbox-grid">
+        <label>
+            <input type="radio" ng-change=""  ng-model="printOption.fileType" value="cartouche">
+            <span>
+                    <i18n>evaluation.devoir.print.cartouches</i18n>
+                </span>
+        </label>
+        <label>
+            <input type="radio" ng-change=""  ng-model="printOption.fileType" value="formSaisie">
+            <span>
+                    <i18n>evaluation.devoir.print.form.saisie</i18n>
+             </span>
+        </label>
+    </div>
+    <div class="checkbox-grid additional-options" ng-if="printOption.fileType === 'cartouche'">
+        <div class="option-eleve cell">
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-model="printOption.byEleve" >
+                <span><i18n>evaluation.devoir.cartouche.eleve</i18n></span>
+            </label>
+            <span class="help-option-eleve-print" ><i class="help" tooltip="Cette option permet d'imprimer une cartouche par élève."></i></span>
+        </div>
+        <div class="cell">
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-model="printOption.inColor"
+                >
+                <span><i18n>evaluation.devoir.cartouche.couleur</i18n></span>
+            </label>
+        </div>
+        <div class="cell">
+        <label >
+            <span><i18n>evaluation.devoir.cartouche.number</i18n></span>
+            <input class="nbr-Cartouche" ng-disabled="printOption.byEleve" type="number" ng-model="printOption.cartoucheNmb" min="1" max="80">
+        </label>
+        </div>
+    </div>
+    <button class ="right-magnet" ng-click="printCartouche()"><i18n>print</i18n></button>
+
+</lightbox>
+
 <div class="row">
     <!-- Panneau de choix des thèmes -->
     <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
-
-
 
     <div class="twelve cell">
         <input style="display: none" type="button" i18n-value="evaluations.test.edit"
@@ -32,6 +75,17 @@
                ng-if="!isChefEtab()"
                class="right-magnet" ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,
                                         'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
+        <button ng-show=" currentDevoir.competences.all.length > 0" ng-click="printOption.display =true"   class="right-magnet ng-scope " ng-class="{'button-print-devoir' : currentDevoir.competences.all.length > 0
+                                        }">
+            <i class="download">
+            </i></button>
+
+        <button  ng-show=" currentDevoir.competences.all.length === 0" ng-click="printCartouche('formsaisie')"   class="right-magnet ng-scope " ng-class="{'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
+            <i class="download">
+            </i></button>
+
+
+
         <section ng-if="endSaisie" class="row twelve-mobile ng-scope">
             <div class="six warning">
                 <i18n>evaluations.devoir.uncancelable</i18n>

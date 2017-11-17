@@ -123,4 +123,16 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         params.putArray("idMatieres", idMatieres);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
+
+
+
+    @Override
+    public void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("  MATCH (n:Subject {id: {idMatiere}}) RETURN n ");
+        params.putString("idMatiere", idMatiere);
+        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(result));
+    }
 }

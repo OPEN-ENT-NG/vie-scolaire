@@ -171,4 +171,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
+
+    @Override
+    public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+        query.append("MATCH (c {id: {idClasse}}) return c");
+
+        params.putString("idClasse", idClasse);
+        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+    }
 }

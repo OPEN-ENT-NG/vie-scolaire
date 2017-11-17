@@ -24,6 +24,7 @@ import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,13 @@ public interface MatiereService extends CrudService {
      * @param result handler portant le résulat de la requête
      */
     public void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result);
+
+    /**
+     * Récupère une matieres en fonction d'un id
+     * @param idMatiere id de matières
+     * @param result handler portant le résulat de la requête
+     */
+    public void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result);
 
 
 }

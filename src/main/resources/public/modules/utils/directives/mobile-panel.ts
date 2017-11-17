@@ -13,10 +13,8 @@ export let mobilePanel = ng.directive('mobilePanel', function(){
         '</div>',
         link: function($scope, $elem, $attrs){
             $elem.children('.mobile-panel').children('.close-mobile-panel').on('click', function(e){
-                setTimeout(function(){
-                    $scope.displayed = false;
-                    $scope.$apply();
-                }, 0);
+                $scope.displayed = false;
+                $scope.$apply();
             });
 
             $scope.$watch(function(){return $scope.$eval($attrs.side);}, function(){

@@ -9,6 +9,7 @@ let moment = require('moment');
 
 declare let _:any;
 declare let document: any;
+declare let $: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
@@ -319,22 +320,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
                         utils.safeApply($scope);
 
-                        angular.element(document).bind('mousewheel', function(e){
-                            angular.element(document)[0].body.style.overflow = "hidden";
-                            utils.safeApply($scope);
-                            angular.element(document).ready(function () {
-                                if(angular.element('.right-magnet')[0].value != undefined) {
-                                    if (angular.element('.right-magnet')[0].value.length > 0) {
-                                        angular.element(document)[0].body.style.overflow = "auto";
-                                        utils.safeApply($scope);
-                                    }
-                                }
-                                else {
-                                    angular.element(document)[0].body.style.overflow = "auto";
-                                    utils.safeApply($scope);
-                                }
-                            });
-                        })
+                        angular.element(document).bind('mousewheel', function(){
+                            // On Calque la position de la partie centrale sur le menu de gauche
+                            let element = $('#left-side-notes');
+                            let mirorElement = $('#liste-notes-devoir-header');
+                            utils.mirorOnScroll(element,mirorElement);
+                        });
 
                     };
 

@@ -56,7 +56,7 @@
             margin-left: 5%;
             margin-right: 5%;
         {{#hasCompetences}}  margin-top :{{ligne}} ;{{/hasCompetences}}
-        {{^hasCompetences}}  margin-top :20% ;{{/hasCompetences}}
+        {{^hasCompetences}}  margin-top :25% ;{{/hasCompetences}}
         @top-center {
             padding-top : 15px;
             content: element(repeated-top);
@@ -106,10 +106,11 @@
             {{^hasCompetences}}<td   > {{/hasCompetences}}
             <p class="overIt">
                 {{devoirName}}<br/>
-                Classe : {{classeName}}<br/>
-                Matière : {{matiere}}<br/>
-                Coefficient : {{devoirCoefficient}}<br/>
-                Note sur : {{devoirDiviseur}}<br/>
+                Classe: {{classeName}}<br/>
+                Matière: {{matiere}}<br/>
+                Periode: {{periode}}<br/>
+                Coefficient: {{devoirCoefficient}}<br/>
+                Note sur: {{devoirDiviseur}}<br/>
             </p>
         </td >
             {{#hasCompetences}}

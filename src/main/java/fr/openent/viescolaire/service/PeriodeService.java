@@ -23,6 +23,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
@@ -43,6 +44,13 @@ public interface PeriodeService extends CrudService {
      */
     public void getPeriodes(String idEtablissement, String[] idGroupes, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Retourne le libelle d'une periode
+     * @param type
+     * @param ordre
+     * @return
+     */
+    public String getLibellePeriode(Integer type, Integer ordre , HttpServerRequest request);
     /**
      * Retourne l'ensemble des types de periode
      *

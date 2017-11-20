@@ -26,9 +26,11 @@ import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.PeriodeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.I18n;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
@@ -41,6 +43,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static fr.wseduc.webutils.http.Renders.getHost;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
@@ -58,6 +61,26 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         utilsService = new DefaultUtilsService();
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
+    }
+
+
+    @Override
+    public String getLibellePeriode(Integer type, Integer ordre, HttpServerRequest request){
+        StringBuilder PeriodeLibelle = new StringBuilder();
+        if(type != null & ordre != null){
+            String periodeType =  I18n.getInstance().translate("viescolaire.periode."+type, getHost(request), I18n.acceptLanguage(request));
+
+            PeriodeLibelle.append(ordre.toString());
+            if(ordre == 1){
+                PeriodeLibelle.append(" er "+periodeType);
+            }else{
+                PeriodeLibelle.append(" eme "+periodeType);
+            }
+
+        }else{
+            log.error("Error replacing i18n variable");
+        }
+        return PeriodeLibelle.toString();
     }
 
     @Override

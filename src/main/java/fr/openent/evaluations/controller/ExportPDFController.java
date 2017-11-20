@@ -36,6 +36,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.I18n;
 import fr.wseduc.webutils.email.EmailSender;
 import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
@@ -1163,9 +1164,8 @@ public class ExportPDFController extends ControllerHelper {
                                     result.putString("devoirName", devoirInfos.getString("name"));
                                     result.putString("devoirCoefficient", devoirInfos.getString("coefficient"));
                                     result.putNumber("devoirDiviseur", devoirInfos.getLong("diviseur"));
-                                    result.putString("devoirPeriode", devoirInfos.getString("periode"));
                                     result.putBoolean("evaluation",devoirInfos.getBoolean("is_evaluated"));
-
+                                    result.putString("periode",periodeService.getLibellePeriode(devoirInfos.getInteger("periodetype"),devoirInfos.getInteger("periodeordre"),request));
                                     classeService.getEleveClasse(devoirInfos.getString("id_groupe"), new Handler<Either<String, JsonArray>>() {
                                         @Override
                                         public void handle(Either<String, JsonArray> ElevesObject) {
@@ -1198,19 +1198,22 @@ public class ExportPDFController extends ControllerHelper {
                                                                                         JsonArray  CompetencesNew = new JsonArray();
                                                                                         Integer size =0;
                                                                                         Double ligne = new Double(0);
+                                                                                        Integer lenght = 103; // le nombre de caractére max dans une ligne
+                                                                                        Double height = new Double(2.2); // la hauteur d'une ligne
                                                                                         for (int i=0 ; i < CompetencesOld.size() ; i++) {
                                                                                             JsonObject Comp = CompetencesOld.get(i);
-                                                                                             size = Comp.getString("nom").length() +10;
-                                                                                             ligne += (Integer) size / 103 ;
-                                                                                            if(size%103 > 0 ){
+                                                                                             size = Comp.getString("nom").length() +10; // +10 pour "[ Cx ]"
+                                                                                             ligne += (Integer) size / lenght ;
+                                                                                            if(size%lenght > 0 ){
                                                                                                 ligne++;
                                                                                             }
                                                                                             Comp.putNumber("i", i+1);
                                                                                             CompetencesNew.addObject(Comp);
                                                                                         }
-                                                                                        ligne = (ligne * 2.2) + 6;
-                                                                                        if( ligne < 21){
-                                                                                            ligne = Double.parseDouble("21") ;
+
+                                                                                        ligne = (ligne * height) + 6; // + 6 la hauteur de la 1 ligne du tableau
+                                                                                        if( ligne < 25){ // 25 est la hauteure minimal
+                                                                                            ligne = Double.parseDouble("25") ;
                                                                                         }
                                                                                         result.putString("ligne", ligne.toString()+"%");
                                                                                         if(CompetencesNew.size() > 0){

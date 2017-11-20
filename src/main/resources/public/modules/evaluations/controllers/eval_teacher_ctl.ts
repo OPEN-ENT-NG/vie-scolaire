@@ -1416,7 +1416,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.devoir.classe.periodes.sync();
                     }
 
-                    if (!$location.path() === "/devoir/create") {
+                    if ($location.path() === "/devoir/create") {
                         $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
                     }
                     utils.safeApply($scope);
@@ -2657,7 +2657,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
 
                 let currentPeriode = _.find(classe.periodes.all, (periode) => {
-                    return moment().isBetween(moment(periode.timestamp_dt), moment(periode.timestamp_fn), 'days')
+                    return moment().isBetween(moment(periode.timestamp_dt), moment(periode.timestamp_fn), 'days','[]');
                 });
                 return currentPeriode != null ? currentPeriode : -1;
             };

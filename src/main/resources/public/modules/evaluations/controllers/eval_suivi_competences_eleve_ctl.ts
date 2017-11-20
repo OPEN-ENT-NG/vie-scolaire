@@ -216,8 +216,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             let date_saisie = current_periode.date_fin_saisie;
 
             $scope.errDatePubliEvalFree = (moment($scope.evaluationLibre.datePublication).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0);
-            $scope.errDateEvalFree = (moment($scope.evaluationLibre.dateDevoir).diff(moment(start_datePeriode), "days") < 0) || (moment(end_datePeriode).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0);
-            $scope.endSaisieFree = moment(new Date()).diff(moment(date_saisie)) > 0 || moment(date_saisie).diff(moment($scope.evaluationLibre.dateDevoir), "days") < 0;
+            $scope.errDateEvalFree = !(moment($scope.evaluationLibre.dateDevoir).isBetween(moment(start_datePeriode), moment(end_datePeriode), 'days', '[]'));
+            $scope.endSaisieFree = moment($scope.evaluationLibre.dateDevoir).isAfter(moment(date_saisie), 'days', '[') || moment(new Date()).isAfter(moment(date_saisie), 'days', '[');
 
             $scope.evaluationLibre.controlledDate = !$scope.errDatePubliEvalFree &&  !$scope.errDateEvalFree && !$scope.endSaisieFree;
             utils.safeApply($scope);

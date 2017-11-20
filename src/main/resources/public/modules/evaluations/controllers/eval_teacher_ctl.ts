@@ -1453,6 +1453,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 });
 
+                if ($scope.devoir.dateDevoir === undefined
+                    && $scope.devoir.date !== undefined) {
+                    $scope.devoir.dateDevoir = new Date($scope.devoir.date);
+                }
                 // Chargement des enseignements et compétences en fonction de la classe
                 // evaluations.enseignements.sync($scope.devoir.id_groupe);
 
@@ -2614,16 +2618,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (classe.periodes.empty()) {
                     await classe.periodes.sync();
                 }
-                let current_periode = _.findWhere(classe.periodes.all, parseInt({id_type: devoir.id_periode}));
+                let current_periode = _.findWhere(classe.periodes.all, {id_type: parseInt(devoir.id_periode)});
                 let start_datePeriode = current_periode.timestamp_dt;
                 let end_datePeriode = current_periode.timestamp_fn;
                 let date_saisie = current_periode.date_fin_saisie;
 
-                $scope.errDatePubli = (moment($scope.devoir.datePublication).isBefore(moment($scope.devoir.dateDevoir), 'days'));
-                $scope.errDateDevoir = (moment($scope.devoir.dateDevoir).isBefore(moment(start_datePeriode), "days"))
-                    || (moment(end_datePeriode).isBefore(moment($scope.devoir.dateDevoir), "days"));
-                $scope.endSaisie = moment().isAfter(moment(date_saisie))
-                    || moment(date_saisie).isBefore(moment($scope.devoir.dateDevoir), "days");
+                $scope.errDatePubli = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") < 0);
+                $scope.errDateDevoir = !(moment($scope.devoir.dateDevoir).isBetween(moment(start_datePeriode), moment(end_datePeriode), 'days', '[]'));
+                $scope.endSaisie = moment($scope.devoir.dateDevoir).isAfter(moment(date_saisie), 'days', '[') || moment(new Date()).isAfter(moment(date_saisie), 'days', '[');
 
                 $scope.devoir.controlledDate = !$scope.errDatePubli && !$scope.errDateDevoir && !$scope.endSaisie;
                 utils.safeApply($scope);

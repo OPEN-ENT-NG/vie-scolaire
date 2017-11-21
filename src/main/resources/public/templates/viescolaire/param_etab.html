@@ -85,7 +85,10 @@
                             </div>
                         </div>
                         <div class="cell">
-                            <span><i18n>Actuelle</i18n> : [[ getI18n("viescolaire.periode." + getOrdreTypePeriode(getCurrentPeriode(classe)).type) + " " + getOrdreTypePeriode(getCurrentPeriode(classe)).ordre ]]</span>
+                            <span ng-if="getCurrentPeriode(classe)!== undefined"><i18n>Actuelle</i18n> :
+                                [[ getI18n("viescolaire.periode." + getOrdreTypePeriode(getCurrentPeriode(classe)).type)
+                                + " " + getOrdreTypePeriode(getCurrentPeriode(classe)).ordre ]]
+                            </span>
                         </div>
                         <div class="cell">
                             <span>[[ formatDate(getCurrentPeriode(classe).timestamp_dt) ]]</span>

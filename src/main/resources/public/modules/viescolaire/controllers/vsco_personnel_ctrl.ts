@@ -107,8 +107,10 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             return _.uniq(_.pluck($scope.structure.typePeriodes.all, 'type'));
         };
 
-        $scope.getOrdreTypePeriode = (periode:Periode) => {
-            return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
+        $scope.getOrdreTypePeriode = (periode: Periode) => {
+            if (periode !== undefined) {
+                return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
+            }
         };
 
         $scope.getSelectedClasse = () => {

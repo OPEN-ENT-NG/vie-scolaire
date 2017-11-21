@@ -127,10 +127,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getDevoirInfo(final Long idDevoir, final Handler<Either<String, JsonObject>> handler){
         StringBuilder query = new StringBuilder();
 
-        query.append( "select devoir.id, devoir.name, devoir.created, devoir.id_etablissement, devoir.coefficient ,devoir.id_matiere ,devoir.diviseur ,devoir.is_evaluated , rel_periode.type periodeType, rel_periode.ordre periodeOrdre , Gdevoir.id_groupe , comp.* ")
+        query.append( "select devoir.id, devoir.name, devoir.created, devoir.id_etablissement, devoir.coefficient ,devoir.id_matiere ,devoir.diviseur ,devoir.is_evaluated  , rel_periode.type periodeType, rel_periode.ordre periodeOrdre , Gdevoir.id_groupe , comp.* ")
                 .append(  " From notes.devoirs devoir ")
-                .append(  " INNER JOIN  viesco.periode periode  ON periode.id = devoir.id_periode ")
-                .append(  " Inner join viesco.rel_type_periode rel_periode on rel_periode.id = periode.id_type ")
+                .append(  " Inner join viesco.rel_type_periode rel_periode on rel_periode.id = devoir.id_periode  ")
                 .append(  " NATURAL  JOIN (SELECT COALESCE(count(*), 0) NbrCompetence " )
                 .append(  " FROM notes.competences_devoirs c " )
                 .append(  " where c.id_devoir =?) comp  ")

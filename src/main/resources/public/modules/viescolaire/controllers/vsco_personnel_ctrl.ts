@@ -1,4 +1,4 @@
-import { $, idiom as lang, template, ng} from "entcore/entcore";
+import { idiom as lang, template, ng} from "entcore/entcore";
 import {vieScolaire} from "../models/vsco_personnel_mdl";
 import {Motif} from "../../absences/models/personnel/Motif";
 import {Categorie} from "../../absences/models/personnel/Categorie";
@@ -10,6 +10,7 @@ import {Periode} from "../models/personnel/Periode";
 import moment = require("moment");
 
 declare let _: any;
+declare let $: any;
 
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll',

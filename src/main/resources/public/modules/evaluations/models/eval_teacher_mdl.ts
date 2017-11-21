@@ -24,7 +24,7 @@ export class Structure extends Model {
     isSynchronized: boolean;
     cycles: Array<Cycle>;
     cycle: Cycle;
-    typePeriodes : Collection<TypePeriode>;
+    typePeriodes: Collection<TypePeriode>;
     niveauCompetences: Collection<NiveauCompetence>;
     usePerso: any;
     private syncRemplacement: () => any;

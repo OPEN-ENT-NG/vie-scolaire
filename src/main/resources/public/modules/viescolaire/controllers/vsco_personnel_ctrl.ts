@@ -175,12 +175,16 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.getCurrentPeriode = (classe): Periode => {
             let now = moment();
+            let res;
             _.each(classe.periodes.all, (periode) => {
                 if (moment(periode.timestamp_dt).isBefore(now) && moment(periode.timestamp_fn).isAfter(now)) {
-                    return periode;
+                    res = periode;
                 }
             });
-            return _.first(classe.periodes.all);
+            if (res === undefined ) {
+                res = _.first(classe.periodes.all);
+            }
+            return res;
         };
 
         $scope.currentCycle = function (cycle) {

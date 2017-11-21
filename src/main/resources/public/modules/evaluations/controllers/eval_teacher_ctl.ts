@@ -338,12 +338,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
                             utils.safeApply($scope);
 
-                        angular.element(document).bind('mousewheel', function(){
-                            // On Calque la position de la partie centrale sur le menu de gauche
-                            let element = $('#left-side-notes');
-                            let mirorElement = $('#liste-notes-devoir-header');
-                            utils.mirorOnScroll(element,mirorElement);
-                        });
+                            angular.element(document).bind('mousewheel', function(){
+                                // On Calque la position de la partie centrale sur le menu de gauche
+                                let element = $('#left-side-notes');
+                                let mirorElement = $('#liste-notes-devoir-header');
+                                utils.mirorOnScroll(element,mirorElement);
+                            });
 
                         };
 

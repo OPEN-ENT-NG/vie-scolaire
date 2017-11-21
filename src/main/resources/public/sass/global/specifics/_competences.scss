@@ -2334,4 +2334,7 @@ body.evaluations {
       background-color: $orange !important;
     }
   }
+  nav.vertical.floating .content {
+    display: initial !important;
+  }
 }

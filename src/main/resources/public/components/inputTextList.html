@@ -1,5 +1,6 @@
 <i class="input-list up-open" ng-if="openedList" ng-click="changeOpenedList()" />
-<i class="input-list down-open" ng-if="!openedList" ng-click="changeOpenedList()" tooltip="add.annotation"/>
+<i class="input-list down-open" ng-if="!openedList" ng-click="changeOpenedList()"
+   tooltip="add.annotation"/>
 <input
         type="text"
         class="input-list nine"
@@ -23,5 +24,6 @@
         ng-if="!autofocus" />
 
 <ul ng-if="openedList" class="input-list">
-    <li class="input-list" tooltip="[[(item[displayAttributeList])]]" ng-repeat="item in itemsToDisplay"  ng-click="addItem(item);">[[(item[displayAttributeList])]]</li>
+    <li class="input-list" tooltip="[[(item[displayAttributeList])]]" ng-repeat="item in itemsToDisplay"
+        ng-click="addItem(item);">[[(item[displayAttributeList])]]</li>
 </ul>

@@ -242,7 +242,7 @@
                                             <label class="checkbox">
                                                 <input type="checkbox" ng-model="eleve.selected"
                                                        ng-init="eleve.selected = false"
-                                                       ng-click="selectEleveListe(eleve)"
+                                                       ng-click="getEleveInfo(eleve);selectEleveListe(eleve)"
                                                        ng-disabled="eleve.evaluation.id_annotation !== undefined && eleve.evaluation.id_annotation > 0">
                                                 <span></span>
                                             </label>
@@ -260,7 +260,7 @@
                                                              model="eleve.evaluation"
                                                              model-attribute="valeur"
                                                              validation-item-function="saveNoteDevoirEleve(eleve.evaluation, $event, eleve)"
-                                                             focus-function="getEleveInfo(eleve)"
+                                                             get-eleve-info="getEleveInfo"
                                                              autofocus="$index === 0 && currentDevoir.is_evaluated"
                                                              error="(eleve.evaluation.valid !== undefined && eleve.evaluation.valid === false)"
                                                              template="leftSide-userInfo"

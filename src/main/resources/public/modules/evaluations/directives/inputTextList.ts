@@ -17,7 +17,8 @@ export let inputTextList = ng.directive('inputTextList', function() {
             templatePath : '@?',                // Template utilisé lors du focus de l'input : template.open($scope.template, $scope.templatePath)
             focusItems : '=?',                  // Eléments utilisés lors du focus de l'input
             focusItemsAttribute : '@?',         // Attribut d'élément utilisé lors du focus de l'input : $scope.focusItems[$scope.focusItemsAttribute]
-            focusItem : '=?'                    // Elément utilisé lors du focus de l'input
+            focusItem : '=?',                   // Elément utilisé lors du focus de l'input
+            getEleveInfo: '='                   // Remplissage de la fiche élève
         },
         templateUrl: "/" + appPrefix + "/public/components/inputTextList.html",
         link :  ($scope, element) => {
@@ -28,6 +29,7 @@ export let inputTextList = ng.directive('inputTextList', function() {
              * @param item
              */
             $scope.changeOpenedList = function(item) {
+                $scope.getEleveInfo($scope.focusItem);
                 $scope.openedList = !$scope.openedList;
                 if ($scope.openedList) {
                     $scope.itemsToDisplay = $scope.items;

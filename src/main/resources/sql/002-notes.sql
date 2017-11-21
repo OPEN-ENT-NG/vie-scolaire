@@ -187,7 +187,8 @@ CREATE TABLE notes.competences_notes
   ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT fk_devoirs_id FOREIGN KEY (id_devoir)
   REFERENCES notes.devoirs (id) MATCH SIMPLE
-  ON UPDATE NO ACTION ON DELETE CASCADE
+  ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT competences_notes_unicity UNIQUE (id_devoir, id_competence, id_eleve)
 );
 CREATE INDEX competences_notes_id_devoir_id_eleve_idx ON notes.competences_notes USING btree(id_devoir, id_eleve);
 

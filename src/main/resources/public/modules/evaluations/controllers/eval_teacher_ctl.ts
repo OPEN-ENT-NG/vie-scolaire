@@ -10,7 +10,6 @@ let moment = require('moment');
 
 declare let _:any;
 declare let document: any;
-declare let $: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
@@ -1416,7 +1415,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.devoir.classe.periodes.sync();
                     }
 
-                    if ($location.path() === "/devoir/create") {
+                    if (!($location.path() === "/devoir/create")) {
                         $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
                     }
                     utils.safeApply($scope);

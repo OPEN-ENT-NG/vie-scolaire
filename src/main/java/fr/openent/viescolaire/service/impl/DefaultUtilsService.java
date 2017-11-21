@@ -8,10 +8,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,13 +16,7 @@ public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
 
-    public <V> void addToList(V value, int index, List<List<V>> list) {
-        if (list.get(index) == null) {
-            list.add(index, new ArrayList<V>());
-        }
-        list.get(index).add(value);
-    }
-
+    @Override
     public <T, V> void addToMap(V value, T key, Map<T, List<V>> map) {
         if (map.get(key) == null) {
             map.put(key, new ArrayList<V>());
@@ -33,6 +24,16 @@ public class DefaultUtilsService implements UtilsService{
         map.get(key).add(value);
     }
 
+    @Override
+    public JsonObject[] convertTo (Object[] value) {
+        ArrayList<JsonObject> result = new ArrayList<>();
+        for(Object o : value) {
+            result.add(new JsonObject((Map<String, Object>) o));
+        }
+        return result.toArray(new JsonObject[0]);
+    }
+
+    @Override
     public void getTypeGroupe(String[] id_classes,
                               final Handler<Either<String, Map<Boolean, List<String>>>> handler) {
 

@@ -2,10 +2,11 @@
     <section class="twelve cell row headerAccueil">
         <div class="twelve cell ">
             <header class="header-viescolaire">
-                <h1><span class="no-style ng-scope"><i18n>viescolaire.param</i18n></span></h1>
+                <h1><span><i18n>viescolaire.param</i18n></span></h1>
                 <label ng-if="structures.all.length > 1"  class="select right-magnet">
-                    <select ng-model="structure" ng-options="structure.name for structure in structures.all
-                            track by structure.id" ng-change="changeEtablissementAccueil(structure)">
+                    <select ng-model="structure"
+                            ng-options="structure.name for structure in structures.all track by structure.id"
+                            ng-change="changeEtablissementAccueil(structure)">
                     </select>
                 </label>
             </header>
@@ -13,29 +14,31 @@
     </section>
 
     <div class="twelve tabs vertical-spacing-twice heading-tabs">
-        <header ng-class="{selected : hasFilterParam}"
-                class="horizontal-spacing-twice ng-scope">
-            <a href="#/viescolaire/accueil" class="horizontal-spacing">
-                <span><i18n><span class="no-style ng-scope">viescolaire.utils.school</span></i18n></span>
+
+        <header ng-class="{selected : findParam('filter') === null}"
+                class="horizontal-spacing-twice">
+            <a href="#/viescolaire/accueil"
+               class="horizontal-spacing">
+                <span><i18n>viescolaire.utils.school</i18n></span>
             </a>
         </header>
         <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}"
-                class="horizontal-spacing-twice ng-scope">
+                class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.notes.title')]]"
                class="horizontal-spacing">
-                <span><i18n><span class="no-style ng-scope">evaluations.competences.title</span></i18n></span>
+                <span><i18n>evaluations.competences.title</i18n></span>
             </a>
         </header>
         <header ng-if="false" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
-                class="horizontal-spacing-twice ng-scope">
+                class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.presences.title')]]"
                class="horizontal-spacing">
-                <span><i18n><span class="no-style ng-scope">viescolaire.presences.title</span></i18n></span>
+                <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
     </div>
-    <div ng-if="findParam('filter') === lang.translate('viescolaire.utils.school')">
-        <div ng-include="/viescolaire/public/templates/viescolaire/param_etab.html"></div>
+    <div ng-if="findParam('filter') === null">
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
     </div>
     <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
         <article class="twelve">
@@ -46,14 +49,13 @@
                     <input type="checkbox"
                            ng-change="structure.activate('notes', structure.isActived.evaluation, structure.id);
                                               structure.isActived.evaluation = !structure.isActived.evaluation;"
-                               ng-click="structure.isActived.evaluation = !structure.isActived.evaluation;"
-                               ng-model="structure.isActived.evaluation"
-                               class="ng-pristine ng-valid">
-                        <span></span>
-                    </label>
-                </div>
-            </article>
-            <div ng-include="'/viescolaire/public/templates/viescolaire/param_competence.html'"></div>
+                           ng-click="structure.isActived.evaluation = !structure.isActived.evaluation;"
+                           ng-model="structure.isActived.evaluation">
+                    <span></span>
+                </label>
+            </div>
+        </article>
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_competence.html'"></div>
         <div ng-if="findParam('filter') === lang.translate('viescolaire.presences.title')">
             <article class="twelve">
                 <label for="structure.isActived.presence" ><i18n>activated.module</i18n></label>
@@ -63,8 +65,7 @@
                                ng-change ="structure.activate('presences', structure.isActived.presence, structure.id );
                                                    structure.isActived.presence = !structure.isActived.presence;"
                                ng-click="structure.isActived.presence = !structure.isActived.presence;"
-                               ng-model="structure.isActived.presence"
-                               class="ng-pristine ng-valid">
+                               ng-model="structure.isActived.presence">
                         <span></span>
                     </label>
                 </div>

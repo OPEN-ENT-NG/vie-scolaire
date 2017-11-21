@@ -12,8 +12,8 @@ ng.controllers.push(viescolaireController);
 
 
 
-import {customSearchClasse} from "../filtres/customSearchClasse";
-ng.filters.push(customSearchClasse);
+import {periodeSearch} from "../filtres/periodeSearch";
+ng.filters.push(periodeSearch);
 
 ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);

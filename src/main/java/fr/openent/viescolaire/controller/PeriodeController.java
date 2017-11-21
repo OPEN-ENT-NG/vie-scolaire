@@ -21,7 +21,9 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.PeriodeService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -37,6 +39,7 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -48,10 +51,12 @@ import static org.entcore.common.http.response.DefaultResponseHandler.defaultRes
 public class PeriodeController extends ControllerHelper {
 
     private final PeriodeService periodeService;
+    private final UtilsService utilsService;
 
     public PeriodeController () {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         periodeService = new DefaultPeriodeService();
+        utilsService = new DefaultUtilsService();
     }
 
     @Get("/periodes")
@@ -130,15 +135,15 @@ public class PeriodeController extends ControllerHelper {
                         public void handle(JsonObject resource) {
 
                             final String idEtablissement = resource.getString("idEtablissement");
-                            final String[] idClasses = (String[]) resource.getArray("idClasses").toArray();
-                            final JsonObject[] periodes = (JsonObject[]) resource.getArray("periodes").toArray();
+                            final String[] idClasses = Arrays.asList(resource.getArray("idClasses").toArray()).toArray(new String[0]);
+                            final JsonObject[] periodes = utilsService.convertTo(resource.getArray("periodes").toArray());
 
-                            if (idEtablissement == null || idClasses == null || idClasses.length == 0) {
+                            if (idEtablissement == null || idClasses.length == 0 || periodes.length == 0) {
                                 badRequest(request);
                                 log.error("updatePeriodes : incorrect parameter");
+                            } else {
+                                periodeService.updatePeriodes(idEtablissement, idClasses, periodes, arrayResponseHandler(request));
                             }
-
-                            periodeService.updatePeriodes(idEtablissement, idClasses, periodes, arrayResponseHandler(request));
                         }
                     });
                 }else {
@@ -168,9 +173,9 @@ public class PeriodeController extends ControllerHelper {
                             if (idEtablissement == null || idClasses == null || idClasses.length == 0) {
                                 badRequest(request);
                                 log.error("createPeriodes : incorrect parameter");
+                            } else {
+                                periodeService.createPeriodes(idEtablissement, idClasses, periodes, arrayResponseHandler(request));
                             }
-
-
                         }
                     });
                 }else {
@@ -189,13 +194,14 @@ public class PeriodeController extends ControllerHelper {
             @Override
             public void handle(UserInfos userInfos) {
                 if (userInfos != null) {
-                    String[] idDevoirsString = request.params().getAll("idDevoir").toArray(new String[0]);
-                    List<Long> idDevoirs = new ArrayList<>(idDevoirsString.length);
-                    for(String idDevoirString : idDevoirsString) {
-                        idDevoirs.add(Long.valueOf(idDevoirString));
-                    }
+                    Long[] idDevoirs = request.params().getAll("idPeriode").toArray(new Long[0]);
 
-                    periodeService.deletePeriodes(idDevoirs.toArray(new Long[0]), arrayResponseHandler(request));
+                    if(idDevoirs != null && idDevoirs.length > 0) {
+                        periodeService.deletePeriodes(idDevoirs, arrayResponseHandler(request));
+                    } else {
+                        badRequest(request);
+                        log.error("deletePeriodes : incorrect parameter");
+                    }
                 } else {
                     log.debug("User not found in session.");
                     Renders.unauthorized(request);

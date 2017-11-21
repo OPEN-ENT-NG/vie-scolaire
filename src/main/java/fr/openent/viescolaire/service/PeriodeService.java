@@ -99,14 +99,6 @@ public interface PeriodeService extends CrudService {
     public void checkEvalOnPeriode(Long[] idPeriodes, Handler<Either<String, JsonObject>> handler);
 
     /**
-     * Retourne les periodes decorees de l'id de leur type
-     *
-     * @param periodes periodes a completer
-     * @param handler  handler portant le resultat de la requete
-     */
-    public void getTypePeriode(final JsonObject[] periodes, final Handler<Either<String, JsonObject[]>> handler);
-
-    /**
      * Gerenere les periode à partir des classe representees dans les groupes passes en parametre
      *
      * @param idEtablissement identifiant de l'etablissement

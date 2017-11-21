@@ -1,140 +1,83 @@
-<lightbox on-close="" show="selected.modifAcces">
-    <h2>Paramétrage des classes sélectionnées</h2>
-    <section>
-        <p>Type de configuration : </p>
-        <div>
-            <label>
-                <input type="radio"
-                       ng-model="selected.param.typePeriode" value="2" ng-disabled="disabelchangeTypePeriode">
-                <span>
-                    <i18n>semestre</i18n>
-            </span>
-            </label>
-        </div>
-        <div>
-            <label>
-                <input type="radio"
-                       ng-model="selected.param.typePeriode" value="3" ng-disabled="disabelchangeTypePeriode">
-                <span>
-                    <i18n>trimestre</i18n>
-                </span>
-            </label>
-        </div>
-    </section>
+<h2>Paramétrage des classes sélectionnées</h2>
+<section>
+    <p>Type de configuration : </p>
+    <div>
+        <label ng-repeat="typePeriode in getTypePeriode()">
+            <input type="radio"
+                   ng-model="lightboxPeriode.typePeriode"
+                   ng-change="lightboxPeriode.periodes = buildPeriodes(lightboxPeriode.typePeriode)"
+                   value="[[typePeriode]]">
+            <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
+        </label>
+    </div>
+</section>
 
-    <div ng-show="selected.param.typePeriode == 2 ">
-        <div class="twelve row head-param-periode">
-            <div class="cell two "><i class="table"></i></div>
-            <div class="cell three"><i class="calendar"></i> Début</div>
-            <div class="cell three"><i class="calendar"></i> Fin</div>
-            <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
-        </div>
-        <div class="twelve row">
-            <div class="cell two"> Semestre 1</div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_debut" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_fin" min-date="selected.param[0].date_debut"
-                                 ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_finSaisie" min-date="selected.param[0].date_fin"
-                                 ng-change=""></date-picker>
-                </label>
-            </div>
-        </div>
-        <div class="twelve row">
-            <div class="cell two"> Semestre 2</div>
-            <div class="cell three">
-                <label>
-
-                    <date-picker ng-model="selected.param[1].date_debut" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[1].date_fin" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[1].date_finSaisie" ng-change=""></date-picker>
-                </label>
-            </div>
-        </div>
+<div class="twelve row"
+     ng-if="lightboxPeriode.typePeriode != null">
+    <div class="twelve row head-param-periode">
+        <div class="cell two "><i class="table "></i></div>
+        <div class="cell three"><i class="calendar"></i> Début</div>
+        <div class="cell three"><i class="calendar"></i> Fin</div>
+        <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
     </div>
 
-    <div ng-show="selected.param.typePeriode == 3 ">
-
-        <div class="twelve row head-param-periode">
-            <div class="cell two "><i class="table "></i></div>
-            <div class="cell three"><i class="calendar"></i> Début</div>
-            <div class="cell three"><i class="calendar"></i> Fin</div>
-            <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
+    <div class="twelve row"
+         ng-repeat="periode in lightboxPeriode.periodes">
+        <div class="cell two">
+            <span>[[ getI18n("viescolaire.periode." + lightboxPeriode.typePeriode) + " " + ($index + 1) ]]</span>
         </div>
-        <div class="twelve row">
-            <div class="cell two"> Trimestre 1</div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_debut" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_fin" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[0].date_finSaisie" ng-change=""></date-picker>
-                </label>
-            </div>
+        <div class="cell three">
+            <label>
+                <date-picker ng-model="periode.timestamp_dt"
+                             ng-change="checkError(); checkOrder()">
+                </date-picker>
+            </label>
         </div>
-        <div class="twelve row">
-            <div class="cell two"> Trimestre 2</div>
-            <div class="cell three">
-                <label>
-
-                    <date-picker ng-model="selected.param[1].date_debut" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[1].date_fin" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[1].date_finSaisie" ng-change=""></date-picker>
-                </label>
-            </div>
+        <div class="cell three">
+            <label>
+                <date-picker ng-model="periode.timestamp_fn"
+                             ng-change="checkError()">
+                </date-picker>
+            </label>
         </div>
-        <div class="twelve row">
-            <div class="cell two"> Trimestre 3</div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[2].date_debut" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[2].date_fin" ng-change=""></date-picker>
-                </label>
-            </div>
-            <div class="cell three">
-                <label>
-                    <date-picker ng-model="selected.param[2].date_finSaisie" ng-change=""></date-picker>
-                </label>
-            </div>
+        <div class="cell three">
+            <label>
+                <date-picker ng-model="periode.date_fin_saisie"
+                             ng-change="checkError()">
+                </date-picker>
+            </label>
         </div>
     </div>
-    <button class="marginFive magnet-right" ng-click="savePeriode()">
+</div>
+<div class="twelve row">
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorFn">
+        La date de fin ne peut être anterieur à la date de début.
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorFnS">
+        La date de fin de saisie ne peut être anterieur à la date de début.
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorEval">
+        Certaines périodes à modifier contiennent des devoirs.
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorOver">
+        Les periodes ne doivent pas se chevaucher.
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorContig">
+        Les periodes doivent etre contigues.
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.error">
+        Une erreur est survenue lors de la sauvegarde.
+    </div>
+    <button class="marginFive magnet-right"
+            ng-class="anyError()"
+            ng-disabled="anyError()"
+            ng-click="savePeriode(lightboxPeriode.periodes)">
         <i18n>Enregistrer</i18n>
     </button>
-</lightbox>
+</div>

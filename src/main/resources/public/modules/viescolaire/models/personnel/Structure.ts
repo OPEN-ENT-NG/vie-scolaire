@@ -7,15 +7,16 @@ import {Categorie} from "../../../absences/models/personnel/Categorie";
 import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
 import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
 import {Classe} from "./Classe";
-import {Periode} from "./Periode";
 import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
 import {Cycle} from "../../../evaluations/models/eval_cycle";
+import {TypePeriode} from "./TypePeriode";
 
 
 export class Structure extends DefaultStructure {
     // Fields
     id: string;
     isActived = {presence: false, evaluation: false};
+    typePeriodes: Collection<TypePeriode>;
 
     // presence
     motifs: Collection<Motif>;
@@ -23,11 +24,10 @@ export class Structure extends DefaultStructure {
     motifAppels: Collection<MotifAppel>;
     categorieAppels: Collection<CategorieAppel>;
     classes : Collection<Classe>;
-    periodes : Collection<Periode>;
+
     // evaluation
     niveauCompetences: Collection<NiveauCompetence>;
     cycles: Array<Cycle>;
-
 
     get api () {
         return  {
@@ -40,14 +40,13 @@ export class Structure extends DefaultStructure {
                 categorie: '/viescolaire/presences/categorie/appels?idEtablissement=' + this.id,
             },
             CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id + '&classOnly=True'
             },
             PERIODE : {
                 synchronization: '/viescolaire/periodes?idEtablissement=' + this.id,
-                create : '/viescolaire/periodes',
+                type: '/viescolaire/periodes/types',
                 update : '/viescolaire/periodes',
-                delete : '/viescolaire/periodes',
-                evalOnPeriode : '/viescolaire/periodes/eval'
+                evalOnPeriode : '/viescolaire/periodes/eval?'
             },
             NIVEAU_COMPETENCES : {
                 synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
@@ -62,10 +61,8 @@ export class Structure extends DefaultStructure {
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
-    }
-    async sync(): Promise<any> {
         this.collection(Motif, {
-            sync : async function () {
+            sync: async function () {
                 // Récupération des motifs pour l'établissement en cours
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
@@ -83,8 +80,8 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
-        this.collection(Classe,{
-            sync :  async function () {
+        this.collection(Classe, {
+            sync: async function () {
                 // Récupération des classes et groupes de l'etab
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
@@ -96,25 +93,18 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
-        this.collection(Periode, {
-            sync :  () => {
+        this.collection(TypePeriode, {
+            sync: () => {
                 return new Promise((resolve, reject) => {
-                    let url = this.api.PERIODE.synchronization;
-                    http().getJson(url).done((periode) => {
-                        this.periodes.all = periode;
-                        _.each(this.periodes.all, (_periode) => {
-                            let _classe = _.findWhere(this.classes.all, {id: _periode.id_classe});
-                            if(_classe) {
-                                _classe.periodes.push(_periode);
-                            }
-                        });
+                    http().getJson(this.api.PERIODE.type).done((types) => {
+                        this.typePeriodes.load(types);
                         resolve();
                     });
                 });
             }
         });
         this.collection(Categorie, {
-            sync : async function () {
+            sync: async function () {
                 let that = this.composer;
                 // Récupération (sous forme d'arbre) des catégories des motifs d'absence pour l'établissement en cours
                 return new Promise((resolve, reject) => {
@@ -122,13 +112,13 @@ export class Structure extends DefaultStructure {
 
                     http().getJson(url).done(function (categories) {
                         let _categorieTree = categories;
-                        if ( categories.length > 0 ) {
+                        if (categories.length > 0) {
                             _.map(_categorieTree, (categorie) => {
                                 // récupération des motifs-fils de la catégorie courante
-                                let _currentMotifs = that.motifs.filter( function(motif) {
+                                let _currentMotifs = that.motifs.filter(function (motif) {
                                     return motif.id_categorie === categorie.id;
                                 });
-                                categorie.slided= false;
+                                categorie.slided = false;
                                 categorie.is_appel_oublie = false;
                                 categorie.motifs = {
                                     all: _currentMotifs
@@ -142,7 +132,7 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(MotifAppel, {
-            sync : async function () {
+            sync: async function () {
                 // Récupération des motifs pour l'établissement en cours
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
@@ -161,7 +151,7 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(CategorieAppel, {
-            sync : async function () {
+            sync: async function () {
                 let that = this.composer;
                 // Récupération (sous forme d'arbre) des catégories des motifs d'absence pour l'établissement en cours
                 return new Promise((resolve, reject) => {
@@ -169,13 +159,13 @@ export class Structure extends DefaultStructure {
 
                     http().getJson(url).done(function (categories) {
                         let _categorieTree = categories;
-                        if ( categories.length > 0 ) {
+                        if (categories.length > 0) {
                             _.map(_categorieTree, (categorie) => {
                                 // récupération des motifs-fils de la catégorie courante
-                                let _currentMotifs = that.motifAppels.filter( function(motif) {
+                                let _currentMotifs = that.motifAppels.filter(function (motif) {
                                     return motif.id_categorie === categorie.id;
                                 });
-                                categorie.slided= false;
+                                categorie.slided = false;
                                 categorie.is_appel_oublie = true;
                                 categorie.motifAppels = {
                                     all: _currentMotifs
@@ -189,15 +179,15 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(NiveauCompetence, {
-            sync : async function () {
+            sync: async function () {
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
                 return new Promise((resolve, reject) => {
                     http().getJson(this.composer.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
-                        niveauCompetences.forEach((niveauCompetence) => {
-                            if(niveauCompetence.couleur === null ){
+                        _.each(niveauCompetences, (niveauCompetence) => {
+                            if (niveauCompetence.couleur === null) {
                                 niveauCompetence.couleur = Defaultcolors[niveauCompetence.default];
                             }
-                            if (niveauCompetence.lettre === null ) {
+                            if (niveauCompetence.lettre === null) {
                                 niveauCompetence.lettre = " ";
                             }
                             niveauCompetence.id_etablissement = this.composer.id;
@@ -218,6 +208,9 @@ export class Structure extends DefaultStructure {
 
             }
         });
+    }
+
+    async sync(): Promise<any> {
 
         // Récupération du niveau de compétences et construction de l'abre des cycles.
         this.getMaitrise();
@@ -230,7 +223,8 @@ export class Structure extends DefaultStructure {
         await this.categories.sync();
         //classes
         await this.classes.sync();
-        await this.periodes.sync();
+        await this.typePeriodes.sync();
+        await this.getPeriodes();
     }
 
     async  activate(module: string, isActif, idStructure) {
@@ -249,50 +243,31 @@ export class Structure extends DefaultStructure {
         };
     };
 
-    hasEvaluations(MyClasses){
-        return new Promise((resolve, reject) => {
-            let URL = this.api.PERIODE.evalOnPeriode;
-            for(let classe of MyClasses){
-                URL += "idGroupe=" + classe + "&";
-            }
-            URL = URL.substring(0, URL.length - 1);
-            http().getJson(URL).done(function (data) {
-                if(resolve && (typeof(resolve) === 'function')) {
-                    resolve(data);
-                }
-            });
-        });
-    }
-
-    async createPeriodes(idClasses, periodes): Promise<{id: number, bool: boolean}> {
-        let data = await http().postJson(this.api.PERIODE.create, this.toPeriodeJsonCreate(idClasses, periodes))
-        this.id = data.id;
-        return {id: data.id, bool: true};
-    }
-
-    async updatePeriodes (idClasses, periodes):Promise <{id: number, bool: boolean}> {
-        let data = await http().putJson(this.api.PERIODE.update, this);
-        return {id: data.id, bool: false};
-    }
+    // hasEvaluations(periodes){
+    //     let URL = this.api.PERIODE.evalOnPeriode;
+    //     for(let periode of periodes){
+    //         URL += "idPeriode=" + periode.id + "&";
+    //     }
+    //     URL = URL.substring(0, URL.length - 1);
+    //     return http().getJson(URL);
+    // }
 
     savePeriodes (idClasses, periodes): Promise<{id: number, bool: boolean}> {
-        return new Promise((resolve, reject) => {
-            if (this.id) {
-                this.updatePeriodes(idClasses, periodes).then((data) => {
-                    resolve(data);
-                });
-            } else {
-                this.createPeriodes(idClasses, periodes).then((data) => {
-                    resolve(data);
-                });
-            }
-        });
+        let json = {
+            idEtablissement: this.id,
+            idClasses: idClasses,
+            periodes: periodes
+        };
+        return http().putJson(this.api.PERIODE.update, json);
     }
 
-    deletePeriodes (idPeriodes):Promise <any> {
+    getPeriodes ():Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.PERIODE.delete + this.id).done(() => {
-                this.id = undefined;
+            http().getJson(this.api.PERIODE.synchronization).done((periodes) => {
+                _.each(this.classes.all, (classe) => {
+                    classe.periodes.load(_.where(periodes, {id_classe: classe.id}));
+                    periodes = _.difference(periodes, classe.periodes.all);
+                });
                 resolve();
             });
         });

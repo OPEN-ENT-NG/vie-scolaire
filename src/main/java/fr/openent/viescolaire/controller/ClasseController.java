@@ -114,7 +114,7 @@ public class ClasseController extends BaseController {
     }
 
     @Get("/classes")
-    @ApiDoc("Retourne les classes de l'utilisateur")
+    @ApiDoc("Retourne les classes de l'établissement")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getClasses(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -124,7 +124,9 @@ public class ClasseController extends BaseController {
                         && !request.params().isEmpty()
                         && request.params().contains("idEtablissement")) {
                     String idEtablissement = request.params().get("idEtablissement");
-                    classeService.listClasses(idEtablissement,user, new Handler<Either<String, JsonArray>>() {
+                    Boolean classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
+
+                    classeService.listClasses(idEtablissement, classOnly, user, new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {

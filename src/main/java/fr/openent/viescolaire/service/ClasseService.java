@@ -62,11 +62,14 @@ public interface ClasseService extends CrudService {
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Récupère la liste des classes de l'utilisateur
-     *
-     * @param handler handler portant le résultat de la requête
+     * Recupere la liste des classes et/ou groupes de l'etablissement
+     * @param idEtablissement   identifiant de l'etablissement
+     * @param classOnly         boolean indiquant si seulement les classes seront recuperees. Si null, les classes
+     *                          ET les groupes seront recuperes
+     * @param user              les informations du users connecte
+     * @param handler           handler portant le resultat de la requete
      */
-    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler);
+    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.

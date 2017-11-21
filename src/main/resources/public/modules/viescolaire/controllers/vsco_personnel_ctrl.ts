@@ -1,14 +1,14 @@
-import {idiom as lang, template, ng} from "entcore/entcore";
+import { $, idiom as lang, template, ng} from "entcore/entcore";
 import {vieScolaire} from "../models/vsco_personnel_mdl";
 import {Motif} from "../../absences/models/personnel/Motif";
 import {Categorie} from "../../absences/models/personnel/Categorie";
 import {MotifAppel} from "../../absences/models/personnel/MotifAppel";
 import {CategorieAppel} from "../../absences/models/personnel/CategorieAppel";
-import {safeApply} from "../../utils/functions/safeApply";
+import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/personnel/Periode";
+import moment = require("moment");
 
-let moment = require('moment');
 declare let _: any;
 
 export let viescolaireController = ng.controller('ViescolaireController', [
@@ -22,104 +22,168 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.selected = {
             categories: [],
             motifs: [],
-            all: [],
-            listeGroupeClasse : [],
-            periode : 0,
-            classes: {
-                0:[],
-                2:[],
-                3:[]
-            },
-            modifAcces : false,
-            param : {
-                typePeriode : "2",
-                0: {
-                    date_debut: new Date(),
-                    date_fin : new Date(),
-                    date_finSaisie : new Date()
-                },
-                1: {
-                    date_debut: new Date(),
-                    date_fin : new Date(),
-                    date_finSaisie : new Date()
-                },
-                2: {
-                    date_debut: new Date(),
-                    date_fin : new Date(),
-                    date_finSaisie : new Date()
-                }
-            }
-        };
-        $scope.justClasses = [];
-        $scope.isSelected = {
-            classe : true,
-            groupe: true
+            all: []
         };
         $scope.search = {
-            name:''
+            name:'',
+            type:0
         };
-        $scope.disabelchangeTypePeriode = true;
-        $scope.safeApply = function(fn) {
-            let phase = this.$root.$$phase;
-            if (phase === '$apply' || phase === '$digest') {
-                if (fn && (typeof(fn) === 'function')) {
-                    fn();
+
+        $scope.resetLightboxPeriode = () => {
+            return {
+                error : {
+                    errorEval: false,
+                    errorFn: false,
+                    errorFnS: false,
+                    errorOver: false,
+                    errorContig: false,
+                    error: false
                 }
-            } else {
-                this.$apply(fn);
-            }
-        };
-
-        $scope.selectPeriodeType = (nbr) =>{
-            $scope.selected.periode = nbr;
-            safeApply($scope);
-        };
-
-        $scope.displayLightboxParam = () => {
-            $scope.selected.modifAcces = true;
-            if($scope.selected.periode === 0 )  {$scope.selected.param.typePeriode = "2" ; $scope.disabelchangeTypePeriode = false;}
-            else {$scope.selected.param.typePeriode = $scope.selected.periode ;$scope.hasEvaluation() ; }
-
-        };
-
-        $scope.initparamPeriode = () => {
-            $scope.selected.classes[$scope.selected.periode] = [];
-
-            $scope.selected.param [0]= {
-                date_debut: new Date(),
-                date_fin : new Date(),
-                date_finSaisie : new Date()
             };
-            $scope.selected.param [1]=  {
-                date_debut: new Date(),
-                date_fin : new Date(),
-                date_finSaisie : new Date()
-            };
-            $scope.selected.param [2]=  {
-                date_debut: new Date(),
-                date_fin : new Date(),
-                date_finSaisie : new Date()
-            }
         };
 
-        $scope.UndesplayLightboxParam = () => {
-            $scope.initparamPeriode ();
-            $scope.syncClassePeriodes();
-            $scope.selected.modifAcces = false;
+        $scope.lightboxPeriode = $scope.resetLightboxPeriode();
+
+        $scope.anyError = () => {
+            return _.some($scope.lightboxPeriode.error)
         };
-        // check si on doit afficher le menu viescolaire.
-        $scope.hasParam = function (param) {
-            return Object.prototype.hasOwnProperty.call($location.search(), param);
+
+        $scope.checkError = () => {
+
+            let periodes = $scope.lightboxPeriode.periodes;
+            let errorObject = $scope.lightboxPeriode.error = $scope.resetLightboxPeriode().error;
+
+            errorObject.errorFn = _.some(periodes, (periode) => {
+                return !moment(periode.timestamp_fn).isAfter(moment(periode.timestamp_dt), 'days');
+            });
+
+            errorObject.errorFnS = _.some(periodes, (periode) => {
+                return !moment(periode.date_fin_saisie).isAfter(moment(periode.timestamp_dt), 'days');
+            });
+
+            errorObject.errorOver =
+                _.some(periodes, (periodeToCompare: Periode) => {
+                    let otherPeriodes = _.reject(periodes, periodeToCompare);
+                    return _.some(otherPeriodes, (periodeToCompareWith: Periode) => {
+                        return moment(periodeToCompare.timestamp_dt)
+                                .isBetween(moment(periodeToCompareWith.timestamp_dt),
+                                    moment(periodeToCompareWith.timestamp_fn), 'days', '[]')
+                            || moment(periodeToCompare.timestamp_fn)
+                                .isBetween(moment(periodeToCompareWith.timestamp_dt),
+                                    moment(periodeToCompareWith.timestamp_fn), 'days', '[]');
+                    });
+                });
+
+            errorObject.errorContig =
+                _.some(periodes, (periode, index) => {
+                    let result = false;
+                    if (periodes[index - 1]) {
+                        result = result || moment(periode.timestamp_dt).diff(moment(periodes[index - 1].timestamp_fn), 'days') > 1;
+                    }
+                    if (periodes[index + 1]) {
+                        result = result || moment(periodes[index + 1].timestamp_dt).diff(moment(periode.timestamp_fn), 'days') > 1;
+                    }
+                    return result;
+                });
+        };
+
+        $scope.checkOrder = () => {
+            $scope.lightboxPeriode.periodes = _.sortBy($scope.lightboxPeriode.periodes, (periode) => {
+                return moment(periode.timestamp_dt);
+            });
         };
 
         // recherche le module dont on veut aficher les paramètres.
         $scope.findParam = function (key) {
-            if ($scope.hasParam(key)) {
+            if (key && Object.prototype.hasOwnProperty.call($location.search(), key)) {
                 return ($location.search())[key];
             } else {
-                $scope.hasFilterParam = true;
-                return false;
+                return null;
             }
+        };
+
+        $scope.getTypePeriode = () => {
+            return _.uniq(_.pluck($scope.structure.typePeriodes.all, 'type'));
+        };
+
+        $scope.getOrdreTypePeriode = (periode:Periode) => {
+            return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
+        };
+
+        $scope.getSelectedClasse = () => {
+            return _.where($scope.structure.classes.all, {selected: true});
+        };
+
+        $scope.resetSelectedClasse = () => {
+            _.each($scope.structure.classes.all, (classe) => {
+                delete classe.selected;
+            });
+        };
+
+        $scope.setPeriodes = () => {
+            if ($scope.getSelectedClasse().length == 1) {
+                let classe = _.first($scope.getSelectedClasse());
+                $scope.lightboxPeriode.periodes = _.map(classe.periodes.all, (periode) => {
+                    return _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+                });
+                $scope.lightboxPeriode.typePeriode = classe.periodes.all.length;
+            } else {
+                $scope.lightboxPeriode.periodes = [];
+                $scope.lightboxPeriode.typePeriode = null;
+            }
+        };
+
+        $scope.buildPeriodes = (typePeriode) => {
+            let periodes = [];
+            for (let i = 0; i < typePeriode; i++) {
+                let periode = new Periode();
+                periode.timestamp_dt = new Date();
+                periode.timestamp_fn = new Date();
+                periode.date_fin_saisie = new Date();
+                periode.id_etablissement = $scope.structure.id;
+
+                periodes.push(periode);
+            }
+            return periodes;
+        };
+
+        $scope.savePeriode = async (periodes) => {
+
+            let idPeriodes = [];
+            _.each($scope.getSelectedClasse(), (classe) => {
+                _.each(classe.periodes.all, (periode) => {
+                    if(periode.id && _.contains(_.pluck(periodes.id_type), periode.id_type))
+                        idPeriodes.push(periode.id);
+                });
+            });
+
+            if(!$scope.lightboxPeriode.error.errorEval && !$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
+                try {
+                    await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
+                } catch (err) {
+                    $scope.lightboxPeriode.error.error = true;
+                }
+            }
+
+            await $scope.structure.getPeriodes();
+            $scope.lightboxPeriode = $scope.resetLightboxPeriode();
+            $scope.showLightboxPeriode = false;
+
+            utils.safeApply($scope);
+        };
+
+        $scope.getCurrentPeriode = (classe): Periode => {
+            let now = moment();
+            _.each(classe.periodes.all, (periode) => {
+                if (moment(periode.timestamp_dt).isBefore(now) && moment(periode.timestamp_fn).isAfter(now)) {
+                    return periode;
+                }
+            });
+            return _.first(classe.periodes.all);
+        };
+
+        $scope.currentCycle = function (cycle) {
+            return cycle.selected;
         };
 
         // scroller vers un élément donné
@@ -132,8 +196,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.displayCreateCategorie = false;
             $scope.displayText = lang.translate("viescolaire.create.motif");
             $scope.opened.lightboxCreateMotif = true;
-            $scope.safeApply($scope);
+            utils.safeApply($scope);
         };
+
         $scope.slideAll = function (isAppel) {
             if (isAppel) {
                 $scope.structure.categorieAppels.slidedAll = !$scope.structure.categorieAppels.slidedAll;
@@ -147,8 +212,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     categorie.slided = $scope.structure.categories.slidedAll;
                 });
             }
-            $scope.safeApply($scope);
+            utils.safeApply($scope);
         };
+
         $scope.createMotif = function(isAppel) {
             $scope.isAppel = isAppel;
             $scope.newMotif = {
@@ -183,9 +249,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             };
             $scope.opened.lightboxCreateMotif = true;
             $scope.isModif = false;
-            $scope.safeApply($scope);
+            utils.safeApply($scope);
         };
-
 
         // sélection d'un motif
         $scope.selectMotif = function (motif) {
@@ -229,11 +294,11 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 $scope.structure.motifs.sync().then(() => {
                     if(_newMotif.is_appel_oublie){
                         $scope.structure.categorieAppels.sync().then( () => {
-                            $scope.safeApply($scope);
+                            utils.safeApply($scope);
                         });
                     } else {
                         $scope.structure.categories.sync().then( () => {
-                            $scope.safeApply($scope);
+                            utils.safeApply($scope);
                         });
                     }
                 });
@@ -262,7 +327,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                                 $scope.opened.lightboxCreateMotif = false;
                                 $scope.newCategorie.selected = false;
                             }
-                            $scope.safeApply($scope);
+                            utils.safeApply($scope);
                         });
                     });
                 });
@@ -279,7 +344,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 $scope.opened.lightboxCreateMotif = false;
                 $scope.structure.motifAppels.sync().then(() => {
                     $scope.structure.categorieAppels.sync().then( () => {
-                        $scope.safeApply($scope);
+                        utils.safeApply($scope);
                     });
                 });
             });
@@ -301,7 +366,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                             $scope.opened.lightboxCreateMotif = false;
                             $scope.newCategorie.selected = false;
                         }
-                        $scope.safeApply($scope);
+                        utils.safeApply($scope);
                     });
                 });
             });
@@ -316,16 +381,18 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.newMotif = $scope.selected.motifs[0];
             $scope.displayCreateCategorie = false;
             $scope.opened.lightboxCreateMotif = true;
-            $scope.safeApply($scope);
+            utils.safeApply($scope);
         };
+
         $scope.updateCategorie = function () {
             $scope.displayText = lang.translate("viescolaire.update.categorie");
             $scope.displayCreateCategorie = true;
             $scope.newCategorie = $scope.selected.categories[0];
             $scope.opened.lightboxCreateMotif = true;
             $scope.isModif = true;
-            $scope.safeApply($scope);
+            utils.safeApply($scope);
         };
+
         $scope.changeEtablissementAccueil = function (structure) {
             $scope.structure = structure;
             $scope.structure.sync().then(() => {
@@ -333,49 +400,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 if ($scope.currParam === undefined) {
                     $scope.currParam = 0;
                 }
-                $scope.safeApply($scope);
-            });
-        };
-        $scope.hasEvaluation = () => {
-            if($scope.selected.periode != 0){
-                let MyClasses = [];
-                MyClasses =_.pluck($scope.selected.classes[$scope.selected.periode],'id') ;
-                $scope.structure.hasEvaluations(MyClasses).then((data)=>{
-                    if(data.length === 0){$scope.disabelchangeTypePeriode = false;}
-                    else{$scope.disabelchangeTypePeriode = true;}
-                    $scope.safeApply($scope);
-                });
-            }
-        };
-        $scope.savePeriode = () => {
-            let periodes =  {};
-
-            let z=0;
-            //initialisation
-            if($scope.selected.periode == 0){
-                $scope.structure.createPeriodes($scope.structure.id,$scope.selected.classes[$scope.selected.periode],$scope.selected.param);
-            }else if($scope.selected.periode == $scope.selected.param.typePeriode){
-                //Update dates
-                $scope.structure.updatePeriodes($scope.selected.classes[$scope.selected.periode],$scope.selected.param);
-            }else {
-
-                $scope.structure.updateTypePeriode($scope.selected.classes[$scope.selected.periode],$scope.selected.periode,$scope.selected.param.typePeriode,$scope.selected.param);
-
-            }
-            $scope.UndesplayLightboxParam();
-            $scope.safeApply($scope);
-
-        };
-        $scope.syncClassePeriodes = () => {
-            $scope.structure.classes.sync().then((data) => {
-                $scope.structure.periodes.sync().then(() => {
-                    $scope.justClasses = _.filter($scope.structure.classes.all, (classe) => {
-                        return classe.type_groupe == 0 ;
-                    });
-                    $scope.selected.listeGroupeClasse = _.groupBy($scope.justClasses, (classe) => { return classe.periodes.length(); });
-                });
-
-                $scope.safeApply($scope);
+                utils.safeApply($scope);
             });
         };
 
@@ -383,27 +408,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             return getFormatedDate(pODate, 'DD MMMM YYYY');
         };
 
-        $scope.formatDate = function (pODateDebut, pODateFin) {
-            return (moment(pODateDebut).format('DD/MM/YYYY') + " " + moment(pODateDebut).format('HH:mm') + "-" + moment(pODateFin).format('HH:mm'));
-        };
-
-        $scope.getCurrentPeriode = (classe):Periode => {
-            let now = moment();
-            _.each(classe.periodes.all, (periode) => {
-                if(moment(periode.timestamp_dt).isBefore(now) && moment(periode.timestamp_fn).isAfter(now)) {
-                    return periode;
-                }
-            });
-            return _.first(classe.periodes.all);
-        };
-
-        $scope.currentCycle = function(cycle) {
-            return cycle.selected;
-        };
         route({
             accueil: function (params) {
                 moment.locale('fr');
-                $scope.hasFilterParam = params.filter === undefined;
                 if ( $scope.structure === undefined ) {
                     vieScolaire.structures.sync().then(() => {
                         $scope.structures = vieScolaire.structures;
@@ -417,18 +424,20 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                             if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
-                            $scope.syncClassePeriodes();
-                            $scope.safeApply($scope);
+                            template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                            template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
+                            template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
+                            utils.safeApply($scope);
                         });
                     });
                 }
                 else {
                     $scope.structures = vieScolaire.structures;
-
+                    template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                    template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
+                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
+                    utils.safeApply($scope);
                 }
-                template.open('main', '../templates/viescolaire/vsco_acu_personnel');
-                template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
-                $scope.safeApply($scope);
             }
         });
     }

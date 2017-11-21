@@ -17,39 +17,38 @@
 
     <div class="ten cell">
         <div class="twelve tabs vertical-spacing-twice heading-tabs">
-            <header ng-class="{selected : selected.periode === 3}"
-                    class="horizontal-spacing-twice ng-scope">
-                <a class="horizontal-spacing" ng-click="selectPeriodeType(3)">
-                    <span><i18n>viescolaire.periode.t </i18n></span>
+            <header ng-repeat="typePeriode in getTypePeriode()"
+                    ng-class="{selected : search.type == typePeriode}"
+                    class="horizontal-spacing-twice">
+                <a class="horizontal-spacing"
+                   ng-click="search.type = typePeriode">
+                    <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
                 </a>
             </header>
-            <header ng-class="{selected : selected.periode === 2}"
+            <header ng-class="{selected : search.type == 0}"
                     class="horizontal-spacing-twice ng-scope">
-                <a class="horizontal-spacing" ng-click="selectPeriodeType(2)">
-                    <span><i18n>viescolaire.periode.s </i18n></span>
-                </a>
-            </header>
-            <header ng-class="{selected : selected.periode === 0}"
-                    class="horizontal-spacing-twice ng-scope">
-                <a class="horizontal-spacing" ng-click="selectPeriodeType(0)">
-                    <span><i18n><span>NI</span></i18n></span>
+                <a class="horizontal-spacing"
+                   ng-click="search.type = 0">
+                    <i18n>viescolaire.periode.notset</i18n>
                 </a>
             </header>
         </div>
 
         <article class="twelve cell ">
             <h2 class="two cell">
-                <i18n><span class="no-style ng-scope">Recherche Classe</span></i18n>
+                <i18n>viescolaire.viescolaire.rechercheClasse</i18n>
             </h2>
             <input class="ten cell"
-                   type="text" ng-model="search.name" placeholder="Nom de la classe">
+                   type="text"
+                   ng-model="search.name"
+                   placeholder="Nom de la classe">
         </article>
 
         &nbsp
 
         <div class="card expandable-list twelve row">
             <div class="expandable-list-header twelve cell"
-                 ng-if="selected.listeGroupeClasse[selected.periode].length > 0">
+                 ng-if="(structure.classes.all|periodeSearch:search) > 0">
                 <div class="cell">&nbsp</div>
                 <div class="cell">
                     <i18n>viescolaire.utils.class</i18n>
@@ -70,13 +69,13 @@
             </div>
             <div class="twelve cell expandable-list-body">
                 <div class="row expandable-list-item"
-                     ng-repeat="classe in selected.listeGroupeClasse[selected.periode] | customSearchClasse:search"
+                     ng-repeat="classe in structure.classes.all | periodeSearch:search"
                      ng-class="{ displayed : classe.displayed }">
                     <div class="row expandable-list-item-main" ng-click="classe.displayed = !classe.displayed">
                         <div class="cell">
                             <label class="checkbox">
-                                <input type="checkbox" ng-model="classe.selected"
-                                       ng-change="selectDevoir(classe)">
+                                <input type="checkbox"
+                                       ng-model="classe.selected">
                                 <span></span>
                             </label>
                         </div>
@@ -86,7 +85,7 @@
                             </div>
                         </div>
                         <div class="cell">
-                            <span><i18n>viescolaire.periode.encours</i18n> : [[ getI18n(getCurrentPeriode(classe).libelle) ]]</span>
+                            <span><i18n>Actuelle</i18n> : [[ getI18n("viescolaire.periode." + getOrdreTypePeriode(getCurrentPeriode(classe)).type) + " " + getOrdreTypePeriode(getCurrentPeriode(classe)).ordre ]]</span>
                         </div>
                         <div class="cell">
                             <span>[[ formatDate(getCurrentPeriode(classe).timestamp_dt) ]]</span>
@@ -105,13 +104,14 @@
                         <div class="row" ng-repeat="periode in classe.periodes.all">
                             <div class="cell">&nbsp</div>
                             <div class="cell">&nbsp</div>
-                            <div class="cell">[[ getI18n(periode.libelle) ]]</div>
+                            <div class="cell">[[ getI18n("viescolaire.periode." +
+                                getOrdreTypePeriode(periode).type) + " " +
+                                getOrdreTypePeriode(periode).ordre ]]</div>
                             <div class="cell">
                                 [[ formatDate(periode.timestamp_dt) ]]
                             </div>
                             <div class="cell">
-                                [[ formatDate(periode.timestamp_fn,
-                                "YYYY/MM/DD") ]]
+                                [[ formatDate(periode.timestamp_fn) ]]
                             </div>
                             <div class="cell">
                                 [[ formatDate(periode.date_fin_saisie) ]]
@@ -121,36 +121,24 @@
                     </div>
                 </div>
             </div>
-
-
-            <!--<div class="expandable twelve  row"-->
-            <!--ng-repeat="classe in selected.listeGroupeClasse[selected.periode] | customSearchClasse:search " >-->
-            <!--<div class="expandable twelve cell row" >-->
-            <!--<div class="one cell cell-check expandable-content two-mobile">-->
-
-            <!--</div>-->
-            <!--<div class="cell cell-indent expandable-content four-mobile ng-binding two">-->
-            <!--[[classe.name]]-->
-            <!--</div>-->
-
-            <!--</div>-->
-
-            <!--</div>-->
         </div>
     </div>
 </div>
 
 <section class="toggle-buttons"
-         ng-class="{ hide: selected.classes[selected.periode].length == 0 || selected.classes[selected.periode].length == undefined }">
+         ng-show="getSelectedClasse().length > 0">
     <div class="toggle">
         <div class="row">
-            <button class="cell ng-scope"
-                    ng-click="displayLightboxParam();">
-                <i18n>
-                    <span class="no-style">evaluations.test.edit</span>
-                </i18n>
+            <button class="cell"
+                    ng-click="setPeriodes(); showLightboxPeriode = true">
+                    <span><i18n>viescolaire.periode.edit</i18n></span>
             </button>
 
         </div>
     </div>
 </section>
+
+<lightbox show="showLightboxPeriode == true"
+          on-close="showLightboxPeriode = false">
+    <container template="lightboxPeriode"></container>
+</lightbox>

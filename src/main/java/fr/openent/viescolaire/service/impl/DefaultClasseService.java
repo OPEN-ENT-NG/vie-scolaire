@@ -107,24 +107,37 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
      * @param handler handler portant le résultat de la requête
      */
     @Override
-    public void listClasses(String idEtablissement, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, Handler<Either<String, JsonArray>> handler) {
         String query;
         JsonObject params = new JsonObject();
         // Dans le cas du chef d'établissement, on récupère toutes les classes
-        if("Personnel".equals(user.getType())){
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} return g " +
-                    "UNION ALL " +
-                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) where s.id = {idEtablissement} return g";
+
+        String queryClass = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) ";
+        String queryGroup = "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
+        String paramEtab = "s.id = {idEtablissement} ";
+        String paramClass = "g.id IN {classes} ";
+        String paramGroup = "g.id IN {groups} ";
+        String param1;
+        String param2;
+
+        if ("Personnel".equals(user.getType())) {
+            param1 = "WHERE " + paramEtab + "RETURN g ";
+            param2 = param1;
             params.putString("idEtablissement", idEtablissement);
-        }
-        else {
-            query = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) WHERE g.id IN {classes} AND s.id = {idEtablissement} return g " +
-                    "UNION ALL " +
-                    "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) WHERE g.id IN {groups} AND s.id = {idEtablissement} return g";
-            params = new JsonObject();
+        } else {
+            param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN g ";
+            param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN g ";
             params.putArray("classes", new JsonArray(user.getClasses().toArray()))
                     .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
                     .putString("idEtablissement", idEtablissement);
+        }
+
+        if(classOnly == null){
+            query = queryClass + param1 + "UNION ALL " + queryGroup + param2;
+        } else if (classOnly){
+            query = queryClass + param1;
+        } else {
+            query = queryGroup + param2;
         }
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }

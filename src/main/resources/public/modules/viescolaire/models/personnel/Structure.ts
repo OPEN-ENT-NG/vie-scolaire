@@ -243,15 +243,6 @@ export class Structure extends DefaultStructure {
         };
     };
 
-    // hasEvaluations(periodes){
-    //     let URL = this.api.PERIODE.evalOnPeriode;
-    //     for(let periode of periodes){
-    //         URL += "idPeriode=" + periode.id + "&";
-    //     }
-    //     URL = URL.substring(0, URL.length - 1);
-    //     return http().getJson(URL);
-    // }
-
     savePeriodes (idClasses, periodes): Promise<{id: number, bool: boolean}> {
         let json = {
             idEtablissement: this.id,

@@ -835,15 +835,28 @@ export class Evaluation extends Model implements IModel{
 
     save () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            if (!this.id) {
-                this.create().then((data) => {
-                    resolve(data);
+            if ( this.id_annotation != undefined ){
+                this.deleteAnnotationDevoir().then(()=>{
+                    delete this.oldId_annotation;
+                    delete this.id_annotation;
+                    this.oldValeur = "";
+                    this.create().then((data) => {
+                        resolve(data);
+                    });
                 });
-            } else {
-                this.update().then((data) =>  {
-                    resolve(data);
-                });
+            }else {
+                if (!this.id) {
+                    this.create().then((data) => {
+                        resolve(data);
+                    });
+                } else {
+                    this.update().then((data) =>  {
+                        resolve(data);
+                    });
+                }
             }
+
+
         });
     }
 

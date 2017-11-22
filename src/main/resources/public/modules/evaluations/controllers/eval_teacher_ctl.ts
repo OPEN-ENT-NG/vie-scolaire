@@ -9,8 +9,8 @@ import {Defaultcolors} from "../models/eval_niveau_comp";
 let moment = require('moment');
 
 declare let _: any;
+declare let $:any;
 declare let document: any;
-declare let $: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',

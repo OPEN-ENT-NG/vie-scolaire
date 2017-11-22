@@ -10,6 +10,7 @@ import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
 import {Cycle} from "../../../evaluations/models/eval_cycle";
 import {TypePeriode} from "./TypePeriode";
+import {Periode} from "./Periode";
 
 
 export class Structure extends DefaultStructure {
@@ -235,21 +236,24 @@ export class Structure extends DefaultStructure {
             let res = await createActiveStructure(module, idStructure);
         }
     }
-    toPeriodeJsonCreate (idClasses, periodes){
-        return {
-            "idEtablissement" : this.id,
-            "idClasses" : idClasses,
-            "periodes" : periodes
-        };
-    };
 
-    savePeriodes (idClasses, periodes): Promise<{id: number, bool: boolean}> {
-        let json = {
-            idEtablissement: this.id,
-            idClasses: idClasses,
-            periodes: periodes
-        };
-        return http().putJson(this.api.PERIODE.update, json);
+    savePeriodes (idClasses, periodes): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let json = {
+                idEtablissement: this.id,
+                idClasses: idClasses,
+                periodes: _.map(periodes, (periode) => {
+                    return {
+                        timestamp_dt: moment(periode.timestamp_dt).format("YYYY-MM-DD"),
+                        timestamp_fn: moment(periode.timestamp_fn).format("YYYY-MM-DD"),
+                        date_fin_saisie: moment(periode.date_fin_saisie).format("YYYY-MM-DD")
+                    };
+                })
+            };
+            http().putJson(this.api.PERIODE.update, json).done(() => {
+                resolve();
+            });
+        });
     }
 
     getPeriodes ():Promise<any> {
@@ -260,6 +264,19 @@ export class Structure extends DefaultStructure {
                     periodes = _.difference(periodes, classe.periodes.all);
                 });
                 resolve();
+            });
+        });
+    }
+
+    checkEval(idClasses):Promise<any> {
+        return new Promise((resolve, reject) => {
+            let url = this.api.PERIODE.evalOnPeriode;
+            _.each(idClasses, (idClasse, index) => {
+                url += "idClasse=" + idClasse;
+                if( index != idClasses.length - 1 ) url +='&' ;
+            });
+            http().getJson(url).done((boolean) => {
+                resolve(boolean.exist);
             });
         });
     }

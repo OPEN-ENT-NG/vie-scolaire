@@ -107,14 +107,14 @@ public class PeriodeController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if (user != null) {
-                    final Long[] idPeriodes = request.params().getAll("idPeriode").toArray(new Long[0]);
+                    final String[] idClasses = request.params().getAll("idClasse").toArray(new String[0]);
 
-                    if (idPeriodes.length == 0) {
+                    if (idClasses.length == 0) {
                         badRequest(request);
                         log.error("getPeriodesEval : incorrect parameter");
                     }
 
-                    periodeService.checkEvalOnPeriode(idPeriodes, defaultResponseHandler(request));
+                    periodeService.checkEvalOnPeriode(idClasses, defaultResponseHandler(request));
                 } else {
                     unauthorized(request);
                 }
@@ -147,62 +147,6 @@ public class PeriodeController extends ControllerHelper {
                         }
                     });
                 }else {
-                    log.debug("User not found in session.");
-                    Renders.unauthorized(request);
-                }
-            }
-        });
-    }
-
-    @Post("/periodes")
-    @ApiDoc("Cree des periodes")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void createPeriodes(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                if(user != null){
-                    RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-                        @Override
-                        public void handle(JsonObject resource) {
-
-                            final String idEtablissement = resource.getString("idEtablissement");
-                            final String[] idClasses = (String[]) resource.getArray("idClasses").toArray();
-                            final JsonObject[] periodes = (JsonObject[]) resource.getArray("periodes").toArray();
-
-                            if (idEtablissement == null || idClasses == null || idClasses.length == 0) {
-                                badRequest(request);
-                                log.error("createPeriodes : incorrect parameter");
-                            } else {
-                                periodeService.createPeriodes(idEtablissement, idClasses, periodes, arrayResponseHandler(request));
-                            }
-                        }
-                    });
-                }else {
-                    log.debug("User not found in session.");
-                    Renders.unauthorized(request);
-                }
-            }
-        });
-    }
-
-    @Delete("/periodes/:idPeriode")
-    @ApiDoc("Supprime les periodes")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void deletePeriodes(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos userInfos) {
-                if (userInfos != null) {
-                    Long[] idDevoirs = request.params().getAll("idPeriode").toArray(new Long[0]);
-
-                    if(idDevoirs != null && idDevoirs.length > 0) {
-                        periodeService.deletePeriodes(idDevoirs, arrayResponseHandler(request));
-                    } else {
-                        badRequest(request);
-                        log.error("deletePeriodes : incorrect parameter");
-                    }
-                } else {
                     log.debug("User not found in session.");
                     Renders.unauthorized(request);
                 }

@@ -23,7 +23,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.selected = {
             categories: [],
             motifs: [],
-            all: []
+            all: [],
+            allClassePeriode: false
         };
         $scope.search = {
             name:'',
@@ -32,6 +33,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.resetLightboxPeriode = () => {
             return {
+                show : false,
+                periodes : [],
+                typePeriode: 0,
                 error : {
                     errorEval: false,
                     errorFn: false,
@@ -117,9 +121,12 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             return _.where($scope.structure.classes.all, {selected: true});
         };
 
-        $scope.resetSelectedClasse = () => {
+        $scope.switchSelectedClasse = (classes, bool) => {
+            let idClasses = _.pluck(classes, 'id');
             _.each($scope.structure.classes.all, (classe) => {
-                delete classe.selected;
+                if(_.contains(idClasses, classe.id)) {
+                    classe.selected = bool;
+                }
             });
         };
 
@@ -147,32 +154,33 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
                 periodes.push(periode);
             }
-            return periodes;
+            $scope.lightboxPeriode.periodes = periodes;
+            $scope.checkError();
         };
 
         $scope.savePeriode = async (periodes) => {
 
-            let idPeriodes = [];
-            _.each($scope.getSelectedClasse(), (classe) => {
-                _.each(classe.periodes.all, (periode) => {
-                    if(periode.id && _.contains(_.pluck(periodes.id_type), periode.id_type))
-                        idPeriodes.push(periode.id);
-                });
-            });
+            $scope.lightboxPeriode.error.errorEval = await $scope.structure.checkEval(_.pluck($scope.getSelectedClasse(), 'id'));
 
             if(!$scope.lightboxPeriode.error.errorEval && !$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
                 try {
                     await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
+                    $scope.lightboxPeriode.show = false;
+                    $scope.switchSelectedClasse($scope.getSelectedClasse(), false);
+                    utils.safeApply($scope);
+
+                    await $scope.structure.getPeriodes();
                 } catch (err) {
+                    console.log(err);
                     $scope.lightboxPeriode.error.error = true;
                 }
             }
 
-            await $scope.structure.getPeriodes();
-            $scope.lightboxPeriode = $scope.resetLightboxPeriode();
-            $scope.showLightboxPeriode = false;
-
             utils.safeApply($scope);
+        };
+
+        $scope.closeLightboxPeriode = () => {
+            $scope.lightboxPeriode = $scope.resetLightboxPeriode();
         };
 
         $scope.getCurrentPeriode = (classe): Periode => {
@@ -411,7 +419,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             });
         };
 
-        $scope.formatDate = (pODate) => {
+        $scope.formatDatePeriode = (pODate) => {
             return getFormatedDate(pODate, 'DD MMMM YYYY');
         };
 

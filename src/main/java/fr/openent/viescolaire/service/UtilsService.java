@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 import java.util.List;
@@ -30,6 +31,5 @@ public interface UtilsService {
      * @param idClasses       ids des groupes a identifier
      * @param handler          handler portant le resultat de la requete
      */
-    public void getTypeGroupe(String[] idClasses,
-                              final Handler<Either<String, Map<Boolean, List<String>>>> handler);
+    public void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 }

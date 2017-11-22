@@ -5,14 +5,14 @@
 import { idiom as lang, routes, ng } from 'entcore/entcore';
 
 import { sticky } from '../../utils/directives/sticky';
-import  {cSkillsBubble } from "../../evaluations/directives/cSkillsBubble"
+import {cSkillsBubble } from "../../evaluations/directives/cSkillsBubble"
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
+import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl';
+import {periodeSearch} from "../filtres/periodeSearch";
 
 ng.controllers.push(viescolaireController);
+ng.controllers.push(adminVieScolaireController);
 
-
-
-import {periodeSearch} from "../filtres/periodeSearch";
 ng.filters.push(periodeSearch);
 
 ng.directives.push(sticky);

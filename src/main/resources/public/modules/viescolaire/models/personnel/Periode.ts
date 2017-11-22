@@ -10,4 +10,5 @@ export class Periode extends Model{
     timestamp_fn: Date;
     date_fin_saisie: Date;
     id_type: number;
+
 }

@@ -81,6 +81,11 @@ body.viescolaire {
       background-color: $primary;
       color: $white !important;
       font-weight: bold;
+      >label.checkbox{
+        >input[type="checkbox"]:checked + span::before{
+          border-color: $white;
+        }
+      }
     }
 
     .expandable-list-item {

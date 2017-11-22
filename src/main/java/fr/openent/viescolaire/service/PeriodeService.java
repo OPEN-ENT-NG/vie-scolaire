@@ -70,33 +70,13 @@ public interface PeriodeService extends CrudService {
                                final Handler<Either<String, JsonArray>> handler);
 
     /**
-     * Creer des periodes pour les classes passees en parametre
-     *
-     * @param idEtablissement identifiant de l'établissement pour lesquel les periode seront creees
-     * @param idClasses       identifiants des classes pour lesquelles les periode seront creees
-     * @param periodes         tableau des periodes a inserer en base
-     * @param handler          handler portant le resultat de la requete
-     */
-    public void createPeriodes(String idEtablissement, String[] idClasses, JsonObject[] periodes,
-                               Handler<Either<String, JsonArray>> handler);
-
-    /**
-     * Supprime les periodes passees en parametre
-     *
-     * @param idPeriodes identifiants des periodes a supprimer
-     * @param handler    handler portant le resultat de la requete
-     */
-    public void deletePeriodes(final Long[] idPeriodes, final Handler<Either<String, JsonArray>> handler);
-
-
-    /**
      * Verifie qu'aucun devoir n'existe sur les periodes passees en parametre
      *
-     * @param idPeriodes identifiants des periodes a verifier
+     * @param idClasses  identifiants des classes des periodes a verifier
      * @param handler    handler portant le resultat de la requete : True si une des periodes possede un devoir,
      *                   false sinon, une erreur si une erreur est survenue
      */
-    public void checkEvalOnPeriode(Long[] idPeriodes, Handler<Either<String, JsonObject>> handler);
+    public void checkEvalOnPeriode(String[] idClasses, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Gerenere les periode à partir des classe representees dans les groupes passes en parametre
@@ -117,38 +97,4 @@ public interface PeriodeService extends CrudService {
     public void getPeriodesClasses(String idEtablissement, String[] idClasses,
                                    Handler<Either<String, JsonArray>> handler);
 
-    //
-//    /**
-//     * repertorie les periodes surnuméraires pour une liste de classe en fonction du type de periode
-//     *
-//     * @param idClasses la liste de classe a selectionner
-//     * @param type      le type de periode a comparer
-//     * @param handler   handler portant le resultat de la requete
-//     */
-//    public void findPeriodeToDelete(String[] idClasses, Long type, Handler<Either<String, JsonArray>> handler);
-//
-//    /**
-//     * repertorie les periodes a ajouter pour une liste de classe en fonction du type de periode
-//     *
-//     * @param idClasses la liste de classe a selectionner
-//     * @param type      le type de periode a comparer
-//     * @param handler   handler portant le resultat de la requete
-//     */
-//    public void findPeriodeToAdd(String[] idClasses, Long type, Handler<Either<String, JsonArray>> handler);
-
-    //    /**
-//     * recupere les periodes en fonction de leur type
-//     *
-//     * @param nbPeriode type des periodes
-//     * @param handler   handler portant le resultat de la requete
-//     */
-//    public void getTypePeriode(Integer nbPeriode, Handler<Either<String, JsonArray>> handler);
-
-    //    /**
-//     * les periode Groupe à partir des classe appartenant à ce dernier
-//     *
-//     * @param idsClasse identifiant des classes
-//     * @param handler   handler portant le résultat de la requête
-//     */
-//    public void getPeriodeGroupe(String[] idsClasse, Handler<Either<String, JsonArray>> handler);
 }

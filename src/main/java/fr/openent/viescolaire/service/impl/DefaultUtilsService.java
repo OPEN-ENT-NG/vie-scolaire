@@ -34,8 +34,7 @@ public class DefaultUtilsService implements UtilsService{
     }
 
     @Override
-    public void getTypeGroupe(String[] id_classes,
-                              final Handler<Either<String, Map<Boolean, List<String>>>> handler) {
+    public void getTypeGroupe(String[] id_classes, Handler<Either<String, JsonArray>> handler) {
 
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
@@ -45,24 +44,6 @@ public class DefaultUtilsService implements UtilsService{
 
         values.putArray("id_classes", new JsonArray(id_classes));
 
-        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
-            @Override
-            public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                if(stringJsonArrayEither.isRight()) {
-                    Map<Boolean, List<String>> result = new HashMap<>();
-
-                    for(Object o : stringJsonArrayEither.right().getValue()) {
-                        JsonObject classe = (JsonObject) o;
-                        addToMap(classe.getString("id"), classe.getBoolean("isClass"), result);
-                    }
-
-                    handler.handle(
-                            new Either.Right<String, Map<Boolean, List<String>>>(result));
-                } else {
-                    handler.handle(
-                            new Either.Left<String, Map<Boolean, List<String>>>(stringJsonArrayEither.left().getValue()));
-                }
-            }
-        }));
+        neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 }

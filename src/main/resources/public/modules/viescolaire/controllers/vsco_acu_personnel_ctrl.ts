@@ -37,7 +37,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
           });
         };
 
-
         $scope.openDeletePerso = function () {
             $scope.opened.lightboxDeletePerso = true;
         };

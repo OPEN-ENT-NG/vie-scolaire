@@ -1,4 +1,4 @@
-<div class="twelve cell config-periode">
+<div class="twelve cell config-periode" ng-controller="VscoAdminController">
     <div class="two cell">
         <div class="side-col twelve-mobile" offset="65" sticky>
             <div class="row">
@@ -19,9 +19,10 @@
         <div class="twelve tabs vertical-spacing-twice heading-tabs">
             <header ng-repeat="typePeriode in getTypePeriode()"
                     ng-class="{selected : search.type == typePeriode}"
-                    class="horizontal-spacing-twice">
+                    class="horizontal-spacing-twice"
+              >
                 <a class="horizontal-spacing"
-                   ng-click="search.type = typePeriode">
+                   ng-click="search.type = typePeriode; selected.allClassePeriode=false;">
                     <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
                 </a>
             </header>
@@ -48,8 +49,15 @@
 
         <div class="card expandable-list twelve row">
             <div class="expandable-list-header twelve cell"
-                 ng-if="(structure.classes.all|periodeSearch:search) > 0">
-                <div class="cell">&nbsp</div>
+                 ng-if="(structure.classes.all | periodeSearch:search).length > 0">
+                <div class="cell">
+                    <label class="checkbox">
+                        <input type="checkbox"
+                               ng-model="selected.allClassePeriode"
+                               ng-change="switchSelectedClasse((structure.classes.all | periodeSearch:search), selected.allClassePeriode)">
+                        <span></span>
+                    </label>
+                </div>
                 <div class="cell">
                     <i18n>viescolaire.utils.class</i18n>
                 </div>
@@ -84,24 +92,26 @@
                                 <span>[[ classe.name ]]</span>
                             </div>
                         </div>
-                        <div class="cell">
+
+                        <div class="cell" ng-show="search.type != 0">
                             <span ng-if="getCurrentPeriode(classe)!== undefined"><i18n>Actuelle</i18n> :
                                 [[ getI18n("viescolaire.periode." + getOrdreTypePeriode(getCurrentPeriode(classe)).type)
                                 + " " + getOrdreTypePeriode(getCurrentPeriode(classe)).ordre ]]
                             </span>
                         </div>
-                        <div class="cell">
-                            <span>[[ formatDate(getCurrentPeriode(classe).timestamp_dt) ]]</span>
+                        <div class="cell" ng-show="search.type != 0">
+                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).timestamp_dt) ]]</span>
                         </div>
-                        <div class="cell">
-                            <span>[[ formatDate(getCurrentPeriode(classe).timestamp_fn) ]]</span>
+                        <div class="cell" ng-show="search.type != 0">
+                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).timestamp_fn) ]]</span>
                         </div>
-                        <div class="cell">
-                            <span>[[ formatDate(getCurrentPeriode(classe).date_fin_saisie) ]]</span>
+                        <div class="cell" ng-show="search.type != 0">
+                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).date_fin_saisie) ]]</span>
                         </div>
-                        <div class="cell">
+                        <div class="cell" ng-show="search.type != 0">
                             <i class="down-open"></i>
                         </div>
+
                     </div>
                     <div class="row expandable-list-item-expand">
                         <div class="row" ng-repeat="periode in classe.periodes.all">
@@ -111,13 +121,13 @@
                                 getOrdreTypePeriode(periode).type) + " " +
                                 getOrdreTypePeriode(periode).ordre ]]</div>
                             <div class="cell">
-                                [[ formatDate(periode.timestamp_dt) ]]
+                                [[ formatDatePeriode(periode.timestamp_dt) ]]
                             </div>
                             <div class="cell">
-                                [[ formatDate(periode.timestamp_fn) ]]
+                                [[ formatDatePeriode(periode.timestamp_fn) ]]
                             </div>
                             <div class="cell">
-                                [[ formatDate(periode.date_fin_saisie) ]]
+                                [[ formatDatePeriode(periode.date_fin_saisie) ]]
                             </div>
                             <div class="cell">&nbsp</div>
                         </div>
@@ -133,15 +143,15 @@
     <div class="toggle">
         <div class="row">
             <button class="cell"
-                    ng-click="setPeriodes(); showLightboxPeriode = true">
-                    <span><i18n>viescolaire.periode.edit</i18n></span>
+                    ng-click="setPeriodes(); lightboxPeriode.show = true">
+                <span><i18n>viescolaire.periode.edit</i18n></span>
             </button>
 
         </div>
     </div>
 </section>
 
-<lightbox show="showLightboxPeriode == true"
-          on-close="showLightboxPeriode = false">
+<lightbox show="lightboxPeriode.show == true"
+          on-close="closeLightboxPeriode()">
     <container template="lightboxPeriode"></container>
 </lightbox>

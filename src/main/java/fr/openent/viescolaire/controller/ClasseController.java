@@ -123,8 +123,11 @@ public class ClasseController extends BaseController {
                 if (user != null
                         && !request.params().isEmpty()
                         && request.params().contains("idEtablissement")) {
+                    Boolean classOnly = null;
                     String idEtablissement = request.params().get("idEtablissement");
-                    Boolean classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
+                    if(request.params().get("classOnly") != null) {
+                        classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
+                    }
 
                     classeService.listClasses(idEtablissement, classOnly, user, new Handler<Either<String, JsonArray>>() {
                         @Override

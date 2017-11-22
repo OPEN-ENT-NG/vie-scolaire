@@ -541,14 +541,8 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     Calendar timestamp_fnBis = Calendar.getInstance();
                     timestamp_fn.setTime(dateFormat.parse(periodeBis.getString("timestamp_fn")));
 
-                    if((timestamp_dt.after(timestamp_dtBis)
-                            && timestamp_dt.before(timestamp_fnBis))
-                            || (timestamp_fn.after(timestamp_dtBis)
-                            && timestamp_dt.before(timestamp_fnBis))
-                            || (timestamp_dt.get(Calendar.YEAR) == timestamp_dtBis.get(Calendar.YEAR)
-                            && timestamp_dt.get(Calendar.DAY_OF_YEAR) == timestamp_fnBis.get(Calendar.DAY_OF_YEAR))
-                            || (timestamp_fn.get(Calendar.YEAR) == timestamp_dtBis.get(Calendar.YEAR)
-                            && timestamp_fn.get(Calendar.DAY_OF_YEAR) == timestamp_fnBis.get(Calendar.DAY_OF_YEAR))) {
+                    if((timestamp_dt.before(timestamp_dtBis) && timestamp_fn.after(timestamp_dtBis))
+                    || (timestamp_dt.before(timestamp_fnBis) && timestamp_fn.after(timestamp_fnBis))) {
                         errorList.get(i).put("errorOver", "La periode chevauche une autre periode.");
                     }
                 }

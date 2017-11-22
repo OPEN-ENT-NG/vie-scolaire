@@ -116,10 +116,11 @@ def fillTablePeriode():
 
 def updateFkPeriodeDevoirs():
     print('(' + str(datetime.now()) + ') [Start] Update Fk devoirs')
-    cur.execute("""UPDATE notes.devoirs as devoirs 
+    cur.execute("""ALTER TABLE notes.devoirs DROP CONSTRAINT fk_periode_id;
+                    UPDATE notes.devoirs as devoirs
                     SET id_periode = periode.id_type
                     FROM viesco.periode
-                    WHERE devoirs.id_periode = periode.id;             
+                    WHERE devoirs.id_periode = periode.id;
                     ALTER TABLE notes.devoirs ADD CONSTRAINT fk_devoirs_type_periode FOREIGN KEY (id_periode)
                     REFERENCES viesco.rel_type_periode (id) MATCH SIMPLE
                     ON UPDATE NO ACTION ON DELETE NO ACTION;""")

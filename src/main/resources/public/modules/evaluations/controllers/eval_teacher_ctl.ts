@@ -1416,7 +1416,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.devoir.classe.periodes.sync();
                     }
 
-                    if (!($location.path() === "/devoir/create")) {
+                    if ($location.path() === "/devoir/create") {
                         $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
                     }
                     utils.safeApply($scope);

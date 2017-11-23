@@ -1,11 +1,14 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
-import * as utils from '../utils/teacher';
-import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
-import {Cycle} from "./eval_cycle";
+import * as utils from '../../utils/teacher';
+import {Defaultcolors, NiveauCompetence} from "../eval_niveau_comp";
+import {Cycle} from "../eval_cycle";
+import {TypePeriode} from "../../../viescolaire/models/common/TypePeriode";
+import {Periode} from "../../../viescolaire/models/common/Periode";
 
 let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
+declare let console : any;
 
 export class Structure extends Model {
     id: string;
@@ -146,7 +149,6 @@ export class Structure extends Model {
                             }
                         })
                 })
-
             }
         });
         this.collection(Enseignant);
@@ -1552,21 +1554,6 @@ export class DevoirsCollection {
 
 export interface Devoirs extends Collection<Devoir>, DevoirsCollection {}
 
-export class Periode extends Model {
-    id : number;
-    timestamp_dt : any;
-    timestamp_fn : any;
-    date_fin_saisie : any;
-    id_type : number;
-    type : number;
-    ordre : number;
-}
-
-export class TypePeriode extends Model {
-    id : number;
-    ordre : number;
-    type : number;
-}
 
 export class Enseignement extends Model {
     competences : Collection<Competence>;

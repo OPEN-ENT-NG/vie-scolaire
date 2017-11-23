@@ -1,5 +1,5 @@
 import {DefaultClasse} from "../common/DefaultClasse";
-import {Periode} from "./Periode";
+import {Periode} from "../common/Periode";
 import {Collection} from 'entcore/entcore';
 /**
  * Created by rahnir on 10/08/2017.

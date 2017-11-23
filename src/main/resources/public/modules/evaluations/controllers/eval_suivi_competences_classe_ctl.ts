@@ -3,7 +3,7 @@
  */
 
 import {ng, template, model} from 'entcore/entcore';
-import {SuiviCompetence, Domaine, SuiviCompetenceClasse, evaluations} from '../models/eval_teacher_mdl';
+import {SuiviCompetence, Domaine, SuiviCompetenceClasse, evaluations} from '../models/teacher/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {Defaultcolors} from "../models/eval_niveau_comp";
 

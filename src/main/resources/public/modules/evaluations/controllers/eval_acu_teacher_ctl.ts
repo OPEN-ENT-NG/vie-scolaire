@@ -1,9 +1,10 @@
-import { model, notify, http, IModel, Model, Collection, BaseModel, idiom as lang, ng, template } from 'entcore/entcore';
-import {Classe, Devoir, Devoirs, DevoirsCollection, Eleve, Enseignement, Evaluation, Evaluations, Competence, CompetenceNote, evaluations, Matiere, Periode, ReleveNote, Type, SousMatiere} from '../models/eval_teacher_mdl';
+import {ng} from 'entcore/entcore';
+import {evaluations} from '../models/teacher/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 
 let moment = require('moment');
 declare let _: any;
+declare let console: any;
 
 export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', [
     '$scope', 'route', 'model', '$rootScope',

@@ -5,7 +5,7 @@
  * Created by ledunoiss on 20/09/2016.
  */
 import {ng} from 'entcore/entcore';
-import {CompetenceNote} from "../models/eval_teacher_mdl";
+import {CompetenceNote} from "../models/teacher/eval_teacher_mdl";
 
 let moment = require('moment');
 declare let _:any;

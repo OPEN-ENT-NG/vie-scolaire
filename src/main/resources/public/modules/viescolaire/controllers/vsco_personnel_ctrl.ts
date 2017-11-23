@@ -6,7 +6,7 @@ import {MotifAppel} from "../../absences/models/personnel/MotifAppel";
 import {CategorieAppel} from "../../absences/models/personnel/CategorieAppel";
 import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
-import {Periode} from "../models/personnel/Periode";
+import {Periode} from "../models/common/Periode";
 import moment = require("moment");
 
 declare let _: any;

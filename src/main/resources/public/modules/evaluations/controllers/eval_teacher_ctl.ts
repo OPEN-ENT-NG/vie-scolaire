@@ -1,16 +1,19 @@
 import { model, notify, idiom as lang, ng, template } from 'entcore/entcore';
 import {
-    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure, Annotation, Periode,
-    TypePeriode
-} from '../models/eval_teacher_mdl';
+    Devoir, Evaluation, evaluations, ReleveNote, GestionRemplacement, Classe, Structure, Annotation,
+} from '../models/teacher/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {Defaultcolors} from "../models/eval_niveau_comp";
+import {Periode} from "../../viescolaire/models/common/Periode";
 
 let moment = require('moment');
 
 declare let _: any;
 declare let $:any;
 declare let document: any;
+declare let window: any;
+declare let console: any;
+declare let location: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$sce', '$compile', '$timeout','$route',
@@ -69,10 +72,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
             $scope.getI18nPeriode = (periode: Periode) => {
-                let type_periode = _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
-                let result = type_periode ?
-                    lang.translate("viescolaire.periode." + type_periode.type) + " " + type_periode.ordre
-                    : lang.translate("viescolaire.utils.periodeError");
+                let result;
+                if (periode.id === null ){
+                    result = lang.translate("viescolaire.utils.annee");
+                }
+                else {
+                    let type_periode = _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
+
+                     result = type_periode ?
+                        lang.translate("viescolaire.periode." + type_periode.type) + " " + type_periode.ordre
+                        : lang.translate("viescolaire.utils.periodeError");
+                }
                 return result;
             };
 
@@ -528,7 +538,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.syncPeriode = (idClasse) => {
                 let classe = _.findWhere($scope.structure.classes.all, {id: idClasse});
                 if (classe && classe.periodes && classe.periodes.length() == 0) {
-                    classe.periodes.sync();
+                    classe.periodes.sync().then(() => {
+                        classe.periodes.all.push(new Periode({id: null}));
+                        $scope.getCurrentPeriode(classe).then(function (res) {
+                            $scope.search.periode = res;
+                            utils.safeApply($scope);
+                        });
+                    });
+
+                }else if (classe && classe.periodes){
+                    $scope.getCurrentPeriode(classe).then(function (res) {
+                        $scope.search.periode = res;
+                        utils.safeApply($scope);
+                    });
                 }
                 utils.safeApply($scope);
             };

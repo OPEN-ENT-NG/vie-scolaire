@@ -9,8 +9,8 @@ import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
 import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
 import {Cycle} from "../../../evaluations/models/eval_cycle";
-import {TypePeriode} from "./TypePeriode";
-import {Periode} from "./Periode";
+import {TypePeriode} from "../common/TypePeriode";
+import {Periode} from "../common/Periode";
 
 
 export class Structure extends DefaultStructure {

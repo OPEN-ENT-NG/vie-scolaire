@@ -26,7 +26,8 @@ export let customSearchFilter = ng.filter('customSearchFilters', function(){
             tempTable = _.where(output, {id_type : parseInt(searchParams.type.id)});
             output = tempTable;
         }
-        if (searchParams.periode !== undefined && searchParams.periode !== '*' && searchParams.periode !== null) {
+        if (searchParams.periode !== undefined && searchParams.periode !== '*' && searchParams.periode !== null &&
+            searchParams.periode.id !== null) {
             tempTable = _.where(output, {id_periode : parseInt(searchParams.periode.id_type  )});
             output = tempTable;
         }

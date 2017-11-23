@@ -385,8 +385,8 @@ public class DefaultUtilsService  implements UtilsService {
     }
 
     /**
-     * Récupère le cycle de la classe dans la relation classe_cycle
-     * @param idClasse List Identifiant de classe.
+     * Récupère les cycles des classes dans la relation classe_cycle
+     * @param idClasse liste des identifiants des classes.
      * @param handler Handler portant le résultat de la requête.
      */
     @Override
@@ -406,6 +406,26 @@ public class DefaultUtilsService  implements UtilsService {
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
+    /**
+     * Récupère le cycle de la classe dans la relation classe_cycle
+     * @param idClasse Identifiant de la classe.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    @Override
+    public void getCycle(String idClasse, Handler<Either<String, JsonObject>> handler){
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle,  ")
+                .append( Viescolaire.EVAL_SCHEMA +".cycle ")
+                .append("WHERE id_groupe = ? " )
+                .append(" AND id_cycle = cycle.id");
+
+            params.addString(idClasse);
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validUniqueResultHandler(handler));
+    }
 
 
     @Override

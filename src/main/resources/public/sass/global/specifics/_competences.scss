@@ -169,15 +169,16 @@ body.evaluations {
   }
   select.padding-select-accueil {
     padding-right: 30px !important;
-  }@media screen and (max-device-width:$fat-mobile) {
-  .responsive-table table thead {
-    display: none !important;
   }
+  @media screen and (max-device-width:$fat-mobile) {
+    .responsive-table table thead {
+      display: none !important;
+    }
 
-  input[type=text], input[type=password], input[type=search], input[type=tel], input[type=email] {
-    text-align: center !important;
+    input[type=text], input[type=password], input[type=search], input[type=tel], input[type=email] {
+      text-align: center !important;
+    }
   }
-}
 
   .maitrise-bfc {
     font-weight: normal;

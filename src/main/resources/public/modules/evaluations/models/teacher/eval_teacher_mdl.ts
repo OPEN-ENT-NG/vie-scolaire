@@ -1,18 +1,19 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
-import * as utils from '../../utils/teacher';
-import * from './common/LSU';
-import {Defaultcolors, NiveauCompetence} from "../eval_niveau_comp";
-import {Cycle} from "../eval_cycle";
 import {TypePeriode} from "../common/TypePeriode";
 import {DefaultPeriode} from "../common/DefaultPeriode";
+import * as utils from '../utils/teacher';
+import {BfcSynthese}from './eval_bfc_synthese_mdl';
+export * from './common/LSU';
+import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
+import {Cycle} from "./eval_cycle";
+
 let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 declare let console : any;
 
-export class Periode extends DefaultPeriode {
+export class Periode extends DefaultPeriode {}
 
-}
 export class Structure extends Model {
     id: string;
     libelle: string;
@@ -160,15 +161,15 @@ export class Structure extends Model {
         });
         this.collection(Enseignant);
         this.collection(Responsable, {//responsable de Direction
-           sync :  function(){
-               return new Promise ((resolve, reject)=>{
-                   http().getJson(that.api.RESPONSABLE.synchronisation).done(function (res) {
-                       that.responsables.load(res);
-                       resolve();
-                   });
-               })
-           }
-            });
+            sync :  function(){
+                return new Promise ((resolve, reject)=>{
+                    http().getJson(that.api.RESPONSABLE.synchronisation).done(function (res) {
+                        that.responsables.load(res);
+                        resolve();
+                    });
+                })
+            }
+        });
         this.collection(Eleve, {
             sync: function () {
                 return new Promise((resolve, reject) => {
@@ -1675,9 +1676,7 @@ export class BilanFinDeCycle extends Model {
                     resolve(data);
                 }
             }) ;
-
         });
-
     }
 
     updateBilanFinDeCycle () : Promise<BilanFinDeCycle> {
@@ -1695,7 +1694,6 @@ export class BilanFinDeCycle extends Model {
                     resolve(data);
                 }
             });
-
         });
     }
 
@@ -2061,18 +2059,6 @@ export class TableConversion extends  Model {
         super();
     }
 }
-/*
-export class Synthese extends Model implements IModel {
-    get api() {
-        return {
-            saveSynthese : '/viescolaire/evaluations/....'//nom methode côté back
-        }
-    }
-
-    saveSynthese() {
-
-    }
-}*/
 
 export class SuiviCompetence extends Model {
     competenceNotes : Collection<CompetenceNote>;
@@ -2081,7 +2067,7 @@ export class SuiviCompetence extends Model {
     classe : Classe;
     bilanFinDeCycles : Collection<BilanFinDeCycle>;
     tableConversions : Collection<TableConversion>;
-   // synthese : Synthese;
+    synthese : Synthese;
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
@@ -2095,6 +2081,8 @@ export class SuiviCompetence extends Model {
         super();
         this.periode = periode;
         this.classe = classe;
+        this.synthese= new BfcSynthese(eleve.id);
+        this.synthese.syncSynthese();
         var that = this;
         this.collection(TableConversion);
         this.collection(Domaine, {
@@ -2141,7 +2129,6 @@ export class SuiviCompetence extends Model {
                             for (var i = 0; i < resBFC.length; i++) {
                                 var BFC = new BilanFinDeCycle(resBFC[i]);
                                 that.bilanFinDeCycles.all.push(BFC);
-
                             }
                         }
                         if (resolve && typeof (resolve) === 'function') {
@@ -2153,6 +2140,7 @@ export class SuiviCompetence extends Model {
         });
 
     }
+
 
 
     /**
@@ -2195,6 +2183,7 @@ export class SuiviCompetence extends Model {
             });
         });
     }
+
     sync () : Promise<any> {
         return new Promise((resolve, reject) => {
             resolve();
@@ -2261,9 +2250,6 @@ function setSliderOptions(poDomaine,tableConversions) {
 
         }
     };
-
-
-
 
     let moyenneTemp = undefined;
     // si Une valeur a été modifiée par le chef d'établissement alors on prend cette valeur
@@ -2340,7 +2326,6 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
             if(!poDomaine.evaluated) {
                 poMaxEvaluationsDomaines = [];
             }
-
             // On ajoute les informations utiles au sous-domaine
             poDomaine.domaines.all[i].id_eleve = poDomaine.id_eleve;
             poDomaine.domaines.all[i].id_etablissement = poDomaine.id_etablissement;
@@ -2365,7 +2350,6 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
     setSliderOptions(poDomaine,tableConversions)
 
     // Chefs d'établissement
-
 
     //Si l'utilisateur n'est pas un chef d'établissement il ne peut pas modifier le slider
     if(!isChefEtab()){

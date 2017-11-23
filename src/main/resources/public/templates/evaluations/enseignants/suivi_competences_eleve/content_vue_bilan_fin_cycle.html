@@ -43,6 +43,7 @@
                     rz-slider-model="domaine.slider.value"
                     rz-slider-options="domaine.slider.options"></rzslider>
         </div>
+
     </div>
 </script>
 
@@ -62,6 +63,9 @@
              ng-init="parent = tree_item_renderer.html">
         </div>
     </div>
-
-
+    <h2><i18n>evaluations.bilan.fin.cycle.tilte.synthese</i18n></h2>
+    <div ng-show="successCreateSynthese" class="info"><i18n>evaluation.bilan.fin.cycle.successCreateSynthese</i18n></div>
+    <div ng-show="successUpdateSynthese" class="info"><i18n>evaluation.bilan.fin.cycle.successUpdateSynthese</i18n></div>
+    <textarea ng-readonly="!isChefEtab()" row="4" type="text" placeholder="Saissez la synthèse de l'élève" ng-model="suiviCompetence.synthese.texte"></textarea>
+    <button  ng-if="isChefEtab()" ng-click="saveSynthese()" ng-disabled="suiviCompetence.synthese.texte.length === 0"><i18n>evaluation.bilan.fin.cycle.save.synthese</i18n></button>
 </div>

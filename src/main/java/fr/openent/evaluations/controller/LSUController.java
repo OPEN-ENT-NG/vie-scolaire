@@ -4,8 +4,10 @@ package fr.openent.evaluations.controller;
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.bean.lsun.*;
 import fr.openent.evaluations.service.BFCService;
+import fr.openent.evaluations.service.BfcSyntheseService;
 import fr.openent.evaluations.service.UtilsService;
 import fr.openent.evaluations.service.impl.DefaultBFCService;
+import fr.openent.evaluations.service.impl.DefaultBfcSyntheseService;
 import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
@@ -57,12 +59,14 @@ public class LSUController extends ControllerHelper {
     private UserService userService;
     private UtilsService utilsService;
     private BFCService bfcService;
+    private BfcSyntheseService bfcSynthseService;
 
     public LSUController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
         userService = new DefaultUserService();
         utilsService = new DefaultUtilsService();
         bfcService = new DefaultBFCService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_TABLE);
+        bfcSynthseService = new DefaultBfcSyntheseService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_SYNTHESE_TABLE)
     }
 
     /**
@@ -296,8 +300,8 @@ public class LSUController extends ControllerHelper {
 
                 if (repIdClassIdCycleValue.isRight()) {
                     final List<Map> mapIdClassIdCycleValue = repIdClassIdCycleValue.right().getValue();
-                    final Map mapIdClassIdCycle = mapIdClassIdCycleValue.get(0);
-                    final Map mapIdCycleValue = mapIdClassIdCycleValue.get(1);
+                    final Map mapIdClassIdCycle = mapIdClassIdCycleValue.get(0);//map<IdClass,IdCycle>
+                    final Map mapIdCycleValue = mapIdClassIdCycleValue.get(1);//map<IdCycle,ValueCycle>
                     //final int[] nbIdEleves = {0};
                    // nbIdEleves[0]=0;
                     final AtomicInteger ndIdEleve = new AtomicInteger(0);
@@ -319,9 +323,23 @@ public class LSUController extends ControllerHelper {
                                                 ndIdEleve.addAndGet(idsEleve.length);
                                                 for (String idEleve : idsEleve) {
                                                     Eleve eleve = eleves.getEleveById(idEleve);
+
                                                     final BilanCycle bilanCycle = objectFactory.createBilanCycle();
                                                     final BilanCycle.Responsables responsables = objectFactory.createBilanCycleResponsables();
                                                     final BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
+                                                    bfcSynthseService.getBfcSyntheseByEleve(idEleve, ((Long) mapIdClassIdCycle.get(idClass)).intValue(), new Handler<Either<String, JsonObject>>() {
+                                                        @Override
+                                                        public void handle(Either<String, JsonObject> bfcSynthese) {
+                                                            if(bfcSynthese.isRight()) {
+                                                                bilanCycle.setSynthese(bfcSynthese.right().getValue().getString("texte"));
+                                                            }else{
+                                                                handler.handle((""));
+                                                                //handler.handle(new Either.Left<String, JsonObject> ("getBfcSynthese : "+ bfcSynthese.left().getValue()));
+                                                                log.error("getMapCodeDomaineById : "+bfcSynthese.left().getValue());
+                                                            }
+                                                        }
+                                                    });
+
                                                     ResponsableEtab responsableEtabRef = donnees.getResponsablesEtab().getResponsableEtab().get(0);
                                                     bilanCycle.setResponsableEtabRef(responsableEtabRef);
                                                     bilanCycle.setEleveRef(eleve);
@@ -332,7 +350,7 @@ public class LSUController extends ControllerHelper {
                                                     bilanCycle.setResponsables(responsables);
                                                     for (Map.Entry<Long, String> idDomaineCode : mapCodeDomaineByIdDomaine.entrySet()) {
                                                         DomaineSocleCycle domaineSocleCycle = objectFactory.createDomaineSocleCycle();
-                                                        //cas où les positionnement des domaines doivent tous être différents de zéro sauf "CPD_ETR"
+                                                        //cas où les positionnement des domaines peuvent être différents de zéro
                                                         if (mapIdEleveIdDomainePosition.containsKey(eleve.getIdNeo4j())) {
                                                             Map<Long, Integer> mapIdDomainePosition = mapIdEleveIdDomainePosition.get(eleve.getIdNeo4j());
                                                             //cas où les positionnement des domaines doivent tous être différents de zéro sauf "CPD_ETR"
@@ -356,7 +374,7 @@ public class LSUController extends ControllerHelper {
 
                                                             //cas où les positionnements des domaines peuvent être égales à zéro
                                                             if (mapIdDomainePosition.containsKey(idDomaineCode.getKey())) {
-                                                                //?rajouter la condition mapIdDomainePostion.size()==CodeDomaineSocle.values()pour verifier que tous les codes domaines ont été évalué
+                                                                //rajouter la condition mapIdDomainePostion.size()==CodeDomaineSocle.values()pour verifier que tous les codes domaines ont été évalué
                                                                 domaineSocleCycle.setPositionnement(BigInteger.valueOf(mapIdDomainePosition.get(idDomaineCode.getKey())));
                                                                 domaineSocleCycle.setCode(CodeDomaineSocle.fromValue(idDomaineCode.getValue()));
                                                                 socle.getDomaine().add(domaineSocleCycle);

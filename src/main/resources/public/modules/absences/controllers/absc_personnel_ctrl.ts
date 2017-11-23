@@ -183,6 +183,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.loadData();
             });
 
+
             if ($location.path() === '/disabled') {
                 $location.path('/');
                 $location.replace();

@@ -96,4 +96,10 @@ public interface ClasseService extends CrudService {
      */
     public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
     public void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    /**
+     * récupère l'id de la classe de l'élève dont l'id est passé en paramètre
+     * @param id_eleve
+     * @param handler
+     */
+    public void getClasseByEleve(String id_eleve, Handler<Either<String,JsonObject>> handler);
 }

@@ -83,6 +83,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_NIVEAU_COMPETENCES_TABLE = "niveau_competences";
 	public static final String EVAL_USE_PERSO_NIVEAU_COMPETENCES_TABLE = "use_perso";
 	public static final String EVAL_CYCLE_TABLE = "cycle";
+	public static final String EVAL_BFC_SYNTHESE_TABLE = "bfc_synthese";
 	public static final String EVAL_REL_DEVOIRS_GROUPES = "rel_devoirs_groupes";
 	public static final String EVAL_COMPETENCES_DEVOIRS = "competences_devoirs";
 
@@ -143,6 +144,9 @@ public class Viescolaire extends BaseServer {
 	public final static String SCHEMA_BFC_UPDATE = "eval_updateBFC";
 
 	public final static Integer MAX_NBR_COMPETENCE = 12;
+
+	public final static String SCHEMA_BFCSYNTHESE_CREATE = "eval_createBfcSynthese";
+	public final static String SCHEMA_BFCSYNTHESE_UPDATE = "eval_updateBfcSynthese";
 
 	public static JsonObject LSUN_CONFIG;
 

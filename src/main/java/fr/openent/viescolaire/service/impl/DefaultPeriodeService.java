@@ -504,63 +504,65 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             errorList.add(temporaryMap);
         }
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar timestamp_dt = Calendar.getInstance();
+        Calendar timestamp_fn = Calendar.getInstance();
+        Calendar date_fin_saisie = Calendar.getInstance();
+        Calendar timestamp_dtBis = Calendar.getInstance();
+        Calendar timestamp_fnBis = Calendar.getInstance();
+        Calendar timestamp_previous = Calendar.getInstance();
+        Calendar timestamp_next = Calendar.getInstance();
+        JsonObject periode;
+        JsonObject periodeBis;
 
         for (int i = 0; i < periodes.length; i++) {
-            JsonObject periode = periodes[i];
+            periode = periodes[i];
             try {
-                Calendar timestamp_dt = Calendar.getInstance();
                 timestamp_dt.setTime(dateFormat.parse(periode.getString("timestamp_dt")));
-                Calendar timestamp_fn = Calendar.getInstance();
                 timestamp_fn.setTime(dateFormat.parse(periode.getString("timestamp_fn")));
-                Calendar date_fin_saisie = Calendar.getInstance();
                 date_fin_saisie.setTime(dateFormat.parse(periode.getString("date_fin_saisie")));
 
                 // Erreur date_debut posterieur date_fin
                 if(timestamp_dt.after(timestamp_fn)
                         ||(timestamp_dt.get(Calendar.YEAR) == timestamp_fn.get(Calendar.YEAR)
                         && timestamp_dt.get(Calendar.DAY_OF_YEAR) == timestamp_fn.get(Calendar.DAY_OF_YEAR))) {
-                    errorList.get(i).put("errorFn", "La date de fin ne peut être anterieur à la date de début.");
+                    errorList.get(i).put("errorFn", "La date de fin ne peut etre anterieur a la date de debut.");
                 }
 
                 // Erreur date_debut posterieur date_fin_saisie
                 if (timestamp_dt.after(date_fin_saisie)
                         || (timestamp_dt.get(Calendar.YEAR) == date_fin_saisie.get(Calendar.YEAR)
                         && timestamp_dt.get(Calendar.DAY_OF_YEAR) == date_fin_saisie.get(Calendar.DAY_OF_YEAR))) {
-                    errorList.get(i).put("errorFnS", "La date de fin de saisie ne peut être anterieur à la date de début.");
+                    errorList.get(i).put("errorFnS", "La date de fin de saisie ne peut etre anterieur a la date de debut.");
                 }
 
                 // Erreur chevauchement des periodes
-                for (int j = 0; i < periodes.length; i++) {
+                for (int j = 0; j < periodes.length; j++) {
                     if(i == j) {
                         // On compare la période en cours avec les autres périodes
                         continue;
                     }
-                    JsonObject periodeBis = periodes[j];
-                    Calendar timestamp_dtBis = Calendar.getInstance();
-                    timestamp_dt.setTime(dateFormat.parse(periodeBis.getString("timestamp_dt")));
-                    Calendar timestamp_fnBis = Calendar.getInstance();
-                    timestamp_fn.setTime(dateFormat.parse(periodeBis.getString("timestamp_fn")));
+                    periodeBis = periodes[j];
+                    timestamp_dtBis.setTime(dateFormat.parse(periodeBis.getString("timestamp_dt")));
+                    timestamp_fnBis.setTime(dateFormat.parse(periodeBis.getString("timestamp_fn")));
 
-                    if((timestamp_dt.before(timestamp_dtBis) && timestamp_fn.after(timestamp_dtBis))
-                    || (timestamp_dt.before(timestamp_fnBis) && timestamp_fn.after(timestamp_fnBis))) {
+                    if(!(timestamp_dt.before(timestamp_dtBis) && timestamp_fn.before(timestamp_dtBis))
+                    && !(timestamp_dt.after(timestamp_fnBis) && timestamp_fn.after(timestamp_fnBis))) {
                         errorList.get(i).put("errorOver", "La periode chevauche une autre periode.");
                     }
                 }
 
                 // Erreur periodes non contigues && periodes non ordonnees
-                if (i - 1 >= 0) {
-                    Calendar timestamp_previous = Calendar.getInstance();
-                    timestamp_previous.setTime(dateFormat.parse(periode.getString("timestamp_fn")));
+                if (i - 1 > 0) {
+                    timestamp_previous.setTime(dateFormat.parse(periodes[i - 1].getString("timestamp_fn")));
 
                     if(timestamp_dt.get(Calendar.DAY_OF_YEAR) - timestamp_previous.get(Calendar.DAY_OF_YEAR) > 1) {
                         errorList.get(i).put("errorContigPrev", "La periode n'est pas contigue a la periode precedente.");
                     }
                 }
-                if (i + 1 <= periodes.length) {
-                    Calendar timestamp_next = Calendar.getInstance();
-                    timestamp_next.setTime(dateFormat.parse(periode.getString("timestamp_dt")));
+                if (i + 1 < periodes.length) {
+                    timestamp_next.setTime(dateFormat.parse(periodes[i + 1].getString("timestamp_dt")));
 
-                    if (timestamp_next.get(Calendar.DAY_OF_YEAR) - timestamp_dt.get(Calendar.DAY_OF_YEAR) > 1) {
+                    if (timestamp_next.get(Calendar.DAY_OF_YEAR) - timestamp_fn.get(Calendar.DAY_OF_YEAR) > 1) {
                         errorList.get(i).put("errorContigNext", "La periode n'est pas contigue a la periode suivante.");
                     }
                 }

@@ -410,7 +410,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             limitTo: 2
         };
 
-        $scope.exportBFC = (object, idPeriode) => {
+        $scope.exportBFC = (object, periode?) => {
             let url = "/viescolaire/evaluations/BFC/pdf?";
             if (object instanceof Structure) {
                 url += "idStructure=" + object.id;
@@ -419,8 +419,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             } else if (object instanceof Eleve) {
                 url += "idEleve=" + object.id;
             }
-            if(idPeriode.id_type != null) {
-                url += "&idPeriode=" + idPeriode.id_type;
+            if(periode && periode !== "*") {
+                url += "&idPeriode=" + periode.id_type;
             }
             location.replace(url);
         };

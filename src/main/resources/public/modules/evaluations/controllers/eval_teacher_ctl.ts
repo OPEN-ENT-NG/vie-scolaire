@@ -533,6 +533,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             };
 
+            $scope.getPeriodes = (idClasse) => {
+                let classe = _.findWhere($scope.structure.classes.all, {id: idClasse});
+                if (classe && classe.periodes && classe.periodes.length() == 0) {
+                    classe.periodes.sync().then(() => {
+                        return classe.periodes.all;
+                    });
+                }
+                return classe.periodes.all;
+            };
+
             $scope.synchronizeStudents = (idClasse): boolean => {
                 if (idClasse) {
                     let _classe = evaluations.structure.classes.findWhere({id: idClasse});
@@ -845,7 +855,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $location.replace();
                 utils.safeApply($scope);
             };
-
 
             $scope.resetSelected = function () {
                 $scope.selected = {
@@ -1372,19 +1381,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.devoir.id_matiere = $scope.searchOrFirst("matiere", $scope.structure.matieres.all).id;
                     $scope.devoir.id_type = $scope.searchOrFirst("type", $scope.structure.types.all).id;
 
-                    $scope.getCurrentPeriode(_.findWhere($scope.structure.classes.all, {id: $scope.devoir.id_groupe})).then(function (res) {
-                        $scope.devoir.id_periode = res.id_type;
+                    let currentPeriode = await $scope.getCurrentPeriode(_.findWhere($scope.structure.classes.all, {id: $scope.devoir.id_groupe}));
+                    $scope.devoir.id_periode = currentPeriode != -1 ? currentPeriode.id_type : null;
+                    if ($scope.devoir.id_periode == null
+                        && $scope.search.periode && $scope.search.periode !== "*") {
+                        $scope.devoir.id_periode = $scope.search.periode.id_type;
                         utils.safeApply($scope);
-                    });
-                }
-
-                $scope.searchOrFirst = (key, collection) => {
-                    if ($scope.search[key] && $scope.search[key] != "*") {
-                        return $scope.search[key];
-                    } else {
-                        return _.first(collection.all);
                     }
-                };
+                }
 
                 //$scope.opened.lightbox = true;
                 $scope.controlledDate = (moment($scope.devoir.date_publication).diff(moment($scope.devoir.date), "days") <= 0);
@@ -1403,46 +1407,25 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.devoir.competencesLastDevoirList = res;
                 });
 
-                $scope.$watch("devoir.id_groupe", (newVal) => {
-                    $scope.devoir.classe = _.findWhere($scope.structure.classes.all, {id: newVal});
-
-                    $scope.devoir.matieresByClasse = $scope.matieres.filter((matiere) => {
-                        return (matiere.libelleClasses.indexOf($scope.devoir.classe.externalId) !== -1)
-                    });
-                    if ($scope.devoir.matieresByClasse.length === 1)
-                        $scope.devoir.id_matiere = _.first($scope.devoir.matieresByClasse).id;
-                    $scope.selectedMatiere();
-                    if ($scope.devoir.classe.periodes.length() == 0) {
-                        $scope.devoir.classe.periodes.sync();
-                    }
-
-                    if ($location.path() === "/devoir/create") {
-                        $scope.devoir.id_periode = $scope.getCurrentPeriode($scope.devoir.classe).id_type;
-                    }
-                    utils.safeApply($scope);
-                });
-
-                $scope.setDevoirPeriode = (devoir) => {
-                    let periode;
-                    if ($scope.search.periode !== null && $scope.search.periode !== undefined && $scope.search.periode !== "*") {
-                        periode = $scope.search.periode;
-                    } else {
-                        let classe = _.findWhere($scope.structure.classes.all, {id: devoir.id_groupe});
-                        $scope.syncPeriode(classe.id);
-                        periode = _.find(classe.periodes.all, (periode) => {
-                            return moment().isBetween(moment(periode.timestamp_dt), moment(periode.timestamp_fn), 'days', '(]');
-                        });
-                    }
-                    return periode ? periode.id_type : null;
-                };
-
                 if ($scope.devoir.id_type === undefined) {
-                    $scope.devoir.id_type = getDefaultTypDevoir();
+                    $scope.devoir.id_type = _.findWhere($scope.structure.types, {default_type: true});
                 }
+
                 if ($scope.devoir.id_groupe === undefined) {
-                    $scope.devoir.id_groupe = $scope.setDevoirClasse($scope.devoir);
+                    if ($scope.search.classe !== null && $scope.search.classe !== undefined && $scope.search.classe.id !== '*' && $scope.search.matiere !== '*') {
+                        $scope.devoir.id_groupe = $scope.search.classe.id;
+                        $scope.devoir.id_matiere = $scope.search.matiere.id;
+                        $scope.setClasseMatieres();
+                        $scope.selectedMatiere();
+                    } else {
+                        // selection de la premiere classe par defaut
+                        $scope.devoir.id_groupe = $scope.classes.all[0].id;
+                        // selection de la premiere matière associée à la classe
+                        $scope.setClasseMatieres();
+                    }
                 }
-                evaluations.structure.enseignements.sync($scope.devoir.id_groupe).then(() => {
+
+                $scope.structure.enseignements.sync($scope.devoir.id_groupe).then(() => {
                     _.extend($scope.devoir.enseignements, $scope.enseignements);
                     if (!$scope.devoir.hasOwnProperty('id')) {
                         $scope.initFilter(true);
@@ -1528,6 +1511,36 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 item.hoveringRecap = false;
             };
 
+            /**
+             * Récupère les matières enseignées sur la classe donnée
+             * @param idClasse Identifiant de la classe
+             * @returns {Promise<T>} Promesse de retour
+             */
+            let getClassesMatieres = function (idClasse) {
+                return new Promise((resolve, reject) => {
+                    let classe = $scope.classes.findWhere({id: idClasse});
+                    if (classe !== undefined) {
+                        if (resolve && typeof resolve === 'function') {
+                            resolve($scope.matieres.filter((matiere) => {
+                                return (matiere.libelleClasses.indexOf(classe.externalId) !== -1)
+                            }));
+                        }
+                    } else {
+                        reject();
+                    }
+                });
+            };
+
+            /**
+             * Set les matière en fonction de l'identifiant de la classe
+             */
+            $scope.setClasseMatieres = function () {
+                getClassesMatieres($scope.devoir.id_groupe).then((matieres) => {
+                    $scope.devoir.matieresByClasse = matieres;
+                    if ($scope.devoir.matieresByClasse.length === 1) $scope.devoir.id_matiere = $scope.devoir.matieresByClasse[0].id;
+                    $scope.selectedMatiere();
+                });
+            };
 
             $scope.deleteDevoir = function () {
                 if ($scope.selected.devoirs.list.length > 0) {
@@ -1871,18 +1884,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.search.datePublication.fin = moment();
                 }
                 utils.safeApply($scope);
-            };
-
-            /**
-             * Retourne l'identifiant du type de devoirs par défaut
-             * @returns {number} identifiant du type de devoir par défaut
-             */
-            var getDefaultTypDevoir = function () {
-                let typeDefault = ($scope.types.findWhere({default_type: true}));
-                if (typeDefault === undefined) {
-                    typeDefault = ($scope.evaluations.types.findWhere({default_type: true}))
-                }
-                return typeDefault.id;
             };
 
             /**
@@ -2661,6 +2662,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
                 return currentPeriode != null ? currentPeriode : -1;
             };
+
             //TODO MIX BOTH
             // /**
             //  * Return la periode scolaire courante

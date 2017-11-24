@@ -45,7 +45,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.selectCycleForView = function (location) {
             let idCycle;
-            if(location == 'saisieNote'){
+            if(location === 'saisieNote'){
                 idCycle = $scope.classes.findWhere({id: $scope.currentDevoir.id_groupe}).id_cycle;
             }
 
@@ -225,7 +225,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                     for (let j in  $scope.competencesFilter) {
                                         if ($scope.competencesFilter.hasOwnProperty(j)) {
                                             var currComp = $scope.competencesFilter[j];
-                                            if (currComp !== undefined && currComp.data.id_parent === parentToCheck[i].data.id) {
+                                            if (currComp !== undefined &&
+                                                currComp.data.id_parent === parentToCheck[i].data.id) {
                                                 checkIt = currComp.isSelected;
                                             }
                                             // si on rencontre un fils non selectionné on arrête de chercher
@@ -242,7 +243,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                         parentToCheck[i].isSelected = false;
                                         parentToCheck[i].id = parentToCheck[i].id_competence;
                                     }
-                                    //depliement de l'enseignement pour les compétences sélectionnées du devoir à modifier
+                                    //depliement de l'enseignement pour les compétences sélectionnées
+                                    // du devoir à modifier
                                     var enseignementToOpen = $scope.devoir.enseignements.all.find(
                                         function (elem) {
                                             return elem.id === parentToCheck[i].data.id_enseignement
@@ -537,7 +539,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.syncPeriode = (idClasse) => {
                 let classe = _.findWhere($scope.structure.classes.all, {id: idClasse});
-                if (classe && classe.periodes && classe.periodes.length() == 0) {
+                if (classe && classe.periodes && classe.periodes.length() === 0) {
                     classe.periodes.sync().then(() => {
                         classe.periodes.all.push(new Periode({id: null}));
                         $scope.getCurrentPeriode(classe).then(function (res) {
@@ -1366,10 +1368,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 var classe_Id = $scope.devoir.id_groupe;
                 var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
                 var currentIdCycle = null;
-                for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle == null; i++) {
+                for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle === null; i++) {
                     if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
                         $scope.enseignements.all[i].data.competences_1 !== null) {
-                        for (let j = 0; j < $scope.enseignements.all[i].data.competences_1.length && currentIdCycle == null; j++) {
+                        for (let j = 0; j < $scope.enseignements.all[i].data.competences_1.length
+                        && currentIdCycle === null; j++) {
                             currentIdCycle = $scope.enseignements.all[i].data.competences_1[j].id_cycle;
                         }
                     }
@@ -1926,7 +1929,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
              * @returns {any} la valeur de la clé passée en paramètre
              */
             $scope.getClasseData = (idClasse, key) => {
-                if ($scope.classes === undefined || idClasse == null || idClasse === ''
+                if ($scope.classes === undefined || idClasse === null || idClasse === ''
                     || ($scope.classes === undefined || $scope.evaluations.classes === undefined)
                     || ($scope.classes.all.length === 0 && $scope.evaluations.classes.all.length === 0)) {
                     return '';
@@ -1985,7 +1988,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
              * @returns {any} libelle de la sous matière
              */
             $scope.getLibelleSousMatiere = function (idSousMatiere) {
-                if (idSousMatiere == null || idSousMatiere === "" || idSousMatiere == undefined) return "";
+                if (idSousMatiere === null || idSousMatiere === "" || idSousMatiere === undefined) return "";
                 $scope.selectedMatiere();
                 return _.findWhere($scope.devoir.matiere.sousMatieres.all, {id: parseInt(idSousMatiere)}).libelle;
             };
@@ -2320,7 +2323,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                 if ($location.$$path === '/releve') {
                     $scope.openLeftMenu("openedDevoirInfo", false);
-                    if ($scope.informations.devoir != undefined && $scope.informations.devoir.statistiques == undefined) {
+                    if ($scope.informations.devoir !== undefined &&
+                        $scope.informations.devoir.statistiques === undefined) {
                         $scope.informations.devoir.statistiques = {
                             percentDone: $scope.informations.devoir.percent
                         };
@@ -2817,7 +2821,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             };
 
             $scope.updateNiveau = function (usePerso) {
-                if (usePerso == 'true') {
+                if (usePerso === 'true') {
                     evaluations.structure.niveauCompetences.sync(false).then(() => {
                         evaluations.structure.niveauCompetences.first().markUser().then(() => {
                             $scope.structure.usePerso = 'true';
@@ -2827,7 +2831,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     });
 
                 }
-                else if (usePerso == 'false') {
+                else if (usePerso === 'false') {
                     evaluations.structure.niveauCompetences.sync(true).then(() => {
                         evaluations.structure.niveauCompetences.first().unMarkUser().then(() => {
                             $scope.structure.usePerso = 'false';

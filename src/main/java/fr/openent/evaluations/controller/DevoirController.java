@@ -92,7 +92,8 @@ public class DevoirController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    if(user.getType().equals("Personnel") && user.getFunctions().containsKey("DIR")){
+                    final String _PERSONNEL = "Personnel";
+                    if(_PERSONNEL.equals(user.getType()) && user.getFunctions().containsKey("DIR")){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         devoirsService.listDevoirsEtab(user, handler);
                     }
@@ -106,10 +107,12 @@ public class DevoirController extends ControllerHelper {
                             String idClasse = request.params().get("idClasse");
                             String idMatiere = request.params().get("idMatiere");
 
+                            final String _STUDENT = "Student";
+                            final String _RELATIVE = "Relative";
                             Long idPeriode = null;
                             testLongFormatParameter(idPeriode, "idPeriode", request);
 
-                            if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                            if( _STUDENT.equals(user.getType()) || _RELATIVE.equals(user.getType())){
                                 String idEleve = request.params().get("idEleve");
                                 devoirsService.listDevoirs(idEleve,idEtablissement, idClasse, null, idPeriode, handler);
 
@@ -378,7 +381,7 @@ public class DevoirController extends ControllerHelper {
                      - Si le devoir contient une evaluation numérique, on regarde le nombre de note en base
                      - Sinon, on regarde directement le nombre d'annotation(s) et de compétence(s)
                      */
-                    if (is_evaluated.equals("true")){
+                    if (String.valueOf(true).equals(is_evaluated)){
                         updatePercentageWithNotes (idDevoir, user,idGroupe,nbNotesByDevoir,is_evaluated,
                                 request, has_competence, true, 0 ,0);
 
@@ -517,7 +520,7 @@ public class DevoirController extends ControllerHelper {
                         if (resultNbNotesDevoir.size() > 0) {
                             JsonObject o = resultNbNotesDevoir.get(0);
                             if (o != null) {
-                                if (has_competence.equals("true")) {
+                                if (String.valueOf(true).equals(has_competence)) {
                                     nbNotesByDevoir.put(o.getLong("id"),
                                             Float.valueOf(o.getInteger("nb_notes")) / 2);
                                 } else {
@@ -584,10 +587,12 @@ public class DevoirController extends ControllerHelper {
                                       une évaluation numérique
                                     */
                                     if (o != null) {
-                                        if (o.getInteger("nb_competences") >= 1 && is_evaluated.equals("true")) {
+                                        if (o.getInteger("nb_competences") >= 1
+                                                && String.valueOf(true).equals(is_evaluated)) {
                                             nbCompetences += Float.valueOf(1)/2;
                                         }
-                                        else if (o.getInteger("nb_competences") >= 1 && is_evaluated.equals("false")) {
+                                        else if (o.getInteger("nb_competences") >= 1
+                                                && String.valueOf(false).equals(is_evaluated)) {
                                             nbCompetences += 1;
                                         }
                                     }
@@ -729,7 +734,8 @@ public class DevoirController extends ControllerHelper {
                                         updatePercentageWithNotes (Long.valueOf(o.getInteger("id")),
                                                 null,o.getString("id_groupe"),
                                                 nbNotesByDevoir,String.valueOf(o.getBoolean("is_evaluated")),request,
-                                                String.valueOf(o.getBoolean("has_competence")), false, i, devoirsInfos.size()-1);
+                                                String.valueOf(o.getBoolean("has_competence")), false, i,
+                                                devoirsInfos.size()-1);
                                     }
 
                                 }

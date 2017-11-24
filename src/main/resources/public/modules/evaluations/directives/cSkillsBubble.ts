@@ -32,7 +32,7 @@ export let cSkillsBubble = ng.directive('cSkillsBubble', function () {
             if ($scope.selectCond === undefined) {
                 $scope.selected = false;
             }
-            if ($scope.onClick != undefined) {
+            if ($scope.onClick !== undefined) {
                 $scope.activeClick = true;
             }
             $scope.text = $scope.text || '';

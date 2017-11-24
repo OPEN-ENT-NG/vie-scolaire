@@ -174,11 +174,11 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 params.add(formatDate(devoir.getString(attr)).toString());
             }
             else{
-                if(!(attr.equals("competencesAdd")
-                        ||  attr.equals("competencesRem")
-                        ||  attr.equals("competenceEvaluee")
-                        ||  attr.equals("competences")
-                        ||  attr.equals(attributeTypeGroupe)
+                Boolean isCompetencesAtt = "competencesAdd".equals(attr)
+                        ||  "competencesRem".equals(attr)
+                        ||  "competenceEvaluee".equals(attr)
+                        ||  "competences".equals(attr);
+                if(!( isCompetencesAtt ||  attr.equals(attributeTypeGroupe)
                         ||  attr.equals(attributeIdGroupe))) {
                     queryParams.append(" , ").append(attr);
                     valueParams.append(" , ? ");
@@ -686,7 +686,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
 
         // Si l'utilisateur est null c'est qu'on essait de mettre à jour le taux de completude des devoirs
-        boolean isChefEtab = (user!= null)?(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")):true;
+        boolean isChefEtab = (user!= null)?("Personnel".equals(user.getType())  &&
+                user.getFunctions().containsKey("DIR")):true;
 
         query.append("SELECT count(notes.id) as nb_notes , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".notes,"+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )
@@ -737,7 +738,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         StringBuilder query = new StringBuilder();
 
         // Si l'utilisateur est null c'est qu'on essait de mettre à jour le taux de completude des devoirs
-        boolean isChefEtab = (user!= null)?(user.getType().equals("Personnel")  && user.getFunctions().containsKey("DIR")):true ;
+        boolean isChefEtab = (user!= null)?("Personnel".equals(user.getType())  &&
+                user.getFunctions().containsKey("DIR")):true ;
 
         query.append("SELECT count(rel_annotations_devoirs.id_annotation) AS nb_annotations , devoirs.id, rel_devoirs_groupes.id_groupe ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs, "+ Viescolaire.EVAL_SCHEMA +".devoirs, "+ Viescolaire.EVAL_SCHEMA +".rel_devoirs_groupes " )

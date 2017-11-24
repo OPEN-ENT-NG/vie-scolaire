@@ -9,7 +9,7 @@ export class Matiere extends Model {
     get api () {
         return {
             calculMoyenne: '/viescolaire/evaluations/eleve/'
-        }
+        };
     }
 
     /**

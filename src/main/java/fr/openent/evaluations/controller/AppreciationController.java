@@ -39,7 +39,8 @@ public class AppreciationController extends ControllerHelper {
 
     public AppreciationController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
-        appreciationService = new DefaultAppreciationService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_APPRECIATIONS_TABLE);
+        appreciationService = new DefaultAppreciationService(Viescolaire.EVAL_SCHEMA,
+                Viescolaire.EVAL_APPRECIATIONS_TABLE);
     }
 
 
@@ -58,7 +59,9 @@ public class AppreciationController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPRECIATIONS_CREATE, new Handler<JsonObject>() {
+                    String validator = Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPRECIATIONS_CREATE;
+                    RequestUtils.bodyToJson(request, validator,
+                            new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             appreciationService.createAppreciation(resource, user, notEmptyResponseHandler(request));
@@ -85,7 +88,8 @@ public class AppreciationController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if(user != null){
-                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPRECIATIONS_UPDATE, new Handler<JsonObject>() {
+                    String validator = Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_APPRECIATIONS_UPDATE;
+                    RequestUtils.bodyToJson(request,validator , new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
                             appreciationService.updateAppreciation(resource, user, defaultResponseHandler(request));

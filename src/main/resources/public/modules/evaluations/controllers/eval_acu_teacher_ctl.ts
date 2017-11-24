@@ -86,7 +86,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
                         if (!idDevoirs) {
                             idDevoirs = _.pluck(_.filter($scope.devoirs.all, (devoir) => {
                                 return _.contains(_.pluck($scope.classes.all, 'id'),
-                                        devoir.id_groupe) && devoir.is_evaluated === true;
+                                        devoir.id_groupe);
                             }), 'id');
                         }
                         resolve($scope.devoirs.filter((devoir) => {

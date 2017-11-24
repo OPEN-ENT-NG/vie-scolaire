@@ -98,7 +98,8 @@
         </header>
 
         <aside class="two cell">
-            <floating-navigation  id="left-side-notes" class="zero-mobile">
+            <nav class="vertical hash-magnet floating zero-mobile scrolling"
+                 id="left-side-notes">
             <div class="menuLeftStyle detail-devoir criterion card" ng-class="{opened : openedDetails === true}">
                 <div class="header">
                     <span class="plus-input" ng-click="openedDetails = !openedDetails"></span>
@@ -154,7 +155,7 @@
                                        id="notes-devoir-student-info"></container>
                         </div>
                     </div>
-            </floating-navigation>
+            </nav>
         </aside>
 
         <section class="cell eight" ng-if="currentDevoir.competences.all.length > 0">

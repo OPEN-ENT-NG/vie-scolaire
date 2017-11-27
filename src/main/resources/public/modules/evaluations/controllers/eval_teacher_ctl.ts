@@ -1377,7 +1377,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                 }
-                if (currentIdCycle !== null && currentIdCycle !== newIdCycle) {
+                if (currentIdCycle !== newIdCycle) {
                     evaluations.enseignements.sync(classe_Id).then(function () {
                         //suppression des compétences qui n'appartiennent pas au cycle
                         $scope.initFilter(true);

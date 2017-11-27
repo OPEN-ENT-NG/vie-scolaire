@@ -115,8 +115,14 @@ public class EleveController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEleves(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        String[] idEleves = request.params().getAll("idUser").toArray(new String[0]);
-        eleveService.getInfoEleve(idEleves, handler);
+
+        if(request.params().get("idEtablissement") != null){
+            String idEtab = request.params().get("idEtablissement");
+            eleveService.getEleve(idEtab, handler);
+        }else{
+            String[] idEleves = request.params().getAll("idUser").toArray(new String[0]);
+            eleveService.getInfoEleve(idEleves, handler);
+        }
     }
 
     @Get("/users")

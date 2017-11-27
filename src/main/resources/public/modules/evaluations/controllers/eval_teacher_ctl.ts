@@ -697,12 +697,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             };
 
-            $scope.confirmSuppretion = function () {
+            $scope.confirmSuppretion =  function () {
                 if ($scope.selected.devoirs.list.length > 0) {
                     $scope.devoirsUncancelable = [];
                     if (!$scope.isChefEtab()) {
-                        _.map($scope.selected.devoirs.list, function (devoir) {
-                            if ($scope.checkEndSaisie(devoir)) {
+                        _.map($scope.selected.devoirs.list, async function (devoir) {
+                            let isEndSaisieDevoir = await $scope.checkEndSaisieSeul(devoir);
+                            if (isEndSaisieDevoir) {
                                 $scope.selected.devoirs.list = _.without($scope.selected.devoirs.list, devoir);
                                 devoir.selected = false;
                                 $scope.devoirsUncancelable.push(devoir);
@@ -2645,6 +2646,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 let date_fin_saisie = _.findWhere(classe.periodes.all, {id_type: devoir.id_periode}).date_fin_saisie;
 
                 return !(moment(date_fin_saisie).isAfter(moment(), "days") || $scope.isChefEtab());
+            };
+
+            /**
+             * Cherche si la période de fin de saisie est dépassée pour un devoir donné
+             * On ne vérifie pas si l'utilisateur est chef d'établissement
+             * @param devoir
+             */
+            $scope.checkEndSaisieSeul = async(devoir) => {
+                let classe = _.findWhere($scope.structure.classes.all, {id: devoir.id_groupe});
+                if (classe.periodes.empty()) {
+                    await classe.periodes.sync();
+                    utils.safeApply($scope);
+                }
+                let date_fin_saisie = _.findWhere(classe.periodes.all, {id_type: devoir.id_periode}).date_fin_saisie;
+
+                return moment().isAfter(date_fin_saisie, "days");
             };
 
             $scope.getPeriodeAnnee = () => {

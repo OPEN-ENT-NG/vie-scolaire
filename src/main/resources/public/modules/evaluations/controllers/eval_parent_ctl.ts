@@ -47,8 +47,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             utils.safeApply($scope);
                         }else {
                             $scope.searchReleve.eleve = evaluations.eleves.all[0];
-                            //$scope.getPeriodes();
-                            //$scope.getMatieres();
+                            // $scope.getPeriodes();
+                            // $scope.getMatieres();
                         }
                     });
                 }
@@ -58,7 +58,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         });
 
         $scope.$watch("searchReleve.eleve", async (newVal) => {
-            if (newVal !== null){
+            if (newVal !== null) {
                 await newVal.periodes.sync();
                 evaluations.periodes = newVal.periodes;
             }

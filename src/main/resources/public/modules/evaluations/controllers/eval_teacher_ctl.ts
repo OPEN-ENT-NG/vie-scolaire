@@ -25,15 +25,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         //         "value":  $scope.periodeParDefault(),
         //         "values": []
         //     };
-        //     if(Index || Index==0){
+        //     if(Index || Index==0) {
         //         _.map($scope.classes.all[Index].periode, function (per) {
         //             $scope.periodesList.values.push(per);
         //         });
         //     }
-        //     if(annee !== false){
+        //     if(annee !== false) {
         //         $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
         //     }
-        //     if($scope.periodesList.values.length <= 1){
+        //     if($scope.periodesList.values.length <= 1) {
         //         $scope.displayPeriode = false   ;
         //         utils.safeApply($scope);
         //     }else {
@@ -45,11 +45,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.selectCycleForView = function (location) {
             let idCycle;
-            if(location === 'saisieNote'){
+            if(location === 'saisieNote') {
                 idCycle = $scope.classes.findWhere({id: $scope.currentDevoir.id_groupe}).id_cycle;
             }
 
-            if(!idCycle){
+            if(!idCycle) {
                 idCycle = $scope.search.classe.id_cycle;
             }
             evaluations.structure.cycle = _.findWhere(evaluations.structure.cycles, {
@@ -73,7 +73,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.getI18nPeriode = (periode: Periode) => {
                 let result;
-                if (periode.id === null ){
+                if (periode.id === null ) {
                     result = lang.translate("viescolaire.utils.annee");
                 }
                 else {
@@ -105,7 +105,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             };
             $rootScope.$on('close-panel', function (e) {
                 $scope.showPanel = false;
-            })
+            });
 
             let routesActions = {
 
@@ -158,7 +158,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 editDevoir: async function (params) {
                     if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
                         $scope.cleanRoot();
-                        var devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
+                        let devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
                         $scope.devoir = $scope.initDevoir();
                         $scope.devoir.id_groupe = devoirTmp.id_groupe;
                         $scope.devoir.old_id_groupe = devoirTmp.id_groupe;
@@ -193,9 +193,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 $scope.initFilter(true);
 
                                 //tableau des connaissances à cocher éventuellement
-                                var parentToCheck = [];
+                                let parentToCheck = [];
 
-                                for (var i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
+                                for (let i = 0; i < $scope.evaluations.competencesDevoir.length; i++) {
                                     for (let j = 0; j < $scope.evaluations.enseignements.all.length; j++) {
                                         if ($scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_competence + '_'
                                             + $scope.evaluations.enseignements.all[j].id] !== undefined) {
@@ -208,7 +208,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                             $scope.devoir.competences.all[i].id = $scope.devoir.competences.all[i].id_competence;
 
                                             //remplissage des connaissances parent  à cocher éventuellement
-                                            var parentCo = $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
+                                            let parentCo = $scope.competencesFilter[$scope.evaluations.competencesDevoir[i].id_parent
                                             + '_' + $scope.evaluations.enseignements.all[j].id];
                                             if (parentToCheck.indexOf(parentCo) === -1 && parentCo !== undefined) {
                                                 parentToCheck.push(parentCo);
@@ -220,11 +220,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                 }
 
                                 //On coche la connaissance si elle n'a aucun fils sélectionné
-                                for (var i = 0; i < parentToCheck.length; i++) {
-                                    var checkIt = true;
+                                for (let i = 0; i < parentToCheck.length; i++) {
+                                    let checkIt = true;
                                     for (let j in  $scope.competencesFilter) {
                                         if ($scope.competencesFilter.hasOwnProperty(j)) {
-                                            var currComp = $scope.competencesFilter[j];
+                                            let currComp = $scope.competencesFilter[j];
                                             if (currComp !== undefined &&
                                                 currComp.data.id_parent === parentToCheck[i].data.id) {
                                                 checkIt = currComp.isSelected;
@@ -245,7 +245,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                                     }
                                     //depliement de l'enseignement pour les compétences sélectionnées
                                     // du devoir à modifier
-                                    var enseignementToOpen = $scope.devoir.enseignements.all.find(
+                                    let enseignementToOpen = $scope.devoir.enseignements.all.find(
                                         function (elem) {
                                             return elem.id === parentToCheck[i].data.id_enseignement
                                         });
@@ -350,7 +350,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             template.open('main', '../templates/evaluations/enseignants/liste_notes_devoir/display_notes_devoir');
                             utils.safeApply($scope);
 
-                            angular.element(document).bind('mousewheel', function(){
+                            angular.element(document).bind('mousewheel', function() {
                                 // On Calque la position de la partie centrale sur le menu de gauche
                                 let element = $('#left-side-notes');
                                 let mirorElement = $('#liste-notes-devoir-header');
@@ -548,7 +548,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         });
                     });
 
-                }else if (classe && classe.periodes){
+                }else if (classe && classe.periodes) {
                     $scope.getCurrentPeriode(classe).then(function (res) {
                         $scope.search.periode = res;
                         utils.safeApply($scope);
@@ -559,7 +559,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.getPeriodes = (idClasse) => {
                 let classe = _.findWhere($scope.structure.classes.all, {id: idClasse});
-                if (classe && classe.periodes && classe.periodes.length() == 0) {
+                if (classe && classe.periodes && classe.periodes.length() === 0) {
                     classe.periodes.sync().then(() => {
                         return classe.periodes.all;
                     });
@@ -677,7 +677,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             };
 
             // for (let i = 0; i < evaluations.classes.all.length; i++) {
-            //     let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve){
+            //     let elevesOfclass = _.map(evaluations.classes.all[i].eleves.all, function(eleve) {
             //         if((_.findWhere($scope.eleves, {id: eleve.id})) === undefined) {
             //             return _.extend(eleve, {
             //                     classEleve : evaluations.classes.all[i]
@@ -800,7 +800,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             };
             /* $scope.$watch(function() { return $scope.opened.evaluation.suppretionMsg1; }, function (newValue, oldValue) {
-             if (newValue===false && oldValue){
+             if (newValue===false && oldValue) {
              if ($scope.selected.devoirs.listwithEvaluatedSkills.length > 0 || $scope.selected.devoirs.listwithEvaluatedMarks.length > 0) {
              $scope.opened.evaluation.suppretionMsg2 = true;
              }
@@ -858,7 +858,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if ($scope.devoirs !== undefined) {
                 evaluations.devoirs.on('sync', function () {
                     $scope.mapIdLibelleDevoir = _.object(_.map($scope.devoirs.all, function (item) {
-                        return [item.id, item.name]
+                        return [item.id, item.name];
                     }));
                 });
             } else {
@@ -1034,8 +1034,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.domaines = [];
                 $scope.showCompetencesDomaine = {};
                 $scope.displayFilterDomaine = false;
-                for (var i = 0; i < $scope.enseignements.all.length; i++) {
-                    var currEnseignement = $scope.enseignements.all[i];
+                for (let i = 0; i < $scope.enseignements.all.length; i++) {
+                    let currEnseignement = $scope.enseignements.all[i];
                     $scope.enseignementsFilter[currEnseignement.id] = {
                         isSelected: pbInitSelected,
                         nomHtml: currEnseignement.nom
@@ -1055,10 +1055,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.initFilterRec = function (poCompetences, pbInitSelected) {
                 if (poCompetences !== undefined) {
-                    var _b = false;
-                    var comp: any = null;
-                    for (var i = 0; i < poCompetences.all.length; i++) {
-                        var currCompetence = poCompetences.all[i];
+                    let _b = false;
+                    let comp: any = null;
+                    for (let i = 0; i < poCompetences.all.length; i++) {
+                        let currCompetence = poCompetences.all[i];
                         if ((currCompetence.ids_domaine_int !== undefined && currCompetence.ids_domaine_int[0].lengh === 1 && $scope.showCompetencesDomaine[currCompetence.ids_domaine_int[0]] === true) || $scope.showCompetencesDomaine.length == undefined) {
                             comp = _.findWhere(poCompetences.all, {id: poCompetences.all[i].id}) !== undefined
                             if (comp !== undefined) _b = false;
@@ -1198,8 +1198,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
              * @param pbIsSelected booleen pour sélectionner ou désélectionner les enseignements.
              */
             $scope.selectEnseignements = function (pbIsSelected) {
-                for (var i = 0; i < $scope.enseignements.all.length; i++) {
-                    var currEnseignement = $scope.enseignements.all[i];
+                for (let i = 0; i < $scope.enseignements.all.length; i++) {
+                    let currEnseignement = $scope.enseignements.all[i];
                     $scope.enseignementsFilter[currEnseignement.id].isSelected = pbIsSelected;
                 }
             };
@@ -1257,7 +1257,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // systématiquement dans la méthode récursive
                     enseignement.open = utils.containsIgnoreCase(enseignement.nom, psKeyword);
                     if (enseignement.open) {
-                        var nomHtml = $scope.highlight(enseignement.nom, psKeyword);
+                        let nomHtml = $scope.highlight(enseignement.nom, psKeyword);
                         // mise à jour que si la réelle valeur de la chaine html est différente ($sce.trustAsHtml renvoie systématiquement une valeur différente)
                         if ($sce.getTrustedHtml($scope.enseignementsFilter[enseignement.id].nomHtml) !== $sce.getTrustedHtml(nomHtml)) {
                             $scope.enseignementsFilter[enseignement.id].nomHtml = nomHtml;
@@ -1290,8 +1290,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (item.competences != undefined) {
 
                     // Parcours de chaque compétences / sous compétences
-                    for (var i = 0; i < item.competences.all.length; i++) {
-                        var sousCompetence = item.competences.all[i];
+                    for (let i = 0; i < item.competences.all.length; i++) {
+                        let sousCompetence = item.competences.all[i];
                         let matchDomaine = false;
 
                         // check si la compétence / sous compétence match le mot clef
@@ -1305,8 +1305,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                         if (sousCompetence.open) {
 
-                            var nomHtml = $scope.highlight(sousCompetence.nom, psKeyword);
-                            var DisplayNomSousCompetence = nomHtml;
+                            let nomHtml = $scope.highlight(sousCompetence.nom, psKeyword);
+                            let DisplayNomSousCompetence = nomHtml;
 
                             if (sousCompetence.code_domaine != null) {
                                 let nomDomaine;
@@ -1365,9 +1365,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
              * Charge les enseignements et les compétences en fonction de la classe.
              */
             $scope.loadEnseignementsByClasse = function () {
-                var classe_Id = $scope.devoir.id_groupe;
-                var newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
-                var currentIdCycle = null;
+                let classe_Id = $scope.devoir.id_groupe;
+                let newIdCycle = $scope.getClasseData(classe_Id, 'id_cycle');
+                let currentIdCycle = null;
                 for (let i = 0; i < $scope.enseignements.all.length && currentIdCycle === null; i++) {
                     if ($scope.enseignements.all[i].data.competences_1 !== undefined &&
                         $scope.enseignements.all[i].data.competences_1 !== null) {
@@ -1394,7 +1394,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 //TODO Déplacer cette séquence dans la séquence du router
             $scope.createDevoir = async() => {
                 $scope.searchOrFirst = (key, collection) => {
-                    if ($scope.search[key] && $scope.search[key] != "*") {
+                    if ($scope.search[key] && $scope.search[key] !== "*") {
                         return $scope.search[key];
                     } else {
                         return _.first(collection);
@@ -1408,7 +1408,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.devoir.id_type = $scope.searchOrFirst("type", $scope.structure.types.all).id;
 
                     let currentPeriode = await $scope.getCurrentPeriode(_.findWhere($scope.structure.classes.all, {id: $scope.devoir.id_groupe}));
-                    $scope.devoir.id_periode = currentPeriode != -1 ? currentPeriode.id_type : null;
+                    $scope.devoir.id_periode = currentPeriode !== -1 ? currentPeriode.id_type : null;
                     if ($scope.devoir.id_periode == null
                         && $scope.search.periode && $scope.search.periode !== "*") {
                         $scope.devoir.id_periode = $scope.search.periode.id_type;
@@ -1738,7 +1738,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
                         //recherche des competences a ajouter
                         for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
-                            var toAdd = true;
+                            let toAdd = true;
                             for (let j = 0; j < $scope.devoir.competences.all.length; j++) {
                                 if ($scope.devoir.competences.all[j].id
                                     === evaluations.competencesDevoir[i].id) {
@@ -1995,7 +1995,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
 
             /*  $scope.getLibelleDevoir = function (id) {
-             var devoir = $scope.devoirs.findWhere({id : id});
+             let devoir = $scope.devoirs.findWhere({id : id});
              if (devoir !== undefined) return devoir.name;
              };
              */
@@ -2439,7 +2439,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
              *
              */
             $scope.cleanRoot = function () {
-                var elem = angular.element(".autocomplete");
+                let elem = angular.element(".autocomplete");
 
                 for (let i = 0; i < elem.length; i++) {
                     elem[i].style.height = "0px";
@@ -2840,7 +2840,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         });
                     });
                 }
-            }
+            };
 
             $scope.togglePanel = function ($event) {
                 $scope.showPanel = !$scope.showPanel;

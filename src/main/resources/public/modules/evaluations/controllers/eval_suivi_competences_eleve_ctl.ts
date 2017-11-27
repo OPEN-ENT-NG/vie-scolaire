@@ -9,6 +9,7 @@ import {Defaultcolors} from "../models/eval_niveau_comp";
 
 declare let _:any;
 declare let Chart:any;
+declare let location: any;
 
 export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleveCtl', [
     '$scope', 'route', '$rootScope', '$location', '$filter', '$route', '$timeout',
@@ -291,7 +292,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
         };
 
         $scope.updateNiveau = function (usePerso) {
-            if(usePerso == 'true' ){
+            if(usePerso === 'true' ){
                 evaluations.structure.niveauCompetences.sync(false).then( () => {
                     evaluations.structure.niveauCompetences.first().markUser().then( () => {
                         $scope.structure.usePerso = 'true';
@@ -301,7 +302,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 });
 
             }
-            else if (usePerso == 'false'){
+            else if (usePerso === 'false'){
                 evaluations.structure.niveauCompetences.sync(true).then( () => {
                     evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
                         $scope.structure.usePerso = 'false';
@@ -676,7 +677,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                             ctx.textBaseline = 'middle';
                             //var padding = 5;
                             let position = element.tooltipPosition();
-                            if (dataString == undefined){
+                            if (dataString === undefined){
                                 dataString = " ";
                             }
                             ctx.fillText(dataString, position.x, position.y);
@@ -691,7 +692,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          */
         $scope.initChartsEval = function () {
             if ($scope.detailCompetence !== undefined && $scope.detailCompetence !== null) {
-                var ListEval = _.filter($scope.detailCompetence.competencesEvaluations, function (evalu) {
+                let ListEval = _.filter($scope.detailCompetence.competencesEvaluations, function (evalu) {
                     return $scope.filterOwnerSuivi(evalu);
                 });
                 //initialisation et rajout de la 1er colomn vide

@@ -6,6 +6,8 @@ export class Eleve extends Model {
     id: string;
     idStructure: string;
     idClasse: string;
+    idClasses: Array<string>;
+    idStructures: Array<string>;
     displayName: string;
     periodes: Collection<Periode>;
 

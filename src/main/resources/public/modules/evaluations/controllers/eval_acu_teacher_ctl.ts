@@ -17,12 +17,12 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         //         "value":  $scope.periodeParDefault(),
         //         "values": []
         //     };
-        //     if(Index || Index==0){
+        //     if(Index || Index==0) {
         //         _.map($scope.classes.all[Index].periode, function (per) {
         //             $scope.periodesList.values.push(per);
         //         });
         //     }
-        //     if(annee !== false){
+        //     if(annee !== false) {
         //         $scope.periodesList.values.push({libelle: $scope.translate('viescolaire.utils.annee'), id: undefined});
         //     }
         //
@@ -125,8 +125,8 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             console.log("Aucun établissement actif pour l'utilisateur");
         }
         // $scope.FilterPeriode = (Maperiode) => {
-        //     if($scope.search.classe !== '' && $scope.search.classe !== '*' && typeof($scope.search.classe) == "object"){
-        //         if(Maperiode.id_classe == $scope.search.classe.id ){
+        //     if($scope.search.classe !== '' && $scope.search.classe !== '*' && typeof($scope.search.classe) == "object") {
+        //         if(Maperiode.id_classe == $scope.search.classe.id ) {
         //             return Maperiode ;
         //         }
         //     }else {
@@ -135,10 +135,10 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         // };
         // $scope.displayPeriode = false;
         // $scope.periodeDisplay = (classe,annee) => {
-        //     if(typeof(classe) == 'object'&& classe !== null){
-        //         if(classe.type_groupe == 0){
+        //     if(typeof(classe) == 'object'&& classe !== null) {
+        //         if(classe.type_groupe == 0) {
         //             let indexClasse = _.indexOf($scope.classes.all,classe);
-        //             if(!('periode' in classe && classe.periode !== null && classe.periode !== undefined)){
+        //             if(!('periode' in classe && classe.periode !== null && classe.periode !== undefined)) {
         //                 $scope.classes.all[indexClasse].periode = _.where($scope.evaluations.structure.periodes.all, {id_classe: $scope.classes.all[indexClasse].id});
         //             }
         //             $scope.initPeriodesList(indexClasse,annee);
@@ -146,7 +146,7 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
         //             utils.safeApply($scope);
         //         }else{
         //             let indexClasse = _.indexOf($scope.classes.all,classe);
-        //             if('periode' in classe && classe.periode !== null && classe.periode !== undefined){
+        //             if('periode' in classe && classe.periode !== null && classe.periode !== undefined) {
         //                 $scope.initPeriodesList(indexClasse,annee);
         //                 $scope.displayPeriode = true ;
         //                 utils.safeApply($scope);

@@ -88,13 +88,13 @@ export class Structure extends Model {
         let that: Structure = this;
         this.collection(NiveauCompetence, {
             sync: async function (defaut) {
-                if (typeof(defaut) == 'undefined') {
+                if (typeof(defaut) === 'undefined') {
                     defaut = true;
                 }
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
                 return new Promise((resolve, reject) => {
                     http().getJson(that.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
-                        if (_.filter(niveauCompetences, {couleur: null}).length == niveauCompetences.length) {
+                        if (_.filter(niveauCompetences, {couleur: null}).length === niveauCompetences.length) {
                             that.usePerso = 'noPerso';
                         }
                         else {
@@ -129,7 +129,7 @@ export class Structure extends Model {
                                 niveauCompetencesArray: _.sortBy(node, function (niv) {
                                     return niv.ordre;
                                 })
-                            }
+                            };
                             cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
                             cycles.push(cycleNode);
                         });
@@ -147,8 +147,8 @@ export class Structure extends Model {
                             if (reject && typeof reject === 'function') {
                                 reject();
                             }
-                        })
-                })
+                        });
+                });
             }
         });
         this.collection(Enseignant);
@@ -421,10 +421,10 @@ export class Structure extends Model {
                     reject();
                 }
                 if (res.length > 0) {
-                    resolve(true)
+                    resolve(true);
                 }
                 else {
-                    resolve(false)
+                    resolve(false);
                 }
             });
         });
@@ -704,7 +704,7 @@ export class Classe extends Model {
                 return new Promise((resolve, reject) => {
                     this.mapEleves = {};
                     let url;
-                    if(isChefEtab()){
+                    if(isChefEtab()) {
                         url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasseChefEtab;
                     }else {
                         url = this.type_groupe === 1 ? this.api.syncGroupe : this.api.syncClasse;
@@ -778,7 +778,7 @@ export class Eleve extends Model {
                         this.moyenne = "";
                     }
                 }.bind(this));
-                if(resolve && typeof(resolve) === 'function'){
+                if(resolve && typeof(resolve) === 'function') {
                     resolve();
                 }
             }
@@ -837,7 +837,7 @@ export class Evaluation extends Model implements IModel{
 
     save () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            if ( this.id_annotation != undefined ){
+            if ( this.id_annotation != undefined ) {
                 this.deleteAnnotationDevoir().then(()=>{
                     delete this.oldId_annotation;
                     delete this.id_annotation;
@@ -904,7 +904,7 @@ export class Evaluation extends Model implements IModel{
     delete () : Promise<any> {
         return new Promise((resolve, reject) => {
             http().delete(this.api.delete).done(function (data) {
-                if(resolve && typeof(resolve) === 'function'){
+                if(resolve && typeof(resolve) === 'function') {
                     resolve(data);
                 }
             });
@@ -912,7 +912,7 @@ export class Evaluation extends Model implements IModel{
     }
     createAppreciation () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            var _appreciation = {
+            let _appreciation = {
                 id_devoir : this.id_devoir,
                 id_eleve  : this.id_eleve,
                 valeur    : this.appreciation
@@ -929,7 +929,7 @@ export class Evaluation extends Model implements IModel{
 
     updateAppreciation () : Promise<Evaluation> {
         return new Promise((resolve, reject) => {
-            var _appreciation = {
+            let _appreciation = {
                 id : this.id_appreciation,
                 id_devoir : this.id_devoir,
                 id_eleve  : this.id_eleve,
@@ -1158,7 +1158,7 @@ export class Devoir extends Model implements IModel{
 
     getLastSelectedCompetence () : Promise<[any]> {
         return new Promise((resolve, reject) => {
-            http().getJson(this.api.getCompetencesLastDevoir).done(function(competencesLastDevoirList){
+            http().getJson(this.api.getCompetencesLastDevoir).done(function(competencesLastDevoirList) {
                 if(resolve && (typeof(resolve) === 'function')) {
                     resolve(competencesLastDevoirList);
                 }
@@ -1170,8 +1170,8 @@ export class Devoir extends Model implements IModel{
         let classe = evaluations.structure.classes.findWhere({id : this.id_groupe});
         let  type_groupe = -1;
         let  id_groupe = null;
-        if(classe !== undefined){
-            if(classe.type_groupe !== undefined){
+        if(classe !== undefined) {
+            if(classe.type_groupe !== undefined) {
                 type_groupe = classe.type_groupe;
             }
             id_groupe = this.id_groupe;
@@ -1204,7 +1204,7 @@ export class Devoir extends Model implements IModel{
 
     create () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().postJson(this.api.create, this.toJSON()).done(function(data){
+            http().postJson(this.api.create, this.toJSON()).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
@@ -1228,7 +1228,7 @@ export class Devoir extends Model implements IModel{
 
         return new Promise((resolve, reject) => {
             var that = this;
-            http().getJson(this.api.isEvaluatedDevoir+idDevoir).done(function(data){
+            http().getJson(this.api.isEvaluatedDevoir+idDevoir).done(function(data) {
 
 
                 that.evaluationDevoirs.load(data);
@@ -1240,14 +1240,14 @@ export class Devoir extends Model implements IModel{
     }
     update (addArray, remArray) : Promise<any> {
         return new Promise((resolve, reject) => {
-            var devoirJSON = this.toJSON();
+            let devoirJSON = this.toJSON();
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
             devoirJSON.competences = [];
             if(devoirJSON.competenceEvaluee == undefined) {
                 delete devoirJSON.competenceEvaluee;
             }
-            http().putJson(this.api.update + this.id, devoirJSON).done(function(data){
+            http().putJson(this.api.update + this.id, devoirJSON).done(function(data) {
                 evaluations.devoirs.sync();
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
@@ -1258,7 +1258,7 @@ export class Devoir extends Model implements IModel{
 
     remove () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete + this.id).done(function(data){
+            http().delete(this.api.delete + this.id).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
@@ -1271,7 +1271,7 @@ export class Devoir extends Model implements IModel{
 
     save (add? : any,rem? : any) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if(!this.id){
+            if(!this.id) {
                 this.create().then((data) => {
                     if (resolve && (typeof (resolve) === 'function')) {
                         resolve(data);
@@ -1304,7 +1304,7 @@ export class Devoir extends Model implements IModel{
                     });
                 }
                 model.trigger('apply');
-                if(resolve && typeof(resolve) === 'function'){
+                if(resolve && typeof(resolve) === 'function') {
                     resolve();
                 }
             });
@@ -1346,7 +1346,7 @@ export class Devoir extends Model implements IModel{
 
     saveCompetencesNotes (_data) {
         var that = this;
-        if (_data[0].evaluation !== -1){
+        if (_data[0].evaluation !== -1) {
             var _post = _.filter(_data, function (competence) {
                 return competence.id === undefined;
             });
@@ -1479,13 +1479,13 @@ export class DevoirsCollection {
     areEvaluatedDevoirs (idDevoirs) : Promise<any> {
         return new Promise((resolve, reject) => {
             var URLBuilder = "";
-            for (var i=0; i<idDevoirs.length; i++){
+            for (var i=0; i<idDevoirs.length; i++) {
                 if(i==0)
                     URLBuilder = "idDevoir="+idDevoirs[i];
                 else
                     URLBuilder += "&idDevoir="+idDevoirs[i];
             }
-            http().getJson(this.api.areEvaluatedDevoirs + URLBuilder  ).done(function(data){
+            http().getJson(this.api.areEvaluatedDevoirs + URLBuilder  ).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
@@ -1501,7 +1501,7 @@ export class DevoirsCollection {
                 url += "&idGroupe=" + devoir.id_groupe;
                 url += "&has_competence=" + (devoir.competences.all.length > 0 || devoir.nbcompetences > 0);
                 /*
-                if(front){
+                if(front) {
                     let calculatedFrontPercent = 0;
                     let _devoir = _.findWhere(this.all, {id : devoir.id});
 
@@ -1519,7 +1519,7 @@ export class DevoirsCollection {
                     if (is_evaluated && !has_competence) {
                         calculatedFrontPercent = Math.round((nbNotesEtAnnotations* 100 / nbEleves));
                     }
-                    else if (is_evaluated && has_competence){
+                    else if (is_evaluated && has_competence) {
                         calculatedFrontPercent = Math.round((((nbNotes+nbCompetences)/2 + nbAnnotations)*100/(nbEleves)));
                     }
                     else if (has_competence && !is_evaluated) {
@@ -1592,7 +1592,7 @@ export class BilanFinDeCycle extends Model {
 
     constructor(p? : any) {
         super();
-        if(p !== undefined){
+        if(p !== undefined) {
             this.id = p.id;
             this.id_eleve = p.id_eleve;
             this.id_domaine = p.id_domaine;
@@ -1665,7 +1665,7 @@ export class BilanFinDeCycle extends Model {
     deleteBilanFinDeCycle () : Promise<any> {
         return new Promise((resolve, reject) => {
             http().delete(this.api.deleteBFC).done(function (data) {
-                if(resolve && typeof(resolve) === 'function'){
+                if(resolve && typeof(resolve) === 'function') {
                     resolve(data);
                 }
             });
@@ -1743,8 +1743,8 @@ export class Competence extends Model {
 
     selectChildren (bool) : Promise<any> {
         return new Promise((resolve, reject) => {
-            if(this.competences.all.length !== 0){
-                _.each(this.competences.all, function(child){
+            if(this.competences.all.length !== 0) {
+                _.each(this.competences.all, function(child) {
                     child.selected = bool;
                     child.selectChildren(bool).then(resolve);
                 });
@@ -1757,11 +1757,11 @@ export class Competence extends Model {
     }
 
     findSelectedChildren () {
-        if(this.selected === true){
+        if(this.selected === true) {
             evaluations.competencesDevoir.push(this.id);
         }
-        if(this.competences.all.length !== 0){
-            _.each(this.competences.all, function(child){
+        if(this.competences.all.length !== 0) {
+            _.each(this.competences.all, function(child) {
                 child.findSelectedChildren();
             });
         }
@@ -1923,7 +1923,7 @@ export class Evaluations extends Model {
                             evaluations.structures.load(structuresTemp);
                             evaluations.structure = evaluations.structures.first();
 
-                            if (evaluations.structure !== undefined){
+                            if (evaluations.structure !== undefined) {
                                 resolve();
                             }
                         } else {
@@ -1991,7 +1991,7 @@ export class SuiviCompetenceClasse extends Model {
 
     }
 
-    addEvalLibre (eleve){
+    addEvalLibre (eleve) {
 
 
     }
@@ -2059,9 +2059,9 @@ export class SuiviCompetence extends Model {
                             if (resDomaines) {
                                 for (var i = 0; i < resDomaines.length; i++) {
                                     var domaine = new Domaine(resDomaines[i]);
-                                    if(that.bilanFinDeCycles !== undefined && that.bilanFinDeCycles.all.length>0){
+                                    if(that.bilanFinDeCycles !== undefined && that.bilanFinDeCycles.all.length>0) {
                                         let tempBFC = _.findWhere(that.bilanFinDeCycles.all, {id_domaine : domaine.id});
-                                        if(tempBFC !== undefined){
+                                        if(tempBFC !== undefined) {
                                             domaine.bfc = tempBFC;
                                         }
                                     }
@@ -2132,7 +2132,7 @@ export class SuiviCompetence extends Model {
     getConversionTable(idetab, idClasse, mapCouleur) : Promise<any> {
         return new Promise((resolve, reject) => {
             var that = this;
-            http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data){
+            http().getJson(this.api.getCompetenceNoteConverssion + '?idEtab='+ idetab+'&idClasse='+idClasse  ).done(function(data) {
                 _.map(data, (_d) => {
                     _d.couleur = mapCouleur[_d.ordre -1];
                 });
@@ -2158,7 +2158,7 @@ function setSliderOptions(poDomaine,tableConversions) {
         // Au changement du Slider on détermine si on est dans le cas d'un ajout d'un bfc ou d'une modification
         // Si c'est un ajout on créee l'objet BFC()
         let bfc = poDomaine.bfc;
-        if(bfc === undefined){
+        if(bfc === undefined) {
             bfc = new BilanFinDeCycle();
             bfc.id_domaine = poDomaine.id;
             bfc.id_etablissement = poDomaine.id_etablissement;
@@ -2166,8 +2166,8 @@ function setSliderOptions(poDomaine,tableConversions) {
         }
         bfc.owner = poDomaine.id_chef_etablissement;
         // Si la valeur modifiée est égale à la moyenne calculée, on ne fait rien ou on supprime la valeur
-        if(poDomaine.slider.value === poDomaine.moyenne){
-            if(bfc.id !== undefined){
+        if(poDomaine.slider.value === poDomaine.moyenne) {
+            if(bfc.id !== undefined) {
                 poDomaine.bfc.deleteBilanFinDeCycle().then((res) => {
                     if (res.rows === 1) {
                         poDomaine.bfc = undefined;
@@ -2180,8 +2180,8 @@ function setSliderOptions(poDomaine,tableConversions) {
             // Sinon on ajoute ou on modifie la valeur du BFC
             bfc.valeur = poDomaine.slider.value;
             bfc.saveBilanFinDeCycle().then((res) => {
-                if(res !== undefined && res.id !== undefined){
-                    if(bfc.id === undefined){
+                if(res !== undefined && res.id !== undefined) {
+                    if(bfc.id === undefined) {
                         bfc.id = res.id;
                     }
                     poDomaine.bfc = bfc;
@@ -2198,8 +2198,8 @@ function setSliderOptions(poDomaine,tableConversions) {
                 return String(poDomaine.moyenne);
             },
             disabled: parseFloat(poDomaine.moyenne) === -1,
-            floor: _.min(tableConversions, function(Conversions){ return Conversions.ordre; }).ordre - 1,
-            ceil: _.max(tableConversions, function(Conversions){ return Conversions.ordre; }).ordre,
+            floor: _.min(tableConversions, function(Conversions) { return Conversions.ordre; }).ordre - 1,
+            ceil: _.max(tableConversions, function(Conversions) { return Conversions.ordre; }).ordre,
             step: 1,
             showTicksValues: false,
             showTicks: true,
@@ -2216,7 +2216,7 @@ function setSliderOptions(poDomaine,tableConversions) {
 
     let moyenneTemp = undefined;
     // si Une valeur a été modifiée par le chef d'établissement alors on prend cette valeur
-    if(poDomaine.bfc !== undefined && poDomaine.bfc.valeur !== undefined){
+    if(poDomaine.bfc !== undefined && poDomaine.bfc.valeur !== undefined) {
         moyenneTemp = poDomaine.bfc.valeur;
     }else{
         moyenneTemp = poDomaine.moyenne;
@@ -2226,10 +2226,10 @@ function setSliderOptions(poDomaine,tableConversions) {
     let maConvertion = utils.getMoyenneForBFC(moyenneTemp,tableConversions);
 
     // si ça ne rentre dans aucune case
-    if(maConvertion === -1 ){
+    if(maConvertion === -1 ) {
         poDomaine.slider.value = -1 ;
-        poDomaine.slider.options.getSelectionBarClass = function(){ return '#d8e0f3';};
-        poDomaine.slider.options.translate = function(value,sliderId,label){
+        poDomaine.slider.options.getSelectionBarClass = function() { return '#d8e0f3';};
+        poDomaine.slider.options.translate = function(value,sliderId,label) {
             let l = '#label#';
             if (label === 'model') {
 
@@ -2240,12 +2240,12 @@ function setSliderOptions(poDomaine,tableConversions) {
 
     }else{
         poDomaine.slider.value = maConvertion ;
-        poDomaine.slider.options.getSelectionBarClass = function(value){
+        poDomaine.slider.options.getSelectionBarClass = function(value) {
             let ConvertionOfValue = _.find(tableConversions,{ordre: value});
             if(ConvertionOfValue !== undefined)
                 return ConvertionOfValue.couleur;
         };
-        poDomaine.slider.options.translate = function(value,sliderId,label){
+        poDomaine.slider.options.translate = function(value,sliderId,label) {
             let l = '#label#';
             if (label === 'model') {
 
@@ -2294,9 +2294,9 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
             poDomaine.domaines.all[i].id_eleve = poDomaine.id_eleve;
             poDomaine.domaines.all[i].id_etablissement = poDomaine.id_etablissement;
             poDomaine.domaines.all[i].id_chef_etablissement= poDomaine.id_chef_etablissement;
-            if(bfcsParDomaine !== undefined && bfcsParDomaine.all.length>0){
+            if(bfcsParDomaine !== undefined && bfcsParDomaine.all.length>0) {
                 let tempBFC = _.findWhere(bfcsParDomaine.all, {id_domaine : poDomaine.domaines.all[i].id});
-                if(tempBFC !== undefined){
+                if(tempBFC !== undefined) {
                     poDomaine.domaines.all[i].bfc = tempBFC;
                 }
             }
@@ -2317,7 +2317,7 @@ function getMaxEvaluationsDomaines(poDomaine, poMaxEvaluationsDomaines,tableConv
 
 
     //Si l'utilisateur n'est pas un chef d'établissement il ne peut pas modifier le slider
-    if(!isChefEtab()){
+    if(!isChefEtab()) {
         poDomaine.slider.options.readOnly = true;
     }
 }
@@ -2334,7 +2334,7 @@ function findCompetenceRec (piIdCompetence, poDomaine) {
     if(poDomaine.domaines) {
         for(var i=0; i<poDomaine.domaines.all.length; i++) {
             let comp = findCompetenceRec(piIdCompetence, poDomaine.domaines.all[i]);
-            if(comp !== undefined){
+            if(comp !== undefined) {
                 return comp;
             }
         }
@@ -2408,7 +2408,7 @@ export class Remplacement extends Model implements IModel{
 
     create () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().postJson(this.api.create, this.toJSON()).done(function(data){
+            http().postJson(this.api.create, this.toJSON()).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
@@ -2418,7 +2418,7 @@ export class Remplacement extends Model implements IModel{
 
     update () : Promise<any> {
         return new Promise((resolve, reject) => {
-            http().postJson(this.api.update, this.toJSON()).done(function(data){
+            http().postJson(this.api.update, this.toJSON()).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(data);
                 }
@@ -2430,7 +2430,7 @@ export class Remplacement extends Model implements IModel{
     remove () : Promise<any> {
         var that = this;
         return new Promise((resolve, reject) => {
-            http().delete(this.api.delete, this.toJSON()).done(function(data){
+            http().delete(this.api.delete, this.toJSON()).done(function(data) {
                 if (resolve && (typeof (resolve) === 'function')) {
                     resolve(that);
                 }
@@ -2513,7 +2513,7 @@ export class GestionRemplacement extends Model implements IModel{
                         for(var i=0; i<resRemplacements.length; i++) {
                             var remplacementJson = resRemplacements[i];
 
-                            var remplacement = new Remplacement();
+                            let remplacement = new Remplacement();
                             remplacement.titulaire = new Enseignant();
                             remplacement.titulaire.id = remplacementJson.id_titulaire;
                             remplacement.titulaire.displayName = remplacementJson.libelle_titulaire;

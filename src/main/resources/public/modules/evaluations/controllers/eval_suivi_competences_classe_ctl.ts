@@ -77,8 +77,8 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                     }
 
                     // On stocke l'ensemble des élèves de la classe dan une Map
-                    var mapEleves = {};
-                    for (var i = 0; i < $scope.search.classe.eleves.all.length; i++) {
+                    let mapEleves = {};
+                    for (let i = 0; i < $scope.search.classe.eleves.all.length; i++) {
                         mapEleves[$scope.search.classe.eleves.all[i].id] = $scope.search.classe.eleves.all[i];
                     }
                     $scope.search.classe.mapEleves = mapEleves;
@@ -203,7 +203,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
         };
 
         $scope.updateNiveau = function (usePerso) {
-            if(usePerso == 'true' ){
+            if(usePerso === 'true' ){
                 evaluations.structure.niveauCompetences.sync(false).then( () => {
                     evaluations.structure.niveauCompetences.first().markUser().then( () => {
                         $scope.structure.usePerso = 'true';
@@ -213,7 +213,7 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
                 });
 
             }
-            else if (usePerso == 'false'){
+            else if (usePerso === 'false'){
                 evaluations.structure.niveauCompetences.sync(true).then( () => {
                     evaluations.structure.niveauCompetences.first().unMarkUser().then( () => {
                         $scope.structure.usePerso = 'false';
@@ -259,8 +259,9 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             if (evaluation === undefined){
                 return ;
             }
-            else if (evaluation !== -Infinity)
+            else if (evaluation !== -Infinity){
                 return $scope.selected.colors[evaluation.evaluation + 1];
+            }
         };
 
         /**

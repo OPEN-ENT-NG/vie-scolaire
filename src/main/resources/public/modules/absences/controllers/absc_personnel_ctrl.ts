@@ -46,6 +46,8 @@ export let absencesController = ng.controller('AbsencesController', [
                 utils.safeApply($scope);
             },
             SaisieAbsEleve: function (params) {
+                $scope.showLightbox = false;
+                $scope.showLightboxEditAbsence = false;
                 $scope.display.menu = false;
                 $scope.display.dates = false;
                 template.open('header', '../templates/absences/absc_personnel_header');

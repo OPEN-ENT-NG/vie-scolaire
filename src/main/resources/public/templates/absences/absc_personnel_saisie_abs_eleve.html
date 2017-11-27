@@ -1,94 +1,129 @@
 <div ng-controller="AbscSaisieElevePersonnel" >
 
-    <div class="eleven cell card ten-mobile header-saisie-abs-cpe" >
+    <!-- Left Side bar -->
+    <div class="three cell">
 
-        <div class="eleven cell eleven-mobile">
-            <!-- select structure -->
-        </div>
+        <!-- Bloc recherche élève -->
+        <article class="twelve filtre opened cell card eleven-mobile ng-scope" >
+            <h2>Élèves</h2>
 
-        <div class="six cell six-mobile search-card " >
-            <div class="ten cell ">
-                <h2><i18n>viescolaire.eleve.recherche</i18n></h2>
-                <autocomplete options="structure.eleves.all" ng-change="selectEleve('Search')" ng-model="selected.eleve"></autocomplete>
-            </div>
-        </div>
+            <!-- Barre de recherche de l'élève -->
+            <autocomplete options="structure.eleves.all" ng-change="selectEleve()" ng-model="selected.eleve"></autocomplete>
 
-        <div class="five cell six-mobile selection-head-saisie-abs" >
-            <div>
-                <label class="select">
-                    <select ng-model="selected.classe" ng-change="syncEleveClasse()"
-                            ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in structure.classes.all | orderBy:['type_groupe_libelle','name']">
-                        <option value="" class="header-opt">Classe / Groupe</option>
-                    </select>
-                </label>
-            </div>
-
-            <div  ng-hide="display.selection.eleve === false" >
-                <label class="select centre-element " >
-                    <select ng-model="selected.eleve" ng-change="selectEleve('Input')"
-                            ng-options="eleve as (eleve.firstName + ' ' + eleve.lastName) for eleve in selected.classe.eleves.all">
-                        <option value="" class="header-opt">
-                            Eleves
-                        </option>
-                    </select>
-                </label>
-            </div>
-        </div>
-    </div>
-    <div class="eleven cell card eleven-mobile body-saisie-abs-cpe"  ng-if="display.calendarDate" >
-        <div class="head-of-body-saisie-abs-cpe " sticky offset="65px" >
-            <div class="calender-saisie_abs_cpe">
-                <div class="cell eleven-mobile">
-                    <h1 class="twelve cell">[[selected.eleve.firstName]] [[selected.eleve.lastName]]</h1>
-                    <div>
-                        <label><i18n>viescolaire.utils.from</i18n></label>
-                    </div>
-                    <div>
-                        <label>
-                            <i class="calendar"></i>
-                            <date-picker ng-model="selected.dateDb" ng-change=""></date-picker>
-                        </label>
-                        <input type="time" ng-model="selected.timeDb"
-                        >
-                    </div>
-                    <div>
-                        <label><i18n>viescolaire.utils.to</i18n></label>
-                    </div>
-                    <div>
-                        <label>
-                            <i class="calendar"></i>
-                            <date-picker ng-model="selected.dateFn" ng-change=""></date-picker>
-                        </label>
-                        <input type="time" ng-model="selected.timeFn"
-                        >
-                    </div>
-
-                    <button class="" ng-click="searchCours()"><i18n>presence.devoir.ok</i18n></button>
+            <!-- Carte de l'élève -->
+            <div class="row" ng-if="display.showEleveCard">
+                <div class="three cell">
+                    <img class="avatar" src="/userbook/avatar/[[selected.eleve.id]]">
+                </div>
+                <div class="nine cell" style="padding:5px">
+                    <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className]]</h2>
+                    <p>Né le [[selected.eleve.birthDate]]</p>
+                    <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell" href="/conversation/conversation#/write-mail/[[selected.eleve.id]]">
+                        <i class="send-mail inline"></i>
+                        <div  class="block-container cell">
+                            <span>
+                                Envoyer un message
+                            </span>
+                        </div>
+                    </a>
                 </div>
             </div>
-            <div class="twelve cell eleven-mobile " ng-if="display.coursDetail===true" >
-                <label class="select three centre-element" >
-                    <select ng-model="selected.motif"
-                            ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all  | orderBy:['justifiant_libelle','libelle']"
-                            ng-change="detectDiffMotif(selected.motif)"
-                            >
-                        <option value="" class="header-opt">
-                            Motifs absence
-                        </option>
-                    </select>
-                </label>
-                <button ng-disabled="selected.motif === undefined || selected.motif === '*' || selected.eleve.cours === undefined || selected.eleve.cours.length === 0" class="right-magnet" ng-click="saveAbsc()">
-                    <i18n>viescolaire.save</i18n>
-                </button>
-            </div>
-        </div>
-        <div class="twelve cell eleven-mobile " ng-if="display.coursDetail===true">
-            <h2 class="twelve cell "><i18n>evaluations.devoir.recaputilatif</i18n></h2>
 
-            <div  class="twelve cell " >
-                <container template="abscDetailTimelineTemplate"></container>
+        </article>
+
+        <!-- Bloc absences de l'élève -->
+        <article ng-show="display.showLastAbsences" class="twelve filtre opened cell card eleven-mobile ng-scope">
+            <h2>Dernières absences saisies</h2>
+
+            <!-- Si aucune absence n'est trouvé -->
+            <div ng-show="!selected.eleve.evenements.length">
+                <h2 style="color: #777">Aucune absence à afficher</h2>
             </div>
 
-        </div>
+            <!-- Si des absences sont trouvés -->
+            <div ng-show="selected.eleve.evenements.length">
+                <div ng-repeat="event in selected.eleve.evenements | limitTo:2" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
+                    <div class="eight cell">
+                        <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
+                        <p>Motif: [[event.motif.libelle]]</p>
+                    </div>
+                    <div class="four cell">
+                        <button ng-click="showLightboxConfirmDelete(event)" class="right-magnet" style="margin-top: 20px;">Supprimer</button>
+                    </div>
+                </div>
+                <button ng-click="showLightboxAllAbsences(true)">Voir plus</button>
+            </div>
+
+        </article>
     </div>
+
+    <!-- Lightbox qui affiche toutes les absences -->
+    <lightbox show="displayLightboxAllAbsences" on-close="displayLightboxAllAbsences=false">
+        <div ng-show="!displayConfirmDelete">
+            <h2>Dernières absences saisies</h2>
+            <div ng-repeat="event in selected.eleve.evenements" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
+                <div class="nine cell">
+                    <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
+                    <p>Motif: [[event.motif.libelle]]</p>
+                </div>
+                <div class="three cell">
+                    <button class="right-magnet" style="margin-top: 20px;" ng-click="showConfirmDelete(event)">Supprimer</button>
+                </div>
+            </div>
+        </div>
+        <div ng-show="displayConfirmDelete">
+            <h2><span ng-click="showConfirmDelete(false)">←</span> Suppression d'une absence</h2>
+            <p>Voulez vous vraiment supprimer l'absence du [[selectedEvent.niceDateDebut]] au [[selectedEvent.niceDateFin]]</p>
+            <button>Oui</button><button ng-click="showConfirmDelete(false)">Annuler</button>
+        </div>
+    </lightbox>
+
+    <!-- Lightbox confirmation de suppression d'une absence -->
+    <lightbox show="displayLightboxConfirmDelete" on-close="displayLightboxAllAbsences=false">
+            <h2>Suppression d'une absence</h2>
+            <p>Voulez vous vraiment supprimer l'absence du [[selectedEvent.niceDateDebut]] au [[selectedEvent.niceDateFin]]</p>
+            <button>Oui</button><button ng-click="showLightboxConfirmDelete(false)">Annuler</button>
+    </lightbox>
+
+</div>
+
+<!-- Right content-->
+<div class="ten cell">
+    <article class="twelve cell twelve-mobile">
+        <h2>Ajouter une absence prévisionelle</h2>
+        <h3>Créneau</h3>
+        <div class="header-nav__date-pickers right-magnet">
+            <label>Du</label>
+            <label>
+                <i class="calendar"></i>
+                <input ng-transclude="" type="text" data-date-format="dd/mm/yyyy" ng-model="periode.debut" ng-change="showDate = true; loadData(); resetFilter();" class="ng-pristine ng-valid">
+            </label>
+            <label>au</label>
+            <label>
+                <i class="calendar"></i>
+                <input ng-transclude="" type="text" data-date-format="dd/mm/yyyy" ng-model="periode.fin" ng-change="showDate = true; loadData(); resetFilter();" class="ng-pristine ng-valid">
+            </label>
+        </div>
+        <h3>Motif</h3>
+        <label class="select-input">
+            <select>
+                <optgroup label="Motifs non justifiés">
+                    <option value="8">Sans motif</option>
+                    <option value="21">Maladie sans certificat médical</option>
+                    <option value="18">Vacances prolongées</option>
+                </optgroup><optgroup label="Motifs justifiés">
+                <option value="20">Maladie avec certificat médical</option>
+                <option value="24">Retard train</option>
+                <option value="19">Motif justifiant par défaut</option>
+                <option value="9">Maladie avec justificatif</option>
+                <option value="28">Hospitalisation</option>
+                <option value="29">Comme d'hab</option>
+            </optgroup>
+            </select>
+        </label>
+    </article>
+    <article class="twelve cell twelve-mobile">
+        <h2>Calendrier</h2>
+        <h2><i18n><span class="no-style ng-scope">Absences non justifiées</span></i18n></h2>
+    </article>
 </div>

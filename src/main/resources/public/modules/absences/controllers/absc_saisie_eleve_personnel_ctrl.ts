@@ -14,72 +14,7 @@ declare let _: any;
 export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', [
     '$scope', 'route', '$rootScope', '$location',
     function ($scope, route, $rootScope, $location) {
-
         template.open('abscDetailTimelineTemplate', '../templates/absences/absc-detail-timeline-cours-template');
-
-        // variables d'affichage
-
-        $scope.display.showEleveCard = false;
-        $scope.display.showLastAbsences = false;
-
-        $scope.showLightboxAllAbsences = (state) => {
-            $scope.displayLightboxAllAbsences = state;
-        };
-
-        $scope.showConfirmDelete = (event) => {
-            if(event){
-                $scope.selectedEvent = event;
-                $scope.displayConfirmDelete = true;
-            }else{
-                $scope.displayConfirmDelete = false;
-            }
-        };
-
-        $scope.showLightboxConfirmDelete = (event) => {
-            if(event){
-                $scope.selectedEvent = event;
-                $scope.displayLightboxConfirmDelete = true;
-            }else{
-                $scope.displayLightboxConfirmDelete = false;
-            }
-        };
-
-        // Selection d'un élève dans la barre de recherche
-        $scope.selectEleve = () => {
-            $scope.display.selection.eleve = false;
-
-            // On récupère les absences de l'élève
-            $scope.selected.eleve.syncAllAbsence(false).then(()=> {
-                console.log("good");
-                console.log($scope.selected.eleve);
-                // On récupère uniquement les absences
-                //$scope.selected.eleve.evenements = $scope.selected.eleve.evenements.filter(event => event.id_type == 1);
-
-                // Pour chaque absence
-                $scope.selected.eleve.evenements.forEach(function (event) {
-                    // On charge le détail des motifs
-                    event.motif = $scope.structure.motifs.find(motif => motif.id == event.id_motif);
-                    // On crée une belle date à afficher
-                    event.niceDateDebut = moment(event.timestamp_dt).format('DD/MM/YYYY à h:mm');
-                    event.niceDateFin = moment(event.timestamp_fn).format('DD/MM/YYYY à h:mm');
-                });
-
-                // On trie les absences par ordre chronologique
-                /*$scope.selected.eleve.evenements.sort(function(a, b) {
-                    return new Date(a.timestamp_fn) - new Date(b.timestamp_fn);
-                });*/
-
-                console.log("Show Elements");
-                $scope.display.showEleveCard = true;
-                $scope.display.showLastAbsences = true;
-                utils.safeApply($scope);
-            }).catch(e => {
-                console.log(e);
-            });
-        };
-
-
-
         $scope.selected = {
             eleve: '*',
             classe: '*',
@@ -117,7 +52,17 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             $scope.selected.timeFn = moment().format("HH:mm");
         };
 
+        $scope.selectEleve = (from) => {
+            if (from === 'Search') {
+                $scope.selected.classe = '*';
+                $scope.display.selection.eleve = false;
+            } else if (from === 'Input') {
 
+            }
+            $scope.selected.from = from;
+            $scope.display.calendarDate = true;
+            $scope.initSelectedDates();
+        };
         $scope.searchCours = () => {
             $scope.selected.motif= '*';
             let syncCours = false;

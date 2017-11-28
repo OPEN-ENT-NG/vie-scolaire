@@ -12,7 +12,6 @@ export class Eleve extends SharedEleve {
     get api() {
         return _.extend(this.apiList, {
             GET_RESPONSABLES: '/viescolaire/eleves/' + this.id + '/responsables',
-            GET_ALL_ABSENCES: '/viescolaire/presences/eleve/' + this.id + '/absences/',
             GET_EVENT_ELEVE:'/viescolaire/presences/eleve/',
             GET_Eleve_COURS:'/viescolaire/cours',
             GET_CLASSE_COURS:'/viescolaire',
@@ -72,45 +71,10 @@ export class Eleve extends SharedEleve {
         });
     }
 
-    // Récupère toutes les absences de l'élève
-    syncAllAbsence(isAscending): Promise<any> {
-        return new Promise((resolve,reject) => {
-            http().getJson(this.api.GET_ALL_ABSENCES + isAscending).done((data) => {
-                this.evenements = data;
-                if (resolve && typeof resolve === 'function') {
-                    resolve();
-                }
-            })
-                .error(function () {
-                    if (reject && typeof reject === 'function') {
-                        reject();
-                    }
-                });
-        });
-    }
-
-    // Synchronise les évènements de l'élève entre la
-    syncEvenement(dateDebut, dateFin): Promise<any> {
-        return new Promise((resolve,reject) => {
-            http().getJson(this.api.GET_EVENT_ELEVE+this.id+'/evenements/'+moment(dateDebut).format('YYYY-MM-DD')+'/'+moment(dateFin).format('YYYY-MM-DD')).done((data) => {
-                this.evenements = data;
-                if (resolve && typeof resolve === 'function') {
-                    resolve();
-                }
-            })
-                .error(function () {
-                    if (reject && typeof reject === 'function') {
-                        reject();
-                    }
-                });
-        });
-    }
-
-    // buguée
     syncEvenment(DateD, DateF): Promise<any> {
         return new Promise((resolve,reject) => {
             http().getJson(this.api.GET_EVENT_ELEVE+this.id+'/evenements/'+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')).done((data) => {
-                this.evenements.load(data); // load is not a function
+                this.evenements.load(data);
                 if (resolve && typeof resolve === 'function') {
                     resolve();
                 }

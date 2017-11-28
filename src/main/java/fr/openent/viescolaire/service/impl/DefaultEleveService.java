@@ -79,7 +79,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         query.append(" MATCH (u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and s.id = {idEtab}  with u ")
                 .append("Match (c:Class) where c.externalId IN u.classes " )
-                .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName, u.birthDate as birthDate, u.level as level, c.name as className, c.id as classId, collect(c.id) as classes");
+                .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, collect(c.id) as classes");
         neo4j.execute(query.toString(), new JsonObject().putString("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
     }
 

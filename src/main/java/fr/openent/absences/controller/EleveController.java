@@ -70,19 +70,6 @@ public class EleveController extends ControllerHelper {
         miAbscEleveService.getEvenements(sIdEleve, sDateDebut, sDateFin, handler);
     }
 
-    @Get("/eleve/:idEleve/absences/:isAscending")
-    @ApiDoc("Recupere toutes les absences d'un élève, les absences sont triées par 'date de début'" +
-            "de manière ASC ou DESC selon le paramètre isAscending")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getAllAbsenceEleve(final HttpServerRequest request){
-        String idEleve = request.params().get(ID_ELEVE);
-        boolean isAscending = Boolean.parseBoolean(request.params().get("isAscending"));
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        miAbscEleveService.getAllAbsenceEleve(idEleve, isAscending, handler);
-    }
-
     @Get("/eleve/:idEleve/absencesprev")
     @ApiDoc("Recupere tous le absences previsonnelles d'un eleve")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)

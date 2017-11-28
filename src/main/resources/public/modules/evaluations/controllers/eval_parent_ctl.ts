@@ -18,143 +18,108 @@
  */
 
 /**
- * Created by ledunoiss on 08/08/2016.
+ * Created by anabah on 29/11/2017.
  */
 
 import { model, ng, idiom as lang, template } from 'entcore/entcore';
-import {evaluations} from '../models/parent/eval_parent_mdl';
+import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
+import {Classe} from "../models/parent_eleve/Classe";
 let moment = require('moment');
 
 declare let _: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
-    '$scope', 'route', '$rootScope', '$location',
-    function ($scope, route, $rootScope, $location) {
+    '$scope', 'route', '$rootScope', '$location','$filter', '$sce', '$compile', '$timeout','$route',
+    function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
         route({
-            displayReleveNotes : function(params) {
+            accueil : function (params) {
                 if (model.me.type === 'ELEVE') {
                     // $scope.periodes = evaluations.periodes;
-                    $scope.searchReleve.eleve = model.me;
-                    $scope.getPeriodes();
-                }else if (model.me.type === 'PERSRELELEVE') {
-                    evaluations.sync().then(() => {
-                        $scope.eleves = evaluations.eleves;
-                        if (evaluations.eleves.all.length > 1) {
-                            template.open('lightboxContainer',
-                                '../templates/evaluations/parent_enfant/releve/eval_parent_dispenfants');
-                            $scope.showNoteLightBox = {bool : true};
-                            utils.safeApply($scope);
-                        }else {
-                            $scope.searchReleve.eleve = evaluations.eleves.all[0];
-                            // $scope.getPeriodes();
-                            // $scope.getMatieres();
-                        }
-                    });
+                    $rootScope.eleve = evaluations.eleve;
+                    $rootScope.selectedEleve = $rootScope.eleve;
+                    $rootScope.devoirs = evaluations.devoirs;
+                    $rootScope.matieres = evaluations.matieres;
                 }
+                else if (model.me.type === 'PERSRELELEVE') {
+                    $rootScope.eleves = evaluations.eleves.all;
+                }
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.open('menu', '../templates/evaluations/parent_enfant/accueil/eval_parent_menu');
+                template.open('main', '../templates/evaluations/parent_enfant/accueil/eval_parent_acu');
+                utils.safeApply($scope);
+            },
+            displayReleveNotes : function(params) {
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 template.open('main', '../templates/evaluations/parent_enfant/releve/eval_parent_dispreleve');
+                template.close('menu');
+                utils.safeApply($scope);
+            },
+            listDevoirs : function (params) {
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.close('menu');
+                template.close('main');
+                utils.safeApply($scope);
+            },
+            displayBilanDeCompetence : function (params) {
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.close('menu');
+                template.close('main');
                 utils.safeApply($scope);
             }
         });
 
-        $scope.$watch("searchReleve.eleve", async (newVal) => {
-            if (newVal !== null) {
-                await newVal.periodes.sync();
-                evaluations.periodes = newVal.periodes;
+        $rootScope.getI18nPeriode = (periode) => {
+            let result;
+            if (periode.id === null ) {
+                result = lang.translate("viescolaire.utils.annee");
             }
-        });
+            else {
+                let type_periode = _.findWhere(evaluations.eleve.classe.typePeriodes.all, {id: periode.id_type});
 
-        // Initialisation des variables
-        $scope.searchReleve = {
-            eleve : null,
-            periode : null
-        };
-
-        $scope.showNoteLightBox = {
-            bool : false
-        };
-
-        // $scope.classes = evaluations.classes;
-        // $scope.me = model.me;
-
-        $scope.getI18nPeriode = (periode) => {
-            let type_periode = _.findWhere(evaluations.periodes.all, {id: periode.id_type});
-            let result = type_periode ?
-                lang.translate("viescolaire.periode." + type_periode.type) + " " + type_periode.ordre
-                : lang.translate("viescolaire.utils.periodeError");
+                result = type_periode ?
+                    lang.translate("viescolaire.periode." + type_periode.type) + " " + type_periode.ordre
+                    : lang.translate("viescolaire.utils.periodeError");
+            }
             return result;
         };
 
-        $scope.getPeriodes = function () {
-            if ($scope.searchReleve.eleve !== null) {
+        $rootScope.getPeriodes = function () {
+            if ($rootScope.eleve !== null) {
                 setCurrentPeriode();
             }
         };
 
 
-        $scope.getFormatedDate = function(date) {
+        $rootScope.getFormatedDate = function(date) {
             return moment(date).format("DD/MM/YYYY");
         };
 
-        $scope.noteMatiereEleve = function(idMatiere) {
+        $rootScope.noteMatiereEleve = function(idMatiere) {
             return $scope.dataReleve.devoirs.findWhere({ id_matiere : idMatiere });
         };
 
-        $scope.chooseChild = function(idEleve) {
-            $scope.searchReleve.eleve = _.findWhere(evaluations.eleves.all, {id : idEleve});
-            // $scope.getPeriodes();
-            $scope.showNoteLightBox.bool = false;
+        // Fonction de sélection d'un enfant par le parent
+        $rootScope.chooseChild = async function(eleve) {
+            if(eleve.classe ===  undefined){
+                eleve.classe = new Classe({id: eleve.idClasse});
+                await eleve.classe.sync();
+            }
+            evaluations.eleve = eleve;
+            $rootScope.eleve = evaluations.eleve;
+            $rootScope.selectedEleve = $rootScope.eleve;
+            setCurrentPeriode();
+            await evaluations.devoirs.sync(eleve.idStructure,eleve.id, eleve.idClasse);
+            $rootScope.devoirs = evaluations.devoirs;
+            $rootScope.matieres = evaluations.matieres;
+            $rootScope.enseignants = evaluations.enseignants;
+
+            if($location.path() === "/releve" ){
+                $rootScope.$broadcast('loadReleve');
+            }
             utils.safeApply($scope);
         };
 
-        /**
-         * Calcul la moyenne pour chaque matière
-         * contenue dans $scope.matieres
-         */
-        $scope.calculMoyenneMatieres = function() {
-            if ($scope.dataReleve === undefined) {
-                return ;
-            }
-
-            $scope.matieres.forEach((matiere) => {
-                let devoirsMatieres = $scope.dataReleve.devoirs.where({id_matiere : matiere.id});
-
-                if (devoirsMatieres !== undefined && matiere !== undefined) {
-                    let id_eleve;
-                    if (model.me.type === 'PERSRELELEVE') {
-                        id_eleve = $scope.searchReleve.eleve.id;
-                    } else {
-                        id_eleve = $scope.searchReleve.eleve.userId;
-                    }
-                    matiere.getMoyenne(id_eleve, devoirsMatieres).then(() => {
-                        utils.safeApply($scope);
-                    });
-                }
-            });
-        };
-
-        $scope.loadReleveNote = function() {
-            let periode;
-            if ($scope.searchReleve.periode !== null) {
-                let eleve;
-                if (model.me.type === 'PERSRELELEVE') {
-                    eleve = evaluations.eleves.findWhere({id : $scope.searchReleve.eleve.id});
-                }else {
-                    eleve = $scope.searchReleve.eleve;
-                }
-
-                periode = _.findWhere(eleve.periodes.all, {id_type: $scope.searchReleve.periode.id_type});
-                periode = periode ? periode : _.findWhere(eleve.periodes.all, {id: 0});
-                periode.devoirs.sync($scope.searchReleve.eleve.idStructure,
-                    $scope.searchReleve.eleve.userId).then(() => {
-                    $scope.matieres = periode.matieres;
-                    $scope.dataReleve = periode;
-                    $scope.calculMoyenneMatieres();
-                    utils.safeApply($scope);
-                });
-
-            }
-        };
 
         /**
          * Charge la liste des periodes dans $scope.periodes et détermine la période en cours et positionne
@@ -164,15 +129,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             // récupération des périodes et filtre sur celle en cours
             let periodes;
             if (model.me.type === 'PERSRELELEVE') {
-                periodes = $scope.searchReleve.eleve.periodes;
+                periodes = $rootScope.eleve.classe.periodes;
             }else {
-                periodes = evaluations.periodes;
+                periodes = evaluations.eleve.classe.periodes;
             }
             periodes.sync().then(() => {
                 let formatStr = "DD/MM/YYYY";
                 let momentCurrDate = moment(moment().format(formatStr), formatStr);
                 let foundPeriode = false;
-                $scope.currentPeriodeId = -1;
+                $rootScope.currentPeriodeId = null;
 
                 for (let i = 0; i < periodes.all.length && !foundPeriode; i++) {
                     let momentCurrPeriodeDebut = moment(moment(periodes.all[i].timestamp_dt).format(formatStr),
@@ -183,27 +148,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if ( momentCurrPeriodeDebut.diff(momentCurrDate) <= 0
                         && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         foundPeriode = true;
-                        $scope.searchReleve.periode = periodes.findWhere({id : periodes.all[i].id});
-                        $scope.loadReleveNote();
+                        $rootScope.periode = periodes.findWhere({id : periodes.all[i].id});
+                        $rootScope.currentPeriodeId = $rootScope.periode.id;
                     }
                 }
                 utils.safeApply($scope);
             });
         };
 
-        $scope.isCurrentPeriode = function(periode) {
-            return (periode.id_type === $scope.currentPeriodeId);
+        $rootScope.me = {
+            type : model.me.type
         };
-
-        // Impression du releve de l'eleve
-        $scope.getReleve = function() {
-            if (model.me.type === 'ELEVE') {
-                $scope.searchReleve.periode.getReleve($scope.searchReleve.periode.id_type,
-                    $scope.searchReleve.eleve.userId);
-            } else {
-                $scope.searchReleve.periode.getReleve($scope.searchReleve.periode.id_type,
-                    $scope.searchReleve.eleve.id);
-            }
+        $rootScope.isCurrentPeriode = function(periode) {
+            return (periode.id === $rootScope.currentPeriodeId);
         };
     }
 ]);

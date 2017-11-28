@@ -101,7 +101,7 @@ public class EleveController extends ControllerHelper {
     }
 
     @Get("/eleve/enseignants")
-    @ApiDoc("Récupère les enseingants d'un élève.")
+    @ApiDoc("Récupère les enseingants rattaché à un élève.")
     @ResourceFilter(AccessAuthorozed.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEnseignantsEleve(final HttpServerRequest request) {
@@ -111,7 +111,7 @@ public class EleveController extends ControllerHelper {
     }
 
     @Get("/enseignants")
-    @ApiDoc("Récupère les enseingants d'un élève.")
+    @ApiDoc("Récupère les enseingants ayant créé les devoir d'un élève.")
     @ResourceFilter(AccessAuthorozed.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getUsersById(final HttpServerRequest request) {

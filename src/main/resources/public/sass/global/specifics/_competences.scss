@@ -1715,11 +1715,11 @@ body.evaluations {
   .option-eleve{
     padding-top: 3px;
     > span{
-    margin-top: auto;
-    margin-left: 2%;
-    position: absolute;
-    margin-bottom: auto;
-  }
+      margin-top: auto;
+      margin-left: 2%;
+      position: absolute;
+      margin-bottom: auto;
+    }
   }
   .additional-options{
     border-left: 2px solid;
@@ -1728,9 +1728,9 @@ body.evaluations {
     padding: 1.5%;
     animation-duration: 1s;
     background-image: linear-gradient(to right, #f2f2f2, #fff);
->div{
-  margin:6px;
-}
+    >div{
+      margin:6px;
+    }
     //animation-name: slidein;
   }
 
@@ -2337,4 +2337,87 @@ body.evaluations {
   nav.vertical.floating .content {
     display: initial !important;
   }
+  /**
+   $PARENT-EVALUATION
+ **/
+  .round-avatar {
+    height: 120px;
+    width: 100px;
+    margin: 0 10px;
+    text-align: center !important;
+    opacity: 0.8 !important;
+
+    img {
+      height: 100px;
+      width: 100px;
+      object-fit: cover;
+      border-radius: 50% !important;
+      border: 1px solid $medium-grey !important;
+    }
+
+    span {
+      color: $grey !important;
+      font-weight: bold !important;
+      text-align: center !important;
+    }
+  }
+
+  .eval_parent {
+
+    .display-children {
+      height: 150px;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      overflow-x: auto;
+      box-sizing: border-box;
+
+      & > div {
+        flex: 0 0 auto;
+        opacity: 0.5 !important;
+        transform: scale(0.85);
+        @include transition(all 0.4s ease);
+
+        &:hover {
+          opacity: 0.8 !important;
+          transform: scale(0.9);
+        }
+
+        &.selected {
+          opacity: 1 !important;
+          transform: scale(1);
+        }
+      }
+
+      @media screen and (max-width: 800px), screen and (max-height: 800px) {
+        height: 100px;
+
+        .round-avatar {
+          height: 80px;
+          width: 60px;
+
+          img {
+            width: 60px;
+            height: 60px;
+          }
+        }
+      }
+    }
+
+
+    .round-avatar {
+      top: 10px;
+      right: 10px;
+    }
+
+    .row + .row {
+      margin-top: 15px;
+    }
+
+    .content {
+      min-height: 0;
+    }
+  }
 }
+

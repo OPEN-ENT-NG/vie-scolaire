@@ -1,0 +1,40 @@
+<section>
+    <article class="five cell box-accueil twelve-mobile">
+        <div class="content-box-accueil">
+            <div class="titre-widget">
+                <h2 class="inline-block "><i18n>viescolaire.notes.title</i18n>&nbsp;:</h2>
+            </div>
+            <div class="content-box-accueil--table">
+                <div class="content-box-accueil--table--header row">
+                    <div class="four cell">
+                        <h5><i18n>date</i18n></h5>
+                    </div>
+                    <div class="five cell">
+                        <h5><i18n>viescolaire.notes.title</i18n></h5>
+                    </div>
+                    <div class="three cell">
+                        <h5><i18n>viescolaire.utils.class</i18n></h5>
+                    </div>
+                </div>
+                <div class="content-box-accueil--table--content" style="max-height: 220px;">
+                    <div  ng-repeat="devoir in devoirs.all | orderBy:'date':true" class="row">
+                        <a ng-href="#/devoir/[[devoir.id]]" >
+                            <div class="four cell">
+                                [[getDateFormated(devoir.date)]]
+                            </div>
+                            <div class="five cell">
+                                [[devoir.name]]
+                            </div>
+                            <div class="three cell">
+                                [[(getClasseData(devoir.id_groupe, 'name') === '' ||
+                                getClasseData(devoir.id_groupe, 'name') === undefined) ?
+                                getNameInOtherClasses(devoir.id_groupe,devoir.id)  :
+                                getClasseData(devoir.id_groupe, 'name')]]
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>

@@ -2,14 +2,16 @@ import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/ent
 import * as utils from '../../utils/teacher';
 import {Defaultcolors, NiveauCompetence} from "../eval_niveau_comp";
 import {Cycle} from "../eval_cycle";
-import {TypePeriode} from "../../../viescolaire/models/common/TypePeriode";
-import {Periode} from "../../../viescolaire/models/common/Periode";
-
+import {TypePeriode} from "../common/TypePeriode";
+import {DefaultPeriode} from "../common/DefaultPeriode";
 let moment = require('moment');
 let $ = require('jquery');
 declare let _:any;
 declare let console : any;
 
+export class Periode extends DefaultPeriode {
+
+}
 export class Structure extends Model {
     id: string;
     libelle: string;

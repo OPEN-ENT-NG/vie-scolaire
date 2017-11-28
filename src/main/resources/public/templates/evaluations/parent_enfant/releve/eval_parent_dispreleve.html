@@ -17,30 +17,23 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-<div class="row">
+<div class="row" ng-controller="ReleveController">
     <div class="twelve cell">
 
         <header class="header-viescolaire" style="padding: 8px;margin-bottom: 20px;background: white;border-radius: 5px;">
             <h1><span class="no-style ng-scope"><i18n>ariane.viescolaire.displayReleveNotes</i18n></span></h1>
 
             <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row">
-                <label class="select cell two">
-                    <select ng-model="searchReleve.eleve" ng-change="getPeriodes(); getMatieres()"
-                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="eleve.displayName for eleve in eleves.all">
-                        <option value="" class="header-opt">Elèves</option>
-                    </select>
-                </label>
-
                 <label class="select cell two" ng-hide="searchReleve.eleve===null" style="margin-left:8px">
                     <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.periodes.all">
+                            ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>                    </select>
                 </label>
-                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
+                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null
+                && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
                     &nbsp;  <i class="download"> </i><i18n>print</i18n>
                 </a>
             </section>
@@ -54,7 +47,9 @@
                         </option>
                     </select>
                 </label>
-                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
+                <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve.classe.periode !== null"
+                   class="print-i"
+                   ng-click="getReleve()">
 
                     &nbsp;<i class="download"> </i><i18n>print</i18n>
                 </a>
@@ -85,21 +80,24 @@
 
                     <td class="notesDevoir">
                         <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all">
-                        <div    class=" alignCenterVertically"
-                                ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
-                            <div ng-if="devoirReleveNotes.id_matiere === matiere.id">
-                                <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span><span> / [[devoirReleveNotes.diviseur]]</span>
-                                <span class="releve-coef" ng-show='devoirReleveNotes.coefficient != null && devoirReleveNotes.coefficient != 1'>
+                            <div    class=" alignCenterVertically"
+                                    ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
+                                <div ng-if="devoirReleveNotes.id_matiere === matiere.id">
+                                    <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span>
+                                    <span> / [[devoirReleveNotes.diviseur]]</span>
+                                    <span class="releve-coef"
+                                          ng-show='devoirReleveNotes.coefficient != null
+                                      && devoirReleveNotes.coefficient != 1'>
                                     (<i18n>viescolaire.utils.coef</i18n>. [[devoirReleveNotes.coefficient]])
                                 </span>
+                                </div>
+                                <div class="gradetooltip"
+                                     ng-if="devoirReleveNotes.id_matiere === matiere.id && me.type === 'PERSRELELEVE'"
+                                     tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>
+                                <div class="gradetooltip"
+                                     ng-if="me.type === 'ELEVE' && devoirReleveNotes.id_matiere === matiere.id"
+                                     tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<br>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</div>"></div>
                             </div>
-                            <div class="gradetooltip"
-                                 ng-if="devoirReleveNotes.id_matiere === matiere.id && me.type === 'PERSRELELEVE'"
-                                 tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<p>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</p>[[devoirReleveNotes.appreciation]]"></div>
-                            <div class="gradetooltip"
-                                 ng-if="me.type === 'ELEVE' && devoirReleveNotes.id_matiere === matiere.id"
-                                 tooltip="[[getFormatedDate(devoirReleveNotes.date)]]<br>[[devoirReleveNotes.name]]<div>[[devoirReleveNotes._sousmatiere_libelle]]</div>"></div>
-                        </div>
                         </div>
                     </td>
                     <td class="colMoyenneReleveEleve">

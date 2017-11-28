@@ -145,9 +145,9 @@ public class DefaultUtilsService  implements UtilsService {
         //query.append("MATCH (m:`User` {id: {id}})-[:COMMUNIQUE_DIRECT]->(n:`User`) RETURN n");
 
         query.append("MATCH (m:`User`{id: {id}})<-[:RELATED]-(n:`User`)-[:ADMINISTRATIVE_ATTACHMENT]->(s:`Structure`) ")
-        .append("WITH n.id as id, n.displayName as displayName, n.classes as externalIdClasse, s.id as idStructure  ")
-        .append("MATCH(c:Class)WHERE c.externalId IN externalIdClasse ")
-        .append("RETURN id, displayName, c.id as idClasse, idStructure");
+        .append("WITH n.id as id, n.displayName as displayName, n.classes as externalIdClasse, s.id as idStructure,  ")
+        .append("n.firstName as firstName, n.lastName as lastName MATCH(c:Class)WHERE c.externalId IN externalIdClasse")
+        .append(" RETURN id, displayName, firstName, lastName, c.id as idClasse, idStructure");
         neo4j.execute(query.toString(), new JsonObject().putString("id", id), Neo4jResult.validResultHandler(handler));
     }
     /**

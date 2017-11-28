@@ -110,7 +110,9 @@ public class DevoirController extends ControllerHelper {
                             final String _STUDENT = "Student";
                             final String _RELATIVE = "Relative";
                             Long idPeriode = null;
-                            testLongFormatParameter(idPeriode, "idPeriode", request);
+                            if (request.params().get("idPeriode") != null) {
+                                testLongFormatParameter(idPeriode, "idPeriode", request);
+                            }
 
                             if( _STUDENT.equals(user.getType()) || _RELATIVE.equals(user.getType())){
                                 String idEleve = request.params().get("idEleve");

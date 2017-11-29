@@ -58,7 +58,7 @@ export class Structure extends SharedStructure {
                 synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
             },
             ELEVE : {
-                synchronization : '/viescolaire/eleves?idEtablissement=' + this.id
+                synchronization : '/viescolaire/etab/eleves/' + this.id
             },
             MATIERE : {
                 synchronization : '/viescolaire/matieres?idEtablissement=' + this.id

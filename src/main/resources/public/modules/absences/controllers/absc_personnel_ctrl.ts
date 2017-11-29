@@ -33,6 +33,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 template.open('main', '../templates/absences/absc_appel');
             },
             Accueil: function (params) {
+                $scope.loadData();
                 template.close('menu');
                 template.close('header');
                 template.open('menuBis', '../templates/absences/absc_personnel_menu');
@@ -126,7 +127,7 @@ export let absencesController = ng.controller('AbsencesController', [
          */
         $scope.structures = presences.structures;
 
-        $scope.displayStructureLoader = false;
+        $scope.displayStructureLoader = true;
 
         $rootScope.$on('$routeChangeSuccess', ($currentRoute, $previousRoute, $location) => {
             $scope.structure = presences.structure;
@@ -195,7 +196,6 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.displayStructureLoader = false;
                 $scope.loadData();
             });
-
             if ($location.path() === '/disabled') {
                 $location.path('/');
                 $location.replace();

@@ -86,7 +86,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getEleves(String idEtab,  Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        query.append(" MATCH (f:FunctionalGroup)<-[i:IN]-(u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and s.id = '7d6b93f1-064c-4a15-88c7-815ebf33815b'  with u, collect(f.id) as f ")
+        query.append(" MATCH (f:FunctionalGroup)<-[i:IN]-(u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and s.id = {idEtab}  with u, collect(f.id) as f ")
                 .append("Match (c:Class) where c.externalId IN u.classes ")
                 .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, collect(c.id) as classes ,f as groupes");
         neo4j.execute(query.toString(), new JsonObject().putString("idEtab", idEtab), Neo4jResult.validResultHandler(handler));

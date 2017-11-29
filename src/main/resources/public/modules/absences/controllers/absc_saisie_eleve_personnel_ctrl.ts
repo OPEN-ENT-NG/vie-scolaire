@@ -74,12 +74,16 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                         syncCours = true;
                         utils.safeApply($scope);
                     });
-            else if($scope.selected.from === 'Input')
+            else if($scope.selected.from === 'Input'){
+
+                let elevePersonnel = _.findWhere($scope.structure.eleves.all, {id :  $scope.selected.eleve.id});
+                $scope.selected.eleve = elevePersonnel;
                 $scope.selected.eleve.syncCoursByClasseStud($scope.selected.classe.id, $scope.selected.dateDb, $scope.selected.timeDb+":00", $scope.selected.dateFn, $scope.selected.timeFn+":00")
                     .then((data) => {
                         syncCours = true;
                         utils.safeApply($scope);
                     });
+            }
             $scope.selected.eleve.syncEvenment($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncEvent = true   );
             $scope.selected.eleve.syncAbscPrev($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncAbscPrev = true  );
             $scope.$watch(() =>{return syncCours && syncEvent && syncAbscPrev;},(newVal,oldval) =>{

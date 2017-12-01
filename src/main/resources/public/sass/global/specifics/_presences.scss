@@ -1140,4 +1140,34 @@ body.presences {
       overflow-y: auto;
     }
   }
+  .saisi-absc{
+    display: flex;
+    .left-side{
+      width: 20%;
+      .card{
+        padding: 3.5%;
+      }
+    }
+    .right-side{
+      width: 79%;
+      position: absolute;
+      right: 0% !important;
+      .card{
+        padding: 1.5%;
+      }
+      .creneau{
+        padding-right: 0.5%;
+        .inline-child{
+          >div{
+            display: inline-block;
+          }
+        }
+      }
+      .motif{
+        padding-left: 1%;
+        border-left: 1px grey dashed;
+      }
+    }
+
+  }
 }

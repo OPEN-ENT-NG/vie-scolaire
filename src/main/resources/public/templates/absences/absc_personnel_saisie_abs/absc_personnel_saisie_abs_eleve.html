@@ -2,30 +2,51 @@
 
     <!--Recherche élève-->
     <div class="  left-side" >
-        <div class="card">
-            <h2>Élèves</h2>
+        <!-- Bloc recherche élève -->
+        <article class="twelve cell eleven-mobile ng-scope" >
+            <h2><i18n>viescolaire.utils.students</i18n></h2>
+
             <!-- Barre de recherche de l'élève -->
             <autocomplete options="structure.eleves.all" ng-change="selectEleve()" ng-model="selected.eleve"></autocomplete>
+            <div class="row ng-scope" ng-if="display.showEleveCard">
 
-            <!-- Carte de l'élève -->
-            <div class="row" ng-if="display.showEleveCard">
                 <div class="three cell">
                     <img class="avatar" src="/userbook/avatar/[[selected.eleve.id]]">
                 </div>
+
                 <div class="nine cell" style="padding:5px">
                     <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className]]</h2>
-                    <p>Né le [[selected.eleve.birthDate]]</p>
-                    <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell" href="/conversation/conversation#/write-mail/[[selected.eleve.id]]">
-                        <i class="send-mail inline"></i>
-                        <div  class="block-container cell">
-                            <span>
-                                Envoyer un message
-                            </span>
-                        </div>
-                    </a>
+                    <p>[[selected.eleve.birthDate]]</p>
+                    <div class="row action-item">
+                        <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
+                            <i class="send-mail inline"></i>
+                            <i18n>viescolaire.absences.send.message</i18n>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </article>
+
+        <!-- Bloc absences de l'élève -->
+        <article ng-show="display.showLastAbsences" class="twelve cell eleven-mobile ng-scope">
+            <h2><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+
+            <!-- Si des absences sont trouvés -->
+            <div ng-show="selected.eleve.absencesToShow.length">
+                <div ng-repeat="absenceToShow in selected.eleve.absencesToShow | limitTo:3" class="row" >
+                    <div ng-include src="'/viescolaire/public/templates/absences/absc_personnel_show_simple_and_prev.html'"></div>
                 </div>
             </div>
-        </div>
+
+            <!-- Si aucune absence n'est trouvé -->
+            <div ng-show="!selected.eleve.absencesToShow.length">
+                <h2 style="color: #777"><i18n>viescolaire.absences.no.absence.to.show</i18n></h2>
+            </div>
+
+            <button ng-click="showLightboxAllAbsences(true)"><i18n>viescolaire.utils.show.more</i18n></button>
+        </article>
+
     </div>
 
 
@@ -84,58 +105,19 @@
         </div>
     </div>
 
-
-
-
-
-    <!-- Left Side bar -->
-    <!--div class="three cell">
-
-
-        <article ng-show="display.showLastAbsences" class="twelve filtre opened cell card eleven-mobile ng-scope">
-            <h2>Dernières absences saisies</h2>
-
-
-            <div ng-show="!selected.eleve.evenements.length">
-                <h2 style="color: #777">Aucune absence à afficher</h2>
-            </div>
-
-
-            <div ng-show="selected.eleve.evenements.length">
-                <div ng-repeat="event in selected.eleve.evenements | limitTo:2" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
-                    <div class="eight cell">
-                        <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
-                        <p>Motif: [[event.motif.libelle]]</p>
-                    </div>
-                    <div class="four cell">
-                        <button ng-click="showLightboxConfirmDelete(event)" class="right-magnet" style="margin-top: 20px;">Supprimer</button>
-                    </div>
-                </div>
-                <button ng-click="showLightboxAllAbsences(true)">Voir plus</button>
-            </div>
-
-        </article>
-    </div-->
-
     <!-- Lightbox qui affiche toutes les absences -->
     <lightbox show="displayLightboxAllAbsences" on-close="displayLightboxAllAbsences=false">
-        <div ng-show="!displayConfirmDelete">
-            <h2>Dernières absences saisies</h2>
-            <div ng-repeat="event in selected.eleve.evenements" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
-                <div class="nine cell">
-                    <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
-                    <p>Motif: [[event.motif.libelle]]</p>
-                </div>
-                <div class="three cell">
-                    <button class="right-magnet" style="margin-top: 20px;" ng-click="showConfirmDelete(event)">Supprimer</button>
+        <h2><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+        <!-- Body affichage des absences -->
+        <div style="overflow-y:scroll;max-height: 500px;margin-bottom: 10px;padding: 10px;">
+            <div ng-show="selected.eleve.absencesToShow.length">
+                <div ng-repeat="absenceToShow in selected.eleve.absencesToShow" class="row" >
+                    <div ng-include src="'/viescolaire/public/templates/absences/absc_personnel_show_simple_and_prev.html'"></div>
                 </div>
             </div>
         </div>
-        <div ng-show="displayConfirmDelete">
-            <h2><span ng-click="showConfirmDelete(false)">←</span> Suppression d'une absence</h2>
-            <p>Voulez vous vraiment supprimer l'absence du [[selectedEvent.niceDateDebut]] au [[selectedEvent.niceDateFin]]</p>
-            <button>Oui</button><button ng-click="showConfirmDelete(false)">Annuler</button>
-        </div>
+        <!-- Footer avec bouton fermer -->
+        <button class="right-magnet" ng-click="showLightboxAllAbsences(false)"><i18n>viescolaire.fermer</i18n></button>
     </lightbox>
 
     <!-- Lightbox confirmation de suppression d'une absence -->

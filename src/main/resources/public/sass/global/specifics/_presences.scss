@@ -114,6 +114,9 @@ body.presences {
     background-color: $absence-prev-color;
   }
 
+
+
+
   .incident-color {
     background-color: $incident-color;
   }
@@ -1170,4 +1173,59 @@ body.presences {
     }
 
   }
+
+
+  .last-absence{
+    border-left: 10px solid #c0392b;
+    outline: 2px solid black;
+    margin: 2px;
+  }
+
+  .last-absence-prev{
+    border-left: 10px solid #777;
+    outline: 2px solid black;
+    margin: 2px;
+  }
+
+  .margin-bot-md {
+    margin-bottom: 10px;
+  }
+
+  .panel-animation {
+    max-height: 0px;
+    overflow: hidden;
+    width: 100%;
+    display: inline-block;
+    transition: all 0.5s ease-in-out;
+  }
+
+  .panel-animation.opened {
+    max-height: 1000px;
+    overflow: auto;
+  }
+
+  .margin-bot-sm {
+    margin-bottom: 5px;
+  }
+
+  .padding-sm {
+    padding: 5px;
+  }
+
+  .padding-bot-sm {
+    padding-bottom: 5px;
+  }
+
+  .padding-left-sm {
+    padding-left: 5px;
+  }
+
+  .padding-right-md {
+    padding-right: 10px;
+  }
+
+  .first-letter-uppercase:first-letter {
+    text-transform: uppercase;
+  }
+
 }

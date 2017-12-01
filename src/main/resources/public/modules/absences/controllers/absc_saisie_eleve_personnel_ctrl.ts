@@ -15,6 +15,99 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
     '$scope', 'route', '$rootScope', '$location',
     function ($scope, route, $rootScope, $location) {
         template.open('abscDetailTimelineTemplate', '../templates/absences/absc-detail-timeline-cours-template');
+
+        // variables d'affichage
+
+        $scope.display.showEleveCard = false;
+        $scope.display.showLastAbsences = false;
+
+        $scope.showLightboxAllAbsences = (state) => {
+            $scope.displayLightboxAllAbsences = state;
+        };
+
+        $scope.showConfirmDelete = (event) => {
+            if(event){
+                $scope.selectedEvent = event;
+                $scope.displayConfirmDelete = true;
+            }else{
+                $scope.displayConfirmDelete = false;
+            }
+        };
+
+        $scope.showLightboxConfirmDelete = (event) => {
+            if(event){
+                $scope.selectedEvent = event;
+                $scope.displayLightboxConfirmDelete = true;
+            }else{
+                $scope.displayLightboxConfirmDelete = false;
+            }
+        };
+
+        // Selection d'un élève dans la barre de recherche
+        $scope.selectEleve = () => {
+            $scope.display.selection.eleve = false;
+
+            // On récupère les absences et les absences prev de l'élève
+            $scope.selected.eleve.syncAllAbsence(false).then(()=> {
+                $scope.selected.eleve.syncAllAbsencePrev().then(()=> {
+
+                    // Mise en forme des absence
+                    $scope.selected.eleve.evenements.forEach(function (event) {
+                        event.motif = $scope.structure.motifs.find(motif => motif.id == event.id_motif);
+                        event.niceDateDebut = moment(event.timestamp_dt).format('DD/MM/YYYY h:mm');
+                        event.niceDateFin = moment(event.timestamp_fn).format('DD/MM/YYYY h:mm');
+                    });
+
+                    // Mise en forme des absences prev + lien entre absences prev et absences normales
+                    $scope.selected.eleve.abscprev.forEach(function (abscprev) {
+                        // On ajoute un tableau pour y mettre les absences contenues dans la période de l'absence prévisionelle
+                        abscprev.absences = [];
+
+                        // Boolean permettant de différencier l'absence prev de l'absence normal pour un affichage dynamique
+                        abscprev.isAbsencePrev = true;
+
+                        // Mise en forme de la date
+                        abscprev.niceDateDebut = moment(abscprev.timestamp_dt).format('DD/MM/YYYY h:mm');
+                        abscprev.niceDateFin = moment(abscprev.timestamp_fn).format('DD/MM/YYYY h:mm');
+                        abscprev.motif = $scope.structure.motifs.find(motif => motif.id == abscprev.id_motif);
+
+                        $scope.selected.eleve.evenements.forEach(function (absence) {
+                            // Si l'absence normale est à l'intérieur de la période de l'absence prev
+                            if(!absence.alreadyInAbscPrev && moment(abscprev.timestamp_dt) < moment(absence.timestamp_dt)
+                                &&  moment(absence.timestamp_fn) < moment(abscprev.timestamp_fn)) {
+                                // On ajoute un booléen pour montrer qu'on a déjà rattaché cette absence à une absence prev
+                                absence.alreadyInAbscPrev = true;
+                                // On ajoute cette absence normale aux absences de l'absence prev
+                                abscprev.absences.push(absence);
+                            }
+                        });
+                    });
+
+                    // On rassemble les absences non rattachées aux absences prev afin de les afficher dynamiquement
+                    var absencesAlone = $scope.selected.eleve.evenements.filter(event => !event.alreadyInAbscPrev);
+                    var absencesToShow = $scope.selected.eleve.abscprev.concat(absencesAlone);
+
+                    // On retrie par date
+                    absencesToShow.sort(function(a,b){
+                        return new Date(b.timestamp_dt) - new Date(a.timestamp_dt);
+                    });
+
+                    // On les ajoutes au scope
+                    $scope.selected.eleve.absencesToShow = absencesToShow;
+
+                    $scope.display.showEleveCard = true;
+                    $scope.display.showLastAbsences = true;
+                    utils.safeApply($scope);
+                }).catch(e => {
+                    console.log(e);
+                });
+            }).catch(e => {
+                console.log(e);
+            });
+        };
+
+
+
         $scope.selected = {
             eleve: '*',
             classe: '*',
@@ -52,17 +145,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             $scope.selected.timeFn = moment().format("HH:mm");
         };
 
-        $scope.selectEleve = (from) => {
-            if (from === 'Search') {
-                $scope.selected.classe = '*';
-                $scope.display.selection.eleve = false;
-            } else if (from === 'Input') {
 
-            }
-            $scope.selected.from = from;
-            $scope.display.calendarDate = true;
-            $scope.initSelectedDates();
-        };
         $scope.searchCours = () => {
             $scope.selected.motif= '*';
             let syncCours = false;
@@ -74,16 +157,12 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                         syncCours = true;
                         utils.safeApply($scope);
                     });
-            else if($scope.selected.from === 'Input'){
-
-                let elevePersonnel = _.findWhere($scope.structure.eleves.all, {id :  $scope.selected.eleve.id});
-                $scope.selected.eleve = elevePersonnel;
+            else if($scope.selected.from === 'Input')
                 $scope.selected.eleve.syncCoursByClasseStud($scope.selected.classe.id, $scope.selected.dateDb, $scope.selected.timeDb+":00", $scope.selected.dateFn, $scope.selected.timeFn+":00")
                     .then((data) => {
                         syncCours = true;
                         utils.safeApply($scope);
                     });
-            }
             $scope.selected.eleve.syncEvenment($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncEvent = true   );
             $scope.selected.eleve.syncAbscPrev($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncAbscPrev = true  );
             $scope.$watch(() =>{return syncCours && syncEvent && syncAbscPrev;},(newVal,oldval) =>{

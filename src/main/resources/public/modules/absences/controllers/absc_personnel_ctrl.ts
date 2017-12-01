@@ -50,7 +50,7 @@ export let absencesController = ng.controller('AbsencesController', [
                 $scope.display.dates = false;
                 template.open('header', '../templates/absences/absc_personnel_header');
                 template.open('menu', '../templates/absences/absc_personnel_menu');
-                template.open('main', '../templates/absences/absc_personnel_saisie_abs_eleve');
+                template.open('main', '../templates/absences/absc_personnel_saisie_abs/absc_personnel_saisie_abs_eleve');
                 utils.safeApply($scope);
             }
         };

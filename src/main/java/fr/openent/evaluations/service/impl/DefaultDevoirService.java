@@ -508,7 +508,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         query.append("SELECT devoirs.id, devoirs.name, devoirs.owner, devoirs.created, devoirs.libelle, rel_devoirs_groupes.id_groupe, rel_devoirs_groupes.type_groupe , devoirs.is_evaluated,")
                 .append("devoirs.id_sousmatiere,devoirs.id_periode, devoirs.id_type, devoirs.id_etablissement, devoirs.diviseur, ")
                 .append("devoirs.id_etat, devoirs.date_publication, devoirs.id_matiere, devoirs.coefficient, devoirs.ramener_sur, devoirs.percent, ")
-                .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, ")
+                .append("type_sousmatiere.libelle as _sousmatiere_libelle, devoirs.date, devoirs.apprec_visible, ")
                 .append("type.nom as _type_libelle, COUNT(competences_devoirs.id) as nbcompetences, users.username as teacher ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".devoirs ")
                 .append("inner join "+ Viescolaire.EVAL_SCHEMA +".type on devoirs.id_type = type.id ")
@@ -973,4 +973,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
+    @Override
+    public void switchVisibilityApprec(Long idDevoir, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("UPDATE "+ Viescolaire.EVAL_SCHEMA + ".devoirs ")
+                .append("SET apprec_visible = NOT apprec_visible WHERE id = ? ");
+
+        values.addNumber(idDevoir);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

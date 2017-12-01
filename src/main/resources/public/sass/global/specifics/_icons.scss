@@ -42,6 +42,10 @@ body.vsco--global {
     font-size: 18px;
   }
 
+  i.eye-slash::before {
+    content: '\e904';
+  }
+
   i.down-open {
     content: '\e841';
   }

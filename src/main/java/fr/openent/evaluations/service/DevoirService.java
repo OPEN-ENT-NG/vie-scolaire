@@ -173,4 +173,5 @@ public interface DevoirService extends CrudService {
 
     public void updatePercent(Long IdDevoir, Integer percent, Handler<Either<String, JsonArray>> handler);
 
+    public void switchVisibilityApprec(Long idDevoir, Handler<Either<String, JsonArray>> handler);
 }

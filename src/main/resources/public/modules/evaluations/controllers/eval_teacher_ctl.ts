@@ -160,6 +160,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.cleanRoot();
                         let devoirTmp = $scope.devoirs.findWhere({id: parseInt(params.idDevoir)});
                         $scope.devoir = $scope.initDevoir();
+                        $scope.devoir.apprec_visible = false;
                         $scope.devoir.id_groupe = devoirTmp.id_groupe;
                         $scope.devoir.old_id_groupe = devoirTmp.id_groupe;
                         $scope.devoir.id = devoirTmp.id;
@@ -178,6 +179,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         $scope.devoir.ramener_sur = devoirTmp.ramener_sur;
                         $scope.devoir.is_evaluated = devoirTmp.is_evaluated;
                         $scope.oldIs_Evaluated = devoirTmp.is_evaluated;
+                        $scope.devoir.apprec_visible = devoirTmp.apprec_visible;
                         $scope.devoir.dateDevoir = new Date($scope.devoir.date);
                         $scope.devoir.datePublication = new Date($scope.devoir.date_publication);
                         $scope.devoir.id_periode = devoirTmp.id_periode;
@@ -597,6 +599,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         .catch(() => {
                             notify.error(lang.translate('evaluation.duplicate.devoir.error'));
                         });
+                }
+            };
+
+            $scope.switchVisibilityApprec = async (devoir: Devoir) => {
+                try {
+                    await devoir.switchVisibilityApprec();
+                } catch (e) {
+                    console.log(e);
+                } finally {
+                    utils.safeApply($scope);
                 }
             };
 

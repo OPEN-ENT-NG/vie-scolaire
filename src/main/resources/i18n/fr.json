@@ -243,6 +243,8 @@
   "evaluations.devoir.recaputilatif.suppression.confirmation":"Confirmez-vous la suppression ?",
   "evaluations.devoir.recaputilatif.EvaluatedSkills":"Récapitulatif des devoirs avec compétences évaluées ",
   "evaluations.devoir.recaputilatif.EvaluatedMarks":"Récapitulatif des devoirs notés",
+  "evaluations.devoir.appreciation.show":"Rendre visibles les appréciations saisies.",
+  "evaluations.devoir.appreciation.hide":"Cacher les appréciations saisies.",
   "evaluations.lightbox.duplication.top":"L'évaluation sélectionnée sera dupliquée sur les classes ou groupes suivants.",
   "evaluations.lightbox.duplication.mid":"Evaluation sélectionnée :",
   "evaluations.lightbox.duplication.bot":"Classes et groupes où dupliquer l'évaluation :",

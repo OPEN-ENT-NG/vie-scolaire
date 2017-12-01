@@ -51,10 +51,10 @@
             </label>
         </div>
         <div class="cell">
-        <label >
-            <span><i18n>evaluation.devoir.cartouche.number</i18n></span>
-            <input class="nbr-Cartouche" ng-disabled="printOption.byEleve" type="number" ng-model="printOption.cartoucheNmb" min="1" max="80">
-        </label>
+            <label >
+                <span><i18n>evaluation.devoir.cartouche.number</i18n></span>
+                <input class="nbr-Cartouche" ng-disabled="printOption.byEleve" type="number" ng-model="printOption.cartoucheNmb" min="1" max="80">
+            </label>
         </div>
     </div>
     <button class ="right-magnet" ng-click="printCartouche()"><i18n>print</i18n></button>
@@ -205,20 +205,28 @@
                                 <i18n>evaluations.grade</i18n>
                             </div>
                             <!--ng-class="{'six' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"-->
-                            <div
-                                 class="inline-block cell-indent competence-text-overflow cell six" ng-if="currentDevoir.competences.all.length > 0">
-                                <i18n style="padding-left: 20px;">evaluations.test.competences</i18n>
-                                <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
-                                <span id="competence-detail" tooltip=""></span>
+                            <div class="inline-block cell-indent competence-text-overflow cell four"
+                                 ng-if="currentDevoir.competences.all.length > 0">
+                                    <i18n style="padding-left: 20px;">evaluations.test.competences</i18n>
+                                    <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
+                                    <span id="competence-detail" tooltip=""></span>
                             </div>
-                            <div class="inline-block cell-indent cell nine" ng-if="currentDevoir.competences.all.length === 0">
-                                <i18n>viescolaire.utils.appreciation</i18n>
+                            <div class="inline-block cell-indent cell"
+                                 ng-if="currentDevoir.competences.all.length < 8"
+                                 ng-class="{four : currentDevoir.competences.all.length > 0 && currentDevoir.competences.all.length < 8,
+                                            nine: currentDevoir.competences.all.length == 0}">
+                                    <i18n>viescolaire.utils.appreciation</i18n>
+                                    <i class="eye-slash"
+                                       ng-class="{selected: !currentDevoir.apprec_visible}"
+                                       ng-click="switchVisibilityApprec(currentDevoir)"
+                                        tooltip="evaluations.devoir.appreciation.hide   "></i>
+                                        <i18n ng-if="currentDevoir.competences.all.length == 0">evaluations.devoir.appreciation.hide</i18n>
                             </div>
-                            <!--ng-class="{'two' : currentDevoir.competences.all.length > 7, 'four' : currentDevoir.competences.all.length < 8}"-->
-                            <div
-                                 class="inline-block cell-indent cell two" ng-if="currentDevoir.competences.all.length > 0 && currentDevoir.competences.all.length < 8">
-                                <i18n>viescolaire.utils.appreciation</i18n>
-                            </div>
+                            <i class="eye-slash right-magnet cell alone"
+                               ng-class="{selected: !currentDevoir.apprec_visible}"
+                               ng-click="switchVisibilityApprec(currentDevoir)"
+                               ng-if="currentDevoir.competences.all.length >= 8"
+                               tooltip="evaluations.devoir.appreciation.hide"></i>
                         </div>
                         <div class="expandable-liste notes-devoir-liste" c-navigable-competences>
                             <div class="expandable row"  ng-if="currentDevoir.competences.all.length > 0">

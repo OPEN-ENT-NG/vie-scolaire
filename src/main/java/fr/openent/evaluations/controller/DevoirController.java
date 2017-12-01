@@ -252,6 +252,20 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
+    @Put("/devoirs/:idDevoir/visibility")
+    @ApiDoc("Permet de switcher l'etat de visibiliter des appreciations du devoir")
+    @ResourceFilter(AccessEvaluationFilter.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    public void switchVisibilityApprec(final HttpServerRequest request) {
+        try {
+            Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+
+            devoirsService.switchVisibilityApprec(idDevoir, arrayResponseHandler(request));
+        } catch (NumberFormatException err) {
+            leftToResponse(request, new Either.Left<>(err.toString()));
+        }
+    }
+
     @Get("/devoirs/evaluations/information")
     @ApiDoc("Recupère la liste des compétences pour un devoir donné")
     @ResourceFilter(AccessEvaluationFilter.class)

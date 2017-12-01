@@ -1067,6 +1067,7 @@ export class Devoir extends Model implements IModel{
     diviseur : number;
     date : any;
     is_evaluated  : boolean;
+    apprec_visible: boolean;
     that: any;
     competencesAdd: any;
     competencesRem: any;
@@ -1089,7 +1090,8 @@ export class Devoir extends Model implements IModel{
             saveCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             updateCompetencesNotes : '/viescolaire/evaluations/competence/notes',
             deleteCompetencesNotes : '/viescolaire/evaluations/competence/notes',
-            isEvaluatedDevoir : '/viescolaire/evaluations/devoirs/evaluations/information?idDevoir='
+            isEvaluatedDevoir : '/viescolaire/evaluations/devoirs/evaluations/information?idDevoir=',
+            switchVisiApprec : '/viescolaire/evaluations/devoirs/' + this.id + '/visibility'
         }
     }
 
@@ -1162,6 +1164,17 @@ export class Devoir extends Model implements IModel{
         if (p) this.updateData(p);
     }
 
+    switchVisibilityApprec(): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            http().putJson(this.api.switchVisiApprec)
+                .done(() => {
+                    this.apprec_visible = !this.apprec_visible;
+                    resolve();
+                })
+                .error(reject);
+        });
+    }
+
     getLastSelectedCompetence () : Promise<[any]> {
         return new Promise((resolve, reject) => {
             http().getJson(this.api.getCompetencesLastDevoir).done(function(competencesLastDevoirList){
@@ -1203,6 +1216,7 @@ export class Devoir extends Model implements IModel{
             is_evaluated     : this.is_evaluated,
             competences     : this.competences,
             competenceEvaluee : this.competenceEvaluee,
+            apprec_visible : this.apprec_visible,
             competencesAdd : null,
             competencesRem : null
         };
@@ -2460,7 +2474,7 @@ export class Remplacement extends Model implements IModel{
     }
 }
 
-export class GestionRemplacement extends Model implements IModel{
+export class GestionRemplacement extends Model {
     remplacements : Collection<Remplacement> | any; // liste des remplacements en cours
     selectedRemplacements : Collection<Remplacement> | any; // liste des remplacements sélectionnés
     remplacement : Remplacement; // remplacementen cours d'ajout

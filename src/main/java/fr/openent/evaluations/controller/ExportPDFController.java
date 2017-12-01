@@ -226,10 +226,12 @@ public class ExportPDFController extends ControllerHelper {
             // ajout du devoir sur la matiere, si son identifiant de matière correspond bien
             if(matiereInter.getString("id").equals(devoirJson.getString("id_matiere"))) {
                 devoirsMatiereJson.add(devoirJson);
-                NoteDevoir noteDevoir = new NoteDevoir(Double.valueOf(devoirJson.getString("note")),
-                        Double.valueOf(devoirJson.getString("diviseur")),
-                        devoirJson.getBoolean("ramener_sur"),
-                        Double.valueOf(devoirJson.getString("coefficient")));
+                Double note = Double.valueOf(devoirJson.getString("note"));
+                Double diviseur = Double.valueOf(devoirJson.getInteger("diviseur"));
+                Boolean ramenerSur = devoirJson.getBoolean("ramener_sur");
+                Double coefficient = Double.valueOf(devoirJson.getString("coefficient"));
+
+                NoteDevoir noteDevoir = new NoteDevoir(note,diviseur,ramenerSur,coefficient);
                 listeNoteDevoirs.add(noteDevoir);
             }
         }

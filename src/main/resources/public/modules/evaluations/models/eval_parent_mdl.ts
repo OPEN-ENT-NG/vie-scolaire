@@ -95,24 +95,28 @@ export class Evaluations extends Model {
                 }
             });
             this.collection(Devoir, {
-                sync: async(structureId, userId, classeId) => {
+                sync: async(structureId, userId, classeId,idPeriode) => {
                     return new Promise( (resolve) => {
+                        let that = this;
                         let uri = this.api.GET_EVALUATIONS
                             + structureId + '&idEleve=' + userId;
                         if (classeId !== undefined) {
                             uri = uri + '&idClasse=' + classeId;
                         }
+                        if (idPeriode != undefined) {
+                            uri = uri + '&idPeriode=' +idPeriode;
+                        }
                         http().getJson(uri).done((devoirs) => {
                             this.devoirs.load(devoirs);
                             let matieresDevoirs = _.groupBy(devoirs, 'id_matiere');
                             let enseignants = _.groupBy(devoirs, 'owner');
-                            this.enseignants.sync(enseignants).then(() => {
+                            that.enseignants.sync(enseignants).then(() => {
                                 this.matieres.sync(matieresDevoirs).then(()=>{
                                     for (let o in matieresDevoirs) {
                                         matieresDevoirs[o].forEach(function (element) {
                                             let devoir = element;
-                                            let _matiere = this.matieres.findWhere({id: devoir.id_matiere});
-                                            let enseignant = this.enseignants.findWhere({id: devoir.owner});
+                                            let _matiere = that.matieres.findWhere({id: devoir.id_matiere});
+                                            let enseignant = that.enseignants.findWhere({id: devoir.owner});
                                             if (_.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
                                                 _matiere.ens.push(enseignant);
                                             }

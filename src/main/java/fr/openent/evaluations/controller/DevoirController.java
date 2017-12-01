@@ -111,7 +111,7 @@ public class DevoirController extends ControllerHelper {
                             final String _RELATIVE = "Relative";
                             Long idPeriode = null;
                             if (request.params().get("idPeriode") != null) {
-                                testLongFormatParameter(idPeriode, "idPeriode", request);
+                               idPeriode = testLongFormatParameter(idPeriode, "idPeriode", request);
                             }
 
                             if( _STUDENT.equals(user.getType()) || _RELATIVE.equals(user.getType())){
@@ -239,7 +239,7 @@ public class DevoirController extends ControllerHelper {
                     MultiMap params = request.params();
 
                     Long idPeriode = null;
-                    testLongFormatParameter(idPeriode, "idPeriode", request);
+                    idPeriode = testLongFormatParameter(idPeriode, "idPeriode", request);
 
                     String idEtablissement = params.get("idEtablissement");
                     String idUser = params.get("idUser");
@@ -258,7 +258,7 @@ public class DevoirController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void isEvaluatedDevoir(final HttpServerRequest request){
         Long idDevoir = null;
-        testLongFormatParameter(idDevoir, "idDevoir", request);
+        idDevoir = testLongFormatParameter(idDevoir, "idDevoir", request);
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         devoirsService.getevaluatedDevoir(idDevoir,handler);
@@ -683,14 +683,15 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
-    void testLongFormatParameter(Long param, String name,final HttpServerRequest request) {
+    Long testLongFormatParameter(Long param, String name,final HttpServerRequest request) {
         try {
             param = Long.parseLong(request.params().get(name));
         } catch(NumberFormatException e) {
-            log.error("Error :" +  name + "must be a long object", e);
+            log.error("Error :" +  name + " must be a long object", e);
             badRequest(request, e.getMessage());
-            return;
+            return null;
         }
+        return param;
     }
 
 

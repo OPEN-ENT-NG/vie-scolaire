@@ -30,7 +30,8 @@
                             ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
                             [[translate('viescolaire.utils.periode')]]
-                        </option>                    </select>
+                        </option>
+                    </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null
                 && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
@@ -79,7 +80,7 @@
                     </td>
 
                     <td class="notesDevoir">
-                        <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all">
+                        <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all track by $index">
                             <div    class=" alignCenterVertically"
                                     ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
                                 <div ng-if="devoirReleveNotes.id_matiere === matiere.id">

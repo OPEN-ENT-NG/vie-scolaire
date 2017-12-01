@@ -50,21 +50,22 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 utils.safeApply($scope);
             },
             displayReleveNotes : function(params) {
+                template.close('main');
+                template.close('menu');
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 template.open('main', '../templates/evaluations/parent_enfant/releve/eval_parent_dispreleve');
-                template.close('menu');
                 utils.safeApply($scope);
             },
             listDevoirs : function (params) {
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                template.close('menu');
                 template.close('main');
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 utils.safeApply($scope);
             },
             displayBilanDeCompetence : function (params) {
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                template.close('menu');
                 template.close('main');
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 utils.safeApply($scope);
             }
         });
@@ -114,9 +115,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $rootScope.matieres = evaluations.matieres;
             $rootScope.enseignants = evaluations.enseignants;
 
-            if($location.path() === "/releve" ){
-                $rootScope.$broadcast('loadReleve');
-            }
+            $rootScope.$broadcast('loadEleve');
             utils.safeApply($scope);
         };
 

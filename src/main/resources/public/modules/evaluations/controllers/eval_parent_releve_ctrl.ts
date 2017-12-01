@@ -21,10 +21,10 @@
  * Created by anabah on 29/11/2017.
  */
 
-import { model, ng, idiom as lang, template } from 'entcore/entcore';
+import { model, ng, idiom as lang,} from 'entcore/entcore';
 import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
-import {Classe} from "../models/parent_eleve/Classe";
+
 let moment = require('moment');
 
 declare let _: any;
@@ -32,36 +32,14 @@ declare let _: any;
 export let releveController = ng.controller('ReleveController', [
     '$scope','$rootScope', '$location',
     function ($scope, $rootScope, $location) {
-        // Initialisation des variables
-        $scope.dataReleve = {
-            devoirs : $rootScope.devoirs
-        };
-        $scope.searchReleve = {
-            eleve: $rootScope.eleve,
-            periode: $rootScope.periode,
-            enseignants: $rootScope.enseignants
-        };
-        $scope.me = {
-            type: model.me.type
-        }
 
-        // Au changement d'enfant par le pare
-        $scope.$on('loadReleve', async function () {
-            $scope.matieres = evaluations.matieres;
-            $scope.dataReleve.devoirs = evaluations.devoirs;
-            $scope.searchReleve.eleve = evaluations.eleve;
-            $scope.searchReleve.periode = $rootScope.periode;
-            $scope.searchReleve.enseignants = evaluations.enseignants;
-            await $scope.loadReleveNote();
+        // Au changement d'enfant par le parent
+        $scope.$on('loadEleve', async function () {
+            $scope.calculMoyenneMatieres();
             utils.safeApply($scope);
         });
 
 
-
-
-        $scope.initData = function (devoirs, eleve, periode) {
-
-        };
 
         /**
          * Calcul la moyenne pour chaque matière
@@ -88,20 +66,21 @@ export let releveController = ng.controller('ReleveController', [
                 }
             });
         };
-
+        /**
+         * chargement d'un
+         * @returns {Promise<void>}
+         */
         $scope.loadReleveNote = async function() {
-            let periode;
-            if ($scope.searchReleve.eleve.classe === undefined) {
-                $scope.searchReleve.eleve.classe = new Classe({id: $scope.searchReleve.eleve.idClasse});
-                await $scope.searchReleve.eleve.classe.sync();
+            let eleve = $scope.searchReleve.eleve;
+            let idPeriode = undefined;
+            if ($scope.searchReleve.periode !== null && $scope.searchReleve.periode.id !== null) {
+                idPeriode = $scope.searchReleve.periode.id_type;
             }
-            if ($scope.searchReleve.eleve.classe.periode !== null) {
-                let eleve = $scope.searchReleve.eleve;
-                periode = _.findWhere(eleve.classe.periodes.all,
-                    {id: $scope.searchReleve.periode.id});
-                periode = periode ? periode : _.findWhere(eleve.classe.periodes.all, {id: null});
-                $scope.dataReleve.devoirs = evaluations.devoirs.findWhere({id_periode: periode.id});
-            }
+            await evaluations.devoirs.sync(eleve.idStructure,eleve.id, eleve.idClasse, idPeriode);
+            $scope.dataReleve = {
+                devoirs : evaluations.devoirs
+            };
+            $scope.matieres = evaluations.matieres;
             $scope.calculMoyenneMatieres();
             utils.safeApply($scope);
         };
@@ -110,12 +89,28 @@ export let releveController = ng.controller('ReleveController', [
         // Impression du releve de l'eleve
         $scope.getReleve = function() {
             if (model.me.type === 'ELEVE') {
-                $scope.searchReleve.eleve.classe.periode.getReleve($scope.searchReleve.eleve.classe.periode.id_type,
+                evaluations.getReleve($scope.searchReleve.eleve.classe.periode.id_type,
                     $scope.searchReleve.eleve.id);
             } else {
-                $scope.searchReleve.periode.getReleve($scope.searchReleve.periode.id_type,
+                evaluations.getReleve($scope.searchReleve.periode.id_type,
                     $scope.searchReleve.eleve.id);
             }
         };
+
+        // Initialisation des variables du relevé
+        $scope.dataReleve = {
+            devoirs : $rootScope.devoirs
+        };
+        $scope.searchReleve = {
+            eleve: $rootScope.eleve,
+            periode: $rootScope.periode,
+            enseignants: $rootScope.enseignants
+        };
+        $scope.me = {
+            type: model.me.type
+        };
+        $scope.translate = lang.translate;
+        $scope.calculMoyenneMatieres();
+        utils.safeApply($scope);
     }
 ]);

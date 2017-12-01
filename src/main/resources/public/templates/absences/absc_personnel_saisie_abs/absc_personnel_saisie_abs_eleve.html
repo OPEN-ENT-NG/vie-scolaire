@@ -1,0 +1,148 @@
+<div ng-controller="AbscSaisieElevePersonnel" class="saisi-absc">
+
+    <!--Recherche élève-->
+    <div class="  left-side" >
+        <div class="card">
+            <h2>Élèves</h2>
+            <!-- Barre de recherche de l'élève -->
+            <autocomplete options="structure.eleves.all" ng-change="selectEleve()" ng-model="selected.eleve"></autocomplete>
+
+            <!-- Carte de l'élève -->
+            <div class="row" ng-if="display.showEleveCard">
+                <div class="three cell">
+                    <img class="avatar" src="/userbook/avatar/[[selected.eleve.id]]">
+                </div>
+                <div class="nine cell" style="padding:5px">
+                    <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className]]</h2>
+                    <p>Né le [[selected.eleve.birthDate]]</p>
+                    <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell" href="/conversation/conversation#/write-mail/[[selected.eleve.id]]">
+                        <i class="send-mail inline"></i>
+                        <div  class="block-container cell">
+                            <span>
+                                Envoyer un message
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- créneau-->
+    <div class="right-side">
+        <div class=" twelve cell card  ">
+            <div class = " creneau six cell">
+                <h3><i18n>time-slot</i18n></h3>
+                <div class="inline-child">
+                    <div>
+                        <label><i18n>viescolaire.utils.from</i18n></label>
+                        <label >
+                            <i class="calendar"></i>
+                            <date-picker class="pointer" ng-model="selected.dateDb" ng-change=""></date-picker>
+                            <input type="time" ng-model="selected.timeDb" >
+                        </label>
+                    </div>
+                    <div>
+                        <label><i18n>viescolaire.utils.to</i18n></label>
+                        <label>
+                            <i class="calendar"></i>
+                            <date-picker class="pointer" ng-model="selected.dateFn" ng-change=""></date-picker>
+                            <input type="time" ng-model="selected.timeFn" >
+                        </label>
+                    </div>
+                    <button class="right-magnet"><i18n>search</i18n></button>
+                </div>
+
+            </div>
+            <div class = "motif six cell">
+                <h3><i18n>viescolaire.utils.reason</i18n></h3>
+                <label class="select-input">
+                    <select>
+                        <optgroup label="Motifs non justifiés">
+                            <option value="8">Sans motif</option>
+                            <option value="21">Maladie sans certificat médical</option>
+                            <option value="18">Vacances prolongées</option>
+                        </optgroup><optgroup label="Motifs justifiés">
+                        <option value="20">Maladie avec certificat médical</option>
+                        <option value="24">Retard train</option>
+                        <option value="19">Motif justifiant par défaut</option>
+                        <option value="9">Maladie avec justificatif</option>
+                        <option value="28">Hospitalisation</option>
+                        <option value="29">Comme d'hab</option>
+                    </optgroup>
+                    </select>
+                    <button><i18n>save</i18n></button>
+                </label>
+
+            </div>
+            <!-- cours non caché-->
+            <!-- Vue time ligne-->
+        </div>
+        <div class="Calendar">
+
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Left Side bar -->
+    <!--div class="three cell">
+
+
+        <article ng-show="display.showLastAbsences" class="twelve filtre opened cell card eleven-mobile ng-scope">
+            <h2>Dernières absences saisies</h2>
+
+
+            <div ng-show="!selected.eleve.evenements.length">
+                <h2 style="color: #777">Aucune absence à afficher</h2>
+            </div>
+
+
+            <div ng-show="selected.eleve.evenements.length">
+                <div ng-repeat="event in selected.eleve.evenements | limitTo:2" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
+                    <div class="eight cell">
+                        <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
+                        <p>Motif: [[event.motif.libelle]]</p>
+                    </div>
+                    <div class="four cell">
+                        <button ng-click="showLightboxConfirmDelete(event)" class="right-magnet" style="margin-top: 20px;">Supprimer</button>
+                    </div>
+                </div>
+                <button ng-click="showLightboxAllAbsences(true)">Voir plus</button>
+            </div>
+
+        </article>
+    </div-->
+
+    <!-- Lightbox qui affiche toutes les absences -->
+    <lightbox show="displayLightboxAllAbsences" on-close="displayLightboxAllAbsences=false">
+        <div ng-show="!displayConfirmDelete">
+            <h2>Dernières absences saisies</h2>
+            <div ng-repeat="event in selected.eleve.evenements" class="row" style="border-left: 10px solid #F1D9EB; margin-bottom: 10px;">
+                <div class="nine cell">
+                    <p>Absence du [[event.niceDateDebut]] au [[event.niceDateFin]]</p>
+                    <p>Motif: [[event.motif.libelle]]</p>
+                </div>
+                <div class="three cell">
+                    <button class="right-magnet" style="margin-top: 20px;" ng-click="showConfirmDelete(event)">Supprimer</button>
+                </div>
+            </div>
+        </div>
+        <div ng-show="displayConfirmDelete">
+            <h2><span ng-click="showConfirmDelete(false)">←</span> Suppression d'une absence</h2>
+            <p>Voulez vous vraiment supprimer l'absence du [[selectedEvent.niceDateDebut]] au [[selectedEvent.niceDateFin]]</p>
+            <button>Oui</button><button ng-click="showConfirmDelete(false)">Annuler</button>
+        </div>
+    </lightbox>
+
+    <!-- Lightbox confirmation de suppression d'une absence -->
+    <lightbox show="displayLightboxConfirmDelete" on-close="displayLightboxAllAbsences=false">
+        <h2>Suppression d'une absence</h2>
+        <p>Voulez vous vraiment supprimer l'absence du [[selectedEvent.niceDateDebut]] au [[selectedEvent.niceDateFin]]</p>
+        <button>Oui</button><button ng-click="showLightboxConfirmDelete(false)">Annuler</button>
+    </lightbox>
+
+</div>

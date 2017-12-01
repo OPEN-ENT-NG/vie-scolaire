@@ -374,7 +374,9 @@ public class CompetenceNoteController extends ControllerHelper {
      * @param idDomaines
      * @param request
      */
-    private void callCompetencesNotesDomaineService(Either<String, JsonArray> eventEleves, Long idPeriode, List<String> idDomaines, HttpServerRequest request) {
+    private void callCompetencesNotesDomaineService(Either<String, JsonArray> eventEleves,
+                                                    Long idPeriode, List<String> idDomaines,
+                                                    HttpServerRequest request) {
         if (null != eventEleves && eventEleves.isRight()) {
             List<String> idEleves = new ArrayList<String>();
             JsonArray usersJSONArray = eventEleves.right().getValue();
@@ -385,9 +387,9 @@ public class CompetenceNoteController extends ControllerHelper {
                 log.debug(id);
                 idEleves.add(id);
             }
-            if (null != idEleves
-                    && !idEleves.isEmpty()) {
-                competencesNotesService.getCompetencesNotesDomaineClasse(idEleves, idPeriode, idDomaines, arrayResponseHandler(request));
+            if (!idEleves.isEmpty()) {
+                competencesNotesService.getCompetencesNotesDomaineClasse(idEleves, idPeriode,
+                        idDomaines, arrayResponseHandler(request));
             }
         }
     }

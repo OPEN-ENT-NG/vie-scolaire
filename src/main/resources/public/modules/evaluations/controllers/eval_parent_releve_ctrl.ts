@@ -31,7 +31,7 @@ declare let _: any;
 
 export let releveController = ng.controller('ReleveController', [
     '$scope','$rootScope', '$location',
-    function ($scope, $rootScope, $location) {
+    async  function ($scope, $rootScope, $location) {
 
         // Au changement d'enfant par le parent
         $scope.$on('loadEleve', async function () {
@@ -39,7 +39,12 @@ export let releveController = ng.controller('ReleveController', [
             utils.safeApply($scope);
         });
 
-
+        // Au changement de la période par le parent
+        $scope.$on('loadPeriode', async function() {
+            $scope.searchReleve.periode = evaluations.periode;
+            await $scope.loadReleveNote();
+            utils.safeApply($scope);
+        });
 
         /**
          * Calcul la moyenne pour chaque matière
@@ -98,19 +103,25 @@ export let releveController = ng.controller('ReleveController', [
         };
 
         // Initialisation des variables du relevé
-        $scope.dataReleve = {
-            devoirs : $rootScope.devoirs
+        $scope.initReleve = function () {
+            $scope.dataReleve = {
+                devoirs : evaluations.devoirs
+            };
+            $scope.searchReleve = {
+                eleve: evaluations.eleve,
+                periode: evaluations.periode,
+                enseignants: evaluations.enseignants
+            };
+            $scope.me = {
+                type: model.me.type
+            };
+            $scope.matieres = evaluations.matieres;
+            $scope.translate = lang.translate;
+            $scope.calculMoyenneMatieres();
+            utils.safeApply($scope);
         };
-        $scope.searchReleve = {
-            eleve: $rootScope.eleve,
-            periode: $rootScope.periode,
-            enseignants: $rootScope.enseignants
-        };
-        $scope.me = {
-            type: model.me.type
-        };
-        $scope.translate = lang.translate;
-        $scope.calculMoyenneMatieres();
-        utils.safeApply($scope);
+
+        await $rootScope.init();
+        $scope.initReleve();
     }
 ]);

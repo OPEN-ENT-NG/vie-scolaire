@@ -111,7 +111,7 @@ public class DevoirController extends ControllerHelper {
                             final String _RELATIVE = "Relative";
                             Long idPeriode = null;
                             if (request.params().get("idPeriode") != null) {
-                               idPeriode = testLongFormatParameter(idPeriode, "idPeriode", request);
+                               idPeriode = testLongFormatParameter("idPeriode", request);
                             }
 
                             if( _STUDENT.equals(user.getType()) || _RELATIVE.equals(user.getType())){
@@ -238,8 +238,7 @@ public class DevoirController extends ControllerHelper {
                 if(user != null){
                     MultiMap params = request.params();
 
-                    Long idPeriode = null;
-                    idPeriode = testLongFormatParameter(idPeriode, "idPeriode", request);
+                    Long idPeriode = testLongFormatParameter("idPeriode", request);
 
                     String idEtablissement = params.get("idEtablissement");
                     String idUser = params.get("idUser");
@@ -271,8 +270,7 @@ public class DevoirController extends ControllerHelper {
     @ResourceFilter(AccessEvaluationFilter.class)
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void isEvaluatedDevoir(final HttpServerRequest request){
-        Long idDevoir = null;
-        idDevoir = testLongFormatParameter(idDevoir, "idDevoir", request);
+        Long idDevoir  = testLongFormatParameter("idDevoir", request);
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         devoirsService.getevaluatedDevoir(idDevoir,handler);
@@ -385,13 +383,11 @@ public class DevoirController extends ControllerHelper {
                     final HashMap<Long, Float> nbNotesByDevoir = new HashMap<>();
 
                     // Paramètres d'entrée
-                    final Long idDevoir = Long.parseLong(request.params().get("idDevoir"));
+                    final Long idDevoir = testLongFormatParameter("idDevoir",request);
                     final String is_evaluated = request.params().get("is_evaluated");
                     final String has_competence = request.params().get("has_competence");
                     final String idGroupe = request.params().get("idGroupe");
 
-
-                    testLongFormatParameter(idDevoir, "idDevoir",request);
 
                     /*
                      - Si le devoir contient une evaluation numérique, on regarde le nombre de note en base
@@ -697,7 +693,8 @@ public class DevoirController extends ControllerHelper {
         });
     }
 
-    Long testLongFormatParameter(Long param, String name,final HttpServerRequest request) {
+    Long testLongFormatParameter(String name,final HttpServerRequest request) {
+        Long param = null;
         try {
             param = Long.parseLong(request.params().get(name));
         } catch(NumberFormatException e) {
@@ -725,7 +722,7 @@ public class DevoirController extends ControllerHelper {
 
                     Long[] idDevoirsArray =  null;
 
-                    if(idDevoirsList.size() > 0 ) {
+                    if(!idDevoirsList.isEmpty()) {
                         idDevoirsArray =  new Long[idDevoirsList.size()];
                         for (int i = 0; i < idDevoirsList.size(); i++) {
                             idDevoirsArray[i] = Long.valueOf(idDevoirsList.get(i));

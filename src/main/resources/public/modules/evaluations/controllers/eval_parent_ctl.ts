@@ -33,7 +33,43 @@ export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location','$filter', '$sce', '$compile', '$timeout','$route',
     function ($scope, route, $rootScope, $location, $filter, $sce, $compile, $timeout,$route) {
         route({
-            accueil : function (params) {
+            accueil : async function (params) {
+                await $rootScope.init();
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.open('menu', '../templates/evaluations/parent_enfant/accueil/eval_parent_menu');
+                template.open('main', '../templates/evaluations/parent_enfant/accueil/eval_parent_acu');
+                utils.safeApply($scope);
+            },
+            displayReleveNotes : async function(params) {
+                await $rootScope.init();
+                template.close('main');
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.open('main', '../templates/evaluations/parent_enfant/releve/eval_parent_dispreleve');
+                utils.safeApply($scope);
+            },
+            listDevoirs : async function (params) {
+                await $rootScope.init();
+                template.close('main');
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                utils.safeApply($scope);
+            },
+            displayBilanDeCompetence : async function (params) {
+                await $rootScope.init();
+                template.close('main');
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                utils.safeApply($scope);
+            }
+        });
+
+        /**
+         *
+         * @returns {Promise<void>}
+         */
+        $rootScope.init = async function () {
+            let initialise = ()=> {
                 if (model.me.type === 'ELEVE') {
                     // $scope.periodes = evaluations.periodes;
                     $rootScope.eleve = evaluations.eleve;
@@ -43,32 +79,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
                 else if (model.me.type === 'PERSRELELEVE') {
                     $rootScope.eleves = evaluations.eleves.all;
+                    $rootScope.chooseChild (evaluations.eleve);
                 }
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                template.open('menu', '../templates/evaluations/parent_enfant/accueil/eval_parent_menu');
-                template.open('main', '../templates/evaluations/parent_enfant/accueil/eval_parent_acu');
-                utils.safeApply($scope);
-            },
-            displayReleveNotes : function(params) {
-                template.close('main');
-                template.close('menu');
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                template.open('main', '../templates/evaluations/parent_enfant/releve/eval_parent_dispreleve');
-                utils.safeApply($scope);
-            },
-            listDevoirs : function (params) {
-                template.close('main');
-                template.close('menu');
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                utils.safeApply($scope);
-            },
-            displayBilanDeCompetence : function (params) {
-                template.close('main');
-                template.close('menu');
-                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
-                utils.safeApply($scope);
+            };
+            if ($rootScope.eleve === undefined) {
+                await evaluations.sync();
+                initialise();
             }
-        });
+            else {
+                initialise();
+            }
+        };
 
         $rootScope.getI18nPeriode = (periode) => {
             let result;
@@ -85,11 +106,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return result;
         };
 
-        $rootScope.getPeriodes = function () {
-            if ($rootScope.eleve !== null) {
-                setCurrentPeriode();
-            }
-        };
 
 
         $rootScope.getFormatedDate = function(date) {
@@ -109,7 +125,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             evaluations.eleve = eleve;
             $rootScope.eleve = evaluations.eleve;
             $rootScope.selectedEleve = $rootScope.eleve;
-            setCurrentPeriode();
+            $rootScope.setCurrentPeriode();
             await evaluations.devoirs.sync(eleve.idStructure,eleve.id, eleve.idClasse);
             $rootScope.devoirs = evaluations.devoirs;
             $rootScope.matieres = evaluations.matieres;
@@ -124,7 +140,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * Charge la liste des periodes dans $scope.periodes et détermine la période en cours et positionne
          * son id dans $scope.currentPeriodeId
          */
-        let setCurrentPeriode = function() {
+        $rootScope.setCurrentPeriode = function() {
             // récupération des périodes et filtre sur celle en cours
             let periodes;
             if (model.me.type === 'PERSRELELEVE') {
@@ -148,10 +164,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         foundPeriode = true;
                         $rootScope.periode = periodes.findWhere({id : periodes.all[i].id});
+                        evaluations.periode = $rootScope.periode;
+                        $rootScope.$broadcast('loadPeriode');
                         $rootScope.currentPeriodeId = $rootScope.periode.id;
                     }
                 }
                 utils.safeApply($scope);
+
             });
         };
 

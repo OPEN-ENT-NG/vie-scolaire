@@ -25,7 +25,8 @@
 
             <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row">
                 <label class="select cell two" ng-hide="searchReleve.eleve===null" style="margin-left:8px">
-                    <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
+                    <select ng-model="searchReleve.periode"
+                            ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
@@ -40,9 +41,10 @@
             </section>
             <section style="margin-top:8px;" ng-if="me.type === 'ELEVE'" class="row">
                 <label class="select cell two" style="margin-left:8px">
-                    <select ng-model="searchReleve.periode" ng-change="loadReleveNote()"
+                    <select ng-model="searchReleve.periode"
+                            ng-change="loadReleveNote()"
                             style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="getI18nPeriode(periode) for periode in periodes.all">
+                            ng-options="getI18nPeriode(periode) for periode insearchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>

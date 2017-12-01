@@ -26,6 +26,7 @@ import { Devoir } from "./parent_eleve/Devoir";
 import { Matiere } from "./parent_eleve/Matiere";
 import { Eleve } from "./parent_eleve/Eleve";
 import { Enseignant } from "./parent_eleve/Enseignant";
+import {Periode} from "./parent_eleve/Periode";
 
 let moment = require('moment');
 declare let _: any;
@@ -33,11 +34,13 @@ declare let location: any;
 
 export class Evaluations extends Model {
     eleves: Collection<Eleve>;
-    eleve: Eleve;
     matieres: Collection<Matiere>;
     classes: Collection<Classe>;
     enseignants: Collection<Enseignant>;
     devoirs: Collection<Devoir>;
+    eleve: Eleve; // Elève courant
+    periode: Periode; // Période courante
+
 
 
     get api() {
@@ -53,7 +56,7 @@ export class Evaluations extends Model {
         super(o);
     }
 
-    sync  () : Promise<any> {
+    async sync  () : Promise<any> {
         return new Promise(async (resolve, reject) => {
             // await this.classes.sync(model.me.structures[0]);
             this.collection(Eleve, {
@@ -134,6 +137,7 @@ export class Evaluations extends Model {
             // Synchronisation de la collection d'élèves pour les parents
             if (model.me.type === 'PERSRELELEVE') {
                 await this.eleves.sync();
+                this.eleve = this.eleves.first();
                 resolve ();
             }
             // Synchronisation des matières, enseignants, devoirs et de l'élève.
@@ -172,8 +176,8 @@ export class Evaluations extends Model {
 
 export let evaluations = new Evaluations();
 
-model.build = function () {
+model.build = async function () {
     (this as any).evaluations = evaluations;
-    evaluations.sync();
+    await evaluations.sync();
 };
 

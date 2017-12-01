@@ -20,14 +20,13 @@
 <div class="row" ng-controller="ReleveController">
     <div class="twelve cell">
 
-        <header class="header-viescolaire" style="padding: 8px;margin-bottom: 20px;background: white;border-radius: 5px;">
+        <header class="header-viescolaire">
             <h1><span class="no-style ng-scope"><i18n>ariane.viescolaire.displayReleveNotes</i18n></span></h1>
 
-            <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row">
-                <label class="select cell two" ng-hide="searchReleve.eleve===null" style="margin-left:8px">
+            <section style="margin-top:8px;" ng-if="me.type === 'PERSRELELEVE'" class="row twelve-mobile">
+                <label class="select cell two twelve-mobile" ng-hide="searchReleve.eleve===undefined">
                     <select ng-model="searchReleve.periode"
                             ng-change="loadReleveNote()"
-                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
                             ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
                             [[translate('viescolaire.utils.periode')]]
@@ -35,23 +34,22 @@
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null
-                && searchReleve.periode !== null" class="print-i" ng-click="getReleve()">
+                && searchReleve.periode !== null" class="twelve-mobile print-i" ng-click="getReleve()">
                     &nbsp;  <i class="download"> </i><i18n>print</i18n>
                 </a>
             </section>
-            <section style="margin-top:8px;" ng-if="me.type === 'ELEVE'" class="row">
-                <label class="select cell two" style="margin-left:8px">
+            <section style="margin-top:8px;" ng-if="me.type === 'ELEVE'" class="row twelve-mobile">
+                <label class="select cell two twelve-mobile">
                     <select ng-model="searchReleve.periode"
                             ng-change="loadReleveNote()"
-                            style="border: solid 1px;border-radius: 2px;cursor: pointer;background: transparent;"
-                            ng-options="getI18nPeriode(periode) for periode insearchReleve.eleve.classe.periodes.all">
+                            ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
                         <option class="header-opt" value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve.classe.periode !== null"
-                   class="print-i"
+                   class="print-i twelve-mobile"
                    ng-click="getReleve()">
 
                     &nbsp;<i class="download"> </i><i18n>print</i18n>
@@ -60,19 +58,19 @@
         </header>
 
         <content ng-show="dataReleve.devoirs.all.length > 0">
-
-            <table class="list-view tableReleveEleve tableRelevePadding" navigable>
+            <div class="responsive-table">
+            <table navigable>
                 <thead>
                 <tr>
-                    <th class="fontLarge col1ReleveEleve"><i18n>viescolaire.utils.matiere</i18n></th>
-                    <th class="fontLarge center"><i18n>evaluations.grade</i18n></th>
-                    <th class="fontLarge colMoyenneReleveEleve center"><i18n>average</i18n></th>
+                    <th class="fontLarge two"><i18n>viescolaire.utils.matiere</i18n></th>
+                    <th class="fontLarge nine center"><i18n>evaluations.grade</i18n></th>
+                    <th class="fontLarge one center"><i18n>average</i18n></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="ligneReleve"
+                <tr
                     ng-repeat="matiere in matieres.all ">
-                    <td class="col1ReleveEleve">
+                    <td data-label="[[translate('viescolaire.utils.matiere')]]" >
                         <span class="alignMatiere">[[matiere.name]]</span>
                         <ul>
                             <li ng-repeat="ens in matiere.ens track by ens.id">
@@ -81,7 +79,8 @@
                         </ul>
                     </td>
 
-                    <td class="notesDevoir">
+                    <td class="notesDevoir"
+                        data-label="[[translate('evaluations.grade')]]" >
                         <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all track by $index">
                             <div    class=" alignCenterVertically"
                                     ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
@@ -103,7 +102,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="colMoyenneReleveEleve">
+                    <td data-label="[[translate('average')]]">
                         <div class="noteMoyenne alignCenterVertically">
                             <span class="bold fontXLarge">[[matiere.moyenne]]</span>
                         </div>
@@ -112,11 +111,12 @@
                 </tbody>
             </table>
 
-
+            </div>
         </content>
         <content ng-show="dataReleve.devoirs.all.length === 0">
-            <h1 style="color: grey;"><i18n>evaluations.no.summary</i18n></h1>
+            <h1 class="twelve-mobile" style="color: grey;"><i18n>evaluations.no.summary</i18n></h1>
         </content>
 
     </div>
 </div>
+

@@ -2375,7 +2375,21 @@ body.evaluations {
   }
 
   .eval_parent {
-
+    @media screen and (max-width: $tablette) {
+      .notesDevoir {
+        display: block !important;
+        width: 100% !important;
+      }
+    }
+    @media screen and (min-width: $tablette) {
+      table {
+        border-collapse : separate;
+      }
+    }
+    .responsive-table table tbody tr td {
+      padding: 0px;
+      font-size: 14px;
+    }
     .display-children {
       height: 150px;
       width: 100%;
@@ -2402,8 +2416,10 @@ body.evaluations {
         }
       }
 
+
       @media screen and (max-width: 800px), screen and (max-height: 800px) {
-        height: 100px;
+        height: 110px;
+        overflow: hidden;
 
         .round-avatar {
           height: 80px;
@@ -2416,7 +2432,9 @@ body.evaluations {
         }
       }
     }
-
+    nav.vertical ul li a, .app-menu ul li a {
+      padding-right: 0px !important;
+    }
 
     .round-avatar {
       top: 10px;

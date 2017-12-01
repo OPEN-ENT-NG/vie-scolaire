@@ -169,4 +169,27 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getAllAbsenceEleve(String idEleve, boolean isAscending, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT evenement.*, cours.timestamp_dt as timestamp_dt, cours.timestamp_fn as timestamp_fn, cours.id as id_cours ")
+                .append("FROM presences.evenement, viesco.cours, presences.appel, presences.type_evt ")
+                .append("WHERE evenement.id_eleve = ? ")
+                .append("AND evenement.id_type = 1 ")
+                .append("AND evenement.id_appel = appel.id ")
+                .append("AND appel.id_cours = cours.id ")
+                .append("AND evenement.id_type = type_evt.id ")
+                .append("ORDER BY cours.timestamp_dt ");
+
+        // Si c'est dans l'ordre descendant
+        if(!isAscending){
+            query.append("DESC");
+        }
+        values.addString(idEleve);
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

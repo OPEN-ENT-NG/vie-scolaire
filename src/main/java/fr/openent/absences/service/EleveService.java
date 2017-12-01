@@ -81,4 +81,11 @@ public interface EleveService extends CrudService {
      * @param handler handler portant le résultat de la requête
      */
     public void getAbsencesPrevClassePeriode(List<String> idEleves, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Récupère toutes les absences d'un élève et les ordonnes par la date de début
+     * @param idEleve
+     * @param handler
+     */
+    public void getAllAbsenceEleve(String idEleve, boolean isAscending, Handler<Either<String, JsonArray>> handler);
 }

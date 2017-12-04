@@ -543,7 +543,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 let classe = _.findWhere($scope.structure.classes.all, {id: idClasse});
                 if (classe && classe.periodes && classe.periodes.length() === 0) {
                     classe.periodes.sync().then(() => {
-                        classe.periodes.all.push(new Periode({id: null}));
                         $scope.getCurrentPeriode(classe).then(function (res) {
                             $scope.search.periode = res;
                             utils.safeApply($scope);
@@ -2383,6 +2382,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 return (item) => {
                     return $scope.isValidClasse(item.id_groupe || item.id);
                 };
+            };
+
+            $rootScope.notYear = () => {
+              return (periode) => {
+                  return periode.id !== null;
+              }
             };
 
             /**

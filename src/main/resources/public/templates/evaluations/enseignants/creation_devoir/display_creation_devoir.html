@@ -212,7 +212,8 @@
                                             <select ng-disabled="devoir.id_groupe == null || devoir.id_groupe == ''"
                                                     ng-model="devoir.id_periode"
                                                     ng-change="controleDate(devoir)"
-                                                    ng-options="periode.id_type as getI18nPeriode(periode) for periode in getPeriodes(devoir.id_groupe)">
+                                                    ng-options="periode.id_type as getI18nPeriode(periode)
+                                                    for periode in getPeriodes(devoir.id_groupe) | filter:notYear()">
                                                 <option class="header-opt" disabled value="">
                                                     [[translate('viescolaire.utils.periode')]]
                                                 </option>

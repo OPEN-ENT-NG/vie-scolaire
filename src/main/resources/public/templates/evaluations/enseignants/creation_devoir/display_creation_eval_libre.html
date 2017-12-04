@@ -135,7 +135,8 @@
                 <label class="select four twelve-mobile">
                     <select ng-model="evaluationLibre.id_periode"
                             ng-change="controleDate()"
-                            ng-options="periode.id_type as getI18nPeriode(periode) for periode in evaluationLibre.periodes">
+                            ng-options="periode.id_type as getI18nPeriode(periode)
+                            for periode in evaluationLibre.periodes | filter:notYear()">
                         <option class="header-opt" disabled value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>

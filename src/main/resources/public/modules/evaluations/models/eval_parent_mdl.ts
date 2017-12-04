@@ -106,21 +106,22 @@ export class Evaluations extends Model {
                         if (classeId !== undefined) {
                             uri = uri + '&idClasse=' + classeId;
                         }
-                        if (idPeriode != undefined) {
+                        if (idPeriode !== undefined) {
                             uri = uri + '&idPeriode=' +idPeriode;
                         }
                         http().getJson(uri).done((devoirs) => {
                             this.devoirs.load(devoirs);
                             let matieresDevoirs = _.groupBy(devoirs, 'id_matiere');
                             let enseignants = _.groupBy(devoirs, 'owner');
-                            that.enseignants.sync(enseignants).then(() => {
+                            this.enseignants.sync(enseignants).then(() => {
                                 this.matieres.sync(matieresDevoirs).then(()=>{
                                     for (let o in matieresDevoirs) {
                                         matieresDevoirs[o].forEach(function (element) {
                                             let devoir = element;
                                             let _matiere = that.matieres.findWhere({id: devoir.id_matiere});
                                             let enseignant = that.enseignants.findWhere({id: devoir.owner});
-                                            if (_.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
+                                            if ( enseignant !== undefined
+                                                && _.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
                                                 _matiere.ens.push(enseignant);
                                             }
                                         });
@@ -161,12 +162,19 @@ export class Evaluations extends Model {
         });
     }
 
-    getReleve (idPeriode, idUser) {
+    getReleve (idPeriode, idUser, ordrePeriode, idTypePeriode) {
         let uri = '/viescolaire/evaluations/releve/pdf?idEtablissement=' +
             model.me.structures[0] + '&idUser=' + idUser;
-        if (idPeriode !== undefined) {
-            uri +=  '&idPeriode=' + idPeriode;
+        if(idPeriode !== undefined && idPeriode !== null) {
+            uri += '&idPeriode=' + idPeriode;
+            if (idTypePeriode !== undefined) {
+                uri += '&idTypePeriode=' + idTypePeriode;
+                if (ordrePeriode !== undefined) {
+                    uri += '&ordrePeriode=' + ordrePeriode;
+                }
+            }
         }
+
         location.replace(uri);
     }
 }

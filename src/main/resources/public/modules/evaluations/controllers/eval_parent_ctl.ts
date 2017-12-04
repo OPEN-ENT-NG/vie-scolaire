@@ -114,20 +114,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         // Fonction de sélection d'un enfant par le parent
         $rootScope.chooseChild = async function(eleve) {
-            if(eleve.classe ===  undefined){
-                eleve.classe = new Classe({id: eleve.idClasse});
-                await eleve.classe.sync();
-            }
             evaluations.eleve = eleve;
             $rootScope.eleve = evaluations.eleve;
             $rootScope.selectedEleve = $rootScope.eleve;
-            $rootScope.setCurrentPeriode();
+            eleve.classe = new Classe({id: eleve.idClasse});
+            await eleve.classe.sync();
             await evaluations.devoirs.sync(eleve.idStructure,eleve.id, undefined);
             $rootScope.devoirs = evaluations.devoirs;
             $rootScope.matieres = evaluations.matieres;
             $rootScope.enseignants = evaluations.enseignants;
-
-            $rootScope.$broadcast('loadEleve');
+            $rootScope.setCurrentPeriode();
             utils.safeApply($scope);
         };
 
@@ -138,12 +134,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $rootScope.setCurrentPeriode = function() {
             // récupération des périodes et filtre sur celle en cours
-            let periodes;
-            if (model.me.type === 'PERSRELELEVE') {
-                periodes = $rootScope.eleve.classe.periodes;
-            }else {
-                periodes = evaluations.eleve.classe.periodes;
-            }
+            let periodes = evaluations.eleve.classe.periodes;
             periodes.sync().then(() => {
                 let formatStr = "DD/MM/YYYY";
                 let momentCurrDate = moment(moment().format(formatStr), formatStr);
@@ -161,10 +152,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         foundPeriode = true;
                         $rootScope.periode = periodes.findWhere({id : periodes.all[i].id});
                         evaluations.periode = $rootScope.periode;
-                        $rootScope.$broadcast('loadPeriode');
                         $rootScope.currentPeriodeId = $rootScope.periode.id;
                     }
+
                 }
+                $rootScope.$broadcast('loadPeriode');
                 utils.safeApply($scope);
 
             });

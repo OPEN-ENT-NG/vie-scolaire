@@ -34,7 +34,8 @@
                     </select>
                 </label>
                 <a ng-show="dataReleve.devoirs.all.length > 0 && searchReleve.eleve !== null
-                && searchReleve.periode !== null" class="twelve-mobile print-i" ng-click="getReleve()">
+                && searchReleve.periode !== null" class="twelve-mobile print-i"
+                   ng-click="getReleve(searchReleve.periode)">
                     &nbsp;  <i class="download"> </i><i18n>print</i18n>
                 </a>
             </section>

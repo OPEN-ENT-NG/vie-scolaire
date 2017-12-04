@@ -261,7 +261,7 @@ public class ExportPDFController extends ControllerHelper {
                 if(user != null){
 
                     // parametres de l'url
-                    MultiMap params = request.params();
+                    final MultiMap params = request.params();
 
                     final Long idPeriode;
                     if(params.get("idPeriode")!= null) {
@@ -337,28 +337,31 @@ public class ExportPDFController extends ControllerHelper {
                                                             public void handle(Either<String, JsonObject> eventStructure) {
                                                                 if(eventStructure.isRight()) {
                                                                     final JsonObject etabJSON = eventStructure.right().getValue().getObject("s").getObject("data");
-                                                                    // récupération de la période
-//                                                                    if(idPeriode != null) {
-//                                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
-//
-//                                                                            @Override
-//                                                                            public void handle(Either<String, JsonObject> eventPeriode) {
-//                                                                                if (eventPeriode.isRight()) {
-//                                                                                    final JsonObject periodeJSON = eventPeriode.right().getValue();
-//                                                                                    // pour chaque matiere on recupere egalement le nom des enseignants
-//                                                                                    getEnseignantsMatieres(request, user, matieres, classeEleve, idEnseignants, devoirsJSON, periodeJSON, userJSON, etabJSON);
-//                                                                                }
-//
-//                                                                            }
-//                                                                        });// recuperation etablissement
-//                                                                    }
-//                                                                    else {
-                                                                        // Construction de la période année
-                                                                        final JsonObject periodeJSON = new JsonObject();
-                                                                        periodeJSON.putString("libelle", "Ann\u00E9e");
+                                                                    final JsonObject periodeJSON= new JsonObject();
 
-                                                                        getEnseignantsMatieres(request, user, matieres, classeEleve, idEnseignants, devoirsJSON, periodeJSON, userJSON, etabJSON);
-//                                                                    }
+                                                                    if(null != params.get("idTypePeriode")
+                                                                            && null != params.get("ordrePeriode")) {
+                                                                        final Long idTypePeriode =
+                                                                                Long.parseLong(params.get("idTypePeriode"));
+                                                                        final Long ordrePeriode =
+                                                                                Long.parseLong(params.get("ordrePeriode"));
+                                                                        StringBuilder keyI18nPeriodeType =
+                                                                                new StringBuilder()
+                                                                                .append("viescolaire.periode.")
+                                                                                .append(idTypePeriode);
+                                                                        String libellePeriode = I18n.getInstance()
+                                                                                .translate(keyI18nPeriodeType.toString(),
+                                                                                        getHost(request),
+                                                                                        I18n.acceptLanguage(request));
+                                                                        libellePeriode += (" " + ordrePeriode);
+                                                                        periodeJSON.putString("libelle", libellePeriode);
+                                                                    }else {
+                                                                        // Construction de la période année
+                                                                        periodeJSON.putString("libelle", "Ann\u00E9e");
+                                                                    }
+                                                                    getEnseignantsMatieres(request, user, matieres,
+                                                                            classeEleve, idEnseignants, devoirsJSON,
+                                                                            periodeJSON, userJSON, etabJSON);
                                                                 }
                                                             }
 
@@ -963,7 +966,7 @@ public class ExportPDFController extends ControllerHelper {
 //                                                            }
 //                                                        });
 //                                                    } else {
-                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName);
+                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName);
 //                                                    }
                                                 } else {
                                                     leftToResponse(request, event.left());
@@ -996,7 +999,7 @@ public class ExportPDFController extends ControllerHelper {
 //                                                            }
 //                                                        });
 //                                                    } else {
-                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString());
+                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString());
 //                                                    }
                                                 } else {
                                                     leftToResponse(request, event.left());
@@ -1029,7 +1032,7 @@ public class ExportPDFController extends ControllerHelper {
 //                                                            }
 //                                                        });
 //                                                    } else {
-                                                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString());
+                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString());
 //                                                    }
                                                 } else {
                                                     leftToResponse(request, event.left());
@@ -1204,8 +1207,8 @@ public class ExportPDFController extends ControllerHelper {
                                                                                         Double height = new Double(2.2); // la hauteur d'une ligne
                                                                                         for (int i=0 ; i < CompetencesOld.size() ; i++) {
                                                                                             JsonObject Comp = CompetencesOld.get(i);
-                                                                                             size = Comp.getString("nom").length() +10; // +10 pour "[ Cx ]"
-                                                                                             ligne += (Integer) size / lenght ;
+                                                                                            size = Comp.getString("nom").length() +10; // +10 pour "[ Cx ]"
+                                                                                            ligne += (Integer) size / lenght ;
                                                                                             if(size%lenght > 0 ){
                                                                                                 ligne++;
                                                                                             }
@@ -1311,7 +1314,7 @@ public class ExportPDFController extends ControllerHelper {
                         if(nbrCartouche > 0 ){
                             JsonArray nbr = new JsonArray();
                             for(int j=0; j<nbrCartouche;j++){
-                               nbr.add(j);
+                                nbr.add(j);
                             }
                             result.putArray("number", nbr);
                         }else{

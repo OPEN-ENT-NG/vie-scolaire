@@ -32,20 +32,6 @@ declare let _: any;
 export let releveController = ng.controller('ReleveController', [
     '$scope','$rootScope', '$location',
     async  function ($scope, $rootScope, $location) {
-
-        // Au changement d'enfant par le parent
-        $scope.$on('loadEleve', async function () {
-            $scope.calculMoyenneMatieres();
-            utils.safeApply($scope);
-        });
-
-        // Au changement de la période par le parent
-        $scope.$on('loadPeriode', async function() {
-            $scope.searchReleve.periode = evaluations.periode;
-            await $scope.loadReleveNote();
-            utils.safeApply($scope);
-        });
-
         /**
          * Calcul la moyenne pour chaque matière
          * contenue dans $scope.matieres
@@ -93,12 +79,15 @@ export let releveController = ng.controller('ReleveController', [
 
         // Impression du releve de l'eleve
         $scope.getReleve = function() {
-            if (model.me.type === 'ELEVE') {
-                evaluations.getReleve($scope.searchReleve.eleve.classe.periode.id_type,
-                    $scope.searchReleve.eleve.id);
-            } else {
+            let type_periode = _.findWhere(evaluations.eleve.classe.typePeriodes.all,
+                {id: $scope.searchReleve.periode.id_type});
+            if (type_periode !== undefined) {
                 evaluations.getReleve($scope.searchReleve.periode.id_type,
-                    $scope.searchReleve.eleve.id);
+                    $scope.searchReleve.eleve.id, type_periode.type, type_periode.ordre);
+            }
+            else {
+                evaluations.getReleve(undefined,
+                    $scope.searchReleve.eleve.id, undefined, undefined);
             }
         };
 
@@ -123,5 +112,11 @@ export let releveController = ng.controller('ReleveController', [
 
         await $rootScope.init();
         $scope.initReleve();
+        // Au changement de la période par le parent
+        $scope.$on('loadPeriode', async function() {
+            $scope.initReleve();
+            utils.safeApply($scope);
+        });
+
     }
 ]);

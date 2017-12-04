@@ -19,7 +19,7 @@ export class Classe extends DefaultClasse {
             TYPEPERIODES: {
                 synchronisation: '/viescolaire/periodes/types'
             }
-        }
+        };
     }
 
     constructor(o?: any) {

@@ -71,16 +71,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $rootScope.init = async function () {
             let initialise = ()=> {
                 if (model.me.type === 'ELEVE') {
-                    // $scope.periodes = evaluations.periodes;
                     $rootScope.eleve = evaluations.eleve;
-                    $rootScope.selectedEleve = $rootScope.eleve;
-                    $rootScope.devoirs = evaluations.devoirs;
-                    $rootScope.matieres = evaluations.matieres;
                 }
                 else if (model.me.type === 'PERSRELELEVE') {
                     $rootScope.eleves = evaluations.eleves.all;
-                    $rootScope.chooseChild (evaluations.eleve);
                 }
+                $rootScope.chooseChild (evaluations.eleve);
             };
             if ($rootScope.eleve === undefined) {
                 await evaluations.sync();
@@ -126,7 +122,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $rootScope.eleve = evaluations.eleve;
             $rootScope.selectedEleve = $rootScope.eleve;
             $rootScope.setCurrentPeriode();
-            await evaluations.devoirs.sync(eleve.idStructure,eleve.id, eleve.idClasse);
+            await evaluations.devoirs.sync(eleve.idStructure,eleve.id, undefined);
             $rootScope.devoirs = evaluations.devoirs;
             $rootScope.matieres = evaluations.matieres;
             $rootScope.enseignants = evaluations.enseignants;

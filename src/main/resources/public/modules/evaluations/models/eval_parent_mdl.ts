@@ -151,11 +151,11 @@ export class Evaluations extends Model {
                     firstName: model.me.firstName,
                     lastName: model.me.lastName,
                     idStructure: model.me.structures[0],
-                    classe: new Classe({id: model.me.classes[0], name: model.me.className[0]})
+                    classe: new Classe({id: model.me.classes[0], name: model.me.classNames[0].split('$')[1]})
                 });
 
                 await this.eleve.classe.sync();
-                await this.devoirs.sync(this.eleve.idStructure, this.eleve.id, this.eleve.classe.id);
+                await this.devoirs.sync(this.eleve.idStructure, this.eleve.id, null);
                 resolve();
             }
         });

@@ -62,7 +62,7 @@
                             <select ng-model="search.periode"
                                     ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
                                     ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
-                                <option value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
+                                <option disabled value="" class="header-opt">[[translate('viescolaire.utils.periode')]]</option>
                             </select>
                         </label>
                     </section>

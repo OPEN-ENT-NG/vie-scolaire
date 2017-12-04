@@ -28,7 +28,7 @@
                     <select ng-model="searchReleve.periode"
                             ng-change="loadReleveNote()"
                             ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
-                        <option class="header-opt" value="">
+                        <option class="header-opt" disabled value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>
                     </select>
@@ -43,7 +43,7 @@
                     <select ng-model="searchReleve.periode"
                             ng-change="loadReleveNote()"
                             ng-options="getI18nPeriode(periode) for periode in searchReleve.eleve.classe.periodes.all">
-                        <option class="header-opt" value="">
+                        <option class="header-opt" disabled value="">
                             [[translate('viescolaire.utils.periode')]]
                         </option>
                     </select>

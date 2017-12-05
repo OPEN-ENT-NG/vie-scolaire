@@ -1,0 +1,84 @@
+<!--
+  ~ Copyright (c) Région Hauts-de-France, Département 77, CGI, 2016.
+  ~
+  ~ This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation (version 3 of the License).
+  ~ For the sake of explanation, any module that communicate over native
+  ~ Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
+  ~ license and could be license under its own terms. This is merely considered
+  ~ normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~
+  -->
+<div class="list-view twelve-mobile" ng-if="!checkHaveResult()">
+    <article class="twelve card twelve-mobile centered ng-scope" >
+        <i18n>evaluation.student.list.empty</i18n>
+    </article>
+</div>
+<div class="list-view twelve-mobile" ng-if="checkHaveResult()" >
+
+    <div class="responsive-table list-devoirs">
+
+        <table>
+            <thead sticky offset="64">
+            <tr>
+                <th class="fontLarge one-mobile  one ellipsis">
+                    <i18n>viescolaire.utils.date</i18n>
+                </th>
+                <th class="fontLarge three-mobile three ellipsis">
+                    <i18n>viescolaire.utils.subject</i18n>
+                </th>
+                <th class="fontLarge three-mobile three ellipsis">
+                    <i18n>viescolaire.utils.name</i18n>
+                </th>
+                <th class="fontLarge three-mobile three ellipsis">
+                    <i18n>viescolaire.utils.teacher</i18n>
+                </th>
+                <th class="fontLarge  one-mobile one ellipsis">
+                    <i18n>evaluations.skills.nb</i18n>
+                </th>
+                <th class="fontLarge  one-mobile one ellipsis">
+                    <i18n>viescolaire.evaluation.note</i18n></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="devoir in devoirs.all | customSearchFilters:search  | filter:search.name "
+                ng-click="goToDevoir('#/devoir/[[devoir.id]]')">
+                <td  data-label="[[translate('viescolaire.utils.date')]]">
+                        [[getDateFormated(devoir.date)]]
+                </td>
+                <td class="testAlignLeft" data-label="[[translate('viescolaire.utils.subject')]]" >
+                        [[getLibelleMatiere(devoir.id_matiere)]]
+                </td>
+                <td class="testAlignLeft" data-label="[[translate('viescolaire.utils.name')]]">
+                        [[devoir.name]]
+                </td>
+                <td class="testAlignLeft" data-label="[[translate('viescolaire.utils.teacher')]]">
+                        [[getTeacherDisplayName(devoir.owner)]]
+                </td>
+                <td ng-if="devoir.competences !== undefined"
+                    class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
+                        [[devoir.competences.length]]
+                </td>
+                <td ng-if="devoir.competences === undefined"
+                    class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
+                        [[0]]
+                </td>
+                <td ng-if="devoir.annotation === undefined" data-label="[[translate('viescolaire.evaluation.note')]]">
+                        [[devoir.note]]
+                </td>
+                <td ng-if="devoir.annotation !== undefined" data-label="[[translate('viescolaire.evaluation.note')]]">
+                    [[devoir.annotation.libelle_court]]
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>

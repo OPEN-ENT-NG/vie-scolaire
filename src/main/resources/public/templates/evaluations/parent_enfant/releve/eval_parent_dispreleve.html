@@ -70,7 +70,7 @@
                 </thead>
                 <tbody>
                 <tr
-                    ng-repeat="matiere in matieres.all ">
+                    ng-repeat="matiere in matieres.all | filter:hasEvaluatedDevoir ">
                     <td data-label="[[translate('viescolaire.utils.matiere')]]" >
                         <span class="alignMatiere">[[matiere.name]]</span>
                         <ul>
@@ -82,12 +82,20 @@
 
                     <td class="notesDevoir"
                         data-label="[[translate('evaluations.grade')]]" >
-                        <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all track by $index">
+                        <div ng-repeat="devoirReleveNotes in dataReleve.devoirs.all | filter:isEvaluated
+                        track by $index">
                             <div    class=" alignCenterVertically"
                                     ng-class="{noteDevoir: devoirReleveNotes.id_matiere === matiere.id }">
                                 <div ng-if="devoirReleveNotes.id_matiere === matiere.id">
-                                    <span class="bold fontXLarge">[[devoirReleveNotes.note]]</span>
-                                    <span> / [[devoirReleveNotes.diviseur]]</span>
+                                    <span ng-if="devoirReleveNotes.annotation === undefined"
+                                          class="bold fontXLarge">[[devoirReleveNotes.note]]
+                                    </span>
+                                    <span ng-if="devoirReleveNotes.annotation === undefined">
+                                        / [[devoirReleveNotes.diviseur]]
+                                    </span>
+                                    <span ng-if="devoirReleveNotes.annotation !== undefined"
+                                          class="bold fontXLarge">[[devoirReleveNotes.annotation.libelle_court]]
+                                    </span>
                                     <span class="releve-coef"
                                           ng-show='devoirReleveNotes.coefficient != null
                                       && devoirReleveNotes.coefficient != 1'>

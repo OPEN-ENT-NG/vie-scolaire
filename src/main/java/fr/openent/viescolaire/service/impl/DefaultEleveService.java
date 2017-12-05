@@ -148,4 +148,40 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
+
+    @Override
+    public void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+
+        query.append("SELECT id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
+                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
+                .append(" FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
+                .append(" inner JOIN notes.annotations on annotations.id = id_annotation ")
+                .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
+        values.addString(idEleve);
+        if(idPeriode != null){
+            query.append(" AND id_periode = ? ");
+            values.addNumber(idPeriode);
+        }
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+    @Override
+    public void getCompetences(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        query.append("SELECT competences_notes.*, id_matiere, name, is_evaluated, id_periode, ")
+                .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append(" FROM notes.competences_notes inner JOIN notes.devoirs on devoirs.id = id_devoir  ")
+                .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
+
+        values.addString(idEleve);
+        if(idPeriode != null){
+            query.append(" AND id_periode = ? ");
+            values.addNumber(idPeriode);
+        }
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+
 }

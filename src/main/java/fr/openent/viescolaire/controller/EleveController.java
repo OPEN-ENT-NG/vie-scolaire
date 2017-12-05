@@ -120,4 +120,44 @@ public class EleveController extends ControllerHelper {
         eleveService.getUsers(idUsers,handler);
     }
 
+    @Get("/annotations/eleve/:idEleve")
+    @ApiDoc("Récupère les annotations sur les devoirs d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAnnotationStudent(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        String idEleve = request.params().get("idEleve");
+        Long idPeriode = null;
+        if (request.params().get("idPeriode") != null) {
+            idPeriode = testLongFormatParameter("idPeriode", request);
+        }
+        eleveService.getAnnotations(idEleve,idPeriode,handler);
+    }
+
+    @Get("/competences/eleve/:idEleve")
+    @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCompetencesEleve(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        String idEleve = request.params().get("idEleve");
+        Long idPeriode = null;
+        if (request.params().get("idPeriode") != null) {
+            idPeriode = testLongFormatParameter("idPeriode", request);
+        }
+        eleveService.getCompetences(idEleve,idPeriode,handler);
+    }
+
+    Long testLongFormatParameter(String name,final HttpServerRequest request) {
+        Long param = null;
+        try {
+            param = Long.parseLong(request.params().get(name));
+        } catch(NumberFormatException e) {
+            log.error("Error :" +  name + " must be a long object", e);
+            badRequest(request, e.getMessage());
+            return null;
+        }
+        return param;
+    }
+
 }

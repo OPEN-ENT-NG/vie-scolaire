@@ -218,7 +218,15 @@ body.evaluations {
     .custom-mobile-releve{
       display: none;
     }
+    .list-devoirs table tbody tr {
+      height: 35px;
+      color: $cyan;
+    }
+    .testAlignLeft {
+      text-align: left !important;
+    }
   }
+
   .pannel-in-cell {
     margin: 10px;
     padding: 15px;
@@ -2375,6 +2383,19 @@ body.evaluations {
   }
 
   .eval_parent {
+    .floatRight {
+      float: right;
+    }
+
+    .list-devoirs table tbody tr:hover {
+      color: $orange;
+    }
+    .responsive-table table tbody tr:nth-child(even){
+      background: rgba(0,0,0,0.05);
+    }
+    .responsive-table table tbody tr:nth-child(odd){
+      background: $white;
+    }
     @media screen and (max-width: $tablette) {
       .notesDevoir {
         display: block !important;

@@ -34,7 +34,10 @@
     <c-fil-ariane></c-fil-ariane>
     <container class="twelve cell twelve-mobile " template="header"></container>
     <container class="two cell" template=" menu"></container>
-    <container class="ten cell twelve-mobile" template=" main"></container>
+    <container class="cell twelve-mobile"
+               ng-class="{twelve : template.isEmpty('menu'),ten : !template.isEmpty('menu')}"
+               template=" main">
+    </container>
 </portal>
 <lightbox show="showNoteLightBox.bool" class="lightbox-parent" on-close="showNoteLightBox.bool=false">
     <container template="lightboxContainer"></container>

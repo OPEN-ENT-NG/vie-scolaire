@@ -9,7 +9,7 @@ import {Periode} from "../../viescolaire/models/common/Periode";
 let moment = require('moment');
 
 declare let _: any;
-declare let $:any;
+declare let $: any;
 declare let document: any;
 declare let window: any;
 declare let console: any;
@@ -2387,7 +2387,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $rootScope.notYear = () => {
               return (periode) => {
                   return periode.id !== null;
-              }
+              };
             };
 
             /**

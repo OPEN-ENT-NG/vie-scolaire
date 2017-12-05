@@ -6,11 +6,22 @@ import {evaluationsController} from '../controllers/eval_parent_ctl';
 import {cRoundAvatar} from "../../utils/directives/cRoundAvatar";
 import {releveController} from "../controllers/eval_parent_releve_ctrl";
 import {cFilAriane} from "../../utils/directives/cFilAriane";
+import {listController} from "../controllers/eval_parent_devoirs";
+import {customSearchFilter} from "../filters/customSearch";
+import {uniqueFilter} from "../../utils/filters/unique";
 
+// controllers
 ng.controllers.push(evaluationsController);
 ng.controllers.push(releveController);
+ng.controllers.push(listController);
+
+// directives
 ng.directives.push(cRoundAvatar);
 ng.directives.push(cFilAriane);
+
+// filters
+ng.filters.push(customSearchFilter);
+ng.filters.push(uniqueFilter);
 
 routes.define(function($routeProvider) {
     $routeProvider

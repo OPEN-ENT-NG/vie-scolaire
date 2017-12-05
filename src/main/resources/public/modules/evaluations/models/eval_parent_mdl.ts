@@ -48,7 +48,9 @@ export class Evaluations extends Model {
             EVAL_ENFANTS: '/viescolaire/evaluations/enfants?userId=' + model.me.userId,
             GET_EVALUATIONS : '/viescolaire/evaluations/devoirs?idEtablissement=',
             GET_MATIERES : '/viescolaire/matieres/infos?',
-            GET_ENSEIGNANTS: '/viescolaire/enseignants?'
+            GET_ENSEIGNANTS : '/viescolaire/enseignants?',
+            GET_COMPETENCES :'/viescolaire/competences/eleve/',
+            GET_ANNOTATION : '/viescolaire/annotations/eleve/'
         };
     }
 
@@ -109,27 +111,113 @@ export class Evaluations extends Model {
                         if (idPeriode !== undefined) {
                             uri = uri + '&idPeriode=' +idPeriode;
                         }
+                        // TODO RECUPERER LES COMPETENCES ET METTRE A JOUR LA COLONNE NB_COMPETENCES SUR LA VUE LISTE
                         http().getJson(uri).done((devoirs) => {
-                            this.devoirs.load(devoirs);
-                            let matieresDevoirs = _.groupBy(devoirs, 'id_matiere');
-                            let enseignants = _.groupBy(devoirs, 'owner');
-                            this.enseignants.sync(enseignants).then(() => {
-                                this.matieres.sync(matieresDevoirs).then(()=>{
-                                    for (let o in matieresDevoirs) {
-                                        matieresDevoirs[o].forEach(function (element) {
-                                            let devoir = element;
-                                            let _matiere = that.matieres.findWhere({id: devoir.id_matiere});
-                                            let enseignant = that.enseignants.findWhere({id: devoir.owner});
-                                            if ( enseignant !== undefined
-                                                && _.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
-                                                _matiere.ens.push(enseignant);
-                                            }
+
+                            // RECUPERATION DES COMPETENCES
+                            let uriCompetences = this.api.GET_COMPETENCES + userId;
+                            if (idPeriode !== undefined) {
+                                uriCompetences = uriCompetences + '?idPeriode=' +idPeriode;
+                            }
+                            http().getJson(uriCompetences).done((competences) => {
+                                competences.forEach(function (competence) {
+                                    let devoir = _.findWhere(devoirs, {id: competence.id_devoir});
+                                    if (devoir !== undefined) {
+                                        if (!devoir.competences) {
+                                            devoir.competences = [];
+                                        }
+                                        devoir.competences.push(competence);
+                                    }
+                                    else {
+                                        let _c = [];
+                                        _c.push(competence);
+                                        devoirs.push({
+                                            id : competence.id_devoir,
+                                            id_matiere: competence.id_matiere,
+                                            owner : competence.owner,
+                                            competences : _c,
+                                            apprec_visible : competence.apprec_visible,
+                                            coefficient : competence.coefficient,
+                                            created : competence.created,
+                                            date : competence.date,
+                                            date_publication : competence.date_publication,
+                                            diviseur : competence.diviseur,
+                                            id_etat : competence.id_etat,
+                                            id_periode : competence.id_periode,
+                                            id_type : competence.id_type,
+                                            is_evaluated : competence.is_evaluated,
+                                            libelle : competence.libelle,
+                                            name : competence.name
                                         });
                                     }
-                                    resolve();
                                 });
-                            });
 
+                                // RECUPERATION DES ANNOTIONS
+                                let uriAnnotations = this.api.GET_ANNOTATION  + userId;
+                                if (idPeriode !== undefined) {
+                                    uriAnnotations = uriAnnotations + '?idPeriode=' +idPeriode;
+                                }
+                                http().getJson(uriAnnotations).done((annotations) => {
+                                    annotations.forEach(function () {
+                                        annotations.forEach(function (annotation) {
+                                            let devoir = _.findWhere(devoirs, {id: annotation.id_devoir});
+                                            if (devoir !== undefined) {
+                                                devoir.annotation = {
+                                                    id : annotation.id,
+                                                    libelle: annotation.libelle,
+                                                    libelle_court : annotation.libelle_court
+                                                };
+                                            }
+                                            else {
+
+                                                devoirs.push({
+                                                    id : annotation.id_devoir,
+                                                    id_matiere: annotation.id_matiere,
+                                                    owner : annotation.owner,
+                                                    annotation : {
+                                                        id : annotation.id,
+                                                        libelle: annotation.libelle,
+                                                        libelle_court : annotation.libelle_court
+                                                    },
+                                                    apprec_visible : annotation.apprec_visible,
+                                                    coefficient : annotation.coefficient,
+                                                    created : annotation.created,
+                                                    date : annotation.date,
+                                                    date_publication : annotation.date_publication,
+                                                    diviseur : annotation.diviseur,
+                                                    id_etat : annotation.id_etat,
+                                                    id_periode : annotation.id_periode,
+                                                    id_type : annotation.id_type,
+                                                    is_evaluated : annotation.is_evaluated,
+                                                    libelle : annotation.lib,
+                                                    name : annotation.name,
+                                                    competences : []
+                                                });
+                                            }
+                                        });
+                                    });
+
+                                    this.devoirs.load(devoirs);
+                                    let matieresDevoirs = _.groupBy(devoirs, 'id_matiere');
+                                    let enseignants = _.groupBy(devoirs, 'owner');
+                                    this.enseignants.sync(enseignants).then(() => {
+                                        this.matieres.sync(matieresDevoirs).then(()=>{
+                                            for (let o in matieresDevoirs) {
+                                                matieresDevoirs[o].forEach(function (element) {
+                                                    let devoir = element;
+                                                    let _matiere = that.matieres.findWhere({id: devoir.id_matiere});
+                                                    let enseignant = that.enseignants.findWhere({id: devoir.owner});
+                                                    if ( enseignant !== undefined
+                                                        && _.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
+                                                        _matiere.ens.push(enseignant);
+                                                    }
+                                                });
+                                            }
+                                            resolve();
+                                        });
+                                    });
+                                }).bind(this);
+                            }).bind(this);
                         }).bind(this);
                     });
                 }
@@ -142,9 +230,7 @@ export class Evaluations extends Model {
                 resolve ();
             }
             // Synchronisation des matières, enseignants, devoirs et de l'élève.
-            // TODO REGARDER SI BESOIN DES GROUPES
             else {
-                // this.makeModels([Classe]);
                 this.eleve = new Eleve({
                     id: model.me.userId,
                     idClasse: model.me.classes[0],
@@ -165,7 +251,7 @@ export class Evaluations extends Model {
     getReleve (idPeriode, idUser, ordrePeriode, idTypePeriode) {
         let uri = '/viescolaire/evaluations/releve/pdf?idEtablissement=' +
             model.me.structures[0] + '&idUser=' + idUser;
-        if(idPeriode !== undefined && idPeriode !== null) {
+        if (idPeriode !== undefined && idPeriode !== null) {
             uri += '&idPeriode=' + idPeriode;
             if (idTypePeriode !== undefined) {
                 uri += '&idTypePeriode=' + idTypePeriode;

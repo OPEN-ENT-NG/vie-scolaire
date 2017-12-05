@@ -613,7 +613,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         query.append("SELECT devoirs.*, ")
                 .append("type.nom as _type_libelle, rel_type_periode.type as _periode_type, rel_type_periode.ordre as _periode_ordre");
         if (idEleve != null) {
-            query.append(", notes.valeur as note ");
+            query.append(", notes.valeur as note, COUNT(competences_devoirs.id) as nbcompetences ");
         }
         query.append("FROM ")
                 .append(Viescolaire.EVAL_SCHEMA +".devoirs ")
@@ -623,7 +623,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             query.append("inner join " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes on rel_devoirs_groupes.id_devoir = devoirs.id AND rel_devoirs_groupes.id_groupe =? ");
         }
         if (idEleve != null) {
-            query.append("inner join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir ");
+            query.append(" left join "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs ")
+                    .append(" on devoirs.id = competences_devoirs.id_devoir ")
+                    .append("inner join "+ Viescolaire.EVAL_SCHEMA +".notes on devoirs.id = notes.id_devoir ");
         }
         query.append("WHERE ")
                 .append("devoirs.id_etablissement = ? ");
@@ -632,13 +634,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     .append("devoirs.id_matiere = ? ");
         }
         if (idEleve !=  null){
-            query.append(" AND  notes.id_eleve = ? ");
+            query.append(" AND  notes.id_eleve = ? AND date_publication <= Now() ");
         }
         if (idPeriode != null) {
             query.append("AND ")
                     .append("devoirs.id_periode = ? ");
         }
-                query.append("ORDER BY devoirs.date ASC, devoirs.id ASC");
+
         if(idClasse != null) {
             values.addString(idClasse);
         }
@@ -648,7 +650,12 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             values.addString(idMatiere);
         }
         if (idEleve != null) {
+            query.append(" GROUP BY devoirs.id,rel_type_periode.type , rel_type_periode.ordre, type.nom, notes.valeur ")
+            .append(" ORDER BY devoirs.date ASC, devoirs.id ASC ");
             values.add(idEleve);
+        }
+        else {
+            query.append("ORDER BY devoirs.date ASC, devoirs.id ASC ");
         }
         if(idPeriode != null) {
             values.addNumber(idPeriode);

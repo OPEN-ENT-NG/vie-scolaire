@@ -53,6 +53,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.close('main');
                 template.close('menu');
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.open('main', '../templates/evaluations/parent_enfant/liste_devoirs/display_devoirs_structure');
+                template.open('evaluations', '../templates/evaluations/parent_enfant/liste_devoirs/list_view');
                 utils.safeApply($scope);
             },
             displayBilanDeCompetence : async function (params) {
@@ -69,7 +71,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {Promise<void>}
          */
         $rootScope.init = async function () {
-            let initialise = ()=> {
+            let initialise = () => {
                 if (model.me.type === 'ELEVE') {
                     $rootScope.eleve = evaluations.eleve;
                 }
@@ -119,7 +121,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $rootScope.selectedEleve = $rootScope.eleve;
             eleve.classe = new Classe({id: eleve.idClasse});
             await eleve.classe.sync();
-            await evaluations.devoirs.sync(eleve.idStructure,eleve.id, undefined);
+            await evaluations.devoirs.sync( eleve.idStructure, eleve.id, undefined );
             $rootScope.devoirs = evaluations.devoirs;
             $rootScope.matieres = evaluations.matieres;
             $rootScope.enseignants = evaluations.enseignants;
@@ -161,7 +163,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             });
         };
-
+        $rootScope.template = template;
         $rootScope.me = {
             type : model.me.type
         };

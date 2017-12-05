@@ -118,5 +118,12 @@ export let releveController = ng.controller('ReleveController', [
             utils.safeApply($scope);
         });
 
+        // Filter
+        $scope.hasEvaluatedDevoir = (matiere) => {
+                return $scope.dataReleve.devoirs.findWhere({id_matiere: matiere.id, is_evaluated:true}) !== undefined;
+        };
+        $scope.isEvaluated = (devoir) => {
+                return devoir.is_evaluated;
+        };
     }
 ]);

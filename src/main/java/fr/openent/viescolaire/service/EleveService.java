@@ -88,4 +88,18 @@ public interface EleveService extends CrudService {
      * @param result
      */
     public void getUsers(JsonArray idUsers, Handler<Either<String, JsonArray>> result);
+
+    /**
+     * Récupère les competences-notes des devoirs d'un élève.
+     * @param idEleve
+     * @param result
+     */
+    public void getCompetences(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> result);
+
+    /**
+     * Récupère les annotations sur les devoirs d'un élève.
+     * @param idEleve
+     * @param result
+     */
+    public void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> result);
 }

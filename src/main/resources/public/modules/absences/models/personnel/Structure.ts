@@ -109,7 +109,13 @@ export class Structure extends SharedStructure {
             sync : () => {
                 return new Promise((resolve, reject) => {
                     http().getJson(this.api.MOTIF_ABS.synchronization).done((motifs) => {
+                        // Ajout du motif par défaut
+                        motifs.push({
+                           id: null,
+                           libelle: lang.translate("viescolaire.absences.sans.motif")
+                        });
                         this.motifs.load(motifs);
+
                         this.motifs.map(function (motif) {
                             motif.justifiant_libelle = motif.justifiant ? lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
                             return motif;

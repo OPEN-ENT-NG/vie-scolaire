@@ -17,30 +17,11 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
         template.open('abscDetailTimelineTemplate', '../templates/absences/absc-detail-timeline-cours-template');
 
         // variables d'affichage
-
         $scope.display.showEleveCard = false;
         $scope.display.showLastAbsences = false;
 
         $scope.showLightboxAllAbsences = (state) => {
             $scope.displayLightboxAllAbsences = state;
-        };
-
-        $scope.showConfirmDelete = (event) => {
-            if(event){
-                $scope.selectedEvent = event;
-                $scope.displayConfirmDelete = true;
-            }else{
-                $scope.displayConfirmDelete = false;
-            }
-        };
-
-        $scope.showLightboxConfirmDelete = (event) => {
-            if(event){
-                $scope.selectedEvent = event;
-                $scope.displayLightboxConfirmDelete = true;
-            }else{
-                $scope.displayLightboxConfirmDelete = false;
-            }
         };
 
         // Selection d'un élève dans la barre de recherche
@@ -54,8 +35,8 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                     // Mise en forme des absence
                     $scope.selected.eleve.evenements.forEach(function (event) {
                         event.motif = $scope.structure.motifs.find(motif => motif.id == event.id_motif);
-                        event.niceDateDebut = moment(event.timestamp_dt).format('DD/MM/YYYY h:mm');
-                        event.niceDateFin = moment(event.timestamp_fn).format('DD/MM/YYYY h:mm');
+                        event.niceDateDebut = moment(event.timestamp_dt).format('DD/MM/YYYY HH:mm');
+                        event.niceDateFin = moment(event.timestamp_fn).format('DD/MM/YYYY HH:mm');
                     });
 
                     // Mise en forme des absences prev + lien entre absences prev et absences normales
@@ -67,8 +48,8 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                         abscprev.isAbsencePrev = true;
 
                         // Mise en forme de la date
-                        abscprev.niceDateDebut = moment(abscprev.timestamp_dt).format('DD/MM/YYYY h:mm');
-                        abscprev.niceDateFin = moment(abscprev.timestamp_fn).format('DD/MM/YYYY h:mm');
+                        abscprev.niceDateDebut = moment(abscprev.timestamp_dt).format('DD/MM/YYYY HH:mm');
+                        abscprev.niceDateFin = moment(abscprev.timestamp_fn).format('DD/MM/YYYY HH:mm');
                         abscprev.motif = $scope.structure.motifs.find(motif => motif.id == abscprev.id_motif);
 
                         $scope.selected.eleve.evenements.forEach(function (absence) {

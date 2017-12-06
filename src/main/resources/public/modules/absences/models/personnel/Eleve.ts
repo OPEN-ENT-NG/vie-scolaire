@@ -78,7 +78,6 @@ export class Eleve extends SharedEleve {
         return new Promise((resolve,reject) => {
             http().getJson(this.api.GET_ALL_ABSENCES + isAscending).done((data) => {
                 this.evenements = data;
-                this.absences = data;
                 if (resolve && typeof resolve === 'function') {
                     resolve();
                 }

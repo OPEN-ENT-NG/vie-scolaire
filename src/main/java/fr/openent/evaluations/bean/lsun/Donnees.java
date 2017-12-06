@@ -759,7 +759,6 @@ public class Donnees {
             }
             return this.bilanCycle;
         }
-
     }
 
 

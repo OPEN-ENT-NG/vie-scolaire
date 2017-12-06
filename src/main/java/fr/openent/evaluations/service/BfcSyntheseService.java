@@ -4,6 +4,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 /**
@@ -42,6 +43,14 @@ public interface BfcSyntheseService extends CrudService {
      * @param handler
      */
     public void getBfcSyntheseByEleve(String idEleve,Integer idCycle, Handler<Either<String,JsonObject>> handler);
+
+    /**
+     *
+     * @param idsEleve tableau des idsEleve pour un cycle donné
+     * @param idCycle cycle des élèves sélectionnés
+     * @param handler
+     */
+    public void getBfcSyntheseByIdsEleve(String[] idsEleve, Long idCycle,Handler<Either<String,JsonArray>> handler);
 
     /**
      * return idCycle

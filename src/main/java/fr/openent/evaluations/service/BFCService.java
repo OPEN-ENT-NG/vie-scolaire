@@ -62,5 +62,5 @@ public interface BFCService extends CrudService {
      * @param idEleve
      * @param handler
      */
-    public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler);
+    // public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler);
 }

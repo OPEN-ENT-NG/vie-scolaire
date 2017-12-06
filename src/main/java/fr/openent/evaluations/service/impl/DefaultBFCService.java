@@ -403,7 +403,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
             }
         });
     }
-    @Override
+   /* @Override
     public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
@@ -411,5 +411,5 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                 .append("WHERE idEleve = ?");
         params.addString(idEleve);
         Sql.getInstance().prepared(query.toString(),params, SqlResult.validResultHandler(handler));
-    }
+    }*/
 }

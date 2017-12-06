@@ -8,6 +8,7 @@ import {
     Synthese
 } from '../models/teacher/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
+import {NiveauEnseignementCpls} from "../models/eval_ens_complement_mdl";
 import {Defaultcolors} from "../models/eval_niveau_comp";
 
 declare let _:any;
@@ -185,7 +186,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             $scope.messages.successEvalLibre = true;
             $scope.evaluationLibre.create().then(function (res) {
 
-
                 // refresh du suivi élève
                 $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
                 $scope.suiviCompetence.sync().then(() => {
@@ -344,6 +344,40 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     $scope.mapCouleurs[niv.ordre-1] = niv.couleur;
                     $scope.mapLettres[niv.ordre-1] = niv.lettre;
                 });
+
+               //Enseignement de complement cycle 4
+                $scope.inactif = true;
+                $scope.suiviCompetence.niveauEnsCpls = new NiveauEnseignementCpls($scope.search.eleve.id);
+                $scope.suiviCompetence.ensCpls.sync().then(()=>{
+                    $scope.suiviCompetence.eleveEnsCpl.sync().then(()=>{
+                        if($scope.suiviCompetence.eleveEnsCpl.id ){
+                                $scope.suiviCompetence.ensCplSelected=_.findWhere($scope.suiviCompetence.ensCpls.all,{id:$scope.suiviCompetence.eleveEnsCpl.id_enscpl});
+                                $scope.suiviCompetence.niveauEnsCplSelected = _.findWhere($scope.suiviCompetence.niveauEnsCpls.all,{niveau : $scope.suiviCompetence.eleveEnsCpl.niveau});
+                                utils.safeApply($scope);
+                        }
+                    });
+                });
+
+                $scope.loadEns = ()=>{
+                    $scope.inactif = false;
+                    //si id=1 on est sur ensCpl Aucun
+                    if($scope.suiviCompetence.ensCplSelected.id === 1) {
+                        // on met à jour le niveau à 0
+                        $scope.suiviCompetence.niveauEnsCplSelected.niveau = 0;
+
+                    } else {
+                        //sinon on positionne sur le 1er niveau par défaut
+                        $scope.suiviCompetence.niveauEnsCplSelected = $scope.suiviCompetence.niveauEnsCpls.all[0];
+                    }
+                  //  $scope.suiviCompetence.niveauEnsCplSelected.id_enscpl = $scope.suiviCompetence.ensCplSelected.id;
+                };
+                $scope.loadNiveau = ()=>{
+                    if($scope.suiviCompetence.ensCplSelected !== undefined) {
+                        $scope.inactif = false;
+                      //  $scope.suiviCompetence.niveauEnsCplSelected.id_enscpl = $scope.suiviCompetence.ensCplSelected.id;
+                    }
+                }
+
                 $scope.suiviCompetence.sync().then(() => {
                     // On récupère d'abord les bilans de fin de cycle enregistrés par le chef d'établissement
                     $scope.suiviCompetence.bilanFinDeCycles.all =[];
@@ -433,10 +467,17 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
             location.replace(url);
         };
+
+        $scope.saveNiveauEnsCpl= ()=> {
+            $scope.suiviCompetence.eleveEnsCpl.setAttributsEleveEnsCpl($scope.suiviCompetence.ensCplSelected.id,$scope.suiviCompetence.niveauEnsCplSelected.niveau).save();
+            $scope.inactif = true;
+        };
+
         $scope.successCreateSynthese = false;
         $scope.successUpdateSynthese = false;
+
         $scope.saveSynthese=()=> {
-            $scope.suiviCompetence.synthese.saveSynthese().then((res)=> {
+            $scope.suiviCompetence.bfcSynthese.saveBfcSynthese().then((res)=> {
                 if(res.rows === 1){
                     $scope.successUpdateSynthese = true;
                     utils.safeApply($scope);
@@ -454,21 +495,6 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                 }
             });
         };
-
-
-        /* $scope.exportLSU = function() {
-
-         let url = "/viescolaire/evaluations/exportLSU/lsu?";
-         // renseigner les params pour compléter l'url : :idStructure/:idClass/:idResponsable/:idPeriode
-         url//+="idStructure=7d6b93f1-064c-4a15-88c7-815ebf33815b";
-         url+="&idClasse=19a692ce-ba10-4b1b-bce7-709acc3c9a59";
-         url+="&idClasse=3e2800cd-7756-4d3e-af76-402de0cf1b14";
-         url//+="&idResponsable=95dbe1c5-7960-451b-877d-edddc7a6a5a4";
-         // url+="&idCycle=1";
-         //$location.path(url);
-         //$location.replace(url);
-         location.replace(url);
-         };**/
 
         /**
          * Filtre permettant de retourner l'évaluation maximum en fonction du paramètre de recherche "Mes Evaluations"

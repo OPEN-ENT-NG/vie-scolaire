@@ -29,6 +29,7 @@ import org.vertx.java.core.json.JsonArray;
  * Created by ledunoiss on 05/08/2016.
  */
 public class DefaultEnseignementService extends SqlCrudService implements fr.openent.evaluations.service.EnseignementService {
+
     public DefaultEnseignementService(String schema, String table) {
         super(schema, table);
     }

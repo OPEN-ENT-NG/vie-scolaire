@@ -28,14 +28,13 @@
       "type" : ["integer", "null"]
     },
     "id_motif" : {
-      "type" : "integer"
+      "type" : ["integer", "null"]
     }
   },
   "required": [
     "saisie_cpe",
     "id_eleve",
     "id_appel",
-    "id_type",
-    "id_motif"
+    "id_type"
   ]
 }

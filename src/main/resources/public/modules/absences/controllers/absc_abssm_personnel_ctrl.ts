@@ -82,11 +82,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         };
 
         $scope.initEvenement = function (event) {
-            if (event.id_motif !== null) {
-                event.motif = $scope.structure.motifs.findWhere({id : event.id_motif});
-            } else {
-                event.motif = $scope.defaultMotif;
-            }
+            event.motif = $scope.structure.motifs.findWhere({id : event.id_motif});
             utils.safeApply($scope);
         };
 
@@ -94,7 +90,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             if ($scope.pOFilterAbsences.sansmotifs) {
                 let t = _.where(eleve.evenements, {id_type : 1});
                 if (t.length > 0) {
-                    return (_.where(t, {id_motif : 8})).length !== 0 || (_.where(t, {id_motif : 2})).length !== 0;
+                    return _.where(t, {id_motif : null}).length !== 0;
                 }
                 return false;
             } else {
@@ -104,7 +100,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
 
         $scope.absencesNonJustifieesFilter = function (evt) {
             if ($scope.pOFilterAbsences.sansmotifs) {
-                return (evt.id_type === 1 && (evt.id_motif === 8 || evt.id_motif === 2));
+                return (evt.id_type === 1 && evt.id_motif == null);
             } else {
                 return true;
             }
@@ -132,8 +128,13 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             let t = _.where(eleve.evenements, {id_type : 1});
             if (t.length > 0) {
                 _.each(t, function (evt) {
-                    evt.motif = eleve.motif;
-                    evt.id_motif = eleve.motif.id;
+                    if(eleve.motif == null){
+                        evt.motif = {id: null};
+                        evt.id_motif = null;
+                    }else{
+                        evt.motif = eleve.motif;
+                        evt.id_motif = eleve.motif.id;
+                    }
                     let e = new Evenement(evt);
                     e.update();
                 });
@@ -146,7 +147,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                 let a = t;
                 if ($scope.pOFilterAbsences.sansmotifs) {
                     a = _.filter(t, function (e) {
-                        return e.id_motif === 2 || e.id_motif === 8;
+                        return e.id_motif == null;
                     });
                 }
                 let m = a[0].id_motif;

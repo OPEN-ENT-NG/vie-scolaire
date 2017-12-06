@@ -98,7 +98,7 @@
   "viescolaire.absences.title.last.absences.entered":"Dernières absences saisies",
   "viescolaire.absences.title.delete.absence":"Suprression d'une absence",
   "viescolaire.absences.delete.absence.confirm":"Voulez-vous vraiment supprimer l'absence",
-
+  "viescolaire.absences.sans.motif":"Sans motif",
   "viescolaire.absences.title":"Absences",
   "viescolaire.presences.title":"Presences",
   "viescolaire.absences.historique":"Historique de la journée",

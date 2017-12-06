@@ -86,6 +86,8 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_BFC_SYNTHESE_TABLE = "bfc_synthese";
 	public static final String EVAL_REL_DEVOIRS_GROUPES = "rel_devoirs_groupes";
 	public static final String EVAL_COMPETENCES_DEVOIRS = "competences_devoirs";
+	public static final String EVAL_ENSEIGNEMENT_COMPLEMENT = "enseignement_complement";
+	public static final String EVAL_ELEVE_ENSEIGNEMENT_COMPLEMENT = "eleve_enseignement_complement";
 
 	/**
 	 * Déclaration des router préfixs
@@ -147,6 +149,7 @@ public class Viescolaire extends BaseServer {
 
 	public final static String SCHEMA_BFCSYNTHESE_CREATE = "eval_createBfcSynthese";
 	public final static String SCHEMA_BFCSYNTHESE_UPDATE = "eval_updateBfcSynthese";
+	public final static String SCHEMA_NIVEAUENSCPL_CREATE = "eval_createNiveauEnsCpl";
 
 	public static JsonObject LSUN_CONFIG;
 

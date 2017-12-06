@@ -3,6 +3,7 @@ import {TypePeriode} from "../common/TypePeriode";
 import {DefaultPeriode} from "../common/DefaultPeriode";
 import * as utils from '../utils/teacher';
 import {BfcSynthese}from './eval_bfc_synthese_mdl';
+import {EleveEnseignementCpl, EnsCpls, EnsCpl} from './eval_ens_complement_mdl';
 export * from './common/LSU';
 import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
 import {Cycle} from "./eval_cycle";
@@ -2067,7 +2068,10 @@ export class SuiviCompetence extends Model {
     classe : Classe;
     bilanFinDeCycles : Collection<BilanFinDeCycle>;
     tableConversions : Collection<TableConversion>;
-    synthese : Synthese;
+    bfcSynthese : BfcSynthese;
+    ensCpls : EnsCpls;
+    ensCplSelected : EnsCpl;
+    eleveEnsCpl : EleveEnseignementCpl;
     get api() {
         return {
             getCompetencesNotes : '/viescolaire/evaluations/competence/notes/eleve/',
@@ -2081,8 +2085,11 @@ export class SuiviCompetence extends Model {
         super();
         this.periode = periode;
         this.classe = classe;
-        this.synthese= new BfcSynthese(eleve.id);
-        this.synthese.syncSynthese();
+        this.bfcSynthese= new BfcSynthese(eleve.id);
+        this.bfcSynthese.syncBfcSynthese();
+        this.ensCpls = new EnsCpls();
+        this.eleveEnsCpl = new EleveEnseignementCpl(eleve.id);
+
         var that = this;
         this.collection(TableConversion);
         this.collection(Domaine, {
@@ -2138,11 +2145,7 @@ export class SuiviCompetence extends Model {
                 });
             }
         });
-
     }
-
-
-
     /**
      * Calcul la moyenne d'un domaine (moyenne des meilleurs évaluations de chaque compétence)
      *
@@ -2579,7 +2582,7 @@ export class GestionRemplacement extends Model {
 
     }
 }
-export class Responsable extends Model implements IModel{
+export class Responsable extends Model {
     id: string;
     externalId : string;
     displayName : string;

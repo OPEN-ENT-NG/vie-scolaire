@@ -31,7 +31,7 @@ export class BfcSynthese extends Model implements IModel {
         }
     }
 
-    createSynthese(): Promise<BfcSynthese> {
+    createBfcSynthese(): Promise<BfcSynthese> {
         return new Promise((resolve, reject) => {
             http().postJson(this.api.create, this.toJSON()).done((data) =>{
                 this.id= data.id;
@@ -41,7 +41,7 @@ export class BfcSynthese extends Model implements IModel {
             });
         });
     }
-    updateSynthese(): Promise<BfcSynthese> {
+    updateBfcSynthese(): Promise<BfcSynthese> {
         return new Promise((resolve,reject)=>{
             http().putJson(this.api.update,this.toJSON()).done((data)=>{
                 if(resolve&&(typeof(resolve)==='function')){
@@ -51,21 +51,21 @@ export class BfcSynthese extends Model implements IModel {
         })
     }
 
-    saveSynthese():Promise<BfcSynthese> {
+    saveBfcSynthese():Promise<BfcSynthese> {
         return new Promise((resolve, reject) => {
             if(!this.id){
-                this.createSynthese().then((data)=>{
+                this.createBfcSynthese().then((data)=>{
                     resolve(data);
                 });
             }else{
-                this.updateSynthese().then((data)=>{
+                this.updateBfcSynthese().then((data)=>{
                     resolve(data);
                 });
             }
         });
     }
 
-    syncSynthese(): Promise<any> {
+    syncBfcSynthese(): Promise<any> {
         return new Promise((resolve, reject) => {
             // var that = this;
             http().getJson(this.api.getBfcSynthese  + this.id_eleve ).done((data) => {

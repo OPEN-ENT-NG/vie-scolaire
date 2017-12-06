@@ -2,12 +2,8 @@ package fr.openent.evaluations.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.evaluations.security.AccessBFCFilter;
-import fr.openent.evaluations.service.BFCService;
-import fr.openent.evaluations.service.BfcSyntheseService;
-import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultBFCService;
-import fr.openent.evaluations.service.impl.DefaultBfcSyntheseService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.evaluations.service.*;
+import fr.openent.evaluations.service.impl.*;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.*;
@@ -22,8 +18,8 @@ import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
@@ -37,6 +33,8 @@ public class BFCController extends ControllerHelper {
     private final BfcSyntheseService syntheseService;
     private final UtilsService utilsService;
     private final ClasseService classeService;
+    private final EnseignementComplementService enseignementComplement;
+    private final NiveauEnseignementComplementService niveauEnseignementComplement;
 
     public BFCController() {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
@@ -44,6 +42,8 @@ public class BFCController extends ControllerHelper {
         syntheseService = new DefaultBfcSyntheseService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_SYNTHESE_TABLE);
         utilsService = new DefaultUtilsService();
         classeService = new DefaultClasseService();
+        enseignementComplement = new DefaultEnseignementComplementService(Viescolaire.EVAL_SCHEMA,Viescolaire.EVAL_ENSEIGNEMENT_COMPLEMENT);
+        niveauEnseignementComplement = new DefaultNiveauEnseignementComplementService(Viescolaire.EVAL_SCHEMA,Viescolaire.EVAL_ELEVE_ENSEIGNEMENT_COMPLEMENT);
     }
 
 
@@ -150,6 +150,8 @@ public class BFCController extends ControllerHelper {
         }
     }
 
+    //La Synthèse du Bilan de fin de cycle
+
     /**
      * Créer une Synthese avec les données passées en POST
      *
@@ -248,4 +250,85 @@ public class BFCController extends ControllerHelper {
             }
         });
     }
+    //Les enseignements de complément pour le cycle 4 seulement
+
+    @Get("/ListEnseignementComplement")
+    @ApiDoc("Récupère la liste des enseignements ")
+    @SecuredAction(value="",type = ActionType.AUTHENTICATED)
+    public void getEnseignementsDeComplement(final  HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos userInfos) {
+                log.debug("userInfos " + userInfos.toString());
+                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    enseignementComplement.getEnseignementsComplement(handler);
+                    log.debug("ensCpl " + handler.toString());
+                }else{
+                    Renders.unauthorized(request);
+                }
+            }
+        });
+    }
+    @Post("/CreateNiveauEnsCpl")
+    @ApiDoc("crée l'enseignement de complement pour un élève")
+    @SecuredAction(value="",type=ActionType.AUTHENTICATED)
+    public void createNiveauEnsCpl(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos userInfos) {
+                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")){
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_NIVEAUENSCPL_CREATE, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(JsonObject data) {
+                            niveauEnseignementComplement.createEnsCplByELeve(data,userInfos,notEmptyResponseHandler(request));
+                        }
+                    });
+                }else{
+                    Renders.unauthorized(request);
+                }
+            }
+        });
+    }
+
+    @Put("/UpdateNiveauEnsCpl")
+    @ApiDoc("met à jour niveau d'enseignement complément")
+    @SecuredAction(value="",type=ActionType.AUTHENTICATED)
+    public void updateNiveauEnsCpl(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos userInfos) {
+                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")){
+                    RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_NIVEAUENSCPL_CREATE, new Handler<JsonObject>() {
+                        @Override
+                        public void handle(JsonObject data) {
+                            final Integer id = Integer.parseInt(request.params().get("id"));
+
+                            niveauEnseignementComplement.updateEnsCpl(id,data,defaultResponseHandler(request));
+                        }
+                    });
+                }else{
+                    Renders.unauthorized(request);
+                }
+            }
+        });
+    }
+
+    @Get("/GetNiveauEnsCpl")
+    @ApiDoc("Récupère l'enseignement de complément pour un élève")
+    @SecuredAction(value="", type=ActionType.AUTHENTICATED)
+    public void getNiveauEnsCplByEleve(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos userInfos) {
+                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")) {
+                    final String id = request.params().get("idEleve");
+                    niveauEnseignementComplement.getNiveauEnsCplByEleve(id,defaultResponseHandler(request));
+                }
+            }
+        });
+    }
+
+
+
 }

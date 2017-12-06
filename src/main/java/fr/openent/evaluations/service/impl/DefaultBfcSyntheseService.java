@@ -56,6 +56,21 @@ public class DefaultBfcSyntheseService extends SqlCrudService implements BfcSynt
         Sql.getInstance().prepared(query.toString(),new JsonArray().addString(idEleve).addNumber(idCycle), SqlResult.validUniqueResultHandler(handler));
     }
 
+    @Override
+    public void getBfcSyntheseByIdsEleve(String[] idsEleve, Long idCycle, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray();
+
+        String query = "SELect * FROM "+ Viescolaire.EVAL_SCHEMA +".bfc_synthese WHERE id_eleve IN "+Sql.listPrepared(idsEleve)+"  AND id_Cycle = ? ";
+
+        for(String s:idsEleve){
+            values.addString(s);
+        }
+        values.addNumber(idCycle);
+
+        Sql.getInstance().prepared(query,values,SqlResult.validResultHandler(handler));
+
+    }
+
 
     // A partir d'un idEleve retourne idCycle dans lequel il est.(avec les requêtes getClasseByEleve de ClasseService et getCycle de UtilsService)
     @Override

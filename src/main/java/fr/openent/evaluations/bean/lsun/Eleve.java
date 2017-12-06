@@ -229,6 +229,10 @@ public class Eleve {
         this.codeDivision = value;
     }
 
+    /*public Eleve returnEleveObject(Object o){
+        if(equals(o)){
+        }
+    } */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

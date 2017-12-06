@@ -66,7 +66,7 @@ public class LSUController extends ControllerHelper {
         userService = new DefaultUserService();
         utilsService = new DefaultUtilsService();
         bfcService = new DefaultBFCService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_TABLE);
-        bfcSynthseService = new DefaultBfcSyntheseService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_SYNTHESE_TABLE)
+        bfcSynthseService = new DefaultBfcSyntheseService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_BFC_SYNTHESE_TABLE);
     }
 
     /**

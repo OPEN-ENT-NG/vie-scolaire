@@ -107,7 +107,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 poEvt.id_eleve = poEleve.id;
                 poEvt.id_appel = $scope.currentCours.appel.id;
                 poEvt.id_type = piTypeEvt;
-                poEvt.id_motif = 8;
+                poEvt.id_motif = null;
                 poEvt.id_cours = $scope.currentCours.id;
 
                 if (poEvt.id_type == $scope.oEvtType.giIdEvenementAbsence) {

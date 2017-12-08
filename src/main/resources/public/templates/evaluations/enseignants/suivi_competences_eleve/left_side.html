@@ -86,20 +86,24 @@
     <div class="header">
         <h2><i18n>viescolaire.utils.enseignementComplement</i18n></h2>
     </div>
+
     <section>
-        <label class="select">
-            <select ng-model="suiviCompetence.ensCplSelected" ng-change="loadEns()" ng-options ="ensCpl as ensCpl.libelle for ensCpl in suiviCompetence.ensCpls.all">
-            <option class="header-opt" value="" disabled ><i18n>[[translate('viescolaire.utils.enseignements')]]</i18n></option>
+        <label class="select" ng-class="{disabled : isChefEtab()}">
+            <select ng-disabled = "isChefEtab()" ng-model="suiviCompetence.ensCplSelected" ng-change="loadEns()" ng-options ="ensCpl as ensCpl.libelle for ensCpl in suiviCompetence.ensCpls.all">
+                <option class="header-opt" value="" disabled ><i18n>[[translate('viescolaire.utils.enseignements')]]</i18n></option>
             </select>
         </label>
     </section>
     <section ng-if="suiviCompetence.ensCplSelected.libelle !== suiviCompetence.ensCpls.all[0].libelle">
-        <label class="select">
-            <select ng-model="suiviCompetence.niveauEnsCplSelected"ng-change="loadNiveau()" ng-options="niveauEnsCpl as niveauEnsCpl.libelle for niveauEnsCpl in suiviCompetence.niveauEnsCpls.all">
+        <label class="select" ng-class="{disabled : isChefEtab()}">
+            <select ng-disabled = "isChefEtab()" ng-model="suiviCompetence.niveauEnsCplSelected"ng-change="loadNiveau()" ng-options="niveauEnsCpl as niveauEnsCpl.libelle for niveauEnsCpl in suiviCompetence.niveauEnsCpls.all">
                 <option class="header-opt" value="" disabled ><i18n>[[translate('level')]]</i18n></option>
             </select>
         </label>
     </section>
-    <button ng-disabled = "inactif" type ="button" ng-click="saveNiveauEnsCpl()"><i18n>viescolaire.utils.save</i18n></button>
+    <div ng-if="!isChefEtab()">
+        <button ng-disabled = "inactif" type ="button" ng-click="saveNiveauEnsCpl()"><i18n>viescolaire.utils.save</i18n></button>
+    </div>
+
 
 </div>

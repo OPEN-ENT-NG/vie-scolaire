@@ -83,12 +83,12 @@ export class EleveEnseignementCpl extends Model implements IModel{
         }
     }
 
-    async create (): Promise<{id:number}> {
+    async create (): Promise<number> {
         try {
-            let id = await http.post(this.api.create, this.toJSON());
-            this.id = id.data.id ;
-            return id;
-            // resolve()
+            let res = await http.post(this.api.create, this.toJSON());
+            this.id = res.data.id ;
+            return this.id;
+
         } catch (e) {
             //TODO NOTIFIER
             notify.error('Problème lors de la création');

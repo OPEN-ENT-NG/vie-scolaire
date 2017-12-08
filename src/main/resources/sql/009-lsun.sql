@@ -9,14 +9,14 @@ CREATE SEQUENCE notes.bfc_synthese_id_seq
     MAXVALUE 9223372036854775807
     CACHE 1;
 
-CREATE SEQUENCE notes.eleve_enscpl_id_seq
+CREATE SEQUENCE notes.eleve_enseignement_complement_id_seq
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 9223372036854775807
     CACHE 1;
 
-CREATE SEQUENCE notes.enscpl_id_seq
+CREATE SEQUENCE notes.enseignement_complement_id_seq
     INCREMENT 1
     START 1
     MINVALUE 1
@@ -24,7 +24,7 @@ CREATE SEQUENCE notes.enscpl_id_seq
     CACHE 1;
 
 CREATE TABLE notes.enseignement_complement (
-    id bigint NOT NULL DEFAULT nextval('notes.enscpl_id_seq'),
+    id bigint NOT NULL DEFAULT nextval('notes.enseignement_complement_id_seq'),
     libelle character varying(50) NOT NULL,
     code character varying(3)  NOT NULL,
     CONSTRAINT enscpl_pkey PRIMARY KEY (id)
@@ -32,7 +32,7 @@ CREATE TABLE notes.enseignement_complement (
 
 CREATE TABLE notes.eleve_enseignement_complement
 (
-    id bigint NOT NULL DEFAULT nextval('notes.eleve_enscpl_id_seq'),
+    id bigint NOT NULL DEFAULT nextval('notes.eleve_enseignement_complement_id_seq'),
     id_eleve character varying(36) NOT NULL,
     id_enscpl bigint NOT NULL,
     niveau bigint,

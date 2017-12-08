@@ -102,4 +102,6 @@ public interface EleveService extends CrudService {
      * @param result
      */
     public void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> result);
+
+    public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler);
 }

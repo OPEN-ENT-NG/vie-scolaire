@@ -32,41 +32,9 @@ export let listController = ng.controller('ListController', [
     '$scope','$rootScope','$location','$filter',
     async  function ($scope, $rootScope, $location, $filter) {
 
-        /**
-         * Retourne le libelle de la matière correspondant à l'identifiant passé en paramètre
-         * @param idMatiere identifiant de la matière
-         * @returns {any} libelle de la matière
-         */
-        $scope.getLibelleMatiere = function (idMatiere) {
-            if (idMatiere === undefined || idMatiere == null || idMatiere === "") return "";
-            let matiere = _.findWhere($scope.matieres.all, {id: idMatiere});
-            if (matiere !== undefined && matiere.hasOwnProperty('name')) {
-                return matiere.name;
-            } else {
-                return '';
-            }
-        };
-
-        $scope.getTeacherDisplayName = function (owner) {
-            if (owner === undefined || owner === null || owner === "") return "";
-            let ensenseignant = _.findWhere(evaluations.enseignants.all, {id: owner});
-            if (ensenseignant !== undefined && ensenseignant.hasOwnProperty('name')) {
-                return ensenseignant.firstName[0] + '.' + ensenseignant.name;
-            } else {
-                return '';
-            }
-        };
-
-        /**
-         * Format la date passée en paramètre
-         * @param date Date à formatter
-         * @returns {any|string} date formattée
-         */
-        $scope.getDateFormated = function (date) {
-            return utils.getFormatedDate(date, "DD/MM/YYYY");
-        };
         // Initialisation des variables
         $scope.initListDevoirs = function () {
+            $scope.openedDevoir = -1;
             $scope.devoirs =  evaluations.devoirs;
             $scope.search = {
                 eleve: evaluations.eleve,
@@ -100,6 +68,21 @@ export let listController = ng.controller('ListController', [
             res = filter(res, $scope.search.name);
 
             return (res.length > 0);
+        };
+
+        /**
+         * Ouvre le détail du devoir correspondant à l'index passé en paramètre
+         * @param index index du devoir
+         * @param bool état du détail
+         */
+        $scope.expand = function (index, bool) {
+            if ($scope.openedDevoir !== index) {
+                $scope.openedDevoir = index;
+            } else {
+                if (bool === true) {
+                    $scope.openedDevoir = -1;
+                }
+            }
         };
     }
 ]);

@@ -1,39 +1,79 @@
+<div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
 <section>
     <article class="five cell box-accueil twelve-mobile">
         <div class="content-box-accueil">
             <div class="titre-widget">
-                <h2 class="inline-block "><i18n>viescolaire.notes.title</i18n>&nbsp;:</h2>
+                <h2 class="inline-block "><i18n>evaluations.mes.evaluations</i18n></h2>
+                <label class="select right-magnet">
+                    <select ng-model="limitSelected"
+                            ng-init="initLimit()"
+                            ng-options="getLibelleLimit(limit) for limit in limits">
+                    </select>
+                </label>
             </div>
             <div class="content-box-accueil--table">
                 <div class="content-box-accueil--table--header row">
-                    <div class="four cell">
+                    <div class="two cell">
                         <h5><i18n>date</i18n></h5>
                     </div>
                     <div class="five cell">
-                        <h5><i18n>viescolaire.notes.title</i18n></h5>
+                        <h5><i18n>viescolaire.utils.subject</i18n></h5>
                     </div>
-                    <div class="three cell">
-                        <h5><i18n>viescolaire.utils.class</i18n></h5>
+                    <div class="two cell">
+                        <h5><i18n>viescolaire.evaluation.note</i18n></h5>
+                    </div>
+                    <div class="three cell competence-text-overflow">
+                        <h5><i18n>evaluations.competences.title</i18n></h5>
                     </div>
                 </div>
                 <div class="content-box-accueil--table--content" style="max-height: 220px;">
-                    <div  ng-repeat="devoir in devoirs.all | orderBy:'date':true" class="row">
-                        <a ng-href="#/devoir/[[devoir.id]]" >
-                            <div class="four cell">
+                    <div  ng-repeat="devoir in devoirs.all | limitTo:[[-limitSelected]] | orderBy:'date':true" class="row">
+                        <a ng-href="#/devoir/[[devoir.id]]">
+                            <div class="two cell competence-text-overflow"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
                                 [[getDateFormated(devoir.date)]]
                             </div>
-                            <div class="five cell">
-                                [[devoir.name]]
+                            <div class="five cell competence-text-overflow"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
+                                [[getLibelleMatiere(devoir.id_matiere)]]
                             </div>
-                            <div class="three cell">
-                                [[(getClasseData(devoir.id_groupe, 'name') === '' ||
-                                getClasseData(devoir.id_groupe, 'name') === undefined) ?
-                                getNameInOtherClasses(devoir.id_groupe,devoir.id)  :
-                                getClasseData(devoir.id_groupe, 'name')]]
+                            <div ng-if="devoir.annotation === undefined && devoir.note !== undefined"
+                                 class="two center cell competence-text-overflow"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
+                                    [[devoir.note]]
+                            </div>
+                            <div ng-if="devoir.annotation === undefined && devoir.note === undefined"
+                                 class="two center cell competence-text-overflow"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
+                                &nbsp;
+                            </div>
+                            <div ng-if="devoir.annotation !== undefined"
+                                 class="two center cell competence-text-overflow"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
+                                [[devoir.annotation.libelle_court]]
+                            </div>
+                            <div ng-if="devoir.competences !== undefined"
+                                 class="three inline-block align-center align-top">
+                                <proportion-suivi-competence evaluations="devoir.competences"
+                                                             filter="suiviFilter" user="me"
+                                                             is-classe="false"
+                                                             map-couleurs="mapCouleurs"
+                                                             map-lettres="mapLettres">
+                                </proportion-suivi-competence>
+                            </div>
+                            <div ng-if="devoir.competences === undefined"
+                                 class="three inline-block align-center align-top"
+                                 tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">
                             </div>
                         </a>
                     </div>
                 </div>
+            </div>
+            <div class="titre-widget">
+
+                <label class="right-magnet">
+                    <h5 class="inline-block "><a href="#/devoirs/list"><i18n>show.more</i18n></a></h5>
+                </label>
             </div>
         </div>
     </article>

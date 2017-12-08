@@ -2387,14 +2387,22 @@ body.evaluations {
       float: right;
     }
 
-    .list-devoirs table tbody tr:hover {
-      color: $orange;
+    .list-devoirs {
+      transition: all 100ms ease-out;
+      table tbody tr:hover {
+        color: $orange;
+      }
+      table tbody tr:nth-child(even){
+        background: $white !important;
+      }
     }
-    .responsive-table table tbody tr:nth-child(even){
-      background: rgba(0,0,0,0.05);
-    }
-    .responsive-table table tbody tr:nth-child(odd){
-      background: $white;
+    .responsive-table {
+      table tbody tr:nth-child(even){
+        background: rgba(0,0,0,0.05);
+      }
+      table tbody tr:nth-child(odd){
+        background: $white;
+      }
     }
     @media screen and (max-width: $tablette) {
       .notesDevoir {
@@ -2408,7 +2416,7 @@ body.evaluations {
       }
     }
     .responsive-table table tbody tr td {
-      padding: 0px;
+      padding: 5px;
       font-size: 14px;
     }
     .display-children {

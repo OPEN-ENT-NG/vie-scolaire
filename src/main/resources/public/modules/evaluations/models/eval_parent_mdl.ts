@@ -27,6 +27,8 @@ import { Matiere } from "./parent_eleve/Matiere";
 import { Eleve } from "./parent_eleve/Eleve";
 import { Enseignant } from "./parent_eleve/Enseignant";
 import {Periode} from "./parent_eleve/Periode";
+import {Structure} from "./teacher/eval_teacher_mdl";
+import {NiveauCompetence} from "./eval_niveau_comp";
 
 let moment = require('moment');
 declare let _: any;
@@ -40,6 +42,10 @@ export class Evaluations extends Model {
     devoirs: Collection<Devoir>;
     eleve: Eleve; // Elève courant
     periode: Periode; // Période courante
+    niveauCompetences: Collection<NiveauCompetence>;
+    arrayCompetences: any;
+    usePerso: any;
+
 
 
 
@@ -227,6 +233,7 @@ export class Evaluations extends Model {
             if (model.me.type === 'PERSRELELEVE') {
                 await this.eleves.sync();
                 this.eleve = this.eleves.first();
+                await this.updateUsePerso();
                 resolve ();
             }
             // Synchronisation des matières, enseignants, devoirs et de l'élève.
@@ -243,6 +250,7 @@ export class Evaluations extends Model {
 
                 await this.eleve.classe.sync();
                 await this.devoirs.sync(this.eleve.idStructure, this.eleve.id, null);
+                await this.updateUsePerso();
                 resolve();
             }
         });
@@ -262,6 +270,20 @@ export class Evaluations extends Model {
         }
 
         location.replace(uri);
+    }
+
+    async updateUsePerso () {
+        // Recup du ...
+        let s = new Structure({id:  model.me.structures[0]});
+        s.usePersoFun(model.me.userId).then(async(res) => {
+            this.niveauCompetences = s.niveauCompetences;
+            if (res) {
+                this.usePerso = 'true';
+            }
+            else {
+                this.usePerso = 'false';
+            }
+        });
     }
 }
 

@@ -182,6 +182,15 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         }
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
-
+    @Override
+    public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        query.append("SELECT id_cycle ")
+                .append(" FROM notes.rel_groupe_cycle ")
+                .append(" WHERE id_groupe = ? ");
+        values.addString(idClasse);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 
 }

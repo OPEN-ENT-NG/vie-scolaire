@@ -180,6 +180,7 @@
   "evaluation.list.empty": "Aucune évaluation n'a été créée.",
   "evaluation.student.list.empty": "Aucune évaluation ne correspond à vos critères.",
   "evaluations.suivi.classe.title":"Suivi classe",
+ "evaluations.mes.evaluations" : "Mes évaluations",
   "evaluations.mes.evaluations.non.terminees":"Mes évaluations non terminées",
   "evaluations.mes.evaluations.non.terminees.par.classe":"Mes évaluations non terminées par classe",
   "evaluations.mes.evaluations.par.peridoe":"Toutes mes évaluations par période",
@@ -354,6 +355,7 @@
   "devoir.errDatePubli" : "Vous ne pouvez pas saisir une date de publication antérieure à la date du devoir.",
   "true": "oui",
   "false": "non",
+  "show.more": "voir plus",
   "devoir.errDatePubli" : "Vous ne pouvez pas saisir une date de publication antérieure à la date du devoir.",
   "evaluation.bfc.export.button.eleve" : "Exporter le bilan de fin de cycle de l'élève au format PDF",
   "evaluation.bfc.export.button.classe" : "Exporter le bilan de fin de cycle de la classe au format PDF",
@@ -366,5 +368,6 @@
   "tuto.title":"Astuce",
   "tuto.bienvenu":"Bienvenue sur l'écran de saisie de notes et de compétences.Vous avez la possiblité d'évaluer les compétences au clavier. ",
   "tuto.raccourci":"Il suffit pour cela , de se positionner sur une pastille et utiliser la touche numérique correspondante :",
-  "keyboard.button":"Raccourci clavier"
+  "keyboard.button":"Raccourci clavier" ,
+  "last" : "dernières"
 }

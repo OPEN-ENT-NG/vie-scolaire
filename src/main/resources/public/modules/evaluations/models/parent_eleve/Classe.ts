@@ -5,15 +5,16 @@ import { translate } from "../../../utils/functions/translate";
 import {TypePeriode} from "../common/TypePeriode";
 
 export class Classe extends DefaultClasse {
+    id: string;
     periodes: Collection<Periode>;
     typePeriodes: Collection<TypePeriode>;
+    id_cycle: number;
 
 
     get api() {
         return {
-            syncClasse: '/viescolaire/classes/' + this.id + '/users?type=Student',
+            getCycle: '/viescolaire/cycle/eleve/' + this.id,
             syncGroupe: '/viescolaire/groupe/enseignement/users/' + this.id + '?type=Student',
-            syncClasseChefEtab: '/viescolaire/classes/' + this.id + '/users',
             syncPeriode: '/viescolaire/periodes?idGroupe=' + this.id,
 
             TYPEPERIODES: {
@@ -35,7 +36,10 @@ export class Classe extends DefaultClasse {
                         http().getJson(this.api.syncPeriode).done((res) => {
                             res.push({libelle: translate('viescolaire.utils.annee'), id: null});
                             this.periodes.load(res);
-                            resolve();
+                            http().getJson(this.api.getCycle).done( async (res) => {
+                                this.id_cycle = res[0].id_cycle;
+                                resolve();
+                            }).bind(this);
                         }).error(function () {
                             if (reject && typeof reject === 'function') {
                                 reject();

@@ -25,6 +25,7 @@ import { model, ng, idiom as lang, template } from 'entcore/entcore';
 import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
 import {Classe} from "../models/parent_eleve/Classe";
+import {Defaultcolors} from "../models/eval_niveau_comp";
 let moment = require('moment');
 
 declare let _: any;
@@ -71,14 +72,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          * @returns {Promise<void>}
          */
         $rootScope.init = async function () {
-            let initialise = () => {
+            let initialise = async () => {
                 if (model.me.type === 'ELEVE') {
                     $rootScope.eleve = evaluations.eleve;
                 }
                 else if (model.me.type === 'PERSRELELEVE') {
                     $rootScope.eleves = evaluations.eleves.all;
                 }
-                $rootScope.chooseChild (evaluations.eleve);
+                await $rootScope.chooseChild (evaluations.eleve);
             };
             if ($rootScope.eleve === undefined) {
                 await evaluations.sync();
@@ -126,6 +127,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $rootScope.matieres = evaluations.matieres;
             $rootScope.enseignants = evaluations.enseignants;
             $rootScope.setCurrentPeriode();
+            await $rootScope.updateNiveau(evaluations.usePerso);
+            $scope.update = false;
             utils.safeApply($scope);
         };
 
@@ -167,8 +170,117 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $rootScope.me = {
             type : model.me.type
         };
+        $rootScope.suiviFilter= {
+            mine : false
+        };
         $rootScope.isCurrentPeriode = function(periode) {
             return (periode.id === $rootScope.currentPeriodeId);
         };
+        /**
+         * Retourne le libelle de la matière correspondant à l'identifiant passé en paramètre
+         * @param idMatiere identifiant de la matière
+         * @returns {any} libelle de la matière
+         */
+        $rootScope.getLibelleMatiere = function (idMatiere) {
+            if (idMatiere === undefined || idMatiere == null || idMatiere === "") return "";
+            let matiere = _.findWhere($rootScope.matieres.all, {id: idMatiere});
+            if (matiere !== undefined && matiere.hasOwnProperty('name')) {
+                return matiere.name;
+            } else {
+                return '';
+            }
+        };
+
+        $rootScope.getTeacherDisplayName = function (owner) {
+            if (owner === undefined || owner === null || owner === "") return "";
+            let ensenseignant = _.findWhere(evaluations.enseignants.all, {id: owner});
+            if (ensenseignant !== undefined && ensenseignant.hasOwnProperty('name')) {
+                return ensenseignant.firstName[0] + '.' + ensenseignant.name;
+            } else {
+                return '';
+            }
+        };
+
+        /**
+         * Format la date passée en paramètre
+         * @param date Date à formatter
+         * @returns {any|string} date formattée
+         */
+        $rootScope.getDateFormated = function (date) {
+            return utils.getFormatedDate(date, "DD/MM");
+        };
+
+        $rootScope.saveTheme = function () {
+            $rootScope.chooseTheme();
+        };
+
+        $rootScope.updateColorAndLetterForSkills = async function () {
+            $rootScope.niveauCompetences = evaluations.niveauCompetences;
+            $rootScope.arrayCompetences = _.groupBy(evaluations.niveauCompetences.all,
+                {id_cycle : evaluations.eleve.classe.id_cycle}).true;
+            $rootScope.structure = {
+                usePerso: evaluations.usePerso
+            };
+            // chargement dynamique des couleurs du niveau de compétences
+            // et de la valeur max (maxOrdre)
+            $rootScope.mapCouleurs = {"-1": Defaultcolors.unevaluated};
+            $rootScope.mapLettres = {"-1": " "};
+            _.forEach($rootScope.arrayCompetences, function (niv) {
+                $rootScope.mapCouleurs[niv.ordre - 1] = niv.couleur;
+                $rootScope.mapLettres[niv.ordre - 1] = niv.lettre;
+            });
+            utils.safeApply($rootScope);
+        };
+        $rootScope.updateColorArray = async function () {
+            evaluations.arrayCompetences =
+                _.groupBy(evaluations.niveauCompetences.all,{id_cycle : evaluations.eleve.classe.id_cycle}).true;
+        };
+        $rootScope.updateNiveau =  async function (usePerso) {
+            if (usePerso === 'true') {
+                evaluations.usePerso = 'true';
+                evaluations.niveauCompetences.sync(false).then(async () => {
+                    if ($scope.update){
+                        await $rootScope.syncColorAndLetter();
+
+                    }
+                    else {
+                        evaluations.niveauCompetences.first().markUser().then(async () => {
+                            await $rootScope.syncColorAndLetter();
+                        });
+                    }
+                });
+
+            }
+            else if (usePerso === 'false') {
+                evaluations.usePerso = 'false';
+                evaluations.niveauCompetences.sync(true).then( async () => {
+                    if($rootScope.update) {
+                        await $rootScope.syncColorAndLetter();
+                    }
+                    else {
+                        evaluations.niveauCompetences.first().unMarkUser().then(async () => {
+                            await $rootScope.syncColorAndLetter();
+                        });
+                    }
+                });
+            }
+        };
+
+        $rootScope.syncColorAndLetter = async function () {
+            await $rootScope.updateColorArray();
+            $rootScope.updateColorAndLetterForSkills();
+            utils.safeApply($rootScope);
+        };
+        $rootScope.initLimit = function () {
+            $rootScope.limits = [5,10,15,20];
+            $rootScope.limitSelected = $rootScope.limits[0];
+        };
+
+        $rootScope.getLibelleLimit = function (limit) {
+            return limit +" " + lang.translate('last');
+        };
+
+        $rootScope.update = true;
+
     }
 ]);

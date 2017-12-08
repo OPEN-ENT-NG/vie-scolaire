@@ -9,6 +9,8 @@ import {cFilAriane} from "../../utils/directives/cFilAriane";
 import {listController} from "../controllers/eval_parent_devoirs";
 import {customSearchFilter} from "../filters/customSearch";
 import {uniqueFilter} from "../../utils/filters/unique";
+import {cSkillsBubble} from "../directives/cSkillsBubble";
+import {proportionSuiviCompetence} from "../directives/ProportionSuiviCompetence";
 
 // controllers
 ng.controllers.push(evaluationsController);
@@ -18,6 +20,9 @@ ng.controllers.push(listController);
 // directives
 ng.directives.push(cRoundAvatar);
 ng.directives.push(cFilAriane);
+ng.directives.push(proportionSuiviCompetence);
+ng.directives.push(cSkillsBubble);
+
 
 // filters
 ng.filters.push(customSearchFilter);

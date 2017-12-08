@@ -148,6 +148,16 @@ public class EleveController extends ControllerHelper {
         eleveService.getCompetences(idEleve,idPeriode,handler);
     }
 
+    @Get("/cycle/eleve/:idClasse")
+    @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCycleEleve(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        String idClasse = request.params().get("idClasse");
+        eleveService.getCycle(idClasse,handler);
+    }
+
     Long testLongFormatParameter(String name,final HttpServerRequest request) {
         Long param = null;
         try {

@@ -2387,70 +2387,71 @@ body.evaluations {
   }
 
   //EXPORT LSU
-  .filtre {
-    position: relative;
-    height: 25px;
-    overflow: hidden;
-    background: $white;
-    padding: 8px;
-    border-radius: 5px;
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
-    margin: 5px;
-    @include transition(all 100ms ease-out);
-    .plus-input {
-      right: 5px;
-      position: absolute;
-      top: 11px;
-      @include fonticon;
-      &::after {
-        content: "\e87b";
-        font-size: 15px;
-        color: $grey;
-        font-weight: 300;
-        opacity: 0.8;
-        cursor: pointer;
-        border: none;
-        background-color: inherit;
-        font-size: 10px;
+  .lsu {
+    .filtre {
+      position: relative;
+      height: 25px;
+      overflow: hidden;
+      background: $white;
+      padding: 8px;
+      border-radius: 5px;
+      box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
+      margin: 5px;
+      @include transition(all 100ms ease-out);
+      .plus-input {
+        right: 5px;
+        position: absolute;
+        top: 11px;
+        @include fonticon;
+        &::after {
+          content: "\e87b";
+          font-size: 15px;
+          color: $grey;
+          font-weight: 300;
+          opacity: 0.8;
+          cursor: pointer;
+          border: none;
+          background-color: inherit;
+          font-size: 10px;
+        }
+        &:hover::after {
+          color: $cyan;
+        }
       }
-      &:hover::after {
-        color: $cyan;
-      }
-    }
-    > h4 {
-      margin-bottom: 4px;
-      margin-top: 4px;
-      line-height: 20px;
+      > h4 {
+        margin-bottom: 4px;
+        margin-top: 4px;
+        line-height: 20px;
 
-    }
-
-  }
-  .filtre-classe {
-    &.opened {
-      height: 270px;
-    }
-    .selectable-list {
-      max-height: 195px;
-      overflow-y: scroll;
-      margin: 0;
-
-      li {
-        font-size: 12px;
-        padding: 2px;
       }
     }
-  }
-  .filtre-responsable {
-    &.opened {
-      height: 175px;
+    .filtre-classe {
+      &.opened {
+        height: 270px;
+      }
+      .selectable-list {
+        max-height: 195px;
+        overflow-y: scroll;
+        margin: 0;
+
+        li {
+          font-size: 12px;
+          padding: 2px;
+        }
+      }
     }
-    .selectable-list {
-      max-height: 100px;
-      overflow-y: auto;
-      margin: 0;
-      li {
-        font-size: 12px;
-        padding: 2px;
+    .filtre-responsable {
+      &.opened {
+        height: 175px;
+      }
+      .selectable-list {
+        max-height: 100px;
+        overflow-y: auto;
+        margin: 0;
+        li {
+          font-size: 12px;
+          padding: 2px;
+        }
       }
     }
   }

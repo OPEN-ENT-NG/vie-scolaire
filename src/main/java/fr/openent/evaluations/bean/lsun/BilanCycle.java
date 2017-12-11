@@ -170,6 +170,7 @@ public class BilanCycle {
      *     
      */
     public EnseignementComplement getEnseignementComplement() {
+
         return enseignementComplement;
     }
 
@@ -182,6 +183,8 @@ public class BilanCycle {
      *     
      */
     public void setEnseignementComplement(EnseignementComplement value) {
+
+
         this.enseignementComplement = value;
     }
 

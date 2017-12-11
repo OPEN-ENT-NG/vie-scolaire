@@ -335,10 +335,7 @@ public class DefaultUserService implements UserService {
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
 
-    //requete pour récupérer les élèves par rapport à leur propriété classes qui contient externalId de la classe reste à modifier pour parcourir les relations de élèves (propriété de l'élève)
-    //MATCH (c:Class)where c.id IN ['da626958-d494-4c56-99a6-3109c98391f5']with c Match (u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']}) WHERE c.externalId IN u.classes
-   // RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.firstName as firstName,u.relative as relative,r.externalId as externalIdRelative,
-    // r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city, c.id as idClass, c.name as nameClass ORDER BY nameClass, lastName
+
     @Override
     public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler){
         StringBuilder query = new StringBuilder();

@@ -354,6 +354,9 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                                 $scope.suiviCompetence.ensCplSelected=_.findWhere($scope.suiviCompetence.ensCpls.all,{id:$scope.suiviCompetence.eleveEnsCpl.id_enscpl});
                                 $scope.suiviCompetence.niveauEnsCplSelected = _.findWhere($scope.suiviCompetence.niveauEnsCpls.all,{niveau : $scope.suiviCompetence.eleveEnsCpl.niveau});
                                 utils.safeApply($scope);
+                        }else{
+                            $scope.suiviCompetence.niveauEnsCplSelected = $scope.suiviCompetence.eleveEnsCpl;
+                            utils.safeApply($scope);
                         }
                     });
                 });
@@ -364,17 +367,14 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                     if($scope.suiviCompetence.ensCplSelected.id === 1) {
                         // on met à jour le niveau à 0
                         $scope.suiviCompetence.niveauEnsCplSelected.niveau = 0;
-
                     } else {
                         //sinon on positionne sur le 1er niveau par défaut
                         $scope.suiviCompetence.niveauEnsCplSelected = $scope.suiviCompetence.niveauEnsCpls.all[0];
                     }
-                  //  $scope.suiviCompetence.niveauEnsCplSelected.id_enscpl = $scope.suiviCompetence.ensCplSelected.id;
                 };
                 $scope.loadNiveau = ()=>{
                     if($scope.suiviCompetence.ensCplSelected !== undefined) {
                         $scope.inactif = false;
-                      //  $scope.suiviCompetence.niveauEnsCplSelected.id_enscpl = $scope.suiviCompetence.ensCplSelected.id;
                     }
                 }
 

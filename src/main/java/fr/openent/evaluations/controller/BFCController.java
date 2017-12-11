@@ -260,7 +260,7 @@ public class BFCController extends ControllerHelper {
             @Override
             public void handle(UserInfos userInfos) {
                 log.debug("userInfos " + userInfos.toString());
-                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")){
+                if(userInfos!=null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     enseignementComplement.getEnseignementsComplement(handler);
                     log.debug("ensCpl " + handler.toString());

@@ -201,6 +201,9 @@ public class ObjectFactory {
     public EnseignementComplement createEnseignementComplement() {
         return new EnseignementComplement();
     }
+    public EnseignementComplement createEnseignementComplement(String code, Integer niveau){
+        return new EnseignementComplement(code, niveau );
+    }
 
     /**
      * Create an instance of {@link EpiEleve }

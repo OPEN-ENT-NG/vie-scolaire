@@ -45,7 +45,17 @@ public class EnseignementComplement {
     @XmlAttribute(name = "positionnement")
     protected BigInteger positionnement;
 
-    /**
+    public EnseignementComplement(){}
+    public EnseignementComplement(String code,Integer niveau){
+
+        if(niveau.equals(0)){
+            this.code = CodeEnsCompl.fromValue(code);
+        }else{
+            this.code = CodeEnsCompl.fromValue(code);
+            this.positionnement = BigInteger.valueOf(niveau);
+        }
+    }
+        /**
      * Gets the value of the code property.
      * 
      * @return

@@ -3,11 +3,20 @@ import { Responsable } from './Responsable';
 import { Eleve as SharedEleve} from "../shared/Eleve";
 import { Cours } from "./Cours";
 import { AbsencePrev } from "./AbsencePrev";
+import {syncedCollection} from "../../../utils/interfaces/syncedCollection";
+import {Structure} from "./Structure";
+import {Matiere} from "./Matiere";
+import {Enseignant} from "./Enseignant";
 
 export class Eleve extends SharedEleve {
     responsables: Collection<Responsable>;
     abscprev : Collection<AbsencePrev>;
-    cours: Collection<Cours>;
+    cours: any ;  // Collection<Cours>; Courseleve
+    className:string[];
+    groupName:string[];
+    classesId : string[];
+    groupesId: string[];
+    synchronized :any ;
 
     get api() {
         return _.extend(this.apiList, {
@@ -23,6 +32,12 @@ export class Eleve extends SharedEleve {
 
     constructor () {
         super();
+        this.cours =[] ;// à enlever Courseleve
+        this.synchronized = {
+            className : false,
+            groupName: false,
+            cours: false
+        };
         this.collection(Responsable, {
             sync: () => {
                 return new Promise((resolve, reject) => {
@@ -37,6 +52,86 @@ export class Eleve extends SharedEleve {
         this.collection(AbsencePrev);
 
     }
+    syncClasseGroupName(classesGroup,variable){
+        if(variable == 'classe'){
+            this.className =[];
+            _.each(this.classesId, (externalClasseId)=>{
+                let classe = _.findWhere(classesGroup, {externalId: externalClasseId});
+                if(classe != undefined)
+                this.className.push(classe.name)
+            });
+            this.synchronized.className = true;
+        }else{
+            this.groupName =[];
+            _.each(this.groupesId, (groupId)=>{
+                let group = _.findWhere(classesGroup, {id: groupId});
+                if(group != undefined)
+                    this.groupName.push(group.name)
+            });
+            this.synchronized.groupName = true;
+        }
+    }
+    syncCoursByStudid(structureId,firstDate, endDate , classeName) : Promise<any> {
+        return new Promise((resolve, reject) => {
+
+            let Url = '/directory/timetable/courses/'+structureId+'/'+firstDate+'/'+endDate+'?group=';
+            http().getJson(Url+classeName).done((data) => {
+                _.forEach(data,(cour) => {
+                    this.cours.push(cour) ;
+                });
+
+
+                if (resolve && typeof resolve === 'function') {
+                    resolve();
+                }
+
+            })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+    formatCourses ( matieres: Matiere[] , enseignants : Enseignant[],dateDb,datefn) {
+        const arr = [];
+        this.cours.forEach((course) => {
+            let numberWeek = Math.floor(moment(course.endDate).diff(course.startDate, 'days') / 7);
+           course.locked = true;
+            if (numberWeek > 0) {
+                let startMoment = moment(course.startDate);
+                let endMoment = moment(course.startDate);
+                endMoment.hour(moment(course.endDate).hour()).minute(moment(course.endDate).minute());
+                for (let i = 0; i < numberWeek + 1  ; i++) {
+                    let c = new Cours(course, startMoment.format(), endMoment.format());
+                    moment().format() > endMoment.format() ? c.color = 'red' : c.color = 'grey' ;
+                    c.subjectLabel = _.findWhere(matieres, {id : course.subjectId});
+                    let teacherNames = [];
+                    course.teacherIds.forEach((teacher) => {
+                        teacherNames.push(_.findWhere(enseignants, {id : teacher}))
+                    });
+                    c.enseignantName =  teacherNames;
+                    if(!(moment(endMoment).hour(0).minute(0).format('YYYY-MM-DD') < moment(dateDb).hour(0).minute(0).format('YYYY-MM-DD'))){arr.push(c)};
+                    startMoment = startMoment.add('days', 7);
+                    endMoment = endMoment.add('days', 7);
+                    if(moment(startMoment).hour(0).minute(0).format('YYYY-MM-DD') > moment(datefn).hour(0).minute(0).format('YYYY-MM-DD')){break;}
+                }
+            } else {
+                let c = new Cours(course, moment(course.startDate).format(), moment(course.endDate).format());
+                moment().format() > c.endMoment.format()  ? c.color = 'red' : c.color = 'grey' ;
+                let teacherNames = [];
+                course.teacherIds.forEach((teacher) => {
+                    teacherNames.push(_.findWhere(enseignants, {id : teacher}))
+                });
+                c.enseignantName =  teacherNames;
+                c.subjectLabel = _.findWhere(matieres, {id : course.subjectId});
+                arr.push(c);
+            }
+        });
+        this.cours = arr;
+    }
+
+
     syncCoursByStud(structureId, DateD, timeDb, DateF, timeFn): Promise<any> {
         return new Promise((resolve, reject) => {
             let Url = this.api.GET_Eleve_COURS+'/'+structureId+'/'+this.id+'/'+moment(DateD).format('YYYY-MM-DD')+'/'+moment(DateF).format('YYYY-MM-DD')+'/time/'+timeDb+'/'+timeFn;

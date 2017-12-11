@@ -29,7 +29,7 @@ var glob = require('glob');
 var colors = require('colors');
 
 var paths = {
-    infra: '../infra-front',
+    infra: './bower_components/entcore',
     toolkit: '../toolkit'
 };
 

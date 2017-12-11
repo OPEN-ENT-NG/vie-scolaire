@@ -412,4 +412,12 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
         params.addString(idEleve);
         Sql.getInstance().prepared(query.toString(),params, SqlResult.validResultHandler(handler));
     }*/
+
+    @Override
+    public void getCalcMillesimeValues (Handler<Either<String,JsonArray>> handler){
+        JsonArray values = new JsonArray();
+        String query = "SELECT * " +
+                        "FROM notes.calc_millesime";
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

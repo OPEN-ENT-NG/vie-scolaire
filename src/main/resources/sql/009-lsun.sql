@@ -62,3 +62,10 @@ CREATE TABLE notes.bfc_synthese
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+CREATE TABLE notes.calc_millesime
+(
+    code_level character varying(30),
+    increment integer,
+    CONSTRAINT code_level_unique UNIQUE (code_level)
+);

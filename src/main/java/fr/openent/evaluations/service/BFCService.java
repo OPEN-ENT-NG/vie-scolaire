@@ -63,4 +63,10 @@ public interface BFCService extends CrudService {
      * @param handler
      */
     // public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler);
+
+    /**
+     * Récupère les valeurs de la table calc_millesime
+     * @param handler
+     */
+    public void getCalcMillesimeValues (Handler<Either<String,JsonArray>> handler);
 }

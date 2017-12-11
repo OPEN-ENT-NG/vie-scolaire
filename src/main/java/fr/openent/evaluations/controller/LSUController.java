@@ -158,7 +158,7 @@ public class LSUController extends ControllerHelper {
                                 JsonObject o = jsonElevesRelatives.get(i);
                                 if (!eleves.containIdEleve(o.getString("idNeo4j"))) {
                                     eleve = objectFactory.createEleve(o.getString("externalId"), o.getString("attachmentId"), o.getString("firstName"),
-                                    o.getString("lastName"),o.getString("nameClass"),o.getString("idNeo4j"),o.getString("idClass"));
+                                    o.getString("lastName"),o.getString("nameClass"),o.getString("idNeo4j"),o.getString("idClass"),o.getString("level"));
                                     eleves.add(eleve);
                                 } else {
                                     eleve = eleves.getEleveById(o.getString("idNeo4j"));
@@ -299,13 +299,12 @@ public class LSUController extends ControllerHelper {
      * @param handler
      */
 
-    private void getBaliseBilansCycle(final Donnees donnees, final List<String> idsClass, final String idStructure, final Handler<String> handler) {
-        final Date millesime = new Date();
-        final SimpleDateFormat formatYear = new SimpleDateFormat("yyyy");
+    private void getBaliseBilansCycle(final Donnees donnees,final JsonArray calcMillesimeValues, final List<String> idsClass, final String idStructure, final Handler<String> handler) {
         final SimpleDateFormat formatDateVerrou = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         final SimpleDateFormat dfYYYYMMdd = new SimpleDateFormat("yyyy-MM-dd");
         final Donnees.BilansCycle bilansCycle = objectFactory.createDonneesBilansCycle();
         final Donnees.Eleves eleves = donnees.getEleves();
+        final JsonArray vCalcMillesimeValues = calcMillesimeValues;
         final Map<String, List<String>> mapIdClassIdsEleve = eleves.getMapIdClassIdsEleve();
 
         getIdClassIdCycleValue(idsClass, new Handler<Either<String, List<Map>>>() {
@@ -346,8 +345,24 @@ public class LSUController extends ControllerHelper {
                                                                         final JsonArray listEnsCplDesEleve = repEleveEnsCpl.right().getValue();
 
                                                                        nbIdEleve.addAndGet(idsEleve.length);//compteur
+                                                                       int millesimeClass = 0;
                                                                        for (String idEleve : idsEleve) {
                                                                            Eleve eleve = eleves.getEleveById(idEleve);
+
+                                                                           for (int i = 0; i< vCalcMillesimeValues.size() && millesimeClass == 0; i++) {
+                                                                               // On calcule le millésime si ce n'est pas déjà fait
+                                                                               JsonObject calcMillesimeValue = vCalcMillesimeValues.get(i);
+                                                                               if(null != eleve.getLevel()
+                                                                                       && !eleve.getLevel().isEmpty()
+                                                                                       && eleve.getLevel().contains(calcMillesimeValue.getString("code_level"))){
+                                                                                   millesimeClass = getMillesimeClass(calcMillesimeValue.getInteger("increment"));
+                                                                               }
+                                                                           }
+                                                                           // Cas particulier : si aucun millésime on sette celui de cette année
+                                                                           if(millesimeClass == 0){
+                                                                               millesimeClass = getMillesimeClass(0);
+                                                                           }
+
                                                                            //synthese et domaine et enscpl ok alors ajouter le bilanCycle à l'élève sinon stocké l'élève
                                                                            final BilanCycle bilanCycle = objectFactory.createBilanCycle();
                                                                            final BilanCycle.Responsables responsables = objectFactory.createBilanCycleResponsables();
@@ -356,7 +371,7 @@ public class LSUController extends ControllerHelper {
                                                                            ResponsableEtab responsableEtabRef = donnees.getResponsablesEtab().getResponsableEtab().get(0);
                                                                            bilanCycle.setResponsableEtabRef(responsableEtabRef);
                                                                            bilanCycle.setEleveRef(eleve);
-                                                                           bilanCycle.setMillesime(formatYear.format(millesime));
+                                                                           bilanCycle.setMillesime(Integer.toString(millesimeClass));
                                                                            bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
                                                                            responsables.getResponsable().addAll(eleve.getResponsableList());
                                                                            bilanCycle.setResponsables(responsables);
@@ -480,6 +495,29 @@ public class LSUController extends ControllerHelper {
         });
     }
 
+    /**
+     * Détermine le millésime à partir de la date du jour
+     * @param increment
+     * @return millesime Class
+     */
+    private int getMillesimeClass(int increment) {
+        int millesimeClass;Calendar today = Calendar.getInstance();
+
+        Calendar endJuly = Calendar.getInstance();
+        endJuly.set(Calendar.DAY_OF_MONTH, 31);
+        endJuly.set(Calendar.MONTH, 7);
+
+        Calendar endDecember = Calendar.getInstance();
+        endDecember.set(Calendar.DAY_OF_MONTH, 31);
+        endDecember.set(Calendar.MONTH, 12);
+        millesimeClass = today.get(Calendar.YEAR) + increment;
+        // Si on est entre le 31 juillet et le 31 décembre on ajoute une année au millésime
+        if(today.before(endDecember) && today.after(endJuly)){
+            millesimeClass ++ ;
+        }
+        return millesimeClass;
+    }
+
     void finbfc(int nbClassesTraitees, int nbClasses, Handler<String> handler ){
         if(nbClassesTraitees == nbClasses){
             handler.handle("success");
@@ -560,19 +598,39 @@ public class LSUController extends ControllerHelper {
 
                                     getBaliseEleves(donnees, idsClasse, new Handler<String>() {
                                         @Override
-                                        public void handle(String event) {
+                                        public void handle(final String event) {
                                             if (event.equals("success")) {
-
-                                                getBaliseBilansCycle(donnees, idsClasse, idStructure, new Handler<String>() {
+                                                bfcService.getCalcMillesimeValues(new Handler<Either<String, JsonArray>>(){
                                                     @Override
-                                                    public void handle(String event) {
-                                                        if (event.equals("success")) {
+                                                    public void handle(Either<String, JsonArray> responseCalcMillesime) {
+                                                        if (responseCalcMillesime.isRight()) {
+                                                            if(responseCalcMillesime.right().getValue() != null
+                                                                    && responseCalcMillesime.right().getValue().isArray()
+                                                                    && responseCalcMillesime.right().getValue().size() > 0){
+                                                                JsonArray calcMillesimeValues = responseCalcMillesime.right().getValue();
 
-                                                            lsunBilans.setDonnees(donnees);
-                                                            returnResponse(request, lsunBilans);
+                                                                getBaliseBilansCycle(donnees,calcMillesimeValues, idsClasse, idStructure, new Handler<String>() {
+                                                                    @Override
+                                                                    public void handle(String event) {
+                                                                        if (event.equals("success")) {
+
+                                                                            lsunBilans.setDonnees(donnees);
+                                                                            returnResponse(request, lsunBilans);
+                                                                        } else {
+                                                                            leftToResponse(request, new Either.Left<>(event));
+                                                                            log.error("getXML : getBaliseBilansCycle" + event);
+                                                                        }
+                                                                    }
+                                                                });
+
+
+                                                            } else{
+                                                                leftToResponse(request, new Either.Left<>(event));
+                                                                log.error("An error occured when collecting CalcMillesime Values is empty : " + responseCalcMillesime.left().getValue());
+                                                            }
                                                         } else {
                                                             leftToResponse(request, new Either.Left<>(event));
-                                                            log.error("getXML : getBaliseBilansCycle" + event);
+                                                            log.error("An error occured when collecting CalcMillesime Values : " + responseCalcMillesime.left().getValue());
                                                         }
                                                     }
                                                 });

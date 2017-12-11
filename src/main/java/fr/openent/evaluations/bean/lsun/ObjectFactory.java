@@ -238,8 +238,8 @@ public class ObjectFactory {
     public Eleve createEleve() {
         return new Eleve();
     }
-    public Eleve createEleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass){
-        return new Eleve( externalId, attachementId, firstName, lastName,  nameClass,  idNeo4j, idClass);
+    public Eleve createEleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass,String level){
+        return new Eleve( externalId, attachementId, firstName, lastName,  nameClass,  idNeo4j, idClass,level);
     }
     /**
      * Create an instance of {@link AccPerso }

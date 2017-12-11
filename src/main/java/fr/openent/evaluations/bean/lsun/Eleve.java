@@ -62,10 +62,14 @@ public class Eleve {
     protected String codeDivision;
     @XmlTransient
     protected  String idNeo4j;
-   @XmlTransient
+    @XmlTransient
     protected List<Responsable> responsableList;
     @XmlTransient
     protected String id_Class;
+
+
+    @XmlTransient
+    protected String level;
 
 
 
@@ -73,7 +77,7 @@ public class Eleve {
     public Eleve() {
         responsableList = new ArrayList<>();
     }
-    public Eleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass){
+    public Eleve(String externalId,String attachementId,String firstName, String lastName, String nameClass, String idNeo4j,String idClass,String level){
         this.id="EL_"+externalId;
         this.idBe=new BigInteger(attachementId);
         this.prenom=firstName;
@@ -81,6 +85,7 @@ public class Eleve {
         this.codeDivision=nameClass;
         this.idNeo4j=idNeo4j;
         this.id_Class=idClass;
+        this.level = level;
         responsableList = new ArrayList<>();
     }
     public String getId_Class() {
@@ -91,6 +96,9 @@ public class Eleve {
         this.id_Class = id_Class;
     }
 
+    public String getLevel() { return level;    }
+
+    public void setLevel(String level) {  this.level = level;  }
 
     public String getIdNeo4j() {
         return idNeo4j;

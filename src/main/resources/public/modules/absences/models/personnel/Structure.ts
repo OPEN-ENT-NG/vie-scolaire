@@ -49,6 +49,7 @@ export class Structure extends SharedStructure {
     synchronized: any;
     isWidget: boolean;
 
+
     pODateDebut: any;
     pODateFin: any;
 

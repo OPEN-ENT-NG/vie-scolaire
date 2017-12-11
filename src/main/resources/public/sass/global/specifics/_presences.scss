@@ -1158,6 +1158,9 @@ body.presences {
       .card{
         padding: 1.5%;
       }
+      filters{
+        top: 47px;
+        left: 2%;}
       .creneau{
         padding-right: 0.5%;
         .inline-child{
@@ -1169,6 +1172,13 @@ body.presences {
       .motif{
         padding-left: 1%;
         border-left: 1px grey dashed;
+      }
+      div.calendardiv{
+         .calendar-current-week{
+           width: 98% !important;
+         }
+          margin-top: 40px;
+
       }
     }
 
@@ -1234,6 +1244,16 @@ body.presences {
 
   .first-letter-uppercase:first-letter {
     text-transform: uppercase;
+  }
+  .schedule-item-content{
+    &.red{
+      background: #ef7f8f !important;
+      color: white !important;
+    }
+    &.grey{
+      background: #ddd !important;
+      color: black !important;
+    }
   }
 
 }

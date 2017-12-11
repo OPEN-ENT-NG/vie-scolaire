@@ -35,7 +35,7 @@ var colors = require('colors');
 var jsInfraPath = './bower_components/entcore';
 
 var paths = {
-    infra: '../infra-front',
+    infra: './bower_components/entcore',
     toolkit: '../toolkit'
 };
 

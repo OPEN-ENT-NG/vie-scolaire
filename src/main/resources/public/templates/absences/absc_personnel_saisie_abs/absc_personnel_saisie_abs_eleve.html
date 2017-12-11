@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="nine cell padding-sm">
-                    <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className]]</h2>
+                    <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className[0] ]]</h2>
                     <p>[[selected.eleve.birthDate]]</p>
                     <div class="row action-item">
                         <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
@@ -24,6 +24,7 @@
                         </a>
                     </div>
                 </div>
+
             </div>
         </article>
 
@@ -48,28 +49,31 @@
 
     </div>
 
-    <div class="right-side">
 
-        <!-- Saisie des données -->
-        <div class="twelve cell card">
-            <h3>Saisir une période d'absence</h3>
-            <!-- Créneau -->
-            <div class="row">
-                <label class="two cell" style="font-size: 18px;font-weight: bold;">Créneau</label>
-                <div class="ten cell inline-child">
-                    <label><i18n>viescolaire.utils.from</i18n> </label>
-                    <label >
-                        <i class="calendar"></i>
-                        <date-picker class="pointer" ng-model="selected.dateDb" ng-change=""></date-picker>
-                        <input type="time" ng-model="selected.timeDb" >
-                    </label>
-                    <label><i18n>viescolaire.utils.to</i18n> </label>
-                    <label>
-                        <i class="calendar"></i>
-                        <date-picker class="pointer" ng-model="selected.dateFn" ng-change=""></date-picker>
-                        <input type="time" ng-model="selected.timeFn" >
-                    </label>
+    <!-- créneau-->
+    <div class="right-side">
+        <div class=" twelve cell card  ">
+            <div class = " creneau six cell">
+                <h3><i18n>time-slot</i18n></h3>
+                <div class="inline-child">
+                    <div>
+                        <label><i18n>viescolaire.utils.from</i18n></label>
+                        <label >
+                            <i class="calendar"></i>
+                            <date-picker class="pointer" ng-model="selected.dateDb" ></date-picker>
+                            <input type="time" ng-model="selected.timeDb" >
+                        </label>
+                    </div>
+                    <div>
+                        <label><i18n>viescolaire.utils.to</i18n></label>
+                        <label>
+                            <i class="calendar"></i>
+                            <date-picker class="pointer" ng-model="selected.dateFn" ></date-picker>
+                            <input type="time" ng-model="selected.timeFn" >
+                        </label>
+                    </div>
                 </div>
+
             </div>
             <!-- Motif -->
             <div class="row">
@@ -80,28 +84,23 @@
                     <option value="29">Sans motif</option>
                 </select>
             </div>
-
+            <!-- cours non caché-->
+            <!-- Vue time ligne-->
         </div>
 
-        <!-- Affichage calendar -->
-        <div class="twelve cell">
-            <div class="row" style="height: 500px;">
-                <p>...Calendrier...</p>
-            </div>
-            <div class="row">
-                <div class="three cell">
-
-                </div>
-                <div class="six cell">
-                    <p style="text-align: center">0 conflits</p>
-                </div>
-                <div class="three cell">
-                    <button class="right-magnet">Confirmer</button>
-                </div>
-            </div>
+        <filters ng-show="display.calendar">
+            <li class="changeWeekButton">
+                <button ng-disabled="!allowDisplay.prev" class="changeWeekButtonBack" ng-click="previousWeekButton(); ">&#8592;</button>
+                <button ng-disabled="!allowDisplay.next" class="changeWeekButtonNext" ng-click="nextWeekButton(); ">&#8594;</button>
+            </li>
+        </filters>
+        <div class="calendardiv twelve cell card" ng-show="display.calendar">
+            <calendar
+                    display-template="../templates/absences/absc_personnel_saisie_abs/calendar-cours-display"
+                    items="selected.eleve.cours"
+            >
+            </calendar>
         </div>
-
-
     </div>
 
     <!-- Lightbox qui affiche toutes les absences -->
@@ -113,7 +112,6 @@
                 <div ng-include src="'/viescolaire/public/templates/absences/absc_personnel_show_simple_and_prev.html'"></div>
             </div>
         </div>
-
         <!-- Footer avec bouton fermer -->
         <button class="right-magnet" ng-click="showLightboxAllAbsences(false)"><i18n>viescolaire.fermer</i18n></button>
     </lightbox>

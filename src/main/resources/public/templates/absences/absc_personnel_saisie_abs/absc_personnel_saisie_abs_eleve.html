@@ -75,14 +75,26 @@
                 </div>
 
             </div>
-            <!-- Motif -->
-            <div class="row">
-                <label class="two cell" style="font-size: 18px;font-weight: bold;">Motif</label>
-                <select class="ten cell">
-                    <option value="9">Maladie avec justificatif</option>
-                    <option value="28">Hospitalisation</option>
-                    <option value="29">Sans motif</option>
-                </select>
+            <div class = "motif six cell">
+                <h3><i18n>viescolaire.utils.reason</i18n></h3>
+                <label class="select-input">
+                    <select>
+                        <optgroup label="Motifs non justifiés">
+                            <option value="8">Sans motif</option>
+                            <option value="21">Maladie sans certificat médical</option>
+                            <option value="18">Vacances prolongées</option>
+                        </optgroup><optgroup label="Motifs justifiés">
+                        <option value="20">Maladie avec certificat médical</option>
+                        <option value="24">Retard train</option>
+                        <option value="19">Motif justifiant par défaut</option>
+                        <option value="9">Maladie avec justificatif</option>
+                        <option value="28">Hospitalisation</option>
+                        <option value="29">Comme d'hab</option>
+                    </optgroup>
+                    </select>
+                    <button><i18n>save</i18n></button>
+                </label>
+
             </div>
             <!-- cours non caché-->
             <!-- Vue time ligne-->

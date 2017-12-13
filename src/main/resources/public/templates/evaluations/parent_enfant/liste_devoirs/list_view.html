@@ -53,42 +53,42 @@
                     ng-repeat-start="devoir in devoirs.all | customSearchFilters:search  | filter:search.name ">
                 <td  ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         data-label="[[translate('viescolaire.utils.date')]]">
-                    [[getDateFormated(devoir.date)]]
+                    <div class="firstElem">[[getDateFormated(devoir.date)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.subject')]]" >
-                    [[getLibelleMatiere(devoir.id_matiere)]]
+                    <div>[[getLibelleMatiere(devoir.id_matiere)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.name')]]">
-                    [[devoir.name]]
+                    <div>[[devoir.name]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.teacher')]]">
-                    [[getTeacherDisplayName(devoir.owner)]]
+                    <div>[[getTeacherDisplayName(devoir.owner)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.competences !== undefined"
                     class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
-                    [[devoir.competences.length]]
+                    <div>[[devoir.competences.length]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.competences === undefined"
                     class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
-                    [[0]]
+                    <div> [[0]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.annotation === undefined"
                     data-label="[[translate('viescolaire.evaluation.note')]]">
-                    [[devoir.note]]
+                    <div>[[devoir.note ? devoir.note : "&nbsp;"]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.annotation !== undefined"
                     data-label="[[translate('viescolaire.evaluation.note')]]">
-                    [[devoir.annotation.libelle_court]]
+                    <div>[[devoir.annotation.libelle_court]]</div>
                 </td>
                 <td class="one cell-check expandable-content zero-mobile">
-                    <span class="plus-input" ng-click="expand($index, true)"></span>
+                    <div class="lastElem"> <span class="plus-input" ng-click="expand($index, true)"></span></div>
                 </td>
             </tr>
             <tr ng-repeat-end

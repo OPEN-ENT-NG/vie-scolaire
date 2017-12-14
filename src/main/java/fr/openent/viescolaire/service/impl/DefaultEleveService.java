@@ -192,5 +192,15 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         values.addString(idClasse);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
-
+    @Override
+    public void getAppreciationDevoir(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonArray values = new JsonArray();
+        query.append("SELECT valeur as appreciation  ")
+                .append(" FROM notes.appreciations INNER JOIN notes.devoirs  ON appreciations.id_devoir = devoirs.id ")
+                .append(" WHERE id_eleve = ?  AND id_devoir = ? AND devoirs.apprec_visible = true");
+        values.addString(idEleve);
+        values.addNumber(idDevoir);
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
 }

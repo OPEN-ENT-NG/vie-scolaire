@@ -40,18 +40,20 @@ export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$root
                     url : ""
                 };
                 let url = $route.originalPath;
-                if (getSize($route.current.params) > 0) {
+                if (getSize($route.current.params) > 0 && url !== undefined) {
                     let params = $route.current.params;
                     _.map(params, (param) => {
-                        param.done = false;
+                        if (typeof param !== 'string'){
+                            param.done = false;
+                        }
                     });
                     for (let p in params) {
-                        if (url.indexOf(':' + p)) {
-                            url.replace(':' + p, params[p]);
-                        } else {
-                            if (url.indexOf('?') === -1) url = url + '?';
-                            url = url + p + '=' + params[p] + '&';
-                        }
+                            if (url.indexOf(':' + p)) {
+                                url.replace(':' + p, params[p]);
+                            } else {
+                                if (url.indexOf('?') === -1) url = url + '?';
+                                url = url + p + '=' + params[p] + '&';
+                            }
                     }
                     state.url = url.slice(0, -1);
                 }

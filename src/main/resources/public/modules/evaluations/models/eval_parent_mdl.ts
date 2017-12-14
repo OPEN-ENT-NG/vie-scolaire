@@ -27,7 +27,7 @@ import { Matiere } from "./parent_eleve/Matiere";
 import { Eleve } from "./parent_eleve/Eleve";
 import { Enseignant } from "./parent_eleve/Enseignant";
 import {Periode} from "./parent_eleve/Periode";
-import {Structure} from "./teacher/eval_teacher_mdl";
+import {Domaine, Structure} from "./teacher/eval_teacher_mdl";
 import {NiveauCompetence} from "./eval_niveau_comp";
 
 let moment = require('moment');
@@ -43,8 +43,10 @@ export class Evaluations extends Model {
     eleve: Eleve; // Elève courant
     periode: Periode; // Période courante
     niveauCompetences: Collection<NiveauCompetence>;
+    domaines: Collection<Domaine>;
     arrayCompetences: any;
     usePerso: any;
+    composer: any;
 
 
 
@@ -56,7 +58,8 @@ export class Evaluations extends Model {
             GET_MATIERES : '/viescolaire/matieres/infos?',
             GET_ENSEIGNANTS : '/viescolaire/enseignants?',
             GET_COMPETENCES :'/viescolaire/competences/eleve/',
-            GET_ANNOTATION : '/viescolaire/annotations/eleve/'
+            GET_ANNOTATION : '/viescolaire/annotations/eleve/',
+            GET_ARBRE_DOMAINE : '/viescolaire/evaluations/domaines/classe/'
         };
     }
 
@@ -224,6 +227,36 @@ export class Evaluations extends Model {
                                     });
                                 }).bind(this);
                             }).bind(this);
+                        }).bind(this);
+                    });
+                }
+            });
+            this.collection(Domaine, {
+                sync: async function (classe, eleve, competences) {
+                    let that = this.composer;
+                    return new Promise((resolve, reject) => {
+                        var url = that.api.GET_ARBRE_DOMAINE + classe.id;
+                        http().getJson(url).done((resDomaines) => {
+                                if (resDomaines) {
+                                    let _res = [];
+                                    for (let i = 0; i < resDomaines.length; i++) {
+
+                                        let domaine = new Domaine(resDomaines[i]);
+                                        if(domaine.competences) {
+                                            _.map(domaine.competences.all, function (competence) {
+                                                competence.competencesEvaluations = _.where(competences, {
+                                                    id_competence: competence.id
+                                                });
+
+                                            });
+                                        }
+                                        _res.push(domaine);
+                                    }
+                                    that.domaines.load(_res);
+                                }
+                                if (resolve && typeof (resolve) === 'function') {
+                                    resolve();
+                                }
                         }).bind(this);
                     });
                 }

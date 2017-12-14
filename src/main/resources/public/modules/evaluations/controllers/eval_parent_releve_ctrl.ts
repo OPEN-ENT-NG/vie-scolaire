@@ -92,7 +92,7 @@ export let releveController = ng.controller('ReleveController', [
         };
 
         // Initialisation des variables du relevé
-        $scope.initReleve = function () {
+        $scope.initReleve = async function () {
             $scope.dataReleve = {
                 devoirs : evaluations.devoirs
             };
@@ -106,7 +106,7 @@ export let releveController = ng.controller('ReleveController', [
             };
             $scope.matieres = evaluations.matieres;
             $scope.translate = lang.translate;
-            $scope.calculMoyenneMatieres();
+            await $scope.loadReleveNote();
             utils.safeApply($scope);
         };
 

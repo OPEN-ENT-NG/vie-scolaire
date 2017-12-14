@@ -7,6 +7,5 @@ export class Eleve extends DefaultEleve {
 
     constructor(o?: any) {
         super(o);
-        http().getJson()
     }
 }

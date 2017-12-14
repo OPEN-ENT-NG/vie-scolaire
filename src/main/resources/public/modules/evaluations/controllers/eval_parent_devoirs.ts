@@ -24,6 +24,7 @@
 import {ng, idiom as lang} from 'entcore/entcore';
 import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
+import {SuiviCompetence, Structure} from "../models/teacher/eval_teacher_mdl";
 
 declare let _: any;
 declare let window: any;
@@ -33,7 +34,7 @@ export let listController = ng.controller('ListController', [
     async  function ($scope, $rootScope, $location, $filter) {
 
         // Initialisation des variables
-        $scope.initListDevoirs = function () {
+        $scope.initListDevoirs = async function () {
             $scope.openedDevoir = -1;
             $scope.devoirs =  evaluations.devoirs;
             $scope.search = {
@@ -49,6 +50,20 @@ export let listController = ng.controller('ListController', [
             $scope.matieres = evaluations.matieres;
             $scope.enseignants = evaluations.enseignants;
             $scope.translate = lang.translate;
+            if($location.path().split('/')[2] !== "list") {
+                let devoirId = $location.path().split('/')[2];
+                $rootScope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id: parseInt(devoirId)});
+                if ($rootScope.currentDevoir !== undefined) {
+                    await evaluations.domaines.sync(evaluations.eleve.classe, evaluations.eleve,
+                        $rootScope.currentDevoir.competences);
+                    await $rootScope.currentDevoir.getAppreciation(evaluations.eleve.id);
+
+                    $scope.suiviCompetence = {
+                        domaines: evaluations.domaines
+                    };
+                    utils.safeApply($scope);
+                }
+            }
             utils.safeApply($scope);
         };
         await $rootScope.init();
@@ -82,6 +97,36 @@ export let listController = ng.controller('ListController', [
                 if (bool === true) {
                     $scope.openedDevoir = -1;
                 }
+            }
+        };
+
+        $scope.FilterNotEvaluated = function (maCompetence) {
+            var _t = maCompetence.competencesEvaluations;
+            var max = _.max(_t, function (evaluation) {
+                return evaluation.evaluation;
+            });
+            if (typeof max === 'object') {
+                return (!(max.evaluation == -1));
+            }
+            else {
+                return false;
+            }
+        };
+        $scope.FilterNotEvaluatedDomaine = function (monDomaineCompetence) {
+            _.forEach(monDomaineCompetence.competences.all, function (maCompetence) {
+                if($scope.FilterNotEvaluated(maCompetence)){
+                    return true;
+                }
+            });
+            return false;
+        };
+        $scope.incrementDevoir = function (num) {
+            let index = _.findIndex(evaluations.devoirs.all, {id: $rootScope.currentDevoir.id});
+            if (index !== -1 && (index + parseInt(num)) >= 0
+                && (index + parseInt(num)) < evaluations.devoirs.all.length) {
+                let target = evaluations.devoirs.all[index + parseInt(num)];
+                $scope.goToDevoir('#/devoir/' +target.id);
+                utils.safeApply($scope);
             }
         };
     }

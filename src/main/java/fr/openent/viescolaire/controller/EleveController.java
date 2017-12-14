@@ -158,6 +158,22 @@ public class EleveController extends ControllerHelper {
         eleveService.getCycle(idClasse,handler);
     }
 
+    @Get("appreciation/devoir/:idDevoir/eleve/:idEleve")
+    @ApiDoc("Récupère l'appréciation d'un devoir pour un élève.")
+    @ResourceFilter(AccessAuthorozed.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getAppreciationDevoirEleve(final HttpServerRequest request) {
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+        String idEleve = request.params().get("idEleve");
+        Long idDevoir = null;
+        if (request.params().get("idDevoir") != null) {
+            idDevoir = testLongFormatParameter("idDevoir", request);
+            eleveService.getAppreciationDevoir(idDevoir, idEleve,handler);
+        }
+        else {
+            badRequest(request, "Invalid parameter");
+        }
+    }
     Long testLongFormatParameter(String name,final HttpServerRequest request) {
         Long param = null;
         try {

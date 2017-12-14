@@ -2383,6 +2383,21 @@ body.evaluations {
   }
 
   .eval_parent {
+    i.previous {
+      display: inline-block !important;
+      float: left !important;
+    }
+    i.next {
+      display: inline-block !important;
+      float: right !important;
+    }
+    .DevoirField {
+      border: solid 1px $grey;
+      padding-left: 5px;
+    }
+    .content-box-accueil--table--content>.row {
+      height: 45px;
+    }
     .floatRight {
       float: right;
     }
@@ -2512,10 +2527,6 @@ body.evaluations {
     .round-avatar {
       top: 10px;
       right: 10px;
-    }
-
-    .row + .row {
-      margin-top: 15px;
     }
 
     .content {

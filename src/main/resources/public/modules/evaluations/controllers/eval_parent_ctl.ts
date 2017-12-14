@@ -64,6 +64,13 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 template.close('menu');
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 utils.safeApply($scope);
+            },
+            viewDevoir : async function (params) {
+                await $rootScope.init();
+                template.close('menu');
+                template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
+                template.open('main', '../templates/evaluations/parent_enfant/liste_devoirs/display_devoir');
+                utils.safeApply($scope);
             }
         });
 

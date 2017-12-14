@@ -32,6 +32,7 @@ routes.define(function($routeProvider) {
     $routeProvider
         .when('/',{action:'accueil'})
         .when('/devoirs/list', {action:'listDevoirs'})
+        .when('/devoir/:devoirId', {action:'viewDevoir'})
         .when('/releve', {action:'displayReleveNotes'})
         .when('/competences/eleve', {action:'displayBilanDeCompetence'})
         .otherwise({

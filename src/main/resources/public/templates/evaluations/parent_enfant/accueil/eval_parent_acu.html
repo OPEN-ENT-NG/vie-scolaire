@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="content-box-accueil--table--content" style="max-height: 220px;">
-                    <div  ng-repeat="devoir in devoirs.all | limitTo:[[-limitSelected]] | orderBy:'date':true" class="row">
+                    <div  ng-repeat="devoir in devoirs.all | orderBy:'date':true | limitTo:[[-limitSelected]] " class="row">
                         <a ng-href="#/devoir/[[devoir.id]]">
                             <div class="two cell competence-text-overflow"
                                  tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">

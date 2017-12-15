@@ -321,7 +321,7 @@ public class BFCController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos userInfos) {
-                if(userInfos!=null && userInfos.getFunctions().containsKey("ENS")) {
+                if(userInfos!=null)  {
                     final String id = request.params().get("idEleve");
                     niveauEnseignementComplement.getNiveauEnsCplByEleve(id,defaultResponseHandler(request));
                 }

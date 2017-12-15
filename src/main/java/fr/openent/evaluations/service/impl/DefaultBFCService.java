@@ -403,15 +403,6 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
             }
         });
     }
-   /* @Override
-    public void getDateCreatedBFC(String idEleve, Handler<Either<String,JsonArray>> handler){
-        StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
-        query.append("SELECT COALESCE(created,modified,CURRENT_DATE FROM notes.bilan_fin_cycle")
-                .append("WHERE idEleve = ?");
-        params.addString(idEleve);
-        Sql.getInstance().prepared(query.toString(),params, SqlResult.validResultHandler(handler));
-    }*/
 
     @Override
     public void getCalcMillesimeValues (Handler<Either<String,JsonArray>> handler){

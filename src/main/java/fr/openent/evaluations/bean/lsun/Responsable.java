@@ -242,25 +242,25 @@ public class Responsable {
 
         switch (codeParent) {
             case "1":
-                this.lienParente="PERE";
+                this.lienParente = "PERE";
                 break;
             case "2":
-                this.lienParente="MERE";
+                this.lienParente = "MERE";
                 break;
             case "3":
-                this.lienParente="TUTEUR";
+                this.lienParente = "TUTEUR";
                 break;
             case "4":
-                this.lienParente="AUTRE MEMBRE DE LA FAMILLE";
+                this.lienParente ="AUTRE MEMBRE DE LA FAMILLE";
                 break;
             case "5":
-                this.lienParente="DDASS";
+                this.lienParente = "DDASS";
                 break;
             case "6":
-                this.lienParente="AUTRE CAS";
+                this.lienParente = "AUTRE CAS";
                 break;
             case "7":
-                this.lienParente="ELEVE LUI-MEME";
+                this.lienParente = "ELEVE LUI-MEME";
                 break;
             default:
                 break;

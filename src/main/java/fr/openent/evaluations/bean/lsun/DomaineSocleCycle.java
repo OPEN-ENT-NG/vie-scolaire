@@ -45,6 +45,12 @@ public class DomaineSocleCycle {
     @XmlAttribute(name = "positionnement", required = true)
     protected BigInteger positionnement;
 
+
+    public DomaineSocleCycle(){}
+    public DomaineSocleCycle(String code, Integer positionnenement){
+        this.code = CodeDomaineSocle.fromValue(code);
+        this.positionnement = BigInteger.valueOf(positionnenement);
+    }
     /**
      * Gets the value of the code property.
      * 

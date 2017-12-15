@@ -193,7 +193,9 @@ public class ObjectFactory {
     public DomaineSocleCycle createDomaineSocleCycle() {
         return new DomaineSocleCycle();
     }
-
+    public DomaineSocleCycle createDomaineSocleCycle(String code, Integer positionnement){
+        return new DomaineSocleCycle(code,positionnement);
+    }
     /**
      * Create an instance of {@link EnseignementComplement }
      * 

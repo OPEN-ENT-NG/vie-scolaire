@@ -322,13 +322,13 @@ public class DefaultUserService implements UserService {
         query.append("MATCH (u:User) WHERE u.id IN {id} RETURN u.externalId as externalId, u.displayName as displayName");
         Neo4j.getInstance().execute(query.toString(), new JsonObject().putArray("id",new JsonArray(idsResponsable.toArray())), Neo4jResult.validResultHandler(handler));
     }
-//requete à modifier pour récupérer les élèves qui n'ont pas de relation neo4j avec leur classe ou avec leur relative
+
     @Override
     public void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonObject param = new JsonObject();
         query.append("MATCH (c:Class)<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']}) WHERE c.id IN {idClass}");
-        query.append("RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,");
+        query.append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,");
         query.append("r.externalId as externalIdRelative, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
         query.append("c.id as idClass, c.name as nameClass ORDER BY nameClass, lastName");
         param.putArray("idClass", new JsonArray(idsClass.toArray()));

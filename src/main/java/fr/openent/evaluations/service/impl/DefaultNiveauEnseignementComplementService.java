@@ -44,9 +44,12 @@ public class DefaultNiveauEnseignementComplementService extends SqlCrudService i
     }
 
     @Override
-    public void listNiveauCplByEleves(String[] idsEleve, Handler<Either<String, JsonArray>> handler) {
+    public void listNiveauCplByEleves(String[] idsEleve, Long cycle,  Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray();
-        
+        //si ce n'est pas le cycle 4 alors on a pas besoin
+        if(cycle != 4){
+           handler.handle(new Either.Right<String,JsonArray>(new JsonArray()));
+        }
         String query ="SELECT id_eleve,id_enscpl,code,niveau FROM "+Viescolaire.EVAL_SCHEMA+".eleve_enseignement_complement INNER JOIN "+Viescolaire.EVAL_SCHEMA+".enseignement_complement "
                 +"ON notes.eleve_enseignement_complement.id_enscpl = notes.enseignement_complement.id WHERE id_eleve IN "+Sql.listPrepared(idsEleve);
         for(String s : idsEleve){

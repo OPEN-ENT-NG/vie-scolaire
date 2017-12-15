@@ -1036,12 +1036,6 @@ public class Donnees {
                     List<String> idsEleve = mapIdClassIdEleve.get(el.getId_Class());
                     idsEleve.add(el.getIdNeo4j());
                 }
-
-//                idsEleve.add(el.getIdNeo4j());
-//                if(eleve.indexOf(el)+1 == eleve.size()||!el.getId_Class().equals(eleve.get(eleve.indexOf(el)+1).getId_Class())){
-//                    mapIdClassIdEleve.put(el.getId_Class(),idsEleve);
-//                    idsEleve.clear();
-//                }
             }
             return mapIdClassIdEleve;
         }

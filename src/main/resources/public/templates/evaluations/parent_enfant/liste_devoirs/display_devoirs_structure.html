@@ -17,6 +17,9 @@
   ~
   -->
 <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
+<div class="custom-mobile-releve"
+     ng-include="'/viescolaire/public/templates/evaluations/parent_enfant/accueil/eval_parent_menu.html'"></div>
+
 <div class="row" ng-controller="ListController">
     <nav class="twelve cell">
         <div class="cell floatRight">
@@ -33,7 +36,7 @@
             </div>
         </div>
     </nav>
-    <div class="twelve cell list-devoirs">
+    <div class="twelve twelve-mobile cell list-devoirs">
         <microbox title="evaluations.criteres.titre.bouton.ouvrir" close="evaluations.criteres.titre.bouton.fermer">
             <div  class="two cell twelve-mobile">
                 <div class="criterion card" >
@@ -59,9 +62,7 @@
                             </select>
                         </label>
                     </section>
-
-
-                    <section>
+                    <section ng-if="me.type !== 'PERSRELELEVE'">
                         <label class="select">
                             <select ng-model="search.enseignant"
                                     ng-options="getTeacherDisplayName(enseignant.id) for enseignant in enseignants.all">
@@ -70,9 +71,39 @@
                         </label>
                     </section>
                 </div>
-
             </div>
         </microbox>
+        <div class="marginFive card custom-mobile-releve" style="padding: 5px">
+            <header class="headerStyle">
+                <h2 class="twelve-mobile"><i18n>viescolaire.utils.criterion</i18n></h2>
+            </header>
+        <section class="row custom-mobile-releve twelve-mobile">
+            <label class="select">
+                <select ng-model="search.periode"
+                        ng-options="getI18nPeriode(periode) for periode in selectedEleve.classe.periodes.all">
+                    <option disabled value="" class="header-opt">
+                        [[translate('viescolaire.utils.periode')]]
+                    </option>
+                </select>
+            </label>
+        </section>
+        <section  class="row custom-mobile-releve twelve-mobile">
+            <label class="select">
+                <select ng-model="search.matiere"
+                        ng-options="matiere.name for matiere in matieres.all | unique:'name'">
+                    <option value="" class="header-opt">[[translate('viescolaire.utils.subject')]]</option>
+                </select>
+            </label>
+        </section>
+        <section class="row custom-mobile-releve twelve-mobile" ng-if="me.type !== 'PERSRELELEVE'">
+            <label class="select">
+                <select ng-model="search.enseignant"
+                        ng-options="getTeacherDisplayName(enseignant.id) for enseignant in enseignants.all">
+                    <option class="header-opt" value="">[[translate('viescolaire.utils.teacher')]]</option>
+                </select>
+            </label>
+        </section>
+        </div>
         <div class="ten cell twelve-mobile">
 
             <div class="marginFive card">

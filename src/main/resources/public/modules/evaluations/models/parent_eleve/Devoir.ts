@@ -18,7 +18,6 @@ export class Devoir extends Model {
         return new Promise(async (resolve, reject) => {
             let uri = this.api.GET_APPRECIATION + idEleve;
             http().getJson(uri).done((res) => {
-                console.dir(res);
                 if(res.length > 0) {
                     this.appreciation = res[0].appreciation;
                 }

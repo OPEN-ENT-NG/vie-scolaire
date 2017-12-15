@@ -19,12 +19,14 @@
 
 <!-- Panneau de choix des thèmes -->
 <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
+<div class="custom-mobile-releve"
+     ng-include="'/viescolaire/public/templates/evaluations/parent_enfant/accueil/eval_parent_menu.html'"></div>
 
 <div class="row" ng-controller="ListController">
-    <div class="twelve cell">
+    <div class="twelve cell twelve-mobile">
 
-        <aside class="two cell">
-            <nav class="twelve zero-mobile scrolling"
+        <aside class="two cell twelve-mobile">
+            <nav class="twelve twelve-mobile scrolling"
                  id="left-side-notes">
                 <div class="menuLeftStyle detail-devoir criterion card" ng-class="{opened : openedDetails === true}">
                     <div class="header">
@@ -78,7 +80,7 @@
             </nav>
         </aside>
 
-        <section class="cell ten" >
+        <section class="cell ten twelve-mobile" >
 
             <div class="marginFive">
                 <div class="card content-suivi-eleve twelve-mobile">

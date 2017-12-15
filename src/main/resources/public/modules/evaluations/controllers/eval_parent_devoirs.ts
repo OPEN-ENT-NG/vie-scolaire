@@ -28,6 +28,7 @@ import {SuiviCompetence, Structure} from "../models/teacher/eval_teacher_mdl";
 
 declare let _: any;
 declare let window: any;
+declare let $: any;
 
 export let listController = ng.controller('ListController', [
     '$scope','$rootScope','$location','$filter',

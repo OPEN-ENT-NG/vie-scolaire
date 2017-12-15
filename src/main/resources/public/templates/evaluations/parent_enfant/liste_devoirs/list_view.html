@@ -28,28 +28,28 @@
         <table>
             <thead sticky offset="64">
             <tr>
-                <th class="fontLarge one-mobile  one ellipsis">
+                <th class="one-mobile  one ellipsis">
                     <i18n>viescolaire.utils.date</i18n>
                 </th>
-                <th class="fontLarge three-mobile three ellipsis">
+                <th class="three-mobile three ellipsis">
                     <i18n>viescolaire.utils.subject</i18n>
                 </th>
-                <th class="fontLarge three-mobile three ellipsis">
+                <th class="three-mobile three ellipsis">
                     <i18n>viescolaire.utils.name</i18n>
                 </th>
-                <th class="fontLarge three-mobile two ellipsis">
+                <th class="three-mobile two ellipsis">
                     <i18n>viescolaire.utils.teacher</i18n>
                 </th>
-                <th class="fontLarge  one-mobile one ellipsis">
+                <th class="one-mobile one ellipsis">
                     <i18n>evaluations.skills.nb</i18n>
                 </th>
-                <th class="fontLarge  one-mobile one ellipsis">
+                <th class="one-mobile one ellipsis">
                     <i18n>viescolaire.evaluation.note</i18n></th>
-                <th class="fontLarge  one-mobile one ellipsis"></th>
+                <th class="one-mobile one ellipsis"></th>
             </tr>
             </thead>
             <tbody>
-            <tr  ng-class="{'opened shadow' : openedDevoir === $index}"
+            <tr  ng-class="{'opened shadowOne' : openedDevoir === $index}"
                     ng-repeat-start="devoir in devoirs.all | customSearchFilters:search  | filter:search.name ">
                 <td  ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         data-label="[[translate('viescolaire.utils.date')]]">
@@ -57,15 +57,15 @@
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.subject')]]" >
-                    <div>[[getLibelleMatiere(devoir.id_matiere)]]</div>
+                    <div class="competence-text-overflow">[[getLibelleMatiere(devoir.id_matiere)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.name')]]">
-                    <div>[[devoir.name]]</div>
+                    <div class="competence-text-overflow">[[devoir.name]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.teacher')]]">
-                    <div>[[getTeacherDisplayName(devoir.owner)]]</div>
+                    <div class="competence-text-overflow">[[getTeacherDisplayName(devoir.owner)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.competences !== undefined"
@@ -93,7 +93,7 @@
             </tr>
             <tr ng-repeat-end
                 class="zero-mobile"
-                ng-class="{'zero': openedDevoir !== $index, 'opened shadow' : openedDevoir === $index}">
+                ng-class="{'zero': openedDevoir !== $index, 'opened shadowTwo' : openedDevoir === $index}">
                 <td class="one"></td>
                 <td class="six expandable-content testAlignLeft" colspan="2">
                    <span ng-if="devoir.is_evaluated && devoir.annotation === undefined">

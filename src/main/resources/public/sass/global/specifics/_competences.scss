@@ -2383,6 +2383,23 @@ body.evaluations {
   }
 
   .eval_parent {
+    .content-box-accueil--table--content >.row {
+      padding: 12px 0 !important;
+    }
+    @media screen and (max-device-width: $tablette) {
+      #crumbs {
+        display: none;
+      }
+      .box-accueil {
+        margin: 0 !important;
+      }
+    }
+    .shadowOne {
+      box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.35)!important;
+    }
+    .shadowTwo {
+      box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.35)!important;
+    }
     .content-box-accueil--table--content {
       overflow-y: hidden !important;
     }
@@ -2421,6 +2438,12 @@ body.evaluations {
       }
     }
     .list-devoirs {
+      overflow-x: hidden;
+      .testAlignLeft {
+      @media screen and (min-device-width:$fat-mobile) {
+          text-align: left !important;
+        }
+      }
       transition: all 100ms ease-out;
       .shadow-first{
         box-shadow:(0px 0px 0px 0px rgba(0,0,0,0.35));
@@ -2445,7 +2468,9 @@ body.evaluations {
               border-left: 0px solid #fff;
               padding: 5px;
               border-right: 0px solid #fff;
-              border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+              @media screen and (min-width: $tablette) {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+              };
               padding: 5px;
             }
             .firstElem {
@@ -2461,14 +2486,15 @@ body.evaluations {
       .opened {
         transform: scale(1.005);
         & td div {
-          margin: 6px 0 0 !important;
+          margin: 0px !important;
+          border-bottom: 0px !important;
         }
       }
 
     }
     .opened.lastElem.shadow {
-        margin-top: 5px !important;
-      }
+      margin-top: 5px !important;
+    }
     @media screen and (max-width: $tablette) {
       .notesDevoir {
         display: block !important;

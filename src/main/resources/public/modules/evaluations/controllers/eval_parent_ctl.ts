@@ -29,6 +29,8 @@ import {Defaultcolors} from "../models/eval_niveau_comp";
 let moment = require('moment');
 
 declare let _: any;
+declare let location: any;
+declare let window: any;
 
 export let evaluationsController = ng.controller('EvaluationsController', [
     '$scope', 'route', '$rootScope', '$location','$filter', '$sce', '$compile', '$timeout','$route',
@@ -288,6 +290,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         };
 
         $rootScope.update = true;
+        $rootScope.reload = function () {
+            window.location.hash='#/';
+            location.reload();
+        }
 
     }
 ]);

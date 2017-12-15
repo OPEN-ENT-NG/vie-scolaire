@@ -2383,6 +2383,12 @@ body.evaluations {
   }
 
   .eval_parent {
+    .content-box-accueil--table--content {
+      overflow-y: hidden !important;
+    }
+    .devoir-icons-container {
+      height: 285px !important;
+    }
     i.previous {
       display: inline-block !important;
       float: left !important;

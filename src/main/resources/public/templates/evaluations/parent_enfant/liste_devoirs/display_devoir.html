@@ -166,11 +166,13 @@
                             <div>[[currentDevoir.annotation.libelle_court]]</div>
                         </div>
                     </div>
-                    <div style="padding-bottom: 15px">
+                    <div ng-if="currentDevoir.apprec_visible" style="padding-bottom: 15px">
                         <h2><i18n>viescolaire.utils.appreciation</i18n></h2>
                         <div class="DevoirField">
                             [[currentDevoir.appreciation? currentDevoir.appreciation : "&nbsp;"]]
                         </div>
+                    </div>
+                    <div ng-if="!currentDevoir.apprec_visible" style="padding-bottom: 15px">
                     </div>
                 </div>
             </div>

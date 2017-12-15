@@ -2,19 +2,13 @@
 <section>
     <article class="five cell box-accueil twelve-mobile">
         <div class="content-box-accueil">
-            <div class="titre-widget">
+            <div ng-init="initLimit()" class="titre-widget center">
                 <h2 ng-if="me.type !== 'PERSRELELEVE'"class="inline-block ">
                     <i18n>evaluations.mes.evaluations</i18n>
                 </h2>
                 <h2 ng-if="me.type === 'PERSRELELEVE'" class="inline-block ">
                     <i18n>evaluation.last.child</i18n><span>[[ eleve.firstName ]]</span>
                 </h2>
-                <label class="select right-magnet">
-                    <select ng-model="limitSelected"
-                            ng-init="initLimit()"
-                            ng-options="getLibelleLimit(limit) for limit in limits">
-                    </select>
-                </label>
             </div>
             <div class="content-box-accueil--table">
                 <div class="content-box-accueil--table--header row">
@@ -32,7 +26,8 @@
                     </div>
                 </div>
                 <div class="content-box-accueil--table--content" style="max-height: 220px;">
-                    <div  ng-repeat="devoir in devoirs.all | orderBy:'date':true | limitTo:[[-limitSelected]] " class="row">
+                    <div  ng-repeat="devoir in devoirs.all | orderBy:'date':true | limitTo:[[-limitSelected]] "
+                          class="row">
                         <a ng-href="#/devoir/[[devoir.id]]">
                             <div class="two cell competence-text-overflow"
                                  tooltip="[[devoir.name]] - [[getTeacherDisplayName(devoir.owner)]]">

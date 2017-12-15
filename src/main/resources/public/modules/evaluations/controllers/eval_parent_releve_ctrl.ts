@@ -120,10 +120,23 @@ export let releveController = ng.controller('ReleveController', [
 
         // Filter
         $scope.hasEvaluatedDevoir = (matiere) => {
-                return $scope.dataReleve.devoirs.findWhere({id_matiere: matiere.id, is_evaluated:true}) !== undefined;
+            let devoirWithNote = $scope.dataReleve.devoirs.filter((devoir) =>{
+                return (devoir.note !== undefined || devoir.annotation !== undefined)
+            });
+            return _.findWhere(devoirWithNote, {id_matiere: matiere.id, is_evaluated:true}) !== undefined;
         };
         $scope.isEvaluated = (devoir) => {
-                return devoir.is_evaluated;
+            return devoir.is_evaluated;
+        };
+
+        $scope.checkHaveResult = function () {
+            let res = false;
+            _.forEach(evaluations.matieres.all, (matiere) => {
+                if($scope.hasEvaluatedDevoir(matiere)) {
+                    res = true;
+                }
+            });
+            return res;
         };
     }
 ]);

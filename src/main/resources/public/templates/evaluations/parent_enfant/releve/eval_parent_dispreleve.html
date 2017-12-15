@@ -58,7 +58,7 @@
             </section>
         </header>
 
-        <content ng-show="dataReleve.devoirs.all.length > 0">
+        <content ng-show="checkHaveResult()">
             <div class="responsive-table">
             <table navigable>
                 <thead>
@@ -122,7 +122,7 @@
 
             </div>
         </content>
-        <content ng-show="dataReleve.devoirs.all.length === 0">
+        <content ng-show="!checkHaveResult()">
             <h1 class="twelve-mobile" style="color: grey;"><i18n>evaluations.no.summary</i18n></h1>
         </content>
 

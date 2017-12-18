@@ -156,7 +156,8 @@ export class Evaluations extends Model {
                                             id_type : competence.id_type,
                                             is_evaluated : competence.is_evaluated,
                                             libelle : competence.libelle,
-                                            name : competence.name
+                                            name : competence.name,
+                                            _type_libelle : competence._type_libelle
                                         });
                                     }
                                 });
@@ -200,7 +201,8 @@ export class Evaluations extends Model {
                                                     is_evaluated : annotation.is_evaluated,
                                                     libelle : annotation.lib,
                                                     name : annotation.name,
-                                                    competences : []
+                                                    competences : [],
+                                                    _type_libelle : annotation._type_libelle
                                                 });
                                             }
                                         });

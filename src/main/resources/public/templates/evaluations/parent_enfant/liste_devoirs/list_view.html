@@ -45,7 +45,7 @@
                 </th>
                 <th class="one-mobile one ellipsis">
                     <i18n>viescolaire.evaluation.note</i18n></th>
-                <th class="one-mobile one ellipsis"></th>
+                <th class="zero-mobile one ellipsis"></th>
             </tr>
             </thead>
             <tbody>
@@ -95,7 +95,7 @@
                 class="zero-mobile"
                 ng-class="{'zero': openedDevoir !== $index, 'opened shadowTwo' : openedDevoir === $index}">
                 <td class="one"></td>
-                <td class="six expandable-content testAlignLeft" colspan="2">
+                <td class="three expandable-content testAlignLeft" >
                    <span ng-if="devoir.is_evaluated && devoir.annotation === undefined">
                         <i18n>evaluations.test.ramenersur</i18n>
                         : <span class="italic">
@@ -105,6 +105,14 @@
                             <span ng-if="devoir.ramener_sur === false">
                                 <i18n>evaluations.test.ramenersur.false</i18n>
                             </span>
+                        </span>
+                    </span>
+                </td>
+                <td class="three expandable-content testAlignLeft">
+                   <span>
+                        <i18n>viescolaire.utils.type</i18n>
+                        : <span class="italic">
+                       [[devoir._type_libelle]]
                         </span>
                     </span>
                 </td>

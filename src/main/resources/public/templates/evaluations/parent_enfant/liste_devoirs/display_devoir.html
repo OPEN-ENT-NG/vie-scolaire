@@ -42,7 +42,10 @@
                             <label><i18n class="bold">viescolaire.utils.subject</i18n> : [[getLibelleMatiere(currentDevoir.id_matiere)]]</label>
                         </section>
                         <section>
-                            <label><i18n class="bold">viescolaire.utils.date</i18n> : [[getDateFormated(devoir.date)]]</label>
+                            <label><i18n class="bold">viescolaire.utils.date</i18n> : [[getDateFormated(currentDevoir.date)]]</label>
+                        </section>
+                        <section>
+                            <label><i18n class="bold">viescolaire.utils.type</i18n> :  [[currentDevoir._type_libelle]]</label>
                         </section>
                         <section ng-if="currentDevoir.is_evaluated">
                             <label><i18n class="bold">viescolaire.utils.coefficient</i18n> : [[currentDevoir.coefficient]]</label>

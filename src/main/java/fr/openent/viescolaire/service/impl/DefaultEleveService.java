@@ -156,8 +156,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         query.append("SELECT id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
                 .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
+                .append(", type.nom as _type_libelle ")
                 .append(" FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
                 .append(" inner JOIN notes.annotations on annotations.id = id_annotation ")
+                .append(" inner join notes.type on devoirs.id_type = type.id  ")
                 .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
         values.addString(idEleve);
         if(idPeriode != null){
@@ -172,7 +174,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values = new JsonArray();
         query.append("SELECT competences_notes.*, id_matiere, name, is_evaluated, id_periode, ")
                 .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append(", type.nom as _type_libelle ")
                 .append(" FROM notes.competences_notes inner JOIN notes.devoirs on devoirs.id = id_devoir  ")
+                .append(" inner join notes.type on devoirs.id_type = type.id  ")
                 .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
 
         values.addString(idEleve);

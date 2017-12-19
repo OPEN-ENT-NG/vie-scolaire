@@ -135,11 +135,11 @@
 
                                     <div class="suivi-eleve-item competence-line" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all| filter:FilterNotEvaluated">
 
-                                        <div tooltip="[[competence.nom]]" class="six inline-block ellipsis competence">
+                                        <div tooltip="[[competence.nom]]" class="six inline-block ellipsis competence nine-mobile">
                                             [[competence.nom]]
                                         </div>
-                                        <div class="two inline-block align-center align-top">
-                    <span ng-repeat="evaluation in competence.competencesEvaluations|filter:isMaxEvaluation(competence.competencesEvaluations)|limitTo:1"
+                                        <div class="two inline-block align-center align-top two-mobile">
+                    <span ng-repeat="evaluation in competence.competencesEvaluations"
                           tabindex="0">
                         <c-skills-bubble text="(mapLettres[evaluation.evaluation])"
                                          color="(mapCouleurs[evaluation.evaluation])"
@@ -147,14 +147,15 @@
                         </c-skills-bubble>
                     </span>
                                             <span class="competence-eval rounded grey"
-                                                  ng-if="competence.competencesEvaluations.length < 1 || notEvalutationOwner(competence.competencesEvaluations)">
+                                                  ng-if="competence.competencesEvaluations.length < 1">
                     </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div ng-repeat="domaine in domaine.domaines.all | filter:FilterNotEvaluatedDomaine" ng-include="'tree_item_renderer.html'">
+                            <div ng-repeat="domaine in domaine.domaines.all | filter:FilterNotEvaluatedDomaine"
+                                 ng-include="'tree_item_renderer.html'">
                             </div>
                         </script>
 
@@ -163,7 +164,7 @@
                     </content>
                     </div>
                     <div>
-                        <h2><i18n>viescolaire.evaluation.note</i18n></h2>
+                        <h2><i18n>viescolaire.evaluation.result</i18n></h2>
                         <div class="DevoirField" ng-if="currentDevoir.annotation === undefined">
                             <div>[[currentDevoir.note ? currentDevoir.note : "&nbsp;"]]</div>
                         </div>

@@ -2383,6 +2383,9 @@ body.evaluations {
   }
 
   .eval_parent {
+    .rounded {
+      vertical-align: text-bottom !important;
+    }
     .content-box-accueil--table--content >.row {
       padding: 12px 0 !important;
     }

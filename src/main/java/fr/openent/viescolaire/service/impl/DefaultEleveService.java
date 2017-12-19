@@ -169,21 +169,57 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override
-    public void getCompetences(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups,
+                               Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
-        query.append("SELECT competences_notes.*, id_matiere, name, is_evaluated, id_periode, ")
-                .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
-                .append(", type.nom as _type_libelle ")
-                .append(" FROM notes.competences_notes inner JOIN notes.devoirs on devoirs.id = id_devoir  ")
-                .append(" inner join notes.type on devoirs.id_type = type.id  ")
-                .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
 
+        // competences_notes.id IN " + Sql.listPrepared(idNotes.toArray())
+        query.append( "SELECT res.id_devoir,id_competence , max(evaluation) as evaluation, owner, id_eleve, ")
+                .append(" created, modified , id_matiere, name, is_evaluated, id_periode, ")
+                .append("  id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle ")
+                .append("  , _type_libelle FROM ( ")
+                .append(" select cd.id_devoir,cd.id_competence , evaluation, cn.owner, id_eleve, ")
+                .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, name, devoirs.is_evaluated, ")
+                .append(" id_periode, id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append("                , type.nom as _type_libelle ")
+                .append(" from notes.competences_devoirs as cd ")
+                .append(" inner join notes.competences_notes as cn on cd.id_devoir = cn.id_devoir ")
+                .append(" and  cd.id_competence = cn.id_competence ")
+                .append(" inner JOIN notes.devoirs on devoirs.id = cd.id_devoir ")
+                .append(" inner join notes.type on devoirs.id_type = type.id ")
+                .append(" WHERE date_publication <= Now() AND id_eleve = ? ");
         values.addString(idEleve);
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
             values.addNumber(idPeriode);
         }
+        query.append(" UNION ")
+                .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
+                .append(" -1 as evaluation, owner, ? as id_eleve, ")
+                .append(" created, modified, id_matiere, name, is_evaluated, id_periode, " )
+                .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append("                , type.nom as _type_libelle ")
+                .append(" from notes.competences_devoirs inner JOIN notes.devoirs on ")
+                .append(" devoirs.id = competences_devoirs.id_devoir " )
+                .append(" inner join notes.type on devoirs.id_type = type.id ")
+                .append(" inner JOIN notes.rel_devoirs_groupes on ")
+                .append(" competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
+                .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.toArray()))
+                .append(" WHERE date_publication <= Now()") ;
+        values.addString(idEleve);
+        for (int i = 0; i < idGroups.size(); i++) {
+            values.add(idGroups.get(i));
+        }
+        if(idPeriode != null){
+            query.append(" AND id_periode = ? ");
+            values.addNumber(idPeriode);
+        }
+        query.append(" ) AS res ")
+                .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )
+                .append("id_matiere, name, is_evaluated, id_periode, id_type, diviseur, date_publication, ")
+                .append(" date, apprec_visible, coefficient, libelle , _type_libelle ");
+
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override
@@ -207,4 +243,16 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         values.addNumber(idDevoir);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+    @Override
+    public void getGroups(String idEleve, Handler<Either<String, JsonArray>> result) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (n:FunctionalGroup)-[:IN]-(u:User{id:'" + idEleve +"'}) ")
+                .append(" WITH  n, u ")
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe ");
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+    }
+
+
 }

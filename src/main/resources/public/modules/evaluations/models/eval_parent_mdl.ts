@@ -125,8 +125,9 @@ export class Evaluations extends Model {
 
                             // RECUPERATION DES COMPETENCES
                             let uriCompetences = this.api.GET_COMPETENCES + userId;
+                            uriCompetences = uriCompetences + '?idClasse=' + this.eleve.classe.id;
                             if (idPeriode !== undefined) {
-                                uriCompetences = uriCompetences + '?idPeriode=' +idPeriode;
+                                uriCompetences = uriCompetences + '&idPeriode=' +idPeriode;
                             }
                             http().getJson(uriCompetences).done((competences) => {
                                 competences.forEach(function (competence) {
@@ -218,7 +219,7 @@ export class Evaluations extends Model {
                                                     let devoir = element;
                                                     let _matiere = that.matieres.findWhere({id: devoir.id_matiere});
                                                     let enseignant = that.enseignants.findWhere({id: devoir.owner});
-                                                    if ( enseignant !== undefined
+                                                    if ( enseignant !== undefined && _matiere !== undefined
                                                         && _.filter(_matiere.ens, {id: enseignant.id}).length === 0) {
                                                         _matiere.ens.push(enseignant);
                                                     }
@@ -244,14 +245,7 @@ export class Evaluations extends Model {
                                     for (let i = 0; i < resDomaines.length; i++) {
 
                                         let domaine = new Domaine(resDomaines[i]);
-                                        if(domaine.competences) {
-                                            _.map(domaine.competences.all, function (competence) {
-                                                competence.competencesEvaluations = _.where(competences, {
-                                                    id_competence: competence.id
-                                                });
-
-                                            });
-                                        }
+                                        that.setCompetenceNotes(domaine,competences)
                                         _res.push(domaine);
                                     }
                                     that.domaines.load(_res);
@@ -305,6 +299,22 @@ export class Evaluations extends Model {
         }
 
         location.replace(uri);
+    }
+    setCompetenceNotes(poDomaine, poCompetencesNotes) {
+        if(poDomaine.competences) {
+            _.map(poDomaine.competences.all, function (competence) {
+                competence.competencesEvaluations = _.where(poCompetencesNotes, {
+                    id_competence: competence.id
+                });
+
+            });
+        }
+
+        if( poDomaine.domaines) {
+            for (var i = 0; i < poDomaine.domaines.all.length; i++) {
+                this.setCompetenceNotes(poDomaine.domaines.all[i], poCompetencesNotes);
+            }
+        }
     }
 
     async updateUsePerso () {

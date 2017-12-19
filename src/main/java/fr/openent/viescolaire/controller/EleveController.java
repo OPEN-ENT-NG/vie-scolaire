@@ -35,8 +35,7 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
-
-import java.util.List;
+import org.vertx.java.core.json.JsonObject;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
@@ -139,13 +138,29 @@ public class EleveController extends ControllerHelper {
     @ResourceFilter(AccessAuthorozed.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesEleve(final HttpServerRequest request) {
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        String idEleve = request.params().get("idEleve");
-        Long idPeriode = null;
-        if (request.params().get("idPeriode") != null) {
-            idPeriode = testLongFormatParameter("idPeriode", request);
-        }
-        eleveService.getCompetences(idEleve,idPeriode,handler);
+        final String idEleve = request.params().get("idEleve");
+        final String idClasse = request.params().get("idClasse");
+        eleveService.getGroups(idEleve, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                Long idPeriode = null;
+                if (request.params().get("idPeriode") != null) {
+                    idPeriode = testLongFormatParameter("idPeriode", request);
+                }
+                if (event.isRight()) {
+                    JsonArray values = event.right().getValue();
+                    JsonArray idGroups = new JsonArray().add(idClasse);
+                    if (values.size() > 0) {
+                        for (int i=0; i < values.size(); i++) {
+                            JsonObject o = values.get(i);
+                            idGroups.add(o.getString("id_groupe"));
+                        }
+                        eleveService.getCompetences(idEleve,idPeriode,idGroups, handler);
+                    }
+                }
+            }
+        });
     }
 
     @Get("/cycle/eleve/:idClasse")

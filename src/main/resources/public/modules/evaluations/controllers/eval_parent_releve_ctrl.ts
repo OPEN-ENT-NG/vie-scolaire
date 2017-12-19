@@ -126,7 +126,7 @@ export let releveController = ng.controller('ReleveController', [
             return _.findWhere(devoirWithNote, {id_matiere: matiere.id, is_evaluated:true}) !== undefined;
         };
         $scope.isEvaluated = (devoir) => {
-            return devoir.is_evaluated;
+            return devoir.is_evaluated && (devoir.note !== undefined || devoir.annotation !== undefined);
         };
 
         $scope.checkHaveResult = function () {

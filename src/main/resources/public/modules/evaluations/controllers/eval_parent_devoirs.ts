@@ -48,6 +48,14 @@ export let listController = ng.controller('ListController', [
                 type: null,
                 name: ""
             };
+            $scope.checkHaveResult = function () {
+                let custom = $filter('customSearchFilters');
+                let filter = $filter('filter');
+                let res =  custom(evaluations.devoirs.all, $scope.search);
+                res = filter(res, $scope.search.name);
+
+                return (res.length > 0);
+            };
             $scope.matieres = evaluations.matieres;
             $scope.enseignants = evaluations.enseignants;
             $scope.translate = lang.translate;
@@ -64,26 +72,25 @@ export let listController = ng.controller('ListController', [
                     };
                     utils.safeApply($scope);
                 }
+                else {
+                    if(evaluations.devoirs.all.length > 0 ) {
+                        $scope.goToDevoir('#/devoir/'+ evaluations.devoirs.all[0].id);
+                    }
+                    else {
+                        $scope.goToDevoir('#/');
+                    }
+                }
             }
             utils.safeApply($scope);
         };
         await $rootScope.init();
-        $scope.initListDevoirs();
-        // Au changement de la période par le parent
+        // Au changement de la période courante par le parent
         $scope.$on('loadPeriode', async function() {
-            $scope.initListDevoirs();
+            await $scope.initListDevoirs();
             utils.safeApply($scope);
         });
         $scope.goToDevoir = function(url) {
             window.location.hash=url;
-        };
-        $scope.checkHaveResult = function () {
-            let custom = $filter('customSearchFilters');
-            let filter = $filter('filter');
-            let res =  custom(evaluations.devoirs.all, $scope.search);
-            res = filter(res, $scope.search.name);
-
-            return (res.length > 0);
         };
 
         /**
@@ -107,18 +114,28 @@ export let listController = ng.controller('ListController', [
                 return evaluation.evaluation;
             });
             if (typeof max === 'object') {
-                return (!(max.evaluation == -1));
+                return true;
             }
             else {
                 return false;
             }
         };
         $scope.FilterNotEvaluatedDomaine = function (monDomaineCompetence) {
-            _.forEach(monDomaineCompetence.competences.all, function (maCompetence) {
-                if($scope.FilterNotEvaluated(maCompetence)){
-                    return true;
+            if (monDomaineCompetence.domaines.all.length > 0 ) {
+                for (let i = 0; i < monDomaineCompetence.domaines.all.length; i++) {
+                    if($scope.FilterNotEvaluated(monDomaineCompetence.domaines.all[i])){
+                        return true;
+                    }
                 }
-            });
+            }
+            else {
+                for (let i = 0; i < monDomaineCompetence.competences.all.length; i++) {
+                    let maCompetence = monDomaineCompetence.competences.all[i];
+                    if ($scope.FilterNotEvaluated(maCompetence)) {
+                        return true;
+                    }
+                }
+            }
             return false;
         };
         $scope.incrementDevoir = function (num) {

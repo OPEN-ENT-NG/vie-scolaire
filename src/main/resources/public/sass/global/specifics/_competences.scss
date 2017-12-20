@@ -2407,6 +2407,16 @@ body.evaluations {
   }
 
   .eval_parent {
+    .textBotom {
+      vertical-align: text-bottom;
+    }
+    .lettreNiv {
+      vertical-align: baseline !important;
+    }
+    .hrForDisplayDevoir {
+      border-bottom: solid 1px #5f5f5f;
+      width: 98%;
+    }
     .rounded {
       vertical-align: text-bottom !important;
     }
@@ -2442,7 +2452,7 @@ body.evaluations {
       float: right !important;
     }
     .DevoirField {
-      border: solid 1px $grey;
+      border: solid 1px #5f5f5f;;
       padding-left: 5px;
     }
     .content-box-accueil--table--content>.row {

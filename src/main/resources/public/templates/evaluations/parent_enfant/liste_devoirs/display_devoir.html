@@ -66,11 +66,11 @@
                     <ul class="padding-five" style="list-style: none">
                         <li class="padding-five" ng-repeat="niveau in arrayCompetences">
                             <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
-                            <span>[[niveau.libelle]].</span>
+                            <span class="textBotom">[[niveau.libelle]].</span>
                         </li>
                         <li class="padding-five">
                             <span class="rounded grey"></span>
-                            <span style="vertical-align: super;">
+                            <span class="textBotom">
                             <i18n>evaluations.competence.unevaluated</i18n>.
                                 </span>
                         </li>
@@ -124,7 +124,7 @@
                     <div>
                         <h2><i18n>evaluations.competences.title</i18n></h2>
 
-                        <content class="block row DevoirField">
+                        <content class="block row">
                         <script type="text/ng-template"  id="tree_item_renderer.html">
 
                             <h4 ng-class="{'openedDom' : domaine.OpenDom, 'Domaine' : domaine.competences.all.length > 0 }" class="margin-top-1em twelve cell " ng-if="domaine.niveau === 1" ng-click="domaine.OpenDom = !domaine.OpenDom" ng-init="domaine.OpenDom = false">[[domaine.codification]] - [[domaine.libelle]]</h4>
@@ -163,18 +163,21 @@
                         </div>
                     </content>
                     </div>
+                    <hr class="hrForDisplayDevoir"/>
                     <div>
                         <h2><i18n>viescolaire.evaluation.result</i18n></h2>
-                        <div class="DevoirField" ng-if="currentDevoir.annotation === undefined">
-                            <div>[[(currentDevoir.note|| currentDevoir.note !== -1)? currentDevoir.note : "&nbsp;"]]</div>
+                        <div class=" one twelve-mobile" ng-if="currentDevoir.annotation === undefined">
+                            <div>[[(currentDevoir.note && currentDevoir.note !== -1)? currentDevoir.note : "&nbsp;"]]</div>
                         </div>
-                        <div class="DevoirField" ng-if="currentDevoir.annotation !== undefined">
-                            <div>[[currentDevoir.annotation.libelle_court]]</div>
+                        <div class="one twelve-mobile" ng-if="currentDevoir.annotation !== undefined">
+                            <div tooltip="[[currentDevoir.annotation.libelle]]" class="pointer">
+                                [[currentDevoir.annotation.libelle_court]]</div>
                         </div>
                     </div>
+                    <hr class="hrForDisplayDevoir" ng-if="currentDevoir.apprec_visible"/>
                     <div ng-if="currentDevoir.apprec_visible" style="padding-bottom: 15px">
                         <h2><i18n>viescolaire.utils.appreciation</i18n></h2>
-                        <div class="DevoirField">
+                        <div>
                             [[currentDevoir.appreciation? currentDevoir.appreciation : "&nbsp;"]]
                         </div>
                     </div>

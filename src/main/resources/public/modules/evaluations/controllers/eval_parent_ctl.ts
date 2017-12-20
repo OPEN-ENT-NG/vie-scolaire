@@ -21,7 +21,7 @@
  * Created by anabah on 29/11/2017.
  */
 
-import { model, ng, idiom as lang, template } from 'entcore/entcore';
+import { model, ng, idiom as lang, template,skin } from 'entcore/entcore';
 import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
 import {Classe} from "../models/parent_eleve/Classe";
@@ -202,6 +202,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.suiviFilter= {
             mine : false
         };
+
+        $scope.skin = skin;
         $scope.isCurrentPeriode = function(periode) {
             return (periode.id === $scope.currentPeriodeId);
         };

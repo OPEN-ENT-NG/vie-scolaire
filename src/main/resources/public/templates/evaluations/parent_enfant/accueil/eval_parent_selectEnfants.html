@@ -3,7 +3,10 @@
          ng-click="chooseChild(eleve)"
          ng-class="{'selected': eleve === selectedEleve }">
 
-        <c-round-avatar eleve="eleve"></c-round-avatar>
+        <div class="round-avatar">
+            <img ng-src="/assets/themes/[[ skin.skin ]]/img/illustrations/no-avatar.svg" alt="[[eleve.displayName]]"/>
+            <span>[[ eleve.firstName ]]</span>
+        </div>
     </div>
 </div>
 <div ng-if="me.type === 'PERSRELELEVE'">

@@ -24,7 +24,6 @@
 import {ng, idiom as lang} from 'entcore/entcore';
 import {evaluations} from '../models/eval_parent_mdl';
 import * as utils from '../utils/parent';
-import {SuiviCompetence, Structure} from "../models/teacher/eval_teacher_mdl";
 
 declare let _: any;
 declare let window: any;
@@ -32,10 +31,16 @@ declare let $: any;
 
 export let listController = ng.controller('ListController', [
     '$scope','$location','$filter',
-    async  function ($scope, $location, $filter) {
+    async  function ($scope,  $location, $filter) {
 
         // Initialisation des variables
         $scope.initListDevoirs = async function () {
+            $scope.propertyName =  'date';
+            $scope.reverse = true;
+            $scope.sortBy = function(propertyName) {
+                $scope.reverse = ($scope.propertyName === propertyName) ? !$scope.reverse : false;
+                $scope.propertyName = propertyName;
+            };
             $scope.openedDevoir = -1;
             $scope.devoirs =  evaluations.devoirs;
             $scope.search = {
@@ -108,6 +113,47 @@ export let listController = ng.controller('ListController', [
             }
         };
 
+        $scope.customComparator = function (v1,v2) {
+            switch ($scope.propertyName) {
+                case 'id_matiere' : {
+                    return $scope.getLibelleMatiere(v1) < $scope.getLibelleMatiere(v2);
+                }
+                case  'owner': {
+                    return $scope.getTeacherDisplayName(v1) < $scope.getTeacherDisplayName(v2);
+                }
+                case 'note' : {
+                    if (v1 === undefined && v2 === undefined ) {
+                        return false;
+                    }
+                    else if (v1 === undefined ) {
+                        return false;
+                    }
+                    else if (v2 === undefined ) {
+                        return true;
+                    }
+                    else {
+                        return v1 < v2;
+                    }
+                }
+                case 'competences' : {
+                    if (v1 === undefined && v2 === undefined ) {
+                        return false;
+                    }
+                    else if (v1 === undefined ) {
+                        return false;
+                    }
+                    else if (v2 === undefined ) {
+                        return true;
+                    }
+                    else {
+                        return v1.length < v2.length;
+                    }
+                }
+                default : {
+                    return v1 < v2;
+                }
+            }
+        };
         $scope.incrementDevoir = function (num) {
             let index = _.findIndex(evaluations.devoirs.all, {id: $scope.currentDevoir.id});
             if (index !== -1 && (index + parseInt(num)) >= 0

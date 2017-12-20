@@ -48,6 +48,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 await $scope.init();
                 template.close('main');
                 template.close('menu');
+                utils.safeApply($scope);
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 template.open('main', '../templates/evaluations/parent_enfant/releve/eval_parent_dispreleve');
                 utils.safeApply($scope);
@@ -56,6 +57,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 await $scope.init();
                 template.close('main');
                 template.close('menu');
+                utils.safeApply($scope);
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 template.open('main', '../templates/evaluations/parent_enfant/liste_devoirs/display_devoirs_structure');
                 template.open('evaluations', '../templates/evaluations/parent_enfant/liste_devoirs/list_view');
@@ -74,6 +76,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             viewDevoir : async function (params) {
                 await $scope.init();
                 template.close('menu');
+                template.close('main');
+                utils.safeApply($scope);
                 template.open('header', '../templates/evaluations/parent_enfant/accueil/eval_parent_selectEnfants');
                 template.open('main', '../templates/evaluations/parent_enfant/liste_devoirs/display_devoir');
                 utils.safeApply($scope);
@@ -145,7 +149,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if ($location.path() === "/competences/eleve") {
                 $scope.initBilan();
             }
-
+            if ($location.path() === "/") {
+                template.close('main');
+                template.close('menu');
+                utils.safeApply($scope);
+                template.open('menu', '../templates/evaluations/parent_enfant/accueil/eval_parent_menu');
+                template.open('main', '../templates/evaluations/parent_enfant/accueil/eval_parent_acu');
+                utils.safeApply($scope);
+            }
             $scope.update = false;
             utils.safeApply($scope);
         };

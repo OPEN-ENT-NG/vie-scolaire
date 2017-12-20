@@ -22,38 +22,63 @@
     </article>
 </div>
 <div class="list-view twelve-mobile" ng-if="checkHaveResult()" >
-
     <div class="responsive-table list-devoirs">
 
         <table>
             <thead sticky offset="64">
             <tr>
-                <th class="one-mobile  one ellipsis">
+                <th class="one-mobile  one ellipsis" ng-click="sortBy('date')">
                     <i18n>viescolaire.utils.date</i18n>
+                    <span ng-show="propertyName === 'date'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
                 </th>
-                <th class="three-mobile three ellipsis">
+                <th class="three-mobile three ellipsis"
+                    ng-click="sortBy('id_matiere')">
                     <i18n>viescolaire.utils.subject</i18n>
+                    <span ng-show="propertyName === 'id_matiere'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
                 </th>
-                <th class="three-mobile three ellipsis">
+                <th class="three-mobile three ellipsis"
+                    ng-click="sortBy('name')">
                     <i18n>viescolaire.utils.name</i18n>
+                    <span ng-show="propertyName === 'name'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
                 </th>
-                <th class="three-mobile two ellipsis">
+                <th class="three-mobile two ellipsis"
+                    ng-click="sortBy('owner')">
                     <i18n>viescolaire.utils.teacher</i18n>
+                    <span ng-show="propertyName === 'owner'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
                 </th>
-                <th class="one-mobile one ellipsis">
+                <th class="one-mobile one ellipsis"
+                    ng-click="sortBy('competences')">
                     <i18n>evaluations.skills.nb</i18n>
+                    <span ng-show="propertyName === 'competences'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
                 </th>
-                <th class="one-mobile one ellipsis">
-                    <i18n>viescolaire.evaluation.note</i18n></th>
+                <th class="one-mobile one ellipsis"
+                    ng-click="sortBy('note')">
+                    <i18n>viescolaire.evaluation.note</i18n>
+                    <span ng-show="propertyName === 'note'"
+                          ng-class="{'up-open':reverse  ,'down-open':!reverse}">
+                    </span>
+                </th>
+
                 <th class="zero-mobile one ellipsis"></th>
             </tr>
             </thead>
             <tbody>
             <tr  ng-class="{'opened shadowOne' : openedDevoir === $index}"
-                    ng-repeat-start="devoir in devoirs.all | customSearchFilters:search  | filter:search.name ">
+                    ng-repeat-start="devoir in devoirs.all| orderBy:propertyName:reverse:customComparator | customSearchFilters:search  | filter:search.name ">
                 <td  ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         data-label="[[translate('viescolaire.utils.date')]]">
-                    <div class="firstElem">[[getDateFormated(devoir.date)]]</div>
+                    <div class="firstElem">[[getDateFormated(devoir.date)]]
+                    </div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         class="testAlignLeft" data-label="[[translate('viescolaire.utils.subject')]]" >

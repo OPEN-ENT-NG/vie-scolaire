@@ -166,7 +166,7 @@
                     <div>
                         <h2><i18n>viescolaire.evaluation.result</i18n></h2>
                         <div class="DevoirField" ng-if="currentDevoir.annotation === undefined">
-                            <div>[[currentDevoir.note ? currentDevoir.note : "&nbsp;"]]</div>
+                            <div>[[(currentDevoir.note|| currentDevoir.note !== -1)? currentDevoir.note : "&nbsp;"]]</div>
                         </div>
                         <div class="DevoirField" ng-if="currentDevoir.annotation !== undefined">
                             <div>[[currentDevoir.annotation.libelle_court]]</div>

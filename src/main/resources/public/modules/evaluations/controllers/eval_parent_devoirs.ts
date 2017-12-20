@@ -43,6 +43,21 @@ export let listController = ng.controller('ListController', [
             };
             $scope.openedDevoir = -1;
             $scope.devoirs =  evaluations.devoirs;
+            $scope.devoirs.all = _.map($scope.devoirs.all, function (devoir) {
+                if(devoir.competences === undefined){
+                    devoir.competences = [];
+                }
+                if(devoir.note === undefined) {
+                    devoir.note = -1;
+                }
+                devoir.noteAnnotation = devoir.note;
+                if(devoir.annotation !== undefined) {
+                    devoir.noteAnnotation = devoir.annotation;
+                }
+                devoir.enseignant = $scope.getTeacherDisplayName(devoir.owner);
+                devoir.matiere = $scope.getLibelleMatiere(devoir.id_matiere);
+                return devoir;
+            });
             $scope.search = {
                 eleve: evaluations.eleve,
                 periode: evaluations.periode,
@@ -113,47 +128,6 @@ export let listController = ng.controller('ListController', [
             }
         };
 
-        $scope.customComparator = function (v1,v2) {
-            switch ($scope.propertyName) {
-                case 'id_matiere' : {
-                    return $scope.getLibelleMatiere(v1) < $scope.getLibelleMatiere(v2);
-                }
-                case  'owner': {
-                    return $scope.getTeacherDisplayName(v1) < $scope.getTeacherDisplayName(v2);
-                }
-                case 'note' : {
-                    if (v1 === undefined && v2 === undefined ) {
-                        return false;
-                    }
-                    else if (v1 === undefined ) {
-                        return false;
-                    }
-                    else if (v2 === undefined ) {
-                        return true;
-                    }
-                    else {
-                        return v1 < v2;
-                    }
-                }
-                case 'competences' : {
-                    if (v1 === undefined && v2 === undefined ) {
-                        return false;
-                    }
-                    else if (v1 === undefined ) {
-                        return false;
-                    }
-                    else if (v2 === undefined ) {
-                        return true;
-                    }
-                    else {
-                        return v1.length < v2.length;
-                    }
-                }
-                default : {
-                    return v1 < v2;
-                }
-            }
-        };
         $scope.incrementDevoir = function (num) {
             let index = _.findIndex(evaluations.devoirs.all, {id: $scope.currentDevoir.id});
             if (index !== -1 && (index + parseInt(num)) >= 0

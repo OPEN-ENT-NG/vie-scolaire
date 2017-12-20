@@ -48,9 +48,9 @@
                     </span>
                 </th>
                 <th class="three-mobile two ellipsis"
-                    ng-click="sortBy('owner')">
+                    ng-click="sortBy('enseignant')">
                     <i18n>viescolaire.utils.teacher</i18n>
-                    <span ng-show="propertyName === 'owner'"
+                    <span ng-show="propertyName === 'enseignant'"
                           ng-class="{'up-open':reverse  ,'down-open':!reverse}">
                     </span>
                 </th>
@@ -62,9 +62,9 @@
                     </span>
                 </th>
                 <th class="one-mobile one ellipsis"
-                    ng-click="sortBy('note')">
+                    ng-click="sortBy('noteAnnotation')">
                     <i18n>viescolaire.evaluation.note</i18n>
-                    <span ng-show="propertyName === 'note'"
+                    <span ng-show="propertyName === 'noteAnnotation'"
                           ng-class="{'up-open':reverse  ,'down-open':!reverse}">
                     </span>
                 </th>
@@ -74,7 +74,7 @@
             </thead>
             <tbody>
             <tr  ng-class="{'opened shadowOne' : openedDevoir === $index}"
-                    ng-repeat-start="devoir in devoirs.all| orderBy:propertyName:reverse:customComparator | customSearchFilters:search  | filter:search.name ">
+                    ng-repeat-start="devoir in devoirs.all| orderBy:propertyName:reverse| customSearchFilters:search  | filter:search.name ">
                 <td  ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         data-label="[[translate('viescolaire.utils.date')]]">
                     <div class="firstElem">[[getDateFormated(devoir.date)]]
@@ -94,18 +94,13 @@
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.competences !== undefined"
-                    class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
+                     data-label="[[translate('evaluations.skills.nb')]]">
                     <div>[[devoir.competences.length]]</div>
-                </td>
-                <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
-                        ng-if="devoir.competences === undefined"
-                    class="testAlignLeft" data-label="[[translate('evaluations.skills.nb')]]">
-                    <div> [[0]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.annotation === undefined"
                     data-label="[[translate('viescolaire.evaluation.note')]]">
-                    <div>[[devoir.note ? devoir.note : "&nbsp;"]]</div>
+                    <div>[[(devoir.note !== -1) ? devoir.note : "&nbsp;"]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
                         ng-if="devoir.annotation !== undefined"

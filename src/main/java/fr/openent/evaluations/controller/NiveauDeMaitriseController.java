@@ -72,7 +72,7 @@ public class NiveauDeMaitriseController extends ControllerHelper {
                     } else {
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         String idEtablissement = request.params().get("idEtablissement");
-                        niveauDeMaitriseService.getNiveauDeMaitrise(idEtablissement, handler);
+                        niveauDeMaitriseService.getNiveauDeMaitrise(idEtablissement, null, handler);
 
                     }
                 }

@@ -89,10 +89,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonObject params =  new JsonObject();
-        query.append("MATCH (s:Structure {id:'"+idEtablissement+"'})<-[BELONGS]-(c:Class)<-[DEPENDS]")
-                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) ");
+        query.append("MATCH (s:Structure)<-[BELONGS]-(c:Class)<-[DEPENDS]")
+                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) WHERE s.id = {idEtablissement} ");
+        params.putString("idEtablissement", idEtablissement);
         if(isTeacher){
-            query.append(" WHERE c.id IN {idClasse}");
+            query.append(" AND c.id IN {idClasse}");
             params.putArray(mParameterIdClasse, idClasse);
         }
         query.append("RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");

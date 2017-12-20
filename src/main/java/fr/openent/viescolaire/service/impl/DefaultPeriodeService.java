@@ -29,6 +29,7 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.I18n;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
@@ -80,6 +81,35 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             log.error("Error replacing i18n variable");
         }
         return PeriodeLibelle.toString();
+    }
+
+    @Override
+    public void getLibellePeriode(Long idTypePeriode, final HttpServerRequest request, final Handler<Either<String, String>> handler){
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT type, ordre FROM viesco.rel_type_periode WHERE id = ?");
+        params.addNumber(idTypePeriode);
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                if(stringJsonArrayEither.isRight()) {
+                    String result;
+                    if(stringJsonArrayEither.right().getValue().size() > 0) {
+                        String type = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().get(0)).getNumber("type"));
+                        String ordre = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().get(0)).getNumber("ordre"));
+                        result = I18n.getInstance().translate("viescolaire.periode." + type, getHost(request),
+                                I18n.acceptLanguage(request)) + " " + ordre;
+                    } else {
+                        result = "Année";
+                    }
+                    handler.handle(new Either.Right<String, String>(result));
+                } else {
+                    handler.handle(new Either.Left<String, String>(stringJsonArrayEither.left().getValue()));
+                }
+            }
+        }));
     }
 
     @Override

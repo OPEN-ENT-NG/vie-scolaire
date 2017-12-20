@@ -127,14 +127,16 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     public void getDevoirInfo(final Long idDevoir, final Handler<Either<String, JsonObject>> handler){
         StringBuilder query = new StringBuilder();
 
-        query.append( "select devoir.id, devoir.name, devoir.created, devoir.id_etablissement, devoir.coefficient ,devoir.id_matiere ,devoir.diviseur ,devoir.is_evaluated  , rel_periode.type periodeType, rel_periode.ordre periodeOrdre , Gdevoir.id_groupe , comp.* ")
-                .append(  " From notes.devoirs devoir ")
-                .append(  " Inner join viesco.rel_type_periode rel_periode on rel_periode.id = devoir.id_periode  ")
-                .append(  " NATURAL  JOIN (SELECT COALESCE(count(*), 0) NbrCompetence " )
-                .append(  " FROM notes.competences_devoirs c " )
-                .append(  " where c.id_devoir =?) comp  ")
-                .append(  " INNER Join notes.rel_devoirs_groupes  Gdevoir ON Gdevoir.id_devoir = devoir.id ")
-                .append(  " where devoir.id = ? ;");
+        query.append( "SELECT devoir.id, devoir.name, devoir.created, devoir.date, devoir.id_etablissement,")
+                .append(" devoir.coefficient, devoir.id_matiere, devoir.diviseur, devoir.is_evaluated,")
+                .append(" rel_periode.type AS periodeType, rel_periode.ordre AS periodeOrdre, Gdevoir.id_groupe, comp.*")
+                .append(" FROM notes.devoirs devoir")
+                .append(" INNER JOIN viesco.rel_type_periode rel_periode on rel_periode.id = devoir.id_periode")
+                .append(" NATURAL  JOIN (SELECT COALESCE(count(*), 0) NbrCompetence" )
+                .append(" FROM notes.competences_devoirs c" )
+                .append(" WHERE c.id_devoir =?) comp")
+                .append(" INNER Join notes.rel_devoirs_groupes  Gdevoir ON Gdevoir.id_devoir = devoir.id ")
+                .append(" WHERE devoir.id = ? ;");
 
         JsonArray values =  new JsonArray();
         values.addNumber(idDevoir).addNumber(idDevoir);
@@ -662,6 +664,77 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
+    public void listDevoirs(String[] idGroupes, Long[] idDevoirs, Long[] idPeriodes, String[] idEtablissements, String[] idMatieres, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        if(idGroupes == null) {
+            idGroupes = new String[0];
+        }
+        if (idDevoirs == null) {
+            idDevoirs = new Long[0];
+        }
+        if (idPeriodes == null) {
+            idPeriodes = new Long[0];
+        }
+        if (idEtablissements == null) {
+            idEtablissements = new String[0];
+        }
+        if (idMatieres == null) {
+            idMatieres = new String[0];
+        }
+
+        if(idGroupes.length == 0 && idDevoirs.length == 0 && idPeriodes.length == 0 && idEtablissements.length == 0 && idMatieres.length == 0) {
+            handler.handle(new Either.Left<String, JsonArray>("listDevoirs : All parameters are empty."));
+        }
+
+        query.append("SELECT devoirs.*, rel.id_groupe")
+                .append(" FROM " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_DEVOIR_TABLE + " AS devoirs")
+                .append(" LEFT JOIN " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_REL_DEVOIRS_GROUPES + " AS rel")
+                .append(" ON devoirs.id = rel.id_devoir")
+                .append(" WHERE");
+
+        if(idGroupes.length != 0) {
+            query.append(" rel.id_groupe IN " + Sql.listPrepared(idGroupes) + " AND");
+            for(String idGroupe : idGroupes) {
+                params.addString(idGroupe);
+            }
+        }
+
+        if (idDevoirs.length != 0) {
+            query.append(" devoirs.id IN " + Sql.listPrepared(idDevoirs) + " AND");
+            for (Long idDevoir : idDevoirs) {
+                params.addNumber(idDevoir);
+            }
+        }
+
+        if (idPeriodes.length != 0) {
+            query.append(" devoirs.id_periode IN " + Sql.listPrepared(idPeriodes) + " AND");
+            for (Long idPeriode : idPeriodes) {
+                params.addNumber(idPeriode);
+            }
+        }
+
+        if (idEtablissements.length != 0) {
+            query.append(" devoirs.id_etablissement IN " + Sql.listPrepared(idEtablissements) + " AND");
+            for (String idEtablissement : idEtablissements) {
+                params.addString(idEtablissement);
+            }
+        }
+
+        if (idMatieres.length != 0) {
+            query.append(" devoirs.id_matiere IN " + Sql.listPrepared(idMatieres) + " AND");
+            for (String idMatiere : idMatieres) {
+                params.addString(idMatiere);
+            }
+        }
+
+        query.delete(query.length() - 3, query.length());
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
 
     @Override

@@ -51,6 +51,15 @@ public interface PeriodeService extends CrudService {
      * @return
      */
     public String getLibellePeriode(Integer type, Integer ordre , HttpServerRequest request);
+
+    /**
+     *
+     * @param idType
+     * @param request
+     * @param handler
+     */
+    public void getLibellePeriode(Long idType, HttpServerRequest request, Handler<Either<String, String>> handler);
+
     /**
      * Retourne l'ensemble des types de periode
      *

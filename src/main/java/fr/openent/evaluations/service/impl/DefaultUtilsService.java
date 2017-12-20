@@ -365,7 +365,7 @@ public class DefaultUtilsService  implements UtilsService {
     @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
-            recipient.addString((String) list.get(i));
+            recipient.add(list.get(i));
         }
         return recipient;
     }

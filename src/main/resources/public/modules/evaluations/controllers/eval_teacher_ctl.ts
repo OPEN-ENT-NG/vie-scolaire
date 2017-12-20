@@ -2872,18 +2872,50 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
             $scope.printCartouche = (unType?: String) => {
 
-                let Url = '/viescolaire/evaluations/devoirs/print/' + $scope.currentDevoir.id + "/";
+                let url;
                 if (unType) {
-                    Url += "formsaisie";
+                    url = '/viescolaire/evaluations/devoirs/print/' + $scope.currentDevoir.id + '/formsaisie';
                 } else {
-                    if ($scope.printOption.fileType == "cartouche") {
-                        Url += "cartouche" + '?eleve=' + $scope.printOption.byEleve + '&color=' + $scope.printOption.inColor + "&nbr=" + $scope.printOption.cartoucheNmb;
-                    } else {
-                        Url += "formsaisie";
+                    switch ($scope.printOption.fileType) {
+                        case 'cartouche' : {
+                            url = "/viescolaire/evaluations/devoirs/print/" + $scope.currentDevoir.id + "cartouch?eleve=" + $scope.printOption.byEleve + '&color=' + $scope.printOption.inColor + "&nbr=" + $scope.printOption.cartoucheNmb;
+                            break;
+                        }
+                        case 'formSaisie' : {
+                            url = '/viescolaire/evaluations/devoirs/print/' + $scope.currentDevoir.id + '/formsaisie';
+                            break;
+                        }
+                        case 'devoir' : {
+                            url = "/viescolaire/evaluations/devoirs/print/" + $scope.currentDevoir.id + "/export?text=" + !$scope.printOption.inColor;
+                            break;
+                        }
                     }
                 }
-                location.replace(Url);
+                location.replace(url);
                 $scope.printOption.display = false;
+            };
+
+            $scope.exportDevoir = (idDevoir, textMod = false) => {
+                let url = "/viescolaire/evaluations/devoirs/print/" + idDevoir + "/export?text=" + textMod;
+                $scope.opened.evaluation.exportDevoir = false;
+                $scope.textModExport = false;
+                $scope.selected.devoirs.list = [];
+                utils.safeApply($scope);
+                location.replace(url);
+            };
+
+            $scope.exportReleveComp = (idEleve : String, idMatiere:String, idPeriode:Number, textMod:Boolean = false) => {
+                let url = "/viescolaire/evaluations/releveComp/print/" + idEleve + "/export?text=" + textMod;
+                if(idMatiere) {
+                    url += "&idMatiere=" + idMatiere;
+                }
+                if(idPeriode) {
+                    url += "&idPeriode=" + idPeriode;
+                }
+                delete $scope.releveComp;
+                $scope.opened.releveComp = false;
+                utils.safeApply($scope);
+                location.replace(url);
             };
         }
 ]);

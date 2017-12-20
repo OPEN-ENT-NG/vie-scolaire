@@ -32,6 +32,10 @@
                     <i18n>evaluation.devoir.print.form.saisie</i18n>
              </span>
         </label>
+        <label>
+            <input type="radio" ng-change="" ng-model="printOption.fileType" value="devoir">
+            <i18n>evaluations.devoir.print</i18n>
+        </label>
     </div>
     <div class="checkbox-grid additional-options" ng-if="printOption.fileType === 'cartouche'">
         <div class="option-eleve cell">
@@ -54,6 +58,16 @@
             <label >
                 <span><i18n>evaluation.devoir.cartouche.number</i18n></span>
                 <input class="nbr-Cartouche" ng-disabled="printOption.byEleve" type="number" ng-model="printOption.cartoucheNmb" min="1" max="80">
+            </label>
+        </div>
+    </div>
+    <div class="checkbox-grid additional-options" ng-if="printOption.fileType === 'devoir'">
+        <div class="cell">
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-model="printOption.inColor"
+                >
+                <span><i18n>evaluation.devoir.cartouche.couleur</i18n></span>
             </label>
         </div>
     </div>

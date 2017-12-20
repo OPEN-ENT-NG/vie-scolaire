@@ -24,14 +24,13 @@ import fr.openent.evaluations.bean.Eleve;
 import fr.openent.evaluations.bean.NoteDevoir;
 import fr.openent.evaluations.service.*;
 import fr.openent.evaluations.service.impl.*;
+import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.PeriodeService;
-import fr.openent.viescolaire.service.impl.DefaultClasseService;
-import fr.openent.viescolaire.service.impl.DefaultEleveService;
-import fr.openent.viescolaire.service.impl.DefaultMatiereService;
-import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
+import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -51,8 +50,6 @@ import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
-import org.vertx.java.core.json.impl.Json;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -64,7 +61,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
@@ -90,8 +87,10 @@ public class ExportPDFController extends ControllerHelper {
     private DomainesService domaineService;
     private EleveService eleveService;
     private CompetenceNoteService competenceNoteService;
-    private  CompetencesService competencesService;
+    private CompetencesService competencesService;
     private NiveauDeMaitriseService niveauDeMaitriseService;
+    private ExportService exportService;
+    private GroupeService groupeService;
 
     public ExportPDFController(EventBus eb, EmailSender notification) {
         pathPrefix = Viescolaire.EVAL_PATHPREFIX;
@@ -106,6 +105,8 @@ public class ExportPDFController extends ControllerHelper {
         competenceNoteService = new DefaultCompetenceNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_NOTES_TABLE);
         competencesService = new DefaultCompetencesService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_COMPETENCES_TABLE);
         niveauDeMaitriseService = new DefaultNiveauDeMaitriseService();
+        exportService = new DefaultExportService();
+        groupeService = new DefaultGroupeService();
     }
 
     /**
@@ -1138,8 +1139,6 @@ public class ExportPDFController extends ControllerHelper {
 
     }
 
-
-
     @Get("/devoirs/print/:idDevoir/formsaisie")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getFormsaisi(final HttpServerRequest request){
@@ -1281,8 +1280,6 @@ public class ExportPDFController extends ControllerHelper {
 
             }});
     }
-
-
 
     @Get("/devoirs/print/:idDevoir/cartouche")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
@@ -1485,4 +1482,160 @@ public class ExportPDFController extends ControllerHelper {
         });
     }
 
+    @Get("/devoirs/print/:idDevoir/export")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getExportDevoir (final HttpServerRequest request) {
+        Long idDevoir = 0L;
+        final Boolean text = Boolean.parseBoolean(request.params().get("text"));
+        final Boolean json = Boolean.parseBoolean(request.params().get("json"));
+
+
+        try {
+            idDevoir = Long.parseLong(request.params().get("idDevoir"));
+        } catch (NumberFormatException err) {
+            badRequest(request, err.getMessage());
+            log.error(err);
+        }
+
+        devoirService.getDevoirInfo(idDevoir, new Handler<Either<String, JsonObject>>() {
+            @Override
+            public void handle(Either<String, JsonObject> stringJsonObjectEither) {
+                if (stringJsonObjectEither.isRight()) {
+                    JsonObject devoir = stringJsonObjectEither.right().getValue();
+                    String idGroupe = devoir.getString("id_groupe");
+                    String idEtablissement = devoir.getString("id_etablissement");
+
+                    exportService.getExportEval(text, devoir, idGroupe, idEtablissement, request, new Handler<Either<String, JsonObject>>(){
+
+                        @Override
+                        public void handle(Either<String, JsonObject> stringJsonObjectEither) {
+                            if(stringJsonObjectEither.isRight()) {
+                                try {
+                                    JsonObject result = stringJsonObjectEither.right().getValue();
+                                    if (json) {
+                                        Renders.renderJson(request, result);
+                                    } else {
+                                        genererPdf(request, result, "evaluation.pdf.xhtml", "Evaluation");
+                                    }
+                                } catch (Error err){
+                                    leftToResponse(request, new Either.Left<>("An error occured while rendering pdf export : " + err.getMessage()));
+                                }
+                            } else {
+                                leftToResponse(request, stringJsonObjectEither.left());
+                            }
+                        }
+                    });
+                } else {
+                    leftToResponse(request, stringJsonObjectEither.left());
+                }
+            }
+        });
+    }
+
+    @Get("/releveComp/print/:idEleve/export")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getExportReleveComp(final HttpServerRequest request) {
+        final Boolean text = Boolean.parseBoolean(request.params().get("text"));
+        final Boolean json = Boolean.parseBoolean(request.params().get("json"));
+        final String idEleve = request.params().get("idEleve");
+        final String idMatiere = request.params().get("idMatiere");
+
+
+        Long idPeriode = null;
+
+        try {
+            if(request.params().contains("idPeriode")) {
+                idPeriode = Long.parseLong(request.params().get("idPeriode"));
+            }
+        } catch (NumberFormatException err) {
+            badRequest(request, err.getMessage());
+            log.error(err);
+            return;
+        }
+
+        final Long finalIdPeriode = idPeriode;
+        eleveService.getInfoEleve(new String[]{idEleve}, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                if (stringJsonArrayEither.isRight()) {
+                    JsonObject eleve = stringJsonArrayEither.right().getValue().get(0);
+                    final String name = eleve.getString("firstName").toUpperCase() + " " + eleve.getString("lastName");
+                    final String idClasse = eleve.getString("idClasse");
+                    final String nomClasse = eleve.getString("classeName");
+                    final String idEtablissement = eleve.getString("idEtablissement");
+
+                    groupeService.listGroupesEnseignementsByUserId(idEleve, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                            if(stringJsonArrayEither.isRight()) {
+                                JsonArray result = stringJsonArrayEither.right().getValue();
+                                final List<String> idGroupes = new ArrayList<>();
+                                final List<String> nomGroupes = new ArrayList<>();
+                                for (int i = 0; i < result.size(); i++) {
+                                    JsonObject groupe = ((JsonObject) result.get(i)).getObject("g").getObject("data");
+                                    idGroupes.add(groupe.getString("id"));
+                                    nomGroupes.add(groupe.getString("name"));
+                                }
+                                idGroupes.add(idClasse);
+                                nomGroupes.add(nomClasse);
+
+                                exportService.getExportReleveComp(text, idEleve, idGroupes.toArray(new String[0]), idEtablissement, idMatiere, finalIdPeriode, new Handler<Either<String, JsonObject>>() {
+                                    @Override
+                                    public void handle(final Either<String, JsonObject> stringJsonObjectEither) {
+                                        if (stringJsonObjectEither.isRight()) {
+                                            try {
+                                                final JsonObject result = stringJsonObjectEither.right().getValue();
+                                                final JsonObject headerEleve = new JsonObject();
+                                                headerEleve.putString("nom", name);
+                                                headerEleve.putString("classe", nomGroupes.toString().substring(1, nomGroupes.toString().length() - 1));
+                                                matiereService.getMatiere(idMatiere, new Handler<Either<String, JsonObject>>() {
+                                                    @Override
+                                                    public void handle(Either<String, JsonObject> stringJsonObjectEither) {
+                                                        if(stringJsonObjectEither.isRight()) {
+                                                            String matiere = stringJsonObjectEither.right().getValue().getObject("n").getObject("data").getString("label");
+                                                            headerEleve.putString("matiere", matiere);
+                                                            periodeService.getLibellePeriode(finalIdPeriode, request, new Handler<Either<String, String>>() {
+                                                                @Override
+                                                                public void handle(Either<String, String> stringStringEither) {
+                                                                    if (stringStringEither.isRight()) {
+                                                                        String libellePeriode = stringStringEither.right().getValue()
+                                                                                .replace("é", "e")
+                                                                                .replace("è", "e");
+                                                                        headerEleve.putString("periode", libellePeriode);
+                                                                        result.getObject("header").putObject("left", headerEleve);
+                                                                        if (json) {
+                                                                            Renders.renderJson(request, result);
+                                                                        } else {
+                                                                            genererPdf(request, result, "releve-competences.pdf.xhtml", "ReleveComp");
+                                                                        }
+                                                                    } else {
+                                                                        leftToResponse(request, stringStringEither.left());
+                                                                    }
+                                                                }
+                                                            });
+                                                        } else {
+                                                            leftToResponse(request, stringJsonObjectEither.left());
+                                                        }
+                                                    }
+                                                });
+
+                                            } catch (Error err) {
+                                                leftToResponse(request, new Either.Left<>("An error occured while rendering pdf export : " + err.getMessage()));
+                                            }
+                                        } else {
+                                            leftToResponse(request, stringJsonObjectEither.left());
+                                        }
+                                    }
+                                });
+                            } else {
+                                leftToResponse(request, stringJsonArrayEither.left());
+                            }
+                        }
+                    });
+                } else {
+                    leftToResponse(request, stringJsonArrayEither.left());
+                }
+            }
+        });
+    }
 }

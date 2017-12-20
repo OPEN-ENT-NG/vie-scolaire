@@ -141,6 +141,11 @@
             <button class="cell ng-scope" ng-click="confirmSuppretion()">
                 <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
+            <button class="cell"
+                    ng-click="opened.evaluation.exportDevoir = true"
+                    ng-show="selected.devoirs.list.length === 1">
+                <i18n>evaluations.export</i18n>
+            </button>
         </div>
     </div>
 </section>
@@ -265,5 +270,16 @@
     </button>
     <button class="marginFive" ng-click="annulerSuppretion()">
         <i18n>evaluations.devoir.annuler</i18n>
+    </button>
+</lightbox>
+
+<lightbox show="opened.evaluation.exportDevoir" on-close="opened.evaluation.exportDevoir = false">
+    <label class="checkbox" style="float: left">
+        <input type="checkbox" ng-model="textModExport">
+        <i18n>evaluations.export.textMod</i18n>
+    </label>
+    <button class="right-magnet"
+            ng-click="exportDevoir(selected.devoirs.list[0].id, textModExport)">
+        <i18n>evaluations.export</i18n>
     </button>
 </lightbox>

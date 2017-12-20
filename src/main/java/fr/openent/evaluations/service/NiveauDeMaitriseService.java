@@ -33,9 +33,10 @@ public interface NiveauDeMaitriseService extends CrudService {
     /**
      * Recupère l'ensemble des couleurs des niveaux de maitrise pour un établissement.
      * @param idEtablissement identifiant de l'établissement
+     * @param idCycle           identifiant du cycle (opt)
      * @param handler handler portant le resultat de la requête
      */
-    public void getNiveauDeMaitrise(String idEtablissement, Handler<Either<String, JsonArray>> handler);
+    public void getNiveauDeMaitrise(String idEtablissement, Long idCycle, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupère l'ensemble des couleurs des niveaux de maitrise pour  un cycle

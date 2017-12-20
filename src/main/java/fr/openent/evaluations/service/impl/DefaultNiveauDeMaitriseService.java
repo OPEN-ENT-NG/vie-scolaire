@@ -53,25 +53,28 @@ public class DefaultNiveauDeMaitriseService extends SqlCrudService implements Ni
      * @param idEtablissement identifiant de l'établissement
      * @param handler handler portant le resultat de la requête 
      */
-    public void getNiveauDeMaitrise(String idEtablissement, Handler<Either<String, JsonArray>> handler){
+    public void getNiveauDeMaitrise(String idEtablissement, Long idCycle, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT "+Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE +".libelle, ordre, ")
-                .append( Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE +".couleur AS default, id_cycle, ")
-                .append( Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE +".id AS id_niveau, ")
-                .append(" niv.id_etablissement, niv.couleur, niv.lettre, niv.id As id, ")
-                .append(Viescolaire.EVAL_CYCLE_TABLE+".libelle  AS cycle")
-                .append(" FROM "+ Viescolaire.EVAL_SCHEMA +"." + Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE)
-                .append(" INNER JOIN " + Viescolaire.EVAL_SCHEMA +"." + Viescolaire.EVAL_CYCLE_TABLE )
-                .append(" ON id_cycle = " + Viescolaire.EVAL_CYCLE_TABLE+ ".id ")
+        query.append("SELECT t1.libelle, t1.ordre, t1.couleur AS default, t1.id_cycle, t1.id AS id_niveau,")
+                .append(" niv.id_etablissement, niv.couleur, niv.lettre, niv.id AS id, t2.libelle  AS cycle")
+                .append(" FROM " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE + " AS t1")
+                .append(" INNER JOIN " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_CYCLE_TABLE + " AS t2")
+                .append(" ON t1.id_cycle = t2.id ")
                 .append(" LEFT JOIN ")
                 .append(" (SELECT * FROM "+ Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_PERSO_NIVEAU_COMPETENCES_TABLE)
                 .append(" WHERE id_etablissement = ? ) AS niv")
-                .append(" ON (niv.id_niveau = " + Viescolaire.EVAL_NIVEAU_COMPETENCES_TABLE +".id) " );
-
+                .append(" ON (niv.id_niveau = t1.id) " );
 
         values.addString(idEtablissement);
+
+        if(idCycle != null) {
+            query.append(" WHERE t1.id_cycle = ?");
+            values.addNumber(idCycle);
+        }
+
+        query.append(" ORDER BY ordre");
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -90,6 +93,7 @@ public class DefaultNiveauDeMaitriseService extends SqlCrudService implements Ni
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
+
     public void getPersoNiveauMaitrise(String idUser,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();

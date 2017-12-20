@@ -586,16 +586,33 @@ body.evaluations {
         background-color: $white;
       }
 
-      .eye-slash {
-        padding: 0 10px;
-        @include transition(all 0.4s ease);
+      .visiApprec {
+        text-indent: 0;
+        width: 30px;
+        margin: 0 10px;
+        text-align: center;
+        position: relative;
 
-        &.selected {
-          color: $cyan;
+        &.alone > i {
+          font-size: 30px;
         }
 
-        &.alone {
-          transform: scale(1.2);
+        span {
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+        }
+
+        i {
+          width: 100%;
+          font-size: 20px;
+
+          &.eye-open {
+            color: $cyan;
+          }
         }
       }
     }
@@ -2449,7 +2466,7 @@ body.evaluations {
     }
     .list-devoirs {
       .testAlignLeft {
-      @media screen and (min-device-width:$fat-mobile) {
+        @media screen and (min-device-width:$fat-mobile) {
           text-align: left !important;
         }
       }

@@ -28,17 +28,20 @@ import { Eleve } from "./parent_eleve/Eleve";
 import { Enseignant } from "./parent_eleve/Enseignant";
 import {Periode} from "./parent_eleve/Periode";
 import {Domaine, Structure} from "./teacher/eval_teacher_mdl";
-import {NiveauCompetence} from "./eval_niveau_comp";
+import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
+import {Enseignement} from "./parent_eleve/Enseignement";
 
 let moment = require('moment');
 declare let _: any;
 declare let location: any;
+declare let console : any;
 
 export class Evaluations extends Model {
     eleves: Collection<Eleve>;
     matieres: Collection<Matiere>;
     classes: Collection<Classe>;
     enseignants: Collection<Enseignant>;
+    enseignements : Collection<Enseignement>;
     devoirs: Collection<Devoir>;
     eleve: Eleve; // Elève courant
     periode: Periode; // Période courante
@@ -59,7 +62,8 @@ export class Evaluations extends Model {
             GET_ENSEIGNANTS : '/viescolaire/enseignants?',
             GET_COMPETENCES :'/viescolaire/competences/eleve/',
             GET_ANNOTATION : '/viescolaire/annotations/eleve/',
-            GET_ARBRE_DOMAINE : '/viescolaire/evaluations/domaines/classe/'
+            GET_ARBRE_DOMAINE : '/viescolaire/evaluations/domaines/classe/',
+            GET_ENSEIGNEMENT: '/viescolaire/evaluations/enseignements'
         };
     }
 
@@ -257,7 +261,44 @@ export class Evaluations extends Model {
                     });
                 }
             });
-
+            this.collection(Enseignement, {
+                sync: async function (idClasse: string, competences) {
+                    let that = this.composer;
+                    return new Promise((resolve, reject) => {
+                        var uri = that.api.GET_ENSEIGNEMENT;
+                        if (idClasse !== undefined) {
+                            uri += '?idClasse=' + idClasse;
+                            http().getJson(uri).done(function (res) {
+                                this.load(res);
+                                this.each(function (enseignement) {
+                                    enseignement.competences.load(enseignement['competences_1']);
+                                    _.map(enseignement.competences.all, function (competence) {
+                                        return competence.composer = enseignement;
+                                    });
+                                    enseignement.competences.each(function (competence) {
+                                        if (competence['competences_2'].length > 0) {
+                                            competence.competences.load(competence['competences_2']);
+                                            _.map(competence.competences.all, function (sousCompetence) {
+                                                sousCompetence.competencesEvaluations = _.where(competences, {
+                                                    id_competence: sousCompetence.id
+                                                });
+                                                return sousCompetence.composer = competence;
+                                            });
+                                        }
+                                        delete competence['competences_2'];
+                                    });
+                                    delete enseignement['competences_1'];
+                                });
+                                if (resolve && typeof (resolve) === 'function') {
+                                    resolve();
+                                }
+                            }.bind(this));
+                        } else {
+                            console.error('idClasse must be defined');
+                        }
+                    });
+                }
+            });
             // Synchronisation de la collection d'élèves pour les parents
             if (model.me.type === 'PERSRELELEVE') {
                 await this.eleves.sync();
@@ -338,6 +379,7 @@ export class Evaluations extends Model {
 export let evaluations = new Evaluations();
 
 model.build = async function () {
+    require('angular-chart.js');
     (this as any).evaluations = evaluations;
     await evaluations.sync();
 };

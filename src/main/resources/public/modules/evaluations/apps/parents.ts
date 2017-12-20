@@ -12,6 +12,8 @@ import {uniqueFilter} from "../../utils/filters/unique";
 import {cSkillsBubble} from "../directives/cSkillsBubble";
 import {proportionSuiviCompetence} from "../directives/ProportionSuiviCompetence";
 
+
+ng.addRequiredModule('chart.js');
 // controllers
 ng.controllers.push(evaluationsController);
 ng.controllers.push(releveController);

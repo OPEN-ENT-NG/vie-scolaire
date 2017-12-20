@@ -1979,6 +1979,13 @@ body.evaluations {
       border-bottom: solid 1px $primary-dark;
     }
 
+    .bilan-eleve-ctl {
+      background-color: $white;
+      min-height: 30px;
+      padding-top: 10px;
+      border-bottom: solid 1px $primary-dark;
+    }
+
     .suivi-eleve-slider {
       width: 200%;
     }
@@ -2566,6 +2573,25 @@ body.evaluations {
     .content {
       min-height: 0;
     }
+  }
+
+  .criterion.card.bilan-eleve {
+    margin-top: 0px !important;
+  }
+
+  .bilan-suivi-eleve{
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+    padding-bottom: 20px !important;
+    border-radius: 5px !important;
+  }
+
+  .notes-help-bilan-eleve {
+    margin-top: 20px !important;
+  }
+
+  .warning-bilan-eleve {
+    padding-top: 20px;
   }
 }
 

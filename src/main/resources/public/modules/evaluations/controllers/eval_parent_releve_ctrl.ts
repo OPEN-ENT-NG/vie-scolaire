@@ -30,8 +30,8 @@ let moment = require('moment');
 declare let _: any;
 
 export let releveController = ng.controller('ReleveController', [
-    '$scope','$rootScope', '$location',
-    async  function ($scope, $rootScope, $location) {
+    '$scope', '$location',
+    async  function ($scope, $location) {
         /**
          * Calcul la moyenne pour chaque matière
          * contenue dans $scope.matieres
@@ -110,7 +110,7 @@ export let releveController = ng.controller('ReleveController', [
             utils.safeApply($scope);
         };
 
-        await $rootScope.init();
+        await $scope.init();
         $scope.initReleve();
         // Au changement de la période par le parent
         $scope.$on('loadPeriode', async function() {

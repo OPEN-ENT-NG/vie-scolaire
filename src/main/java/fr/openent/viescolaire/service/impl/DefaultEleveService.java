@@ -178,16 +178,17 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append( "SELECT res.id_devoir,id_competence , max(evaluation) as evaluation, owner, id_eleve, ")
                 .append(" created, modified , id_matiere, name, is_evaluated, id_periode, ")
                 .append("  id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle ")
-                .append("  , _type_libelle FROM ( ")
+                .append("  , _type_libelle, owner_name  FROM ( ")
                 .append(" select cd.id_devoir,cd.id_competence , evaluation, cn.owner, id_eleve, ")
                 .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, name, devoirs.is_evaluated, ")
                 .append(" id_periode, id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
-                .append("                , type.nom as _type_libelle ")
+                .append(" , type.nom as _type_libelle, users.username as owner_name ")
                 .append(" from notes.competences_devoirs as cd ")
                 .append(" inner join notes.competences_notes as cn on cd.id_devoir = cn.id_devoir ")
                 .append(" and  cd.id_competence = cn.id_competence ")
                 .append(" inner JOIN notes.devoirs on devoirs.id = cd.id_devoir ")
                 .append(" inner join notes.type on devoirs.id_type = type.id ")
+                .append(" INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
                 .append(" WHERE date_publication <= Now() AND id_eleve = ? ");
         values.addString(idEleve);
         if(idPeriode != null){
@@ -199,12 +200,13 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" -1 as evaluation, owner, ? as id_eleve, ")
                 .append(" created, modified, id_matiere, name, is_evaluated, id_periode, " )
                 .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
-                .append("                , type.nom as _type_libelle ")
+                .append(" , type.nom as _type_libelle , users.username as owner_name ")
                 .append(" from notes.competences_devoirs inner JOIN notes.devoirs on ")
                 .append(" devoirs.id = competences_devoirs.id_devoir " )
                 .append(" inner join notes.type on devoirs.id_type = type.id ")
                 .append(" inner JOIN notes.rel_devoirs_groupes on ")
                 .append(" competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
+                .append(" inner join "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
                 .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.toArray()))
                 .append(" WHERE date_publication <= Now()") ;
         values.addString(idEleve);
@@ -218,7 +220,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append(" ) AS res ")
                 .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )
                 .append("id_matiere, name, is_evaluated, id_periode, id_type, diviseur, date_publication, ")
-                .append(" date, apprec_visible, coefficient, libelle , _type_libelle ");
+                .append(" date, apprec_visible, coefficient, libelle , _type_libelle, owner_name ");
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

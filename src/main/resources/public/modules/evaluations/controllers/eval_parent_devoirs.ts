@@ -31,8 +31,8 @@ declare let window: any;
 declare let $: any;
 
 export let listController = ng.controller('ListController', [
-    '$scope','$rootScope','$location','$filter',
-    async  function ($scope, $rootScope, $location, $filter) {
+    '$scope','$location','$filter',
+    async  function ($scope, $location, $filter) {
 
         // Initialisation des variables
         $scope.initListDevoirs = async function () {
@@ -61,11 +61,11 @@ export let listController = ng.controller('ListController', [
             $scope.translate = lang.translate;
             if($location.path().split('/')[2] !== "list") {
                 let devoirId = $location.path().split('/')[2];
-                $rootScope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id: parseInt(devoirId)});
-                if ($rootScope.currentDevoir !== undefined) {
+                $scope.currentDevoir = _.findWhere(evaluations.devoirs.all, {id: parseInt(devoirId)});
+                if ($scope.currentDevoir !== undefined) {
                     await evaluations.domaines.sync(evaluations.eleve.classe, evaluations.eleve,
-                        $rootScope.currentDevoir.competences);
-                    await $rootScope.currentDevoir.getAppreciation(evaluations.eleve.id);
+                        $scope.currentDevoir.competences);
+                    await $scope.currentDevoir.getAppreciation(evaluations.eleve.id);
 
                     $scope.suiviCompetence = {
                         domaines: evaluations.domaines
@@ -83,7 +83,7 @@ export let listController = ng.controller('ListController', [
             }
             utils.safeApply($scope);
         };
-        await $rootScope.init();
+        await $scope.init();
         // Au changement de la période courante par le parent
         $scope.$on('loadPeriode', async function() {
             await $scope.initListDevoirs();
@@ -108,38 +108,8 @@ export let listController = ng.controller('ListController', [
             }
         };
 
-        $scope.FilterNotEvaluated = function (maCompetence) {
-            var _t = maCompetence.competencesEvaluations;
-            var max = _.max(_t, function (evaluation) {
-                return evaluation.evaluation;
-            });
-            if (typeof max === 'object') {
-                return true;
-            }
-            else {
-                return false;
-            }
-        };
-        $scope.FilterNotEvaluatedDomaine = function (monDomaineCompetence) {
-            if (monDomaineCompetence.domaines.all.length > 0 ) {
-                for (let i = 0; i < monDomaineCompetence.domaines.all.length; i++) {
-                    if($scope.FilterNotEvaluated(monDomaineCompetence.domaines.all[i])){
-                        return true;
-                    }
-                }
-            }
-            else {
-                for (let i = 0; i < monDomaineCompetence.competences.all.length; i++) {
-                    let maCompetence = monDomaineCompetence.competences.all[i];
-                    if ($scope.FilterNotEvaluated(maCompetence)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        };
         $scope.incrementDevoir = function (num) {
-            let index = _.findIndex(evaluations.devoirs.all, {id: $rootScope.currentDevoir.id});
+            let index = _.findIndex(evaluations.devoirs.all, {id: $scope.currentDevoir.id});
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < evaluations.devoirs.all.length) {
                 let target = evaluations.devoirs.all[index + parseInt(num)];

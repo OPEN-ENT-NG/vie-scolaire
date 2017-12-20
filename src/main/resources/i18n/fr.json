@@ -177,6 +177,7 @@
   "evaluations.suivi.eleve.vue.graph":"Vue graph",
   "evaluations.back.suivi.eleve.title":"Revenir au suivi élève",
   "evaluation.suivi.eleve.empty": "Aucun suivi de compétences élève généré. Vous pouvez en générer un en sélectionnant les critères.",
+  "evaluation.bilan.eleve.empty": "Aucun bilan de compétences élève généré. Vous pouvez en générer un en sélectionnant les critères.",
   "evaluation.suivi.classe.empty": "Aucun suivi de compétences classe généré. Vous pouvez en générer un en sélectionnant les critères.",
   "evaluation.list.empty": "Aucune évaluation n'a été créée.",
   "evaluation.student.list.empty": "Aucune évaluation ne correspond à vos critères.",
@@ -375,5 +376,7 @@
   "tuto.bienvenu":"Bienvenue sur l'écran de saisie de notes et de compétences.Vous avez la possiblité d'évaluer les compétences au clavier. ",
   "tuto.raccourci":"Il suffit pour cela , de se positionner sur une pastille et utiliser la touche numérique correspondante :",
   "keyboard.button":"Raccourci clavier" ,
-  "last" : "dernières"
+  "last" : "dernières",
+  "evaluation.search.by.enseignements" : "Vue par enseignements",
+  "evaluation.search.by.domaines" : "Vue par domaines"
 }

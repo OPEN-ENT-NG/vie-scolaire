@@ -362,7 +362,7 @@
   "true": "oui",
   "false": "non",
   "show.more": "voir plus",
-  "evaluation.last.child": "Les dernières valuations de ",
+  "evaluation.last.child": "Les dernières évaluations de ",
   "evaluation.change.devoir": "Changer de devoir",
   "evaluation.access.to.list": "Accès à la liste des évaluations",
   "devoir.errDatePubli" : "Vous ne pouvez pas saisir une date de publication antérieure à la date du devoir.",

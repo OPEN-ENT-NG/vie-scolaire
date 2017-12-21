@@ -234,14 +234,11 @@
                                 <div class="visiApprec inline-block"
                                      ng-click="switchVisibilityApprec(currentDevoir)">
                                     <i ng-class="{'eye-slash': !currentDevoir.apprec_visible, 'eye-open': currentDevoir.apprec_visible}"></i>
-                                    <span ng-if="currentDevoir.apprec_visible"
-                                      tooltip="evaluations.devoir.appreciation.tooltip.hide">&nbsp;</span>
                                     <span ng-if="!currentDevoir.apprec_visible"
+                                      tooltip="evaluations.devoir.appreciation.tooltip.hide">&nbsp;</span>
+                                    <span ng-if="currentDevoir.apprec_visible"
                                           tooltip="evaluations.devoir.appreciation.tooltip.show">&nbsp;</span>
                                 </div>
-                                <i18n ng-if="currentDevoir.competences.all.length == 0">
-                                    evaluations.devoir.appreciation.creation
-                                </i18n>
                             </div>
                             <div class="visiApprec inline-block right-magnet cell alone"
                                  ng-click="switchVisibilityApprec(currentDevoir)"

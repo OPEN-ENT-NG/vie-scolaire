@@ -26,7 +26,6 @@
          ng-repeat="devoir in devoirs.all | customSearchFilters:search | filter:search.name" ng-init="rand(devoir)">
         <a class="devoir-icons-container-link" ng-href="#/devoir/[[devoir.id]]">
             <section class="devoir-icons-container twelve-mobile">
-                <div class="devoir-percent" ng-style="{width: devoir.percent+'%'}"></div>
                 <header>
                     <div class="devoir-icons-date expandable-content">[[getDateFormated(devoir.date)]]</div>
                     <div class="devoir-icons-date expandable-content">[[getLibelleMatiere(devoir.id_matiere)]]</div>

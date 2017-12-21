@@ -93,7 +93,7 @@
                     <div class="competence-text-overflow">[[getTeacherDisplayName(devoir.owner)]]</div>
                 </td>
                 <td ng-click="goToDevoir('#/devoir/[[devoir.id]]')"
-                        ng-if="devoir.competences !== undefined"
+                        ng-if="devoir.competences.length !== undefined"
                      data-label="[[translate('evaluations.skills.nb')]]">
                     <div>[[devoir.competences.length]]</div>
                 </td>
@@ -137,10 +137,10 @@
                     </span>
                 </td>
                 <td class="six expandable-content" colspan="4">
-                    <span ng-if="devoir.competences !== undefined && devoir.annotation === undefined ">
+                    <span ng-if="devoir.competences.length > 0 && devoir.annotation === undefined ">
                         <i18n>evaluations.competences.title</i18n>
                         :</span>
-                    <div ng-if="devoir.competences !== undefined && devoir.annotation === undefined"
+                    <div ng-if="devoir.competences.length > 0 && devoir.annotation === undefined"
                          class="nine inline-block align-center align-top">
                         <proportion-suivi-competence evaluations="devoir.competences"
                                                      filter="suiviFilter" user="me"

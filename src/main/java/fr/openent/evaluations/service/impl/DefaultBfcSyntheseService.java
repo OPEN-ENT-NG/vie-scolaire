@@ -11,6 +11,7 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
@@ -57,17 +58,38 @@ public class DefaultBfcSyntheseService extends SqlCrudService implements BfcSynt
     }
 
     @Override
-    public void getBfcSyntheseByIdsEleve(String[] idsEleve, Long idCycle, Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray();
+    public void getBfcSyntheseByIdsEleve(final String[] idsEleve, final Long idCycle,final Handler<Either<String, JsonArray>> handler) {
+        JsonArray valuesCount = new JsonArray();
+        String queryCount = "SELECT count(*) FROM "+ Viescolaire.EVAL_SCHEMA +".bfc_synthese WHERE id_eleve IN "+Sql.listPrepared(idsEleve)+"  AND id_Cycle = ? ";
 
-        String query = "SELect * FROM "+ Viescolaire.EVAL_SCHEMA +".bfc_synthese WHERE id_eleve IN "+Sql.listPrepared(idsEleve)+"  AND id_Cycle = ? ";
-
-        for(String s:idsEleve){
-            values.addString(s);
+        for(String idEleve:idsEleve){
+            valuesCount.addString(idEleve);
         }
-        values.addNumber(idCycle);
+        valuesCount.addNumber(idCycle);
+        Sql.getInstance().prepared(queryCount, valuesCount, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> sqlResultCount) {
+                Long nbSyntheseBFC = SqlResult.countResult(sqlResultCount);
+                if (nbSyntheseBFC > 0) {
+                    JsonArray values = new JsonArray();
+                    String query = "SELECT * FROM "+ Viescolaire.EVAL_SCHEMA +".bfc_synthese WHERE id_eleve IN "+Sql.listPrepared(idsEleve)+"  AND id_Cycle = ? ";
 
-        Sql.getInstance().prepared(query,values,SqlResult.validResultHandler(handler));
+                    for(String s:idsEleve){
+                        values.addString(s);
+                    }
+                    values.addNumber(idCycle);
+
+                    Sql.getInstance().prepared(query,values,SqlResult.validResultHandler(handler));
+
+                }else{
+                    handler.handle(new Either.Right<String,JsonArray>(new JsonArray()));
+                }
+            }
+        });
+
+
+
+
 
     }
 

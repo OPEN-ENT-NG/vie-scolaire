@@ -172,8 +172,6 @@ public class BFCController extends ControllerHelper {
                             syntheseService.getIdCycleWithIdEleve(synthese.getString("id_eleve"), new Handler<Either<String, Integer>>() {
                                 @Override
                                 public void handle(Either<String, Integer> idCycle) {
-                                    System.out.println("id du cycle create: "+idCycle.right().getValue());
-                                    log.debug("id_cycle : "+idCycle.right().getValue());
                                     if (idCycle.isRight()) {
                                         JsonObject syntheseCycle = new JsonObject()
                                                 .putString("id_eleve", synthese.getString("id_eleve"))
@@ -208,12 +206,11 @@ public class BFCController extends ControllerHelper {
             syntheseService.getIdCycleWithIdEleve(idEleve, new Handler<Either<String, Integer>>() {
                 @Override
                 public void handle(Either<String, Integer> idCycle) {
-                    System.out.println("id du cycle get : "+idCycle.right().getValue());
                     log.debug("id_cycle : "+idCycle.right().getValue());
                     if (idCycle.isRight()) {
                         syntheseService.getBfcSyntheseByEleve(idEleve, idCycle.right().getValue(), defaultResponseHandler(request));
                     } else {
-                        log.debug("idCycle not found");
+                        log.info("idCycle not found");
                         Renders.badRequest(request);
                     }
                 }
@@ -234,7 +231,6 @@ public class BFCController extends ControllerHelper {
             public void handle(UserInfos userInfos) {
                 if(userInfos != null){
                     if(request.params().contains("id")){
-                        System.out.println("id du bfcSynthese update : "+request.params().get("id"));
                         RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_BFCSYNTHESE_CREATE, new Handler<JsonObject>() {
                             @Override
                             public void handle(JsonObject synthese) {
@@ -259,11 +255,9 @@ public class BFCController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos userInfos) {
-                log.debug("userInfos " + userInfos.toString());
                 if(userInfos!=null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     enseignementComplement.getEnseignementsComplement(handler);
-                    log.debug("ensCpl " + handler.toString());
                 }else{
                     Renders.unauthorized(request);
                 }

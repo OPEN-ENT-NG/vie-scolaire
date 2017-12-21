@@ -8,6 +8,8 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.eventbus.impl.JsonObjectMessage;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
@@ -44,17 +46,31 @@ public class DefaultNiveauEnseignementComplementService extends SqlCrudService i
     }
 
     @Override
-    public void listNiveauCplByEleves(String[] idsEleve, Long cycle,  Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray();
-        //si ce n'est pas le cycle 4 alors on a pas besoin
-        if(cycle != 4){
-           handler.handle(new Either.Right<String,JsonArray>(new JsonArray()));
-        }
-        String query ="SELECT id_eleve,id_enscpl,code,niveau FROM "+Viescolaire.EVAL_SCHEMA+".eleve_enseignement_complement INNER JOIN "+Viescolaire.EVAL_SCHEMA+".enseignement_complement "
+    public void listNiveauCplByEleves( final String[] idsEleve, final  Handler<Either<String, JsonArray>> handler) {
+        JsonArray valuesCount = new JsonArray();
+        String queryCount = "SELECT count(*) FROM "+Viescolaire.EVAL_SCHEMA+".eleve_enseignement_complement INNER JOIN "+Viescolaire.EVAL_SCHEMA+".enseignement_complement "
                 +"ON notes.eleve_enseignement_complement.id_enscpl = notes.enseignement_complement.id WHERE id_eleve IN "+Sql.listPrepared(idsEleve);
-        for(String s : idsEleve){
-            values.addString(s);
+        for(String idEleve : idsEleve){
+            valuesCount.addString(idEleve);
         }
-        Sql.getInstance().prepared(query,values,SqlResult.validResultHandler(handler));
+
+        Sql.getInstance().prepared(queryCount, valuesCount, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> sqlResultCount) {
+                Long nbEnsCpl = SqlResult.countResult(sqlResultCount);
+                if(nbEnsCpl > 0){
+                    JsonArray values = new JsonArray();
+                    String query = "SELECT id_eleve,id_enscpl,code,niveau FROM " + Viescolaire.EVAL_SCHEMA + ".eleve_enseignement_complement INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".enseignement_complement "
+                            + "ON notes.eleve_enseignement_complement.id_enscpl = notes.enseignement_complement.id WHERE id_eleve IN " + Sql.listPrepared(idsEleve);
+                    for (String idEleve : idsEleve) {
+                        values.addString(idEleve);
+                    }
+
+                    Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
+                }else{
+                    handler.handle(new Either.Right<String,JsonArray>(new JsonArray()) );
+                }
+            }
+        });
     }
 }

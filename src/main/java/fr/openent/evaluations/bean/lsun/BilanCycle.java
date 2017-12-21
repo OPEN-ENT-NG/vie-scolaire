@@ -158,7 +158,8 @@ public class BilanCycle {
      *     
      */
     public void setSynthese(String value) {
-        this.synthese = new String(value.getBytes(Charset.forName("UTF-8")));
+        //this.synthese = new String(value.getBytes(Charset.forName("UTF-8")));
+        this.synthese = value;
     }
 
     /**

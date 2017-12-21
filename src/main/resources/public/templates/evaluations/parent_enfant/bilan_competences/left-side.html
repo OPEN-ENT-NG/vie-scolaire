@@ -1,9 +1,13 @@
 <microbox>
-    <div  class="twelve-mobile">
-        <div class="criterion card bilan-eleve" >
+    <aside class="twelve cell twelve-mobile">
+        <nav class="twelve twelve-mobile scrolling"
+             id="left-side-notes">
+            <div class="menuLeftStyle detail-devoir criterion card opened">
+
             <div class="header">
                 <h2><i18n>viescolaire.utils.criterion</i18n></h2>
             </div>
+                <div>
             <section>
                 <label class="select">
                     <select ng-model="searchBilan.periode"
@@ -25,9 +29,11 @@
                         </span>
                 </p>
             </section>
+                </div>
         </div>
-        <div class="criterion card notes-help notes-help-bilan-eleve" >
-            <div class="legend" ng-include="'/viescolaire/public/templates/evaluations/parent_enfant/bilan_competences/display_competences_legende.html'"></div>
+        <div class="legend menuLeftStyle criterion card"
+             ng-include="'/viescolaire/public/templates/evaluations/parent_enfant/bilan_competences/display_competences_legende.html'">
         </div>
-    </div>
+        </nav>
+    </aside>
 </microbox>

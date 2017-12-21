@@ -55,29 +55,8 @@
                         </section>
                     </div>
                 </div>
-                <div class="legend menuLeftStyle criterion card">
-
-                    <div class="header">
-                        <h2>
-                            <i18n>viescolaire.utils.legend</i18n>
-                        </h2>
-                    </div>
-
-                    <ul class="padding-five" style="list-style: none">
-                        <li class="padding-five" ng-repeat="niveau in arrayCompetences">
-                            <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
-                            <span class="textBotom">[[niveau.libelle]].</span>
-                        </li>
-                        <li class="padding-five">
-                            <span class="rounded grey"></span>
-                            <span class="textBotom">
-                            <i18n>evaluations.competence.unevaluated</i18n>.
-                                </span>
-                        </li>
-                    </ul>
-
-
-
+                <div class="legend menuLeftStyle criterion card"
+                     ng-include="'/viescolaire/public/templates/evaluations/parent_enfant/bilan_competences/display_competences_legende.html'">
                 </div>
 
             </nav>
@@ -133,7 +112,7 @@
                                 <h3 ng-class="{'openedDom' : domaine.OpenSousDom}" class="margin-top-1em Domaine" ng-if="domaine.niveau > 1 && domaine.competences.all.length > 0" ng-click="domaine.OpenSousDom = !domaine.OpenSousDom" ng-init="domaine.OpenSousDom = false">[[domaine.codification]] - [[domaine.libelle]]</h3>
                                 <div ng-class="{'margin-top-1em' : domaine.competences.length > 0, 'openedSectionDom' : domaine.OpenSousDom}" style='height: auto;'>
 
-                                    <div class="suivi-eleve-item competence-line" ng-click="openDetailCompetence(competence)" ng-repeat="competence in domaine.competences.all| filter:FilterNotEvaluated">
+                                    <div class="suivi-eleve-item competence-line" ng-repeat="competence in domaine.competences.all| filter:FilterNotEvaluated">
 
                                         <div tooltip="[[competence.nom]]" class="six inline-block ellipsis competence nine-mobile">
                                             [[competence.nom]]

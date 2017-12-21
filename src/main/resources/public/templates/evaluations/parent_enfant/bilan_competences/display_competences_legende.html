@@ -16,8 +16,6 @@
   ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~
   -->
-
-
 <div class="header">
     <h2>
         <i18n>viescolaire.utils.legend</i18n>
@@ -25,15 +23,15 @@
 </div>
 
 <ul class="padding-five" style="list-style: none">
-    <li class="padding-five" ng-repeat="niveau in arrayCompetences | orderBy:'-ordre'">
+    <li class="padding-five" ng-repeat="niveau in arrayCompetences">
         <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
-        <span>[[niveau.libelle]].</span>
+        <span class="textBotom">[[niveau.libelle]].</span>
     </li>
     <li class="padding-five">
         <span class="rounded grey"></span>
-        <span style="vertical-align: super;">
-            <i18n>evaluations.competence.unevaluated</i18n>.
-        </span>
+        <span class="textBotom">
+                            <i18n>evaluations.competence.unevaluated</i18n>.
+                                </span>
     </li>
 </ul>
 

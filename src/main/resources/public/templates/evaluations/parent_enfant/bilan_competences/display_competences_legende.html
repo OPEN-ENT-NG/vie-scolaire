@@ -23,7 +23,7 @@
 </div>
 
 <ul class="padding-five" style="list-style: none">
-    <li class="padding-five" ng-repeat="niveau in arrayCompetences">
+    <li class="padding-five" ng-repeat="niveau in arrayCompetences|orderBy:'ordre':true">
         <c-skills-bubble text="niveau.lettre" color="niveau.couleur"></c-skills-bubble>
         <span class="textBotom">[[niveau.libelle]].</span>
     </li>

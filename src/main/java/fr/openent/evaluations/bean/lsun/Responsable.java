@@ -242,10 +242,16 @@ public class Responsable {
 
         switch (codeParent) {
             case "1":
-                this.lienParente = "PERE";
+                if(this.civilite == null) {
+                    this.lienParente = "PERE";
+                    this.civilite = Civilite.M;
+                }
                 break;
             case "2":
-                this.lienParente = "MERE";
+                if(this.civilite == null) {
+                    this.lienParente = "MERE";
+                    this.civilite = Civilite.MME;
+                }
                 break;
             case "3":
                 this.lienParente = "TUTEUR";

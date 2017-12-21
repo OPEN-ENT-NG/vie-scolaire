@@ -264,6 +264,7 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
         } else if(notesCompetencesEleves.get("empty") != null && bfcEleves.get("empty") != null) {
             //Par contre, si les domaines et les bornes sont renseignées mais qu'aucune compétence n'a été évaluée, une réponse vide est retournée.
             handler.handle(new Either.Right<String, Map<String, Map<Long, Integer>>>(new HashMap<String, Map<Long, Integer>>()));
+            return;
         }
 
         Map<String, Map<Long, Integer>> result = new HashMap<>();
@@ -329,7 +330,6 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                     if (notesCompetencesEleve.isEmpty()) {
                         notesCompetencesEleve.put("empty", new HashMap<Long, Long>());
                     }
-
                     calcMoyBFC(idEleves, bfcEleve, notesCompetencesEleve, echelleConversion, domainesRacine, handler);
                 } else {
                     handler.handle(new Either.Left<String, Map<String, Map<Long, Integer>>>("Impossible de recuperer les evaluations pour la classe selectionnee :\n" + event.left().getValue()));
@@ -359,7 +359,6 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                         bfcEleve.put("empty", new HashMap<Long, Integer>());
                         // Ajouter une valeur inutilisee dans la map permet de s'assurer que le traitement a ete effectue
                     }
-
                     calcMoyBFC(idEleves, bfcEleve, notesCompetencesEleve, echelleConversion, domainesRacine, handler);
                 } else {
                     handler.handle(new Either.Left<String, Map<String, Map<Long, Integer>>>("Impossible de recuperer le bilan de fin de cycle pour la classe selectionnee :\n" + event.left().getValue()));
@@ -394,7 +393,6 @@ public class DefaultBFCService  extends SqlCrudService implements fr.openent.eva
                         }
                     }
                     domainesRacine.addAll(setDomainesRacine);
-
                     calcMoyBFC(idEleves, bfcEleve, notesCompetencesEleve, echelleConversion, domainesRacine, handler);
                 } else {
                     handler.handle(new Either.Left<String, Map<String, Map<Long, Integer>>>("Impossible de recuperer les domaines racines pour la classe selectionne :\n" + event.left().getValue()));

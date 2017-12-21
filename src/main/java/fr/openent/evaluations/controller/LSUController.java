@@ -321,17 +321,253 @@ public class LSUController extends ControllerHelper {
         return idDomaine;
     }
 
-    private void setBilanCycleByEleve(Map<String, Map<Long, Integer>> mapIdEleveIdDomainePosition,JsonObject syntheseEleve,JsonArray vCalcMillesimeValues ){
 
+    private void setBilanCycleElevesWithEnsCpl(Map<Long, String> mapIdDomaineCodeDomaine, String[] idsEleve, AtomicInteger nbEleveCompteur, Donnees.Eleves eleves, JsonArray ensCplsEleves, JsonArray synthesesEleves,
+                                               Map<String, Map<Long, Integer>> mapIdEleveIdDomainePosition, Long valueCycle, List<ResponsableEtab> responsablesEtab, Map mapIdCycleValue, Map mapIdClassIdCycle,
+                                               String idClass, JsonArray vCalcMillesimeValues, Donnees.BilansCycle bilansCycle) {
+        //on récupère id du codeDomaine CPD_ETR
+        Long idDomaineCPD_ETR = giveIdDomaine(mapIdDomaineCodeDomaine, "CPD_ETR");
+        int millesimeClass = 0;
+        for (String idEleve : idsEleve) {
+            nbEleveCompteur.incrementAndGet();//compteur
+            Eleve eleve = eleves.getEleveById(idEleve);
+            if (eleve != null) {
+                //on récupère le JsonObject synthèse
+                JsonObject ensCplEleve = getJsonObject(ensCplsEleves,idEleve);
+                JsonObject syntheseEleve = getJsonObject(synthesesEleves, idEleve);
+                JsonObject erreursEleve = new JsonObject();
+                    //si l'élève est dans la mapIdEleveIdDomainePosition
+                    if (mapIdEleveIdDomainePosition.containsKey(eleve.getIdNeo4j())) {
+                        //alors on récupère la map<Iddomaine,positionnement> de l'élève en cours
+                        Map<Long, Integer> mapIdDomainePosition = mapIdEleveIdDomainePosition.get(eleve.getIdNeo4j());
+                        //variable a true quand  la taille de map<Iddomaine,positionnement> est à 7 et qu'elle ne contient pas idDomaine
+                        //correspondant au codeDomaineCPD_ETR
+                        Boolean bmapSansIdDomaineCPDETR = (mapIdDomainePosition.size() == (mapIdDomaineCodeDomaine.size() - 1)
+                                && !mapIdDomainePosition.containsKey(idDomaineCPD_ETR));
+                        if (syntheseEleve.size() > 0 && (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR)) {
+
+                            if ( !ensCplEleve.containsField("id_eleve")) {
+                                //supprimer l'élève de la liste
+                                eleves.getEleve().remove(eleve);
+                                //ajouter l'élève dans liste des erreurs
+                                erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
+                                JsonArray erreurs = new JsonArray();
+                                erreurs.add(new JsonObject().putString("ensCpl", "L'enseignement de complement n'est pas renseigne"));
+                                erreursEleve.putArray("typeErreur", erreurs);
+                                listErreursEleves.add(erreursEleve);
+                                continue;
+                            }
+                            //  alors on peut ajouter le bilanCycle à l'élève avec la synthèse, les ensCpl et les codesDomaines et positionnement au socle
+                            final BilanCycle bilanCycle = objectFactory.createBilanCycle();
+                            final BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
+                            BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
+                            //Ajouter les CodesDomaines et positionnement
+                            //on teste si la map<Iddomaine,positionnement> contient idDomaine correspondant à CPD_ETR
+                            // alors on ajoute domaineSocleCycle manuellement avec le positionnement à zéro
+                            if (bmapSansIdDomaineCPDETR) {
+                                DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomaineCPD_ETR), 0);
+                                socle.getDomaine().add(domaineSocleCycle);
+                            }
+                            // on parcours la map  idDomainePositionnement et on ajoute le code domaine qui a pour clé idDomaine en cours
+                            for (Map.Entry<Long, Integer> idDomainePosition : mapIdDomainePosition.entrySet()) {
+                                DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomainePosition.getKey()), idDomainePosition.getValue());
+                                socle.getDomaine().add(domaineSocleCycle);
+                            }
+                            bilanCycle.setSocle(socle);
+
+                            //la synthèse
+                            bilanCycle.setSynthese(syntheseEleve.getString("texte"));
+                            if (syntheseEleve.getString("modified") != null) {
+                                bilanCycle.setDateVerrou(syntheseEleve.getString("modified"));
+                            } else {
+                                bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation"));
+                            }
+                            XMLGregorianCalendar dateCreation = getDateFormatGregorian(syntheseEleve.getString("date_creation"));
+                            bilanCycle.setDateCreation(dateCreation);
+
+                            //enseignement Complément s'il existe pour l'élève en cours
+                            if (ensCplEleve.containsField("id_eleve")) {
+                                EnseignementComplement enseignementComplement = new EnseignementComplement(ensCplEleve.getString("code"), ensCplEleve.getInteger("niveau"));
+                                bilanCycle.setEnseignementComplement(enseignementComplement);
+                            }
+
+                            //on ajoute les différents attributs de la balise BilanCycle de l'élève
+                            ResponsableEtab responsableEtabRef = responsablesEtab.get(0);
+                            //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables du bilanCycle
+                            responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
+                            bilanCycle.setResponsables(responsablesEleve);
+                            bilanCycle.setResponsableEtabRef(responsableEtabRef);
+                            bilanCycle.setEleveRef(eleve);
+                            bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
+
+                            for (int i = 0; i < vCalcMillesimeValues.size() && millesimeClass == 0; i++) {
+                                // On calcule le millésime si ce n'est pas déjà fait
+                                JsonObject calcMillesimeValue = vCalcMillesimeValues.get(i);
+                                if (null != eleve.getLevel()
+                                        && !eleve.getLevel().isEmpty()
+                                        && eleve.getLevel().contains(calcMillesimeValue.getString("code_level"))) {
+                                    millesimeClass = getMillesimeClass(calcMillesimeValue.getInteger("increment"));
+                                }
+                            }
+                            bilanCycle.setMillesime(Integer.toString(millesimeClass));
+                            // Cas particulier : si aucun millésime on sette celui de cette année
+                            if (millesimeClass == 0) {
+                                millesimeClass = getMillesimeClass(0);
+                            }
+                            bilansCycle.getBilanCycle().add(bilanCycle);
+                        } else {
+                            //supprimer l'élève de la liste de la Balise ELEVES
+                            eleves.getEleve().remove(eleve);
+                            //affecter les différentes erreurs en fonction des conditions non respectées
+                            erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
+                            JsonArray erreurs = new JsonArray();
+                            if (syntheseEleve.size() > 0) {
+                                erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun a cet eleve"));
+                                erreursEleve.putArray("typeErreur", erreurs);
+                            } else if (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR) {
+                                erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas completee "));
+                                erreursEleve.putArray("typeErreur", erreurs);
+                            } else {
+                                erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun "));
+                                erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas completee"));
+                                erreursEleve.putArray("typeErreur", erreurs);
+                            }
+                            if(!ensCplEleve.containsField("id_eleve")){
+                                erreurs.add(new JsonObject().putString("ensCpl", "L'enseignement de complement n'est pas renseigne"));
+                                erreursEleve.putArray("typeErreur", erreurs);
+                            }
+                        }
+                    } else {//si l'élève n'est pas dans la map alors il n'a aucune évaluation et
+                        // il faut le supprimer du xml donc de la list des élèves de la balise ELEVES
+                        eleves.getEleve().remove(eleve);
+                        erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
+                        JsonArray erreurs = new JsonArray();
+                        erreurs.add(new JsonObject().putString("socleDomaine", "Aucun domaine du socle commun "));
+                        erreursEleve.putArray("typeErreur", erreurs);
+                        if(!ensCplEleve.containsField("id_eleve")){
+                            erreurs.add(new JsonObject().putString("ensCpl", "L'enseignement de complement n'est pas renseigne"));
+                            erreursEleve.putArray("typeErreur", erreurs);
+                        }
+                        if(!syntheseEleve.containsField("id_eleve")){
+                            erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas completee "));
+                            erreursEleve.putArray("typeErreur", erreurs);
+                        }
+                    }
+                if (erreursEleve.size() > 0) {
+                    listErreursEleves.add(erreursEleve);
+                }
+            }else
+                log.info("eleve qui n'est pas dans la list des eleves " + idEleve);
+        }
     }
 
 
+    private void setBilanCycleElevesWithoutEnsCpl(Map<Long, String> mapIdDomaineCodeDomaine, String[] idsEleve, AtomicInteger nbEleveCompteur, Donnees.Eleves eleves,  JsonArray synthesesEleves,
+                                               Map<String, Map<Long, Integer>> mapIdEleveIdDomainePosition, Long valueCycle, List<ResponsableEtab> responsablesEtab, Map mapIdCycleValue, Map mapIdClassIdCycle,
+                                               String idClass, JsonArray vCalcMillesimeValues, Donnees.BilansCycle bilansCycle) {
+        //on récupère id du codeDomaine CPD_ETR
+        Long idDomaineCPD_ETR = giveIdDomaine(mapIdDomaineCodeDomaine, "CPD_ETR");
+        int millesimeClass = 0;
+        for (String idEleve : idsEleve) {
+            nbEleveCompteur.incrementAndGet();//compteur
+            Eleve eleve = eleves.getEleveById(idEleve);
+            if (eleve != null) {
+                //on récupère le JsonObject synthèse
+                JsonObject syntheseEleve = getJsonObject(synthesesEleves, idEleve);
+                JsonObject erreursEleve = new JsonObject();
+                //si l'élève est dans la mapIdEleveIdDomainePosition
+                if (mapIdEleveIdDomainePosition.containsKey(eleve.getIdNeo4j())) {
+                    //alors on récupère la map<Iddomaine,positionnement> de l'élève en cours
+                    Map<Long, Integer> mapIdDomainePosition = mapIdEleveIdDomainePosition.get(eleve.getIdNeo4j());
+                    //variable a true quand  la taille de map<Iddomaine,positionnement> est à 7 et qu'elle ne contient pas idDomaine
+                    //correspondant au codeDomaineCPD_ETR
+                    Boolean bmapSansIdDomaineCPDETR = (mapIdDomainePosition.size() == (mapIdDomaineCodeDomaine.size() - 1)
+                            && !mapIdDomainePosition.containsKey(idDomaineCPD_ETR));
+                    if (syntheseEleve.size() > 0 && (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR)) {
+                        final BilanCycle bilanCycle = objectFactory.createBilanCycle();
+                        final BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
+                        BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
+                        //Ajouter les CodesDomaines et positionnement
+                        //on teste si la map<Iddomaine,positionnement> contient idDomaine correspondant à CPD_ETR
+                        // alors on ajoute domaineSocleCycle manuellement avec le positionnement à zéro
+                        if (bmapSansIdDomaineCPDETR) {
+                            DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomaineCPD_ETR), 0);
+                            socle.getDomaine().add(domaineSocleCycle);
+                        }
+                        // on parcours la map  idDomainePositionnement et on ajoute le code domaine qui a pour clé idDomaine en cours
+                        for (Map.Entry<Long, Integer> idDomainePosition : mapIdDomainePosition.entrySet()) {
+                            DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomainePosition.getKey()), idDomainePosition.getValue());
+                            socle.getDomaine().add(domaineSocleCycle);
+                        }
+                        bilanCycle.setSocle(socle);
 
+                        //la synthèse
+                        bilanCycle.setSynthese(syntheseEleve.getString("texte"));
+                        if (syntheseEleve.getString("modified") != null) {
+                            bilanCycle.setDateVerrou(syntheseEleve.getString("modified"));
+                        } else {
+                            bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation"));
+                        }
+                        XMLGregorianCalendar dateCreation = getDateFormatGregorian(syntheseEleve.getString("date_creation"));
+                        bilanCycle.setDateCreation(dateCreation);
+                        //on ajoute les différents attributs de la balise BilanCycle de l'élève
+                        ResponsableEtab responsableEtabRef = responsablesEtab.get(0);
+                        //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables du bilanCycle
+                        responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
+                        bilanCycle.setResponsables(responsablesEleve);
+                        bilanCycle.setResponsableEtabRef(responsableEtabRef);
+                        bilanCycle.setEleveRef(eleve);
+                        bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
 
-
-
-
-
+                        for (int i = 0; i < vCalcMillesimeValues.size() && millesimeClass == 0; i++) {
+                            // On calcule le millésime si ce n'est pas déjà fait
+                            JsonObject calcMillesimeValue = vCalcMillesimeValues.get(i);
+                            if (null != eleve.getLevel()
+                                    && !eleve.getLevel().isEmpty()
+                                    && eleve.getLevel().contains(calcMillesimeValue.getString("code_level"))) {
+                                millesimeClass = getMillesimeClass(calcMillesimeValue.getInteger("increment"));
+                            }
+                        }
+                        bilanCycle.setMillesime(Integer.toString(millesimeClass));
+                        // Cas particulier : si aucun millésime on sette celui de cette année
+                        if (millesimeClass == 0) {
+                            millesimeClass = getMillesimeClass(0);
+                        }
+                        //on ajoute le bilan de cycle de l'élève à la liste des bilans de cycle
+                        bilansCycle.getBilanCycle().add(bilanCycle);
+                    } else {
+                        //supprimer l'élève de la liste de la Balise ELEVES
+                        eleves.getEleve().remove(eleve);
+                        //affecter les différentes erreurs en fonction des conditions non respectées
+                        erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
+                        JsonArray erreurs = new JsonArray();
+                        if (syntheseEleve.size() > 0) {
+                            erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun à cet eleve"));
+                            erreursEleve.putArray("typeErreur", erreurs);
+                        } else if (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR) {
+                            erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas completee "));
+                            erreursEleve.putArray("typeErreur", erreurs);
+                        } else {
+                            erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun "));
+                            erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas completee"));
+                            erreursEleve.putArray("typeErreur", erreurs);
+                        }
+                    }
+                } else {//si l'élève n'est pas dans la map alors il n'a aucune évaluation et
+                    // il faut le supprimer du xml donc de la list des élèves de la balise ELEVES
+                    eleves.getEleve().remove(eleve);
+                    erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
+                    JsonArray erreurs = new JsonArray();
+                    erreurs.add(new JsonObject().putString("socleDomaine", "Aucun domaine du socle commun "));
+                    erreursEleve.putArray("typeErreur", erreurs);
+                }
+                if (erreursEleve.size() != 0) {
+                    listErreursEleves.add(erreursEleve);
+                }
+            }else
+                log.info("eleve qui n'est pas dans la list des eleves " + idEleve);
+        }
+    }
 
 
     /**
@@ -347,13 +583,12 @@ public class LSUController extends ControllerHelper {
         final Donnees.BilansCycle bilansCycle = objectFactory.createDonneesBilansCycle();
         final List<ResponsableEtab> responsablesEtab = donnees.getResponsablesEtab().getResponsableEtab();
         final Donnees.Eleves eleves = donnees.getEleves();
+        final Integer nbElevesTotal = eleves.getEleve().size();
         final JsonArray vCalcMillesimeValues = calcMillesimeValues;
         final AtomicInteger nbEleveCompteur = new AtomicInteger(0);
-        final AtomicInteger nbClasseCompteur = new AtomicInteger(0);
         final Map<String, List<String>> mapIdClassIdsEleve = eleves.getMapIdClassIdsEleve();
         log.info("DEBUT : method getBaliseBilansCycle : nombreEleve : "+eleves.getEleve().size());
         listErreursEleves = new JsonArray();
-
         getIdClassIdCycleValue(idsClass, new Handler<Either<String, List<Map>>>() {
                     @Override
             public void handle(Either<String, List<Map>> repIdClassIdCycleValue) {
@@ -363,194 +598,93 @@ public class LSUController extends ControllerHelper {
                     final Map mapIdClassIdCycle = mapIdClassIdCycleValue.get(0);//map<IdClass,IdCycle>
                     final Map mapIdCycleValue = mapIdClassIdCycleValue.get(1);//map<IdCycle,ValueCycle>
 
-                    for (Map.Entry<String, List<String>> stringListEntry : mapIdClassIdsEleve.entrySet()) {
-                        final String[] idsEleve = stringListEntry.getValue().toArray(new String[stringListEntry.getValue().size()]);
-                        final String idClass = stringListEntry.getKey();
-                        nbClasseCompteur.incrementAndGet();
-                        bfcService.buildBFC(idsEleve, idClass, idStructure, null, (Long) mapIdClassIdCycle.get(idClass), new Handler<Either<String, Map<String, Map<Long, Integer>>>>() {
-                            @Override
-                            public void handle(Either<String, Map<String, Map<Long, Integer>>> repBuildBFC) {
-                                if (repBuildBFC.isRight()) {
-                                    final Map<String, Map<Long, Integer>> mapIdEleveIdDomainePosition = repBuildBFC.right().getValue();
-                                    getMapCodeDomaineById(idClass, new Handler<Either<String, Map<Long, String>>>() {
-                                        @Override
-                                        public void handle(Either<String, Map<Long, String>> repMapCodeDomaineId) {
-                                            if (repMapCodeDomaineId.isRight()) {
-                                                final Map<Long, String> mapIdDomaineCodeDomaine = repMapCodeDomaineId.right().getValue();
-                                                final Long idCycle = (Long) mapIdClassIdCycle.get(idClass);
-                                                final Long  valueCycle = (Long) mapIdCycleValue.get(idCycle);
-                                                if(idCycle!=null){
-                                                    bfcSynthseService.getBfcSyntheseByIdsEleve(idsEleve, idCycle, new Handler<Either<String, JsonArray>>() {
-                                                        @Override
-                                                        public void handle(Either<String, JsonArray> repSynthese) {
-                                                            if (repSynthese.isRight()) {
-                                                                final JsonArray syntheseIdsEleveIdCycle = repSynthese.right().getValue();
-
-                                                                    niveauEnsCpl.listNiveauCplByEleves(idsEleve, valueCycle,new Handler<Either<String, JsonArray>>() {
-                                                                        @Override
-                                                                        public void handle(Either<String, JsonArray> repEleveEnsCpl) {
-                                                                            if (repEleveEnsCpl.isRight()) {
-                                                                                final JsonArray listEnsCplDesEleves = repEleveEnsCpl.right().getValue();
-                                                                                //on récupère id du codeDomaine CPD_ETR
-                                                                                Long idDomaineCPD_ETR = giveIdDomaine(mapIdDomaineCodeDomaine, "CPD_ETR");
-                                                                                int millesimeClass = 0;
-                                                                                for (String idEleve : idsEleve) {
-                                                                                    nbEleveCompteur.incrementAndGet();//compteur
-                                                                                    Eleve eleve = eleves.getEleveById(idEleve);
-                                                                                    //on récupère le JsonObject synthèse et ensCpl de l'élève en cours
-                                                                                    JsonObject ensCplEleve = getJsonObject(listEnsCplDesEleves, idEleve);
-                                                                                    JsonObject syntheseEleve = getJsonObject(syntheseIdsEleveIdCycle, idEleve);
-                                                                                    JsonObject erreursEleve = new JsonObject();
-
-                                                                                    //si l'élève est dans la mapIdEleveIdDomainePosition
-                                                                                    if(mapIdEleveIdDomainePosition.containsKey(eleve.getIdNeo4j())){
-                                                                                        //alors on récupère la map<Iddomaine,positionnement> de l'élève en cours
-                                                                                        Map<Long, Integer> mapIdDomainePosition = mapIdEleveIdDomainePosition.get(eleve.getIdNeo4j());
-                                                                                        //variable a true quand  la taille de map<Iddomaine,positionnement> est à 7 et qu'elle ne contient pas idDomaine
-                                                                                        //correspondant au codeDomaineCPD_ETR
-                                                                                        Boolean bmapSansIdDomaineCPDETR = (mapIdDomainePosition.size() == (mapIdDomaineCodeDomaine.size() - 1)
-                                                                                                && !mapIdDomainePosition.containsKey(idDomaineCPD_ETR));
-                                                                                        if(syntheseEleve.size() > 0 && (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR) ){
-                                                                                            //les enseignements de compléments ne sont mis dans le xml que pour le cycle 4
-                                                                                            //si on est dans le cycle 4 et le JsonObject de ensCpl de l'élève est vide
-                                                                                            if ((valueCycle == 4) && !ensCplEleve.containsField("idEleve")) {
-                                                                                                erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
-                                                                                                JsonArray erreurs = new JsonArray();
-                                                                                                erreursEleve.putArray("typeErreur", erreurs);
-                                                                                                erreurs.add(new JsonObject().putString("ensCpl", "L'enseignement de complément n'est pas renseigné"));
-                                                                                                //supprimer l'élève de la liste
-                                                                                                eleves.getEleve().remove(eleve);
-                                                                                                continue;
-                                                                                            }
-                                                                                            //  alors on peut ajouter le bilanCycle à l'élève avec la synthèse, les ensCpl et les codesDomaines et positionnement au socle
-                                                                                            final BilanCycle bilanCycle = objectFactory.createBilanCycle();
-                                                                                            final BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
-                                                                                            BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
-                                                                                            //Ajouter les CodesDomaines et positionnement
-                                                                                            //on teste si la map<Iddomaine,positionnement> contient idDomaine correspondant à CPD_ETR
-                                                                                            // alors on ajoute domaineSocleCycle manuellement avec le positionnement à zéro
-                                                                                            if (bmapSansIdDomaineCPDETR) {
-                                                                                                DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomaineCPD_ETR), 0);
-                                                                                                socle.getDomaine().add(domaineSocleCycle);
-                                                                                            }
-                                                                                            // on parcours la map  idDomainePositionnement et on ajoute le code domaine qui a pour clé idDomaine en cours
-                                                                                            for (Map.Entry<Long, Integer> idDomainePosition : mapIdDomainePosition.entrySet()) {
-                                                                                                DomaineSocleCycle domaineSocleCycle = new DomaineSocleCycle(mapIdDomaineCodeDomaine.get(idDomainePosition.getKey()), idDomainePosition.getValue());
-                                                                                                socle.getDomaine().add(domaineSocleCycle);
-                                                                                            }
-                                                                                            bilanCycle.setSocle(socle);
-
-                                                                                            //la synthèse
-                                                                                            bilanCycle.setSynthese(syntheseEleve.getString("texte"));
-                                                                                            if (syntheseEleve.getString("modified") != null) {
-                                                                                                bilanCycle.setDateVerrou(syntheseEleve.getString("modified"));
-                                                                                            } else {
-                                                                                                bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation"));
-                                                                                            }
-                                                                                            XMLGregorianCalendar dateCreation = getDateFormatGregorian(syntheseEleve.getString("date_creation"));
-                                                                                            bilanCycle.setDateCreation(dateCreation);
-
-                                                                                            //enseignement Complément
-                                                                                            EnseignementComplement enseignementComplement = new EnseignementComplement(ensCplEleve.getString("code"),ensCplEleve.getInteger("niveau"));
-                                                                                            bilanCycle.setEnseignementComplement(enseignementComplement);
-
-                                                                                            //on ajoute les différents attributs de la balise BilanCycle de l'élève
-                                                                                            ResponsableEtab responsableEtabRef = responsablesEtab.get(0);
-                                                                                            //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables du bilanCycle
-                                                                                            responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
-                                                                                            bilanCycle.setResponsables(responsablesEleve);
-                                                                                            bilanCycle.setResponsableEtabRef(responsableEtabRef);
-                                                                                            bilanCycle.setEleveRef(eleve);
-                                                                                            bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
-
-                                                                                            for (int i = 0; i < vCalcMillesimeValues.size() && millesimeClass == 0; i++) {
-                                                                                                // On calcule le millésime si ce n'est pas déjà fait
-                                                                                                JsonObject calcMillesimeValue = vCalcMillesimeValues.get(i);
-                                                                                                if (null != eleve.getLevel()
-                                                                                                        && !eleve.getLevel().isEmpty()
-                                                                                                        && eleve.getLevel().contains(calcMillesimeValue.getString("code_level"))) {
-                                                                                                    millesimeClass = getMillesimeClass(calcMillesimeValue.getInteger("increment"));
-                                                                                                }
-                                                                                            }
-                                                                                            bilanCycle.setMillesime(Integer.toString(millesimeClass));
-                                                                                            // Cas particulier : si aucun millésime on sette celui de cette année
-                                                                                            if (millesimeClass == 0) {
-                                                                                                millesimeClass = getMillesimeClass(0);
-                                                                                            }
-                                                                                            bilansCycle.getBilanCycle().add(bilanCycle);
-                                                                                        }else{
-                                                                                            //supprimer l'élève de la liste de la Balise ELEVES
-                                                                                            eleves.getEleve().remove(eleve);
-                                                                                            //affecter les différentes erreurs en fonction des conditions non respectées
-                                                                                            erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
-                                                                                            JsonArray erreurs = new JsonArray();
-                                                                                            if (syntheseEleve.size() > 0) {
-                                                                                                erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun à cet élève"));
-                                                                                                erreursEleve.putArray("typeErreur", erreurs);
-                                                                                            } else if (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR) {
-                                                                                                erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas complétée "));
-                                                                                                erreursEleve.putArray("typeErreur", erreurs);
-                                                                                            } else {
-                                                                                                erreurs.add(new JsonObject().putString("socleDomaine", "Il manque des domaines du socle commun "));
-                                                                                                erreurs.add(new JsonObject().putString("synthese", "La synthese du bilan de fin de cycle n'est pas complétée"));
-                                                                                                erreursEleve.putArray("typeErreur", erreurs);
-                                                                                            }
-                                                                                        }
-                                                                                    }else{//si l'élève n'est pas dans la map alors il n'a aucune évaluation et
-                                                                                        // il faut le supprimer du xml donc de la list des élèves de la balise ELEVES
-                                                                                        eleves.getEleve().remove(eleve);
-                                                                                        erreursEleve.putString("idEleve", idEleve).putString("prenom", eleve.getPrenom()).putString("nom", eleve.getNom()).putString("classe", eleve.getCodeDivision());
-                                                                                        JsonArray erreurs = new JsonArray();
-                                                                                        erreurs.add(new JsonObject().putString("socleDomaine", "Aucun domaine du socle commun "));
-                                                                                        erreursEleve.putArray("typeErreur", erreurs);
+                        for (Map.Entry<String, List<String>> stringListEntry : mapIdClassIdsEleve.entrySet()) {
+                            final String[] idsEleve = stringListEntry.getValue().toArray(new String[stringListEntry.getValue().size()]);
+                            final String idClass = stringListEntry.getKey();
+                            bfcService.buildBFC(idsEleve, idClass, idStructure, null, (Long) mapIdClassIdCycle.get(idClass), new Handler<Either<String, Map<String, Map<Long, Integer>>>>() {
+                                @Override
+                                public void handle(Either<String, Map<String, Map<Long, Integer>>> repBuildBFC) {
+                                    if (repBuildBFC.isRight()) {
+                                        final Map<String, Map<Long, Integer>> mapIdEleveIdDomainePosition = repBuildBFC.right().getValue();
+                                        getMapCodeDomaineById(idClass, new Handler<Either<String, Map<Long, String>>>() {
+                                            @Override
+                                            public void handle(Either<String, Map<Long, String>> repMapCodeDomaineId) {
+                                                if (repMapCodeDomaineId.isRight()) {
+                                                    final Map<Long, String> mapIdDomaineCodeDomaine = repMapCodeDomaineId.right().getValue();
+                                                    final Long idCycle = (Long) mapIdClassIdCycle.get(idClass);
+                                                    final Long  valueCycle = (Long) mapIdCycleValue.get(idCycle);
+                                                    if(idCycle!=null){
+                                                        bfcSynthseService.getBfcSyntheseByIdsEleve(idsEleve, idCycle, new Handler<Either<String, JsonArray>>() {
+                                                            @Override
+                                                            public void handle(Either<String, JsonArray> repSynthese) {
+                                                                if (repSynthese.isRight()) {
+                                                                    final JsonArray synthesesEleves = repSynthese.right().getValue();
+                                                                        niveauEnsCpl.listNiveauCplByEleves(idsEleve,new Handler<Either<String, JsonArray>>() {
+                                                                            @Override
+                                                                            public void handle(Either<String, JsonArray> repEleveEnsCpl) {
+                                                                                if (repEleveEnsCpl.isRight() ) {
+                                                                                    if(valueCycle == 4){
+                                                                                    final JsonArray ensCplsEleves = repEleveEnsCpl.right().getValue();
+                                                                                    setBilanCycleElevesWithEnsCpl(mapIdDomaineCodeDomaine, idsEleve, nbEleveCompteur, eleves, ensCplsEleves, synthesesEleves,
+                                                                                            mapIdEleveIdDomainePosition, valueCycle, responsablesEtab, mapIdCycleValue, mapIdClassIdCycle,
+                                                                                            idClass, vCalcMillesimeValues, bilansCycle);
+                                                                                    }else {
+                                                                                        setBilanCycleElevesWithoutEnsCpl(mapIdDomaineCodeDomaine, idsEleve, nbEleveCompteur, eleves, synthesesEleves,
+                                                                                                mapIdEleveIdDomainePosition, valueCycle, responsablesEtab, mapIdCycleValue, mapIdClassIdCycle,
+                                                                                                idClass, vCalcMillesimeValues, bilansCycle);
                                                                                     }
-                                                                                    listErreursEleves.add(erreursEleve);
-                                                                                }
-                                                                                log.info("FIN method getBaliseBilansCycle nombre de bilans de cycle complets : "+bilansCycle.getBilanCycle().size());
-                                                                                log.info("FIN method getBaliseBilansCycle nombre d'eleve avec un bilancycle : "+eleves.getEleve().size());
+                                                                                    log.info("FIN method getBaliseBilansCycle nombre d'eleve dans la classe en cours : "+idsEleve.length);
+                                                                                    log.info("FIN method getBaliseBilansCycle nombre de bilans de cycle complets : "+bilansCycle.getBilanCycle().size());
+                                                                                    log.info("nb d'eleves au depart : "+nbElevesTotal);
+                                                                                    log.info("nb d'eleve parcouru : "+nbEleveCompteur.intValue());
+                                                                                    if( nbEleveCompteur.intValue() == nbElevesTotal.intValue() ) {
+                                                                                        if(bilansCycle.getBilanCycle().size()!=0) {
+                                                                                            donnees.setBilansCycle(bilansCycle);
+                                                                                            log.info("FIN method getBaliseBilansCycle nombre d'eleve avec un bilan cycle complet "+eleves.getEleve().size());
+                                                                                        }
+                                                                                        log.info("FIN method getBaliseBilansCycle nombre d'eleve avec un bilan cycle incomplet "+listErreursEleves.size());
+                                                                                        handler.handle(new Either.Right<String,JsonArray>(listErreursEleves));
+                                                                                    }
 
-                                                                                //si le nombre de bilan cycle = le nombre d'eleve
-                                                                                if( bilansCycle.getBilanCycle().size()== eleves.getEleve().size() && bilansCycle.getBilanCycle().size()!=0) {
-                                                                                    donnees.setBilansCycle(bilansCycle);
-                                                                                    handler.handle(new Either.Right<String,JsonArray>(listErreursEleves));
                                                                                 }else{
-                                                                                    handler.handle(new Either.Right<String,JsonArray>(listErreursEleves));
+                                                                                    handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML requete enseignement complement: "+repEleveEnsCpl.left().getValue()));
+                                                                                    log.error("getBaliseBilansCycle requete enseignementComplement: "+repEleveEnsCpl.left().getValue());
                                                                                 }
-                                                                            }else{
-                                                                                handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML requete enseignement complement: "+repEleveEnsCpl.left().getValue()));
-                                                                                log.error("getBaliseBilansCycle requete enseignementComplement: "+repEleveEnsCpl.left().getValue());
                                                                             }
-                                                                        }
-                                                                    });
-                                                            }else{
-                                                                handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML requete synthese du BFC: "+repSynthese.left().getValue()));
-                                                                log.error("getBaliseBilansCycle requete synthese du BFC: "+repSynthese.left().getValue());
-                                                            }
-                                                        }
-                                                    });
-                                                }else{
-                                                    handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML idCycle  :  " + idCycle));
-                                                    log.error("getBaliseBilansCycle idCycle :  " + idCycle);
-                                                }
-                                            } else {
-                                                handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle :  " + repMapCodeDomaineId.left().getValue()));
-                                                log.error("getBaliseBilansCycle XML MapIdDomaineCodeDomaine :  " + repMapCodeDomaineId.left().getValue());
-                                            }
+                                                                        });
 
-                                        }
-                                    });
-                                } else {
-                                    handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansEleve : bfcService.buidBFC : " + repBuildBFC.left().getValue()));
-                                    log.error("getBaliseBilansCycle XML buildBFC map<idEleve,map<idDomaine,positionnement>> : " + repBuildBFC.left().getValue());
+                                                                }else{
+                                                                    handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML requete synthese du BFC: "+repSynthese.left().getValue()));
+                                                                    log.error("getBaliseBilansCycle requete synthese du BFC: "+repSynthese.left().getValue());
+                                                                }
+                                                            }
+                                                        });
+                                                    }else{
+                                                        handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle XML idCycle  :  " + idCycle));
+                                                        log.error("getBaliseBilansCycle idCycle :  " + idCycle);
+                                                    }
+                                                } else {
+                                                    handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansCycle :  " + repMapCodeDomaineId.left().getValue()));
+                                                    log.error("getBaliseBilansCycle XML MapIdDomaineCodeDomaine :  " + repMapCodeDomaineId.left().getValue());
+                                                }
+
+                                            }
+                                        });
+                                    } else {
+                                        handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansEleve : bfcService.buidBFC : " + repBuildBFC.left().getValue()));
+                                        log.error("getBaliseBilansCycle XML buildBFC map<idEleve,map<idDomaine,positionnement>> : " + repBuildBFC.left().getValue());
+                                    }
                                 }
-                            }
-                        });
-                    }
+                            });
+                        }
+
+
+
                 } else {
                     handler.handle(new Either.Left<String,JsonArray>("getBaliseBilansEleve : list (map<idclasse,idCycle>,map<idCycle,cycle>) : " + repIdClassIdCycleValue.left().getValue()));
                     log.error("getBaliseBilansCycle XML:list (map<idclasse,idCycle>,map<idCycle,cycle>) " + repIdClassIdCycleValue.left().getValue());
                 }
-            }
+                    }
 
         });
     }
@@ -561,7 +695,7 @@ public class LSUController extends ControllerHelper {
      * @return millesime Class
      */
     private int getMillesimeClass(int increment) {
-        int millesimeClass;Calendar today = Calendar.getInstance();
+        int millesimeClass; Calendar today = Calendar.getInstance();
 
         Calendar endJuly = Calendar.getInstance();
         endJuly.set(Calendar.DAY_OF_MONTH, 31);
@@ -588,10 +722,11 @@ public class LSUController extends ControllerHelper {
         log.info("DEBUT method returnResponse ");
         StringWriter response = new StringWriter();
         try {
+
             JAXBContext jc = JAXBContext.newInstance(LsunBilans.class);
             Marshaller marshaller = jc.createMarshaller();
            // écriture de la réponse
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            //marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "urn:fr:edu:scolarite:lsun:bilans:import import-bilan-complet.xsd");

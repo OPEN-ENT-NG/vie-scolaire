@@ -1515,7 +1515,7 @@ public class ExportPDFController extends ControllerHelper {
                                     if (json) {
                                         Renders.renderJson(request, result);
                                     } else {
-                                        String fileName = result.getObject("devoir").getString("classe") + "_" + result.getObject("devoir").getString("nom") + "_" + (new Date()).toString();
+                                        String fileName = result.getObject("devoir").getString("classe") + "_" + result.getObject("devoir").getString("nom").replace(' ', '_');
                                         genererPdf(request, result, "evaluation.pdf.xhtml", fileName);
                                     }
                                 } catch (Error err){
@@ -1607,7 +1607,7 @@ public class ExportPDFController extends ControllerHelper {
                                                                         if (json) {
                                                                             Renders.renderJson(request, result);
                                                                         } else {
-                                                                            String fileName = name + "_export_competences_" + (new Date()).toString();
+                                                                            String fileName = name.replace(' ', '_') + "_export_competences";
                                                                             genererPdf(request, result, "releve-competences.pdf.xhtml", fileName);
                                                                         }
                                                                     } else {

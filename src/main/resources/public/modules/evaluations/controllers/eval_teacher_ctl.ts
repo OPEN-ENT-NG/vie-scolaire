@@ -2914,15 +2914,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         }
                     }
                 }
+                delete $scope.printOption;
                 location.replace(url);
-                $scope.printOption.display = false;
             };
 
             $scope.exportDevoir = (idDevoir, textMod = false) => {
                 let url = "/viescolaire/evaluations/devoirs/print/" + idDevoir + "/export?text=" + textMod;
                 $scope.opened.evaluation.exportDevoir = false;
                 $scope.textModExport = false;
-                $scope.selected.devoirs.list = [];
                 utils.safeApply($scope);
                 location.replace(url);
             };

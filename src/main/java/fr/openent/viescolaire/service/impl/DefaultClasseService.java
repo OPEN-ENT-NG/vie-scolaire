@@ -102,6 +102,22 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     }
 
+    @Override
+    public void getElevesGroupesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class)")
+                .append(" WHERE c.id IN {idClasses}")
+                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName")
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
+                .append(" WHERE c.id IN {idClasses}")
+                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");
+        params.putArray("idClasses", new JsonArray(idClasses));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
+
     /**
      * Récupère la liste des classes de l'utilisateur
      * @param user

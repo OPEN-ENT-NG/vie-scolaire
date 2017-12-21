@@ -274,12 +274,19 @@
 </lightbox>
 
 <lightbox show="opened.evaluation.exportDevoir" on-close="opened.evaluation.exportDevoir = false">
-    <label class="checkbox" style="float: left">
-        <input type="checkbox" ng-model="textModExport">
-        <i18n>evaluations.export.textMod</i18n>
-    </label>
-    <button class="right-magnet"
-            ng-click="exportDevoir(selected.devoirs.list[0].id, textModExport)">
-        <i18n>print</i18n>
-    </button>
+    <div class="row">
+        <p>
+            <label class="checkbox" style="float: left">
+                <input type="checkbox" ng-model="textModExport">
+                <i18n>evaluations.export.textMod</i18n>
+            </label>
+        </p>
+
+    </div>
+    <div class="row">
+        <button class="right-magnet"
+                ng-click="exportDevoir(selected.devoirs.list[0].id, textModExport)">
+            <i18n>print</i18n>
+        </button>
+    </div>
 </lightbox>

@@ -61,6 +61,8 @@ public interface ClasseService extends CrudService {
      */
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
+    public void getElevesGroupesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+
     /**
      * Recupere la liste des classes et/ou groupes de l'etablissement
      * @param idEtablissement   identifiant de l'etablissement

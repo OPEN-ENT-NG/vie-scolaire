@@ -77,7 +77,7 @@ public class DefaultExportService implements ExportService {
         final Handler<Either<String, JsonArray>> finalHandler = getDevoirFinalHandler(text, devoir, request, elevesArray,
                 maitriseArray, competencesArray, notesArray, competencesNotesArray, annotationsArray, answered, handler);
 
-        classeService.getEleveClasses(idEtablissement, new JsonArray().addString(idGroupe), true,
+        classeService.getElevesGroupesClasses(new String[]{idGroupe},
                 getIntermediateHandler(elevesArray, finalHandler));
         competencesService.getDevoirCompetences(idDevoir,
                 getIntermediateHandler(competencesArray, finalHandler));
@@ -164,7 +164,7 @@ public class DefaultExportService implements ExportService {
                                                     formatJsonObjectExportDevoir(text,
                                                             stringJsonObjectEither.right().getValue(),
                                                             extractData(orderBy(eleves, "lastName"), "id"),
-                                                            extractData(orderBy(addMaitriseNE(maitrises), "ordre"), "ordre"),
+                                                            extractData(orderBy(addMaitriseNE(maitrises), "ordre", true), "ordre"),
                                                             extractData(orderBy(competences, "code_domaine"),"id_competence"),
                                                             extractData(notes, "id_eleve"),
                                                             extractData(annotations, "id"),
@@ -302,7 +302,7 @@ public class DefaultExportService implements ExportService {
                 getIntermediateHandler(devoirsArray, new Handler<Either<String, JsonArray>>() {
                     @Override
                     public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                        if(stringJsonArrayEither.isRight() && stringJsonArrayEither.right().getValue().size() > 0) {
+                        if(stringJsonArrayEither.isRight() && !(stringJsonArrayEither.right().getValue().get(0) instanceof String)) {
                             for (int i = 0; i < stringJsonArrayEither.right().getValue().size(); i++) {
                                 Long idDevoir = ((JsonObject) stringJsonArrayEither.right().getValue().get(i)).getLong("id");
                                 competencesService.getDevoirCompetences(idDevoir,
@@ -312,7 +312,7 @@ public class DefaultExportService implements ExportService {
                             }
                             domaineService.getDomainesRacines(idGroupes[0],
                                     getIntermediateHandler(domainesArray, finalHandler));
-                        } else if (stringJsonArrayEither.right().getValue().size() == 0){
+                        } else if (stringJsonArrayEither.right().getValue().get(0) instanceof String){
                             finalHandler.handle(new Either.Left<String, JsonArray>("getExportReleveComp : No exams on given period and/or material."));
                         } else {
                             finalHandler.handle(stringJsonArrayEither.left());
@@ -345,11 +345,12 @@ public class DefaultExportService implements ExportService {
             public void handle(Either<String, JsonArray> stringJsonArrayEither) {
                 if (stringJsonArrayEither.isRight()) {
                     JsonArray result = stringJsonArrayEither.right().getValue();
+                    if(result.size() == 0) {
+                        result.addString("empty");
+                    }
                     utilsService.saUnion(collection, result);
-                    finalHandler.handle(stringJsonArrayEither.right());
-                } else {
-                    finalHandler.handle(stringJsonArrayEither.left());
                 }
+                finalHandler.handle(stringJsonArrayEither);
             }
         };
     }
@@ -389,6 +390,9 @@ public class DefaultExportService implements ExportService {
         Map<String, JsonObject> result = new LinkedHashMap<>();
 
         for (int i = 0; i < collection.size(); i++) {
+            if(collection.get(i) instanceof String) {
+                continue;
+            }
             JsonObject item = collection.get(i);
             String itemKey = String.valueOf(item.getField(key));
             if(!result.containsKey(itemKey)) {
@@ -399,8 +403,8 @@ public class DefaultExportService implements ExportService {
         return result;
     }
 
-    private JsonArray orderBy(JsonArray collection, String key) {
-        Set<String> sortedSet = new TreeSet<>();
+    private JsonArray orderBy(JsonArray collection, String key, Boolean inverted) {
+        Set<String> sortedSet = inverted ? new TreeSet<String>(Collections.reverseOrder()) : new TreeSet<String>();
         Map<String, JsonArray> unsortedMap = new HashMap<>();
         JsonArray result = new JsonArray();
 
@@ -418,6 +422,10 @@ public class DefaultExportService implements ExportService {
             utilsService.saUnion(result, unsortedMap.get(aSortedSet));
         }
         return result;
+    }
+
+    private JsonArray orderBy(JsonArray collection, String key) {
+       return orderBy (collection, key, false);
     }
 
     private Handler<Either<String, JsonArray>> getReleveCompFinalHandler(final Boolean text, final JsonArray devoirs,
@@ -479,8 +487,8 @@ public class DefaultExportService implements ExportService {
                                         formatJsonObjectExportReleveComp(
                                                 text,
                                                 new ArrayList<>(extractData(devoirs, "id").keySet()),
-                                                extractData(orderBy(addMaitriseNE(maitrises), "ordre"), "ordre"),
-                                                extractData(orderBy(competences, "nom"), "id"),
+                                                extractData(orderBy(addMaitriseNE(maitrises), "ordre", true), "ordre"),
+                                                extractData(orderBy(competences, "nom", true), "id"),
                                                 extractData(domaines, "id"),
                                                 competenceNotesMap)));
                             }

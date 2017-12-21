@@ -32,7 +32,12 @@
             <article class="five cell box-accueil twelve-mobile">
                 <div class="content-box-accueil">
                     <div class="titre-widget">
-                        <h2 class="inline-block "><i18n>evaluations.mes.evaluations.par.peridoe</i18n>&nbsp;:</h2>
+                        <h2 class="inline-block " ng-if="!isChefEtab()">
+                            <i18n>evaluations.mes.evaluations.par.peridoe</i18n>&nbsp;:
+                        </h2>
+                        <h2 class="inline-block " ng-if="isChefEtab()">
+                            <i18n>evaluations.evaluations.par.peridoe</i18n>&nbsp;:
+                        </h2>
                         <label class="select right-magnet" ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
                             <select ng-model="search.periode"
                                     ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
@@ -83,7 +88,12 @@
         <section>
             <article class="five cell box-accueil twelve-mobile">
                 <div class="content-box-accueil">
-                    <h2><i18n>evaluations.mes.evaluations.non.terminees</i18n></h2>
+                    <h2 ng-if="!isChefEtab()">
+                        <i18n>evaluations.mes.evaluations.non.terminees</i18n>
+                    </h2>
+                    <h2 ng-if="isChefEtab()">
+                        <i18n>evaluations.evaluations.non.terminees</i18n>
+                    </h2>
                     <div class="content-box-accueil--table">
                         <div class="content-box-accueil--table--header row">
                             <div class="four cell">
@@ -119,8 +129,11 @@
         <section >
             <article class="five cell box-accueil twelve-mobile">
                 <div class="titre-widget">
-                    <h2 class="inline-block">
+                    <h2 ng-if="!isChefEtab()" class="inline-block">
                         <i18n>evaluations.mes.evaluations.non.terminees.par.classe</i18n>&nbsp;:
+                    </h2>
+                    <h2 ng-if="isChefEtab()" class="inline-block">
+                        <i18n>evaluations.evaluations.non.terminees.par.classe</i18n>&nbsp;:
                     </h2>
                     <label class="select right-magnet">
                         <select class="padding-select-accueil" ng-change="loadChart(chartOptions.selectedClasse);" ng-model="chartOptions.selectedClasse" ng-options="classe.id as classe.name group by classe.type_groupe_libelle for classe in devoirsClasses | orderBy:['type_groupe_libelle','name'] "

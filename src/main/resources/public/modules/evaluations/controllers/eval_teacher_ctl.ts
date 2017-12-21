@@ -151,6 +151,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     if (evaluations.structure !== undefined && evaluations.structure.isSynchronized) {
                         $scope.cleanRoot();
                         $scope.createDevoir();
+                        $scope.devoir.dateDevoir = new Date($scope.devoir.date);
                         utils.safeApply($scope);
                     }
                 },
@@ -545,6 +546,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     classe.periodes.sync().then(() => {
                         $scope.getCurrentPeriode(classe).then(function (res) {
                             $scope.search.periode = res;
+                            if ($location.path() === '/devoir/create' ||
+                                $location.path() === "/devoir/" + $scope.devoir.id + "/edit") {
+                                $scope.devoir.id_periode = res.id_type;
+                                $scope.controleDate($scope.devoir);
+                                utils.safeApply($scope);
+                            }
                             utils.safeApply($scope);
                         });
                     });
@@ -552,6 +559,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }else if (classe && classe.periodes) {
                     $scope.getCurrentPeriode(classe).then(function (res) {
                         $scope.search.periode = res;
+                        if ($location.path() === '/devoir/create' ||
+                            $location.path() === "/devoir/" + $scope.devoir.id + "/edit") {
+                            $scope.devoir.id_periode = res.id_type;
+                            $scope.controleDate($scope.devoir);
+                            utils.safeApply($scope);
+                        }
                         utils.safeApply($scope);
                     });
                 }
@@ -2664,15 +2677,25 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     await classe.periodes.sync();
                 }
                 let current_periode = _.findWhere(classe.periodes.all, {id_type: parseInt(devoir.id_periode)});
-                let start_datePeriode = current_periode.timestamp_dt;
-                let end_datePeriode = current_periode.timestamp_fn;
-                let date_saisie = current_periode.date_fin_saisie;
+                if(current_periode !== undefined){
+                    let start_datePeriode = current_periode.timestamp_dt;
+                    let end_datePeriode = current_periode.timestamp_fn;
+                    let date_saisie = current_periode.date_fin_saisie;
 
-                $scope.errDatePubli = (moment($scope.devoir.datePublication).diff(moment($scope.devoir.dateDevoir), "days") < 0);
-                $scope.errDateDevoir = !(moment($scope.devoir.dateDevoir).isBetween(moment(start_datePeriode), moment(end_datePeriode), 'days', '[]'));
-                $scope.endSaisie = moment($scope.devoir.dateDevoir).isAfter(moment(date_saisie), 'days', '[') || moment(new Date()).isAfter(moment(date_saisie), 'days', '[');
+                    $scope.errDatePubli = (moment($scope.devoir.datePublication).diff(
+                        moment($scope.devoir.dateDevoir), "days") < 0);
+                    $scope.errDateDevoir = !(moment($scope.devoir.dateDevoir).isBetween(
+                        moment(start_datePeriode), moment(end_datePeriode), 'days', '[]'));
+                    $scope.endSaisie = moment($scope.devoir.dateDevoir).isAfter(
+                        moment(date_saisie), 'days', '[') || moment(new Date()).isAfter(
+                        moment(date_saisie), 'days', '[');
 
-                $scope.devoir.controlledDate = !$scope.errDatePubli && !$scope.errDateDevoir && !$scope.endSaisie;
+                    $scope.devoir.controlledDate = !$scope.errDatePubli && !$scope.errDateDevoir && !$scope.endSaisie;
+                }
+                else {
+                    $scope.devoir.controlledDate = false;
+                }
+
                 utils.safeApply($scope);
             };
 

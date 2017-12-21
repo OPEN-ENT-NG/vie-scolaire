@@ -298,7 +298,7 @@ public class DefaultExportService implements ExportService {
         devoirService.listDevoirs(idGroupes, null,
                 idPeriodeType != null ? new Long[]{idPeriodeType} : null,
                 idEtablissement != null ? new String[]{idEtablissement} : null,
-                idMatiere != null ? new String[]{idMatiere} : null,
+                idMatiere != null ? new String[]{idMatiere} : null, null,
                 getIntermediateHandler(devoirsArray, new Handler<Either<String, JsonArray>>() {
                     @Override
                     public void handle(Either<String, JsonArray> stringJsonArrayEither) {
@@ -306,9 +306,9 @@ public class DefaultExportService implements ExportService {
                             for (int i = 0; i < stringJsonArrayEither.right().getValue().size(); i++) {
                                 Long idDevoir = ((JsonObject) stringJsonArrayEither.right().getValue().get(i)).getLong("id");
                                 competencesService.getDevoirCompetences(idDevoir,
-                                        getIntermediateHandler(competencesArray, finalHandler));
+                                        getIntermediateHandler(idDevoir, competencesArray, finalHandler));
                                 competenceNoteService.getCompetencesNotes(idDevoir, idEleve,
-                                        getIntermediateHandler(competencesNotesArray, finalHandler));
+                                        getIntermediateHandler(idDevoir, competencesNotesArray, finalHandler));
                             }
                             domaineService.getDomainesRacines(idGroupes[0],
                                     getIntermediateHandler(domainesArray, finalHandler));
@@ -357,21 +357,34 @@ public class DefaultExportService implements ExportService {
         };
     }
 
+    private Handler<Either<String, JsonArray>> getIntermediateHandler(final Long idDevoir, final JsonArray collection, final Handler<Either<String, JsonArray>> finalHandler) {
+        return new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                if (stringJsonArrayEither.isRight()) {
+                    JsonArray result = stringJsonArrayEither.right().getValue();
+                    if (result.size() == 0) {
+                        JsonObject obj = new JsonObject();
+                        obj.putString("id_devoir", String.valueOf(idDevoir));
+                        obj.putBoolean("empty", true);
+                        result.addObject(obj);
+                    }
+                }
+                getIntermediateHandler(collection, finalHandler).handle(stringJsonArrayEither);
+            }
+        };
+    }
+
     private int getNbDiffKey(JsonArray collection, String key) {
         Set<String> keyShown = new HashSet<>();
-        Integer nbEmpty = 0;
         for (int i = 0; i < collection.size(); i++) {
-            if (collection.get(i) instanceof String) {
-                nbEmpty++;
-                continue;
-            }
             JsonObject row = collection.get(i);
             String keyValue = String.valueOf(row.getField(key));
             if(!keyShown.contains(keyValue)) {
                 keyShown.add(keyValue);
             }
         }
-        return keyShown.size() + nbEmpty;
+        return keyShown.size();
     }
 
     private Map<String, JsonObject> extractData(JsonArray collection, String key) {
@@ -398,9 +411,6 @@ public class DefaultExportService implements ExportService {
         JsonArray result = new JsonArray();
 
         for (int i = 0; i < collection.size(); i++) {
-            if(collection.get(i) instanceof String) {
-                continue;
-            }
             JsonObject item = collection.get(i);
             String itemKey = String.valueOf(item.getField(key));
             if(!unsortedMap.containsKey(itemKey)) {
@@ -443,6 +453,7 @@ public class DefaultExportService implements ExportService {
 
                         if (devoirsDone.get()
                                 && maitriseDone.get()
+                                && domainesDone.get()
                                 && competencesDone.get()
                                 && competencesNotesDone.get()) {
                             answered.set(true);
@@ -455,10 +466,10 @@ public class DefaultExportService implements ExportService {
                                 Map<String, Map<String, Long>> competenceNotesMap = new HashMap<>();
 
                                 for (int i = 0; i < competencesNotes.size(); i++) {
-                                    if(competencesNotes.get(i) instanceof String) {
+                                    JsonObject row = competencesNotes.get(i);
+                                    if(row.containsField("empty")) {
                                         continue;
                                     }
-                                    JsonObject row = competencesNotes.get(i);
                                     String compKey = String.valueOf(row.getLong("id_competence"));
                                     String devoirKey = String.valueOf(row.getLong("id_devoir"));
                                     Long eval = row.getLong("evaluation");
@@ -527,6 +538,9 @@ public class DefaultExportService implements ExportService {
         }
 
         for (Map.Entry<String, JsonObject> competence : competences.entrySet()) {
+            if(competence.getValue().containsField("empty")) {
+                continue;
+            }
             String idDomain = competence.getValue().getString("ids_domaine");
             competencesByDomain.get(idDomain).add(competence.getKey());
         }
@@ -538,9 +552,6 @@ public class DefaultExportService implements ExportService {
 
         JsonArray bodyBody = new JsonArray();
         for(Map.Entry<String, List<String>> competencesInDomain : competencesByDomain.entrySet()) {
-            if(competencesInDomain.getValue() == null || competencesInDomain.getValue().size() == 0) {
-                continue;
-            }
             JsonObject domainObj = new JsonObject();
             domainObj.putString("domainHeader", domaines.get(competencesInDomain.getKey()).getString("codification") + " " + domaines.get(competencesInDomain.getKey()).getString("libelle"));
             JsonArray competencesInDomainArray = new JsonArray();

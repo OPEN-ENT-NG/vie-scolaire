@@ -97,7 +97,8 @@ public interface DevoirService extends CrudService {
             idPeriode, Handler<Either<String, JsonArray>> handler);
 
     public void listDevoirs(String[] idGroupes, Long[] idDevoirs, Long[] idPeriodes,
-                            String[] idEtablissement, String[] idMatieres, Handler<Either<String, JsonArray>> handler);
+                            String[] idEtablissement, String[] idMatieres, Boolean hasCompetences,
+                            Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste des devoirs publiés pour un établissement et une période donnée.

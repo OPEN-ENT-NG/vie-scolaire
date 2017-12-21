@@ -1515,7 +1515,8 @@ public class ExportPDFController extends ControllerHelper {
                                     if (json) {
                                         Renders.renderJson(request, result);
                                     } else {
-                                        genererPdf(request, result, "evaluation.pdf.xhtml", "Evaluation");
+                                        String fileName = result.getObject("devoir").getString("classe") + "_" + result.getObject("devoir").getString("nom") + "_" + (new Date()).toString();
+                                        genererPdf(request, result, "evaluation.pdf.xhtml", fileName);
                                     }
                                 } catch (Error err){
                                     leftToResponse(request, new Either.Left<>("An error occured while rendering pdf export : " + err.getMessage()));
@@ -1606,7 +1607,8 @@ public class ExportPDFController extends ControllerHelper {
                                                                         if (json) {
                                                                             Renders.renderJson(request, result);
                                                                         } else {
-                                                                            genererPdf(request, result, "releve-competences.pdf.xhtml", "ReleveComp");
+                                                                            String fileName = name + "_export_competences_" + (new Date()).toString();
+                                                                            genererPdf(request, result, "releve-competences.pdf.xhtml", fileName);
                                                                         }
                                                                     } else {
                                                                         leftToResponse(request, stringStringEither.left());

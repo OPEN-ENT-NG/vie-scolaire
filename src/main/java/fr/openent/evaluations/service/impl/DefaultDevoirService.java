@@ -667,7 +667,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
     }
 
     @Override
-    public void listDevoirs(String[] idGroupes, Long[] idDevoirs, Long[] idPeriodes, String[] idEtablissements, String[] idMatieres, Handler<Either<String, JsonArray>> handler) {
+    public void listDevoirs(String[] idGroupes, Long[] idDevoirs, Long[] idPeriodes,
+                            String[] idEtablissements, String[] idMatieres, Boolean hasCompetences,
+                            Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
 
@@ -694,8 +696,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         query.append("SELECT devoirs.*, rel.id_groupe")
                 .append(" FROM " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_DEVOIR_TABLE + " AS devoirs")
                 .append(" LEFT JOIN " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_REL_DEVOIRS_GROUPES + " AS rel")
-                .append(" ON devoirs.id = rel.id_devoir")
-                .append(" WHERE");
+                .append(" ON devoirs.id = rel.id_devoir");
+
+        if(hasCompetences == null || !hasCompetences) {
+            query.append(" WHERE");
+        } else {
+            query.append(" WHERE EXISTS (SELECT 1 FROM " + Viescolaire.EVAL_SCHEMA + "." + Viescolaire.EVAL_COMPETENCES_DEVOIRS + " AS comp WHERE comp.id_devoir = devoirs.id) AND");
+        }
 
         if(idGroupes.length != 0) {
             query.append(" rel.id_groupe IN " + Sql.listPrepared(idGroupes) + " AND");
@@ -731,7 +738,6 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 params.addString(idMatiere);
             }
         }
-
         query.delete(query.length() - 3, query.length());
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));

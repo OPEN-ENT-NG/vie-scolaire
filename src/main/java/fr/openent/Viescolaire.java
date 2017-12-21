@@ -83,6 +83,7 @@ public class Viescolaire extends BaseServer {
 	public static final String EVAL_USE_PERSO_NIVEAU_COMPETENCES_TABLE = "use_perso";
 	public static final String EVAL_CYCLE_TABLE = "cycle";
 	public static final String EVAL_REL_DEVOIRS_GROUPES = "rel_devoirs_groupes";
+	public static final String EVAL_COMPETENCES_DEVOIRS = "competences_devoirs";
 
 	/**
 	 * Déclaration des router préfixs

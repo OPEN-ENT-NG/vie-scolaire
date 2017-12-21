@@ -40,6 +40,7 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.netty.channel.MessageSizeEstimator;
+import main.java.fr.openent.evaluations.security.AccessVisibilityAppreciation;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.SuperAdminFilter;
@@ -253,7 +254,7 @@ public class DevoirController extends ControllerHelper {
 
     @Put("/devoirs/:idDevoir/visibility")
     @ApiDoc("Permet de switcher l'etat de visibiliter des appreciations du devoir")
-    @ResourceFilter(AccessEvaluationFilter.class)
+    @ResourceFilter(AccessVisibilityAppreciation.class)
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void switchVisibilityApprec(final HttpServerRequest request) {
         try {

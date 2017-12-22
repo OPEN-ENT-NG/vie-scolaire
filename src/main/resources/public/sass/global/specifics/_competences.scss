@@ -594,7 +594,7 @@ body.evaluations {
         position: relative;
 
         &.alone > i {
-          font-size: 30px;
+          font-size: 30px !important;
         }
 
         span {

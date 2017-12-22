@@ -244,9 +244,9 @@
                                  ng-click="switchVisibilityApprec(currentDevoir)"
                                  ng-if="currentDevoir.competences.all.length >= 8">
                                 <i ng-class="{'eye-slash': !currentDevoir.apprec_visible, 'eye-open': currentDevoir.apprec_visible}"></i>
-                                <span ng-if="currentDevoir.apprec_visible"
-                                      tooltip="evaluations.devoir.appreciation.tooltip.hide">&nbsp;</span>
                                 <span ng-if="!currentDevoir.apprec_visible"
+                                      tooltip="evaluations.devoir.appreciation.tooltip.hide">&nbsp;</span>
+                                <span ng-if="currentDevoir.apprec_visible"
                                       tooltip="evaluations.devoir.appreciation.tooltip.show">&nbsp;</span>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~viescolaire~0.9.2",
+      "name": "fr.openent~viescolaire~0.9-SNAPSHOT",
       "config": {
         "main" : "fr.openent.Viescolaire",
         "port" : 8128,
@@ -15,6 +15,9 @@
         "integration-mode" : "HTTP",
         "app-registry.port" : 8012,
         "mode" : "${mode}",
-        "entcore.port" : 8009
+        "entcore.port" : 8009,
+        "exports" : {
+           "template-path" : "./public/templates/pdf/"
+        }
       }
     }

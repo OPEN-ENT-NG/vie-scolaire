@@ -2407,6 +2407,9 @@ body.evaluations {
   }
 
   .eval_parent {
+    .help {
+      color: $cyan;
+    }
     .bilan-suivi-eleve {
       margin-top: 5px !important;
     }

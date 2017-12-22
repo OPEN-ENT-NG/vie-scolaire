@@ -273,7 +273,7 @@
     </button>
 </lightbox>
 
-<lightbox show="opened.evaluation.exportDevoir" on-close="opened.evaluation.exportDevoir = false">
+<lightbox show="opened.evaluation.exportDevoir" on-close="opened.evaluation.exportDevoir = false; errExport = false;">
     <div class="row">
         <p>
             <label class="checkbox" style="float: left">
@@ -281,9 +281,12 @@
                 <i18n>evaluations.export.textMod</i18n>
             </label>
         </p>
-
     </div>
     <div class="row">
+        <div class="warning"
+            ng-if="errExport">
+            <i18n>evaluations.export.err</i18n>
+        </div>
         <button class="right-magnet"
                 ng-click="exportDevoir(selected.devoirs.list[0].id, textModExport)">
             <i18n>print</i18n>

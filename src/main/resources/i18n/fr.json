@@ -150,6 +150,7 @@
   "evaluations.export" : "Exporter",
   "evaluations.export.textMod" : "Imprimer en texte plutôt qu'en couleur",
   "evaluations.export.releveComp" : "Imprimer le relevé de compétences au format pdf",
+  "evaluations.export.err" : "Impossible d'éditer le pdf",
   "evaluations.devoir.print" : " Imprimer les résultats du devoir",
   "evaluations.remplacants.title":"Gérer les remplacements",
   "evaluations.remplacement.add":"Ajouter un remplacement",

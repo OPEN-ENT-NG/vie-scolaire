@@ -2908,25 +2908,27 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                             url = '/viescolaire/evaluations/devoirs/print/' + $scope.currentDevoir.id + '/formsaisie';
                             break;
                         }
-                        case 'devoir' : {
-                            url = "/viescolaire/evaluations/devoirs/print/" + $scope.currentDevoir.id + "/export?text=" + !$scope.printOption.inColor;
-                            break;
-                        }
                     }
                 }
                 delete $scope.printOption;
                 location.replace(url);
             };
 
-            $scope.exportDevoir = (idDevoir, textMod = false) => {
+            $scope.exportDevoir = async (idDevoir, textMod = false) => {
                 let url = "/viescolaire/evaluations/devoirs/print/" + idDevoir + "/export?text=" + textMod;
-                $scope.opened.evaluation.exportDevoir = false;
-                $scope.textModExport = false;
+                http().getJson(url + "&json=true").error(() => {
+                    $scope.errExport = true;
+                    utils.safeApply($scope);
+                }).done(() => {
+                    $scope.opened.evaluation.exportDevoir = false;
+                    $scope.textModExport = false;
+                    $scope.errExport = false;
+                    location.replace(url);
+                });
                 utils.safeApply($scope);
-                location.replace(url);
             };
 
-            $scope.exportReleveComp = (idEleve : String, idMatiere:String, idPeriode:Number, textMod:Boolean = false) => {
+            $scope.exportReleveComp = async (idEleve : String, idMatiere:String, idPeriode:Number, textMod:Boolean = false) => {
                 let url = "/viescolaire/evaluations/releveComp/print/" + idEleve + "/export?text=" + textMod;
                 if(idMatiere) {
                     url += "&idMatiere=" + idMatiere;
@@ -2934,10 +2936,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if(idPeriode) {
                     url += "&idPeriode=" + idPeriode;
                 }
-                delete $scope.releveComp;
-                $scope.opened.releveComp = false;
+                await http().getJson(url + "&json=true")
+                    .error(() => {
+                        $scope.errExport = true;
+                        utils.safeApply($scope);
+                    })
+                    .done(() => {
+                        delete $scope.releveComp;
+                        $scope.opened.releveComp = false;
+                        $scope.errExport = false;
+                        location.replace(url);
+                    });
                 utils.safeApply($scope);
-                location.replace(url);
             };
         }
 ]);

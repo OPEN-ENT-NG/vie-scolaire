@@ -1,5 +1,8 @@
 <div ng-include="'/viescolaire/public/templates/evaluations/setting.html'"></div>
 <section>
+    <lightbox show="opened.lightbox" on-close="opened.lightbox=false">
+        <container template="lightboxContainer"></container>
+    </lightbox>
     <article class="five cell box-accueil twelve-mobile">
         <div class="content-box-accueil">
             <div ng-init="initLimit()" class="titre-widget center">
@@ -9,6 +12,7 @@
                 <h2 ng-if="me.type === 'PERSRELELEVE'" class="inline-block ">
                     <i18n>evaluation.last.child</i18n><span>[[ eleve.firstName ]]</span>
                 </h2>
+                <i class="help" ng-click="getInfoCompetencesDevoir()"></i>
             </div>
             <div class="content-box-accueil--table">
                 <div class="content-box-accueil--table--header row">

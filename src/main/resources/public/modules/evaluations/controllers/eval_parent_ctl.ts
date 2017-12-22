@@ -128,6 +128,16 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             return moment(date).format("DD/MM/YYYY");
         };
 
+        /**
+         * Ouvre la fenêtre détail des compétences sur un devoir
+         */
+        $scope.getInfoCompetencesDevoir = function () {
+            $scope.opened = {
+                lightbox : true
+            };
+            template.open('lightboxContainer', '../templates/evaluations/parent_enfant/accueil/display_competences');
+        };
+
         $scope.noteMatiereEleve = function(idMatiere) {
             return $scope.dataReleve.devoirs.findWhere({ id_matiere : idMatiere });
         };

@@ -108,12 +108,14 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.initChartListNotDone = function () {
                 $scope.getDevoirsNotDone().then((devoirs) => {
                     $scope.devoirsNotDone = devoirs;
-                    $scope.devoirsClasses = _.filter($scope.classes.all, (classe) => {
+                    $scope.devoirsClasses = _.filter(evaluations.structure.classes.all, (classe) => {
                         return _.contains(_.uniq(_.pluck($scope.devoirsNotDone, 'id_groupe')), classe.id) && classe.remplacement !== true;
                     });
-                    $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses, 'name')).id;
-                    $scope.loadChart($scope.chartOptions.selectedClasse);
-                    utils.safeApply;
+                    if ($scope.devoirsClasses.length > 0 ) {
+                        $scope.chartOptions.selectedClasse = _.first(_.sortBy($scope.devoirsClasses, 'name')).id;
+                        $scope.loadChart($scope.chartOptions.selectedClasse);
+                    }
+                    utils.safeApply($scope);
                 });
             };
         };
@@ -201,13 +203,14 @@ export let evalAcuTeacherController = ng.controller('EvalAcuTeacherController', 
             $scope.goTo(path, idOfpath);
         };
 
-        $scope.changeEtablissementAccueil = () => {
-            let switchEtab = () => {
-                $scope.initControler();
-                $scope.$parent.initReferences();
+        $scope.changeEtablissementAccueil =  () => {
+            let switchEtab = async () => {
+                await $scope.initControler();
+                await $scope.$parent.initReferences();
                 $scope.search = $scope.initSearch();
                 $scope.devoirs = evaluations.structure.devoirs;
                 $scope.usePerso = evaluations.structure.usePerso;
+                $scope.classes = evaluations.structure.classes;
                 $scope.initChartListNotDone();
                 utils.safeApply($scope);
             };

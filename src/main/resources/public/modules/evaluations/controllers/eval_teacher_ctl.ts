@@ -2914,15 +2914,17 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 location.replace(url);
             };
 
+            $scope.exportDevoirObj = {};
+            $scope.exportRelCompObj = {};
             $scope.exportDevoir = async (idDevoir, textMod = false) => {
                 let url = "/viescolaire/evaluations/devoirs/print/" + idDevoir + "/export?text=" + textMod;
                 http().getJson(url + "&json=true").error(() => {
-                    $scope.errExport = true;
+                    $scope.exportDevoirObj.errExport = true;
                     utils.safeApply($scope);
                 }).done(() => {
-                    $scope.opened.evaluation.exportDevoir = false;
+                    $scope.opened.evaluation.exportDevoirLB = false;
                     $scope.textModExport = false;
-                    $scope.errExport = false;
+                    $scope.exportDevoirObj.errExport = false;
                     location.replace(url);
                 });
                 utils.safeApply($scope);
@@ -2938,16 +2940,33 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
                 await http().getJson(url + "&json=true")
                     .error(() => {
-                        $scope.errExport = true;
+                        $scope.exportRelCompObj.errExport = true;
                         utils.safeApply($scope);
                     })
                     .done(() => {
                         delete $scope.releveComp;
                         $scope.opened.releveComp = false;
-                        $scope.errExport = false;
+                        $scope.exportRelCompObj.errExport = false;
                         location.replace(url);
                     });
                 utils.safeApply($scope);
             };
+
+            /*$scope.getErrorExport = (devoir:Boolean) => {
+                if(devoir) {
+                    return $scope.exportDevoir
+                } else {
+                    return
+                }
+            }
+
+        $scope.setErrorExport = (devoir:Boolean, value: Boolean) => {
+            if(devoir) {
+                $scope.exportDevoir.errExport = value;
+            } else {
+                $scope.exportDevoir.errExport = value;
+
+            }
+        }*/
         }
 ]);

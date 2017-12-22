@@ -17,7 +17,7 @@
   ~
   -->
 
-<lightbox show="printOption.display" class="" on-close="printOption.display=false; errExport=false">
+<lightbox show="printOption.display" class="" on-close="printOption.display=false; exportDevoirObj.errExport=false">
     <h2><i18n>print</i18n></h2>
     <div class="checkbox-grid">
         <label>
@@ -73,11 +73,11 @@
     </div>
     <div class="row">
         <div class="warning"
-             ng-if="printOption.errExport">
+             ng-if="exportDevoirObj.errExport">
             <i18n>evaluations.export.err</i18n>
         </div>
         <button ng-if="printOption.fileType !== 'devoir'" class ="right-magnet" ng-click="printCartouche()"><i18n>print</i18n></button>
-        <button ng-if="printOption.fileType === 'devoir'" class ="right-magnet" ng-click="exportDevoir(currentDevoir.id, printOption.inColor);"><i18n>print</i18n></button>
+        <button ng-if="printOption.fileType === 'devoir'" class ="right-magnet" ng-click="exportDevoir(currentDevoir.id, !printOption.inColor);"><i18n>print</i18n></button>
     </div>
 </lightbox>
 

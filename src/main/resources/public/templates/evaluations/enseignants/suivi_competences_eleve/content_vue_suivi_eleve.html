@@ -79,7 +79,7 @@
 <div ng-repeat="domaine in suiviCompetence.domaines.all" ng-include="'tree_item_renderer.html'">
 </div>
 
-<lightbox show="opened.releveComp" on-close="opened.releveComp = false; errExport=false;">
+<lightbox show="opened.releveComp" on-close="opened.releveComp = false; exportRelCompObj.errExport = false;">
     <h2>
         <i18n>print</i18n>
     </h2>
@@ -102,7 +102,7 @@
             </label>
         </div>
     </div>
-    <div class="row">
+    <!--<div class="row">
         <div class="two cell">
             <label class="checkbox">
                 <input type="checkbox"
@@ -110,15 +110,15 @@
                 <span><i18n>evaluation.devoir.cartouche.couleur</i18n></span>
             </label>
         </div>
-    </div>
+    </div>-->
         <div class="row">
         <div class="warning"
-             ng-if="errExport">
+             ng-if="exportRelCompObj.errExport">
             <i18n>evaluations.export.err</i18n>
         </div>
         <button class="right-magnet"
                 ng-disabled = "releveComp.matiere.id === undefined || releveComp.matiere === null"
-                ng-click="exportReleveComp(informations.eleve.id, releveComp.matiere.id, releveComp.periode.id_type, !releveComp.textMod)">
+                ng-click="exportReleveComp(informations.eleve.id, releveComp.matiere.id, releveComp.periode.id_type, false)">
             <i18n>print</i18n>
         </button>
     </div>

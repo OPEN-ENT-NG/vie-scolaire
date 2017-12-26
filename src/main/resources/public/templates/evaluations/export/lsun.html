@@ -21,7 +21,7 @@
                                ng-class="{selected:bSelectAllClasses}">
                     </label>
                     <ul class="selectable-list">
-                        <li ng-repeat="classe in lsu.classes.all|filter:criteriaMatch()|orderBy : 'name'"
+                        <li ng-repeat="classe in lsu.classes|orderBy : 'name'"
                             ng-click="classe.selected = !classe.selected"
                             ng-class="{selected : classe.selected}">[[classe.name]]</li>
                     </ul>

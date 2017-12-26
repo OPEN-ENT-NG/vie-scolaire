@@ -3,11 +3,11 @@
  */
 import{ng,model} from "entcore/entcore";
 import { LSU, Classe, Responsable } from '../models/eval_teacher_mdl';
-
+import * as utils from '../utils/teacher';
 export let exportControleur = ng.controller('ExportController',['$scope',
     function($scope) {
 
-      $scope.lsu = new LSU($scope.structure.id, $scope.evaluations.classes, $scope.structure.responsables);
+      $scope.lsu = new LSU($scope.structure.id, $scope.evaluations.classes.where({type_groupe : 0}), $scope.structure.responsables);
 
       //Vue export du fichier xml
 
@@ -16,23 +16,23 @@ export let exportControleur = ng.controller('ExportController',['$scope',
       $scope.bSelectAllResponsables = false;
 
       $scope.pOFilterCtrl={
-          bOFClasse : true,
-          bOFResponsable : true
+          bOFClasse : false,
+          bOFResponsable : false
       };
 
       //function toutes les classes selectionnées ont leur attribut selected mis à la valeur  bSelectAllClasses
       $scope.switchAllClasses = function(oListe) {
-            oListe.each(function(o) {
+            oListe.forEach(function(o) {
                 o.selected = $scope.bSelectAllClasses;
             });
       };
 
         //selectionner seulement les classes sans les groupes
-        $scope.criteriaMatch = () => {
+        /*$scope.criteriaMatch = () => {
             return function(classe) {
                 return classe.type_groupe === 0;
             };
-        };
+        };*/
 
         // Créer une fonction dans le $scope qui lance la récupération des responsables
         $scope.getResponsables = function () {
@@ -55,12 +55,13 @@ export let exportControleur = ng.controller('ExportController',['$scope',
          */
         $scope.controleExportLSU = function(){
             return !(
-                _.where($scope.lsu.classes.all, {selected: true}).length > 0 &&
+                $scope.lsu.classes.filter(classe => classe.selected === true).length > 0 &&
                 _.where($scope.lsu.responsables.all, {selected: true}).length > 0
             );
         };
         $scope.exportLSU = ()=> {
-          $scope.lsu.export()
+          $scope.lsu.export();
+
 
         };
 

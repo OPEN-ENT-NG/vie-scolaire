@@ -45,7 +45,7 @@ import javax.xml.bind.annotation.*;
 @XmlType(name = "Responsable", propOrder = {
     "adresse"
 })
-public class Responsable {
+public class  Responsable {
 
     protected Adresse adresse;
     @XmlAttribute(name = "civilite", required = true)

@@ -152,10 +152,11 @@ public class LSUController extends ControllerHelper {
                 if (response.isRight()) {
                     JsonArray jsonElevesRelatives = response.right().getValue();
                     Eleve eleve;
-                    Responsable responsable;
+                    Responsable responsable = null;
+                    Adresse adresse = null;
                     Donnees.Eleves eleves = objectFactory.createDonneesEleves();
                     if (jsonElevesRelatives.size() > 0) {
-                        try {
+                       /* try {*/
                             for (int i = 0; i < jsonElevesRelatives.size(); i++) {
                                 JsonObject o = jsonElevesRelatives.get(i);
                                 if (!eleves.containIdEleve(o.getString("idNeo4j"))) {
@@ -165,25 +166,32 @@ public class LSUController extends ControllerHelper {
                                 } else {
                                     eleve = eleves.getEleveById(o.getString("idNeo4j"));
                                 }
-                                Adresse adresse = objectFactory.createAdresse(o.getString("address"),o.getString("zipCode"),o.getString("city"));
-                                if (!o.getString("externalIdRelative").isEmpty()&& !o.getString("lastNameRelative").isEmpty()&&
-                                        !o.getString("firstNameRelative").isEmpty()&& o.getArray("relative").size() > 0) {
+                                if(o.getString("address")!= null && o.getString("zipCode")!=null && o.getString("city")!= null){
+                                    adresse = objectFactory.createAdresse(o.getString("address"), o.getString("zipCode"), o.getString("city"));
+                                }
+                                if (o.getString("externalIdRelative")!= null && o.getString("lastNameRelative") !=null &&
+                                        o.getString("firstNameRelative")!= null && o.getArray("relative").size() > 0 && adresse != null) {
                                    //création d'un responsable Eleve avec la civilite si MERE ou PERE
                                     responsable = objectFactory.createResponsable(o.getString("externalIdRelative"),o.getString("lastNameRelative"),
                                             o.getString("firstNameRelative"),o.getArray("relative"),adresse);
-                                } else {
-                                    throw new Exception("responsable Eleve non renseigné ");
-                                }
-                                eleve.getResponsableList().add(responsable);
+
+                                }/* else {
+                                    throw new Exception("responsable Eleve non renseigne ");
+                                }*/
+                                if(responsable != null && responsable.getCivilite()!=null) {
+                                    eleve.getResponsableList().add(responsable);
+                                }/*else{
+                                    throw new Exception("responsable Eleve sans adresse at sans civilite "+responsable.getNom());
+                                }*/
                             }
                             donnees.setEleves(eleves);
                             handler.handle("success");
                             log.info("FIN method getBaliseEleves : nombre d'eleve ajoutes :"+eleves.getEleve().size());
 
-                        }catch (Exception e){
+                       /* }catch (Exception e){
                             handler.handle( e.getMessage());
                             log.error("method getBaliseEleve : attribut relative est null " + e.getMessage());
-                        }
+                        }*/
                      } else {
                     handler.handle("getBaliseEleves : error when collecting Eleves " + response.left().getValue());
                     log.error("method getBaliseEleves an error occured when collecting Eleves " + response.left().getValue());
@@ -214,7 +222,7 @@ public class LSUController extends ControllerHelper {
                     try {
                         for (int i = 0; i < cycles.size(); i++) {
                             JsonObject o = cycles.get(i);
-                            if(o.getString("id_groupe")!=null &&o.getLong("id_cycle")!=null&&o.getLong("value_cycle")!=null) {
+                            if(o.getString("id_groupe")!=null &&o.getLong("id_cycle")!=null && o.getLong("value_cycle")!=null) {
                                 mapIclassIdCycle.put(o.getString("id_groupe"), o.getLong("id_cycle"));
                                 mapIdCycleValue_cycle.put(o.getLong("id_cycle"), o.getLong("value_cycle"));
                             }else {
@@ -359,7 +367,6 @@ public class LSUController extends ControllerHelper {
                             }
                             //  alors on peut ajouter le bilanCycle à l'élève avec la synthèse, les ensCpl et les codesDomaines et positionnement au socle
                             final BilanCycle bilanCycle = objectFactory.createBilanCycle();
-                            final BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
                             BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
                             //Ajouter les CodesDomaines et positionnement
                             //on teste si la map<Iddomaine,positionnement> contient idDomaine correspondant à CPD_ETR
@@ -378,9 +385,9 @@ public class LSUController extends ControllerHelper {
                             //la synthèse
                             bilanCycle.setSynthese(syntheseEleve.getString("texte"));
                             if (syntheseEleve.getString("modified") != null) {
-                                bilanCycle.setDateVerrou(syntheseEleve.getString("modified"));
+                                bilanCycle.setDateVerrou(syntheseEleve.getString("modified").substring(0,19));
                             } else {
-                                bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation"));
+                                bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation").substring(0,19));
                             }
                             XMLGregorianCalendar dateCreation = getDateFormatGregorian(syntheseEleve.getString("date_creation"));
                             bilanCycle.setDateCreation(dateCreation);
@@ -393,9 +400,13 @@ public class LSUController extends ControllerHelper {
 
                             //on ajoute les différents attributs de la balise BilanCycle de l'élève
                             ResponsableEtab responsableEtabRef = responsablesEtab.get(0);
-                            //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables du bilanCycle
-                            responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
-                            bilanCycle.setResponsables(responsablesEleve);
+                            //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables et au bilanCycle
+                            if(eleve.getResponsableList() != null) {
+                                BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
+                                responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
+                                bilanCycle.setResponsables(responsablesEleve);
+                            }
+
                             bilanCycle.setResponsableEtabRef(responsableEtabRef);
                             bilanCycle.setEleveRef(eleve);
                             bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
@@ -485,7 +496,7 @@ public class LSUController extends ControllerHelper {
                             && !mapIdDomainePosition.containsKey(idDomaineCPD_ETR));
                     if (syntheseEleve.size() > 0 && (mapIdDomainePosition.size() == mapIdDomaineCodeDomaine.size() || bmapSansIdDomaineCPDETR)) {
                         final BilanCycle bilanCycle = objectFactory.createBilanCycle();
-                        final BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
+
                         BilanCycle.Socle socle = objectFactory.createBilanCycleSocle();
                         //Ajouter les CodesDomaines et positionnement
                         //on teste si la map<Iddomaine,positionnement> contient idDomaine correspondant à CPD_ETR
@@ -504,17 +515,21 @@ public class LSUController extends ControllerHelper {
                         //la synthèse
                         bilanCycle.setSynthese(syntheseEleve.getString("texte"));
                         if (syntheseEleve.getString("modified") != null) {
-                            bilanCycle.setDateVerrou(syntheseEleve.getString("modified"));
+                            bilanCycle.setDateVerrou(syntheseEleve.getString("modified").substring(0,19));
                         } else {
-                            bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation"));
+                            bilanCycle.setDateVerrou(syntheseEleve.getString("date_creation").substring(0,19));
                         }
                         XMLGregorianCalendar dateCreation = getDateFormatGregorian(syntheseEleve.getString("date_creation"));
                         bilanCycle.setDateCreation(dateCreation);
                         //on ajoute les différents attributs de la balise BilanCycle de l'élève
                         ResponsableEtab responsableEtabRef = responsablesEtab.get(0);
                         //on ajoute les responsables de l'élève (attribut de clui-ci) aux responsables du bilanCycle
-                        responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
-                        bilanCycle.setResponsables(responsablesEleve);
+                        if(eleve.getResponsableList() != null) {
+                            BilanCycle.Responsables responsablesEleve = objectFactory.createBilanCycleResponsables();
+                            responsablesEleve.getResponsable().addAll(eleve.getResponsableList());
+                            bilanCycle.setResponsables(responsablesEleve);
+                        }
+
                         bilanCycle.setResponsableEtabRef(responsableEtabRef);
                         bilanCycle.setEleveRef(eleve);
                         bilanCycle.setCycle(new BigInteger(String.valueOf(mapIdCycleValue.get((Long) mapIdClassIdCycle.get(idClass)))));
@@ -726,7 +741,7 @@ public class LSUController extends ControllerHelper {
             JAXBContext jc = JAXBContext.newInstance(LsunBilans.class);
             Marshaller marshaller = jc.createMarshaller();
            // écriture de la réponse
-            //marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "urn:fr:edu:scolarite:lsun:bilans:import import-bilan-complet.xsd");
@@ -740,14 +755,15 @@ public class LSUController extends ControllerHelper {
             Schema schema = schemaFactory.newSchema(schemaFile);
             log.info("method returnResponse avant la validation");
             Validator validator = schema.newValidator();
-           // validator.validate(xmlFile);
+            //validator.validate(xmlFile);
             //préparation de la requête
             request.response().putHeader("content-type", "text/xml");
             request.response().putHeader("charset", "utf-8");
+            //request.response().putHeader("standalone", "yes");
             request.response().putHeader("Content-Disposition", "attachment; filename=import_lsun_"+ new Date().getTime() +".xml");
             request.response().end(new Buffer(response.toString()));
 
-        } catch (JAXBException |  SAXException /*| IOException */ e) {
+        } catch (JAXBException |  SAXException /*| IOException*/ e) {
             Renders.renderJson(request, new JsonObject().putString("status", "validation.error"), 500);
             e.printStackTrace();
         }

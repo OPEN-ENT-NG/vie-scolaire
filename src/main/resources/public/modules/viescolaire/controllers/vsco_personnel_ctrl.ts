@@ -408,16 +408,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             utils.safeApply($scope);
         };
 
-        $scope.changeEtablissementAccueil = function (structure) {
-            $scope.structure = structure;
-            $scope.structure.sync().then(() => {
-                $scope.structure.niveauCompetences = _.groupBy($scope.structure.niveauCompetences,"id_cycle");
-                if ($scope.currParam === undefined) {
-                    $scope.currParam = 0;
-                }
-                utils.safeApply($scope);
-            });
-        };
+
 
         $scope.formatDatePeriode = (pODate) => {
             return getFormatedDate(pODate, 'DD MMMM YYYY');

@@ -247,7 +247,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.usePerso = evaluations.structure.usePerso;
                     $scope.updateColorAndLetterForSkills('saisieNote');
                     $scope.updateNiveau($scope.usePerso);
-
+                    if ($scope.printOption === undefined) {
+                        $scope.printOption = {
+                            display: false,
+                            fileType: "formSaisie",
+                            cartoucheNmb: 1,
+                            byEleve: false,
+                            inColor: false,
+                        };
+                    }
                     if (evaluations.structure.classes.empty()) {
                         await evaluations.structure.classes.sync();
                     }
@@ -2960,7 +2968,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     }
                 }
             }
-            delete $scope.printOption;
+            $scope.exportDevoirObj.errExport = false;
+            $scope.printOption.display=false;
+            utils.safeApply($scope);
             location.replace(url);
         };
 
@@ -2975,6 +2985,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 $scope.opened.evaluation.exportDevoirLB = false;
                 $scope.textModExport = false;
                 $scope.exportDevoirObj.errExport = false;
+                $scope.printOption.display=false;
+                utils.safeApply($scope);
                 location.replace(url);
             });
             utils.safeApply($scope);

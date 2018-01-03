@@ -165,7 +165,7 @@ public class DefaultExportService implements ExportService {
                                                             stringJsonObjectEither.right().getValue(),
                                                             extractData(orderBy(eleves, "lastName"), "id"),
                                                             extractData(orderBy(addMaitriseNE(maitrises), "ordre", true), "ordre"),
-                                                            extractData(orderBy(competences, "code_domaine"),"id_competence"),
+                                                            extractData(competences,"id_competence"),
                                                             extractData(notes, "id_eleve"),
                                                             extractData(annotations, "id"),
                                                             competenceNoteElevesMap)));
@@ -488,7 +488,7 @@ public class DefaultExportService implements ExportService {
                                                 text,
                                                 new ArrayList<>(extractData(devoirs, "id").keySet()),
                                                 extractData(orderBy(addMaitriseNE(maitrises), "ordre", true), "ordre"),
-                                                extractData(orderBy(competences, "nom", true), "id"),
+                                                extractData(competences, "id"),
                                                 extractData(domaines, "id"),
                                                 competenceNotesMap)));
                             }

@@ -1204,7 +1204,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
             }
         };
-
+        $scope.enseignementsWithCompetences = function (enseignement) {
+            return enseignement.competences.all.length > 0;
+        };
         $scope.checkDomainesSelected = function (idDomaine) {
             $scope.showCompetencesDomaine[idDomaine] = !$scope.showCompetencesDomaine[idDomaine];
             let isAllDomainesSelected = true;
@@ -2949,7 +2951,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             } else {
                 switch ($scope.printOption.fileType) {
                     case 'cartouche' : {
-                        url = "/viescolaire/evaluations/devoirs/print/" + $scope.currentDevoir.id + "cartouch?eleve=" + $scope.printOption.byEleve + '&color=' + $scope.printOption.inColor + "&nbr=" + $scope.printOption.cartoucheNmb;
+                        url = "/viescolaire/evaluations/devoirs/print/" + $scope.currentDevoir.id + "/cartouche?eleve=" + $scope.printOption.byEleve + '&color=' + $scope.printOption.inColor + "&nbr=" + $scope.printOption.cartoucheNmb;
                         break;
                     }
                     case 'formSaisie' : {

@@ -81,7 +81,7 @@
 
 <lightbox show="opened.releveComp" on-close="opened.releveComp = false; exportRelCompObj.errExport = false;">
     <h2>
-        <i18n>print</i18n>
+        <i18n>evaluations.export.format.pdf</i18n>
     </h2>
     <div class="row">
         <div class="twelve cell twelve-mobile">
@@ -120,8 +120,9 @@
         </div>
         <button class="right-magnet"
                 ng-disabled = "releveComp.matiere.id === undefined || releveComp.matiere === null"
+                tooltip="evaluations.export.format.pdf"
                 ng-click="exportReleveComp(informations.eleve.id, releveComp.matiere.id, releveComp.periode.id_type, false)">
-            <i18n>print</i18n>
+            <i18n>evaluations.export</i18n>
         </button>
     </div>
 </lightbox>

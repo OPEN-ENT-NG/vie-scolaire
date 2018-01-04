@@ -18,7 +18,7 @@
   -->
 
 <lightbox show="printOption.display" class="" on-close="printOption.display=false; exportDevoirObj.errExport=false">
-    <h2><i18n>print</i18n></h2>
+    <h2><i18n>evaluations.export.format.pdf</i18n>&nbsp;:</h2>
     <div class="checkbox-grid">
         <label>
             <input type="radio" ng-change=""  ng-model="printOption.fileType" value="cartouche">
@@ -76,8 +76,13 @@
              ng-if="exportDevoirObj.errExport">
             <i18n>evaluations.export.err</i18n>
         </div>
-        <button ng-if="printOption.fileType !== 'devoir'" class ="right-magnet" ng-click="printCartouche()"><i18n>print</i18n></button>
-        <button ng-if="printOption.fileType === 'devoir'" class ="right-magnet" ng-click="exportDevoir(currentDevoir.id, !printOption.inColor);"><i18n>print</i18n></button>
+        <button ng-if="printOption.fileType !== 'devoir'" class ="right-magnet" ng-click="printCartouche()">
+            <i18n>evaluations.export</i18n>
+        </button>
+        <button ng-if="printOption.fileType === 'devoir'" class ="right-magnet"
+                ng-click="exportDevoir(currentDevoir.id, !printOption.inColor);">
+            <i18n>evaluations.export</i18n>
+        </button>
     </div>
 </lightbox>
 
@@ -95,10 +100,14 @@
                ng-if="!isChefEtab()"
                class="right-magnet" ng-class="{'button-edit-devoir' : currentDevoir.competences.all.length > 0,
                                         'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
-        <button ng-show=" currentDevoir.competences.all.length > 0" ng-click="printOption.display =true"    class="right-magnet ng-scope " ng-class="{'button-print-devoir' : currentDevoir.competences.all.length > 0
-                                        }">
+        <button ng-show=" currentDevoir.competences.all.length > 0"
+                ng-click="printOption.display =true"
+                class="right-magnet ng-scope "
+                tooltip="evaluations.export.format.pdf"
+                ng-class="{'button-print-devoir' : currentDevoir.competences.all.length > 0}">
             <i class="download">
-            </i></button>
+            </i>
+        </button>
 
         <button  ng-show=" currentDevoir.competences.all.length === 0" ng-click="printCartouche('formsaisie')"   class="right-magnet ng-scope " ng-class="{'button-edit-devoir-not-fixed' : currentDevoir.competences.all.length === 0}">
             <i class="download">

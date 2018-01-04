@@ -142,9 +142,10 @@
                 <i18n><span class="no-style">evaluations.test.delete</span></i18n>
             </button>
             <button class="cell"
+                    tooltip="evaluations.export.format.pdf"
                     ng-click="opened.evaluation.exportDevoirLB = true"
                     ng-show="selected.devoirs.list.length === 1">
-                <i18n>print</i18n>
+                <i18n>evaluations.export</i18n>
             </button>
         </div>
     </div>
@@ -288,8 +289,9 @@
             <i18n>evaluations.export.err</i18n>
         </div>
         <button class="right-magnet"
+                tooltip="evaluations.export.format.pdf"
                 ng-click="exportDevoir(selected.devoirs.list[0].id, textModExport)">
-            <i18n>print</i18n>
+            <i18n>evaluations.export</i18n>
         </button>
     </div>
 </lightbox>

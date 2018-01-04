@@ -326,7 +326,7 @@ export class Evaluations extends Model {
         });
     }
 
-    getReleve (idPeriode, idUser, ordrePeriode, idTypePeriode) {
+    getReleve (idPeriode, idUser, idTypePeriode, ordrePeriode) {
         let uri = '/viescolaire/evaluations/releve/pdf?idEtablissement=' +
             model.me.structures[0] + '&idUser=' + idUser;
         if (idPeriode !== undefined && idPeriode !== null) {

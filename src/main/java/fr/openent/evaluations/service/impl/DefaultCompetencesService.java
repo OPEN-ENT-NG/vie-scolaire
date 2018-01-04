@@ -125,7 +125,7 @@ public class DefaultCompetencesService extends SqlCrudService implements Compete
                 .append("LEFT OUTER JOIN "+ Viescolaire.EVAL_SCHEMA +".domaines ON (domaines.id = rel_competences_domaines.id_domaine) ")
                 .append("WHERE competences_devoirs.id_devoir = ? ")
                 .append("GROUP BY competences_devoirs.id, competences.nom, competences.id_type, competences.id_parent, competences.id ")
-                .append("ORDER BY competences.nom ASC;");
+                .append("ORDER BY competences_devoirs.id ASC;");
 
         Sql.getInstance().prepared(query.toString(), new JsonArray().addNumber(devoirId), SqlResult.validResultHandler(handler));
     }

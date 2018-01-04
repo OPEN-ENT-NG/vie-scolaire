@@ -1,7 +1,8 @@
 /**
  * Created by rollinq on 21/08/2017.
  */
-import {ng, appPrefix} from 'entcore/entcore';
+import {ng, appPrefix, skin} from 'entcore/entcore';
+import * as utils from '../../evaluations/utils/parent';
 
 export let cRoundAvatar = ng.directive("cRoundAvatar", [function () {
     return {
@@ -9,6 +10,22 @@ export let cRoundAvatar = ng.directive("cRoundAvatar", [function () {
         restrict: "E",
         scope: {
             eleve: "=eleve"
+        },
+        link: function ($scope): Promise<any> {
+            return new Promise((resolve, reject) =>{
+                $scope.skin = skin;
+                http().get('/userbook/avatar/' + $scope.eleve.id).done(function(data){
+                    if(typeof(data) == "string"){
+                        $scope.userbook = true;
+                        utils.safeApply($scope);
+                    } else {
+                        $scope.userbook = false;
+                        utils.safeApply($scope);
+                    }
+                });
+                resolve();
+            });
+
         }
     };
 }]);

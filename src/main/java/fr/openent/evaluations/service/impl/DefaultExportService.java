@@ -241,7 +241,7 @@ public class DefaultExportService implements ExportService {
         //Body
         for (Map.Entry<String, JsonObject> eleve : eleves.entrySet()) {
             JsonObject eleveObject = new JsonObject();
-            eleveObject.putString("header", eleve.getValue().getString("displayName"));
+            eleveObject.putString("header", eleve.getValue().getString("lastName").toUpperCase() + " " + eleve.getValue().getString("firstName"));
 
             String note = "";
             Boolean hasAnnotation = false;

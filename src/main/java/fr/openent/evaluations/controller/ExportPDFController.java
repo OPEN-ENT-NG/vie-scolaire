@@ -1560,7 +1560,7 @@ public class ExportPDFController extends ControllerHelper {
             public void handle(Either<String, JsonArray> stringJsonArrayEither) {
                 if (stringJsonArrayEither.isRight()) {
                     JsonObject eleve = stringJsonArrayEither.right().getValue().get(0);
-                    final String name = eleve.getString("firstName").toUpperCase() + " " + eleve.getString("lastName");
+                    final String name = eleve.getString("lastName").toUpperCase() + " " + eleve.getString("firstName");
                     final String idClasse = eleve.getString("idClasse");
                     final String nomClasse = eleve.getString("classeName");
                     final String idEtablissement = eleve.getString("idEtablissement");

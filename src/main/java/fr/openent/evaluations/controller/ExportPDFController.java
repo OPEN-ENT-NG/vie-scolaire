@@ -61,7 +61,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
@@ -1326,7 +1325,8 @@ public class ExportPDFController extends ControllerHelper {
                                 public void handle(Either<String, JsonObject> devoirInfo) {
                                     if(devoirInfo.isRight()){
                                         final JsonObject devoirInfos = (JsonObject) ((Either.Right) devoirInfo).getValue();
-                                        SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd");
+                                        SimpleDateFormat dateBfFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                        SimpleDateFormat dateAftFormat = new SimpleDateFormat("dd-MM-yyyy");
                                         String reformattedStr = "";
                                         ArrayList<String> classeList = new ArrayList<String>();
 
@@ -1337,7 +1337,7 @@ public class ExportPDFController extends ControllerHelper {
                                             result.putBoolean("byColor", false);
                                         }
                                         try {
-                                            reformattedStr = fromUser.format(fromUser.parse( devoirInfos.getString("created")));
+                                            reformattedStr = dateAftFormat.format(dateBfFormat.parse( devoirInfos.getString("created")));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }

@@ -353,6 +353,9 @@ export let evalSuiviCompetenceClasseCtl = ng.controller('EvalSuiviCompetenceClas
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.classes.all.length) {
                 $scope.search.classe = $scope.classes.all[index + parseInt(num)];
+                $scope.syncPeriode($scope.search.classe.id);
+                $scope.search.periode = '*';
+                $scope.synchronizeStudents($scope.search.classe.id);
                 $scope.selectSuivi('/competences/classe');
                 utils.safeApply($scope);
             }

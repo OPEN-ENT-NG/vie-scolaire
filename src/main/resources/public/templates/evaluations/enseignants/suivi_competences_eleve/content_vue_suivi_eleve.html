@@ -104,7 +104,7 @@
             </label>
         </div>
     </div>
-    <!--<div class="row">
+    <div class="row">
         <div class="two cell">
             <label class="checkbox">
                 <input type="checkbox"
@@ -112,7 +112,7 @@
                 <span><i18n>evaluation.devoir.cartouche.couleur</i18n></span>
             </label>
         </div>
-    </div>-->
+    </div>
         <div class="row">
         <div class="warning"
              ng-if="exportRelCompObj.errExport">
@@ -121,7 +121,7 @@
         <button class="right-magnet"
                 ng-disabled = "releveComp.matiere.id === undefined || releveComp.matiere === null"
                 tooltip="evaluations.export.format.pdf"
-                ng-click="exportReleveComp(informations.eleve.id, releveComp.matiere.id, releveComp.periode.id_type, false)">
+                ng-click="exportReleveComp(informations.eleve.id, releveComp.matiere.id, releveComp.periode.id_type, !releveComp.textMod)">
             <i18n>evaluations.export</i18n>
         </button>
     </div>

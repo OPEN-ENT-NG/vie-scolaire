@@ -3013,22 +3013,5 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             utils.safeApply($scope);
         };
-
-        /*$scope.getErrorExport = (devoir:Boolean) => {
-            if(devoir) {
-                return $scope.exportDevoir
-            } else {
-                return
-            }
-        }
-
-    $scope.setErrorExport = (devoir:Boolean, value: Boolean) => {
-        if(devoir) {
-            $scope.exportDevoir.errExport = value;
-        } else {
-            $scope.exportDevoir.errExport = value;
-
-        }
-    }*/
     }
 ]);

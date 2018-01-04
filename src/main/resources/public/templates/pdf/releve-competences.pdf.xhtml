@@ -89,6 +89,25 @@
 
         }
 
+        .white {
+            background-color: #FFFFFF;
+        }
+        .grey {
+            background-color: #555555;
+        }
+        .red {
+            background-color: #E13A3A;
+        }
+        .orange {
+            background-color: #FD8401;
+        }
+        .yellow {
+            background-color: #ECBE30;
+        }
+        .green {
+            background-color: #46BFAF;
+        }
+
     </style>
 </head>
 <body>
@@ -156,7 +175,7 @@
                     <tr>
                         {{# competenceNotes }}
                         <td style="width: {{ width }}%;">
-                            <div class="subDiv" style="background-color: {{ color }};">{{ number }}</div>
+                            <div class="subDiv {{ color }}">{{ number }}</div>
                         </td>
                         {{/ competenceNotes }}
                     </tr>

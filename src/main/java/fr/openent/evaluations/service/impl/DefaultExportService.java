@@ -6,19 +6,19 @@ import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.PeriodeService;
-import fr.openent.viescolaire.service.impl.*;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultEleveService;
+import fr.openent.viescolaire.service.impl.DefaultMatiereService;
+import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.I18n;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonElement;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -213,7 +213,7 @@ public class DefaultExportService implements ExportService {
         for (JsonObject maitrise : maitrises.values()) {
             JsonObject _maitrise = new JsonObject();
             _maitrise.putString("libelle", maitrise.getString("libelle"));
-            _maitrise.putString("visu", String.valueOf(maitrise.getLong("ordre")));
+            _maitrise.putString("visu", text ? maitrise.getString("lettre") : String.valueOf(maitrise.getLong("ordre")));
             maitrisesArray.add(_maitrise);
         }
         result.putArray("maitrise", maitrisesArray);
@@ -267,9 +267,11 @@ public class DefaultExportService implements ExportService {
                 } else if (competenceNotes.containsKey(eleve.getKey()) && competenceNotes.get(eleve.getKey()).containsKey(competence)) {
                     Map<String, JsonObject> competenceNotesEleve = competenceNotes.get(eleve.getKey());
                     String evaluation = String.valueOf(competenceNotesEleve.get(competence).getLong("evaluation"));
-                    comptenceNotesEleves.addString(String.valueOf(Integer.valueOf(evaluation) + 1));
+                    comptenceNotesEleves.addString(text ? maitrises.get(String.valueOf(Integer.valueOf(evaluation) + 1)).getString("lettre")
+                            : String.valueOf(Integer.valueOf(evaluation) + 1));
                 } else {
-                    comptenceNotesEleves.addString("0");
+                    comptenceNotesEleves.addString(text ? maitrises.get("0").getString("lettre")
+                            : "0");
                 }
                 eleveObject.putArray("competenceNotes", comptenceNotesEleves);
             }
@@ -277,7 +279,7 @@ public class DefaultExportService implements ExportService {
         }
         result.putArray("eleves", elevesArray);
 
-        result.putString("height", String.valueOf(calcNumbLine(result)) + "%");
+//        result.putString("height", String.valueOf(calcNumbLine(result)) + "%");
 
         return result;
     }
@@ -507,6 +509,7 @@ public class DefaultExportService implements ExportService {
         nonEvalue.putString("libelle", "Competence non evaluee");
         nonEvalue.putNumber("ordre", 0);
         nonEvalue.putString("default", "grey");
+        nonEvalue.putString("lettre", "NE");
         maitrises.addObject(nonEvalue);
 
         return maitrises;
@@ -517,6 +520,7 @@ public class DefaultExportService implements ExportService {
                                                         Map<String, JsonObject> competences,
                                                         Map<String, JsonObject> domaines,
                                                         Map<String, Map<String, Long>> competenceNotesByDevoir) {
+
         JsonObject result = new JsonObject();
         result.putBoolean("text", text);
 
@@ -528,18 +532,26 @@ public class DefaultExportService implements ExportService {
         for (JsonObject maitrise : maitrises.values()) {
             JsonObject _maitrise = new JsonObject();
             _maitrise.putString("libelle", maitrise.getString("libelle"));
-            _maitrise.putString("visu", String.valueOf(maitrise.getLong("ordre")));
+            _maitrise.putString("visu", text ? maitrise.getString("lettre") : String.valueOf(maitrise.getLong("ordre")));
             headerMiddle.add(_maitrise);
         }
         header.putArray("right", headerMiddle);
         result.putObject("header", header);
 
+        final Map<String, JsonObject> competencesObjByIdComp = new HashMap<>();
+
         Map<String, Set<String>> competencesByDomain = new LinkedHashMap<>();
         for(String idDomain : domaines.keySet()) {
-            competencesByDomain.put(idDomain, new HashSet<String>());
+            competencesByDomain.put(idDomain, new TreeSet<String>(new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    String s1 = competencesObjByIdComp.get(o1).getString("nom");
+                    String s2 = competencesObjByIdComp.get(o2).getString("nom");
+                    return s1.compareTo(s2);
+                }
+            }));
         }
 
-        Map<String, JsonObject> competencesObjByIdComp = new HashMap<>();
         Map<String, List<String>> devoirByCompetences = new HashMap<>();
         for(JsonObject competence : competences.values()) {
             competencesObjByIdComp.put(String.valueOf(competence.getLong("id_competence")), competence);
@@ -558,6 +570,7 @@ public class DefaultExportService implements ExportService {
                 competencesByDomain.get(idDomain).add(idComp);
             }
         }
+
         JsonObject bodyHeader = new JsonObject();
         bodyHeader.putString("left", "Domaines / items");
         bodyHeader.putString("right", "Nb d'evaluations et Niveau des competences");
@@ -676,29 +689,29 @@ public class DefaultExportService implements ExportService {
     }
 
 
-    // TODO passage en pixel
-    private double calcNumbLine(JsonObject result) {
-        JsonObject devoirHeader = result.getObject("devoir");
-        if (result.containsField("competence")) {
-            JsonArray competenceHeader = result.getArray("competence");
-            Integer size = 0;
-            Integer line = 0;
-            Integer length = 145; // le nombre de caractére max dans une ligne
-            Double height = 0.885D; // la hauteur d'une ligne
-            for (int i = 0; i < competenceHeader.size(); i++) {
-                String competence = competenceHeader.get(i);
-                size = competence.length(); // +10 pour "[ Cx ]"
-                line += size / length;
-                if (size % length > 0) {
-                    line++;
-                }
-            }
-
-            Double totalHeight = line * height;
-            return totalHeight;
-        }
-        return 0;
-    }
+// TODO calculer hauteur entete pour gestion repetition en debut de page
+//    private double calcNumbLine(JsonObject result) {
+//        JsonObject devoirHeader = result.getObject("devoir");
+//        if (result.containsField("competence")) {
+//            JsonArray competenceHeader = result.getArray("competence");
+//            Integer size = 0;
+//            Integer line = 0;
+//            Integer length = 145; // le nombre de caractére max dans une ligne
+//            Double height = 0.885D; // la hauteur d'une ligne
+//            for (int i = 0; i < competenceHeader.size(); i++) {
+//                String competence = competenceHeader.get(i);
+//                size = competence.length(); // +10 pour "[ Cx ]"
+//                line += size / length;
+//                if (size % length > 0) {
+//                    line++;
+//                }
+//            }
+//
+//            Double totalHeight = line * height;
+//            return totalHeight;
+//        }
+//        return 0;
+//    }
 
     private JsonArray calcWidthNote(Boolean text, Map<String, JsonObject> maitrises, List<Long> competenceNotes, Integer nbDevoir) {
         Map<Long, Integer> occNote = new HashMap<>();
@@ -712,14 +725,11 @@ public class DefaultExportService implements ExportService {
         JsonArray resultList = new JsonArray();
         for(Map.Entry<Long, Integer> notesMaitrises : occNote.entrySet()) {
             JsonObject competenceNotesObj = new JsonObject();
-            String number = text ? maitrises.get(String.valueOf(notesMaitrises.getKey())).getString("lettre") : String.valueOf(notesMaitrises.getValue());
-            if(number == null) {
-                number = "NE";
-            }
+            String number = (text ? maitrises.get(String.valueOf(notesMaitrises.getKey())).getString("lettre") + " - " : "") + String.valueOf(notesMaitrises.getValue());
             competenceNotesObj.putString("number", number);
             String color = text ? "white" : maitrises.get(String.valueOf(notesMaitrises.getKey())).getString("default");
             competenceNotesObj.putString("color", color);
-            competenceNotesObj.putString("width", String.valueOf(Integer.valueOf(notesMaitrises.getValue()) / (double) nbDevoir * 100D));
+            competenceNotesObj.putString("width", String.valueOf(notesMaitrises.getValue() / (double) nbDevoir * 100D));
             resultList.add(competenceNotesObj);
         }
         return resultList;

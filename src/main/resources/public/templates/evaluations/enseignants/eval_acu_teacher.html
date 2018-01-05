@@ -38,13 +38,6 @@
                         <h2 class="inline-block " ng-if="isChefEtab()">
                             <i18n>evaluations.evaluations.par.peridoe</i18n>&nbsp;:
                         </h2>
-                        <label class="select right-magnet" ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
-                            <select ng-model="search.periode"
-                                    ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
-                                    ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
-                                <option class="header-opt" disabled value="">[[translate('viescolaire.utils.periode')]]</option>
-                            </select>
-                        </label>
                         <label class="select right-magnet">
                             <select ng-model="search.classe"
                                     ng-change="syncPeriode(search.classe.id); search.periode = '*'"
@@ -52,6 +45,17 @@
                                 <option value="" class="header-opt">Classe / Groupe</option>
                             </select>
                         </label>
+                        <div class="twelve FloatRight periodeWidgetAccueil">
+                        <label class="select right-magnet"
+                               ng-hide="search.classe == null || search.classe == '*' || search.classe == ''"
+                               ng-class="{disabled : search.classe == null || search.classe == '*' || search.classe == ''}">
+                            <select ng-model="search.periode"
+                                    ng-disabled="search.classe == null || search.classe == '*' || search.classe == ''"
+                                    ng-options="getI18nPeriode(periode) for periode in search.classe.periodes.all ">
+                                <option class="header-opt" disabled value="">[[translate('viescolaire.utils.periode')]]</option>
+                            </select>
+                        </label>
+                        </div>
                     </div>
                     <div class="content-box-accueil--table">
                         <div class="content-box-accueil--table--header row">

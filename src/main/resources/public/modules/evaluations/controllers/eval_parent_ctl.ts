@@ -96,6 +96,15 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 else if (model.me.type === 'PERSRELELEVE') {
                     $scope.eleves = evaluations.eleves.all;
                 }
+                $scope.search = {
+                    periode: evaluations.periode,
+                    classe : null,
+                    matiere: null,
+                    enseignant: null,
+                    sousmatiere: null,
+                    type: null,
+                    name: ""
+                };
                 await $scope.chooseChild (evaluations.eleve);
             };
             if ($scope.eleve === undefined) {
@@ -152,6 +161,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             await evaluations.devoirs.sync( eleve.idStructure, eleve.id, undefined );
             $scope.devoirs = evaluations.devoirs;
             $scope.matieres = evaluations.matieres;
+            $scope.search.periode = evaluations.periode;
             $scope.enseignants = evaluations.enseignants;
             $scope.setCurrentPeriode();
             await $scope.updateNiveau(evaluations.usePerso);
@@ -195,6 +205,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         && momentCurrDate.diff(momentCurrPeriodeFin) <= 0) {
                         foundPeriode = true;
                         $scope.periode = periodes.findWhere({id : periodes.all[i].id});
+                        $scope.search.periode = $scope.periode;
                         evaluations.periode = $scope.periode;
                         $scope.currentPeriodeId = $scope.periode.id;
                     }
@@ -209,11 +220,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
         $scope.me = {
             type : model.me.type
         };
-        $scope.suiviFilter= {
+        $scope.suiviFilter = {
             mine : false
         };
 
         $scope.skin = skin;
+        $scope.translate = lang.translate;
         $scope.isCurrentPeriode = function(periode) {
             return (periode.id === $scope.currentPeriodeId);
         };
@@ -441,8 +453,6 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.suiviFilter = {
                 mine: false
             };
-
-            $scope.translate = lang.translate;
             utils.safeApply($scope);
         };
 

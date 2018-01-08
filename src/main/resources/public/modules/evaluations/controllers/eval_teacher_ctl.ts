@@ -2730,6 +2730,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          *          et que la date du devoir est comprise dans la période
          */
         $scope.controleDate = async(devoir) => {
+            $scope.endSaisie = null;
             let classe = _.findWhere($scope.structure.classes.all, {id: devoir.id_groupe});
             if (classe.periodes.empty()) {
                 await classe.periodes.sync();

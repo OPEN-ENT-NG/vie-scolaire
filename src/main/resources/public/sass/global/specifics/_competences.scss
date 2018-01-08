@@ -2470,7 +2470,9 @@ body.evaluations {
     .floatRight {
       float: right;
     }
-
+    .floatLeft {
+      float: left !important;
+    }
     .responsive-table {
       table {
         tbody {

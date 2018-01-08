@@ -26,6 +26,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.List;
+
 /**
  * Created by ledunoiss on 25/02/2016.
  */

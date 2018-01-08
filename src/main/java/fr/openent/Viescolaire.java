@@ -115,6 +115,7 @@ public class Viescolaire extends BaseServer {
 	public static final String SCHEMA_MOTIF_UPDATE = "absc_updateMotif";
 	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
 	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
+	public static final String SCHEMA_EVENEMENTS_UPDATE_MOTIF = "absc_updateMotifEvenements";
 	public static final String SCHEMA_ABSPREV_CREATE = "absc_createAbscPrev";
 	public static final String SCHEMA_ABSPREV_UPDATE = "absc_updateAbscPrev";
 	public static final String SCHEMA_DECLARATION_CREATE = "absc_createDeclaration";
@@ -145,6 +146,7 @@ public class Viescolaire extends BaseServer {
 	public final static String SCHEMA_BFC_UPDATE = "eval_updateBFC";
 
 	public final static Integer MAX_NBR_COMPETENCE = 12;
+	public static final Integer ID_ETAT_APPEL_EN_COURS = 2;
 
 	@Override
 	public void start() {

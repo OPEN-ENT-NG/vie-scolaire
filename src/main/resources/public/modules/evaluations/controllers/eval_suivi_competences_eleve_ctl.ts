@@ -420,7 +420,7 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             } else if (object instanceof Eleve) {
                 url += "idEleve=" + object.id;
             }
-            if(periode && periode !== "*") {
+            if(periode && periode !== "*" && periode.id_type) {
                 url += "&idPeriode=" + periode.id_type;
             }
             location.replace(url);

@@ -119,6 +119,8 @@
   "viescolaire.absences.ariane.appel":"Saisie d'un appel",
   "viescolaire.absences.appel.button.enregistrer":"Terminer l'appel",
   "viescolaire.absences.vue.eleves":"Vue élèves",
+  "viescolaire.absences.hide":"Cacher",
+  "viescolaire.absences.show.event":"Voir les évènements",
   "viescolaire.absences.vue.classes":"Vue classes",
   "viescolaire.absences.appel.verrouille":"Cet appel a été saisie par un CPE et n'est donc pas éditable.",
   "viescolaire.utils.selectAll":"Tout sélectionner",

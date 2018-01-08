@@ -39,6 +39,9 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
@@ -70,19 +73,32 @@ public class EvenementController extends ControllerHelper {
             }
         });
     }
-//    @Put("/evenements/motif")
-//    @ApiDoc("Met à jours le motif des évènements.")
-//    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+
+
 //    public void updateMotifEvenements(final HttpServerRequest request){
-//        RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+//        RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENTS_UPDATE_MOTIF, new Handler<JsonObject>() {
 //            @Override
 //            public void handle(JsonObject event) {
-//                Integer[] piIdEvenements;
-//                piIdEvenements = Integer.parseInt(request.params().get("EventsIds"))
+//                String str = request.params().get("EventsIds");
+//                int[] arrayOfEventId;
+//                //arrayOfEventId = Integer.parseInt(request.params().get("EventsIds"));
 //
-//                Integer piIdMotif = event.getInteger("MotifId");
+//                int idMotif = event.getInteger("MotifId");
 //                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-//                miAbscEvenementService.updateEventsMotif(piIdEvenements, piIdMotif, handler);
+//
+//            }
+////        });
+//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+//            @Override
+//            public void handle(final UserInfos user) {
+//                RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX + Viescolaire.SCHEMA_EVENEMENTS_UPDATE_MOTIF, new Handler<JsonObject>() {
+//                    @Override
+//                    public void handle(JsonObject poEvenement) {
+//                        poEvenement.removeField("id_cours");
+//                        miAbscEvenementService.createEvenement(poEvenement, user,
+//                                eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.CREATE_EVENEMENT.toString()));
+//                    }
+//                });
 //            }
 //        });
 //    }
@@ -98,8 +114,7 @@ public class EvenementController extends ControllerHelper {
                     @Override
                     public void handle(JsonObject poEvenement) {
                         poEvenement.removeField("id_cours");
-                        miAbscEvenementService.updateEvenement(poEvenement,
-                                eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.UPDATE_EVENEMENT.toString()));
+
                     }
                 });
             }

@@ -37,67 +37,64 @@
                 <div ng-repeat="absenceToShow in selected.eleve.absencesToShow | limitTo:3" class="row" >
                     <div ng-include src="'/viescolaire/public/templates/absences/absc_personnel_show_simple_and_prev.html'"></div>
                 </div>
+
+                <button ng-click="showLightboxAllAbsences(true)"><i18n>viescolaire.utils.show.more</i18n></button>
             </div>
 
             <!-- Si aucune absence n'est trouvé -->
             <div ng-show="!selected.eleve.absencesToShow.length">
                 <h2><i18n>viescolaire.absences.no.absence.to.show</i18n></h2>
             </div>
-
-            <button ng-click="showLightboxAllAbsences(true)"><i18n>viescolaire.utils.show.more</i18n></button>
         </article>
-
     </div>
 
 
     <!-- créneau-->
     <div class="right-side">
-        <div class=" twelve cell card  ">
-            <div class = " creneau six cell">
-                <h3><i18n>time-slot</i18n></h3>
-                <div class="inline-child">
-                    <div>
-                        <label><i18n>viescolaire.utils.from</i18n></label>
-                        <label >
-                            <i class="calendar"></i>
-                            <date-picker class="pointer" ng-model="selected.dateDb" ></date-picker>
-                            <input type="time" ng-model="selected.timeDb" >
-                        </label>
-                    </div>
-                    <div>
-                        <label><i18n>viescolaire.utils.to</i18n></label>
-                        <label>
-                            <i class="calendar"></i>
-                            <date-picker class="pointer" ng-model="selected.dateFn" ></date-picker>
-                            <input type="time" ng-model="selected.timeFn" >
-                        </label>
+        <div class=" twelve cell card" ng-show="display.creneau">
+            <div class="row">
+                <div class="creneau six cell">
+                    <h3><i18n>time-slot</i18n></h3>
+                    <div class="inline-child">
+                        <div>
+                            <label><i18n>viescolaire.utils.from</i18n></label>
+                            <label >
+                                <i class="calendar"></i>
+                                <date-picker class="pointer" ng-model="selected.dateDb" ></date-picker>
+                                <input type="time" ng-model="selected.timeDb" >
+                            </label>
+                        </div>
+                        <div>
+                            <label><i18n>viescolaire.utils.to</i18n></label>
+                            <label>
+                                <i class="calendar"></i>
+                                <date-picker class="pointer" ng-model="selected.dateFn" ></date-picker>
+                                <input type="time" ng-model="selected.timeFn" >
+                            </label>
+                        </div>
                     </div>
                 </div>
-
+                <div class="motif six cell">
+                    <h3><i18n>viescolaire.utils.reason</i18n></h3>
+                    <label class="select-input">
+                        <select ng-change="selectMotif()" ng-model="selected.motif"
+                                class="twelve"
+                                ng-options="motif as motif.libelle group by motif.justifiant_libelle for motif in structure.motifs.all track by motif.id"></select>
+                    </label>
+                </div>
             </div>
-            <div class = "motif six cell">
-                <h3><i18n>viescolaire.utils.reason</i18n></h3>
-                <label class="select-input">
-                    <select>
-                        <optgroup label="Motifs non justifiés">
-                            <option value="8">Sans motif</option>
-                            <option value="21">Maladie sans certificat médical</option>
-                            <option value="18">Vacances prolongées</option>
-                        </optgroup><optgroup label="Motifs justifiés">
-                        <option value="20">Maladie avec certificat médical</option>
-                        <option value="24">Retard train</option>
-                        <option value="19">Motif justifiant par défaut</option>
-                        <option value="9">Maladie avec justificatif</option>
-                        <option value="28">Hospitalisation</option>
-                        <option value="29">Comme d'hab</option>
-                    </optgroup>
-                    </select>
-                    <button><i18n>save</i18n></button>
-                </label>
+            <div class="row footer-creneau">
+                <button class="btn-rechercher" ng-if="inputHasChanged && !isRefreshingCalendar" ng-click="refreshTheCalendar()">Rechercher</button>
+                <span ng-if="isRefreshingCalendar" class="num-conflit">
+                    <div class="loader"></div>
+                </span>
+                <span ng-if="!inputHasChanged && !isRefreshingCalendar" class="num-conflit">Nombre de conflits : [[numOfConflit]]</span>
 
+                <button ng-if="numOfConflit && !inputHasChanged && !isRefreshingCalendar" ng-click="showLightboxCheckConflit(true)" class="right-magnet">
+                    Vérifier les conflits</button>
+                <button ng-if="numOfConflit == 0  && !inputHasChanged && !isRefreshingCalendar" ng-click="saveZoneAbsc()" class="right-magnet">
+                    Enregistrer</button>
             </div>
-            <!-- cours non caché-->
-            <!-- Vue time ligne-->
         </div>
 
         <filters ng-show="display.calendar">
@@ -109,11 +106,116 @@
         <div class="calendardiv twelve cell card" ng-show="display.calendar">
             <calendar
                     display-template="../templates/absences/absc_personnel_saisie_abs/calendar-cours-display"
-                    items="selected.eleve.cours"
+                    items="selected.eleve.items"
             >
             </calendar>
+
         </div>
+
     </div>
+
+
+    <!-- Lightbox conflits -->
+    <lightbox show="displayLightboxCheckConflit" on-close="displayLightboxCheckConflit=false">
+        <h2>Vérifier les conflits et enregistrer</h2>
+        <div class="row">
+            <label class="two cell" style="font-size: 16px;font-weight: bold;">Créneau</label>
+            <div class="ten cell">
+                <span>Du <span>[[niceDateMoment(selected.dateDb)]] [[selected.timeDb]]</span>
+                    au <span>[[niceDateMoment(selected.dateFn)]] [[selected.timeFn]]</span></span>
+                <!-- todo : mettre i18n-->
+            </div>
+        </div>
+        <div class="row">
+            <label class="two cell" style="font-size: 16px;font-weight: bold;">Motif</label>
+            <div class="ten cell">
+                <span>[[selected.motif.libelle]]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="six cell">
+                <h3>Liste des conflits</h3>
+            </div>
+            <div class="six cell tabs tabs-view-conflit">
+                <header ng-class="{'selected': timelineIsVisible}">
+                    <a ng-click="setTimelineVisible(true)" class="">Timeline</a>
+                </header>
+                <header ng-class="{'selected': !timelineIsVisible}">
+                    <a ng-click="setTimelineVisible(false)" class="">Liste</a>
+                </header>
+            </div>
+        </div>
+
+
+        <div class="body-lightbox-last-absence" style="border: 2px solid grey;">
+
+            <div class="timeline-story vertical-spacing row" ng-show="timelineIsVisible">
+                <!-- Pour chaque jour -->
+                <div ng-repeat="day in selected.eleve.coursGroupByDay">
+                    <!-- On affiche la date -->
+                    <div class="timeline-section-title"><span>[[day.date]]</span></div>
+                    <!-- On affiche les cours du jours-->
+                    <div ng-repeat="cours in day.cours" class="twelve cell event-row">
+                        <div class="timeline-badge cell">
+                            <div class="round grey"></div>
+                        </div>
+                        <article class="horizontal-spacing cell timeline-cours-panel" ng-class="{'right-magnet': isAfterToday(cours.startMoment), 'cours-has-absence': cours.absence}">
+                            <p>
+                                <b>[[cours.subjectLabel.name]]</b>: [[cours.startMomentDate]] [[cours.startMomentTime]] - [[cours.endMomentTime]]
+                                <span ng-if="!isAfterToday(cours.startMoment)">
+                                    <i ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)" class="right-magnet warning-icon" tooltip="Motif différent"></i>
+                                    <i ng-show="!cours.absence" class="right-magnet warning-icon" tooltip="Pas d'absence associée au cours"></i>
+                                </span>
+                            </p>
+                            <span ng-show="cours.absence">Motif: [[cours.absence.motif.libelle]]</span>
+                            <!-- Evenements -->
+                            <a class="right-magnet" ng-click="cours.expanded = !cours.expanded;" ng-show="cours.evenements">
+                                <i18n ng-if="!cours.expanded">viescolaire.absences.show.event</i18n>
+                                <i18n ng-if="cours.expanded">viescolaire.absences.hide</i18n>
+                            </a>
+                            <ul ng-show="cours.evenements && cours.expanded">
+                                <li ng-repeat="event in cours.evenements">Event name</li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </div>
+            <!-- Vue liste -->
+            <ul ng-show="!timelineIsVisible">
+                <div ng-if="selected.eleve.coursWithConflit.length">
+                    <h3>Conflits d'absences</h3>
+                    <div ng-repeat="cours in selected.eleve.coursWithConflit">
+                        <b>[[cours.subjectLabel.name]]</b>: [[cours.startMomentDate]] [[cours.startMomentTime]] - [[cours.endMomentTime]].
+                        Conflit: <span ng-show="!cours.absence">Pas d'absence associée au cours</span>
+                        <span ng-show="!equalsMotifIdOfPa(cours.absence.motif.id)">Motif différent</span>
+                    </div>
+                </div>
+                <div ng-if="selected.eleve.arrayConflitAbscPrev.length">
+                    <h3>Conflits d'absence prev</h3>
+                    <div class="six cell">
+                        Avant
+                    </div>
+                    <div class="six cell">
+                        Après
+                    </div>
+                    <div ng-repeat="conflit in selected.eleve.arrayConflitAbscPrev">
+                        <div class="six cell">
+                            <div>[[niceDateMoment(conflit.before.dateDebut)]] [[niceDateMoment(conflit.before.dateFin)]]<br>[[conflit.before.id_motif]]
+                            </div>
+                        </div>
+                        <div class="six cell">
+                            <div ng-repeat="newAbsc in conflit.after">[[niceDateMoment(newAbsc.dateDebut)]] [[niceDateMoment(newAbsc.dateFin)]]<br>[[newAbsc.id_motif]]</div><br>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </ul>
+        </div>
+
+        <p>Voulez-vous vraiment écraser ces absences et enregistrer cette période d'absence ?</p>
+        <button class="right-magnet" ng-click="showLightboxCheckConflit(false)">Annuler</button>
+        <button class="right-magnet" ng-click="saveZoneAbsc()">Oui</button>
+    </lightbox>
 
     <!-- Lightbox qui affiche toutes les absences -->
     <lightbox show="displayLightboxAllAbsences" on-close="displayLightboxAllAbsences=false">

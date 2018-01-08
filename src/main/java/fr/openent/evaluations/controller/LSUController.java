@@ -755,7 +755,7 @@ public class LSUController extends ControllerHelper {
             Schema schema = schemaFactory.newSchema(schemaFile);
             log.info("method returnResponse avant la validation");
             Validator validator = schema.newValidator();
-            //validator.validate(xmlFile);
+            validator.validate(xmlFile);
             //préparation de la requête
             request.response().putHeader("content-type", "text/xml");
             request.response().putHeader("charset", "utf-8");
@@ -763,7 +763,7 @@ public class LSUController extends ControllerHelper {
             request.response().putHeader("Content-Disposition", "attachment; filename=import_lsun_"+ new Date().getTime() +".xml");
             request.response().end(new Buffer(response.toString()));
 
-        } catch (JAXBException |  SAXException /*| IOException*/ e) {
+        } catch (JAXBException |  SAXException | IOException e) {
             Renders.renderJson(request, new JsonObject().putString("status", "validation.error"), 500);
             e.printStackTrace();
         }

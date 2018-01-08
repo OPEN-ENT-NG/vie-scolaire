@@ -1,7 +1,12 @@
-<div class="schedule-item-content cell twelve [[item.color]]" >
+<div ng-if="!item.isAbscPrev" class="schedule-item-content cell twelve [[item.color]]"
+     tooltip="[[item.subjectLabel.name]]&#013; [[item.startMomentTime]] - [[item.endMomentTime]]">
     <div class="cell twelve">
-        [[item.subjectLabel.name]]
-        <div ng-repeat="teacher in item.enseignantName"> [[teacher.firstName]] [[teacher.lastName]]</div>
+        <span ng-if="!item.isFromMongo">Postgres</span> <span ng-if="item.isFromMongo">Mongo</span> [[item.subjectLabel.name]]
+        <div ng-repeat="teacher in item.teacherNames"> [[teacher.firstName]] [[teacher.lastName]]</div>
         [[item.startMomentTime]] - [[item.endMomentTime]]
     </div>
+</div>
+
+<div ng-if="item.isAbscPrev" class="schedule-item-content cell twelve green">
+
 </div>

@@ -27,9 +27,12 @@ import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonElement;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
+
+import java.util.List;
 
 import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
@@ -57,6 +60,8 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
+
 
     @Override
     public void createEvenement(JsonObject poEvenement, UserInfos user, Handler<Either<String, JsonObject>> handler) {

@@ -24,6 +24,7 @@ import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 
+import java.util.Date;
 import java.util.List;
 
 public interface EleveService extends CrudService {
@@ -88,4 +89,23 @@ public interface EleveService extends CrudService {
      * @param handler
      */
     public void getAllAbsenceEleve(String idEleve, boolean isAscending, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     *  Enregistre la zone d'absence indiquée, créer eventuellement une absence prev, des evenements, des appels
+     * @param idUser
+     * @param idEleve
+     * @param idMotif
+     * @param arrayAbscPrevToCreate
+     * @param arrayAbscPrevToUpdate
+     * @param arrayAbscPrevToDelete
+     * @param listEventIdToUpdate
+     * @param arrayEventToCreate
+     * @param handler
+     */
+    void saveZoneAbsence(final String idUser, final String idEleve, final Integer idMotif,
+                         final JsonArray arrayAbscPrevToCreate,
+                         final JsonArray arrayAbscPrevToUpdate,
+                         final JsonArray arrayAbscPrevToDelete,
+                         final List<Integer> listEventIdToUpdate,
+                    final JsonArray arrayEventToCreate, final JsonArray arrayCoursToCreate, final Handler<Either<String, JsonArray>> handler);
 }

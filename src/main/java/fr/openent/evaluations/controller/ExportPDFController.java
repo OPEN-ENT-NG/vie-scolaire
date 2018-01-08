@@ -347,8 +347,8 @@ public class ExportPDFController extends ControllerHelper {
                                                                                 Long.parseLong(params.get("ordrePeriode"));
                                                                         StringBuilder keyI18nPeriodeType =
                                                                                 new StringBuilder()
-                                                                                .append("viescolaire.periode.")
-                                                                                .append(idTypePeriode);
+                                                                                        .append("viescolaire.periode.")
+                                                                                        .append(idTypePeriode);
                                                                         String libellePeriode = I18n.getInstance()
                                                                                 .translate(keyI18nPeriodeType.toString(),
                                                                                         getHost(request),
@@ -951,23 +951,7 @@ public class ExportPDFController extends ControllerHelper {
                                             public void handle(Either<String, JsonArray> event) {
                                                 if(event.isRight()) {
                                                     final String structureName = ((JsonObject) event.right().getValue().get(0)).getString("name").replace(" ", "_");
-//                                                    if(idPeriode != null){
-//                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
-//                                                            @Override
-//                                                            public void handle(Either<String, JsonObject> event) {
-//                                                                if(event.isRight()) {
-//                                                                    String periodeName = event.right().getValue().getString("libelle");
-//                                                                    periodeName = periodeName.replace(" ", "_");
-//                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName + "_" + periodeName);
-//                                                                } else  {
-//                                                                    leftToResponse(request, event.left());
-//                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
-//                                                                }
-//                                                            }
-//                                                        });
-//                                                    } else {
-                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + structureName);
-//                                                    }
+                                                    generateBFCExport(result, idPeriode, structureName, request);
                                                 } else {
                                                     leftToResponse(request, event.left());
                                                     log.error("getNameEntity : Unable to get the name of the specified entity (idStructure).");
@@ -984,23 +968,7 @@ public class ExportPDFController extends ControllerHelper {
                                                         classesName.append(((JsonObject) event.right().getValue().get(i)).getString("name")).append("_");
                                                     }
                                                     classesName.setLength(classesName.length() - 1);
-//                                                    if (idPeriode != null) {
-//                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
-//                                                            @Override
-//                                                            public void handle(Either<String, JsonObject> event) {
-//                                                                if (event.isRight()) {
-//                                                                    String periodeName = event.right().getValue().getString("libelle");
-//                                                                    periodeName = periodeName.replace(" ", "_");
-//                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString() + "_" + periodeName);
-//                                                                } else {
-//                                                                    leftToResponse(request, event.left());
-//                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
-//                                                                }
-//                                                            }
-//                                                        });
-//                                                    } else {
-                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + classesName.toString());
-//                                                    }
+                                                    generateBFCExport(result, idPeriode, classesName.toString(), request);
                                                 } else {
                                                     leftToResponse(request, event.left());
                                                     log.error("getNameEntity : Unable to get the name of the specified entity (idClasses).");
@@ -1017,23 +985,7 @@ public class ExportPDFController extends ControllerHelper {
                                                         elevesName.append(((JsonObject) event.right().getValue().get(i)).getString("name")).append("_");
                                                     }
                                                     elevesName.setLength(elevesName.length() - 1);
-//                                                    if (idPeriode != null) {
-//                                                        periodeService.getPeriode(idPeriode, new Handler<Either<String, JsonObject>>() {
-//                                                            @Override
-//                                                            public void handle(Either<String, JsonObject> event) {
-//                                                                if (event.isRight()) {
-//                                                                    String periodeName = event.right().getValue().getString("libelle");
-//                                                                    periodeName = periodeName.replace(" ", "_");
-//                                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString() + "_" + periodeName);
-//                                                                } else {
-//                                                                    leftToResponse(request, event.left());
-//                                                                    log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
-//                                                                }
-//                                                            }
-//                                                        });
-//                                                    } else {
-                                                    genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + elevesName.toString());
-//                                                    }
+                                                    generateBFCExport(result, idPeriode, elevesName.toString(), request);
                                                 } else {
                                                     leftToResponse(request, event.left());
                                                     log.error("getNameEntity : Unable to get the name of the specified entity (idEleves).");
@@ -1056,6 +1008,26 @@ public class ExportPDFController extends ControllerHelper {
         } else {
             leftToResponse(request, new Either.Left<>("Un seul parametre autre que la periode doit être specifie."));
             log.error("getBFCEleve : call with more than 1 parameter type (among idEleve, idClasse and idStructure).");
+        }
+    }
+
+    private void generateBFCExport (final JsonObject result, Long idPeriode, final String fileNamePrefix, final HttpServerRequest request) {
+        if (idPeriode != null) {
+            periodeService.getLibellePeriode(idPeriode, request, new Handler<Either<String, String>>() {
+                @Override
+                public void handle(Either<String, String> stringStringEither) {
+                    if (stringStringEither.isRight()) {
+                        String periodeName = stringStringEither.right().getValue();
+                        periodeName = periodeName.replace(" ", "_");
+                        genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + fileNamePrefix + "_" + periodeName);
+                    } else {
+                        leftToResponse(request, stringStringEither.left());
+                        log.error("getPeriode : Unable to get the label of the specified entity (idPeriode).");
+                    }
+                }
+            });
+        } else {
+            genererPdf(request, result, "BFC.pdf.xhtml", "BFC_" + fileNamePrefix);
         }
     }
 

@@ -37,7 +37,7 @@
                                     <div class="nine cell twelve-mobile">
                                         <label class="select eight cell twelve-mobile" ng-class="{disabled : devoir.id !== undefined}">
                                             <select ng-model="devoir.id_etablissement"
-                                                    ng-change="switchStructureCreation()"
+                                                    ng-change="syncPeriode(devoir.id_groupe); switchStructureCreation()"
                                                     ng-disabled="devoir.id !== undefined">
                                                 <option ng-repeat="etab in evaluations.structures.all"
                                                         ng-selected="etab.id == evaluations.structure.id"
@@ -212,6 +212,7 @@
                                             <select ng-disabled="devoir.id_groupe == null || devoir.id_groupe == ''"
                                                     ng-model="devoir.id_periode"
                                                     ng-change="controleDate(devoir)"
+                                                    ng-init="controleDate(devoir)"
                                                     ng-options="periode.id_type as getI18nPeriode(periode)
                                                     for periode in getPeriodes(devoir.id_groupe) | filter:notYear()">
                                                 <option class="header-opt" disabled value="">

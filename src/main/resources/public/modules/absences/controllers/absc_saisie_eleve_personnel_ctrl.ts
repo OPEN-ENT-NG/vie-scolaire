@@ -6,6 +6,7 @@ import * as utils from '../utils/personnel';
 import {AbsencePrev} from "../models/personnel/AbsencePrev";
 import {Evenement} from "../models/personnel/Evenement";
 import {safeApply} from "../../utils/functions/safeApply";
+import {Eleve} from "../models/personnel/Eleve";
 
 
 
@@ -15,59 +16,61 @@ declare let _: any;
 export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', [
     '$scope', 'route', '$rootScope', '$location',
     function ($scope, route, $rootScope, $location) {
-        template.open('abscDetailTimelineTemplate', '../templates/absences/absc-detail-timeline-cours-template');
-
         // variables d'affichage
         $scope.display.calendar = false;
+        $scope.display.creneau = false;
+
         $scope.display.showEleveCard = false;
         $scope.display.showLastAbsences = false;
 
-        $scope.showLightboxAllAbsences = (state) => {
-            $scope.displayLightboxAllAbsences = state;
-        };
+        $scope.inputHasChanged = false;
+        $scope.isRefreshingCalendar = false;
 
-        $scope.$watch("selected.dateDb",  (newVal, oldVal) => {
-           if( newVal > $scope.selected.dateFn ) {$scope.selected.dateDb = oldVal ; }
-           else{
-               let firstweek = moment($scope.selected.dateDb);
-               model.calendar.setDate(firstweek);
-               $scope.checkNavigDate();
-               $scope.selectPeriode();
-               model.calendar.addScheduleItems($scope.selected.eleve.cours);
-           }
-        });
-        $scope.$watch("selected.dateFn",  (newVal, oldVal) => {
-            if( newVal < $scope.selected.dateDb ){$scope.selected.dateFn = oldVal ; }
-            else{
-                let firstweek = moment($scope.selected.dateDb);
-                model.calendar.setDate(firstweek);
+        $scope.timelineIsVisible = true;
+        $scope.numOfConflit = 0;
+
+
+        // Selection d'un élève dans la barre de recherche
+        $scope.selectEleve = async () => {
+            $scope.selectingEleve = true;
+            try {
+                $scope.selected.dateDb = moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD');
+                $scope.selected.dateFn = moment(model.calendar.dayForWeek).add(6, 'day').hour(0).minute(0).format('YYYY-MM-DD');
+                $scope.selected.timeDb = moment().format("HH:mm");
+                $scope.selected.timeFn = moment().format("HH:mm");
+                $scope.selected.motif = $scope.structure.motifs.all.find(m => m.id==null);
+
+                $scope.structure.isWidget = false;
+                $scope.display.calendar = false;
+
+                $scope.selected.eleve = await $scope.syncEleveCours($scope.selected.eleve);
+                $scope.selected.eleve.cours ? $scope.display.calendar = true : $scope.display.calendar = false;
+
+                // On récupère les absences et les absences prev de l'élève
+                await $scope.selected.eleve.syncAllAbsence(false);
+                await $scope.selected.eleve.syncAllAbsencePrev();
+                await $scope.selected.eleve.syncEvenement($scope.selected.dateDb, $scope.selected.dateFn);
+
+                // On les mets en formes
+                $scope.selected.eleve.absencesToShow = $scope.getAbsencesToShow();
+
+                $scope.display.showEleveCard = true;
+                $scope.display.showLastAbsences = true;
                 $scope.checkNavigDate();
-                $scope.selectPeriode();
-                model.calendar.addScheduleItems($scope.selected.eleve.cours);
-            }
-        });
-        $scope.selectPeriode = async () => {
-            let i = _.indexOf($scope.structure.eleves.all, $scope.selected.eleve);
-            let firstDate = moment($scope.selected.dateDb).hour(0).minute(0).format('YYYY-MM-DD');
-            let endDate = moment($scope.selected.dateFn).hour(0).minute(0).format('YYYY-MM-DD');
-            if(i>-1){
-                $scope.structure.eleves.all[i].cours = [];
-                for(let j=0 ; j < $scope.structure.eleves.all[i].className.length; j++){
-                    await  $scope.structure.eleves.all[i].syncCoursByStudid($scope.structure.id,firstDate,endDate,$scope.structure.eleves.all[i].className[j]);
-                }
-                for(let z=0 ; z < $scope.structure.eleves.all[i].groupName.length; z++){
-                    await $scope.structure.eleves.all[i].syncCoursByStudid($scope.structure.id,firstDate,endDate,$scope.structure.eleves.all[i].groupName[z])
-                }
-                await  $scope.structure.eleves.all[i].formatCourses($scope.structure.matieres.all , $scope.structure.enseignants.all,$scope.selected.dateDb,$scope.selected.dateFn);
-                $scope.selected.eleve=$scope.structure.eleves.all[i];
-                $scope.display.calendar = true  ;
-                $scope.checkNavigDate();
-                safeApply($scope);
+
+                $scope.selectingEleve = false;
+                $scope.refreshTheCalendar();
+                $scope.display.calendar = true;
+                $scope.display.creneau = true;
+                utils.safeApply($scope);
+            }catch(e){
+                console.log(e);
             }
         };
 
         //sync les [classes - groupes - cours ] d'eleve
         $scope.syncEleveCours = async (eleve) => {
+            console.log("syncEleveCours");
             let i = _.indexOf($scope.structure.eleves.all, eleve);
             if($scope.structure.eleves.all[i].synchronized.className == false ) {
                 await $scope.structure.eleves.all[i].syncClasseGroupName($scope.structure.classes.all,'classe');
@@ -75,26 +78,21 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             if($scope.structure.eleves.all[i].synchronized.groupName == false ){
                 await  $scope.structure.eleves.all[i].syncClasseGroupName($scope.structure.classes.all,'group');
             }
-            await $scope.selectPeriode() ;
+            //await $scope.selectPeriode() ;
+            var startMoment = $scope.getSelectedPeriodStartMoment();
+            var endMoment = $scope.getSelectedPeriodEndMoment();
+            await $scope.selected.eleve.checkRapprochementCours(startMoment, endMoment, $scope.structure);
             return $scope.structure.eleves.all[i] ;
         };
 
-        // Selection d'un élève dans la barre de recherche
-        $scope.selectEleve = async () => {
-            $scope.display.calendar = false;
-            $scope.display.selection.eleve = false;
-            $scope.checkNavigDate();
-            $scope.selected.eleve = await $scope.syncEleveCours($scope.selected.eleve) ;
-            $scope.selected.eleve.cours ?  $scope.display.calendar = true :  $scope.display.calendar = false ;
-            safeApply($scope);
-            // On récupère les absences et les absences prev de l'élève
-            await $scope.selected.eleve.syncAllAbsence(false);
-            await $scope.selected.eleve.syncAllAbsencePrev();
 
-
-
+        /**
+         * Retourne les absences et absences prev mises en forme pour la partie 'Dernière absences saisies'
+         * @returns {any}
+         */
+        $scope.getAbsencesToShow = () => {
             // Mise en forme des absence
-            $scope.selected.eleve.evenements.forEach(function (event) {
+            $scope.selected.eleve.absences.forEach(function (event) {
                 event.motif = $scope.structure.motifs.find(motif => motif.id == event.id_motif);
                 event.niceDateDebut = moment(event.timestamp_dt).format('DD/MM/YYYY HH:mm');
                 event.niceDateFin = moment(event.timestamp_fn).format('DD/MM/YYYY HH:mm');
@@ -113,10 +111,10 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 abscprev.niceDateFin = moment(abscprev.timestamp_fn).format('DD/MM/YYYY HH:mm');
                 abscprev.motif = $scope.structure.motifs.find(motif => motif.id == abscprev.id_motif);
 
-                $scope.selected.eleve.evenements.forEach(function (absence) {
+                $scope.selected.eleve.absences.forEach(function (absence) {
                     // Si l'absence normale est à l'intérieur de la période de l'absence prev
-                    if(!absence.alreadyInAbscPrev && moment(abscprev.timestamp_dt) < moment(absence.timestamp_dt)
-                        &&  moment(absence.timestamp_fn) < moment(abscprev.timestamp_fn)) {
+                    if (!absence.alreadyInAbscPrev && moment(abscprev.timestamp_dt) < moment(absence.timestamp_dt)
+                        && moment(absence.timestamp_fn) < moment(abscprev.timestamp_fn)) {
                         // On ajoute un booléen pour montrer qu'on a déjà rattaché cette absence à une absence prev
                         absence.alreadyInAbscPrev = true;
                         // On ajoute cette absence normale aux absences de l'absence prev
@@ -126,37 +124,431 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             });
 
             // On rassemble les absences non rattachées aux absences prev afin de les afficher dynamiquement
-            var absencesAlone = $scope.selected.eleve.evenements.filter(event => !event.alreadyInAbscPrev);
+            var absencesAlone = $scope.selected.eleve.absences.filter(event => !event.alreadyInAbscPrev);
             var absencesToShow = $scope.selected.eleve.abscprev.concat(absencesAlone);
 
             // On retrie par date
-            absencesToShow.sort(function(a,b){
+            absencesToShow.sort(function (a, b) {
                 return new Date(b.timestamp_dt) - new Date(a.timestamp_dt);
             });
 
-            // On les ajoutes au scope
-            $scope.selected.eleve.absencesToShow = absencesToShow;
+            return absencesToShow;
+        };
 
-            $scope.display.showEleveCard = true;
-            $scope.display.showLastAbsences = true;
+
+        $scope.refreshTheCalendar = async () => {
+            $scope.isRefreshingCalendar = true;
+            var startMoment = $scope.getSelectedPeriodStartMoment();
+            var endMoment = $scope.getSelectedPeriodEndMoment();
+
+            await $scope.selected.eleve.checkRapprochementCours(startMoment, endMoment, $scope.structure);
+
+            let firstweek = moment($scope.selected.dateDb);
+            model.calendar.setDate(firstweek);
+            $scope.loadItems();
+            $scope.checkNavigDate();
+            $scope.calculConflit();
+            $scope.isRefreshingCalendar = false;
+            $scope.inputHasChanged = false;
+        };
+
+
+        $scope.$watch("selected.dateDb",  (newVal, oldVal) => {
+            if($scope.selectingEleve || !$scope.datesPeriodAreLoaded() || !$scope.selected.eleve)
+                return;
+
+            var newDateDebut = $scope.getSelectedPeriodStartMoment();
+            var dateFin = $scope.getSelectedPeriodEndMoment();
+
+            if (newDateDebut > dateFin) {
+                $scope.selected.dateDb = oldVal;
+            } else{
+                $scope.inputHasChanged = true;
+            }
+        });
+
+        $scope.$watch("selected.timeDb",  (newVal, oldVal) => {
+            if($scope.selectingEleve || !$scope.datesPeriodAreLoaded() || !$scope.selected.eleve)
+                return;
+
+            var newDateDebut = $scope.getSelectedPeriodStartMoment();
+            var dateFin = $scope.getSelectedPeriodEndMoment();
+
+            if (newDateDebut > dateFin) {
+                $scope.selected.timeDb = oldVal;
+            } else {
+                $scope.inputHasChanged = true;
+            }
+        });
+
+        $scope.$watch("selected.timeFn",  (newVal, oldVal) => {
+            if($scope.selectingEleve || !$scope.datesPeriodAreLoaded() || !$scope.selected.eleve)
+                return;
+
+            var dateDebut = $scope.getSelectedPeriodStartMoment();
+            var newDateFin = $scope.getSelectedPeriodEndMoment();
+
+            if (newDateFin < dateDebut) {
+                $scope.selected.timeFn = oldVal;
+            } else {
+                $scope.inputHasChanged = true;
+            }
+        });
+
+        $scope.$watch("selected.dateFn",  (newVal, oldVal) => {
+            console.log("watch selected.dateFn");
+            if($scope.selectingEleve || !$scope.datesPeriodAreLoaded() || !$scope.selected.eleve){
+                return;
+            }
+
+            var dateDebut = $scope.getSelectedPeriodStartMoment();
+            var newDateFin = $scope.getSelectedPeriodEndMoment();
+
+            if (newDateFin < dateDebut){
+                $scope.selected.dateFn = oldVal;
+            } else {
+                $scope.inputHasChanged = true;
+            }
+        });
+
+        $scope.selectMotif = () => {
+            if($scope.selected.motif == null){
+                $scope.selected.motif = {id: null};
+            }
+            $scope.inputHasChanged = true;
+            $scope.calculConflit();
+        };
+
+        $scope.loadItems = () => {
+            if(!$scope.selected.eleve)
+                return;
+
+            var abscPrevItem = $scope.getArrayItemsAP();
+
+            $scope.selected.eleve.items = [];
+            if($scope.selected.eleve.cours)
+                $scope.selected.eleve.items = $scope.selected.eleve.items.concat($scope.selected.eleve.cours);
+            if(abscPrevItem)
+                $scope.selected.eleve.items = $scope.selected.eleve.items.concat(abscPrevItem);
+
+            model.calendar.addScheduleItems($scope.selected.eleve.items);
+        };
+
+        $scope.getArrayItemsAP = () => {
+            // On vérifie si il y aura une absence prev, si c'est le cas, on lance la calcul des conflits avec les Absences prev
+            var dateDebutPeriode = $scope.getSelectedPeriodStartMoment();
+            var dateFinPeriode = $scope.getSelectedPeriodEndMoment();
+
+            // Si la date de fin est dans le futur, alors il y a une absence prev
+            if(dateFinPeriode > moment()) {
+                var startMoment = dateDebutPeriode > moment() ? dateDebutPeriode : moment();
+                var endMoment = dateFinPeriode;
+
+                var numEnglobe = 0;
+                var numInside = 0;
+                var numTouching = 0;
+                var numNotTouching = 0;
+
+                // On trie les cours par ordre chronologique
+                $scope.selected.eleve.cours.sort(function (a, b) {
+                    return new Date(a.startMoment) - new Date(b.startMoment);
+                });
+
+                // Découpage de l'absence prev en item pour le calendar
+                var abscPrevRaw = {
+                    dateDebut: startMoment,
+                    dateFin: endMoment
+                };
+
+                var arrayOfItemAP = [];
+                arrayOfItemAP.push(abscPrevRaw);
+
+                $scope.selected.eleve.cours.forEach(cours => {
+                    var lastAP = arrayOfItemAP.pop();
+                    cours.dateDebut = moment(cours.startMoment);
+                    cours.dateFin = moment(cours.endMoment);
+
+                    if (lastAP.dateDebut < cours.dateDebut && cours.dateFin < lastAP.dateFin) { // Englobe
+                        numEnglobe++;
+
+                        var abscPrevPart1 = {
+                            dateDebut: lastAP.dateDebut,
+                            dateFin: cours.dateDebut
+                        };
+                        var abscPrevToPart2 = {
+                            dateDebut: cours.dateFin,
+                            dateFin: lastAP.dateFin
+                        };
+
+                        arrayOfItemAP.push(abscPrevPart1);
+                        arrayOfItemAP.push(abscPrevToPart2);
+
+                    } else if (cours.dateDebut < lastAP.dateDebut && lastAP.dateFin < cours.dateFin) { // Inside  // Coupe
+                        numInside++;
+                    } else if (lastAP.dateFin < cours.dateDebut || lastAP.dateDebut > cours.dateFin) { // Touche pas
+                        numNotTouching++;
+                        arrayOfItemAP.push(lastAP);
+                    } else { // Touche
+                        numTouching++;
+
+                        if (cours.dateFin < lastAP.dateFin) {               // Le cours touche le début de l'AP
+                            lastAP.dateDebut = cours.dateFin;
+                        } else if (cours.dateDebut > lastAP.dateDebut) {    // Le cours touche la fin de l'AP
+                            lastAP.dateFin = cours.dateDebut;
+                        }
+                        arrayOfItemAP.push(lastAP);
+                    }
+                });
+
+                // Mise en forme des parties de l'absence prev pour le calendar
+                arrayOfItemAP.forEach(item => {
+                    item.isAbscPrev = true;
+                    item.locked = true;
+                    item.is_periodic = false;
+
+                    item.startMoment = item.dateDebut;
+                    item.startCalendarHour = item.startMoment.seconds(0).millisecond(0).toDate();
+                    item.startMomentDate = item.startMoment.format('DD/MM/YYYY');
+                    item.startMomentTime = item.startMoment.format('hh:mm');
+
+                    item.endMoment = item.dateFin;
+                    item.endCalendarHour = item.endMoment.seconds(0).millisecond(0).toDate();
+                    item.endMomentDate = item.endMoment.format('DD/MM/YYYY');
+                    item.endMomentTime = item.endMoment.format('hh:mm');
+                });
+
+                return arrayOfItemAP;
+            }
+        };
+
+        $scope.calculConflit = async () => {
+            console.log("calculConflit zzzz");
+            if(!$scope.selected.eleve || !$scope.selected.motif
+                || !$scope.selected.dateDb  || !$scope.selected.dateFn
+                || !$scope.selected.timeDb  || !$scope.selected.timeFn)
+                return;
+
+            $scope.selected.eleve.arrayConflitAbscPrev = [];
+            $scope.selected.eleve.arrayAbscPrevToCreate = [];
+            $scope.selected.eleve.arrayAbscPrevToDelete = [];
+            $scope.selected.eleve.arrayAbscPrevToUpdate = [];
+            $scope.selected.eleve.coursPassedWithoutAbsence = [];
+            $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent = [];
+
+            var dateDebut = $scope.getSelectedPeriodStartMoment();
+            var dateFin = $scope.getSelectedPeriodEndMoment();
+            var idMotif = $scope.selected.motif.id;
+
+            await $scope.structure.appels.sync(dateDebut.format("YYYY-MM-DD"), dateFin.format("YYYY-MM-DD"));
+
+            $scope.numOfConflit = 0;
+
+            // Lien entre les cours et les absences
+            $scope.selected.eleve.cours.forEach(cours => {
+                cours.appel = $scope.structure.appels.all.find(x => x.id_cours === cours._id);
+                if(cours.appel && $scope.selected.eleve.absences)
+                    cours.absence = $scope.selected.eleve.absences.find(absences => absences.id_appel === cours.appel.id);
+            });
+
+            // Group
+            $scope.selected.eleve.cours.sort(function (a, b) {
+                return new Date(a.startMoment) - new Date(b.startMoment);
+            });
+
+            var group_to_values = $scope.selected.eleve.cours.reduce(function (obj, item) {
+                obj[item.startMomentDate] = obj[item.startMomentDate] || [];
+                obj[item.startMomentDate].push(item);
+                return obj;
+            }, {});
+            var groups = Object.keys(group_to_values).map(function (key) {
+                return {date: key, cours: group_to_values[key]};
+            });
+            groups.sort(function (a, b) {
+                return new Date(a.date) - new Date(b.date);
+            });
+
+            $scope.selected.eleve.coursGroupByDay = groups;
+
+            $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.cours.filter((cours) => {
+                // Si le cours est passé et n'a pas d'absence, ou si le cours est passé avec une absence avec un motif différent.
+                return !$scope.isAfterToday(cours.startMoment) && (!cours.absence || !$scope.equalsMotifIdOfPa(cours.absence.motif.id));
+            });
+
+            $scope.selected.eleve.coursPassedWithoutAbsence =
+                $scope.selected.eleve.cours.filter(cours => !$scope.isAfterToday(cours.startMoment) && !cours.absence);
+
+            $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent =
+                $scope.selected.eleve.cours.filter(cours => !$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id) );
+
+            // On vérifie si il y aura une absence prev, si c'est le cas, on lance la calcul des conflits avec les Absences prev
+            var dateDebutPeriode = moment(moment($scope.selected.dateDb).format("YYYY-MM-DD") + " " + $scope.selected.timeDb);
+            var dateFinPeriode = moment(moment($scope.selected.dateFn).format("YYYY-MM-DD") + " " + $scope.selected.timeFn);
+
+            var newAbscPrevToCreate;
+            // Si la date de fin est dans le futur, alors il y a une absence prev
+            var arrayConflitAbscPrev = [];
+            if(dateFinPeriode > moment()) {
+                var startMoment = dateDebutPeriode > moment() ? dateDebutPeriode : moment();
+                var endMoment = dateFinPeriode;
+
+                newAbscPrevToCreate = {
+                    dateDebut: startMoment,
+                    dateFin: endMoment,
+                    id_motif: idMotif
+                };
+
+                // ### CALCUL CONFLIT AVEC LES ABSENCE PREV
+                var arrayAbscPrevToUpdate = [];
+                var arrayAbscPrevToDelete = [];
+                var arrayAbscPrevToCreate = [];
+
+                var isInsideExistingAbscPrev = false;
+                var isProlonged = false;
+
+
+                if($scope.selected.eleve.abscprev) {
+                    $scope.selected.eleve.abscprev.forEach(abscPrev => {
+                        abscPrev.dateDebut = moment(abscPrev.timestamp_dt);
+                        abscPrev.dateFin = moment(abscPrev.timestamp_fn);
+
+                        if (dateDebut < abscPrev.dateDebut && abscPrev.dateFin < dateFin) { // Englobe
+                            isInsideExistingAbscPrev = true;
+                        } else if (abscPrev.dateDebut < dateDebut && dateFin < abscPrev.dateFin) { // Inside
+                            arrayAbscPrevToDelete.push(abscPrev);
+                            if (abscPrev.id_motif == idMotif) {
+                                isProlonged = true;
+                                newAbscPrevToCreate.dateDebut = abscPrev.dateDebut;
+                                newAbscPrevToCreate.dateFin = abscPrev.dateFin;
+                            } else { // Coupe
+                                var abscPrevToCreate1 = {
+                                    dateDebut: abscPrev.dateDebut,
+                                    dateFin: dateDebut,
+                                    id_motif: abscPrev.id_motif
+                                };
+                                var abscPrevToCreate3 = {
+                                    dateDebut: dateFin,
+                                    dateFin: abscPrev.dateFin,
+                                    id_motif: abscPrev.id_motif
+                                };
+
+                                arrayAbscPrevToCreate.push(abscPrevToCreate1);
+                                arrayAbscPrevToCreate.push(abscPrevToCreate3);
+
+                                arrayConflitAbscPrev.push({
+                                    before: abscPrev,
+                                    after: [abscPrevToCreate1, abscPrevToCreate3]
+                                });
+                            }
+                        } else if (dateFin < abscPrev.dateDebut || dateDebut > abscPrev.dateFin) { // Touche pas
+                        } else {
+                            if (abscPrev.id_motif == idMotif) { // Prolonge
+                                arrayAbscPrevToDelete.push(abscPrev);
+                                isProlonged = true;
+                                newAbscPrevToCreate.dateDebut = abscPrev.dateDebut > dateDebut ? dateDebut : abscPrev.dateDebut;
+                                newAbscPrevToCreate.dateFin = abscPrev.dateFin < dateFin ? dateFin : abscPrev.dateFin;
+                            } else {
+                                var abscPrevToUpdate;
+                                if (abscPrev.dateDebut < dateFin) {
+                                    abscPrevToUpdate = {
+                                        dateDebut: abscPrev.dateDebut,
+                                        dateFin: dateDebut,
+                                        id: abscPrev.id,
+                                        id_motif: abscPrev.id_motif
+                                    };
+                                } else if (dateDebut < abscPrev.dateFin) {
+                                    abscPrevToUpdate = {
+                                        dateDebut: dateFin,
+                                        dateFin: abscPrev.dateFin,
+                                        id: abscPrev.id,
+                                        id_motif: abscPrev.id_motif
+                                    };
+                                }
+
+                                arrayAbscPrevToUpdate.push(abscPrevToUpdate);
+
+                                arrayConflitAbscPrev.push({
+                                    before: abscPrev,
+                                    after: [abscPrevToUpdate]
+                                });
+                            }
+                        }
+                    });
+                }
+
+                if (!isInsideExistingAbscPrev) {
+                    arrayAbscPrevToCreate.push(newAbscPrevToCreate);
+                }
+
+                $scope.selected.eleve.arrayConflitAbscPrev = arrayConflitAbscPrev;
+                $scope.selected.eleve.arrayAbscPrevToCreate = arrayAbscPrevToCreate
+                $scope.selected.eleve.arrayAbscPrevToDelete = arrayAbscPrevToDelete;
+                $scope.selected.eleve.arrayAbscPrevToUpdate = arrayAbscPrevToUpdate;
+                console.log(arrayAbscPrevToUpdate);
+            }
+
+            $scope.numOfConflit += arrayConflitAbscPrev.length
+                + $scope.selected.eleve.coursPassedWithoutAbsence.length
+                + $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.length;
+
+
             utils.safeApply($scope);
-
         };
 
+        $scope.saveZoneAbsc = () => {
 
+            var idEleve = $scope.selected.eleve.id;
+            var idMotif = $scope.selected.motif.id;
 
-        $scope.selected = {
-            eleve: '*',
-            classe: '*',
-            from: '*',
-            motif:'*',
-            dateDb: new moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD'),
-            dateFn: new moment(model.calendar.dayForWeek).add(6, 'day').hour(0).minute(0).format('YYYY-MM-DD'),
-            //dateDbOld : new moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD'),
-           // dateFnOld : new moment(model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0).format('YYYY-MM-DD'),
-            timeDb:  moment().format("HH:mm"),
-            timeFn:  moment().format("HH:mm"),
+            var arrayEventIdToUpdate = [];
+            var arrayEventToCreate = [];
+
+            $scope.selected.eleve.arrayAbscPrevToCreate.forEach(abscPrev => {
+                abscPrev.dateDebutString = abscPrev.dateDebut.format("YYYY-MM-DD HH:mm");
+                abscPrev.dateFinString = abscPrev.dateFin.format("YYYY-MM-DD HH:mm");
+            });
+            $scope.selected.eleve.arrayAbscPrevToUpdate.forEach(abscPrev => {
+                abscPrev.dateDebutString = abscPrev.dateDebut.format("YYYY-MM-DD HH:mm");
+                abscPrev.dateFinString = abscPrev.dateFin.format("YYYY-MM-DD HH:mm");
+            });
+            $scope.selected.eleve.arrayAbscPrevToDelete.forEach(abscPrev => {
+                abscPrev.dateDebutString = abscPrev.dateDebut.format("YYYY-MM-DD HH:mm");
+                abscPrev.dateFinString = abscPrev.dateFin.format("YYYY-MM-DD HH:mm");
+            });
+
+            $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.forEach(cours => {
+                arrayEventIdToUpdate.push(cours.id);
+            });
+
+            var arrayCoursToCreate = [];
+
+            $scope.selected.eleve.coursPassedWithoutAbsence.forEach(cours => {
+                if(cours.isFromMongo){
+                    arrayCoursToCreate.push({
+                        dateDebut: cours.startMoment.format("YYYY-MM-DD HH:mm"),
+                        dateFin: cours.endMoment.format("YYYY-MM-DD HH:mm"),
+                        salle: cours.salle,
+                        id_matiere: cours.subjectId,
+                        id_classe: $scope.structure.classes.all.find(classe => classe.name == cours.classes[0]).id,
+                        id_personnel: cours.teacherIds[0],
+                        id_etablissement: $scope.structure.id,
+                    })
+                }else{
+                    arrayEventToCreate.push({
+                        id_cours: cours.id
+                    })
+                }
+            });
+
+            console.log(arrayEventIdToUpdate);
+            console.log(arrayEventToCreate);
+            console.log(arrayCoursToCreate);
+            Evenement.saveZoneAbsence(idEleve, idMotif,
+                $scope.selected.eleve.arrayAbscPrevToCreate,
+                $scope.selected.eleve.arrayAbscPrevToUpdate,
+                $scope.selected.eleve.arrayAbscPrevToDelete,
+                arrayEventIdToUpdate, arrayEventToCreate, arrayCoursToCreate);
         };
+
         $scope.display = {
             selection: {
                 eleve: false
@@ -171,35 +563,18 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
 
         };
         $scope.checkNavigDate = () => {
-            moment($scope.selected.dateFn).hour(0).minute(0).format('YYYY-MM-DD') <  moment(model.calendar.dayForWeek).add(7,'day').hour(0).minute(0).format('YYYY-MM-DD') ?  $scope.allowDisplay.next=  false :  $scope.allowDisplay.next=true;
-            moment($scope.selected.dateDb).hour(0).minute(0).format('YYYY-MM-DD') >=  moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD')?   $scope.allowDisplay.prev =   false :  $scope.allowDisplay.prev = true;
+            moment($scope.selected.dateFn).hour(0).minute(0).format('YYYY-MM-DD') <  moment(model.calendar.dayForWeek).add(7,'day').hour(0).minute(0).format('YYYY-MM-DD')
+                ? $scope.allowDisplay.next=  false :  $scope.allowDisplay.next=true;
+            moment($scope.selected.dateDb).hour(0).minute(0).format('YYYY-MM-DD') >=  moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD')
+                ? $scope.allowDisplay.prev =   false :  $scope.allowDisplay.prev = true;
         };
-        $scope.syncEleveClasse = () => {
-            if ($scope.selected.classe !== '*' && $scope.selected.classe !== null) {
-                $scope.display.calendarDate = false;
-                $scope.initSelectedDates();
-                $scope.display.selection.eleve = false;
-                $scope.selected.eleve = '*';
-                $scope.selected.classe.eleves.sync().then(() => {
-                    $scope.display.selection.eleve = true;
-                    utils.safeApply($scope);
-                });
-            }
-        };
-        $scope.initSelectedDates = () => {
-            $scope.selected.dateDb = new Date();
-            $scope.selected.dateFn = new Date();
-            $scope.selected.timeDb = moment().format("HH:mm");
-            $scope.selected.timeFn = moment().format("HH:mm");
-        };
-
 
         $scope.nextWeekButton = function() {
             let next = moment(model.calendar.firstDay).add(7, 'day');
             $scope.checkNavigDate();
             if($scope.allowDisplay.next == true){
                 model.calendar.setDate(next);
-                model.calendar.addScheduleItems($scope.selected.eleve.cours);
+                $scope.loadItems();
                 $scope.checkNavigDate();
             }
         };
@@ -209,196 +584,54 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             $scope.checkNavigDate();
             if($scope.allowDisplay.prev == true){
                 model.calendar.setDate(prev);
-                model.calendar.addScheduleItems($scope.selected.eleve.cours);
+                $scope.loadItems();
                 $scope.checkNavigDate();
             }
         };
 
-        $scope.searchCours = () => {
-            $scope.selected.motif= '*';
-            let syncCours = false;
-            let syncEvent = false;
-            let syncAbscPrev = false;
-            if($scope.selected.from === 'Search')
-                $scope.selected.eleve.syncCoursByStud($scope.structure.id, $scope.selected.dateDb , $scope.selected.timeDb+":00", $scope.selected.dateFn, $scope.selected.timeFn + ":00")
-                    .then((data) => {
-                        syncCours = true;
-                        utils.safeApply($scope);
-                    });
-            else if($scope.selected.from === 'Input')
-                $scope.selected.eleve.syncCoursByClasseStud($scope.selected.classe.id, $scope.selected.dateDb, $scope.selected.timeDb+":00", $scope.selected.dateFn, $scope.selected.timeFn+":00")
-                    .then((data) => {
-                        syncCours = true;
-                        utils.safeApply($scope);
-                    });
-            $scope.selected.eleve.syncEvenment($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncEvent = true   );
-            $scope.selected.eleve.syncAbscPrev($scope.selected.dateDb, $scope.selected.dateFn).then( () =>  syncAbscPrev = true  );
-            $scope.$watch(() =>{return syncCours && syncEvent && syncAbscPrev;},(newVal,oldval) =>{
-                if(newVal===true){
-                    $scope.getCoursEvnt();
-                    $scope.display.coursDetail = true;
-                    utils.safeApply($scope);
-                } });
-
+        $scope.showLightboxAllAbsences = (state) => {
+            $scope.displayLightboxAllAbsences = state;
         };
 
-        $scope.verifierCoursPrev = (index) =>{
-            if(index===0) {
-                if ($scope.selected.eleve.cours[index].timestamp_fn > moment().format()){
-                    $scope.selected.eleve.cours[index].etatcours = 'NOTEND';
-                    return true;
-                }else{
-                    $scope.selected.eleve.cours[index].etatcours = 'END';
-                    return false;
-                }
-            }else {
-                if($scope.selected.eleve.cours[index].timestamp_fn > moment().format() &&
-                    $scope.selected.eleve.cours[index-1].timestamp_fn < moment().format() ){
-                    $scope.selected.eleve.cours[index].etatcours = 'NOTEND';
-                    return true;
-                }else if($scope.selected.eleve.cours[index].timestamp_fn > moment().format() &&
-                    $scope.selected.eleve.cours[index-1].timestamp_fn > moment().format()){
-                    $scope.selected.eleve.cours[index].etatcours = 'NOTEND';
-                    return false;
-                }
-                else{$scope.selected.eleve.cours[index].etatcours = 'END';
-                    return false;}
-
-            }
-        };
-        $scope.getNowDate = () => {
-            return moment().format('L') + ' '+ moment().format( 'HH:mm');
-        };
-        $scope.getCoursEvnt = () => {
-            _.map($scope.selected.eleve.evenements.all,(event) => {
-                return  event.motifs = _.findWhere($scope.structure.motifs.all, { 'id' : event.id_motif });
-            });
-            _.map($scope.selected.eleve.cours,(c) => {
-                _.find($scope.selected.eleve.abscprev, (abs) => {
-                    ( moment( abs.timestamp_fn).format('L') >= moment(c.timestamp_dt).format('L') && moment( abs.timestamp_dt).format('L') <= moment(c.timestamp_dt).format('L') ) ||
-                    ( moment( abs.timestamp_fn).format('L') >=  moment(c.timestamp_fn).format('L') && moment( abs.timestamp_dt).format('L') <= moment(c.timestamp_fn).format('L') )?
-                        c.abcsPrev = true : c.abcsPrev = false;
-
-                });
-
-                if(c.id_appel !== null){
-
-                    let eventCours =  _.where( $scope.selected.eleve.evenements.all, { 'id_appel' : c.id_appel });
-                    if(eventCours === undefined || eventCours.length === 0 ){
-                        c.isAbsent = false;
-                        return  c.evenement = undefined ;
-                    }else{
-                        let absent =  _.findWhere(eventCours, {'id_type': 1 });
-                        if(absent !== undefined )
-                        {c.isAbsent = true;
-                            return c.evenement = absent ;}
-                        else
-                        { c.isAbsent = false;
-                            return c.evenement = eventCours ; }
-
-                    }
-                }else{
-                    c.isAbsent = false;
-                    return  c.evenement = undefined ;
-                }
-            });
-        };
-        $scope.formatDate = function (datedb, datefn) {
-
-            if (moment(datedb).format('L') == moment(datefn).format('L'))
-                return moment(datedb).format( 'DD/MM/YYYY') + '\n' + moment(datedb).format( 'HH:mm') + ' -> ' + moment(datefn,).format( 'HH:mm');
-            else
-                return moment(datedb).format( 'DD/MM/YYYY') + ' ' + moment(datedb).format( 'HH:mm') + ' -> ' + moment(datefn).format( 'DD/MM/YYYY') + ' ' + moment(datefn,).format( 'HH:mm');
+        $scope.showLightboxCheckConflit = (state) => {
+            $scope.displayLightboxCheckConflit = state;
         };
 
-        $scope.getColorByEvent = function (evnt) {
-            let color;
-            if( evnt !== undefined ){
-                switch (evnt.id_type) {
-                    case 1 : {
-                        color = 'red';
-                    }
-                        break;
-                    case 2 : {
-                        color = 'blue';
-                    }
-                        break;
-                    case 3 : {
-                        color = 'green';
-                    }
-                        break;
-                    case 5 : {
-                        color = 'purple';
-                    }
-                        break;
-
-                    default : {
-                        color = 'grey';
-                    }
-                }
-            }else color =  'grey';
-            return color;
+        $scope.setTimelineVisible = (state) => {
+            $scope.timelineIsVisible = state;
         };
 
-        $scope.getMatiere = (id_matiere) => {
-            let matiere = _.findWhere($scope.structure.matieres.all, {id: id_matiere});
-            if (matiere === undefined)
-                return 'undefinie';
-            else
-                return matiere.name;
-        };
-        $scope.detectDiffMotif = (newVal) => {
-
-            if(newVal!== '' && newVal!== '*' && newVal!== undefined && newVal!== null && typeof(newVal) == "object"){
-                _.map($scope.selected.eleve.cours,(c) => {
-                    if(c.isAbsent === true){
-                        return  c.evenement.motifs.id !== newVal.id ? c.diffMotif = true : c.diffMotif = false;
-                    }
-
-                });
-                utils.safeApply($scope);
-            }else{
-                _.map($scope.selected.eleve.cours,(c) => {
-                    if(c.isAbsent === true) {
-                        return  c.diffMotif = false;
-                    }
-                });
-                utils.safeApply($scope);
-            }
-
+        /**
+         * Retourne true si les dates de la périodes sont bien chargées
+         * Vérifie la date début, l'heure début, la date de fin et l'heure de fin
+         * @returns {boolean}
+         */
+        $scope.datesPeriodAreLoaded = () => {
+            return $scope.selected && $scope.selected.dateDb && $scope.selected.dateFn && $scope.selected.timeDb && $scope.selected.timeFn;
         };
 
+        $scope.getSelectedPeriodStartMoment = () => {
+            return moment(moment($scope.selected.dateDb).format("YYYY-MM-DD") + " " + $scope.selected.timeDb);
+        };
+        $scope.getSelectedPeriodEndMoment = () => {
+            return moment(moment($scope.selected.dateFn).format("YYYY-MM-DD") + " " + $scope.selected.timeFn);
+        };
 
-        $scope.saveAbsc = () => {
-            let coursEND = _.groupBy(_.where($scope.selected.eleve.cours,  {'etatcours' : 'END' }), 'isAbsent');
+        $scope.equalsMotifIdOfPa = (id_motif) => {
+            return $scope.selected.motif.id == id_motif;
+        };
 
-            let coursWhereIsAbs = coursEND.true;
-            let coursWhereIsNotAbs = coursEND.false ;
-            let motifid = $scope.selected.motif.id; //TODO <obligatoir>
-            let dateDb;
-            let dateFn =  moment($scope.selected.dateFn).format();
-            //absPrev
-            if( moment().format() < moment($scope.selected.dateFn).format() ){
-                moment().format() > moment($scope.selected.dateDb).format()?
-                    dateDb= moment().format("YYYY/MM/DD"):
-                    dateDb= moment($scope.selected.dateDb).format("YYYY/MM/DD");
-                let AbscPrev = new AbsencePrev( {
-                    timestamp_dt : dateDb,
-                    timestamp_fn : moment($scope.selected.dateFn).format("YYYY/MM/DD"),
-                    id_eleve : $scope.selected.eleve.id,
-                    id_motif : motifid,
-                });
-                AbscPrev.save();
-            }
-            //absNormal
-            if( moment().format() > moment($scope.selected.dateDb).format() ){
-                //Update EVENT
-                if(coursWhereIsAbs!==undefined){
-                 let eventIds =  _.pluck(coursWhereIsAbs,'id');
-                 let Event = new Evenement();
-                 //Event.Saves(coursEND, Event);
-                }
-            }
-        }
+        $scope.isAfterToday = (strDate) => {
+            return moment(strDate) > moment();
+        };
+
+        $scope.niceDateMoment = (momentDate) => {
+            return moment(momentDate).format("YYYY-MM-DD");
+        };
+
+        $scope.niceTimeMoment = (momentDate) => {
+            return moment(momentDate).format("HH:mm");
+        };
+
     }
 ]);

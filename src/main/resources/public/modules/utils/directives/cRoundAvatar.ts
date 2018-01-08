@@ -11,10 +11,10 @@ export let cRoundAvatar = ng.directive("cRoundAvatar", [function () {
         scope: {
             eleve: "=eleve"
         },
-        link: function ($scope): Promise<any> {
-            return new Promise((resolve, reject) =>{
-                $scope.skin = skin;
-                http().get('/userbook/avatar/' + $scope.eleve.id).done(function(data){
+        link: function ($scope) {
+            $scope.skin = skin;
+            http().get('/userbook/avatar/' + $scope.eleve.id)
+                .done(function(data){
                     if(typeof(data) == "string"){
                         $scope.userbook = true;
                         utils.safeApply($scope);
@@ -22,10 +22,11 @@ export let cRoundAvatar = ng.directive("cRoundAvatar", [function () {
                         $scope.userbook = false;
                         utils.safeApply($scope);
                     }
+                })
+                .error(function () {
+                    $scope.userbook = false;
+                    utils.safeApply($scope);
                 });
-                resolve();
-            });
-
         }
     };
 }]);

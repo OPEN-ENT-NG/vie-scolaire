@@ -330,7 +330,8 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
             }
             $scope.informations.eleve = $scope.search.eleve;
             if ($scope.informations.eleve !== null && $scope.search.eleve !== "" && $scope.informations.eleve !== undefined) {
-                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve, $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
+                $scope.suiviCompetence = new SuiviCompetence($scope.search.eleve,
+                    $scope.search.periode, $scope.search.classe,$scope.evaluations.structure);
                 let niveauCompetence =  _.findWhere(evaluations.structure.cycles, {
                     id_cycle: $scope.search.classe.id_cycle
                 }).niveauCompetencesArray;
@@ -352,7 +353,11 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
                                 if ($scope.detailCompetence !== undefined) {
                                     $scope.detailCompetence = $scope.suiviCompetence.findCompetence($scope.detailCompetence.id);
                                     if ($scope.detailCompetence) {
-                                        $scope.openDetailCompetence($scope.detailCompetence);
+                                        let detail = $scope.template.containers['suivi-competence-detail'];
+                                        if(detail !== undefined) {
+                                            detail = detail.split('.html?hash=')[0].split('template/')[1];
+                                        }
+                                        $scope.openDetailCompetence($scope.detailCompetence, detail);
                                     } else {
                                         $scope.backToSuivi();
                                     }
@@ -481,10 +486,16 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Lance la séquence d'ouverture du détail d'une compétence permettant d'accéder à la vue liste ou graph
          * @param competence Compétence à ouvrir
          */
-        $scope.openDetailCompetence = function (competence) {
+        $scope.openDetailCompetence = function (competence, detail) {
             $scope.detailCompetence = competence;
             $scope.initChartsEval();
-            template.open("suivi-competence-detail", "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph");
+            if(detail !== undefined){
+                template.open("suivi-competence-detail", detail);
+            }
+            else {
+                template.open("suivi-competence-detail",
+                    "../templates/evaluations/enseignants/suivi_competences_eleve/detail_vue_graph");
+            }
             utils.scrollTo('top');
         };
 
@@ -527,13 +538,16 @@ export let evalSuiviCompetenceEleveCtl = ng.controller('EvalSuiviCompetenceEleve
          * Remplace l'élève recherché par le nouveau suite à l'incrémentation de l'index
          * @param num pas d'incrémentation. Peut être positif ou négatif
          */
-        $scope.incrementEleve = function (num) {
+        $scope.incrementEleve = async function (num) {
             $scope.selected.grey = true;
             let index = _.findIndex($scope.search.classe.eleves.all, {id: $scope.search.eleve.id});
             if (index !== -1 && (index + parseInt(num)) >= 0
                 && (index + parseInt(num)) < $scope.search.classe.eleves.all.length) {
                 $scope.search.eleve = $scope.search.classe.eleves.all[index + parseInt(num)];
-                $scope.selectSuivi();
+                let content = $scope.template.containers['suivi-competence-content'].split('.html?hash=')[0].split('template/')[1];
+
+                await $scope.selectSuivi();
+                $scope.template.open('suivi-competence-content', content);
                 utils.safeApply($scope);
             }
         };

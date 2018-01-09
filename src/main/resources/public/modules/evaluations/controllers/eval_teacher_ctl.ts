@@ -604,6 +604,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     evaluations.structure.enseignements = $scope.devoir.enseignements;
                     $scope.enseignements = $scope.devoir.enseignements;
                     await $scope.loadEnseignementsByClasse();
+                    await $scope.controleDate($scope.devoir);
                     $scope.updateFilter();
 
                     utils.safeApply($scope);

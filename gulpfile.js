@@ -137,7 +137,7 @@ gulp.task('bower', ['drop-cache'], function(){
 });
 
 gulp.task('update-libs', ['bower'], function(){
-    var html = gulp.src('./bower_components/entcore/template/**/*.html')
+    var html = gulp.src('./bower_components/entcore/src/template/**/*.html')
         .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
 
     var ts = gulp.src('./bower_components/entcore/src/ts/**/*.ts' )

@@ -3,10 +3,7 @@
  */
 
 import {ng, template, model} from 'entcore/entcore';
-import {
-    SuiviCompetence, Devoir, CompetenceNote, evaluations, Structure, Classe, Eleve,
-    Synthese
-} from '../models/teacher/eval_teacher_mdl';
+import {SuiviCompetence, Devoir, CompetenceNote, evaluations, Structure, Classe, Eleve} from '../models/teacher/eval_teacher_mdl';
 import * as utils from '../utils/teacher';
 import {NiveauEnseignementCpls} from "../models/eval_ens_complement_mdl";
 import {Defaultcolors} from "../models/eval_niveau_comp";

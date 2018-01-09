@@ -1,9 +1,8 @@
 /**
  * Created by agnes.lapeyronnie on 15/09/2017.
  */
-import{ng,model} from "entcore/entcore";
-import { LSU, Classe, Responsable } from '../models/eval_teacher_mdl';
-import * as utils from '../utils/teacher';
+import{ng} from "entcore/entcore";
+import { LSU} from '../models/teacher/eval_teacher_mdl';
 export let exportControleur = ng.controller('ExportController',['$scope',
     function($scope) {
 

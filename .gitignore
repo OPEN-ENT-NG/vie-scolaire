@@ -17,7 +17,7 @@ workspace.xml
 /src/main/resources/public/dist/*
 /src/test/
 /src/main/resources/public/modules/entcore
-/src/main/resources/public/template/entcore
+/src/main/resources/public/template/entcore/*
 /src/main/resources/public/templates/entcore
 /src/main/resources/view
 /manifests

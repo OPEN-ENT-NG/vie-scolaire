@@ -2731,6 +2731,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
          */
         $scope.controleDate = async(devoir) => {
             $scope.endSaisie = null;
+            $scope.errDateDevoir = null;
             let classe = _.findWhere($scope.structure.classes.all, {id: devoir.id_groupe});
             if (classe.periodes.empty()) {
                 await classe.periodes.sync();

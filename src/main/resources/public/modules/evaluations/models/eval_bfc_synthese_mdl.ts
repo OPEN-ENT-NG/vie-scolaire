@@ -2,7 +2,7 @@ import {model, http, IModel, Model, idiom as lang} from 'entcore/entcore';
 
 
 
-export class BfcSynthese extends Model implements IModel {
+export class BfcSynthese extends Model {
     id: number;
     id_eleve: string;
     id_classe : string;

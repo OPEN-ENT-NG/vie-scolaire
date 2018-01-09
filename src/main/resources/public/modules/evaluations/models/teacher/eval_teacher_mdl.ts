@@ -1,12 +1,12 @@
 import {model, http, IModel, Model, Collection, idiom as lang} from 'entcore/entcore';
 import {TypePeriode} from "../common/TypePeriode";
 import {DefaultPeriode} from "../common/DefaultPeriode";
-import * as utils from '../utils/teacher';
-import {BfcSynthese}from './eval_bfc_synthese_mdl';
-import {EleveEnseignementCpl, EnsCpls, EnsCpl} from './eval_ens_complement_mdl';
-export * from './common/LSU';
-import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
-import {Cycle} from "./eval_cycle";
+import * as utils from '../../utils/teacher';
+import {BfcSynthese}from '../eval_bfc_synthese_mdl';
+import {EleveEnseignementCpl, EnsCpls, EnsCpl} from '../eval_ens_complement_mdl';
+export * from '../common/LSU';
+import {Defaultcolors, NiveauCompetence} from "../eval_niveau_comp";
+import {Cycle} from "../eval_cycle";
 
 let moment = require('moment');
 let $ = require('jquery');

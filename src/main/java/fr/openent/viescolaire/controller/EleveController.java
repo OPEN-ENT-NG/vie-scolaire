@@ -148,17 +148,18 @@ public class EleveController extends ControllerHelper {
                 if (request.params().get("idPeriode") != null) {
                     idPeriode = testLongFormatParameter("idPeriode", request);
                 }
+                JsonArray idGroups = new JsonArray().add(idClasse);
                 if (event.isRight()) {
                     JsonArray values = event.right().getValue();
-                    JsonArray idGroups = new JsonArray().add(idClasse);
                     if (values.size() > 0) {
                         for (int i=0; i < values.size(); i++) {
                             JsonObject o = values.get(i);
                             idGroups.add(o.getString("id_groupe"));
                         }
-                        eleveService.getCompetences(idEleve,idPeriode,idGroups, handler);
                     }
                 }
+                eleveService.getCompetences(idEleve,idPeriode,idGroups, handler);
+
             }
         });
     }

@@ -250,9 +250,11 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (n:FunctionalGroup)-[:IN]-(u:User{id:'" + idEleve +"'}) ")
+        query.append("MATCH (n:FunctionalGroup)-[:IN]-(u:User{id:{userId}}) ")
                 .append(" WITH  n, u ")
                 .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe ");
+        params.putString("userId", idEleve);
+
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 

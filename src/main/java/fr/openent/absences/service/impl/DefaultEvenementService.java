@@ -152,9 +152,10 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
 
         query.append("SELECT evenement.id, evenement.timestamp_arrive, evenement.timestamp_depart, evenement.commentaire, " +
                 "evenement.saisie_cpe, evenement.id_eleve, evenement.id_appel, evenement.id_type," +
-                " evenement.id_pj, evenement.id_motif, cours.id as id_cours " +
-                FROM+ Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
-                "WHERE cours.id_classe = ? " +
+                " evenement.id_pj, evenement.id_motif, cours.id as id_cours, rel_cours_groupes.id_groupe as id_classe " +
+                FROM + Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " +
+                "WHERE rel_cours_groupes.id_groupe = ? " +
                 FILTRE_APPEL_ID +
                 FILTRE_COURS_ID +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +

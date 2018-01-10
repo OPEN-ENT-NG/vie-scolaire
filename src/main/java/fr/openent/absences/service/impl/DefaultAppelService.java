@@ -43,8 +43,10 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         JsonArray value = new JsonArray();
 
         query.append("SELECT cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
-                "appel.id_etat, cours.id_classe, cours.id_personnel, cours.id as id_cours " +
+                "appel.id_etat, rel_cours_groupes.id_groupe as id_classe ,rel_cours_users.id_user as id_personnel, cours.id as id_cours " +
                 "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " +
+                "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +
                 "WHERE cours.id_etablissement = ? " +
                 "  AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +
@@ -64,8 +66,10 @@ public class DefaultAppelService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT cours.timestamp_dt, cours.timestamp_fn, cours.id_matiere, cours.salle, appel.id, " +
-                "appel.id_etat, cours.id_classe, cours.id_personnel, cours.id as id_cours " +
+                "appel.id_etat, rel_cours_groupes.id_groupe as id_classe ,rel_cours_users.id_user as id_personnel , cours.id as id_cours " +
                 "FROM  "+ Viescolaire.VSCO_SCHEMA +".cours " +
+                "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " +
+                "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) " +
                 "LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".appel ON (cours.id = appel.id_cours) " +
                 "WHERE cours.id_etablissement = ? " +
                 "  AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " +

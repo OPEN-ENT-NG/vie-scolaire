@@ -53,9 +53,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.* ")
+        query.append("SELECT cours.*, rel_cours_groupes.id_groupe as id_classe  ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
-                .append("WHERE cours.id_classe = ? ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
+                .append("WHERE rel_cours_groupes.id_groupe = ? ")
                 .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("ORDER BY cours.timestamp_fn ASC");
@@ -70,10 +71,11 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.* , appel.id id_appel ")
+        query.append("SELECT cours.* , appel.id id_appel, rel_cours_groupes.id_groupe as id_classe ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("LEFT JOIN "+Viescolaire.ABSC_SCHEMA+".appel ON appel.id_cours = cours.id ")
-                .append("WHERE cours.id_classe = ? ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
+                .append("WHERE rel_cours_groupes.id_groupe = ? ")
                 .append("AND ( cours.timestamp_dt < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
                 .append("OR (cours.timestamp_fn > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
@@ -90,10 +92,11 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, appel.id id_appel ")
+        query.append("SELECT cours.*, appel.id id_appel, rel_cours_groupes.id_groupe as id_classe ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("LEFT JOIN "+Viescolaire.ABSC_SCHEMA+".appel ON appel.id_cours = cours.id ")
-                .append("WHERE cours.id_classe in  (");
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
+                .append("WHERE rel_cours_groupes.id_groupe in  (");
         for(int i = 0; i < pLIdClasse.length; i++) {
             if(i == pLIdClasse.length-1){
                 query.append("?) ");
@@ -120,9 +123,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut ")
+        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, rel_cours_users.id_user as id_personnel ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
-                .append("WHERE id_personnel = ? ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
+                .append("WHERE rel_cours_users.id_user = ? ")
                 .append("AND id_etablissement = ?")
                 .append("AND to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")

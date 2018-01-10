@@ -116,9 +116,12 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT(evenement.id), cours.id_matiere, evenement.commentaire, evenement.saisie_cpe, ")
-                .append("evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn, cours.id_personnel, cours.id_classe, ")
+                .append("evenement.id_eleve, evenement.id_motif, cours.timestamp_dt, cours.timestamp_fn,rel_cours_groupes.id_groupe as id_classe ,rel_cours_users.id_user as id_personnel, ")
                 .append("evenement.id_appel, evenement.id_type ")
-                .append(FROM+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".evenement ")
+                .append(FROM + Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("LEFT JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " )
+                .append("LEFT JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".rel_cours_users ON (cours.id = rel_cours_users.id_cours), " )
+                .append(Viescolaire.ABSC_SCHEMA +".evenement ")
                 .append("LEFT OUTER JOIN "+ Viescolaire.ABSC_SCHEMA +".motif on (evenement.id_motif = motif.id) ")
                 .append("WHERE evenement.id_appel = appel.id ")
                 .append(FILTER_COURS_ID)
@@ -138,9 +141,13 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.id ,evenement.commentaire ,evenement.saisie_cpe ,evenement.id_eleve ,evenement.id_motif " )
-                .append(",cours.timestamp_dt ,cours.timestamp_fn ,evenement.id_appel ,evenement.id_type ,cours.id_classe ,cours.id_personnel " )
+                .append(",cours.timestamp_dt ,cours.timestamp_fn ,evenement.id_appel ,evenement.id_type ,rel_cours_groupes.id_groupe as id_classe ,rel_cours_users.id_user as id_personnel " )
                 .append(",motif.id ,motif.libelle ,motif.justifiant " )
-                .append(FROM).append(Viescolaire.ABSC_SCHEMA).append(".appel, ").append(Viescolaire.VSCO_SCHEMA).append(".cours, ").append(Viescolaire.ABSC_SCHEMA).append(".evenement " )
+                .append(FROM).append(Viescolaire.ABSC_SCHEMA).append(".appel, ")
+                .append(Viescolaire.VSCO_SCHEMA).append(".cours ")
+                .append("LEFT JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " )
+                .append("LEFT JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".rel_cours_users ON (cours.id = rel_cours_users.id_cours), " )
+                .append(Viescolaire.ABSC_SCHEMA).append(".evenement " )
                 .append("LEFT JOIN ").append(Viescolaire.ABSC_SCHEMA).append(".motif ON (evenement.id_motif = motif.id) " )
                 .append("WHERE evenement.id_appel = appel.id " )
                     .append(FILTER_COURS_ID )

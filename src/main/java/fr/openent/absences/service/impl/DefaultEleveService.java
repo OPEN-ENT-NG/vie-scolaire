@@ -20,6 +20,7 @@
 package fr.openent.absences.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.evaluations.service.impl.DefaultExportService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
@@ -29,6 +30,8 @@ import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.json.impl.Json;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,6 +46,9 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
     private static final String FROM = "FROM ";
     private static final String FILTER_COURS_ID = "AND appel.id_cours = cours.id ";
     private static final String TABLE_ABSENCE = ".absence_prev ";
+
+
+    protected static final Logger log = LoggerFactory.getLogger(DefaultEleveService.class);
 
     public DefaultEleveService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_ELEVE_TABLE);
@@ -178,7 +184,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 .append("AND id_eleve IN "+ Sql.listPrepared(idEleves.toArray()));
 
         values.addString(psDateDebut).addString(psDateFin);
-        for(Integer i=0; i< idEleves.size(); i++){
+        for (Integer i=0; i< idEleves.size(); i++){
             values.addString(idEleves.get(i));
         }
 
@@ -216,19 +222,14 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                                 final JsonArray arrayAbscPrevToDelete,
                                 final List<Integer> listEventIdToUpdate,
                                 final JsonArray arrayEventToCreate, final JsonArray arrayCoursToCreate, final Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        StringBuilder query;
 
-
+        log.debug("DEBUT : saveZoneAbsence : " +idEleve);
 
         if (arrayCoursToCreate.toList().isEmpty()){
             gestionEventToCreate(idUser, idEleve, idMotif, arrayAbscPrevToCreate, arrayAbscPrevToUpdate,
                     arrayAbscPrevToDelete, listEventIdToUpdate, arrayEventToCreate,
                     arrayCoursToCreate, handler);
-            /*JsonArray statements = createStatementSaveZoneAbsence(idUser, idEleve, idMotif, arrayAbscPrevToCreate, arrayAbscPrevToUpdate, arrayAbscPrevToDelete,
-                    listEventIdToUpdate, null, null, arrayCoursToCreate);
-            System.out.println("Execute query with handler");
-            Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));*/
         } else {
             // Création de la requête pour récupérer les Nextval des appels qui vont être INSERT.
             int nbrCoursToCreate = arrayCoursToCreate.size();
@@ -291,8 +292,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
         if (arrayEventToCreate.toList().isEmpty()) {
             JsonArray statements = createStatementSaveZoneAbsence(idUser, idEleve, idMotif, arrayAbscPrevToCreate, arrayAbscPrevToUpdate, arrayAbscPrevToDelete,
                     listEventIdToUpdate, null, null, arrayCoursToCreate);
-            System.out.println("Execute query with handler");
             Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
+            log.debug("FIN : saveZoneAbsence : " +idEleve);
         } else {
             StringBuilder query = new StringBuilder();
             JsonArray values = new JsonArray();
@@ -339,8 +340,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                         if (arrayEventToCreateWithoutAppel == null || arrayEventToCreateWithoutAppel.toList().isEmpty()) {
                             JsonArray statements = createStatementSaveZoneAbsence(idUser, idEleve, idMotif, arrayAbscPrevToCreate, arrayAbscPrevToUpdate,
                                     arrayAbscPrevToDelete, listEventIdToUpdate, arrayEventToCreateWithAppel, null, arrayCoursToCreate);
-                            System.out.println("Execute query with handler");
                             Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
+                            log.debug("FIN : saveZoneAbsence : " +idEleve);
                         } else {
                             // Création de la requête pour récupérer les Nextval des appels qui vont être INSERT.
                             int nbrAppelToCreate = arrayEventToCreateWithoutAppel.size();
@@ -390,16 +391,16 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
 
                                         JsonArray statements = createStatementSaveZoneAbsence(idUser, idEleve, idMotif, arrayAbscPrevToCreate, arrayAbscPrevToUpdate, arrayAbscPrevToDelete,
                                                 listEventIdToUpdate, arrayEventToCreateWithAppel, arrayAppelToCreate, arrayCoursToCreate);
-                                        System.out.println("Execute query with handler");
                                         Sql.getInstance().transaction(statements, SqlResult.validResultHandler(handler));
+                                        log.debug("FIN : saveZoneAbsence : " +idEleve);
                                     } else if (result.isLeft()) {
-                                        System.out.println(result.left().getValue());
+                                        log.error("ERROR : gestionEventToCreate : Récupération des id des futurs nouveaux appels (Nextval) : " + result.left().getValue());
                                     }
                                 }
                             }));
                         }
                     } else if (result.isLeft()) {
-                        System.out.println(result.left().getValue());
+                        log.error("ERROR : gestionEventToCreate : Recherche des appels : " + result.left().getValue());
                     }
                 }
             }));
@@ -413,8 +414,8 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                                                      List<Integer> listEventIdToUpdate, JsonArray arrayEventToCreate,
                                                      JsonArray arrayAppelToCreate, JsonArray arrayCoursToCreate){
         JsonArray statements = new JsonArray();
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        StringBuilder query;
+        JsonArray values;
 
         // #1 - Insert Absc to create
         if(arrayAbscPrevToCreate != null && !arrayAbscPrevToCreate.toList().isEmpty()) {
@@ -490,23 +491,70 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
             query = new StringBuilder();
             // Query & value
             query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".cours ");
-            query.append("(id, id_etablissement, timestamp_dt, timestamp_fn, salle, id_matiere, id_classe, id_personnel)");
+            query.append("(id, id_etablissement, timestamp_dt, timestamp_fn, salle, id_matiere)");
             query.append(" VALUES ");
             for (int i = 0; i < arrayCoursToCreate.size(); i++) {
                 JsonObject coursToCreate = arrayCoursToCreate.get(i);
 
-                query.append("(?, ?, to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?)");
+                query.append("(?, ?, to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?)");
                 values.add(coursToCreate.getNumber("id"));
                 values.add(coursToCreate.getString("id_etablissement"));
                 values.add(coursToCreate.getString("dateDebut"));
                 values.add(coursToCreate.getString("dateFin"));
                 values.add(coursToCreate.getString("salle"));
                 values.add(coursToCreate.getString("id_matiere"));
-                values.add(coursToCreate.getString("id_classe"));
-                values.add(coursToCreate.getString("id_personnel"));
 
                 if (i != arrayCoursToCreate.size() - 1) {
                     query.append(",");
+                }
+            }
+            // Ajout du statement
+            statements.add(new JsonObject().putString("statement", query.toString())
+                    .putArray("values", values).putString("action", "prepared"));
+
+            //#4.1 Insert dans rel_cours_groupes
+            values = new JsonArray();
+            query = new StringBuilder();
+            // Query & value
+            query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ");
+            query.append("(id_cours, id_groupe)");
+            query.append(" VALUES ");
+            for (int i = 0; i < arrayCoursToCreate.size(); i++) {
+                JsonObject coursToCreate = arrayCoursToCreate.get(i);
+                List<String> listIdGroupe = coursToCreate.getArray("classeIds").toList();
+                for (int j = 0; j < listIdGroupe.size(); j++) {
+                    query.append("(?, ?)");
+                    values.add(coursToCreate.getNumber("id"));
+                    values.add(listIdGroupe.get(j));
+
+                    if (i != arrayCoursToCreate.size() - 1) {
+                        query.append(",");
+                    }
+                }
+            }
+            // Ajout du statement
+            statements.add(new JsonObject().putString("statement", query.toString())
+                    .putArray("values", values).putString("action", "prepared"));
+
+            //#4.2 Insert dans rel_cours_users
+            values = new JsonArray();
+            query = new StringBuilder();
+            // Query & value
+            query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ");
+            query.append("(id_cours, id_user)");
+            query.append(" VALUES ");
+            for (int i = 0; i < arrayCoursToCreate.size(); i++) {
+                JsonObject coursToCreate = arrayCoursToCreate.get(i);
+                List<String> listIdTeacher = coursToCreate.getArray("teacherIds").toList();
+
+                for (int j = 0; j < listIdTeacher.size(); j++) {
+                    query.append("(?, ?)");
+                    values.add(coursToCreate.getNumber("id"));
+                    values.add(listIdTeacher.get(j));
+
+                    if (i != arrayCoursToCreate.size() - 1) {
+                        query.append(",");
+                    }
                 }
             }
             // Ajout du statement
@@ -570,7 +618,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     .putArray("values", values).putString("action", "prepared"));
         }
 
-        // #6 - Update des evenements
+        // #7 - Update des evenements
         if(listEventIdToUpdate != null && !listEventIdToUpdate.isEmpty()) {
             values = new JsonArray();
             query = new StringBuilder();
@@ -587,12 +635,6 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     .putArray("values", values).putString("action", "prepared"));
         }
 
-        System.out.println("user : " + idUser);
-        System.out.println("Eleve : " + idEleve);
-        System.out.println("listEventIdToUpdate : " + (listEventIdToUpdate != null ? listEventIdToUpdate.size() : "null"));
-        System.out.println("arrayEventToCreateWithAppel : " + (arrayEventToCreate != null ? arrayEventToCreate.size() : "null"));
-        System.out.println("arrayAppelToCreate : " + (arrayAppelToCreate != null ? arrayAppelToCreate.size() : "null"));
-        System.out.println("arrayCoursToCreate : " + (arrayCoursToCreate != null ? arrayCoursToCreate.size() : "null"));
         return statements;
     }
 }

@@ -751,9 +751,9 @@ public class DefaultExportService implements ExportService {
             case "1":
                 return "MI";
             case "2":
-                return "MI";
+                return "MF";
             case "3":
-                return "MI";
+                return "MS";
             default:
                 return "TB";
         }

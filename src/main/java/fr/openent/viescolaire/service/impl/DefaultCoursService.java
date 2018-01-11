@@ -92,10 +92,12 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, appel.id id_appel, rel_cours_groupes.id_groupe as id_classe ")
+        query.append("SELECT cours.*, appel.id id_appel, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
+                .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("LEFT JOIN "+Viescolaire.ABSC_SCHEMA+".appel ON appel.id_cours = cours.id ")
                 .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
                 .append("WHERE rel_cours_groupes.id_groupe in  (");
         for(int i = 0; i < pLIdClasse.length; i++) {
             if(i == pLIdClasse.length-1){
@@ -110,6 +112,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
                 .append("OR (cours.timestamp_fn > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("GROUP BY cours.id, id_appel ")
                 .append("ORDER BY cours.timestamp_fn ASC");
 
 

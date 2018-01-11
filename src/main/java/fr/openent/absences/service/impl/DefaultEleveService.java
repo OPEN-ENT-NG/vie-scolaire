@@ -527,7 +527,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     values.add(coursToCreate.getNumber("id"));
                     values.add(listIdGroupe.get(j));
 
-                    if (i != arrayCoursToCreate.size() - 1) {
+                    if (i != arrayCoursToCreate.size() - 1 || j != listIdGroupe.size() - 1) {
                         query.append(",");
                     }
                 }
@@ -552,7 +552,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     values.add(coursToCreate.getNumber("id"));
                     values.add(listIdTeacher.get(j));
 
-                    if (i != arrayCoursToCreate.size() - 1) {
+                    if (i != arrayCoursToCreate.size() - 1 || j != listIdTeacher.size() - 1) {
                         query.append(",");
                     }
                 }

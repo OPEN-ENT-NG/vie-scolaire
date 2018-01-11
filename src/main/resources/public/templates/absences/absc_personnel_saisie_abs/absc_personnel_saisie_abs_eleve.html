@@ -213,8 +213,9 @@
                     <h4><i18n>viescolaire.absences.conflit.cours</i18n></h4>
                     <div ng-repeat="cours in selected.eleve.coursWithConflit">
                         <b>[[cours.subjectLabel.name]]</b>: [[cours.startMomentDate]] [[cours.startMomentTime]] - [[cours.endMomentTime]].
-                        <i18n>viescolaire.absences.conflit</i18n>: <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
-                        <span ng-show="!equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
+                        <i18n>viescolaire.absences.conflit</i18n>:
+                        <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
+                        <span ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
                     </div>
                 </div>
                 <div ng-if="selected.eleve.arrayConflitAbscPrev.length">

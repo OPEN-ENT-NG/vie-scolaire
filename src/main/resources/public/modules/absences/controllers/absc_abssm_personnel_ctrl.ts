@@ -194,6 +194,9 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         // };
 
         let initAllEvenement = () => {
+            // On clear la liste des evenements.
+            $scope.eleveEvts = [];
+
             let evtByDate = _.groupBy($scope.structure.evenements.all, (evt) => {
                 return moment(evt.timestamp_dt).format('DD/MM/YYYY');
             });
@@ -201,7 +204,6 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             let eleveIsValid = (eleve) => {
                 return eleve.firstName && eleve.lastName && !_.isEmpty(eleve.evenements);
             };
-
 
             _.each(evtByDate, (evtDate, date) => {
 

@@ -126,9 +126,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, rel_cours_users.id_user as id_personnel ")
+        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, rel_cours_users.id_user as id_personnel, rel_cours_groupes.id_groupe as id_classe ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
                 .append("WHERE rel_cours_users.id_user = ? ")
                 .append("AND id_etablissement = ?")
                 .append("AND to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') < cours.timestamp_dt ")

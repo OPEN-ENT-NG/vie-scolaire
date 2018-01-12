@@ -225,15 +225,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
     /**
      * get idClasse by idEleve
-     * @param id_eleve
+     * @param idEleve
      * @param handler id_classe
      */
 
     @Override
-    public void getClasseByEleve(String id_eleve, Handler<Either<String, JsonObject>> handler) {
+    public void getClasseByEleve(String idEleve, Handler<Either<String, JsonObject>> handler) {
       StringBuilder query = new StringBuilder()
               .append("MATCH (u:User {id :{id_eleve}}) with u MATCH (c:Class) ")
               .append("WHERE c.externalId IN u.classes return c");
-      neo4j.execute(query.toString(),new JsonObject().putString("id_eleve",id_eleve),Neo4jResult.validUniqueResultHandler(handler));
+      neo4j.execute(query.toString(),new JsonObject().putString("id_eleve", idEleve),Neo4jResult.validUniqueResultHandler(handler));
     }
 }

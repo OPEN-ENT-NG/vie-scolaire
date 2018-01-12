@@ -128,10 +128,10 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
             let t = _.where(eleve.evenements, {id_type : 1});
             if (t.length > 0) {
                 _.each(t, function (evt) {
-                    if(eleve.motif == null){
+                    if (eleve.motif == null) {
                         evt.motif = {id: null};
                         evt.id_motif = null;
-                    }else{
+                    } else {
                         evt.motif = eleve.motif;
                         evt.id_motif = eleve.motif.id;
                     }
@@ -193,12 +193,16 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
         //     }
         // };
 
+        $scope.getFormattedDate = (momentDate) => {
+            return moment(momentDate).format('DD/MM/YYYY');
+        };
+
         let initAllEvenement = () => {
             // On clear la liste des evenements.
             $scope.eleveEvts = [];
 
             let evtByDate = _.groupBy($scope.structure.evenements.all, (evt) => {
-                return moment(evt.timestamp_dt).format('DD/MM/YYYY');
+                return moment(evt.timestamp_dt).format('YYYY/MM/DD');
             });
 
             let eleveIsValid = (eleve) => {
@@ -234,7 +238,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                         firstName: _eleve.firstName,
                         lastName: _eleve.lastName,
                         id: _eleve.id,
-                        cours_date: date,
+                        cours_date: moment(date),
                         evenements: evts,
                         displayed: false,
                     };

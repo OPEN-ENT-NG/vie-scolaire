@@ -43,7 +43,7 @@
                         <div class="abscSM-content--SM-list--item--eleve" ng-class="{displayed : eleve.displayed}"
                              ng-click="displayList(eleve)">
                             <div class="three cell ellipsis">[[eleve.lastName]] [[eleve.firstName]]</div>
-                            <div class="three cell ellipsis">[[eleve.cours_date]]</div>
+                            <div class="three cell ellipsis">[[getFormattedDate(eleve.cours_date)]]</div>
                             <div class="four cell" ng-click="$event.stopPropagation()">
                                 <label class="select-input">
                                     <select ng-change="setEvtMotifEleve(eleve)" ng-model="eleve.motif"

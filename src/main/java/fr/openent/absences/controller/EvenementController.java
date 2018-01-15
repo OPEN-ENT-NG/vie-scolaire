@@ -114,7 +114,8 @@ public class EvenementController extends ControllerHelper {
                     @Override
                     public void handle(JsonObject poEvenement) {
                         poEvenement.removeField("id_cours");
-
+                        miAbscEvenementService.updateEvenement(poEvenement,
+                                eventRegister.getEventRegisterHandler(request, user, poEvenement, Events.UPDATE_EVENEMENT.toString()));
                     }
                 });
             }

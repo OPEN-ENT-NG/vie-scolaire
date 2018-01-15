@@ -154,6 +154,7 @@ public class DevoirController extends ControllerHelper {
                             resource.removeField("competencesAdd");
                             resource.removeField("competencesRem");
                             resource.removeField("competenceEvaluee");
+                            resource.removeField("competencesUpdate");
 
                             RequestUtils.bodyToJson(request, Viescolaire.VSCO_PATHPREFIX +
                                     Viescolaire.SCHEMA_DEVOIRS_CREATE, new Handler<JsonObject>() {

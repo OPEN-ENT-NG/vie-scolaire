@@ -411,6 +411,18 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         route(routesActions);
 
+        $scope.updateOrder = function () {
+            let res = [];
+            for (let i = 0; i< $scope.evaluations.competencesDevoir.length; i++){
+                let _c = _.findWhere($scope.evaluations.competencesDevoir, {index:i})
+                if(_c !==  undefined) {
+                    res.push(_c);
+                }
+            }
+            if(res.length === evaluations.competencesDevoir.length) {
+                evaluations.competencesDevoir = res;
+            }
+        };
         $scope.MAX_NBR_COMPETENCE = 12;
         $scope.opened = {
             devoir: -1,
@@ -1568,7 +1580,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     // on ajoute que si la compétence n'existe pas (cela peut arriver si on a la même compétence sous un ensignement différent par exemple)
                     if (competence === undefined) {
                         //if(!_.contains(evaluations.competencesDevoir, e)) {
-                        evaluations.competencesDevoir.push(e);
+                        let _competencesDevoir = e;
+                        _competencesDevoir.index = evaluations.competencesDevoir.length;
+                        evaluations.competencesDevoir.push(_competencesDevoir);
                     }
                 } else {
                     evaluations.competencesDevoir = _.reject(evaluations.competencesDevoir, function (comp) {
@@ -1709,7 +1723,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             if ($location.path() === "/devoir/" + $scope.devoir.id + "/edit") {
                 //les compétences à supprimer
                 for (let i = 0; i < $scope.allCompetences.all.length; i++) {
-                    let maCompetence = _.findWhere(evaluations.competencesDevoir, {id: $scope.allCompetences.all[i].id_competence});
+                    let maCompetence = _.findWhere(evaluations.competencesDevoir,
+                        {id_competence: $scope.allCompetences.all[i].id_competence});
 
                     if (maCompetence === undefined) {
                         $scope.competencesSupp.push($scope.allCompetences.all[i]);
@@ -1809,7 +1824,10 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (evaluations.competencesDevoir !== undefined) {
                     $scope.devoir.competences = [];
                     for (var i = 0; i < evaluations.competencesDevoir.length; i++) {
-                        $scope.devoir.competences.push(evaluations.competencesDevoir[i].id);
+                        let  _c = _.findWhere(evaluations.competencesDevoir, {index:i});
+                        if (_c !== undefined){
+                            $scope.devoir.competences.push(_c.id);
+                        }
                     }
                 }
             }
@@ -1818,6 +1836,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 if (evaluations.competencesDevoir !== undefined) {
                     $scope.devoir.competencesAdd = [];
                     $scope.devoir.competencesRem = [];
+                    $scope.devoir.competencesUpdate = [];
 
                     //recherche des competences a ajouter
                     for (let i = 0; i < evaluations.competencesDevoir.length; i++) {
@@ -1825,12 +1844,19 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                         for (let j = 0; j < $scope.devoir.competences.all.length; j++) {
                             if ($scope.devoir.competences.all[j].id
                                 === evaluations.competencesDevoir[i].id) {
+                                // si l'index de la compétence a changé, on doit
+                                // mettre à jour la compétence.
+                                $scope.devoir.competencesUpdate.push({id : evaluations.competencesDevoir[i].id,
+                                id_competence : evaluations.competencesDevoir[i].id,
+                                index : evaluations.competencesDevoir[i].index});
                                 toAdd = false;
                                 break;
                             }
                         }
                         if (toAdd) {
-                            $scope.devoir.competencesAdd.push(evaluations.competencesDevoir[i].id);
+                            $scope.devoir.competencesAdd.push({id : evaluations.competencesDevoir[i].id,
+                                id_competence : evaluations.competencesDevoir[i].id,
+                                index : evaluations.competencesDevoir[i].index});
                         }
                     }
                     //Remplissage des competences a supprimer
@@ -1842,7 +1868,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 }
                 utils.safeApply($scope);
             }
-            $scope.devoir.save($scope.devoir.competencesAdd, $scope.devoir.competencesRem).then((res) => {
+            $scope.devoir.save($scope.devoir.competencesAdd,
+                $scope.devoir.competencesRem, $scope.devoir.competencesUpdate).then((res) => {
                 evaluations.structure.devoirs.sync().then(() => {
                     if ($location.path() === "/devoir/create") {
                         if (res !== undefined) {

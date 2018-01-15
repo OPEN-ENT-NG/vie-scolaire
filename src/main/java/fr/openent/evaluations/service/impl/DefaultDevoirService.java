@@ -169,7 +169,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         valueParams.append("( ?");
         params.addNumber(idDevoir);
         for (String attr : devoir.getFieldNames()) {
-            if(attr.contains("date")){
+            if(attr.contains("date") && !attr.equals("competencesUpdate")){
                 queryParams.append(" , ").append(attr);
                 valueParams.append(" , to_date(?,'YYYY-MM-DD') ");
                 params.add(formatDate(devoir.getString(attr)).toString());
@@ -178,7 +178,8 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                 Boolean isCompetencesAtt = "competencesAdd".equals(attr)
                         ||  "competencesRem".equals(attr)
                         ||  "competenceEvaluee".equals(attr)
-                        ||  "competences".equals(attr);
+                        ||  "competences".equals(attr)
+                        || "competencesUpdate".equals(attr);
                 if(!( isCompetencesAtt ||  attr.equals(attributeTypeGroupe)
                         ||  attr.equals(attributeIdGroupe))) {
                     queryParams.append(" , ").append(attr);
@@ -205,9 +206,9 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             JsonArray paramsComp = new JsonArray();
             StringBuilder queryComp = new StringBuilder()
                     .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA
-                            +".competences_devoirs (id_devoir, id_competence) VALUES ");
+                            +".competences_devoirs (id_devoir, id_competence, index) VALUES ");
             for(int i = 0; i < competences.size(); i++){
-                queryComp.append("(?, ?)");
+                queryComp.append("(?, ?,").append(i).append(")");
                 paramsComp.addNumber(idDevoir);
                 paramsComp.addNumber((Number) competences.get(i));
                 if(i != competences.size()-1){
@@ -363,11 +364,13 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
             JsonArray competenceAdd = devoir.getArray("competencesAdd");
             JsonArray params = new JsonArray();
             StringBuilder query = new StringBuilder()
-                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs (id_devoir, id_competence) VALUES ");
+                    .append("INSERT INTO "+ Viescolaire.EVAL_SCHEMA +".competences_devoirs")
+                    .append(" (id_devoir, id_competence, index) VALUES ");
             for(int i = 0; i < competenceAdd.size(); i++){
-                query.append("(?, ?)");
+                query.append("(?, ?, ?)");
                 params.addNumber(Integer.parseInt(id));
-                params.addNumber((Number) competenceAdd.get(i));
+                params.addNumber(((JsonObject)competenceAdd.get(i)).getNumber("id"));
+                params.addNumber(((JsonObject)competenceAdd.get(i)).getNumber("index"));
                 if(i != competenceAdd.size()-1){
                     query.append(",");
                 }else{
@@ -410,11 +413,35 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
                     .putString("action", "prepared"));
 
         }
+        if (devoir.containsField("competencesUpdate") &&
+                devoir.getArray("competencesUpdate").size() > 0) {
+            JsonArray competencesUpdate = devoir.getArray("competencesUpdate");
+            JsonArray params = new JsonArray();
+            StringBuilder query = new StringBuilder()
+                    .append("UPDATE " + Viescolaire.EVAL_SCHEMA +".competences_devoirs ")
+                    .append(" SET index = CASE ");
 
+
+            for(int i = 0; i < competencesUpdate.size(); i++){
+                query.append(" WHEN id_competence = ? AND id_devoir = ? THEN ? ");
+                params.addNumber(((JsonObject)competencesUpdate.get(i)).getNumber("id"));
+                params.addNumber(Integer.parseInt(id));
+                params.addNumber(((JsonObject)competencesUpdate.get(i)).getNumber("index"));
+            }
+            query.append(" ELSE index END ")
+                    .append(" WHERE id_devoir = ? ");
+            params.addNumber(Integer.parseInt(id));
+
+            statements.add(new JsonObject()
+                    .putString("statement", query.toString())
+                    .putArray("values", params)
+                    .putString("action", "prepared"));
+        }
         StringBuilder queryParams = new StringBuilder();
         JsonArray params = new JsonArray();
         devoir.removeField("competencesRem");
         devoir.removeField("competencesAdd");
+        devoir.removeField("competencesUpdate");
         devoir.removeField("competences");
 
         for (String attr : devoir.getFieldNames()) {
@@ -653,7 +680,7 @@ public class DefaultDevoirService extends SqlCrudService implements fr.openent.e
         }
         if (idEleve != null) {
             query.append(" GROUP BY devoirs.id,rel_type_periode.type , rel_type_periode.ordre, type.nom, notes.valeur ")
-            .append(" ORDER BY devoirs.date ASC, devoirs.id ASC ");
+                    .append(" ORDER BY devoirs.date ASC, devoirs.id ASC ");
             values.add(idEleve);
         }
         else {

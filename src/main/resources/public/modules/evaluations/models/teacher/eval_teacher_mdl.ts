@@ -1072,6 +1072,7 @@ export class Devoir extends Model implements IModel{
     that: any;
     competencesAdd: any;
     competencesRem: any;
+    competencesUpdate: any;
     percent: any;
     teacher: string;
     evaluationDevoirs : Collection<EvaluationDevoir> ;
@@ -1219,7 +1220,8 @@ export class Devoir extends Model implements IModel{
             competenceEvaluee : this.competenceEvaluee,
             apprec_visible : this.apprec_visible,
             competencesAdd : null,
-            competencesRem : null
+            competencesRem : null,
+            competencesUpdate :  null
         };
     }
 
@@ -1259,11 +1261,12 @@ export class Devoir extends Model implements IModel{
             });
         });
     }
-    update (addArray, remArray) : Promise<any> {
+    update (addArray, remArray, updateArray) : Promise<any> {
         return new Promise((resolve, reject) => {
-            var devoirJSON = this.toJSON();
+            let devoirJSON = this.toJSON();
             devoirJSON.competencesAdd = addArray;
             devoirJSON.competencesRem = remArray;
+            devoirJSON.competencesUpdate = updateArray;
             devoirJSON.competences = [];
             if(devoirJSON.competenceEvaluee == undefined) {
                 delete devoirJSON.competenceEvaluee;
@@ -1290,7 +1293,7 @@ export class Devoir extends Model implements IModel{
         });
     }
 
-    save (add? : any,rem? : any) : Promise<any> {
+    save (add? : any,rem? : any, update? :any) : Promise<any> {
         return new Promise((resolve, reject) => {
             if(!this.id){
                 this.create().then((data) => {
@@ -1299,7 +1302,7 @@ export class Devoir extends Model implements IModel{
                     }
                 });
             }else{
-                this.update(add, rem).then((data) => {
+                this.update(add, rem, update).then((data) => {
                     if (resolve && (typeof (resolve) === 'function')) {
                         resolve(data);
                     }

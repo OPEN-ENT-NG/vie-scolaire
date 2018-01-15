@@ -575,9 +575,9 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             next: false,
         };
         $scope.checkNavigDate = () => {
-            moment($scope.selected.dateFn).hour(0).minute(0).format('YYYY-MM-DD') < moment(model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0).format('YYYY-MM-DD')
+            (moment($scope.selected.dateFn).hour(0).minute(0)).isBefore(moment(model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0))
                 ? $scope.allowDisplay.next = false : $scope.allowDisplay.next = true;
-            moment($scope.selected.dateDb).hour(0).minute(0).format('YYYY-MM-DD') >= moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD')
+            (moment($scope.selected.dateDb).hour(0).minute(0)).isSameOrAfter(moment(model.calendar.dayForWeek).hour(0).minute(0))
                 ? $scope.allowDisplay.prev = false : $scope.allowDisplay.prev = true;
         };
 

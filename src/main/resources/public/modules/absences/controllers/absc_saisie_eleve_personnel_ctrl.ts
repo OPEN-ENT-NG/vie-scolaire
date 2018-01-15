@@ -93,6 +93,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             // await $scope.selectPeriode() ;
             let startMoment = $scope.getSelectedPeriodStartMoment();
             let endMoment = $scope.getSelectedPeriodEndMoment();
+            $scope.selected.eleve.structureId = $scope.structure.id;
             await $scope.selected.eleve.checkRapprochementCours(startMoment, endMoment, $scope.structure);
             return $scope.structure.eleves.all[i] ;
         };

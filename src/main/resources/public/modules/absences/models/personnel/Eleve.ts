@@ -1,13 +1,9 @@
-import { Collection, Model } from 'entcore/entcore';
-import { Responsable } from './Responsable';
-import { Eleve as SharedEleve} from '../shared/Eleve';
-import { Cours } from './Cours';
-import { AbsencePrev } from './AbsencePrev';
-import {syncedCollection} from '../../../utils/interfaces/syncedCollection';
-import {Structure} from './Structure';
-import {Matiere} from './Matiere';
-import {Enseignant} from './Enseignant';
-import {checkRapprochementCoursCommon} from '../../utils/common';
+import { Collection, Model } from "entcore/entcore";
+import { Responsable } from "./Responsable";
+import { Eleve as SharedEleve} from "../shared/Eleve";
+import { Cours } from "./Cours";
+import { AbsencePrev } from "./AbsencePrev";
+import {checkRapprochementCoursCommon} from "../../utils/common";
 
 export class Eleve extends SharedEleve {
 
@@ -22,16 +18,19 @@ export class Eleve extends SharedEleve {
     coursMongo: any;
     absences: any;
     coursPostgres: any;
+    structureId = String;
 
     get api() {
         return _.extend(this.apiList, {
-            GET_RESPONSABLES: '/viescolaire/eleves/' + this.id + '/responsables',
-            GET_ALL_ABSENCES: '/viescolaire/presences/eleve/' + this.id + '/absences/',
-            GET_ALL_ABSENCES_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev',
-            GET_EVENT_ELEVE: '/viescolaire/presences/eleve/',
-            GET_Eleve_COURS: '/viescolaire/cours',
-            GET_CLASSE_COURS: '/viescolaire',
-            GET_ABSC_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev/'
+            GET_RESPONSABLES: "/viescolaire/eleves/" + this.id + "/responsables",
+            GET_ALL_ABSENCES: "/viescolaire/presences/eleve/" + this.id + "/absences/",
+            GET_ALL_ABSENCES_PREV: "/viescolaire/presences/eleve/" + this.id + "/absencesprev",
+            GET_EVENT_ELEVE: "/viescolaire/presences/eleve/",
+            GET_Eleve_COURS: "/viescolaire/cours",
+            GET_CLASSE_COURS: "/viescolaire",
+            GET_ABSC_PREV: "/viescolaire/presences/eleve/" + this.id + "/absencesprev/",
+            GET_COURS_FROM_MONGO: "/directory/timetable/courses/" + this.structureId,
+            GET_COURS_FROM_SQL: "/viescolaire/cours/" + this.structureId + "/" + this.id
         });
     }
 
@@ -60,7 +59,7 @@ export class Eleve extends SharedEleve {
 
     }
     syncClasseGroupName(classesGroup, variable) {
-        if (variable === 'classe') {
+        if (variable === "classe") {
             this.className = [];
             _.each(this.classesId, (externalClasseId) => {
                 let classe = _.findWhere(classesGroup, {externalId: externalClasseId});
@@ -82,19 +81,17 @@ export class Eleve extends SharedEleve {
     }
 
     static momentWithoutTime(momentWithTime) {
-        return moment(momentWithTime.format('YYYY-MM-DD'));
+        return moment(momentWithTime.format("YYYY-MM-DD"));
     }
 
     async checkRapprochementCours(startMomentPeriod, endMomentPeriod, structure) {
         this.coursPostgres = [];
         this.coursMongo = [];
 
-        await this.syncCoursPostgres(startMomentPeriod, endMomentPeriod, structure.id);
+        await this.syncCoursPostgres(startMomentPeriod, endMomentPeriod);
 
-        for (let i = 0 ; i < this.className.length; i++) {
-            await this.syncCoursMongo(structure.id, startMomentPeriod.format('YYYY-MM-DD'), endMomentPeriod.format('YYYY-MM-DD'),
-                this.className[i]);
-        }
+        await this.syncCoursMongo(startMomentPeriod.format("YYYY-MM-DD"), endMomentPeriod.format("YYYY-MM-DD"), this.className);
+
 
         // On récupère les cours après rapprochement (Mongo/PostgreSQL)
         let arrayCours = checkRapprochementCoursCommon(startMomentPeriod, endMomentPeriod, structure, this.evenements, this.coursPostgres, this.coursMongo);
@@ -119,24 +116,31 @@ export class Eleve extends SharedEleve {
             item.locked = true;
             item.is_periodic = false;
 
-            item.color = moment() > item.startMoment ? 'red' : 'grey' ;
+            item.color = moment() > item.startMoment ? "red" : "grey" ;
 
             item.startCalendarHour = item.startMoment.seconds(0).millisecond(0).toDate();
-            item.startMomentDate = item.startMoment.format('DD/MM/YYYY');
-            item.startMomentTime = item.startMoment.format('HH:mm');
+            item.startMomentDate = item.startMoment.format("DD/MM/YYYY");
+            item.startMomentTime = item.startMoment.format("HH:mm");
 
             item.endCalendarHour = item.endMoment.seconds(0).millisecond(0).toDate();
-            item.endMomentDate = item.endMoment.format('DD/MM/YYYY');
-            item.endMomentTime = item.endMoment.format('HH:mm');
+            item.endMomentDate = item.endMoment.format("DD/MM/YYYY");
+            item.endMomentTime = item.endMoment.format("HH:mm");
         });
 
         this.cours = arrayCours;
     }
 
-    async syncCoursMongo(structureId, firstDate, endDate, classeName): Promise<any> {
+    async syncCoursMongo(firstDate, endDate, classesName): Promise<any> {
         return new Promise((resolve) => {
-            let Url = '/directory/timetable/courses/' + structureId + '/' + firstDate + '/' + endDate + '?group=';
-            http().getJson(Url + classeName).done((data) => {
+            let groupParam = "";
+            for (let i = 0 ; i < classesName.length; i++) {
+                if ( i !== 0 ) {
+                    groupParam += "&";
+                }
+                groupParam += "group=" + classesName[i];
+            }
+            let Url = this.api.GET_COURS_FROM_MONGO + "/" + firstDate + "/" + endDate + "?" + groupParam;
+            http().getJson(Url).done((data) => {
                 data.forEach(cours => {
                     this.coursMongo.push(cours);
                 });
@@ -145,20 +149,20 @@ export class Eleve extends SharedEleve {
         });
     }
 
-    async syncCoursPostgres(startMoment, endMoment, idEtab) {
+    async syncCoursPostgres(startMoment, endMoment) {
         return new Promise((resolve) => {
-            let dateDebut = startMoment.format('YYYY-MM-DD');
-            let dateFin = endMoment.format('YYYY-MM-DD');
-            let timeDb = startMoment.format('HH:mm');
-            let timeFn = endMoment.format('HH:mm');
+            let dateDebut = startMoment.format("YYYY-MM-DD");
+            let dateFin = endMoment.format("YYYY-MM-DD");
+            let timeDb = startMoment.format("HH:mm");
+            let timeFn = endMoment.format("HH:mm");
 
             // Pattern : /viescolaire/cours/:etabId/:eleveId/:dateDebut/:dateFin/time/:timeDb/:timeFn;
-            let url = '/viescolaire/cours/' + idEtab + '/' + this.id + '/' + dateDebut + '/' + dateFin + '/time/' + timeDb + '/' + timeFn;
+            let url = this.api.GET_COURS_FROM_SQL + "/" + dateDebut + "/" + dateFin + "/time/" + timeDb + "/" + timeFn;
 
             http().getJson(url).done((res: any[]) => {
                 res.forEach(cours => {
-                    cours.classeIds = cours.classes.split(',');
-                    cours.teacherIds = cours.personnels.split(',');
+                    cours.classeIds = cours.classes.split(",");
+                    cours.teacherIds = cours.personnels.split(",");
                 });
                 this.coursPostgres = res;
                 resolve();
@@ -171,12 +175,12 @@ export class Eleve extends SharedEleve {
         return new Promise((resolve, reject) => {
             http().getJson(this.api.GET_ALL_ABSENCES + isAscending).done((data) => {
                 this.absences = data;
-                if (resolve && typeof resolve === 'function') {
+                if (resolve && typeof resolve === "function") {
                     resolve();
                 }
             })
                 .error(function () {
-                    if (reject && typeof reject === 'function') {
+                    if (reject && typeof reject === "function") {
                         reject();
                     }
                 });
@@ -188,12 +192,12 @@ export class Eleve extends SharedEleve {
         return new Promise((resolve, reject) => {
             http().getJson(this.api.GET_ALL_ABSENCES_PREV).done((data) => {
                 this.abscprev = data;
-                if (resolve && typeof resolve === 'function') {
+                if (resolve && typeof resolve === "function") {
                     resolve();
                 }
             })
                 .error(function () {
-                    if (reject && typeof reject === 'function') {
+                    if (reject && typeof reject === "function") {
                         reject();
                     }
                 });
@@ -202,14 +206,14 @@ export class Eleve extends SharedEleve {
     // Synchronise les évènements de l'élève entre la
     syncEvenement(dateDebut, dateFin): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().getJson(this.api.GET_EVENT_ELEVE + this.id + '/evenements/' + moment(dateDebut).format('YYYY-MM-DD') + '/' + moment(dateFin).format('YYYY-MM-DD')).done((data) => {
+            http().getJson(this.api.GET_EVENT_ELEVE + this.id + "/evenements/" + moment(dateDebut).format("YYYY-MM-DD") + "/" + moment(dateFin).format("YYYY-MM-DD")).done((data) => {
                 this.evenements = data;
-                if (resolve && typeof resolve === 'function') {
+                if (resolve && typeof resolve === "function") {
                     resolve();
                 }
             })
                 .error(function () {
-                    if (reject && typeof reject === 'function') {
+                    if (reject && typeof reject === "function") {
                         reject();
                     }
                 });
@@ -217,6 +221,6 @@ export class Eleve extends SharedEleve {
     }
 
     toString () {
-        return this.hasOwnProperty('displayName') ? this.displayName : this.firstName + ' ' + this.lastName;
+        return this.hasOwnProperty("displayName") ? this.displayName : this.firstName + " " + this.lastName;
     }
 }

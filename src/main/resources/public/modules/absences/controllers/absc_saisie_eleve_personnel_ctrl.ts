@@ -57,7 +57,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 $scope.display.calendar = false;
 
                 $scope.selected.eleve = await $scope.syncEleveCours($scope.selected.eleve);
-                $scope.selected.eleve.cours ? $scope.display.calendar = true : $scope.display.calendar = false;
+                $scope.selected.eleve.courss ? $scope.display.calendar = true : $scope.display.calendar = false;
 
                 // On récupère les absences et les absences prev de l'élève
                 await $scope.selected.eleve.syncAllAbsence(false);
@@ -94,7 +94,8 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             let startMoment = $scope.getSelectedPeriodStartMoment();
             let endMoment = $scope.getSelectedPeriodEndMoment();
             $scope.selected.eleve.structureId = $scope.structure.id;
-            await $scope.selected.eleve.checkRapprochementCours(startMoment, endMoment, $scope.structure);
+            await $scope.selected.eleve.courss.sync(startMoment, endMoment, $scope.structure);
+
             return $scope.structure.eleves.all[i] ;
         };
 
@@ -160,7 +161,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             let startMoment = $scope.getSelectedPeriodStartMoment();
             let endMoment = $scope.getSelectedPeriodEndMoment();
 
-            await $scope.selected.eleve.checkRapprochementCours(startMoment, endMoment, $scope.structure);
+            await $scope.selected.eleve.courss.sync(startMoment, endMoment, $scope.structure);
 
             let firstweek = moment($scope.selected.dateDb);
             model.calendar.setDate(firstweek);
@@ -247,8 +248,8 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             let abscPrevItem = $scope.getArrayItemsAP();
 
             $scope.selected.eleve.items = [];
-            if ($scope.selected.eleve.cours) {
-                $scope.selected.eleve.items = $scope.selected.eleve.items.concat($scope.selected.eleve.cours);
+            if ($scope.selected.eleve.courss.all) {
+                $scope.selected.eleve.items = $scope.selected.eleve.items.concat($scope.selected.eleve.courss.all);
             }
             if (abscPrevItem) {
                 $scope.selected.eleve.items = $scope.selected.eleve.items.concat(abscPrevItem);
@@ -273,7 +274,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 let numNotTouching = 0;
 
                 // On trie les cours par ordre chronologique
-                $scope.selected.eleve.cours.sort(function (a, b) {
+                $scope.selected.eleve.courss.all.sort(function (a, b) {
                     return new Date(a.startMoment).getTime()  - new Date(b.startMoment).getTime();
                 });
 
@@ -286,7 +287,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 let arrayOfItemAP: any = [];
                 arrayOfItemAP.push(abscPrevRaw);
 
-                $scope.selected.eleve.cours.forEach(cours => {
+                $scope.selected.eleve.courss.all.forEach(cours => {
                     let lastAP = arrayOfItemAP.pop();
                     cours.dateDebut = moment(cours.startMoment);
                     cours.dateFin = moment(cours.endMoment);
@@ -330,14 +331,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                     item.is_periodic = false;
 
                     item.startMoment = item.dateDebut;
-                    item.startCalendarHour = item.startMoment.seconds(0).millisecond(0).toDate();
-                    item.startMomentDate = item.startMoment.format('DD/MM/YYYY');
-                    item.startMomentTime = item.startMoment.format('hh:mm');
-
                     item.endMoment = item.dateFin;
-                    item.endCalendarHour = item.endMoment.seconds(0).millisecond(0).toDate();
-                    item.endMomentDate = item.endMoment.format('DD/MM/YYYY');
-                    item.endMomentTime = item.endMoment.format('hh:mm');
                 });
 
                 return arrayOfItemAP;
@@ -369,7 +363,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             // Calcul des conflits avec les cours
 
             // Lien entre les cours et les absences
-            $scope.selected.eleve.cours.forEach(cours => {
+            $scope.selected.eleve.courss.all.forEach(cours => {
                 cours.appel = $scope.structure.appels.all.find(x => x.id_cours === cours._id);
                 if (cours.appel && $scope.selected.eleve.absences) {
                     cours.absence = $scope.selected.eleve.absences.find(absences => absences.id_appel === cours.appel.id);
@@ -377,11 +371,11 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             });
 
             // On groupe les cours par date du jour
-            $scope.selected.eleve.cours.sort(function (a, b) {
+            $scope.selected.eleve.courss.all.sort(function (a, b) {
                 return new Date(a.startMoment).getTime() - new Date(b.startMoment).getTime();
             });
 
-            let group_to_values = $scope.selected.eleve.cours.reduce(function (obj, item) {
+            let group_to_values = $scope.selected.eleve.courss.all.reduce(function (obj, item) {
                 let date = item.startMoment.format('YYYY-MM-DD');
                 obj[date] = obj[date] || [];
                 obj[date].push(item);
@@ -398,16 +392,16 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
 
             $scope.selected.eleve.coursGroupByDay = groups;
 
-            $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.cours.filter((cours) => {
+            $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.courss.all.filter((cours) => {
                 // Si le cours est passé et n'a pas d'absence, ou si le cours est passé avec une absence avec un motif différent.
                 return !$scope.isAfterToday(cours.startMoment) && (!cours.absence || !$scope.equalsMotifIdOfPa(cours.absence.motif.id));
             });
 
             $scope.selected.eleve.coursPassedWithoutAbsence =
-                $scope.selected.eleve.cours.filter(cours => !$scope.isAfterToday(cours.startMoment) && !cours.absence);
+                $scope.selected.eleve.courss.all.filter(cours => !$scope.isAfterToday(cours.startMoment) && !cours.absence);
 
             $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent =
-                $scope.selected.eleve.cours.filter(cours => !$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id) );
+                $scope.selected.eleve.courss.all.filter(cours => !$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id) );
 
             // On vérifie si il y aura une absence prev, si c'est le cas, on lance la calcul des conflits avec les Absences prev
             let newAbscPrevToCreate;
@@ -542,7 +536,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                         dateFin: cours.endMoment.format('YYYY-MM-DD HH:mm'),
                         salle: cours.salle,
                         id_matiere: cours.subjectId,
-                        classeIds: $scope.structure.classes.all.filter(classe => cours.classes.includes(classe.name)).map(a => a.id),
+                        classeIds: $scope.structure.classes.all.filter(classe => cours.classeNames.includes(classe.name)).map(a => a.id),
                         teacherIds: cours.teacherIds,
                         id_etablissement: $scope.structure.id,
                     });
@@ -642,15 +636,15 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             return moment(strDate) > moment();
         };
 
-        $scope.niceDateMoment = (momentDate) => {
+        $scope.getFormattedDate = (momentDate) => {
             return moment(momentDate).format('DD/MM/YYYY');
         };
 
-        $scope.niceTimeMoment = (momentDate) => {
+        $scope.getFormattedTime = (momentDate) => {
             return moment(momentDate).format('HH:mm');
         };
 
-        $scope.niceDateTimeMoment = (momentDate) => {
+        $scope.getFormattedDateTime = (momentDate) => {
             return moment(momentDate).format('DD/MM/YYYY HH:mm');
         };
     }

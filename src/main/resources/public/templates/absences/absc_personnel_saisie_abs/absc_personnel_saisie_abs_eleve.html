@@ -16,7 +16,7 @@
 
                 <div class="nine cell padding-sm">
                     <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className[0] ]]</h2>
-                    <p>[[niceDateMoment(selected.eleve.birthDate)]]</p>
+                    <p>[[getFormattedDate(selected.eleve.birthDate)]]</p>
                     <div class="row action-item">
                         <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
                             <i class="send-mail inline"></i>
@@ -123,8 +123,8 @@
         <div class="row">
             <label class="two cell label-form"><i18n>time-slot</i18n></label>
             <div class="ten cell">
-                <span><i18n>viescolaire.utils.from</i18n> <span>[[niceDateMoment(selected.dateDb)]] [[selected.timeDb]]</span>
-                    <i18n>viescolaire.utils.to</i18n> <span>[[niceDateMoment(selected.dateFn)]] [[selected.timeFn]]</span></span>
+                <span><i18n>viescolaire.utils.from</i18n> <span>[[getFormattedDate(selected.dateDb)]] [[selected.timeDb]]</span>
+                    <i18n>viescolaire.utils.to</i18n> <span>[[getFormattedDate(selected.dateFn)]] [[selected.timeFn]]</span></span>
             </div>
         </div>
         <div class="row">
@@ -144,8 +144,8 @@
         <div class="row">
             <label class="two cell label-form"><i18n>time-slot</i18n></label>
             <div class="ten cell">
-                <span><i18n>viescolaire.utils.from</i18n> <span>[[niceDateMoment(selected.dateDb)]] [[selected.timeDb]]</span>
-                    <i18n>viescolaire.utils.to</i18n> <span>[[niceDateMoment(selected.dateFn)]] [[selected.timeFn]]</span></span>
+                <span><i18n>viescolaire.utils.from</i18n> <span>[[getFormattedDate(selected.dateDb)]] [[selected.timeDb]]</span>
+                    <i18n>viescolaire.utils.to</i18n> <span>[[getFormattedDate(selected.dateFn)]] [[selected.timeFn]]</span></span>
             </div>
         </div>
         <div class="row">
@@ -175,7 +175,7 @@
                 <!-- Pour chaque jour -->
                 <div ng-repeat="day in selected.eleve.coursGroupByDay">
                     <!-- On affiche la date -->
-                    <div class="timeline-section-title"><span>[[niceDateMoment(day.date)]]</span></div>
+                    <div class="timeline-section-title"><span>[[getFormattedDate(day.date)]]</span></div>
                     <!-- On affiche les cours du jours-->
                     <div ng-repeat="cours in day.cours" class="twelve cell event-row">
                         <div class="timeline-badge cell">
@@ -184,7 +184,7 @@
 
                         <article class="horizontal-spacing cell timeline-cours-panel" ng-class="getClassTimelineCours(cours)">
                             <p>
-                                <b>[[cours.subjectLabel.name]]</b>: [[cours.startMomentDate]] [[cours.startMomentTime]] - [[cours.endMomentTime]]
+                                <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]]
                                 <span ng-if="!isAfterToday(cours.startMoment)">
                                     <i ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)" class="right-magnet warning-icon" tooltip="Motif différent"></i>
                                     <i ng-show="!cours.absence" class="right-magnet warning-icon" tooltip="Pas d'absence associée au cours"></i>
@@ -212,7 +212,7 @@
                 <div ng-if="selected.eleve.coursWithConflit.length">
                     <h4><i18n>viescolaire.absences.conflit.cours</i18n></h4>
                     <div ng-repeat="cours in selected.eleve.coursWithConflit">
-                        <b>[[cours.subjectLabel.name]]</b>: [[cours.startMomentDate]] [[cours.startMomentTime]] - [[cours.endMomentTime]].
+                        <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]].
                         <i18n>viescolaire.absences.conflit</i18n>:
                         <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
                         <span ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
@@ -223,7 +223,7 @@
 
                     <div ng-repeat="abscPrev in selected.eleve.arrayConflitAbscPrev" class="twelve cell">
                         <div>
-                            <i18n>viescolaire.utils.from</i18n> [[niceDateTimeMoment(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[niceDateTimeMoment(abscPrev.endMoment)]].
+                            <i18n>viescolaire.utils.from</i18n> [[getFormattedDateTime(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[getFormattedDateTime(abscPrev.endMoment)]].
                             <b><i18n>viescolaire.absences.reason</i18n>: </b>[[abscPrev.motif.libelle]]
                         </div>
                     </div>

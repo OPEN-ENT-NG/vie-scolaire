@@ -8,9 +8,15 @@
  * @param coursMongo
  * @returns {any[]}
  */
-export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPeriod, structure, evenements, coursPostgres, coursMongo) {
-    let iterationsCoursMongo = [];
-    coursMongo.forEach(coursMongo => {
+import {Cours} from '../models/personnel/Cours';
+
+export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPeriod, structure, evenements,
+                                               arrayCoursPostgresRaw, arrayCoursMongoRaw) {
+
+    let arrayIterationMongo: Cours[] = [];
+    let arrayCoursPostgres: Cours[] = [];
+
+    arrayCoursMongoRaw.forEach(coursMongo => {
         coursMongo.startMoment = moment(coursMongo.startDate);
         coursMongo.endMoment = moment(coursMongo.endDate);
 
@@ -40,16 +46,15 @@ export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPerio
                     (debutMomentIteration < startMomentPeriod && endMomentPeriod < endMomentIteration) || // Englobe la période
                     !(endMomentPeriod < debutMomentIteration || startMomentPeriod > endMomentIteration)) { // Touche la période
 
-                    iterationsCoursMongo.push({
-                        idMongo: coursMongo._id,
-                        startMoment: debutMomentIteration.clone(),
-                        endMoment: endMomentIteration.clone(),
-                        teacherIds: coursMongo.teacherIds,
-                        roomLabels: coursMongo.roomLabels,
-                        classes: coursMongo.classes,
-                        subjectId: coursMongo.subjectId,
-                        isFromMongo: true,
-                    });
+                    let iterationMongo = new Cours(undefined, debutMomentIteration.clone(), endMomentIteration.clone());
+                    iterationMongo._id = coursMongo._id;
+                    iterationMongo.roomLabels = coursMongo.roomLabels;
+                    iterationMongo.subjectId = coursMongo.subjectId;
+                    iterationMongo.teacherIds = coursMongo.teacherIds;
+                    iterationMongo.classeNames = coursMongo.classes;
+                    iterationMongo.isFromMongo = true;
+                    iterationMongo.dayOfWeek = coursMongo.dayOfWeek;
+                    arrayIterationMongo.push(iterationMongo);
                 }
                 debutMomentIteration.add(7, 'days');
                 endMomentIteration.add(7, 'days');
@@ -57,23 +62,31 @@ export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPerio
         }
     });
 
-    coursPostgres.forEach(coursPostgresTemp => {
-        coursPostgresTemp.startMoment =  moment(coursPostgresTemp.timestamp_dt);
-        coursPostgresTemp.endMoment =  moment(coursPostgresTemp.timestamp_fn);
-        coursPostgresTemp.isFromMongo = false;
-        coursPostgresTemp.subjectId = coursPostgres.id_matiere;
-        coursPostgresTemp.evenements = evenements.filter(ev => ev.id_cours === coursPostgresTemp.id && ev.id_type !== 1);
-        coursPostgresTemp.classeNames = structure.classes.all.filter(classe => coursPostgresTemp.classeIds.includes(classe.id)).map(a => a.name);
+    // On met en forme les objets bruts en objet de type Cours.
+    arrayCoursPostgresRaw.forEach(coursPostgresRaw => {
+        let coursPostgres = new Cours(undefined, coursPostgresRaw.timestamp_dt, coursPostgresRaw.timestamp_fn);
+        coursPostgres.id = coursPostgresRaw.id;
+        coursPostgres.id_appel = coursPostgresRaw.id_appel;
+        coursPostgres.roomLabels = coursPostgresRaw.roomLabels;
+        coursPostgres.subjectId = coursPostgresRaw.id_matiere;
+        coursPostgres.teacherIds = coursPostgresRaw.teacherIds;
+        coursPostgres.classeIds = coursPostgresRaw.classeIds;
+        coursPostgres.evenements = evenements.filter(ev => ev.id_cours === coursPostgres.id && ev.id_type !== 1);
+        coursPostgres.classeNames = structure.classes.all.filter(classe => coursPostgresRaw.classeIds.includes(classe.id)).map(a => a.name);
+        coursPostgres.isFromMongo = false;
+        arrayCoursPostgres.push(coursPostgres);
     });
 
-    let arrayCours = [];
-    iterationsCoursMongo.forEach(iteration => {
+
+    let arrayCours: Cours[] = [];
+    arrayIterationMongo.forEach(iteration => {
         let coursPostgresFound = false;
-        for (let i = 0; i < coursPostgres.length; i++) {
-            let coursPostgresTemp = coursPostgres[i];
+        for (let i = 0; i < arrayCoursPostgres.length; i++) {
+            let coursPostgresTemp = arrayCoursPostgres[i];
             if (iterationAndCoursIsSame(iteration, coursPostgresTemp)) {
                 coursPostgresFound = true;
                 coursPostgresTemp.isAlreadyFound = true;
+
                 arrayCours.push(coursPostgresTemp);
                 break;
             }
@@ -83,7 +96,7 @@ export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPerio
         }
     });
 
-    coursPostgres.forEach(coursPostgresTemp => {
+    arrayCoursPostgres.forEach(coursPostgresTemp => {
         if (!coursPostgresTemp.isAlreadyFound) {
             arrayCours.push(coursPostgresTemp);
         }
@@ -117,12 +130,12 @@ function iterationAndCoursIsSame(iterationMongo, coursPostgres) {
     }
 
     // La classe correspond
-    if (!_.isEqual(iterationMongo.classes.sort(), coursPostgres.classeNames.sort())) {
+    if (!_.isEqual(iterationMongo.classeNames.sort(), coursPostgres.classeNames.sort())) {
         return false;
     }
 
     // Check si c'est la meme matiere
-    if (coursPostgres.id_matiere !== iterationMongo.subjectId) {
+    if (coursPostgres.subjectId !== iterationMongo.subjectId) {
         return false;
     }
 

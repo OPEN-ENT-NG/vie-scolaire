@@ -31,10 +31,11 @@ export class Cours extends DefaultCours {
         let url_absence_prev = '/viescolaire/presences/absencesprev/eleves';
         url_absence_prev += '?dateDebut=' + debut;
         url_absence_prev += '&dateFin=' + fin;
-        for (let i = 0; i < this.classe.eleves.all.length; i++) {
-            url_absence_prev += '&id_eleve=' + this.classe.eleves.all[i].id;
+        if (this.classe !== undefined) {
+            for (let i = 0; i < this.classe.eleves.all.length; i++) {
+                url_absence_prev += '&id_eleve=' + this.classe.eleves.all[i].id;
+            }
         }
-
         return {
             GET_APPEL : '/viescolaire/presences/appel/cours/',
             GET_EVENEMENT_ELEVE : url_evenement_eleve,

@@ -2,7 +2,7 @@
     <div class="cell twelve">
         [[item.subjectLabel.name]]
         <div ng-repeat="teacher in item.teacherNames"> [[teacher.firstName]] [[teacher.lastName]]</div>
-        [[item.startMomentTime]] - [[item.endMomentTime]]
+        [[getFormattedTime(item.startMoment)]] - [[getFormattedTime(item.endMoment)]]
     </div>
 </div>
 

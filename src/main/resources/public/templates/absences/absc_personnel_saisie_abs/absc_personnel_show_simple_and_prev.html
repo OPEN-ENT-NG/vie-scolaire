@@ -1,14 +1,14 @@
 <!-- Absence simple -->
 <div class="twelve cell row last-absence margin-bot-md padding-left-sm" ng-if="!absenceToShow.isAbsencePrev">
-    <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[niceDateTimeMoment(absenceToShow.startMoment)]]
-        <i18n>viescolaire.utils.to.date</i18n> [[niceDateTimeMoment(absenceToShow.endMoment)]]</p>
+    <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[getFormattedDateTime(absenceToShow.startMoment)]]
+        <i18n>viescolaire.utils.to.date</i18n> [[getFormattedDateTime(absenceToShow.endMoment)]]</p>
     <p><b><i18n>viescolaire.absences.reason</i18n> :</b> [[absenceToShow.motif.libelle]]</p>
 </div>
 
 <!-- Absence Prev -->
 <div class="twelve cell row last-absence-prev margin-bot-md padding-left-sm" ng-if="absenceToShow.isAbsencePrev">
-    <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[niceDateTimeMoment(absenceToShow.startMoment)]]
-        <i18n>viescolaire.utils.to.date</i18n> [[niceDateTimeMoment(absenceToShow.endMoment)]]</p>
+    <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[getFormattedDateTime(absenceToShow.startMoment)]]
+        <i18n>viescolaire.utils.to.date</i18n> [[getFormattedDateTime(absenceToShow.endMoment)]]</p>
     <p>
         <b><i18n>viescolaire.absences.reason</i18n> :</b> [[absenceToShow.motif.libelle]]
         <span ng-show="absenceToShow.absences.length" ng-click="showDetails = !showDetails" class="right-magnet padding-sm">
@@ -20,8 +20,8 @@
     <div class="panel-animation" ng-class="{opened : showDetails}">
         <div class="row padding-sm">
             <div class="twelve cell row last-absence margin-bot-sm padding-left-sm" ng-repeat="absence in absenceToShow.absences">
-                <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[niceDateTimeMoment(absence.startMoment)]]
-                    <i18n>viescolaire.utils.to.date</i18n> [[niceDateTimeMoment(absence.endMoment)]]</p>
+                <p><i18n>viescolaire.absences.absence</i18n> <i18n>viescolaire.utils.from.date</i18n> [[getFormattedDateTime(absence.startMoment)]]
+                    <i18n>viescolaire.utils.to.date</i18n> [[getFormattedDateTime(absence.endMoment)]]</p>
             </div>
         </div>
     </div>

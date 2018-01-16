@@ -225,6 +225,8 @@ public class Viescolaire extends BaseServer {
 		addController(new LSUController());
 
         addController(new RepriseController());setRepositoryEvents(new VieScolaireRepositoryEvents());
+
+        addController(new EventBusController());
 	}
 
 }

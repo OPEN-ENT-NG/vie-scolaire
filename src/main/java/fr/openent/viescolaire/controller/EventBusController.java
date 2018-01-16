@@ -42,8 +42,8 @@ public class EventBusController extends ControllerHelper {
             return;
         }
 
-        String service = action.split(".")[0];
-        String method = action.split(".")[1];
+        String service = action.split("\\.")[0];
+        String method = action.split("\\.")[1];
 
         switch (service) {
             case "groupe": {
@@ -99,8 +99,8 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getEtabClasses": {
-                JsonArray idClasses = message.body().getArray("idClasses");
-                classeService.getEtabClasses((String[]) idClasses.toArray(), getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
+                classeService.getEtabClasses(idClasses, getArrayBusResultHandler(message));
             }
             break;
             case "getClasseEtablissement": {
@@ -109,8 +109,8 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getElevesClasses": {
-                JsonArray idClasses = message.body().getArray("idClasses");
-                classeService.getElevesClasses((String[]) idClasses.toArray(), getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
+                classeService.getElevesClasses(idClasses, getArrayBusResultHandler(message));
             }
             break;
             case "getEleveClasse": {
@@ -129,8 +129,8 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getElevesGroupesClasses": {
-                JsonArray idClasses = message.body().getArray("idClasses");
-                classeService.getElevesGroupesClasses((String[]) idClasses.toArray(), getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
+                classeService.getElevesGroupesClasses(idClasses, getArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -186,8 +186,8 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getInfoEleve": {
-                JsonArray idEleves = message.body().getArray("idEleves");
-                eleveService.getInfoEleve((String[]) idEleves.toArray(), getArrayBusResultHandler(message));
+                String[] idEleves = convertJsonArrayToStringArray(message.body().getArray("idEleves"));
+                eleveService.getInfoEleve(idEleves, getArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -285,5 +285,14 @@ public class EventBusController extends ControllerHelper {
         return new JsonObject()
                 .putString("status", "error")
                 .putString("message", message);
+    }
+
+    private String[] convertJsonArrayToStringArray(JsonArray list) {
+        String[] objects = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            objects[i] = list.get(i);
+        }
+
+        return objects;
     }
 }

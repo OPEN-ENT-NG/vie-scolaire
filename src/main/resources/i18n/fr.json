@@ -177,6 +177,7 @@
   "presences.parent.widgetAbsc":"Absences de la semaine",
   "presences.parent.menu.absences":"Toutes les absences",
   "presences.parent.menu.declarations":"Toutes les déclarations",
+  "viescolaire.absences.cannot.save.event":"Aucun cours sur la période sélectionnée",
   "presences.declaration": "Déclarations",
   "presences.declaration.owner": "Déclarant",
   "presences.declaration.eleve": "Elève concerné",

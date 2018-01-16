@@ -108,10 +108,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 values.addString(pLIdClasse[i]);
             }
         }
-        query.append("AND ( ( cours.timestamp_dt < to_timestamp(? ,'YYYY-MM-DD HH24:MI:SS') ")
-                .append("AND  cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
-                .append("OR (cours.timestamp_fn > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
-                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ) ) ")
+        query.append("AND ( ( cours.timestamp_dt <= to_timestamp(? ,'YYYY-MM-DD HH24:MI:SS') ")
+                .append("AND  cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') )  ")
+                .append("OR (cours.timestamp_fn >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS')  ")
+                .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ) ) ")
                 .append("GROUP BY cours.id, id_appel ")
                 .append("ORDER BY cours.timestamp_fn ASC");
 

@@ -89,12 +89,13 @@
                     <div class="loader"></div>
                 </span>
                 <span ng-if="!inputHasChanged && !isRefreshingCalendar" class="num-conflit">
-                    <i18n>viescolaire.absences.num.conflit</i18n> : [[numOfConflit]]
+                    <div ng-if="canSaveEvent()"><i18n >viescolaire.absences.num.conflit</i18n> : [[numOfConflit]]</div>
+                    <i18n ng-if="!canSaveEvent()">viescolaire.absences.cannot.save.event</i18n>
                 </span>
 
-                <button ng-if="numOfConflit && !inputHasChanged && !isRefreshingCalendar" ng-click="showLightboxCheckConflit(true)" class="right-magnet">
+                <button ng-if="numOfConflit && !inputHasChanged && !isRefreshingCalendar" ng-click="showLightboxCheckConflit(true)" class="right-magnet" ng-disabled="!canSaveEvent()">
                     <i18n>viescolaire.absences.check.conflit</i18n></button>
-                <button ng-if="numOfConflit == 0  && !inputHasChanged && !isRefreshingCalendar" ng-click="showLightboxConfirm(true)" class="right-magnet">
+                <button ng-if="numOfConflit == 0  && !inputHasChanged && !isRefreshingCalendar" ng-click="showLightboxConfirm(true)" class="right-magnet" ng-disabled="!canSaveEvent()">
                     <i18n>viescolaire.utils.save</i18n></button>
             </div>
         </div>

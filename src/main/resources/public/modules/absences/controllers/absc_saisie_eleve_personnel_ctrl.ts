@@ -579,6 +579,24 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             }
         };
 
+        $scope.canSaveEvent = function() {
+            if ($scope.selected === undefined
+                || $scope.selected.eleve === undefined) {
+                return false;
+            }
+            if (
+                ($scope.selected.eleve.arrayAbscPrevToCreate === undefined ||  $scope.selected.eleve.arrayAbscPrevToCreate.length === 0)
+                && ($scope.selected.eleve.arrayAbscPrevToUpdate === undefined ||  $scope.selected.eleve.arrayAbscPrevToUpdate.length === 0)
+                && ($scope.selected.eleve.arrayAbscPrevToDelete === undefined ||  $scope.selected.eleve.arrayAbscPrevToDelete.length === 0)
+                && ($scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent === undefined ||  $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.length === 0)
+                && ($scope.selected.eleve.coursPassedWithoutAbsence === undefined ||  $scope.selected.eleve.coursPassedWithoutAbsence.length === 0)
+                && ($scope.selected.eleve.coursPassedWithoutAbsence === undefined ||  $scope.selected.eleve.coursPassedWithoutAbsence.length === 0)
+            ) {
+                return false;
+            }
+            return true;
+        }
+
         $scope.previousWeekButton = function() {
             let prev = moment(model.calendar.firstDay).subtract(7, 'day');
             $scope.checkNavigDate();

@@ -227,7 +227,9 @@ public class EventBusController extends ControllerHelper {
                             .putString("status", "ok")
                             .putString("result", libelle));
                 } else {
-                    Integer idType = message.body().getInteger("idType");
+                    Integer idType = message.body().getInteger("idType") == null
+                            ? 0
+                            : message.body().getInteger("idType");
                     JsonObject request = message.body().getObject("request");
                     periodeService.getLibellePeriode(Long.parseLong(idType.toString()),
                             new JsonHttpServerRequest(request), new Handler<Either<String, String>>() {

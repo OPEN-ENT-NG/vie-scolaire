@@ -272,7 +272,7 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     $scope.currentDevoir.periode = _.findWhere($scope.currentDevoir.groupe.periodes.all,
                         {id_type: $scope.currentDevoir.id_periode});
 
-                    $scope.currentDevoir.endSaisie = $scope.checkEndSaisie($scope.currentDevoir);
+                    $scope.currentDevoir.endSaisie = await $scope.checkEndSaisie($scope.currentDevoir);
 
                     let syncStudents = () => {
                         $scope.openedDetails = true;
@@ -695,14 +695,12 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 // du devoir à modifier
                 let enseignementToOpen = $scope.devoir.enseignements.all.find(
                     function (elem) {
-                        return elem.id === parentToCheck[i].data.id_enseignement ||
-                            elem.id === parentToCheck[i].id_enseignament
+                        return elem.id === parentToCheck[i].data.id_enseignement
                     });
                 enseignementToOpen.open = true;
-                console.dir(enseignementToOpen);
 
                 //depliement des connaissances parent des compétences du devoir à modifier
-                parentToCheck[i].open = true;
+                parentToCheck[i].data.open = true;
                 utils.safeApply($scope);
             }
 
@@ -1516,10 +1514,11 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             }, true);
 
             evaluations.competencesDevoir = [];
-
-            $scope.devoir.getLastSelectedCompetence().then(function (res) {
-                $scope.devoir.competencesLastDevoirList = res;
-            });
+            if ($location.path() === "/devoir/create") {
+                $scope.devoir.getLastSelectedCompetence().then(function (res) {
+                    $scope.devoir.competencesLastDevoirList = res;
+                });
+            }
 
             if ($scope.devoir.id_type === undefined) {
                 $scope.devoir.id_type = _.findWhere($scope.structure.types, {default_type: true});

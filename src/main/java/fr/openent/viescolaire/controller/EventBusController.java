@@ -143,8 +143,8 @@ public class EventBusController extends ControllerHelper {
         switch (method) {
             case "getMoyenne": {
                 String idEleve = message.body().getString("idEleve");
-                JsonArray idDevoirs = message.body().getArray("idDevoirs");
-                userService.getMoyenne(idEleve, (Long[]) idDevoirs.toArray(), getObjectBusResultHandler(message));
+                Long[] idDevoirs = convertJsonArrayToLongArray(message.body().getArray("idDevoirs"));
+                userService.getMoyenne(idEleve, idDevoirs, getObjectBusResultHandler(message));
             }
             break;
             case "getUAI": {
@@ -295,4 +295,13 @@ public class EventBusController extends ControllerHelper {
 
         return objects;
     }
+
+    private Long[] convertJsonArrayToLongArray(JsonArray list) {
+        Long[] objects = new Long[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            objects[i] = list.get(i);
+        }
+
+        return objects;
+    };
 }

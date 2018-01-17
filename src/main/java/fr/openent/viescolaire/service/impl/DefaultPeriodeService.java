@@ -102,7 +102,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                         result = I18n.getInstance().translate("viescolaire.periode." + type, getHost(request),
                                 I18n.acceptLanguage(request)) + " " + ordre;
                     } else {
-                        result = "Année";
+                        result = I18n.getInstance().translate("viescolaire.utils.annee", getHost(request), I18n.acceptLanguage(request));
                     }
                     handler.handle(new Either.Right<String, String>(result));
                 } else {

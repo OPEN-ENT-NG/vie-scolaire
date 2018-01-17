@@ -32,10 +32,12 @@ import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
+import org.entcore.common.validation.StringValidation;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import static org.entcore.common.user.UserUtils.findVisibles;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -75,6 +77,28 @@ public class EleveController extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         miAbscEleveService.getEvenements(sIdEleve, sDateDebut, sDateFin, handler);
+    }
+
+    @Get("/eleve/cancommunicate/:idEleve")
+    @ApiDoc("Recupere tous le evenements d'un eleve sur une periode")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void canCommunicate(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                String sIdEleve = request.params().get(ID_ELEVE);
+
+                final String preFilter = " AND m.id = {idEleve} ";;
+                final JsonObject params = new JsonObject();
+                params.putString("idEleve", sIdEleve);
+                findVisibles(eb, user.getUserId(), null, params, false, false, false,null, preFilter, new Handler<JsonArray>() {
+                    @Override
+                    public void handle(JsonArray users) {
+                        renderJson(request, users);
+                    }
+                });
+            }
+        });
     }
 
     @Get("/eleve/:idEleve/absences/:isAscending")

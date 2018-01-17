@@ -58,7 +58,8 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
 
                 $scope.selected.eleve = await $scope.syncEleveCours($scope.selected.eleve);
                 $scope.selected.eleve.courss ? $scope.display.calendar = true : $scope.display.calendar = false;
-
+                // On regarde si l'utilisateur connecté peut communiquer avec l'élève
+                await $scope.selected.eleve.canCommunicate();
                 // On récupère les absences et les absences prev de l'élève
                 await $scope.selected.eleve.syncAllAbsence(false);
                 await $scope.selected.eleve.syncAllAbsencePrev();

@@ -17,7 +17,7 @@
                 <div class="nine cell padding-sm">
                     <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className[0] ]]</h2>
                     <p>[[getFormattedDate(selected.eleve.birthDate)]]</p>
-                    <div class="row action-item">
+                    <div class="row action-item" ng-if="selected.eleve.canCommunicateWithUserConnected">
                         <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
                             <i class="send-mail inline"></i>
                             <i18n>viescolaire.absences.send.message</i18n>

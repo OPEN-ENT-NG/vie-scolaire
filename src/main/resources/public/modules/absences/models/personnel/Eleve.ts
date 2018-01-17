@@ -16,6 +16,7 @@ export class Eleve extends SharedEleve {
     synchronized: any;
     coursMongo: any;
     absences: any;
+    canCommunicateWithUserConnected: boolean;
     coursPostgres: any;
     structureId = String;
 
@@ -29,7 +30,8 @@ export class Eleve extends SharedEleve {
             GET_CLASSE_COURS: '/viescolaire',
             GET_ABSC_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev/',
             GET_COURS_FROM_MONGO: '/directory/timetable/courses/' + this.structureId,
-            GET_COURS_FROM_SQL: '/viescolaire/cours/' + this.structureId + '/' + this.id
+            GET_COURS_FROM_SQL: '/viescolaire/cours/' + this.structureId + '/' + this.id,
+            CAN_COMMUNICATE: '/viescolaire/presences/eleve/cancommunicate/' + this.id
         });
     }
 
@@ -168,6 +170,27 @@ export class Eleve extends SharedEleve {
         return new Promise((resolve, reject) => {
             http().getJson(this.api.GET_ALL_ABSENCES + isAscending).done((data) => {
                 this.absences = data;
+                if (resolve && typeof resolve === 'function') {
+                    resolve();
+                }
+            })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        reject();
+                    }
+                });
+        });
+    }
+
+    // Vérifie si l'utilisateur en cours peut communiquer avec l'élève
+    canCommunicate(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().getJson(this.api.CAN_COMMUNICATE).done((data) => {
+                if ( data !== undefined && data.length >0 ) {
+                    this.canCommunicateWithUserConnected = true;
+                } else {
+                    this.canCommunicateWithUserConnected = false;
+                }
                 if (resolve && typeof resolve === 'function') {
                     resolve();
                 }

@@ -5,6 +5,7 @@
   "dependencies": {
     "angular-chart.js": "^1.1.1",
     "axios": "^0.17.1",
+    "entcore": "^2.1.0-dev.114",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0"
   },
   "scripts": {
@@ -21,6 +22,7 @@
   },
   "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
   "devDependencies": {
+    "@types/core-js": "^0.9.45",
     "@types/node": "^7.0.5",
     "bower": "^1.7.9",
     "colors": "^1.1.2",

@@ -1511,8 +1511,12 @@ public class ExportPDFController extends ControllerHelper {
         final Boolean text = Boolean.parseBoolean(request.params().get("text"));
         final Boolean json = Boolean.parseBoolean(request.params().get("json"));
         final String idEleve = request.params().get("idEleve");
-        final String idMatiere = request.params().get("idMatiere");
+        final List<String> listIdMatieres = request.params().getAll("idMatiere");
 
+        final JsonArray idMatieres = new JsonArray();
+        for(int i = 0; i < listIdMatieres.size(); i++){
+            idMatieres.add(listIdMatieres.get(i));
+        }
 
         Long idPeriode = null;
 
@@ -1539,7 +1543,7 @@ public class ExportPDFController extends ControllerHelper {
 
                     groupeService.listGroupesEnseignementsByUserId(idEleve, new Handler<Either<String, JsonArray>>() {
                         @Override
-                        public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                        public void handle(final Either<String, JsonArray> stringJsonArrayEither) {
                             if(stringJsonArrayEither.isRight()) {
                                 JsonArray result = stringJsonArrayEither.right().getValue();
                                 final List<String> idGroupes = new ArrayList<>();
@@ -1552,7 +1556,7 @@ public class ExportPDFController extends ControllerHelper {
                                 idGroupes.add(idClasse);
                                 nomGroupes.add(nomClasse);
 
-                                exportService.getExportReleveComp(text, idEleve, idGroupes.toArray(new String[0]), idEtablissement, idMatiere, finalIdPeriode, new Handler<Either<String, JsonObject>>() {
+                                exportService.getExportReleveComp(text, idEleve, idGroupes.toArray(new String[0]), idEtablissement, listIdMatieres, finalIdPeriode, new Handler<Either<String, JsonObject>>() {
                                     @Override
                                     public void handle(final Either<String, JsonObject> stringJsonObjectEither) {
                                         if (stringJsonObjectEither.isRight()) {
@@ -1561,12 +1565,15 @@ public class ExportPDFController extends ControllerHelper {
                                                 final JsonObject headerEleve = new JsonObject();
                                                 headerEleve.putString("nom", name);
                                                 headerEleve.putString("classe", nomGroupes.toString().substring(1, nomGroupes.toString().length() - 1));
-                                                matiereService.getMatiere(idMatiere, new Handler<Either<String, JsonObject>>() {
+                                                matiereService.getMatieres(idMatieres, new Handler<Either<String, JsonArray>>() {
                                                     @Override
-                                                    public void handle(Either<String, JsonObject> stringJsonObjectEither) {
+                                                    public void handle(Either<String, JsonArray> stringJsonObjectEither) {
                                                         if(stringJsonObjectEither.isRight()) {
-                                                            String matiere = stringJsonObjectEither.right().getValue().getObject("n").getObject("data").getString("label");
-                                                            headerEleve.putString("matiere", matiere);
+                                                            String matieres = ((JsonObject)stringJsonObjectEither.right().getValue().get(0)).getString("name");
+                                                            for (int i = 1; i < stringJsonObjectEither.right().getValue().size(); i++) {
+                                                                matieres = matieres+", "+((JsonObject) stringJsonObjectEither.right().getValue().get(i)).getString("name");
+                                                            }
+                                                            headerEleve.putString("matiere", matieres);
                                                             periodeService.getLibellePeriode(finalIdPeriode, request, new Handler<Either<String, String>>() {
                                                                 @Override
                                                                 public void handle(Either<String, String> stringStringEither) {

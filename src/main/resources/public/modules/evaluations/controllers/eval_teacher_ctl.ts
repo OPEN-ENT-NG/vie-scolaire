@@ -731,6 +731,14 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                     (classe.id_cycle === targetIdCycle && classe.id !== currentIdGroup);
             });
         };
+        // $scope.getMatieres = () => {
+        //     let currentIdGroup = $scope.selected.devoirs.list[0].id_groupe;
+        //     let targetIdCycle = _.find($scope.classes.all, {id: currentIdGroup}).id_cycle;
+        //     $scope.matieres.all
+        //     return _.filter($scope.classes.all, function (classe) {
+        //
+        //     });
+        // };
 
         $scope.filterSearchDuplication = () => {
             return function (classe) {
@@ -2888,6 +2896,8 @@ export let evaluationsController = ng.controller('EvaluationsController', [
             $scope.enseignants = evaluations.structure.enseignants;
             $scope.usePerso = evaluations.structure.usePerso;
             $scope.useDefaut = !$scope.usePerso;
+            $scope.selected.matieres = [];
+            $scope.allUnselect = true;
             // $scope.initPeriodesList();
             utils.safeApply($scope);
         };
@@ -3023,8 +3033,9 @@ export let evaluationsController = ng.controller('EvaluationsController', [
 
         $scope.exportReleveComp = async (idEleve : String, idMatiere:String, idPeriode:Number, textMod:Boolean = false) => {
             let url = "/viescolaire/evaluations/releveComp/print/" + idEleve + "/export?text=" + textMod;
-            if(idMatiere) {
-                url += "&idMatiere=" + idMatiere;
+
+            for(var m = 0; m < $scope.selected.matieres.length; m++){
+                url += "&idMatiere=" + $scope.selected.matieres[m];
             }
             if(idPeriode) {
                 url += "&idPeriode=" + idPeriode;
@@ -3042,5 +3053,35 @@ export let evaluationsController = ng.controller('EvaluationsController', [
                 });
             utils.safeApply($scope);
         };
+
+        $scope.selectMatiere = function (id) {
+            $scope.exportRelCompObj.errExport = false;
+            if (!$scope.selected.matieres.includes(id)) {
+                $scope.selected.matieres.push(id);
+            } else {
+                $scope.selected.matieres.splice(_.indexOf($scope.selected.matieres, id), 1);
+            }
+            if($scope.selected.matieres.length == 0)
+                $scope.allUnselect = true;
+            else
+                $scope.allUnselect = false;
+        };
+
+        $scope.selectUnselectMatieres = function (selectAllMatieres) {
+            if(selectAllMatieres){
+                for(var m = 0; m < $scope.matieres.all.length; m++){
+                    if (!$scope.selected.matieres.includes($scope.matieres.all[m].id))
+                        $scope.selected.matieres.push($scope.matieres.all[m].id);
+                        $scope.matieres.all[m].select = true;
+                }
+                $scope.allUnselect = false;
+            } else {
+                $scope.selected.matieres = [];
+                for(var m = 0; m < $scope.matieres.all.length; m++){
+                    $scope.matieres.all[m].select = false;
+                }
+                $scope.allUnselect = true;
+            }
+        }
     }
 ]);

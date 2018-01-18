@@ -9,6 +9,7 @@ import { abscAppelController } from "../controllers/absc_appel_ctrl";
 import {abscSaisieElevePersonnel} from '../controllers/absc_saisie_eleve_personnel_ctrl';
 
 import { mobilePanel } from '../../utils/directives/mobile-panel';
+import { cRoundAvatar } from '../../utils/directives/cRoundAvatar';
 import { structureLoader } from '../../utils/directives/structureLoading';
 
 ng.controllers.push(absencesController);
@@ -21,6 +22,7 @@ ng.controllers.push(abscSaisieElevePersonnel);
 ng.directives.push(sticky);
 ng.directives.push(mobilePanel);
 ng.directives.push(structureLoader);
+ng.directives.push(cRoundAvatar);
 
 routes.define(function($routeProvider) {
     $routeProvider

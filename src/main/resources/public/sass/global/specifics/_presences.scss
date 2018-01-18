@@ -909,6 +909,31 @@ body.presences {
   }
 
   /**
+    $Personnels
+  **/
+  .saisi-absc  .round-avatar {
+    height: 80px;
+    width: 80px;
+    margin:0;
+    text-align: center !important;
+    opacity: 0.8 !important;
+
+    img {
+      height: 60px;
+      width: 60px;
+      object-fit: cover;
+      border-radius: 50% !important;
+      border: 1px solid $medium-grey !important;
+    }
+
+    span {
+      color: $grey !important;
+      font-weight: bold !important;
+      text-align: center !important;
+    }
+  }
+
+  /**
     $PARENT-ABSENCES
   **/
   .round-avatar {

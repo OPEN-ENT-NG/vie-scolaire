@@ -17,10 +17,6 @@
  *
  */
 
-/**
- * Created by ledunoiss on 12/09/2016.
- */
-
 var webpack = require('webpack');
 var path = require('path');
 var glob = require('glob');
@@ -37,16 +33,15 @@ module.exports = {
     },
     externals: {
         "entcore/entcore": "entcore",
-        "underscore": "_"
+        "entcore": "entcore",
+        "moment": "entcore",
+        "underscore": "entcore",
+        "jquery": "entcore",
+        "angular": "angular"
     },
     resolve: {
-        modulesDirectories: ['bower_components', 'node_modules'],
+        modulesDirectories: ['node_modules'],
         root: path.resolve(__dirname),
-        alias: {
-            'underscore': path.resolve('./bower_components/underscore/underscore-min.js'),
-            'moment': path.resolve('./bower_components/moment/min/moment-with-locales.min.js'),
-            'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js'),
-        },
         extensions: ['', '.js']
     },
     devtool: "source-map",

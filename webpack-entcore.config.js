@@ -17,10 +17,6 @@
  *
  */
 
-/**
- * Created by ledunoiss on 12/09/2016.
- */
-
 var webpack = require('webpack');
 var path = require('path');
 
@@ -36,20 +32,15 @@ module.exports = {
     resolve: {
         modulesDirectories: ['bower_components', 'node_modules'],
         root: path.resolve('.'),
-        alias: {
-            'jquery': path.resolve('./bower_components/jquery/dist/jquery.min.js'),
-            'lodash': path.resolve('./bower_components/lodash/dist/lodash.min.js'),
-            'underscore': path.resolve('./bower_components/underscore/underscore-min.js'),
-            'moment': path.resolve('./bower_components/moment/min/moment-with-locales.min.js'),
-            'humane-js': path.resolve('./bower_components/humane-js/humane.min.js'),
-            'angular': path.resolve('./bower_components/angular/angular.min.js'),
-            'angular-route': path.resolve('./bower_components/angular-route/angular-route.min.js'),
-            'angular-sanitize': path.resolve('./bower_components/angular-sanitize/angular-sanitize.min.js'),
-            'entcore-toolkit': path.resolve('./node_modules/toolkit/index.js'),
-            'toolkit': path.resolve('./node_modules/toolkit/index.js'),
-            'axios': path.resolve('./node_modules/axios/dist/axios.js')
-        },
         extensions: ['', '.js']
+    },
+    externals: {
+        "entcore/entcore": "entcore",
+        "entcore": "entcore",
+        "moment": "entcore",
+        "underscore": "entcore",
+        "jquery": "entcore",
+        "angular": "angular"
     },
     devtool: "source-map",
     module: {

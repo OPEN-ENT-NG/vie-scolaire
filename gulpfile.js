@@ -29,10 +29,7 @@ var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 var typescript = require('typescript');
 var glob = require('glob');
-var exec = require('child_process').exec;
 var colors = require('colors');
-
-var jsInfraPath = './bower_components/entcore';
 
 var paths = {
     infra: '../infra-front',
@@ -40,7 +37,7 @@ var paths = {
 };
 
 function compileTs(){
-    var tsProject = ts.createProject('./src/main/resources/public/modules/tsconfig.json', {
+    var tsProject = ts.createProject('./tsconfig.json', {
         typescript: typescript
     });
     var tsResult = tsProject.src()
@@ -76,16 +73,6 @@ function startWebpack(isLocal) {
         .pipe(rev.manifest({path : './manifests/absc.json' }))
         .pipe(gulp.dest('./'));
 
-    var eval = gulp.src('./src/main/resources/public/modules/evaluations/')
-        .pipe(webpack(require('./src/main/resources/public/modules/evaluations/webpack.config.eval.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/evaluations'))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(rev())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/evaluations'))
-        .pipe(rev.manifest({path : './manifests/eval.json' }))
-        .pipe(gulp.dest('./'));
-
     var vsco = gulp.src('./src/main/resources/public/modules/viescolaire/')
         .pipe(webpack(require('./src/main/resources/public/modules/viescolaire/webpack.config.vsco.js')))
         .pipe(gulp.dest('./src/main/resources/public/dist/viescolaire'))
@@ -96,64 +83,24 @@ function startWebpack(isLocal) {
         .pipe(rev.manifest({path : './manifests/vsco.json' }))
         .pipe(gulp.dest('./'));
 
-    return merge([absc, eval, vsco]);
+    return merge([absc, vsco]);
 }
 
 function updateRefs() {
     var absc = gulp.src(glob.sync("./src/main/resources/view-src/absences/*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/absc.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/absences"));
-    var eval = gulp.src(glob.sync("./src/main/resources/view-src/evaluations/*.html"))
-        .pipe(revReplace({manifest: gulp.src(["./manifests/eval.json", "./manifests/entcore.json"]) }))
-        .pipe(gulp.dest("./src/main/resources/view/evaluations"));
     var vsco = gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
-    return merge([absc, eval, vsco]);
+    return merge([absc, vsco]);
 }
 
-gulp.task('copy-local-libs', function(){
-    var ts = gulp.src(paths.infra + '/src/ts/**/*.ts')
-        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
-
-    var toolkitModule = gulp.src([paths.toolkit + '/**/*.d.ts', paths.toolkit + '/**/*.js'])
-        .pipe(gulp.dest('./node_modules/toolkit'));
-
-    var module = gulp.src(paths.infra + '/src/ts/**/*.ts')
-        .pipe(gulp.dest('./node_modules/entcore'));
-
-    var html = gulp.src(paths.infra + '/src/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
-    return merge([html, ts, module]);
-});
-
-gulp.task('drop-cache', function(){
-    return gulp.src(['./bower_components', './src/main/resources/public/dist'], { read: false })
-        .pipe(clean());
-});
-
-gulp.task('bower', ['drop-cache'], function(){
-    return bower({ directory: './bower_components', cwd: '.', force: true });
-});
-
-gulp.task('update-libs', ['bower'], function(){
-    var html = gulp.src('./bower_components/entcore/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
-
-    var ts = gulp.src('./bower_components/entcore/src/ts/**/*.ts' )
-        .pipe(gulp.dest('./src/main/resources/public/modules/entcore'));
-
-    var module = gulp.src('./bower_components/entcore/src/ts/**/*.ts')
-        .pipe(gulp.dest('./node_modules/entcore'));
-
-    return merge([html, ts, module]);
-});
-
-gulp.task('ts-local', ['copy-local-libs'], function () { return compileTs() });
+gulp.task('ts-local', function () { return compileTs() });
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
 gulp.task('webpack-entcore-local', ['webpack-local'], function(){ return startWebpackEntcore() });
 
-gulp.task('ts', ['update-libs'], function () { return compileTs() });
+gulp.task('ts', function () { return compileTs() });
 gulp.task('webpack', ['ts'], function(){ return startWebpack() });
 gulp.task('webpack-entcore', ['webpack'], function(){ return startWebpackEntcore() });
 
@@ -190,25 +137,4 @@ gulp.task('removeTemp', function () {
 
 gulp.task('updateRefs', function () {
     updateRefs();
-});
-
-gulp.task('build-mod', function () {
-    console.log('STARTING BUILD-LOCAL'.cyan.bold); 
-    return exec('gulp build-local', function (err, stdout, stderr) {
-        if (stderr) {
-            console.log(stderr);
-            return;
-        }
-        console.log(stdout);
-        console.log('FIN BUILD-LOCAL'.green.bold);
-        console.log('STARTING INSTALL'.cyan.bold);
-       exec('gradle install', function (err, stdout, stderr) {
-           if (stderr) {
-               console.log(stderr);
-               return;
-           }
-           console.log(stdout);
-           console.log('FIN INSTALL'.green.bold);
-       });
-    });
 });

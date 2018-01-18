@@ -27,6 +27,7 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -53,14 +54,16 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, rel_cours_groupes.id_groupe as id_classe  ")
+        query.append("SELECT cours.*, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
+                .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
+                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
                 .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
                 .append("WHERE rel_cours_groupes.id_groupe = ? ")
                 .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("GROUP BY cours.id ")
                 .append("ORDER BY cours.timestamp_fn ASC");
-
 
         values.addString(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
 
@@ -126,7 +129,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, rel_cours_users.id_user as id_personnel, rel_cours_groupes.id_groupe as id_classe ")
+        query.append("SELECT cours.*, to_char(cours.timestamp_dt, 'HH24:MI') as heure_debut, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
+                .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
                 .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
                 .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
@@ -134,6 +138,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 .append("AND id_etablissement = ?")
                 .append("AND to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
+                .append("GROUP BY cours.id ")
                 .append("ORDER BY cours.timestamp_dt ASC");
 
         values.addString(psUserId);
@@ -158,5 +163,99 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         }
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void createCours(final String userId, final String idEtablissement, final String idMatiere, final String dateDebut, final String dateFin
+            , final List<String> listIdClasse, final List<String> listIdPersonnel, final Handler<Either<String, JsonObject>> handler) {
+
+
+        final String queryNewCours =
+                "SELECT nextval('" + Viescolaire.VSCO_SCHEMA + ".cours_id_seq') as id";
+
+        sql.raw(queryNewCours, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
+            @Override
+            public void handle(Either<String, JsonObject> event) {
+                if (event.isRight()) {
+                    Long idCours = event.right().getValue().getLong("id");
+
+                    StringBuilder query = new StringBuilder();
+                    JsonArray values = new JsonArray();
+                    JsonArray statements = new JsonArray();
+
+                    //#4 - Insert cours
+                    values = new JsonArray();
+                    query = new StringBuilder();
+                    // Query & value
+                    query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".cours ");
+                    query.append("(id, id_etablissement, timestamp_dt, timestamp_fn, id_matiere)");
+                    query.append(" VALUES ");
+                    query.append("(?, ?, to_timestamp(?, 'YYYY-MM-DD HH24:MI'), to_timestamp(?, 'YYYY-MM-DD HH24:MI'), ?) ");
+                    values.add(idCours);
+                    values.add(idEtablissement);
+                    values.add(dateDebut);
+                    values.add(dateFin);
+                    values.add(idMatiere);
+
+                    // Ajout du statement
+                    statements.add(new JsonObject().putString("statement", query.toString())
+                            .putArray("values", values).putString("action", "prepared"));
+
+                    //#4.1 Insert dans rel_cours_groupes
+                    if(listIdClasse != null && !listIdClasse.isEmpty()) {
+                        values = new JsonArray();
+                        query = new StringBuilder();
+                        // Query & value
+                        query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ");
+                        query.append("(id_cours, id_groupe)");
+                        query.append(" VALUES ");
+
+                        for (int i = 0; i < listIdClasse.size(); i++) {
+                            query.append("(?, ?)");
+                            values.add(idCours);
+                            values.add(listIdClasse.get(i));
+
+                            if (i != listIdClasse.size() - 1) {
+                                query.append(",");
+                            }
+                        }
+
+                        // Ajout du statement
+                        statements.add(new JsonObject().putString("statement", query.toString())
+                                .putArray("values", values).putString("action", "prepared"));
+                    }
+
+                    //#4.2 Insert dans rel_cours_users
+                    if(listIdPersonnel != null && !listIdPersonnel.isEmpty()){
+                        values = new JsonArray();
+                        query = new StringBuilder();
+                        // Query & value
+                        query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ");
+                        query.append("(id_cours, id_user)");
+                        query.append(" VALUES ");
+
+                        for (int i = 0; i < listIdPersonnel.size(); i++) {
+                            query.append("(?, ?)");
+                            values.add(idCours);
+                            values.add(listIdPersonnel.get(i));
+
+                            if (i != listIdPersonnel.size() - 1) {
+                                query.append(",");
+                            }
+                        }
+                    }
+
+                    // Ajout du statement
+                    statements.add(new JsonObject().putString("statement", query.toString())
+                            .putArray("values", values).putString("action", "prepared"));
+
+                    Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
+                }else if(event.isLeft()){
+                    log.error("ERROR : gestionEventToCreate : Recherche des appels : " + event.left().getValue());
+                }
+            }
+        }));
+
+
     }
 }

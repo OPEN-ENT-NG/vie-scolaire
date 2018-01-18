@@ -8,7 +8,7 @@
  * @param coursMongo
  * @returns {any[]}
  */
-import {Cours} from '../models/personnel/Cours';
+import {Cours} from '../models/shared/Cours';
 
 export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPeriod, structure, evenements,
                                                arrayCoursPostgresRaw, arrayCoursMongoRaw) {
@@ -44,14 +44,18 @@ export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPerio
                 // Si l'iteration est en dans la période on l'ajoute.
                 if ((startMomentPeriod < debutMomentIteration && endMomentIteration < endMomentPeriod) || // Est à l'intérieur de la période
                     (debutMomentIteration < startMomentPeriod && endMomentPeriod < endMomentIteration) || // Englobe la période
-                    !(endMomentPeriod < debutMomentIteration || startMomentPeriod > endMomentIteration)) { // Touche la période
+                    !(endMomentIteration < startMomentPeriod || endMomentPeriod < debutMomentIteration)) { // Touche la période
 
-                    let iterationMongo = new Cours(undefined, debutMomentIteration.clone(), endMomentIteration.clone());
+                    // let iterationMongo = new Cours(undefined, debutMomentIteration.clone(), endMomentIteration.clone());
+                    let iterationMongo = new Cours();
+                    iterationMongo.startMoment = debutMomentIteration.clone();
+                    iterationMongo.endMoment = endMomentIteration.clone();
                     iterationMongo._id = coursMongo._id;
                     iterationMongo.roomLabels = coursMongo.roomLabels;
                     iterationMongo.subjectId = coursMongo.subjectId;
                     iterationMongo.teacherIds = coursMongo.teacherIds;
                     iterationMongo.classeNames = coursMongo.classes;
+                    iterationMongo.classeIds = structure.classes.all.filter(classe => _.contains(iterationMongo.classeNames, classe.name)).map(a => a.id);
                     iterationMongo.isFromMongo = true;
                     iterationMongo.dayOfWeek = coursMongo.dayOfWeek;
                     arrayIterationMongo.push(iterationMongo);
@@ -64,14 +68,20 @@ export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPerio
 
     // On met en forme les objets bruts en objet de type Cours.
     arrayCoursPostgresRaw.forEach(coursPostgresRaw => {
-        let coursPostgres = new Cours(undefined, coursPostgresRaw.timestamp_dt, coursPostgresRaw.timestamp_fn);
+        let coursPostgres = new Cours();
+        coursPostgres.startMoment = moment(coursPostgresRaw.timestamp_dt);
+        coursPostgres.endMoment = moment(coursPostgresRaw.timestamp_fn);
         coursPostgres.id = coursPostgresRaw.id;
         coursPostgres.id_appel = coursPostgresRaw.id_appel;
         coursPostgres.roomLabels = coursPostgresRaw.roomLabels;
         coursPostgres.subjectId = coursPostgresRaw.id_matiere;
         coursPostgres.teacherIds = coursPostgresRaw.teacherIds;
         coursPostgres.classeIds = coursPostgresRaw.classeIds;
-        coursPostgres.evenements = evenements.filter(ev => ev.id_cours === coursPostgres.id && ev.id_type !== 1);
+        coursPostgres.timestamp_dt = coursPostgresRaw.timestamp_dt;
+        coursPostgres.timestamp_fn = coursPostgresRaw.timestamp_fn;
+        if (evenements !== undefined) {
+            coursPostgres.evenements = evenements.filter(ev => ev.id_cours === coursPostgres.id && ev.id_type !== 1);
+        }
         coursPostgres.classeNames = structure.classes.all.filter(classe => coursPostgresRaw.classeIds.includes(classe.id)).map(a => a.name);
         coursPostgres.isFromMongo = false;
         arrayCoursPostgres.push(coursPostgres);

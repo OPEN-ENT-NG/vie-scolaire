@@ -2,6 +2,7 @@ import { template, ng } from 'entcore';
 import {Evenement} from '../models/shared/Evenement';
 import {FORMAT} from '../constants/formats';
 import * as utils from '../utils/shared';
+import {Cours} from "../models/shared/Cours";
 
 let moment = require('moment');
 declare let _: any;
@@ -310,14 +311,14 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 if (poEvent.timestamp_depart == null) {
                     $scope.setTime(poEvent.id_type);
                 }
-                let _date = moment($scope.currentCours.timestamp_fn).format(FORMAT.date);
+                let _date = moment($scope.currentCours.endMoment).format(FORMAT.date);
                 let _hour = $scope.oEvtTime.depart;
                 poEvent.timestamp_depart = moment(_date + " " + _hour, FORMAT.date + " " + FORMAT.heureMinutes).format(FORMAT.timestamp);
             } else if (poEvent.id_type == $scope.oEvtType.giIdEvenementRetard) {
                 if (poEvent.timestamp_arrive == null) {
                     $scope.setTime(poEvent.id_type);
                 }
-                let _date = moment($scope.currentCours.timestamp_dt).format(FORMAT.date);
+                let _date = moment($scope.currentCours.startMoment).format(FORMAT.date);
                 let _hour = $scope.oEvtTime.retard;
                 poEvent.timestamp_arrive = moment(_date + " " + _hour, FORMAT.date + " " + FORMAT.heureMinutes).format(FORMAT.timestamp);
             }
@@ -358,6 +359,24 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.selectCours = async (cours) => {
 
+            if (cours.isFromMongo) {
+                // Si c'est un cours Mongo alors on créer le cours postgres
+                cours.structureId = $scope.structure.id;
+                await Cours.createCoursPostgres(cours);
+
+                // On re synchronise tout en appelant ouvrirAppel()
+                let currentDate = $scope.appel.date;
+                $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                await $scope.ouvrirAppel();
+
+                // Une fois synchronisé on récupère le coursPostgres et on le sélectionne
+                let coursPostgres = $scope.structure.creneaus.find(creneau => creneau.timestamp_dt === cours.startMoment.format('HH:mm')
+                    && creneau.timestamp_fn === cours.endMoment.format('HH:mm')).cours;
+                $scope.selectCours(coursPostgres);
+                utils.safeApply($scope);
+                return;
+            }
+
             let isTeacher = !$scope.isResponsable() || $scope.poEnseignantRecherche || !$scope.poClasseRecherche;
             $scope.appel = {
                 date: $scope.appel.date,
@@ -366,7 +385,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.detailEleve.displayed = false;
             $scope.bClassesVue = false;
             $scope.currentCours = cours;
-            $scope.currentCours.classe = $scope.structure.classes.findWhere({id: $scope.currentCours.id_classe});
+            $scope.currentCours.classe = $scope.structure.classes.findWhere({name: $scope.currentCours.classeNames[0]}); // todo: gérer multiclasse
             $scope.currentEleve = undefined;
             $scope.updateDetailEleve();
 
@@ -436,6 +455,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             // Si aucune date n'est spécifiée, on sort de la fonction.
             if (selectedAppel != null) {
                 pdtDate = moment(selectedAppel.timestamp);
+
                 $scope.poEnseignantRecherche = _.findWhere($scope.structure.enseignants.all, {id: $scope.selectedAppel.id_personnel});
             } else if ($scope.poEnseignantRecherche !== null || $scope.poClasseRecherche !== null || !$scope.isResponsable()) {
                 pdtDate = moment($scope.appel.date);
@@ -444,6 +464,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             }
 
             $scope.detailEleve.displayed = false;
+
+            $scope.pdtDate = pdtDate;
 
             await $scope.syncDataAppel(pdtDate);
 
@@ -458,7 +480,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                     selectedCours = _.findWhere($scope.structure.courss.all, {id: $scope.selectedAppel.id_cours});
                 } else {
                     selectedCours = _.find($scope.structure.courss, (cours) => {
-                        return (moment().diff(moment(cours.timestamp_dt)) > 0) && (moment().diff(moment(cours.timestamp_fn)) < 0);
+                        return (moment().diff(moment(cours.startMoment)) > 0) && (moment().diff(moment(cours.endMoment)) < 0);
                     });
                 }
 
@@ -482,7 +504,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
 
                 if ($scope.isResponsable()) {
                     if ($scope.poEnseignantRecherche && !$scope.poClasseRecherche) {
-                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poEnseignantRecherche.id, false);
+                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poEnseignantRecherche, false);
                     } else if ($scope.poClasseRecherche && !$scope.poEnseignantRecherche) {
                         await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poClasseRecherche.id, true);
                     }
@@ -557,14 +579,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * Récupère le libelle d'une classe.
          * @param idClasse l'identifiant de la classe.
          */
-        $scope.getLibelleClasse = function (idClasse) {
-            let classe = $scope.structure.classes.findWhere({id: idClasse});
-            if (classe !== undefined) {
-                return classe.name;
-            } else {
-                console.log("Class not found : " + idClasse);
-                return " ";
-            }
+        $scope.getLibelleClasse = function (classeNames) {
+            return classeNames.join(' - ');
         };
 
         /**
@@ -583,6 +599,10 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.localeDate = function (dateStr) {
             return moment(new Date(dateStr)).format('DD-MM-YYYY');
+        };
+
+        $scope.getFormattedTime = (momentDate) => {
+            return moment(momentDate).format('HH:mm');
         };
 
         /**

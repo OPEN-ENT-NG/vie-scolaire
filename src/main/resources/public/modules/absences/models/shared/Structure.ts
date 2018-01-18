@@ -28,7 +28,8 @@ import { Classe } from "./Classe";
 import { FORMAT } from '../../constants/formats';
 import { PLAGES } from '../../constants/plages';
 
-import { getPlage } from '../../../utils/functions/getPlages'
+import { getPlage } from '../../../utils/functions/getPlages';
+import {checkRapprochementCoursCommon} from '../../utils/common';
 
 export class Structure extends DefaultStructure {
     isSynchronized: boolean;
@@ -39,10 +40,14 @@ export class Structure extends DefaultStructure {
     creneaus: Collection<Creneau>;
     classes: Collection<Classe>;
 
+    coursMongo: any;
+    coursPostgres: any;
+
     protected apiList = {
         COURS: {
             syncParEnseignant: '/viescolaire/enseignant/',
             syncParClasse: '/viescolaire/',
+            GET_COURS_FROM_MONGO: '/directory/timetable/courses/' + this.id,
         },
         CLASSE: {
             synchronization: '/viescolaire/classes?idEtablissement=' + this.id,
@@ -58,6 +63,8 @@ export class Structure extends DefaultStructure {
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
+        this.coursPostgres = [];
+        this.coursMongo = [];
         this.synchronization = {
             cours: false,
             plages: false,
@@ -95,7 +102,7 @@ export class Structure extends DefaultStructure {
         });
 
         this.collection(Cours, {
-            sync : (dateDebut: any, dateFin: any, idClassOrTeach?: string, isClass?: boolean) => {
+            sync2 : (dateDebut: any, dateFin: any, idClassOrTeach?: string, isClass?: boolean) => {
                 return new Promise((resolve, reject) => {
                     if(idClassOrTeach == null) {    idClassOrTeach = model.me.userId;   }
                     let url = "";
@@ -118,6 +125,39 @@ export class Structure extends DefaultStructure {
                     });
                     // TODO Récupérer les cours de la structure sur l'api timetable
                 });
+            },
+            sync: async (dateDebut: any, dateFin: any, idClassOrTeach?: string | any, isClass?: boolean) => {
+                // Le resolve de la promesse est appelé grâce au return et le reject grâce au Throw dans le catch
+                try {
+                    console.log('sync2');
+                    await this.syncCoursPostgres(dateDebut, dateFin, idClassOrTeach, isClass);
+                    let arrayClasseName = [];
+                    if (isClass) {
+                        let arrayClasseId = [];
+                        let idClass = idClassOrTeach;
+                        arrayClasseId.push(idClassOrTeach);
+                        arrayClasseName.push(this.classes.find(classe => classe.id === idClass).name);
+                    } else {
+                        let teacher = idClassOrTeach;
+                        if (teacher !== undefined) {
+                            arrayClasseName = teacher.allClasses.map(o => o.name);
+                        } else {
+                            return;
+                        }
+                    }
+                    await this.syncCoursMongo(dateDebut, dateFin, arrayClasseName);
+
+                    let arrayCours = checkRapprochementCoursCommon(moment(dateDebut), moment(dateFin), this, undefined, this.coursPostgres, this.coursMongo);
+
+                    arrayCours.forEach(cours => {
+                       cours.isFutur = cours.startMoment > moment();
+                    });
+
+                    this.courss.all = arrayCours;
+                    return;
+                } catch (e) {
+                    throw e;
+                }
             }
         });
 
@@ -161,8 +201,8 @@ export class Structure extends DefaultStructure {
 
                             let oCurrentCours = this.courss.all[i];
 
-                            let otimestamp_dtCours = moment(moment(oCurrentCours.timestamp_dt).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
-                            let otimestamp_fnCours = moment(moment(oCurrentCours.timestamp_fn).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
+                            let otimestamp_dtCours = moment(moment(oCurrentCours.startMoment).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
+                            let otimestamp_fnCours = moment(moment(oCurrentCours.endMoment).format(FORMAT.heureMinutes), FORMAT.heureMinutes);
 
                             // si le cours est après le dernier creneau ajouté
                             if (otimestamp_dtCours.diff(oHeureEnCours) > 0) {
@@ -208,6 +248,58 @@ export class Structure extends DefaultStructure {
                     }
                 });
             }
+        });
+    }
+
+    private async syncCoursPostgres(dateDebut: any, dateFin: any, idClassOrTeach?: string | any, isClass?: boolean) {
+        return new Promise((resolve, reject) => {
+            if (idClassOrTeach == null) {    idClassOrTeach = model.me.userId;   }
+            let url = '';
+            if (isClass) {
+                url = this.api.COURS.syncParClasse + idClassOrTeach
+                    + '/cours/' + dateDebut + '/' + dateFin;
+            } else {
+                let idTeacher = idClassOrTeach.id;
+                url = this.api.COURS.syncParEnseignant + idTeacher + '/' + this.id
+                    + '/cours/' + dateDebut + '/' + dateFin;
+            }
+            http().getJson(url).done((res: any[]) => {
+                this.coursPostgres = res;
+                _.each(this.coursPostgres, (cours) => {
+                    cours.classe = _.findWhere(this.classes.all, {id : cours.id_classe});
+                    if (cours.classes !== null) {
+                        cours.classeIds = cours.classes.split(',');
+                    } else {
+                        cours.classeIds = [];
+                    }
+
+                    cours.teacherIds = cours.personnels.split(',');
+                });
+                this.synchronization.cours = true;
+                if (resolve && typeof (resolve) === 'function') {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    private async syncCoursMongo(startDate, endDate, classesName): Promise<any> {
+        return new Promise((resolve) => {
+            let groupParam = '';
+            for (let i = 0 ; i < classesName.length; i++) {
+                if ( i !== 0 ) {
+                    groupParam += '&';
+                }
+                groupParam += 'group=' + classesName[i];
+            }
+            let Url = this.api.COURS.GET_COURS_FROM_MONGO + '/' + startDate + '/' + endDate + '?' + groupParam;
+            http().getJson(Url).done((data) => {
+                this.coursMongo = [];
+                data.forEach(cours => {
+                    this.coursMongo.push(cours);
+                });
+                resolve();
+            });
         });
     }
 

@@ -160,7 +160,7 @@ export class Cours extends DefaultCours implements IModel {
                 resolve();
             });
         });
-    };
+    }
 
     loadAbscPrev = (): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -176,7 +176,7 @@ export class Cours extends DefaultCours implements IModel {
                 resolve();
             });
         });
-    };
+    }
 
     loadAbscLastCours = (isTeacher?): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -196,7 +196,7 @@ export class Cours extends DefaultCours implements IModel {
                 resolve();
             });
         });
-    };
+    }
 
     loadCoursClasse = (): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -209,5 +209,5 @@ export class Cours extends DefaultCours implements IModel {
                 resolve();
             });
         });
-    };
+    }
 }

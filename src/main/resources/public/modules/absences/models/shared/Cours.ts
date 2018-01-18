@@ -1,4 +1,4 @@
-import { http, IModel } from 'entcore/entcore';
+import { http, IModel, notify } from 'entcore/entcore';
 import { Appel } from './Appel';
 import { DefaultCours } from "../common/DefaultCours";
 import { Evenement } from "./Evenement";
@@ -7,8 +7,32 @@ import { FORMAT } from "../../constants/formats";
 
 export class Cours extends DefaultCours implements IModel {
     appel: Appel;
+    id_appel: number;
+    roomLabels: string[];
     classe: Classe;
     synchronized: any;
+    startMoment: any;
+    endMoment: any;
+    teacherNames: string[];
+    teacherIds: string[];
+    classeNames: string[];
+    classeIds: string[];
+    absence: any;
+
+    structureId: string;
+    classes: string[];
+    groups: string[];
+
+    subjectId: string;
+    subjectLabel: string;
+
+    evenements: any;
+    isFromMongo: boolean;
+    _id: string;
+    dayOfWeek: number;
+
+    isAlreadyFound: boolean;
+    isFutur: boolean;
 
     public get api () {
 
@@ -17,12 +41,12 @@ export class Cours extends DefaultCours implements IModel {
 
         // Construction de l' API de récupération des évènements d'un élève
         let url_evenement_eleve = '/viescolaire/presences/evenement/classe/';
-        url_evenement_eleve += this.id_classe + '/periode/';
+        url_evenement_eleve += this.classeIds[0] + '/periode/';
         url_evenement_eleve += debut + '/';
         url_evenement_eleve += fin;
 
         // Construction de l'API de récupération des cours d'une classe
-        let url_cours_classe = '/viescolaire/' + this.id_classe + '/cours/';
+        let url_cours_classe = '/viescolaire/' + this.classeIds[0] + '/cours/';
         url_cours_classe += debut + '/';
         url_cours_classe += fin;
 
@@ -64,7 +88,7 @@ export class Cours extends DefaultCours implements IModel {
                         this.appel.updateData(data[0]);
                     }
                     if (this.appel.id === undefined) {
-                        this.appel.id_personnel = this.id_personnel;
+                        this.appel.id_personnel = this.teacherIds[0];
                         this.appel.id_cours = this.id;
                         this.appel.id_etat = 1;
                         this.appel.create();
@@ -74,6 +98,34 @@ export class Cours extends DefaultCours implements IModel {
                 });
             });
         };
+    }
+
+
+    static createCoursPostgres(coursMongo: Cours): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let url = '/viescolaire/cours';
+            let resource = {
+                idEtablissement: coursMongo.structureId, // string
+                idMatiere: coursMongo.subjectId, // string
+                dateDebut: coursMongo.startMoment.format('YYYY-MM-DD HH:mm'), // format YYYY-MM-DD HH:mm:ss
+                dateFin: coursMongo.endMoment.format('YYYY-MM-DD HH:mm'), // format YYYY-MM-DD HH:mm:ss
+                classeIds: coursMongo.classeIds, // Tableau d'id string
+                teacherIds: coursMongo.teacherIds // Tableau d'id string
+            };
+
+            http().postJson(url, resource)
+                .done((data) => {
+                    if (resolve && typeof resolve === 'function') {
+                        resolve();
+                    }
+                })
+                .error(function () {
+                    if (reject && typeof reject === 'function') {
+                        notify.error('Problème lors de la création du cours');
+                        reject();
+                    }
+                });
+        });
     }
 
     sync(isTeacher?:string): Promise<any> {

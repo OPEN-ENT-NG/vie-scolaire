@@ -19,17 +19,20 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.absences.utils.Events;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CoursService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
+import fr.wseduc.rs.Post;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.impl.DefaultCoursService;
 import fr.wseduc.webutils.http.Renders;
+import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -173,6 +176,35 @@ public class CoursController extends ControllerHelper{
                 } else {
                     unauthorized(request);
                 }
+            }
+        });
+    }
+
+    @Post("/cours")
+    @ApiDoc("Créé un cours.")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void createCours(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+                    @Override
+                    public void handle(JsonObject resource) {
+                        String userId = user.getUserId();
+
+                        String idEtablissement = resource.getString("idEtablissement");
+                        String idMatiere = resource.getString("idMatiere");
+                        String dateDebut = resource.getString("dateDebut"); //format YYYY-MM-DD HH:mm
+                        String dateFin = resource.getString("dateFin"); //format YYYY-MM-DD HH:mm
+
+                        List<String> listIdClasse = resource.getArray("classeIds").toList();
+                        List<String> listIdTeacher = resource.getArray("teacherIds").toList();
+
+                        Handler<Either<String, JsonObject>> handler = defaultResponseHandler(request);
+
+                        coursService.createCours(userId, idEtablissement, idMatiere, dateDebut, dateFin, listIdClasse, listIdTeacher, handler);
+                    }
+                });
             }
         });
     }

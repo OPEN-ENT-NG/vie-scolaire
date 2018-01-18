@@ -7,48 +7,36 @@ import { Cours as SharedCours} from '../shared/Cours';
 
 
 export class Cours extends SharedCours implements Model {
-    id_appel: number;
-    structureId: string;
-    startMoment: any;
-    endMoment: any;
-    startDate: string | Object;
-    endDate: string | Object;
-    dayOfWeek: number;
-    roomLabels: string[];
-    classes: string[];
-    groups: string[];
-    absence: any;
-    evenements: any;
-    teacherNames: string[];
-    teacherIds: string[];
-    classeNames: string[];
-    classeIds: string[];
-    subjectId: string;
-    subjectLabel: string;
-
-    isFromMongo: boolean;
-    _id: string;
-
     color: string;
     is_periodic: boolean;
     locked: boolean;
 
-    isAlreadyFound: boolean;
-    isFutur: boolean;
-
-    constructor (obj: Object, startDate?: string | Object, endDate?: string | Object) {
+    constructor (sharedCours?: SharedCours) {
         super();
-        if (obj instanceof Object) {
-            for (let key in obj) {
-                this[key] = obj[key];
-            }
-        }
-        this.is_periodic = false;
-        if (startDate) {
-            this.startMoment = moment(startDate);
-        }
-        if (endDate) {
-            this.endMoment = moment(endDate);
+        if (sharedCours instanceof SharedCours) {
+            this.appel = sharedCours.appel;
+            this.id_appel = sharedCours.id_appel;
+            this.roomLabels = sharedCours.roomLabels;
+            this.classe = sharedCours.classe;
+            this.synchronized = sharedCours.synchronized;
+            this.startMoment = sharedCours.startMoment;
+            this.endMoment = sharedCours.endMoment;
+            this.teacherNames = sharedCours.teacherNames;
+            this.teacherIds = sharedCours.teacherIds;
+            this.classeNames = sharedCours.classeNames;
+            this.classeIds = sharedCours.classeIds;
+            this.absence = sharedCours.absence;
+            this.structureId = sharedCours.structureId;
+            this.classes = sharedCours.classes;
+            this.groups = sharedCours.groups;
+            this.subjectId = sharedCours.subjectId;
+            this.subjectLabel = sharedCours.subjectLabel;
+            this.evenements = sharedCours.evenements;
+            this.isFromMongo = sharedCours.isFromMongo;
+            this._id = sharedCours._id;
+            this.dayOfWeek = sharedCours.dayOfWeek;
+            this.isAlreadyFound = sharedCours.isAlreadyFound;
+            this.isFutur = sharedCours.isFutur;
         }
     }
 }

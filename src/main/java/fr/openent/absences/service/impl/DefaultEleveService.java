@@ -576,7 +576,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                 query.append("(?, ?, ?, ?, ?, ?)");
                 values.add(appelToCreate.getNumber("id"));
                 values.add(appelToCreate.getNumber("id_cours"));
-                values.add(appelToCreate.getString("id_personnel"));
+                values.add(idUser);
                 values.add(idUser);
                 values.add(true);
                 values.add(Viescolaire.ID_ETAT_APPEL_EN_COURS); // id_etat = En cours

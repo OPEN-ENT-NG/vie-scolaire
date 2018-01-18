@@ -9,16 +9,12 @@ export class Eleve extends SharedEleve {
 
     responsables: Collection<Responsable>;
     abscprev: Collection<AbsencePrev>;
-    className: string[];
-    groupName: string[];
-    classesId: string[];
-    groupesId: string[];
-    synchronized: any;
-    coursMongo: any;
+
+
+
     absences: any;
     canCommunicateWithUserConnected: boolean;
-    coursPostgres: any;
-    structureId = String;
+
 
     get api() {
         return _.extend(this.apiList, {
@@ -26,7 +22,6 @@ export class Eleve extends SharedEleve {
             GET_ALL_ABSENCES: '/viescolaire/presences/eleve/' + this.id + '/absences/',
             GET_ALL_ABSENCES_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev',
             GET_EVENT_ELEVE: '/viescolaire/presences/eleve/',
-            GET_Eleve_COURS: '/viescolaire/cours',
             GET_CLASSE_COURS: '/viescolaire',
             GET_ABSC_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev/',
             GET_COURS_FROM_MONGO: '/directory/timetable/courses/' + this.structureId,
@@ -39,11 +34,7 @@ export class Eleve extends SharedEleve {
         super();
         this.coursMongo = [];
         this.coursPostgres = [];
-        this.synchronized = {
-            className : false,
-            groupName: false,
-            cours: false
-        };
+
 
         this.collection(Responsable, {
             sync: () => {
@@ -100,26 +91,30 @@ export class Eleve extends SharedEleve {
         await this.syncCoursMongo(startMomentPeriod.format('YYYY-MM-DD'), endMomentPeriod.format('YYYY-MM-DD'), this.className);
 
         // On récupère les cours après rapprochement (Mongo/PostgreSQL)
-        let arrayCours = checkRapprochementCoursCommon(startMomentPeriod, endMomentPeriod, structure, this.evenements, this.coursPostgres, this.coursMongo);
+        let arraySharedCours = checkRapprochementCoursCommon(startMomentPeriod, endMomentPeriod, structure, this.evenements, this.coursPostgres, this.coursMongo);
+
+        let arrayCours: Cours[] = [];
 
         // Mise en forme des cours
-        arrayCours.forEach(item => {
-            item.isFutur = item.endMoment > moment();
-            item.locked = true;
-            item.is_periodic = false;
-            item.color = item.isFutur ? 'grey' : 'red';
+        arraySharedCours.forEach(sharedCours => {
+            let cours = new Cours(sharedCours);
+            cours.isFutur = cours.endMoment > moment();
+            cours.locked = true;
+            cours.is_periodic = false;
+            cours.color = cours.isFutur ? 'grey' : 'red';
 
             // On récupère le nom des enseignants
-            item.teacherNames = [];
-            item.teacherIds.forEach((teacherId) => {
-                item.teacherNames.push(_.findWhere(structure.enseignants.all, {id : teacherId}));
+            cours.teacherNames = [];
+            cours.teacherIds.forEach((teacherId) => {
+                cours.teacherNames.push(_.findWhere(structure.enseignants.all, {id : teacherId}));
             });
             // On récupère le nom de la matière
-            item.subjectLabel = _.findWhere(structure.matieres.all, {id : item.subjectId});
+            cours.subjectLabel = _.findWhere(structure.matieres.all, {id : cours.subjectId});
 
-            if (!item.isFromMongo && this.absences) {
-                item.absence = this.absences.find(absc => absc.id_cours === item.id);
+            if (!cours.isFromMongo && this.absences) {
+                cours.absence = this.absences.find(absc => absc.id_cours === cours.id);
             }
+            arrayCours.push(cours);
         });
 
         return arrayCours;

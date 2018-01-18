@@ -122,6 +122,7 @@ export class Eleve extends DefaultEleve {
                     }
                     http().get(url.slice(0, -1))
                         .done((cours) => {
+                            console.log('Sync parent/Eleve');
                             this.courss.load(cours);
                             resolve();
                         });

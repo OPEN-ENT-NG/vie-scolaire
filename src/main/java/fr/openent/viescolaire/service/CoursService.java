@@ -23,6 +23,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 import java.util.List;
 
@@ -76,4 +77,7 @@ public interface CoursService extends CrudService{
      * @param handler   Handler de retour
      */
     public void getCoursById(List<Long> idCours, Handler<Either<String, JsonArray>> handler);
+
+    public void createCours(String userId, String idEtablissement, String idMatiere, String dateDebut, String dateFin
+            , List<String> listIdClasse, List<String> listIdPersonnel, Handler<Either<String, JsonObject>> handler);
 }

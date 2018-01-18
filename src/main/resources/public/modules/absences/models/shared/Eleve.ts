@@ -24,7 +24,8 @@ import { Cours } from './Cours';
 import { Evenement } from './Evenement';
 import { Plage } from './Plage-old';
 import { getPlage } from '../../../utils/functions/getPlages';
-import { DefaultEleve } from "../common/DefaultEleve";
+import { DefaultEleve } from '../common/DefaultEleve';
+import {checkRapprochementCoursCommon} from "../../utils/common";
 
 
 export class Eleve extends DefaultEleve {
@@ -32,10 +33,21 @@ export class Eleve extends DefaultEleve {
     courss: Collection<Cours>;
     absencePrevs: Collection<AbsencePrev>;
     plages: Collection<Plage>;
+    coursPostgres: any;
+    coursMongo: any;
+    structureId: string;
 
+    synchronized: any;
+    className: string[];
+    groupName: string[];
+    classesId: string[];
+    groupesId: string[];
+    
     apiList = {
         GET_EVENEMENT: '/viescolaire/presences/eleve/' + this.id + '/evenements/',
-        GET_ABSENCES_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev/'
+        GET_ABSENCES_PREV: '/viescolaire/presences/eleve/' + this.id + '/absencesprev/',
+        GET_COURS_FROM_MONGO: '/directory/timetable/courses/' + this.structureId,
+        GET_COURS_FROM_SQL: '/viescolaire/cours/' + this.structureId + '/' + this.id
     };
 
     get api () {
@@ -47,6 +59,11 @@ export class Eleve extends DefaultEleve {
         if (o && typeof o === 'object') {
             this.updateData(o);
         }
+        this.synchronized = {
+            className : false,
+            groupName: false,
+            cours: false
+        };
         this.collection(Evenement, {
             sync : (psDateDebut, psDateFin) => {
                 return new Promise((resolve, reject) => {
@@ -57,7 +74,7 @@ export class Eleve extends DefaultEleve {
                 });
             },
             addEvt : (poEvt) => {
-                if(!_.findWhere(this.evenements.all, {id : poEvt.id})) {
+                if (!_.findWhere(this.evenements.all, {id : poEvt.id})) {
                     this.evenements.push(poEvt);
                     return true;
                 } else {
@@ -84,7 +101,7 @@ export class Eleve extends DefaultEleve {
                      * Pour chaque plage, on récupere le cours correspondant, puis pour la plage, on ajoute au tableau evenements
                      * la liste des evenements relatifs à la plage horaire.
                      */
-                    //_.filter(otEvt, (_evt) => {return _evt.id != null })
+                    // _.filter(otEvt, (_evt) => {return _evt.id != null })
                     _.each(otEvt, (poEvt) => {
                         let otCours = this.courss.findWhere({id: poEvt.id_cours});
                         for (let i = parseInt(moment(otCours.timestamp_dt).format('HH'));
@@ -170,7 +187,29 @@ export class Eleve extends DefaultEleve {
         });
     }
 
-    sync(psDateDebut?, psDateFin?):Promise<any> {
+    syncClasseGroupName(classesGroup, variable) {
+        if (variable === 'classe') {
+            this.className = [];
+            _.each(this.classesId, (externalClasseId) => {
+                let classe = _.findWhere(classesGroup, {externalId: externalClasseId});
+                if (classe !== undefined) {
+                    this.className.push(classe.name);
+                }
+            });
+            this.synchronized.className = true;
+        } else {
+            this.groupName = [];
+            _.each(this.groupesId, (groupId) => {
+                let group = _.findWhere(classesGroup, {id: groupId});
+                if (group !== undefined) {
+                    this.groupName.push(group.name);
+                }
+            });
+            this.synchronized.groupName = true;
+        }
+    }
+
+    sync(psDateDebut?, psDateFin?): Promise<any> {
         return new Promise(async (resolve, reject) => {
             if(psDateDebut && psDateFin) {
                 await Promise.all([this.evenements.sync(psDateDebut, psDateFin), this.absencePrevs.sync(psDateDebut, psDateFin)]);

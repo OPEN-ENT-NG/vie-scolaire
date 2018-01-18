@@ -171,6 +171,14 @@ body.presences {
     background-color: $orange;
   }
 
+  .appel__journee-calendar__creneau-futur {
+    background-color: #5f5f5f;
+    padding: 0 5px;
+    margin: 5px 0px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 2px 0px;
+    color: white;
+  }
+
   .appel__journee-calendar__creneau-vide {
     padding: 0 5px;
     background-color: rgba(206, 216, 220, 0.35);

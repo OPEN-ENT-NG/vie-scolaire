@@ -78,7 +78,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                     .append("SET ");
 
             for (String attr : poEvenement.getFieldNames()) {
-                if(attr.split("_")[0].equals("timestamp")) {
+                if("timestamp".equals(attr.split("_")[0])) {
                     query.append(attr).append(" = (?::timestamptz), ");
                 } else {
                     query.append(attr).append(" = ?, ");

@@ -595,7 +595,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 return false;
             }
             return true;
-        }
+        };
 
         $scope.previousWeekButton = function() {
             let prev = moment(model.calendar.firstDay).subtract(7, 'day');

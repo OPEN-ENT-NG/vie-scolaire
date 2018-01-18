@@ -51,7 +51,7 @@ export let abscParentController = ng.controller('AbscParentController', [
 
         // Permet le choix d'un élève et la synchronisation des évènements et déclarations de l'élève
         $scope.chooseChild = async (eleve, nb?) => {
-            if ($scope.selectedEleve == null || $scope.selectedEleve.id != eleve.id) {
+            if ($scope.selectedEleve == null || $scope.selectedEleve.id !== eleve.id) {
                 $scope.selectedEleve = eleve;
                 $scope.syncEleve();
                 utils.safeApply($scope);
@@ -69,7 +69,7 @@ export let abscParentController = ng.controller('AbscParentController', [
         };
 
         $rootScope.$on('$routeChangeSuccess', (event, next, current) => {
-            if ($scope.selectedEleve != null) {
+            if ($scope.selectedEleve !== null) {
                 $scope.syncEleve();
             }
         });

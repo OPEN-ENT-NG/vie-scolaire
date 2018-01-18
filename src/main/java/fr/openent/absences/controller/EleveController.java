@@ -88,7 +88,7 @@ public class EleveController extends ControllerHelper {
             public void handle(UserInfos user) {
                 String sIdEleve = request.params().get(ID_ELEVE);
 
-                final String preFilter = " AND m.id = {idEleve} ";;
+                final String preFilter = " AND m.id = {idEleve} ";
                 final JsonObject params = new JsonObject();
                 params.putString("idEleve", sIdEleve);
                 findVisibles(eb, user.getUserId(), null, params, false, false, false,null, preFilter, new Handler<JsonArray>() {

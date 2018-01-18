@@ -72,7 +72,7 @@ export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelC
         };
 
         $scope.openResponsable = (id) => {
-            if ($scope.pOOpenedResponsable != id) {
+            if ($scope.pOOpenedResponsable !== id) {
                 $scope.pOOpenedResponsable = id;
             } else {
                 $scope.pOOpenedResponsable = null;

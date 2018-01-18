@@ -108,7 +108,7 @@ export class Cours extends DefaultCours {
                 resolve();
             });
         });
-    };
+    }
 
     loadAbscPrev = (): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -124,7 +124,7 @@ export class Cours extends DefaultCours {
                 resolve();
             });
         });
-    };
+    }
 
     loadAbscLastCours = (isTeacher?): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ export class Cours extends DefaultCours {
                 resolve();
             });
         });
-    };
+    }
 
     loadCoursClasse = (): Promise<any> => {
         return new Promise((resolve, reject) => {
@@ -157,5 +157,5 @@ export class Cours extends DefaultCours {
                 resolve();
             });
         });
-    };
+    }
 }

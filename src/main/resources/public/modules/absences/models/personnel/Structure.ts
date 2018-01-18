@@ -342,5 +342,5 @@ export class Structure extends SharedStructure {
             this.trigger('synchronized');
             resolve();
         });
-    };
+    }
 }

@@ -1,7 +1,7 @@
 <div class="twelve cell">
     <label ng-if="structures.all.length > 1"  class="select right-magnet">
         <select ng-model="structure" ng-options="structure.name for structure in structures.all
-                            track by structure.id" ng-change="changeStructure(structure)">
+                            track by structure.id" ng-change="changeStructure(structure);clearAppel();">
         </select>
     </label>
 </div>

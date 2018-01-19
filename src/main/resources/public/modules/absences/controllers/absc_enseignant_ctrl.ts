@@ -42,30 +42,37 @@ export let absencesController = ng.controller('AbsencesController', [
          *  permet de changer l'établissement courrant
          * @param structure
          */
-        $scope.changeStructure = function (structure) {
+        $scope.changeStructure = async function (structure) {
             $scope.$parent.displayStructureLoader = true;
             $scope.displayStructureLoader = true;
+
             $scope.structure = structure;
-            $rootScope.$broadcast('syncAppel');
-            $scope.$on('AppelLoaded', () => {
-                $scope.$parent.displayStructureLoader = false;
-                $scope.displayStructureLoader = false;
-                presences.structure = structure;
-            });
+
+            await $scope.structure.plages.sync();
+            await $scope.structure.classes.sync();
+            await $scope.structure.courss.sync(moment().format(FORMAT.date), moment().add(1, 'days').format(FORMAT.date)
+                , model.me.userId, false, model.me.classNames);
+
+            $scope.$parent.displayStructureLoader = false;
+            $scope.displayStructureLoader = false;
+            presences.structure = structure;
+            utils.safeApply($scope);
         };
 
-        presences.structures.sync().then(() => {
+        presences.structures.sync().then( async () => {
             if (!presences.structures.empty()) {
                 $scope.structures = presences.structures;
                 $scope.structure = presences.structures.first();
-                $scope.structure.syncAppel().then(() => {
-                    if ($location.path() === '/disabled') {
-                        $location.path('/appel');
-                        $location.replace();
-                    } else {
-                        executeAction();
-                    }
-                });
+                await $scope.structure.plages.sync();
+                await $scope.structure.classes.sync();
+                await $scope.structure.courss.sync(moment().format(FORMAT.date), moment().add(1, 'days').format(FORMAT.date)
+                    , model.me.userId, false, model.me.classNames);
+                if ($location.path() === '/disabled') {
+                    $location.path('/appel');
+                    $location.replace();
+                } else {
+                    executeAction();
+                }
             } else {
                 $location.path() === '/disabled' ?
                     executeAction() :

@@ -102,49 +102,10 @@ export class Structure extends DefaultStructure {
         });
 
         this.collection(Cours, {
-            sync2 : (dateDebut: any, dateFin: any, idClassOrTeach?: string, isClass?: boolean) => {
-                return new Promise((resolve, reject) => {
-                    if(idClassOrTeach == null) {    idClassOrTeach = model.me.userId;   }
-                    let url = "";
-                    if(isClass) {
-                        url = this.api.COURS.syncParClasse + idClassOrTeach
-                            + '/cours/' + dateDebut + '/' + dateFin;
-                    } else {
-                        url = this.api.COURS.syncParEnseignant + idClassOrTeach + '/' + this.id
-                            + '/cours/' + dateDebut + '/' + dateFin;
-                    }
-                    http().getJson(url).done((res: any[]) => {
-                        this.courss.load(res);
-                        _.each(this.courss.all, (cours) => {
-                            cours.classe = _.findWhere(this.classes.all, {id : cours.id_classe});
-                        });
-                        this.synchronization.cours = true;
-                        if (resolve && typeof (resolve) === 'function') {
-                            resolve();
-                        }
-                    });
-                    // TODO Récupérer les cours de la structure sur l'api timetable
-                });
-            },
-            sync: async (dateDebut: any, dateFin: any, idClassOrTeach?: string | any, isClass?: boolean) => {
+            sync: async (dateDebut: any, dateFin: any, idClassOrIdTeach: string, isClass: boolean, arrayClasseName: any) => {
                 // Le resolve de la promesse est appelé grâce au return et le reject grâce au Throw dans le catch
                 try {
-                    console.log('sync2');
-                    await this.syncCoursPostgres(dateDebut, dateFin, idClassOrTeach, isClass);
-                    let arrayClasseName = [];
-                    if (isClass) {
-                        let arrayClasseId = [];
-                        let idClass = idClassOrTeach;
-                        arrayClasseId.push(idClassOrTeach);
-                        arrayClasseName.push(this.classes.find(classe => classe.id === idClass).name);
-                    } else {
-                        let teacher = idClassOrTeach;
-                        if (teacher !== undefined) {
-                            arrayClasseName = teacher.allClasses.map(o => o.name);
-                        } else {
-                            return;
-                        }
-                    }
+                    await this.syncCoursPostgres(dateDebut, dateFin, idClassOrIdTeach, isClass);
                     await this.syncCoursMongo(dateDebut, dateFin, arrayClasseName);
 
                     let arrayCours = checkRapprochementCoursCommon(moment(dateDebut), moment(dateFin), this, undefined, this.coursPostgres, this.coursMongo);
@@ -251,16 +212,15 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    private async syncCoursPostgres(dateDebut: any, dateFin: any, idClassOrTeach?: string | any, isClass?: boolean) {
+    private async syncCoursPostgres(dateDebut: any, dateFin: any, idClassOrIdTeach?: string, isClass?: boolean) {
         return new Promise((resolve, reject) => {
-            if (idClassOrTeach == null) {    idClassOrTeach = model.me.userId;   }
+            if (idClassOrIdTeach == null) {    idClassOrIdTeach = model.me.userId;   }
             let url = '';
             if (isClass) {
-                url = this.api.COURS.syncParClasse + idClassOrTeach
+                url = this.api.COURS.syncParClasse + idClassOrIdTeach
                     + '/cours/' + dateDebut + '/' + dateFin;
             } else {
-                let idTeacher = idClassOrTeach.id;
-                url = this.api.COURS.syncParEnseignant + idTeacher + '/' + this.id
+                url = this.api.COURS.syncParEnseignant + idClassOrIdTeach + '/' + this.id
                     + '/cours/' + dateDebut + '/' + dateFin;
             }
             http().getJson(url).done((res: any[]) => {
@@ -285,6 +245,9 @@ export class Structure extends DefaultStructure {
 
     private async syncCoursMongo(startDate, endDate, classesName): Promise<any> {
         return new Promise((resolve) => {
+            if (classesName === undefined || classesName.length === 0) {
+                return;
+            }
             let groupParam = '';
             for (let i = 0 ; i < classesName.length; i++) {
                 if ( i !== 0 ) {
@@ -300,28 +263,6 @@ export class Structure extends DefaultStructure {
                 });
                 resolve();
             });
-        });
-    }
-
-    syncAppel(): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            await this.plages.sync();
-            await this.classes.sync();
-            await this.syncCours();
-            resolve();
-        });
-    }
-
-    syncCours(sDateDebut?, sDateFin?): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            if(sDateDebut == null || sDateFin == null) {
-                sDateDebut = moment().format(FORMAT.date);
-                sDateFin = moment().add(1, 'days').format(FORMAT.date);
-            }
-
-            await this.courss.sync(sDateDebut, sDateFin);
-            await this.creneaus.sync();
-            resolve();
         });
     }
 }

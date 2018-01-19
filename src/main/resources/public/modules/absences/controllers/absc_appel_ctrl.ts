@@ -15,6 +15,18 @@ export let abscAppelController = ng.controller('AbscAppelController', [
         template.open('AbscEleveDetail', '../templates/absences/absc_appel_eleve_detail');
         template.open('AbscEleveAide', '../templates/absences/absc_appel_help');
 
+
+        $scope.clearAppel = () => {
+            $scope.appel.display = false;
+            $scope.showError = false;
+            $scope.currentCours = undefined;
+
+            let currentDate = $scope.appel.date;
+            $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+            $scope.refreshVuesAppel();
+            $scope.ouvrirAppel();
+        }
+
         $scope.psFiltreTitre = {
             enseignant: 'Enseignant',
             classe: 'Classe',
@@ -502,15 +514,20 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 let sDateDebut = pdtDate.format(FORMAT.date);
                 let sDateFin = pdtDate.add(1, 'days').format(FORMAT.date);
 
+                await $scope.structure.classes.sync();
                 if ($scope.isResponsable()) {
                     if ($scope.poEnseignantRecherche && !$scope.poClasseRecherche) {
-                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poEnseignantRecherche, false);
+                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poEnseignantRecherche.id, false
+                            , $scope.poEnseignantRecherche.allClasses.map(o => o.name));
                     } else if ($scope.poClasseRecherche && !$scope.poEnseignantRecherche) {
-                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poClasseRecherche.id, true);
+                        await $scope.structure.courss.sync(sDateDebut, sDateFin, $scope.poClasseRecherche.id, true
+                            , [$scope.poClasseRecherche.name]);
                     }
                     await $scope.structure.creneaus.sync();
                 } else {
-                    await $scope.structure.syncCours(sDateDebut, sDateFin);
+                    let arrayClasseName = $scope.structure.classes.filter(classe => model.me.classes.includes(classe.id)).map(o => o.name);
+                    await $scope.structure.courss.sync(sDateDebut, sDateFin, model.me.userId, false, arrayClasseName);
+                    await $scope.structure.creneaus.sync();
                 }
                 resolve();
             });
@@ -605,18 +622,20 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             return moment(momentDate).format('HH:mm');
         };
 
-        /**
-         * Au changement d'etablissement, on recharge les donnees.
-         */
-        $scope.$on('syncAppel', async () => {
-            await $scope.structure.syncAppel();
-            $rootScope.$broadcast('AppelLoaded');
-            $scope.refreshVuesAppel();
-            $scope.ouvrirAppel($scope.selectedAppel);
-        });
 
-        await $scope.structure.syncAppel();
-        if($scope.selectedAppel !== null) {
+        if (!$scope.isResponsable()) {
+            await $scope.structure.plages.sync();
+            await $scope.structure.classes.sync();
+            let arrayClasseName = $scope.structure.classes.filter(classe => model.me.classes.includes(classe.id)).map(o => o.name);
+            await $scope.structure.courss.sync(moment().format(FORMAT.date), moment().add(1, 'days').format(FORMAT.date)
+                , model.me.userId, false, arrayClasseName);
+
+            let currentDate = $scope.appel.date;
+            $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+            $scope.ouvrirAppel();
+        }
+
+        if($scope.selectedAppel != null) {
             $scope.ouvrirAppel($scope.selectedAppel);
             $scope.appel.date = new Date($scope.selectedAppel.timestamp);
         }

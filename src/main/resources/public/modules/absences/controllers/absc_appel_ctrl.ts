@@ -395,9 +395,11 @@ export let abscAppelController = ng.controller('AbscAppelController', [
 
                 // Une fois synchronisé on récupère le coursPostgres et on le sélectionne
                 let coursPostgres = $scope.structure.creneaus.find(creneau => creneau.timestamp_dt === cours.startMoment.format('HH:mm')
-                    && creneau.timestamp_fn === cours.endMoment.format('HH:mm')).cours;
-                $scope.selectCours(coursPostgres);
-                utils.safeApply($scope);
+                    && creneau.timestamp_fn === cours.endMoment.format('HH:mm') && !creneau.cours.isFromMongo).cours;
+                if (coursPostgres !== undefined) {
+                    $scope.selectCours(coursPostgres);
+                    utils.safeApply($scope);
+                }
                 return;
             }
 

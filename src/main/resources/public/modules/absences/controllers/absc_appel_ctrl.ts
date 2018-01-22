@@ -155,7 +155,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
         $scope.deleteEvenement = async (poEvt): Promise<any> => {
             return new Promise(async (resolve, reject) => {
 
-                let poEleve = _.findWhere($scope.currentCours.classe.eleves.all, {id: poEvt.id_eleve});
+                let poEleve = _.findWhere($scope.getListEleveClasses(), {id: poEvt.id_eleve});
 
                 if (poEleve == null) {
                     return;

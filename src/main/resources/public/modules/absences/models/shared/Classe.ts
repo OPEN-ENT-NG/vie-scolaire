@@ -37,7 +37,7 @@ export class Classe extends DefaultClasse {
         });
     }
 
-    sync(): Promise<any> {
+    async sync(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.eleves.sync().then(resolve);
         });

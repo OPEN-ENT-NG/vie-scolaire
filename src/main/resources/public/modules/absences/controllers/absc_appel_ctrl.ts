@@ -94,11 +94,14 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.calcNbElevesPresents = function () {
             let piAbsents = 0;
-            $scope.appel.piTotal = $scope.currentCours.classe.eleves.all.length;
-            _.each($scope.currentCours.classe.eleves.all, (_eleve) => {
-                if ($scope.getEvenement(_eleve, $scope.oEvtType.giIdEvenementAbsence)) {
-                    piAbsents++;
-                }
+            $scope.appel.piTotal = 0;
+            $scope.currentCours.classes.forEach(classe => {
+                $scope.appel.piTotal += classe.eleves.all.length;
+                classe.eleves.all.forEach(eleve => {
+                    if ($scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementAbsence)) {
+                        piAbsents++;
+                    }
+                });
             });
             $scope.appel.piPresents = $scope.appel.piTotal - piAbsents;
         };
@@ -364,12 +367,22 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             }
         };
 
+        $scope.getListEleveClasses = () => {
+
+            let listEleve = [];
+            if ($scope.currentCours !== undefined) {
+                $scope.currentCours.classes.forEach(classe => classe.eleves.all.forEach(eleve => {
+                    listEleve.push(eleve);
+                }));
+            }
+            return listEleve;
+        };
+
         /**
          * Sélection d'un cours : Affiche le panel central de la liste des élèves
          * @param cours l'objet cours sélectionné
          */
         $scope.selectCours = async (cours) => {
-
             if (cours.isFromMongo) {
                 // Si c'est un cours Mongo alors on créer le cours postgres
                 cours.structureId = $scope.structure.id;
@@ -396,7 +409,9 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.detailEleve.displayed = false;
             $scope.bClassesVue = false;
             $scope.currentCours = cours;
-            $scope.currentCours.classe = $scope.structure.classes.findWhere({name: $scope.currentCours.classeNames[0]}); // todo: gérer multiclasse
+
+            $scope.currentCours.classes = $scope.structure.classes.filter(classe => _.contains($scope.currentCours.classeNames, classe.name));
+
             $scope.currentEleve = undefined;
             $scope.updateDetailEleve();
 
@@ -405,25 +420,38 @@ export let abscAppelController = ng.controller('AbscAppelController', [
 
             // Synchronise l'historique de chaque élève avant de continuer
             let _todo = [];
-            _.each($scope.currentCours.classe.eleves.all, (oEleve) => {
-                _todo.push(oEleve.plages.sync());
-            });
+            $scope.currentCours.classes.forEach(classe => classe.eleves.all.forEach(eleve => {
+                _todo.push(eleve.plages.sync());
+            }));
             await Promise.all(_todo);
 
             $scope.calcNbElevesPresents();
 
-            // si le cours sélectionné est un groupe d'enseignement, alors, on regroupe les élèves par classe
-            if ($scope.currentCours.classe.type_groupe === 1) {
-                let _elevesByGroup = _.groupBy($scope.currentCours.classe.eleves.all, function (oEleve) {
-                    return oEleve.className;
+            // si il y'a plusieurs classes, alors on regroupe les élèves pour les afficher par classe
+            if ($scope.currentCours.classes.length > 0) {
+                let listEleve = [];
+                $scope.currentCours.classes.forEach(classe => {
+                    if (classe.type_groupe === 1) {
+                        $scope.bClassesVue = true;
+                    }
+                    classe.eleves.all.forEach(eleve => {
+                        listEleve.push(eleve);
+                    });
+                });
+
+                let _elevesByGroup = _.groupBy(listEleve, function (oEleve) {
+                    return oEleve.classes[0];
                 });
                 $scope.currentCours.classesOfGroup = [];
                 for (let group in _elevesByGroup) {
                     $scope.currentCours.classesOfGroup.push({
-                        name: group,
+                        name: $scope.structure.classes.find(classe => classe.externalId === group).name,
                         eleves: _elevesByGroup[group]
                     });
                 }
+            }
+
+            if ($scope.currentCours.classes.length > 1) {
                 $scope.bClassesVue = true;
             }
 
@@ -596,6 +624,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * @param idClasse l'identifiant de la classe.
          */
         $scope.getLibelleClasse = function (classeNames) {
+            classeNames = classeNames.sort((a, b) => a < b);
             return classeNames.join(' - ');
         };
 

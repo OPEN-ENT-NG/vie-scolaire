@@ -1357,6 +1357,7 @@ body.presences {
     width: 20px;
     height: 20px;
     animation: spin 2s linear infinite;
+    display: inline-block;
   }
 
   @keyframes spin {
@@ -1438,5 +1439,9 @@ body.presences {
         margin-left: -2px;
       }
     }
+  }
+
+  .text-center {
+    text-align: center;
   }
 }

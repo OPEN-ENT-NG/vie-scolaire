@@ -104,10 +104,12 @@ export class Eleve extends DefaultEleve {
                     // _.filter(otEvt, (_evt) => {return _evt.id != null })
                     _.each(otEvt, (poEvt) => {
                         let otCours = this.courss.findWhere({id: poEvt.id_cours});
-                        for (let i = parseInt(moment(otCours.timestamp_dt).format('HH'));
-                             i < parseInt(moment(otCours.timestamp_fn).format('HH')); i++) {
-                            let otPlage = this.plages.findWhere({heure: i});
-                            otPlage.evenements.push(poEvt);
+                        if (otCours !== undefined) {
+                            for (let i = parseInt(moment(otCours.timestamp_dt).format('HH'));
+                                 i < parseInt(moment(otCours.timestamp_fn).format('HH')); i++) {
+                                let otPlage = this.plages.findWhere({heure: i});
+                                otPlage.evenements.push(poEvt);
+                            }
                         }
                     });
 

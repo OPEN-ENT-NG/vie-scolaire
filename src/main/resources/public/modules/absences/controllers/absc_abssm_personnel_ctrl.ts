@@ -237,6 +237,7 @@ export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelContr
                     let poEleve = {
                         firstName: _eleve.firstName,
                         lastName: _eleve.lastName,
+                        eleve_nom:  _eleve.lastName + ' ' + _eleve.firstName,
                         id: _eleve.id,
                         cours_date: moment(date),
                         evenements: evts,

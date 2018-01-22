@@ -2,19 +2,18 @@ import { template, ng } from 'entcore';
 import {Evenement} from '../models/shared/Evenement';
 import {FORMAT} from '../constants/formats';
 import * as utils from '../utils/shared';
-import {Cours} from "../models/shared/Cours";
+import {Cours} from '../models/shared/Cours';
 
 let moment = require('moment');
 declare let _: any;
 
 export let abscAppelController = ng.controller('AbscAppelController', [
-    '$scope', 'route', 'model', '$rootScope','$location', '$route', '$templateCache',
+    '$scope', 'route', 'model', '$rootScope', '$location', '$route', '$templateCache',
     async function ($scope, route, model, $rootScope, $location, $route, $templateCache) {
 
         template.open('AbscFiltreAppel', '../templates/absences/absc_appel_filtre');
         template.open('AbscEleveDetail', '../templates/absences/absc_appel_eleve_detail');
         template.open('AbscEleveAide', '../templates/absences/absc_appel_help');
-
         
         $scope.clearAppel = () => {
             $scope.appel.display = false;
@@ -25,7 +24,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
             $scope.refreshVuesAppel();
             $scope.ouvrirAppel();
-        }
+        };
         
         $scope.psFiltreTitre = {
             enseignant: 'Enseignant',
@@ -72,7 +71,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * @returns {boolean} true si c'est un personnel d'éducation, false sinon.
          */
         $scope.isResponsable = () => {
-            return model.me.type === "PERSEDUCNAT";
+            return model.me.type === 'PERSEDUCNAT';
         };
 
         /**
@@ -84,9 +83,9 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.isEditable = (poEvent?) => {
             if (poEvent != null) {
-                return model.me.type === "PERSEDUCNAT" || !poEvent.saisie_cpe;
-            } else if ($scope.currentCours != null){
-                return (model.me.type === "PERSEDUCNAT") || !$scope.currentCours.appel.saisie_cpe;
+                return model.me.type === 'PERSEDUCNAT' || !poEvent.saisie_cpe;
+            } else if ($scope.currentCours != null) {
+                return (model.me.type === 'PERSEDUCNAT') || !$scope.currentCours.appel.saisie_cpe;
             }
         };
 
@@ -123,17 +122,17 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 poEvt.id_motif = null;
                 poEvt.id_cours = $scope.currentCours.id;
 
-                if (poEvt.id_type == $scope.oEvtType.giIdEvenementAbsence) {
+                if (poEvt.id_type === $scope.oEvtType.giIdEvenementAbsence) {
                     let _todo = [];
                     _.each(poEleve.evenements.all, (_evt) => {
-                        if ((_evt.id_type == $scope.oEvtType.giIdEvenementRetard ||
-                            _evt.id_type == $scope.oEvtType.giIdEvenementDepart)
-                            && _evt.id_appel == poEvt.id_appel) {
+                        if ((_evt.id_type === $scope.oEvtType.giIdEvenementRetard ||
+                            _evt.id_type === $scope.oEvtType.giIdEvenementDepart)
+                            && _evt.id_appel === poEvt.id_appel) {
                             _todo.push($scope.deleteEvenement(_evt));
                         }
                     });
                     $scope.updateDetailEleve();
-                    //afin d'éviter d'itérer sur une liste qu'on modifie, on stocke les suppressions pour les
+                    // afin d'éviter d'itérer sur une liste qu'on modifie, on stocke les suppressions pour les
                     // executer une fois la boucle terminee
                     await Promise.all(_todo);
                 }
@@ -162,7 +161,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 poEleve.plages.remEvtPlage(poEvt);
                 poEleve.evenements.remEvt(poEvt);
                 $scope.updateDetailEleve(poEvt.id_type);
-                if (poEvt.id_type == $scope.oEvtType.giIdEvenementRetard || poEvt.id_type == $scope.oEvtType.giIdEvenementDepart) {
+                if (poEvt.id_type === $scope.oEvtType.giIdEvenementRetard || poEvt.id_type === $scope.oEvtType.giIdEvenementDepart) {
                     $scope.setTime(poEvt.id_type);
                 }
                 await poEvt.delete();
@@ -210,7 +209,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 switch (piTypeEvent) {
                     case $scope.oEvtType.giIdEvenementObservation:
                         if (_.isEmpty($scope.detailEleve.evenements[$scope.oEvtType.giIdEvenementObservation].commentaire)) {
-                            if(poEvent.id != null) {
+                            if (poEvent.id != null) {
                                 await $scope.deleteEvenement(poEvent);
                             }
                             break;
@@ -247,7 +246,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.getEvenement = (poEleve, piTypeEvent) => {
             return poEleve ? poEleve.evenements.find((evt) => {
-                return evt.id != null && evt.id_appel == $scope.currentCours.appel.id && evt.id_type == piTypeEvent;
+                return evt.id != null && evt.id_appel === $scope.currentCours.appel.id && evt.id_type === piTypeEvent;
             })
                 : null;
         };
@@ -259,7 +258,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          */
         $scope.detailEleveAppel = function (poEleve) {
 
-            if (poEleve != $scope.currentEleve) {
+            if (poEleve !== $scope.currentEleve) {
                 $scope.setTime();
                 $scope.currentEleve = poEleve;
                 $scope.updateDetailEleve();
@@ -289,7 +288,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                         break;
                     case $scope.oEvtType.giIdEvenementRetard:
                     case $scope.oEvtType.giIdEvenementDepart:
-                        let _timestamp = poEvt.id_type == $scope.oEvtType.giIdEvenementRetard ? poEvt.timestamp_arrive : poEvt.timestamp_depart;
+                        let _timestamp = poEvt.id_type === $scope.oEvtType.giIdEvenementRetard ? poEvt.timestamp_arrive : poEvt.timestamp_depart;
                         $scope.setTime(poEvt.id_type, _timestamp);
                     case $scope.oEvtType.giIdEvenementAbsence:
                     case $scope.oEvtType.giIdEvenementIncident:
@@ -319,20 +318,20 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * @param poEvent   L'évèment pour lequel on souhaite initialiser l'heure.
          */
         $scope.updateTime = (poEvent) => {
-            if (poEvent.id_type == $scope.oEvtType.giIdEvenementDepart) {
+            if (poEvent.id_type === $scope.oEvtType.giIdEvenementDepart) {
                 if (poEvent.timestamp_depart == null) {
                     $scope.setTime(poEvent.id_type);
                 }
                 let _date = moment($scope.currentCours.endMoment).format(FORMAT.date);
                 let _hour = $scope.oEvtTime.depart;
-                poEvent.timestamp_depart = moment(_date + " " + _hour, FORMAT.date + " " + FORMAT.heureMinutes).format(FORMAT.timestamp);
-            } else if (poEvent.id_type == $scope.oEvtType.giIdEvenementRetard) {
+                poEvent.timestamp_depart = moment(_date + ' ' + _hour, FORMAT.date + ' ' + FORMAT.heureMinutes).format(FORMAT.timestamp);
+            } else if (poEvent.id_type === $scope.oEvtType.giIdEvenementRetard) {
                 if (poEvent.timestamp_arrive == null) {
                     $scope.setTime(poEvent.id_type);
                 }
                 let _date = moment($scope.currentCours.startMoment).format(FORMAT.date);
                 let _hour = $scope.oEvtTime.retard;
-                poEvent.timestamp_arrive = moment(_date + " " + _hour, FORMAT.date + " " + FORMAT.heureMinutes).format(FORMAT.timestamp);
+                poEvent.timestamp_arrive = moment(_date + ' ' + _hour, FORMAT.date + ' ' + FORMAT.heureMinutes).format(FORMAT.timestamp);
             }
         };
 
@@ -346,16 +345,16 @@ export let abscAppelController = ng.controller('AbscAppelController', [
         $scope.setTime = (piTypeEvent?, psTime?) => {
             if (piTypeEvent != null && psTime != null) {
                 let _hour = moment(psTime).format(FORMAT.heureMinutes);
-                if (piTypeEvent == $scope.oEvtType.giIdEvenementDepart) {
+                if (piTypeEvent === $scope.oEvtType.giIdEvenementDepart) {
                     $scope.oEvtTime.depart = _hour;
-                } else if (piTypeEvent == $scope.oEvtType.giIdEvenementRetard) {
+                } else if (piTypeEvent === $scope.oEvtType.giIdEvenementRetard) {
                     $scope.oEvtTime.retard = _hour;
                 }
             } else if (piTypeEvent != null && psTime == null) {
-                if (piTypeEvent == $scope.oEvtType.giIdEvenementDepart) {
-                    $scope.oEvtTime.depart = $scope.oEvtTime.depart == '--:--' ? moment().format(FORMAT.heureMinutes) : '--:--';
-                } else if (piTypeEvent == $scope.oEvtType.giIdEvenementRetard) {
-                    $scope.oEvtTime.retard = $scope.oEvtTime.retard == '--:--' ? moment().format(FORMAT.heureMinutes) : '--:--';
+                if (piTypeEvent === $scope.oEvtType.giIdEvenementDepart) {
+                    $scope.oEvtTime.depart = $scope.oEvtTime.depart === '--:--' ? moment().format(FORMAT.heureMinutes) : '--:--';
+                } else if (piTypeEvent === $scope.oEvtType.giIdEvenementRetard) {
+                    $scope.oEvtTime.retard = $scope.oEvtTime.retard === '--:--' ? moment().format(FORMAT.heureMinutes) : '--:--';
                 }
             } else {
                 $scope.oEvtTime = {
@@ -552,8 +551,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
          * Rafraichit la liste des élèves entre la vue classe et la vue groupe
          */
         $scope.refreshVuesAppel = function () {
-            //fermeture ouverture du template pour rafraichir la vue
-            template.close("AbscEleve");
+            // fermeture ouverture du template pour rafraichir la vue
+            template.close('AbscEleve');
             utils.safeApply($scope);
             template.open('AbscEleve', '../templates/absences/absc_appel_eleve');
             utils.safeApply($scope);
@@ -635,7 +634,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.ouvrirAppel();
         }
 
-        if($scope.selectedAppel != null) {
+        if ($scope.selectedAppel != null) {
             $scope.ouvrirAppel($scope.selectedAppel);
             $scope.appel.date = new Date($scope.selectedAppel.timestamp);
         }

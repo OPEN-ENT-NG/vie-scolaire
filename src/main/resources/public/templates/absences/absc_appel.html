@@ -86,7 +86,7 @@
             <!-- Affichage de la liste des élèves classique, si on est sur une classe ou un groupe d'enseignement comportant -->
             <!-- que des élèves d'une classe -->
             <div class="list-view-cgi__grille" ng-show="!bClassesVue">
-                <div class="twelve cell" ng-repeat="eleve in currentCours.classe.eleves.all">
+                <div class="twelve cell" ng-repeat="eleve in getListEleveClasses() | orderBy:'lastName'">
                     <container template="AbscEleve"></container>
                 </div>
             </div>

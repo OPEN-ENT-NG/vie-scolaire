@@ -1,9 +1,9 @@
 import { http, IModel, notify } from 'entcore/entcore';
 import { Appel } from './Appel';
-import { DefaultCours } from "../common/DefaultCours";
-import { Evenement } from "./Evenement";
-import { Classe } from "./Classe";
-import { FORMAT } from "../../constants/formats";
+import { DefaultCours } from '../common/DefaultCours';
+import { Evenement } from './Evenement';
+import { Classe } from './Classe';
+import { FORMAT } from '../../constants/formats';
 
 export class Cours extends DefaultCours implements IModel {
     appel: Appel;
@@ -81,7 +81,7 @@ export class Cours extends DefaultCours implements IModel {
             coursClasse: false
         };
         this.appel = new Appel();
-        this.appel.sync = ():Promise<any> => {
+        this.appel.sync = (): Promise<any> => {
             return new Promise((resolve, reject) => {
                 http().getJson(this.api.GET_APPEL + this.id).done((data) => {
                     if (data.length > 0) {
@@ -128,7 +128,7 @@ export class Cours extends DefaultCours implements IModel {
         });
     }
 
-    sync(isTeacher?:string): Promise<any> {
+    sync(isTeacher?: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
 
             await Promise.all(
@@ -143,7 +143,7 @@ export class Cours extends DefaultCours implements IModel {
         });
     }
 
-    loadEvenements = ():Promise<any> => {
+    loadEvenements = (): Promise<any> => {
         return new Promise((resolve, reject) => {
 
             /**
@@ -183,7 +183,7 @@ export class Cours extends DefaultCours implements IModel {
 
             // Construction de l'API de récupération des absences au derniers Cours
             let url = '/viescolaire/presences/precedentes/cours/' + this.id;
-            url += isTeacher ? "/true" : "/false";
+            url += isTeacher ? '/true' : '/false';
 
             http().getJson(url).done((data) => {
                 _.each(data, (absc) => {

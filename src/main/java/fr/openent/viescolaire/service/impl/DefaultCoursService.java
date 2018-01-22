@@ -54,16 +54,33 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
-        query.append("SELECT cours.*, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
-                .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
-                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
-                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ON (cours.id = rel_cours_users.id_cours) ")
-                .append("LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ")
-                .append("WHERE rel_cours_groupes.id_groupe = ? ")
-                .append("AND cours.timestamp_dt > to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-                .append("AND cours.timestamp_fn < to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') ")
-                .append("GROUP BY cours.id ")
-                .append("ORDER BY cours.timestamp_fn ASC");
+        query.append("SELECT" );
+                query.append("   cours.*, ");
+        query.append("   string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ");
+        query.append("   string_agg(distinct rel_cours_users.id_user , ',') AS personnels ");
+        query.append("FROM ");
+        query.append(Viescolaire.VSCO_SCHEMA +".cours ");
+        query.append("LEFT JOIN ");
+        query.append(Viescolaire.VSCO_SCHEMA +".rel_cours_users ");
+        query.append("ON (cours.id = rel_cours_users.id_cours) ");
+        query.append("LEFT JOIN ");
+        query.append(Viescolaire.VSCO_SCHEMA +".rel_cours_groupes ");
+        query.append("ON (cours.id = rel_cours_groupes.id_cours) ");
+        query.append("WHERE ");
+        query.append("cours.id IN (");
+        query.append("SELECT ");
+        query.append("cours.id ");
+        query.append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ");
+        query.append("LEFT JOIN "+ Viescolaire.VSCO_SCHEMA +".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ");
+        query.append("WHERE ");
+        query.append("		rel_cours_groupes.id_groupe = ? ");
+        query.append("		AND cours.timestamp_dt > to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+        query.append("		AND cours.timestamp_fn < to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+        query.append("   ) ");
+        query.append("GROUP BY ");
+        query.append("cours.id ");
+        query.append("ORDER BY ");
+        query.append("cours.timestamp_fn ASC;");
 
         values.addString(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
 

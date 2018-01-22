@@ -96,13 +96,22 @@ function updateRefs() {
     return merge([absc, vsco]);
 }
 
-gulp.task('ts-local', function () { return compileTs() });
+gulp.task('ts-local', ['copy-files'], function () { return compileTs() });
 gulp.task('webpack-local', ['ts-local'], function(){ return startWebpack() });
 gulp.task('webpack-entcore-local', ['webpack-local'], function(){ return startWebpackEntcore() });
 
-gulp.task('ts', function () { return compileTs() });
+gulp.task('ts', ['copy-files'], function () { return compileTs() });
 gulp.task('webpack', ['ts'], function(){ return startWebpack() });
 gulp.task('webpack-entcore', ['webpack'], function(){ return startWebpackEntcore() });
+
+gulp.task('copy-files', () => {
+    var html = gulp.src('./node_modules/entcore/src/template/**/*.html')
+        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
+var bundle = gulp.src('./node_modules/entcore/bundle/*')
+    .pipe(gulp.dest('./src/main/resources/public/temp/entcore'));
+
+    return merge(html, bundle);
+})
 
 gulp.task('drop-temp', ['webpack-entcore'], function() {
     return gulp.src([

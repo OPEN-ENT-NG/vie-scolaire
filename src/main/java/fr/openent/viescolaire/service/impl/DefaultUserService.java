@@ -20,11 +20,6 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.bean.NoteDevoir;
-import fr.openent.evaluations.service.NoteService;
-import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultNoteService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
@@ -34,11 +29,11 @@ import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.EventBus;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -46,12 +41,10 @@ import java.util.List;
  */
 public class DefaultUserService implements UserService {
 
-    private final UtilsService utilsService;
-    private final NoteService noteService;
+    private EventBus eb;
 
-    public DefaultUserService() {
-        utilsService = new DefaultUtilsService();
-        noteService = new DefaultNoteService(Viescolaire.EVAL_SCHEMA, Viescolaire.EVAL_NOTES_TABLE);
+    public DefaultUserService(EventBus eb) {
+        this.eb = eb;
     }
 
     @Override
@@ -138,44 +131,60 @@ public class DefaultUserService implements UserService {
 
     @Override
     public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler) {
+        JsonObject action = new JsonObject()
+                .putString("action", "note.getNotesParElevesParDevoirs")
+                .putArray("idEleves", new JsonArray().addString(idEleve))
+                .putArray("idDevoirs", new JsonArray(idDevoirs));
 
-        noteService.getNotesParElevesParDevoirs(new String[]{idEleve}, idDevoirs,
-                new Handler<Either<String, JsonArray>>() {
+        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> message) {
+                if ("ok".equals(message.body().getString("status"))) {
+                    JsonArray notes = new JsonArray();
+                    JsonArray listNotes = message.body().getArray("results");
 
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-                        if (event.isRight()) {
-                            ArrayList<NoteDevoir> notes = new ArrayList<>();
-                            JsonArray listNotes = event.right().getValue();
+                    for (int i = 0; i < listNotes.size(); i++) {
 
-                            for (int i = 0; i < listNotes.size(); i++) {
+                        JsonObject note = listNotes.get(i);
 
-                                JsonObject note = listNotes.get(i);
+                        JsonObject noteDevoir = new JsonObject()
+                                .putNumber("valeur", Double.valueOf(note.getString("valeur")))
+                                .putNumber("diviseur", Double.valueOf(note.getString("diviseur")))
+                                .putBoolean("ramenerSur", note.getBoolean("ramener_sur"))
+                                .putNumber("coefficient", Double.valueOf(note.getString("coefficient")));
 
-                                NoteDevoir noteDevoir = new NoteDevoir(
-                                        Double.valueOf(note.getString("valeur")),
-                                        Double.valueOf(note.getLong("diviseur")),
-                                        note.getBoolean("ramener_sur"),
-                                        Double.valueOf(note.getString("coefficient")));
-
-                                notes.add(noteDevoir);
-                            }
-
-                            Either<String, JsonObject> result;
-
-                            if (!notes.isEmpty()) {
-                                result = new Either.Right<>(utilsService.calculMoyenne(notes, false, 20));
-                            } else {
-                                result = new Either.Right<>(new JsonObject());
-                            }
-
-                            handler.handle(result);
-
-                        } else {
-                            handler.handle(new Either.Left<String, JsonObject>(event.left().getValue()));
-                        }
+                        notes.add(noteDevoir);
                     }
-                });
+
+                    Either<String, JsonObject> result = null;
+
+                    if (notes.size() > 0) {
+                        JsonObject action = new JsonObject()
+                                .putString("action", "note.calculMoyenne")
+                                .putArray("listeNoteDevoirs", notes)
+                                .putBoolean("statistiques", false)
+                                .putNumber("diviseurM", 20);
+
+                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+                            @Override
+                            public void handle(Message<JsonObject> message) {
+                                Either<String, JsonObject> result = null;
+                                if ("ok".equals(message.body().getString("status"))) {
+                                    result = new Either.Right<String, JsonObject>(message.body().getObject("result"));
+                                    handler.handle(result);
+                                } else {
+                                    result = new Either.Left<>(message.body().getString("message"));
+                                    handler.handle(result);
+                                }
+                            }
+                        });
+                    } else result = new Either.Right<>(new JsonObject());
+                    handler.handle(result);
+                } else {
+                    handler.handle(new Either.Left<String, JsonObject>(message.body().getString("message")));
+                }
+            }
+        });
     }
 
     @Override

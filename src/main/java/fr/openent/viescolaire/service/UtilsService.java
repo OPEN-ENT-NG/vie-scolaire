@@ -32,4 +32,40 @@ public interface UtilsService {
      * @param handler          handler portant le resultat de la requete
      */
     public void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Map une JsonArray en un JsonObject contenant une clé et une valeur
+     * @param list liste à mapper
+     * @param key clé
+     * @param value valeur
+     * @return Un object Json contenant les clés et les valeurs
+     */
+    public JsonObject mapListNumber(JsonArray list, String key, String value);
+
+    /**
+     * Map une JsonArray en un JsonObject contenant une clé et une valeur
+     * @param list liste à mapper
+     * @param key clé
+     * @param value valeur
+     * @return Un object Json contenant les clés et les valeurs
+     */
+    public JsonObject mapListString(JsonArray list, String key, String value);
+
+    /**
+     * Réalise une union de deux JsonArray de String
+     * @param recipient Tableau d'accueil
+     * @param list Tableau à transférer
+     * @return Un JsonArray contenant les deux tableau
+     */
+    public JsonArray saUnion(JsonArray recipient, JsonArray list);
+
+    /**
+     * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
+     * (si lien titulaire/remplaçant toujours actif à l'instant T)
+     * @param psIdRemplacant identifiant neo4j du remplaçant
+     * @param psIdEtablissement identifiant de l'établissement
+     * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des titulaires
+     */
+    public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+
 }

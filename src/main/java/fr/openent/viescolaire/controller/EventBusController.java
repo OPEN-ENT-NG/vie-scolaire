@@ -25,7 +25,7 @@ public class EventBusController extends ControllerHelper {
     public EventBusController() {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
-        userService = new DefaultUserService();
+        userService = new DefaultUserService(eb);
         eleveService = new DefaultEleveService();
         matiereService = new DefaultMatiereService();
         periodeService = new DefaultPeriodeService();

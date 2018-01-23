@@ -20,8 +20,8 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.SousMatiereService;
 import fr.openent.viescolaire.service.impl.DefaultMatiereService;
@@ -40,10 +40,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import javax.sound.sampled.Control;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;

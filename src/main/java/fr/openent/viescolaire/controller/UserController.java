@@ -49,7 +49,7 @@ public class UserController extends ControllerHelper {
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
-        userService = new DefaultUserService();
+        userService = new DefaultUserService(eb);
     }
 
     /**

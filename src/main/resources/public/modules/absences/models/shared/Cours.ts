@@ -131,35 +131,78 @@ export class Cours extends DefaultCours implements IModel {
             let debut = moment(this.timestamp_dt).format(FORMAT.date);
             let fin = moment(this.timestamp_fn).format(FORMAT.date);
 
-            this.classes.forEach(currentClass => {
-                // Construction de l' API de récupération des évènements d'un élève
-                let url_evenement_eleve = this.api.GET_EVENEMENT_ELEVE;
-                url_evenement_eleve += currentClass.id + '/periode/';
-                url_evenement_eleve += debut + '/';
-                url_evenement_eleve += fin;
+            let url_evenement_eleve = this.api.GET_EVENEMENT_ELEVE;
+            url_evenement_eleve += 'periode/';
+            url_evenement_eleve += debut + '/';
+            url_evenement_eleve += fin;
 
-                /**
-                 * On recupere tous les évènements de l'élève de la journée, quelque soit le cours puis on la disperse en
-                 * 2 listes :
-                 * - evenementsJours qui nous permettera d'afficher l'historique.
-                 * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
-                 */
-                http().getJson(url_evenement_eleve).done((data) => {
+            for (let i = 0; i < this.classes.length; i++) {
+                if (i === 0) {
+                    url_evenement_eleve += '?';
+                } else {
+                    url_evenement_eleve += '&';
+                }
+                url_evenement_eleve += 'classeId=' + this.classes[i].id;
+            }
+
+            /**
+             * On recupere tous les évènements de l'élève de la journée, quelque soit le cours puis on la disperse en
+             * 2 listes :
+             * - evenementsJours qui nous permettera d'afficher l'historique.
+             * - evenements qui va nous permettre de gérer les évènements de l'appel en cours.
+             */
+            http().getJson(url_evenement_eleve).done((data) => {
+                this.classes.forEach(currentClass => {
                     for (let i = 0; i < currentClass.eleves.all.length; i++) {
                         currentClass.eleves.all[i].evenements.load(_.where(data, {id_eleve: currentClass.eleves.all[i].id}));
                     }
-                    this.synchronized.events = true;
-                    resolve();
                 });
+                this.synchronized.events = true;
+                resolve();
             });
         });
     }
 
+    // todo: changer requete back en gérant les classes et non une liste d'élève
     loadAbscPrev = (): Promise<any> => {
         return new Promise((resolve, reject) => {
 
             let debut = moment(this.timestamp_dt).format(FORMAT.date);
             let fin = moment(this.timestamp_fn).format(FORMAT.date);
+
+
+            // todo: decomment under
+            // let debut = moment(this.timestamp_dt).format(FORMAT.date);
+            // let fin = moment(this.timestamp_fn).format(FORMAT.date);
+            //
+            // let url_absence_prev = this.api.GET_ABSENCE_PREV;
+            // url_absence_prev += '?dateDebut=' + debut;
+            // url_absence_prev += '&dateFin=' + fin;
+            // for (let i = 0; i < this.classes.length; i++) {
+            //     url_absence_prev += '&classeId=' + this.classes[i].id;
+            // }
+            //
+            // http().getJson(url_absence_prev).done((data) => {
+            //     this.classes.forEach(currentClass => {
+            //         for (let i = 0; i < currentClass.eleves.all.length; i++) {
+            //             currentClass.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: currentClass.eleves.all[i].id}));
+            //             let evtsAbsPrev = _.where(data, {id_eleve: currentClass.eleves.all[i].id});
+            //             for (let j = 0; j < evtsAbsPrev; j++) {
+            //                 currentClass.eleves.all[i].evenements.all.push(<Evenement> evtsAbsPrev[j]);
+            //             }
+            //         }
+            //     });
+            //     this.synchronized.abscPrev = true;
+            //     resolve();
+            // });
+
+            // todo: remove under
+            // let url_absence_prev = this.api.GET_ABSENCE_PREV;
+            // url_absence_prev += '?dateDebut=' + debut;
+            // url_absence_prev += '&dateFin=' + fin;
+            // for (let i = 0; i < this.classes.length; i++) {
+            //     url_absence_prev += '&classeId=' + this.classes[i].id;
+            // }
 
             this.classes.forEach(currentClass => {
                 let url_absence_prev = this.api.GET_ABSENCE_PREV;
@@ -190,22 +233,21 @@ export class Cours extends DefaultCours implements IModel {
     loadAbscLastCours = (isTeacher?): Promise<any> => {
         return new Promise((resolve, reject) => {
 
-            this.classes.forEach(currentClass => {
-                // Construction de l'API de récupération des absences au derniers Cours
-                let url = this.api.GET_LAST_COURS + this.id;
-                url += isTeacher ? '/true' : '/false';
+            // Construction de l'API de récupération des absences au derniers Cours
+            let url = this.api.GET_LAST_COURS + this.id;
+            url += isTeacher ? '/true' : '/false';
 
-                http().getJson(url).done((data) => {
-                    _.each(data, (absc) => {
-                        let eleve = _.findWhere(currentClass.eleves.all, {id : absc.id_eleve});
-                        if (eleve !== undefined) {
-                            eleve.absc_precedent_cours = true;
-                        }
+            http().getJson(url).done((data) => {
+                _.each(data, (absc) => {
+                    this.classes.forEach(currentClass => {
+                    let eleve = _.findWhere(currentClass.eleves.all, {id : absc.id_eleve});
+                    if (eleve !== undefined) {
+                        eleve.absc_precedent_cours = true;
+                    }
                     });
-                    this.synchronized.abscLastCours = true;
-                    resolve();
                 });
-
+                this.synchronized.abscLastCours = true;
+                resolve();
             });
         });
     }
@@ -216,14 +258,21 @@ export class Cours extends DefaultCours implements IModel {
             let debut = moment(this.timestamp_dt).format(FORMAT.date);
             let fin = moment(this.timestamp_fn).format(FORMAT.date);
 
-            this.classes.forEach(currentClass => {
-
-            // Construction de l'API de récupération des cours d'une classe
-            let url_cours_classe = '/viescolaire/' + currentClass.id + '/cours/';
+            let url_cours_classe = '/viescolaire/cours/classes/';
             url_cours_classe += debut + '/';
             url_cours_classe += fin;
 
-                http().getJson(url_cours_classe).done((data) => {
+            for (let i = 0; i < this.classes.length; i++) {
+                if (i === 0) {
+                    url_cours_classe += '?';
+                } else {
+                    url_cours_classe += '&';
+                }
+                url_cours_classe += 'classeId=' + this.classes[i].id;
+            }
+
+            http().getJson(url_cours_classe).done((data) => {
+                this.classes.forEach(currentClass => {
                     _.each(currentClass.eleves.all, function(eleve) {
                         eleve.courss.load(data);
                         eleve.plages.sync();

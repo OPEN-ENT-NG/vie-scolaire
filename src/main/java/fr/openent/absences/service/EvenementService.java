@@ -83,10 +83,10 @@ public interface EvenementService extends CrudService {
 
     /**
      * Recupere tous les évènements pour une classe donnée sur une période donnée
-     * @param piClasseId identifiant de la classe (id postgresql).
+     * @param listIdClasse liste des id classe (id postgresql).
      * @param psDateDebut date de début de la période.
      * @param psDateFin date de fin de la période.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+    public void getEvtClassePeriode(List<String> listIdClasse, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
 }

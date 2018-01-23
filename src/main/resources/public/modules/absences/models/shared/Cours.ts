@@ -163,58 +163,20 @@ export class Cours extends DefaultCours implements IModel {
         });
     }
 
-    // todo: changer requete back en gérant les classes et non une liste d'élève
     loadAbscPrev = (): Promise<any> => {
         return new Promise((resolve, reject) => {
-
             let debut = moment(this.timestamp_dt).format(FORMAT.date);
             let fin = moment(this.timestamp_fn).format(FORMAT.date);
 
+            let url_absence_prev = this.api.GET_ABSENCE_PREV;
+            url_absence_prev += '?dateDebut=' + debut;
+            url_absence_prev += '&dateFin=' + fin;
+            for (let i = 0; i < this.classes.length; i++) {
+                url_absence_prev += '&id_groupe=' + this.classes[i].id;
+            }
 
-            // todo: decomment under
-            // let debut = moment(this.timestamp_dt).format(FORMAT.date);
-            // let fin = moment(this.timestamp_fn).format(FORMAT.date);
-            //
-            // let url_absence_prev = this.api.GET_ABSENCE_PREV;
-            // url_absence_prev += '?dateDebut=' + debut;
-            // url_absence_prev += '&dateFin=' + fin;
-            // for (let i = 0; i < this.classes.length; i++) {
-            //     url_absence_prev += '&classeId=' + this.classes[i].id;
-            // }
-            //
-            // http().getJson(url_absence_prev).done((data) => {
-            //     this.classes.forEach(currentClass => {
-            //         for (let i = 0; i < currentClass.eleves.all.length; i++) {
-            //             currentClass.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: currentClass.eleves.all[i].id}));
-            //             let evtsAbsPrev = _.where(data, {id_eleve: currentClass.eleves.all[i].id});
-            //             for (let j = 0; j < evtsAbsPrev; j++) {
-            //                 currentClass.eleves.all[i].evenements.all.push(<Evenement> evtsAbsPrev[j]);
-            //             }
-            //         }
-            //     });
-            //     this.synchronized.abscPrev = true;
-            //     resolve();
-            // });
-
-            // todo: remove under
-            // let url_absence_prev = this.api.GET_ABSENCE_PREV;
-            // url_absence_prev += '?dateDebut=' + debut;
-            // url_absence_prev += '&dateFin=' + fin;
-            // for (let i = 0; i < this.classes.length; i++) {
-            //     url_absence_prev += '&classeId=' + this.classes[i].id;
-            // }
-
-            this.classes.forEach(currentClass => {
-                let url_absence_prev = this.api.GET_ABSENCE_PREV;
-                url_absence_prev += '?dateDebut=' + debut;
-                url_absence_prev += '&dateFin=' + fin;
-
-                if (currentClass !== undefined) {
-                    currentClass.eleves.all.forEach(eleve => {
-                        url_absence_prev += '&id_eleve=' + eleve.id;
-                    });
-                }
-                http().getJson(url_absence_prev).done((data) => {
+            http().getJson(url_absence_prev).done((data) => {
+                this.classes.forEach(currentClass => {
                     for (let i = 0; i < currentClass.eleves.all.length; i++) {
                         currentClass.eleves.all[i].absencePrevs.load(_.where(data, {id_eleve: currentClass.eleves.all[i].id}));
                         let evtsAbsPrev = _.where(data, {id_eleve: currentClass.eleves.all[i].id});
@@ -222,11 +184,11 @@ export class Cours extends DefaultCours implements IModel {
                             currentClass.eleves.all[i].evenements.all.push(<Evenement> evtsAbsPrev[j]);
                         }
                     }
-                    this.synchronized.abscPrev = true;
-                    resolve();
                 });
-
+                this.synchronized.abscPrev = true;
+                resolve();
             });
+
         });
     }
 

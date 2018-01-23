@@ -17,7 +17,7 @@
  *
  */
 
-package fr.openent.evaluations.bean;
+package fr.openent.viescolaire.bean;
 
 /**
  * Created by ledunoiss on 05/08/2016.

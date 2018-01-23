@@ -20,16 +20,14 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.security.AccessAuthorozed;
-import fr.openent.evaluations.security.AccessEvaluationFilter;
-import fr.openent.evaluations.security.utils.FilterUserUtils;
+import fr.openent.viescolaire.security.AccessAuthorized;
 import fr.openent.viescolaire.service.EleveService;
+import fr.openent.viescolaire.service.impl.DefaultEleveService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import fr.openent.viescolaire.service.impl.DefaultEleveService;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.vertx.java.core.Handler;
@@ -37,7 +35,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.*;
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 
 /**
@@ -67,7 +65,7 @@ public class EleveController extends ControllerHelper {
      */
     @Get("/etab/eleves/:idEtab")
     @ApiDoc("Recupere tous les élèves d'un etablissment.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEleveEtab(final HttpServerRequest request){
         String idEtab = request.params().get("idEtab");
@@ -81,7 +79,7 @@ public class EleveController extends ControllerHelper {
      */
     @Get("/etab/eleves/classes/groupes/:idEtab")
     @ApiDoc("Recupere tous les élèves d'un etablissment.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getElevesEtab(final HttpServerRequest request){
         String idEtab = request.params().get("idEtab");
@@ -91,7 +89,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/eleves/:idEleve/responsables")
     @ApiDoc("Recupere les relatives d'un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getResponsablesEleve(final HttpServerRequest request) {
         String idEleve = request.params().get("idEleve");
@@ -101,7 +99,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/eleve/enseignants")
     @ApiDoc("Récupère les enseingants rattaché à un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEnseignantsEleve(final HttpServerRequest request) {
         String idEleve = request.params().get("idEleve");
@@ -111,7 +109,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/enseignants")
     @ApiDoc("Récupère les enseingants ayant créé les devoir d'un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getUsersById(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
@@ -121,7 +119,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/annotations/eleve/:idEleve")
     @ApiDoc("Récupère les annotations sur les devoirs d'un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAnnotationStudent(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
@@ -135,7 +133,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/competences/eleve/:idEleve")
     @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesEleve(final HttpServerRequest request) {
         final String idEleve = request.params().get("idEleve");
@@ -166,7 +164,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("/cycle/eleve/:idClasse")
     @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCycleEleve(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
@@ -176,7 +174,7 @@ public class EleveController extends ControllerHelper {
 
     @Get("appreciation/devoir/:idDevoir/eleve/:idEleve")
     @ApiDoc("Récupère l'appréciation d'un devoir pour un élève.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAppreciationDevoirEleve(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);

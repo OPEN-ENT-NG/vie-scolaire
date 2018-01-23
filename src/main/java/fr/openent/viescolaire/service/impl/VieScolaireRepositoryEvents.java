@@ -23,6 +23,7 @@ import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.RepositoryEvents;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
@@ -35,9 +36,11 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     private static final Logger log = LoggerFactory.getLogger(VieScolaireRepositoryEvents.class);
     private final UserService userService;
+    private EventBus eb;
 
-    public VieScolaireRepositoryEvents() {
-        userService = new DefaultUserService();
+    public VieScolaireRepositoryEvents(EventBus eb) {
+        this.eb = eb;
+        userService = new DefaultUserService(eb);
     }
 
     @Override

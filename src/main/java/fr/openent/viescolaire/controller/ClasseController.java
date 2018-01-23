@@ -20,9 +20,9 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.security.AccessAuthorozed;
-import fr.openent.evaluations.service.UtilsService;
-import fr.openent.evaluations.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
+import fr.openent.viescolaire.security.AccessAuthorized;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
@@ -35,6 +35,7 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -60,7 +61,7 @@ public class ClasseController extends BaseController {
 
     @Get("/classes/:idClasse/users")
     @ApiDoc("Recupere tous les élèves d'une Classe.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getEleveClasse(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
@@ -88,7 +89,7 @@ public class ClasseController extends BaseController {
 
     @Get("/eleves")
     @ApiDoc("Recupere tous les élèves d'une liste de classes.")
-    @ResourceFilter(AccessAuthorozed.class)
+    @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getElevesClasse(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -149,14 +150,18 @@ public class ClasseController extends BaseController {
                                 }
 
                                 if (!idGroupes.isEmpty()) {
-                                    utilsService.getCycle(idGroupes, new Handler<Either<String, JsonArray>>() {
+                                    JsonObject action = new JsonObject()
+                                            .putString("action", "utils.getCycle")
+                                            .putArray("ids", new JsonArray(idGroupes.toArray()));
+
+                                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
                                         @Override
-                                        public void handle(Either<String, JsonArray> event) {
-                                            if (event.isRight()) {
+                                        public void handle(Message<JsonObject> message) {
+                                            if ("ok".equals(message.body().getString("status"))) {
                                                 JsonArray returnedList = new JsonArray();
                                                 JsonObject object;
-                                                JsonObject cycles = utilsService.mapListNumber(event.right().getValue(), "id_groupe", "id_cycle");
-                                                JsonObject cycleLibelle = utilsService.mapListString(event.right().getValue(), "id_groupe", "libelle");
+                                                JsonObject cycles = utilsService.mapListNumber(message.body().getArray("results"), "id_groupe", "id_cycle");
+                                                JsonObject cycleLibelle = utilsService.mapListString(message.body().getArray("results"), "id_groupe", "libelle");
                                                 for (int i = 0; i < classes.size(); i++) {
                                                     object = classes.get(i);
                                                     object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));

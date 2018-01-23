@@ -74,9 +74,27 @@ public class CoursController extends ControllerHelper{
         String dateDebut= request.params().get("dateDebut")+" 00:00:00";
         String dateFin= request.params().get("dateFin")+" 23:59:59";
 
+        List<String> listIdClasse = new ArrayList<>();
+        listIdClasse.add(idClasse);
+
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        coursService.getClasseCours(dateDebut, dateFin, idClasse, handler);
+        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
+    }
+
+
+    @Get("/cours/classes/:dateDebut/:dateFin")
+    @ApiDoc("Recupere tous les cours d'une liste de classe dans une période donnée.")
+    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
+    public void getClasseCoursListClasses(final HttpServerRequest request){
+        String dateDebut= request.params().get("dateDebut")+" 00:00:00";
+        String dateFin= request.params().get("dateFin")+" 23:59:59";
+
+        List<String> listIdClasse = request.params().getAll("classeId");
+
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
     }
 
 

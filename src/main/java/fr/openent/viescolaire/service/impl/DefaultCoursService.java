@@ -50,7 +50,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     }
 
     @Override
-    public void getClasseCours(String pSDateDebut, String pSDateFin, String pLIdClasse, Handler<Either<String, JsonArray>> handler) {
+    public void getClasseCours(String pSDateDebut, String pSDateFin, List<String> listIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -73,7 +73,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ");
         query.append("LEFT JOIN "+ Viescolaire.VSCO_SCHEMA +".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ");
         query.append("WHERE ");
-        query.append("		rel_cours_groupes.id_groupe = ? ");
+        query.append("		rel_cours_groupes.id_groupe IN " + Sql.listPrepared(listIdClasse.toArray()));
         query.append("		AND cours.timestamp_dt > to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
         query.append("		AND cours.timestamp_fn < to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
         query.append("   ) ");
@@ -82,7 +82,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("ORDER BY ");
         query.append("cours.timestamp_fn ASC;");
 
-        values.addString(pLIdClasse).addString(pSDateDebut).addString(pSDateFin);
+        for (Integer i=0; i< listIdClasse.size(); i++){
+            values.addString(listIdClasse.get(i));
+        }
+        values.addString(pSDateDebut).addString(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }

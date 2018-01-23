@@ -146,7 +146,7 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
     }
 
     @Override
-    public void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
+    public void getEvtClassePeriode(List<String> listIdClasse, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new JsonArray();
 
@@ -155,13 +155,17 @@ public class DefaultEvenementService extends SqlCrudService implements fr.openen
                 " evenement.id_pj, evenement.id_motif, cours.id as id_cours, rel_cours_groupes.id_groupe as id_classe " +
                 FROM + Viescolaire.ABSC_SCHEMA +TABLE_EVENEMENT+ Viescolaire.ABSC_SCHEMA +".appel, "+ Viescolaire.VSCO_SCHEMA +".cours " +
                 "LEFT JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) " +
-                "WHERE rel_cours_groupes.id_groupe = ? " +
+                "WHERE rel_cours_groupes.id_groupe IN " + Sql.listPrepared(listIdClasse.toArray()) + " " +
                 FILTRE_APPEL_ID +
                 FILTRE_COURS_ID +
                 "AND cours.timestamp_dt > to_timestamp(?,'YYYY-MM-DD HH24:MI:SS') " +
                 "AND cours.timestamp_fn < to_timestamp(?,'YYYY-MM-DD HH24:MI:SS')");
 
-        values.addString(piClasseId).addString(psDateDebut).addString(psDateFin);
+
+        for (Integer i=0; i< listIdClasse.size(); i++){
+            values.addString(listIdClasse.get(i));
+        }
+        values.addString(psDateDebut).addString(psDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }

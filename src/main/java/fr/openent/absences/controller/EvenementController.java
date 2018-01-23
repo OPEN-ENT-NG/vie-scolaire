@@ -200,15 +200,16 @@ public class EvenementController extends ControllerHelper {
         });
     }
 
-    @Get("/evenement/classe/:classeId/periode/:dateDebut/:dateFin")
+    @Get("/evenement/classe/periode/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les évènements pour une classe donnée dans une période donnée")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getEvtClassePeriode(final HttpServerRequest request){
-        String iClasseId = request.params().get(CLASSE_ID);
         String oDateDebut = request.params().get("dateDebut")+" 00:00:00";
         String oDateFin = request.params().get("dateFin")+" 23:59:59";
 
+        List<String> listIdClasse = request.params().getAll(CLASSE_ID);
+
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        miAbscEvenementService.getEvtClassePeriode(iClasseId, oDateDebut, oDateFin, handler);
+        miAbscEvenementService.getEvtClassePeriode(listIdClasse, oDateDebut, oDateFin, handler);
     }
 }

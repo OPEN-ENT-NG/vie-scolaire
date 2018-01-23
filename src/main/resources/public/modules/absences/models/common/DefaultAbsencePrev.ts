@@ -1,4 +1,4 @@
-import { Model, http } from 'entcore/entcore';
+import { Model } from 'entcore';
 
 export class DefaultAbsencePrev extends Model {
     id?: number;

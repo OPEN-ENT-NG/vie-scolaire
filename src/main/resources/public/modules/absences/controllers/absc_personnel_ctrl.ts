@@ -1,4 +1,4 @@
-import { template, ng } from 'entcore/entcore';
+import { template, ng } from 'entcore';
 import { presences } from '../models/absc_personnel_mdl';
 import * as utils from '../utils/personnel';
 

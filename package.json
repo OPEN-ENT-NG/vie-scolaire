@@ -5,8 +5,10 @@
   "dependencies": {
     "angular-chart.js": "^1.1.1",
     "axios": "^0.17.1",
-    "entcore": "^2.1.0-dev.114",
-    "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0"
+    "entcore": "~3.0.0-dev.1",
+    "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
+    "ts-loader": "^3.3.0",
+    "typescript": "^2.4.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

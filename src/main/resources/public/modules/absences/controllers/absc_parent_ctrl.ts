@@ -1,4 +1,4 @@
-import {ng, template} from "entcore/entcore";
+import { ng, template } from "entcore";
 import * as utils from "../utils/parent";
 
 export let abscParentController = ng.controller('AbscParentController', [

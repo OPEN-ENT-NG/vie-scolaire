@@ -1,4 +1,4 @@
-import { model, Model, Collection} from 'entcore/entcore';
+import { model, Model, Collection} from 'entcore';
 import { getActiveStructures } from "../../utils/functions/activeStructures";
 import {Structure} from './personnel/Structure';
 

@@ -18,16 +18,13 @@
  */
 
 var gulp = require('gulp');
-var ts = require('gulp-typescript');
 var webpack = require('webpack-stream');
-var bower = require('gulp-bower');
 var merge = require('merge2');
 var watch = require('gulp-watch');
 var rev = require('gulp-rev');
 var revReplace = require("gulp-rev-replace");
 var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
-var typescript = require('typescript');
 var glob = require('glob');
 var colors = require('colors');
 
@@ -35,31 +32,6 @@ var paths = {
     infra: '../infra-front',
     toolkit: '../toolkit'
 };
-
-function compileTs(){
-    var tsProject = ts.createProject('./tsconfig.json', {
-        typescript: typescript
-    });
-    var tsResult = tsProject.src()
-        .pipe(sourcemaps.init())
-        .pipe(ts(tsProject));
-
-    return tsResult.js
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/temp'));
-}
-
-function startWebpackEntcore(isLocal) {
-    return gulp.src('./src/main/resources/public/module/entcore')
-        .pipe(webpack(require('./webpack-entcore.config.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(rev())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/entcore'))
-        .pipe(rev.manifest({ merge: true, path : './manifests/entcore.json' }))
-        .pipe(gulp.dest('./'));
-}
 
 function startWebpack(isLocal) {
     gulp.src("./manifests/*").pipe(clean());
@@ -96,32 +68,27 @@ function updateRefs() {
     return merge([absc, vsco]);
 }
 
-gulp.task('ts', ['copy-files'], function () { return compileTs() });
-gulp.task('webpack', ['ts'], function(){ return startWebpack() });
-gulp.task('webpack-entcore', ['webpack'], function(){ return startWebpackEntcore() });
-
-gulp.task('copy-files', () => {
-    var html = gulp.src('./node_modules/entcore/src/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
-var bundle = gulp.src('./node_modules/entcore/bundle/*')
-    .pipe(gulp.dest('./src/main/resources/public/temp/entcore'));
-
-    return merge(html, bundle);
-})
-
-gulp.task('drop-temp', ['webpack-entcore'], function() {
-    return gulp.src([
-        './src/main/resources/public/**/*.map.map',
-        './src/main/resources/public/temp',
-        './src/main/resources/public/dist/entcore/ng-app.js',
-        './src/main/resources/public/dist/entcore/ng-app.js.map',
-        './src/main/resources/public/dist/application.js',
-        './src/main/resources/public/dist/application.js.map'
-    ], { read: false })
+gulp.task('drop-cache', function(){
+    return gulp.src(['./src/main/resources/public/dist'], { read: false })
         .pipe(clean());
 });
 
-gulp.task('build', ['drop-temp'], function () {
+gulp.task('copy-files', ['drop-cache'], () => {
+    var html = gulp.src('./node_modules/entcore/src/template/**/*.html')
+        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
+var bundle = gulp.src('./node_modules/entcore/bundle/*')
+    .pipe(gulp.dest('./src/main/resources/public/dist/entcore'));
+
+return merge(html, bundle);
+})
+
+gulp.task('webpack', ['copy-files'], function(){ return startWebpack() });
+
+gulp.task('rev', ['webpack'], function () {
+    updateRefs();
+});
+
+gulp.task('build', ['rev'], function () {
     var refs = updateRefs();
     var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
@@ -133,6 +100,36 @@ gulp.task('removeTemp', function () {
         .pipe(clean());
 });
 
-gulp.task('updateRefs', function () {
-    updateRefs();
+function getModName(fileContent){
+    var getProp = function(prop){
+        return fileContent.split(prop + '=')[1].split(/\r?\n/)[0];
+    }
+    return getProp('modowner') + '~' + getProp('modname') + '~' + getProp('version');
+}
+
+gulp.task('watch', () => {
+    var springboard = argv.springboard;
+if(!springboard){
+    springboard = '../springboard-ent77/';
+}
+if(springboard[springboard.length - 1] !== '/'){
+    springboard += '/';
+}
+
+gulp.watch('./src/main/resources/public/modules/**/*.ts', () => gulp.start('build'));
+
+fs.readFile("./gradle.properties", "utf8", function(error, content){
+    var modName = getModName(content);
+    gulp.watch(['./src/main/resources/public/template/**/*.html', '!./src/main/resources/public/template/entcore/*.html'], () => {
+        console.log('Copying resources to ' + springboard + 'mods/' + modName);
+    gulp.src('./src/main/resources/**/*')
+        .pipe(gulp.dest(springboard + 'mods/' + modName));
+});
+
+    gulp.watch('./src/main/resources/view/**/*.html', () => {
+        console.log('Copying resources to ' + springboard + 'mods/' + modName);
+    gulp.src('./src/main/resources/**/*')
+        .pipe(gulp.dest(springboard + 'mods/' + modName));
+});
+});
 });

@@ -53,7 +53,7 @@ export class Structure extends SharedStructure {
     get api () {
         return _.extend(this.apiList, {
             ENSEIGNANT : {
-                synchronization : '/viescolaire/evaluations/user/list?profile=Teacher&structureId=' + this.id
+                synchronization : '/competences/user/list?profile=Teacher&structureId=' + this.id
             },
             ELEVE : {
                 synchronization : '/viescolaire/eleves?idEtablissement=' + this.id

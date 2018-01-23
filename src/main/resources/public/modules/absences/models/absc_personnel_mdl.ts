@@ -1,4 +1,4 @@
-import {Collection, Model, model} from "entcore/entcore";
+import { Collection, Model, model } from "entcore";
 // Import des classes
 import {Evenement} from "./personnel/Evenement";
 import {Structure} from "./personnel/Structure";

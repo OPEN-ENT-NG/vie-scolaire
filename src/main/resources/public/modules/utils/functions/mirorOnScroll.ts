@@ -1,3 +1,5 @@
+import { angular } from 'entcore';
+
 declare let document: any;
 declare let setTimeout: any;
 declare let window: any;

@@ -1,7 +1,7 @@
 /**
  * Created by anabah on 09/05/2017.
  */
-import { Model } from 'entcore/entcore';
+import { Model } from 'entcore';
 
 
 export class DefaultEleve extends Model {

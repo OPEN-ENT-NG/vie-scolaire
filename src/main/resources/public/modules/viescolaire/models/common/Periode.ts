@@ -1,4 +1,4 @@
-import {Model} from 'entcore/entcore';
+import { Model } from 'entcore';
 /**
  * Created by rahnir on 10/08/2017.
  */

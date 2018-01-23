@@ -1,5 +1,4 @@
-import { template, ng } from 'entcore/entcore';
-import { presences } from '../models/absc_personnel_mdl';
+import { template, ng } from 'entcore';
 
 let moment = require('moment');
 declare let _: any;

@@ -19,16 +19,15 @@
 
 var webpack = require('webpack');
 var path = require('path');
-var glob = require('glob');
 
 module.exports = {
     entry: {
-        absc_parents: glob.sync('./src/main/resources/public/temp/absences/apps/parents.js'),
-        absc_personnels: glob.sync('./src/main/resources/public/temp/absences/apps/personnels.js'),
-        absc_teachers: glob.sync('./src/main/resources/public/temp/absences/apps/teachers.js')
+        absc_personnels: './src/main/resources/public/modules/absences/apps/personnels.ts',
+        absc_teachers: './src/main/resources/public/modules/absences/apps/teachers.ts',
+        absc_parents: './src/main/resources/public/modules/absences/apps/parents.ts'
     },
     output: {
-        filename: '[name].js',
+        filename: './[name].js',
         library: '[name]',
         path: '/src/main/resources/public/dist/absences'
     },
@@ -42,15 +41,14 @@ module.exports = {
     },
     resolve: {
         modulesDirectories: ['node_modules'],
-        root: path.resolve(__dirname),
-        extensions: ['', '.js']
+        extensions: ['', '.ts', '.js']
     },
     devtool: "source-map",
     module: {
-        preLoaders: [
+        loaders: [
             {
-                test: /\.js$/,
-                loader: 'source-map-loader'
+                test: /\.ts$/,
+                loader: 'ts-loader'
             }
         ]
     }

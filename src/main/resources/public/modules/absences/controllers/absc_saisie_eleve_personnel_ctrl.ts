@@ -1,9 +1,8 @@
 /**
  * Created by rahnir on 08/06/2017.
  */
-import {template, ng } from 'entcore/entcore';
+import { template, ng } from 'entcore';
 import * as utils from '../utils/personnel';
-import {} from "../../entcore/template";
 import {AbsencePrev} from "../models/personnel/AbsencePrev";
 import {Evenement} from "../models/personnel/Evenement";
 

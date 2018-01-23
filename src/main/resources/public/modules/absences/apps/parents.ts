@@ -1,4 +1,4 @@
-import { routes, ng } from 'entcore/entcore';
+import { routes, ng } from 'entcore';
 
 import { abscParentController } from '../controllers/absc_parent_ctrl';
 

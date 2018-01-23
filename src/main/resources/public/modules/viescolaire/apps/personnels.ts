@@ -2,10 +2,10 @@
  * Created by ledunoiss on 12/09/2016.
  */
 
-import { idiom as lang, routes, ng } from 'entcore/entcore';
+import { routes, ng } from 'entcore';
 
 import { sticky } from '../../utils/directives/sticky';
-import {cSkillsBubble } from "../../evaluations/directives/cSkillsBubble"
+import { cSkillsBubble } from '../../utils/directives/cSkillsBubble'
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
 import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl';
 import {periodeSearch} from "../filtres/periodeSearch";

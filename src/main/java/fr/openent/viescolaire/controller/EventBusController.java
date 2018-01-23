@@ -158,7 +158,7 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getElevesRelatives": {
-                List<String> idsClass = message.body().getArray("getElevesRelatives").toList();
+                List<String> idsClass = message.body().getArray("idsClass").toList();
                 userService.getElevesRelatives(idsClass, getArrayBusResultHandler(message));
             }
             break;

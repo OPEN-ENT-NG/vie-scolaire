@@ -21,31 +21,29 @@ package fr.openent.absences.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.absences.service.EleveService;
+import fr.openent.absences.service.impl.DefaultEleveService;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import fr.openent.absences.service.impl.DefaultEleveService;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.entcore.common.validation.StringValidation;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-import static org.entcore.common.user.UserUtils.findVisibles;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.user.UserUtils.findVisibles;
 
 public class EleveController extends ControllerHelper {
 
@@ -54,6 +52,8 @@ public class EleveController extends ControllerHelper {
     private static final String ID_ELEVE = "idEleve";
     private static final String DATE_DEBUT ="dateDebut";
     private static final String DATE_FIN ="dateFin";
+    private ClasseService classeService;
+
 
     /**
      * Service relatif a des opérations concernant les élèves
@@ -64,6 +64,7 @@ public class EleveController extends ControllerHelper {
     public EleveController(){
         pathPrefix = Viescolaire.ABSC_PATHPREFIX;
         miAbscEleveService = new DefaultEleveService();
+        classeService = new DefaultClasseService();
     }
 
     @Get("/eleve/:idEleve/evenements/:dateDebut/:dateFin")
@@ -173,14 +174,35 @@ public class EleveController extends ControllerHelper {
         });
     }
 
+
+
     @Get("/absencesprev/eleves")
     @ApiDoc("Recupere toutes les absences prévisionnelles pour une classe donnée dans une période données")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getAbsencesPrevClassePeriode(final HttpServerRequest request){
-        String psDateDebut = request.params().get(DATE_DEBUT)+MINUIT;
-        String psDateFin = request.params().get(DATE_FIN)+PRESQUE_MINUIT;
-        List<String> idEleves = request.params().getAll("id_eleve");
-        miAbscEleveService.getAbsencesPrevClassePeriode(idEleves, psDateDebut, psDateFin, arrayResponseHandler(request));
+        final String psDateDebut = request.params().get(DATE_DEBUT)+MINUIT;
+        final String psDateFin = request.params().get(DATE_FIN)+PRESQUE_MINUIT;
+        List<String> idGroupes = request.params().getAll("id_groupe");
+
+        // On va récupérer les élèves de la classe
+        classeService.getElevesClasses(idGroupes.toArray(new String[idGroupes.size()]), new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> stringJsonArrayEither) {
+                if (stringJsonArrayEither.isRight()) {
+                    JsonArray vResultsUser = stringJsonArrayEither.right().getValue();
+                    List<String> vListUsersIds = new ArrayList<>();
+                    for (int i = 0; i <vResultsUser.size() ; i++) {
+                        JsonObject vUser = vResultsUser.get(i);
+                        vListUsersIds.add(vUser.getString("idEleve"));
+                    }
+                    miAbscEleveService.getAbsencesPrevClassePeriode(vListUsersIds, psDateDebut, psDateFin, arrayResponseHandler(request));
+                } else {
+                    badRequest(request , "getAbsencesPrevClassePeriode : Aucun élève sur la classe demandée.");
+                }
+
+            }
+        });
+
     }
 
 

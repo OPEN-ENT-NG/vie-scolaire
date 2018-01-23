@@ -1,5 +1,5 @@
-import { ng } from 'entcore/entcore';
-import * as utils from '../../evaluations/utils/teacher';
+import { ng, angular } from 'entcore';
+import * as utils from '../functions/safeApply';
 
 export let sticky = ng.directive('sticky', ['$window', '$timeout', function($window, $timeout) {
         return {
@@ -219,7 +219,7 @@ export let sticky = ng.directive('sticky', ['$window', '$timeout', function($win
                  */
                 function shouldStickWithLimit(shouldApplyWithLimit) {
                     return shouldApplyWithLimit === 'true'
-                        ? ($window.innerHeight - ($elem[0].offsetHeight + parseInt(offset)) < 0)
+                        ? ($window.innerHeight - ($elem[0].offsetHeight + parseInt(offset.toString())) < 0)
                         : false;
                 }
 

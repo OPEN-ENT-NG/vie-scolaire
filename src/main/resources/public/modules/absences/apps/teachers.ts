@@ -1,4 +1,4 @@
-import { routes, ng } from 'entcore/entcore';
+import { routes, ng } from 'entcore';
 
 import { absencesController } from '../controllers/absc_enseignant_ctrl';
 import { mobilePanel } from '../../utils/directives/mobile-panel';

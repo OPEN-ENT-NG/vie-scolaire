@@ -7,10 +7,9 @@ import {Categorie} from "../../../absences/models/personnel/Categorie";
 import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
 import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
 import {Classe} from "./Classe";
-import {Defaultcolors, NiveauCompetence} from "../../../evaluations/models/eval_niveau_comp";
-import {Cycle} from "../../../evaluations/models/eval_cycle";
+import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
+import {Cycle} from "./eval_cycle";
 import {TypePeriode} from "../common/TypePeriode";
-import {Periode} from "../common/Periode";
 
 
 export class Structure extends DefaultStructure {
@@ -50,8 +49,8 @@ export class Structure extends DefaultStructure {
                 evalOnPeriode : '/viescolaire/periodes/eval?'
             },
             NIVEAU_COMPETENCES : {
-                synchronisation: '/viescolaire/evaluations/maitrise/level/' + this.id,
-                delete : '/viescolaire/evaluations/maitrise/level/' + this.id
+                synchronisation: '/competences/maitrise/level/' + this.id,
+                delete : '/competences/maitrise/level/' + this.id
 
             }
         };

@@ -1,7 +1,6 @@
 import { DefaultEvenement } from '../common/DefaultEvenement';
-import {IModel} from "../../../entcore/modelDefinitions";
 
-export class Evenement extends DefaultEvenement implements IModel {
+export class Evenement extends DefaultEvenement {
     constructor(o?: any) {
         super();
         if (o && typeof o === 'object') {

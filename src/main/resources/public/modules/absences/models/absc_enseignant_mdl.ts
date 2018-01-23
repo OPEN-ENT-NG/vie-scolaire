@@ -1,4 +1,4 @@
-import { model, http, Model, Collection } from 'entcore/entcore';
+import { model, http, Model, Collection } from 'entcore';
 
 import { Evenement } from './teacher/Evenement';
 import { Structure } from './teacher/Structure';

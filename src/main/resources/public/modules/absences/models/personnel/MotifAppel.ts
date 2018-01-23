@@ -1,7 +1,7 @@
 /**
  * Created by anabah on 06/06/2017.
  */
-import { Model } from 'entcore/entcore';
+import { Model } from 'entcore';
 
 export class MotifAppel extends Model {
     id: number;

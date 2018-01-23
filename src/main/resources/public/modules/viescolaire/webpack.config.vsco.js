@@ -19,15 +19,13 @@
 
 var webpack = require('webpack');
 var path = require('path');
-var glob = require('glob');
 
 module.exports = {
     entry: {
-        vsco_personnels: glob.sync('./src/main/resources/public/temp/viescolaire/apps/personnels.js'),
-        vsco_teachers: glob.sync('./src/main/resources/public/temp/viescolaire/apps/teachers.js')
+        vsco_personnels: './src/main/resources/public/modules/viescolaire/apps/personnels.ts'
     },
     output: {
-        filename: '[name].js',
+        filename: './[name].js',
         library: '[name]',
         path: '/src/main/resources/public/dist/viescolaire'
     },
@@ -41,15 +39,14 @@ module.exports = {
     },
     resolve: {
         modulesDirectories: ['node_modules'],
-        root: path.resolve(__dirname),
-        extensions: ['', '.js']
+        extensions: ['', '.ts', '.js']
     },
     devtool: "source-map",
     module: {
-        preLoaders: [
+        loaders: [
             {
-                test: /\.js$/,
-                loader: 'source-map-loader'
+                test: /\.ts$/,
+                loader: 'ts-loader'
             }
         ]
     }

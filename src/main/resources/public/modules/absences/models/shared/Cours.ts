@@ -1,11 +1,11 @@
-import { http, IModel } from 'entcore/entcore';
+import { http, IModel } from 'entcore';
 import { Appel } from './Appel';
 import { DefaultCours } from "../common/DefaultCours";
 import { Evenement } from "./Evenement";
 import { Classe } from "./Classe";
 import { FORMAT } from "../../constants/formats";
 
-export class Cours extends DefaultCours implements IModel {
+export class Cours extends DefaultCours {
     appel: Appel;
     classe: Classe;
     synchronized: any;

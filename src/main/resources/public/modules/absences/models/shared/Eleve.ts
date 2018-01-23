@@ -17,7 +17,7 @@
  *
  */
 
-import { IModel, Collection, http } from 'entcore/entcore';
+import { IModel, Collection, http } from 'entcore';
 
 import { AbsencePrev } from './AbsencePrev';
 import { Cours } from './Cours';
@@ -27,7 +27,7 @@ import { getPlage } from '../../../utils/functions/getPlages';
 import { DefaultEleve } from "../common/DefaultEleve";
 
 
-export class Eleve extends DefaultEleve implements IModel {
+export class Eleve extends DefaultEleve {
     evenements: Collection<Evenement>;
     courss: Collection<Cours>;
     absencePrevs: Collection<AbsencePrev>;

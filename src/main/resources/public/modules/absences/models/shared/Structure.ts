@@ -17,7 +17,7 @@
  *
  */
 
-import { Collection, http } from 'entcore/entcore';
+import { Collection, http } from 'entcore';
 
 import { Cours } from './Cours';
 import { DefaultStructure } from '../../../viescolaire/models/common/DefaultStructure';

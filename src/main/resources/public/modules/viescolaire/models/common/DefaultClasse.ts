@@ -1,7 +1,7 @@
 /**
  * Created by rahnir on 10/08/2017.
  */
-import { Model, Collection } from 'entcore/entcore';
+import { Model, Collection } from 'entcore';
 
 
 export abstract class DefaultClasse extends Model {

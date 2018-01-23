@@ -1,7 +1,7 @@
 /**
  * Created by rahnir on 09/08/2017.
  */
-import {ng} from 'entcore/entcore';
+import { ng } from 'entcore';
 
 export let periodeSearch = ng.filter('periodeSearch', function(){
     return function(classes, searchParams){

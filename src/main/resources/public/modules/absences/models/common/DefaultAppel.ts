@@ -1,4 +1,4 @@
-import { Model, http } from 'entcore/entcore';
+import { Model, http } from 'entcore';
 
 export class DefaultAppel extends Model {
     id?: number;

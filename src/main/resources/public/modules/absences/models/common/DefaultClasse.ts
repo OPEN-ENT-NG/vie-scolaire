@@ -1,4 +1,4 @@
-import { Model, Collection } from 'entcore/entcore';
+import { Model, Collection } from 'entcore';
 import {DefaultEleve} from "./DefaultEleve";
 
 export abstract class DefaultClasse extends Model {

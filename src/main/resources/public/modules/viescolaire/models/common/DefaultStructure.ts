@@ -1,4 +1,4 @@
-import { Model } from 'entcore/entcore';
+import { Model } from 'entcore';
 
 export abstract class DefaultStructure extends Model {
     // Fields

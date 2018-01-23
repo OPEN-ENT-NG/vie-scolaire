@@ -1,4 +1,4 @@
-import { Model, Collection } from 'entcore/entcore';
+import { Model, Collection } from 'entcore';
 import { Evenement } from './Evenement';
 
 export class Plage extends Model {

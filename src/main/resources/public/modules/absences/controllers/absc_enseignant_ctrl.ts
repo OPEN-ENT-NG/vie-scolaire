@@ -1,6 +1,5 @@
-import { template, ng } from 'entcore/entcore';
-import { presences, Evenement } from '../models/absc_enseignant_mdl';
-import { FORMAT } from '../constants/formats';
+import { template, ng } from 'entcore';
+import { presences } from '../models/absc_enseignant_mdl';
 import * as utils from '../utils/personnel';
 
 let moment = require('moment');

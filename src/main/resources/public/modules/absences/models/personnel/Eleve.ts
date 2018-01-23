@@ -1,11 +1,10 @@
-import { Collection, Model } from 'entcore/entcore';
+import { Collection, Model } from 'entcore';
 import { Responsable } from './Responsable';
 import { Eleve as SharedEleve} from "../shared/Eleve";
 import { Cours } from "./Cours";
 import { AbsencePrev } from "./AbsencePrev";
 
 export class Eleve extends SharedEleve {
-
     responsables: Collection<Responsable>;
     abscprev : Collection<AbsencePrev>;
     cours: Collection<Cours>;

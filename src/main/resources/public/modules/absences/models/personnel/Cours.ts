@@ -1,5 +1,5 @@
 import {DefaultCours} from "../common/DefaultCours";
-import {Model} from "../../../entcore/modelDefinitions";
+import { Model } from 'entcore';
 
 /**
  * Created by rahnir on 09/06/2017.

@@ -1,4 +1,4 @@
-import { idiom as lang, template, ng} from "entcore/entcore";
+import { idiom as lang, template, ng, moment, _, $ } from 'entcore';
 import {vieScolaire} from "../models/vsco_personnel_mdl";
 import {Motif} from "../../absences/models/personnel/Motif";
 import {Categorie} from "../../absences/models/personnel/Categorie";
@@ -7,10 +7,6 @@ import {CategorieAppel} from "../../absences/models/personnel/CategorieAppel";
 import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/common/Periode";
-import moment = require("moment");
-
-declare let _: any;
-declare let $: any;
 
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll',

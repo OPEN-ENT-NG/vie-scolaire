@@ -1,6 +1,6 @@
-import { Model, IModel, http } from 'entcore/entcore';
+import { Model, IModel, http } from 'entcore';
 
-export class DefaultEvenement extends Model implements IModel {
+export class DefaultEvenement extends Model {
     id?: number;
     timestamp_arrive?: string;
     timestamp_depart?: string;

@@ -1,6 +1,7 @@
 import {DefaultClasse} from "../common/DefaultClasse";
 import {Periode} from "../common/Periode";
-import {Collection} from 'entcore/entcore';
+import {Collection} from 'entcore';
+
 /**
  * Created by rahnir on 10/08/2017.
  */

@@ -1,6 +1,6 @@
 import {Eleve} from "./Eleve";
 import {DefaultClasse} from "../common/DefaultClasse";
-import {Collection} from "entcore/entcore";
+import {Collection} from "entcore";
 
 export class Classe extends DefaultClasse {
 

@@ -1,4 +1,4 @@
-import { routes, ng } from 'entcore/entcore';
+import { routes, ng } from 'entcore';
 import { sticky } from '../../utils/directives/sticky';
 
 import { absencesController } from '../controllers/absc_personnel_ctrl';

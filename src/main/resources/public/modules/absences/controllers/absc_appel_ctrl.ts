@@ -1,4 +1,4 @@
-import {template, ng} from 'entcore/entcore';
+import { template, ng } from 'entcore';
 import {Evenement} from '../models/shared/Evenement';
 import {FORMAT} from '../constants/formats';
 import * as utils from '../utils/shared';

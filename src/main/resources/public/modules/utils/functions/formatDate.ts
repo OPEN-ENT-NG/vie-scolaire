@@ -1,4 +1,4 @@
-let moment = require('moment');
+import { moment } from 'entcore';
 
 /**
  * Formatte la date en fonction du format passé en paramètre

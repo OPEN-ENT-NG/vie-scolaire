@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import { ng } from 'entcore/entcore';
+import { ng, angular } from 'entcore/entcore';
 
 export let tabs = ng.directive('tabs', function() {
     return {

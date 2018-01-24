@@ -392,6 +392,9 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             });
 
             $scope.selected.eleve.coursGroupByDay = groups;
+            if ($scope.selected.eleve.coursGroupByDay === undefined || $scope.selected.eleve.coursGroupByDay.length === 0 ) {
+                $scope.timelineIsVisible = false;
+            }
 
             $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.courss.all.filter((cours) => {
                 // Si le cours est passé et n'a pas d'absence, ou si le cours est passé avec une absence avec un motif différent.

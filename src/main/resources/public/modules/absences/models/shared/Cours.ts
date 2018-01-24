@@ -107,21 +107,58 @@ export class Cours extends DefaultCours implements IModel {
 
     sync(isTeacher?: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
+            const resolveCondition = {
+                appel: false,
+                events: false,
+                prev: false,
+                abs: false,
+                cours: false,
+                classes: []
+            };
 
-            await this.appel.sync();
+            let end = () => {
+              let bool = resolveCondition.appel
+                && resolveCondition.events
+                && resolveCondition.prev
+                && resolveCondition.abs
+                && resolveCondition.cours;
+              for (let i = 0; i < resolveCondition.classes.length; i++) {
+                  bool = bool && resolveCondition.classes[i];
+              }
+
+              if (bool) resolve();
+            };
+
+            this.appel.sync().then(() => {
+                resolveCondition.appel = true;
+                end();
+            });
             for (let i = 0; i < this.classes.length; i++) {
-                await this.classes[i].sync();
+                this.classes[i].sync().then(() => {
+                    resolveCondition.classes.push(true);
+                    end();
+                });
             }
 
-            await this.loadEvenements();
+            this.loadEvenements().then(() => {
+                resolveCondition.events = true;
+                end();
+            });
 
-            await this.loadAbscPrev();
+            this.loadAbscPrev().then(() => {
+                resolveCondition.prev = true;
+                end();
+            });
 
-            await this.loadAbscLastCours(isTeacher);
+            this.loadAbscLastCours(isTeacher).then(() => {
+                resolveCondition.abs = true;
+                end();
+            });
 
-            await this.loadCoursClasse();
-
-            resolve();
+            this.loadCoursClasse().then(() => {
+                resolveCondition.cours = true;
+                end();
+            });
         });
     }
 

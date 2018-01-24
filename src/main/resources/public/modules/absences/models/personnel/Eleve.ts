@@ -216,6 +216,14 @@ export class Eleve extends SharedEleve {
     }
 
     toString () {
-        return this.hasOwnProperty('displayName') ? this.displayName : this.firstName + ' ' + this.lastName;
+        let displayNameTemp = this.hasOwnProperty('displayName') ? this.displayName : this.firstName + ' ' + this.lastName;
+        for (let i = 0 ; i < this.classesId.length; i++) {
+            if ( this.classesId[i] !== undefined
+                && this.classesId[i] !== ''
+                && this.classesId[i].split('$').length > 1 ) {
+                displayNameTemp += ' - ' + this.classesId[i].split('$')[1];
+            }
+        }
+        return displayNameTemp;
     }
 }

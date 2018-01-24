@@ -128,6 +128,7 @@
  "viescolaire.absences.confirm.replace.save.periode.absence":"Voulez-vous vraiment enregistrer cette période d'absence malgré les conflits ?",
  "viescolaire.absences.check.conflit.and.save":"Vérifier les conflits et enregistrer",
  "viescolaire.absences.list.conflit":"Liste des conflits",
+ "viescolaire.absences.auncun.cours.conflit":"Aucun cours sur la période sélectionnée",
  "viescolaire.absences.timeline":"Timeline",
  "viescolaire.absences.list":"Liste",
  "viescolaire.absences.conflit.cours":"Conflits avec les cours",

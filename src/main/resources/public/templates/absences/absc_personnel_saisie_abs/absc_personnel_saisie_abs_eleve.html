@@ -60,7 +60,7 @@
                             <label><i18n>viescolaire.utils.from</i18n></label>
                             <label >
                                 <i class="calendar"></i>
-                                <date-picker class="pointer" ng-model="selected.dateDb" ></date-picker>
+                                <date-picker class="pointer choose-date" ng-model="selected.dateDb" ></date-picker>
                                 <input type="time" ng-model="selected.timeDb" >
                             </label>
                         </div>
@@ -68,7 +68,7 @@
                             <label><i18n>viescolaire.utils.to</i18n></label>
                             <label>
                                 <i class="calendar"></i>
-                                <date-picker class="pointer" ng-model="selected.dateFn" ></date-picker>
+                                <date-picker class="pointer choose-date" ng-model="selected.dateFn" ></date-picker>
                                 <input type="time" ng-model="selected.timeFn" >
                             </label>
                         </div>
@@ -171,7 +171,10 @@
 
 
         <div class="body-lightbox-last-absence" ng-if="displayLightboxCheckConflit">
-
+            <!-- Si Aucun ne peut être affiché -->
+            <div ng-if="selected.eleve.coursGroupByDay === undefined || selected.eleve.coursGroupByDay.length === 0">
+                <i18n>viescolaire.absences.auncun.cours.conflit</i18n>
+            </div>
             <div class="timeline-story vertical-spacing row" ng-show="timelineIsVisible">
                 <!-- Pour chaque jour -->
                 <div ng-repeat="day in selected.eleve.coursGroupByDay">

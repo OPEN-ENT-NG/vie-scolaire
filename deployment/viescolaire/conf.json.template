@@ -16,11 +16,5 @@
         "app-registry.port" : 8012,
         "mode" : "${mode}",
         "entcore.port" : 8009,
-		"lsun": {
-            "xsd_path": "mods/fr.openent~viescolaire~0.9-SNAPSHOT/public/lsun/import-complet-strict.xsd"
-        },
-        "exports" : {
-           "template-path" : "./public/templates/pdf/"
-        }
       }
     }

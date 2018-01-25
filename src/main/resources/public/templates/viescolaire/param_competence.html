@@ -5,8 +5,14 @@
                 <nav class="vertical">
                     <ul>
                         <li>
-                            <a href="" ng-class="{'selected': true}" ng-click="currParam = 1; scrollToElement(1)">
+                            <a href="" ng-class="{'selected': currParam === 1}"
+                               ng-click="currParam = 1; scrollToElement(1)">
                                 <i18n>evaluations.level</i18n></a>
+                        </li>
+                        <li>
+                            <a href="" ng-class="{'selected': currParam === 2}"
+                               ng-click="currParam = 2; scrollToElement(2)">
+                                <i18n>evaluation.bfc.visibility.average</i18n></a>
                         </li>
                     </ul>
                 </nav>
@@ -91,6 +97,25 @@
                             </tbody>
                         </table>
 
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+    <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin">
+        <div class="hash-magnet twelve cell" id="2">
+            <article >
+                <div class="twelve">
+                    <h3>
+                        <i18n>evaluation.bfc.visibility.average</i18n>
+
+                    </h3>
+                    <div class="twelve" ng-init="source.idStructure = structure.id;">
+                        <sniplet
+                                template="averageBFC"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
                     </div>
                 </div>
             </article>

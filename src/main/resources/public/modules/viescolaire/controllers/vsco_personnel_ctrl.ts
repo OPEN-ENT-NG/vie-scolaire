@@ -199,8 +199,15 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         // scroller vers un élément donné
         $scope.scrollToElement = function(idElement) {
-            let top = document.getElementById(idElement).offsetTop; // Getting Y of target element
-            window.scrollTo(0, top);
+            let target = $('#' + idElement );
+            /* le sélecteur $(html, body) permet de corriger un bug sur chrome
+            et safari (webkit) */
+            $('html, body')
+            // on arrête toutes les animations en cours
+                .stop()
+                /* on fait maintenant l'animation vers le haut (scrollTop) vers
+                 notre ancre target */
+                .animate({scrollTop: $(target).offset().top}, 1000 );
         };
 
         $scope.openCreateMotif = function () {

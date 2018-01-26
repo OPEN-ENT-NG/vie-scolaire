@@ -56,6 +56,7 @@ export let absencesController = ng.controller('AbsencesController', [
             $scope.$parent.displayStructureLoader = false;
             $scope.displayStructureLoader = false;
             presences.structure = structure;
+            $scope.$broadcast('clearAppel');
             utils.safeApply($scope);
         };
 

@@ -14,8 +14,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
         template.open('AbscFiltreAppel', '../templates/absences/absc_appel_filtre');
         template.open('AbscEleveDetail', '../templates/absences/absc_appel_eleve_detail');
         template.open('AbscEleveAide', '../templates/absences/absc_appel_help');
-        
-        $scope.clearAppel = () => {
+
+        $scope.$on('clearAppel', function (event, args) {
             $scope.appel.display = false;
             $scope.showError = false;
             $scope.currentCours = undefined;
@@ -24,8 +24,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
             $scope.refreshVuesAppel();
             $scope.ouvrirAppel();
-        };
-        
+        });
+
         $scope.psFiltreTitre = {
             enseignant: 'Enseignant',
             classe: 'Classe',

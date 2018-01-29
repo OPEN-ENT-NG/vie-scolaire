@@ -1,14 +1,16 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import { ng } from 'entcore/entcore';
+import {ng} from 'entcore/entcore';
 
 export let pane = ng.directive('pane', function() {
     return {
         require: '^tabs',
         restrict: 'E',
         transclude: true,
-        scope: { title: '@' },
+        scope: {
+            template: '='
+        },
         link: function(scope, element, attrs, tabsCtrl) {
             tabsCtrl.addPane(scope);
         },
@@ -17,4 +19,4 @@ export let pane = ng.directive('pane', function() {
         '</div>',
         replace: true
     };
-})
+});

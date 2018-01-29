@@ -24,7 +24,7 @@
         </div>
 
         <div class="two cell right-magnet">
-            <button ng-disabled="(currentCours !== undefined && currentCours.appel.id_etat === 3) || !isEditable()"
+            <button ng-disabled="(currentCours !== undefined && currentCours.appel.id_etat === 3) || !currentCours.isEditable"
                     ng-show="currentCours !== undefined" class="button right-magnet" ng-click="terminerAppel();">
                 <i18n>viescolaire.absences.appel.button.enregistrer</i18n>
             </button>
@@ -35,7 +35,7 @@
         <container template="AbscFiltreAppel"></container>
     </div>
 
-    <div class="ten cell" ng-class="{greyed: currentCours != null && !isEditable()}" ng-show="appel.display">
+    <div class="ten cell" ng-class="{greyed: currentCours != null && !currentCours.isEditable}" ng-show="appel.display">
         <div class="pannel-in-cell">
             <div class="list-view-cgi__header">
                 <div class="one cell">
@@ -86,7 +86,7 @@
             <!-- Affichage de la liste des élèves classique, si on est sur une classe ou un groupe d'enseignement comportant -->
             <!-- que des élèves d'une classe -->
             <div class="list-view-cgi__grille" ng-show="!bClassesVue">
-                <div class="twelve cell" ng-repeat="eleve in getListEleveClasses() | orderBy:'lastName'">
+                <div class="twelve cell" ng-repeat="eleve in currentCours.listAllEleves | orderBy:'lastName'">
                     <container template="AbscEleve"></container>
                 </div>
             </div>

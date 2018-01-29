@@ -23,7 +23,7 @@
         <section>
               <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementObservation].commentaire"
                         ng-required="false"
-                        ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementObservation].evt)"
+                        ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementObservation].isEditable"
                         ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementObservation);"
                         placeholder="Observations"
                         rows="3">
@@ -34,7 +34,8 @@
             <input id="hasRetard" type="checkbox"
                    ng-model="detailEleve.evenements[oEvtType.giIdEvenementRetard].check"
                    ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
-                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+                   ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementRetard].isEditable
+                   || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
 
             <label for="hasRetard">
                 <i18n>viescolaire.absences.retard</i18n>
@@ -44,12 +45,16 @@
                    ng-model="oEvtTime.retard"
                    placeholder="Heure d'arrivée"
                    ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
-                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+                   ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementRetard].isEditable
+                   || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check
+                   || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
 
             <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementRetard].evt.commentaire"
                       ng-required="false"
                       ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementRetard)"
-                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementRetard].evt) || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+                      ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementRetard].isEditable
+                      || !detailEleve.evenements[oEvtType.giIdEvenementRetard].check
+                      || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
                       placeholder="Motif"
                       rows="3">
             </textarea>
@@ -59,7 +64,7 @@
             <input id="hasDepart" type="checkbox"
                    ng-model="detailEleve.evenements[oEvtType.giIdEvenementDepart].check"
                    ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
-                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+                   ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementDepart].isEditable || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
 
             <label for="hasDepart">
                 <i18n>viescolaire.absences.depart</i18n>
@@ -69,12 +74,12 @@
                    ng-model="oEvtTime.depart"
                    placeholder="Heure de départ"
                    ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
-                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
+                   ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementDepart].isEditable || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check">
 
             <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementDepart].evt.commentaire"
                       ng-required="false"
                       ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementDepart)"
-                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementDepart].evt) || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
+                      ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementDepart].isEditable || !detailEleve.evenements[oEvtType.giIdEvenementDepart].check || detailEleve.evenements[oEvtType.giIdEvenementAbsence].check"
                       placeholder="Motif"
                       rows="3">
             </textarea>
@@ -85,20 +90,20 @@
             <input id="hasIncident" type="checkbox"
                    ng-model="detailEleve.evenements[oEvtType.giIdEvenementIncident].check"
                    ng-click="checkEvenement(currentEleve, oEvtType.giIdEvenementIncident)"
-                   ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt)">
+                   ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementIncident].isEditable">
 
             <label for="hasIncident">
                 <i18n>viescolaire.absences.incident</i18n>
             </label>
 
-            <select ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt) || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check">
+            <select ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementIncident].isEditable || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check">
                 <option value="1" selected="selected">Punition</option>
             </select>
 
             <textarea ng-model="detailEleve.evenements[oEvtType.giIdEvenementIncident].evt.commentaire"
                       ng-required="false"
                       ng-blur="updateEvenement(currentEleve, oEvtType.giIdEvenementIncident)"
-                      ng-disabled="!isEditable(detailEleve.evenements[oEvtType.giIdEvenementIncident].evt) || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check"
+                      ng-disabled="!detailEleve.evenements[oEvtType.giIdEvenementIncident].isEditable || !detailEleve.evenements[oEvtType.giIdEvenementIncident].check"
                       placeholder="Motif"
                       rows="3">
             </textarea>

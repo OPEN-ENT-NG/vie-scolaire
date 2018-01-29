@@ -85,7 +85,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             if (poEvent != null) {
                 return model.me.type === 'PERSEDUCNAT' || !poEvent.saisie_cpe;
             } else if ($scope.currentCours != null) {
-                return (model.me.type === 'PERSEDUCNAT') || !$scope.currentCours.appel.saisie_cpe;
+                return (model.me.type === 'PERSEDUCNAT') || !$scope.currentCours.appel.saisie_cpe === true;
             }
         };
 
@@ -282,6 +282,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 // Ce cas par défaut initialise les valeurs à null.
                 let poEvt = $scope.getEvenement($scope.currentEleve, piTypeEvt);
                 let _id = poEvt != null ? poEvt.id_type : 0;
+
                 switch (_id) {
                     case $scope.oEvtType.giIdEvenementObservation:
                         $scope.detailEleve.evenements[piTypeEvt] = {
@@ -296,6 +297,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                     case $scope.oEvtType.giIdEvenementAbsence:
                     case $scope.oEvtType.giIdEvenementIncident:
                         $scope.detailEleve.evenements[piTypeEvt] = {
+                            isEditable: $scope.isEditable(poEvt),
                             evt: poEvt,
                             check: poEvt != null
                         };
@@ -457,6 +459,24 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 $scope.bClassesVue = true;
             }
 
+            $scope.currentCours.isEditable = $scope.isEditable();
+            $scope.currentCours.listAllEleves = $scope.getListEleveClasses();
+
+            $scope.currentCours.listAllEleves.forEach(eleve => {
+                eleve.eventAbsence = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementAbsence);
+                eleve.eventRetard = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementRetard);
+                eleve.eventDepart = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementDepart);
+                eleve.eventIncident = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementIncident);
+                eleve.eventObservation = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementObservation);
+
+                eleve.eventAbsenceIsEditable = $scope.isEditable(eleve.eventAbsence);
+                eleve.eventRetardIsEditable = $scope.isEditable(eleve.eventRetard);
+                eleve.eventDepartIsEditable = $scope.isEditable(eleve.eventDepart);
+                eleve.eventIncidentIsEditable = $scope.isEditable(eleve.eventIncident);
+                eleve.eventObservationIsEditable = $scope.isEditable(eleve.eventObservation);
+            });
+
+
             // Si l'appel n'est pas éditable, affiche une erreur
             $scope.showError = !$scope.isEditable();
 
@@ -558,6 +578,11 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                     await $scope.structure.courss.sync(sDateDebut, sDateFin, model.me.userId, false, arrayClasseName);
                     await $scope.structure.creneaus.sync();
                 }
+                $scope.structure.creneaus.all.forEach(creneau => {
+                    if (creneau.cours !== undefined) {
+                        creneau.cours.libelle = $scope.getLibelleClasse(creneau.cours.classeNames);
+                    }
+                });
                 resolve();
             });
         };

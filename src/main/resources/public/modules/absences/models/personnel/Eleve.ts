@@ -98,7 +98,7 @@ export class Eleve extends SharedEleve {
         // Mise en forme des cours
         arraySharedCours.forEach(sharedCours => {
             let cours = new Cours(sharedCours);
-            cours.isFutur = cours.endMoment > moment();
+            cours.isFutur = cours.startMoment > moment();
             cours.locked = true;
             cours.is_periodic = false;
             cours.color = cours.isFutur ? 'grey' : 'red';

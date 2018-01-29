@@ -1,4 +1,4 @@
-import {template, ng} from 'entcore/entcore';
+import {template, ng, notify} from 'entcore/entcore';
 import {Evenement} from '../models/shared/Evenement';
 import {FORMAT} from '../constants/formats';
 import * as utils from '../utils/shared';
@@ -402,6 +402,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 if (coursPostgres !== undefined) {
                     $scope.selectCours(coursPostgres);
                     utils.safeApply($scope);
+                } else {
+                    notify.error('Erreur lors de la récupération du cours Postgres');
                 }
                 return;
             }

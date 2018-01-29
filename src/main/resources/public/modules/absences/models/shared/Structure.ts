@@ -108,6 +108,10 @@ export class Structure extends DefaultStructure {
                     await this.syncCoursPostgres(dateDebut, dateFin, idClassOrIdTeach, isClass);
                     await this.syncCoursMongo(dateDebut, dateFin, arrayClasseName);
 
+                    if (!isClass) {
+                        this.coursMongo = this.coursMongo.filter(c => c.teacherIds.includes(idClassOrIdTeach));
+                    }
+
                     let arrayCours = checkRapprochementCoursCommon(moment(dateDebut), moment(dateFin), this, undefined, this.coursPostgres, this.coursMongo);
 
                     arrayCours.forEach(cours => {

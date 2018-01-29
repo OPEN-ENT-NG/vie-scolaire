@@ -116,49 +116,15 @@ export class Cours extends DefaultCours implements IModel {
                 classes: []
             };
 
-            let end = () => {
-              let bool = resolveCondition.appel
-                && resolveCondition.events
-                && resolveCondition.prev
-                && resolveCondition.abs
-                && resolveCondition.cours;
-              for (let i = 0; i < resolveCondition.classes.length; i++) {
-                  bool = bool && resolveCondition.classes[i];
-              }
-
-              if (bool) resolve();
-            };
-
-            this.appel.sync().then(() => {
-                resolveCondition.appel = true;
-                end();
-            });
+            await this.appel.sync();
             for (let i = 0; i < this.classes.length; i++) {
-                this.classes[i].sync().then(() => {
-                    resolveCondition.classes.push(true);
-                    end();
-                });
+                await this.classes[i].sync();
             }
 
-            this.loadEvenements().then(() => {
-                resolveCondition.events = true;
-                end();
-            });
+            await Promise.all([this.loadEvenements(), this.loadAbscPrev(), this.loadAbscLastCours(isTeacher)]);
 
-            this.loadAbscPrev().then(() => {
-                resolveCondition.prev = true;
-                end();
-            });
-
-            this.loadAbscLastCours(isTeacher).then(() => {
-                resolveCondition.abs = true;
-                end();
-            });
-
-            this.loadCoursClasse().then(() => {
-                resolveCondition.cours = true;
-                end();
-            });
+            await this.loadCoursClasse();
+            resolve();
         });
     }
 

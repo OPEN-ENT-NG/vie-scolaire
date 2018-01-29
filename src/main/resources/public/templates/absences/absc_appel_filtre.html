@@ -39,11 +39,11 @@
             <div class="twelve cell appel__journee-calendar-creneau-header">[[creneau.timestamp_dt]]</div>
 
             <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined && creneau.cours.isFutur === false"
-                 ng-click="selectCours(creneau.cours)">[[getLibelleClasse(creneau.cours.classeNames)]]
+                 ng-click="selectCours(creneau.cours)">[[creneau.cours.libelle]]
             </div>
             <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours !== undefined && creneau.cours.isFutur === true"
                  tooltip="Vous ne pouvez pas saisir d'appels sur les cours futurs">
-                [[getLibelleClasse(creneau.cours.classeNames)]]
+                [[creneau.cours.libelle]]
             </div>
             <div class="twelve cell appel__journee-calendar-creneau-middle" ng-if="creneau.cours === undefined">
                 <!--<i18n>viescolaire.absences.appel.crenau.vide</i18n>-->

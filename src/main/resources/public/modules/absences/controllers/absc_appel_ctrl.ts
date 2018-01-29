@@ -304,6 +304,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                         break;
                     default:
                         $scope.detailEleve.evenements[piTypeEvt] = {
+                            isEditable: $scope.isEditable(),
                             check: null,
                             evt: null,
                             commentaire: null

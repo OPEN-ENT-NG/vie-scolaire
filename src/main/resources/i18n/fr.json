@@ -100,6 +100,10 @@
   "viescolaire.absences.send.message":"Envoyer un message",
   "viescolaire.absences.no.absence.to.show":"Aucune absence à afficher",
   "viescolaire.absences.title.last.absences.entered":"Dernières absences saisies",
+  "viescolaire.absences.last.absences.help.absence.cours":"Absence sur un cours",
+  "viescolaire.absences.last.absences.help.absence.prev":"Absence prévisionnelle",
+  "viescolaire.absences.last.absences.help.remarque":"Remarque: Les absences correspondant à une absence prévisionnelle sont affichées à l'intérieur de celle-ci.",
+
   "viescolaire.absences.title.delete.absence":"Suprression d'une absence",
   "viescolaire.absences.delete.absence.confirm":"Voulez-vous vraiment supprimer l'absence",
   "viescolaire.absences.sans.motif":"Sans motif",
@@ -145,6 +149,7 @@
  "viescolaire.absences.conflit":"Conflit",
  "viescolaire.absences.motif.different":"Motif différent",
  "viescolaire.absences.vue.classes":"Vue classes",
+
   "viescolaire.absences.appel.verrouille":"Cet appel a été saisie par un CPE et n'est donc pas éditable.",
   "viescolaire.utils.selectAll":"Tout sélectionner",
   "viescolaire.utils.deselectAll":"Tout désélectionner",

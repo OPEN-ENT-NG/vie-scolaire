@@ -30,7 +30,8 @@
 
         <!-- Bloc absences de l'élève -->
         <article ng-show="display.showLastAbsences" class="twelve cell eleven-mobile ng-scope">
-            <h2><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+            <h2 class="display-inline-block"><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+            <i class="help right-magnet" ng-click="setLightboxLegendeLastAbsenceVisible(true);"></i>
 
             <!-- Si des absences sont trouvés -->
             <div ng-show="selected.eleve.absencesToShow.length">
@@ -287,7 +288,8 @@
 
     <!-- Lightbox qui affiche toutes les absences -->
     <lightbox show="displayLightboxAllAbsences" on-close="displayLightboxAllAbsences=false">
-        <h2><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+        <h2 class="display-inline-block"><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
+        <i class="help margin-left-md" ng-click="setLightboxLegendeLastAbsenceVisible(true);"></i>
         <!-- Body affichage des absences -->
         <div ng-show="selected.eleve.absencesToShow.length" class="body-lightbox-last-absence">
             <div ng-repeat="absenceToShow in selected.eleve.absencesToShow" class="row" >
@@ -296,5 +298,23 @@
         </div>
         <!-- Footer avec bouton fermer -->
         <button class="right-magnet" ng-click="showLightboxAllAbsences(false)"><i18n>viescolaire.fermer</i18n></button>
+    </lightbox>
+
+    <!-- Lightbox légende des 'Dernières absences saisies' -->
+    <lightbox show="lightboxLegendeLastAbsenceIsVisible" on-close="lightboxLegendeLastAbsenceIsVisible=false" class="lightbox-sm">
+        <h2><i18n>viescolaire.utils.legend</i18n></h2>
+
+        <div class="cell help">
+            <div>
+                <span class="timeline-help-bloc-color background-color-red-absc help--color-absences" style=""></span>
+                <span><i18n>viescolaire.absences.last.absences.help.absence.cours</i18n></span>
+            </div>
+            <div>
+                <span class="timeline-help-bloc-color background-color-grey-absc-prev help--color-absences"></span>
+                <span><i18n>viescolaire.absences.last.absences.help.absence.prev</i18n></span>
+            </div>
+            <br>
+            <span><i18n>viescolaire.absences.last.absences.help.remarque</i18n></span>
+        </div>
     </lightbox>
 </div>

@@ -212,27 +212,48 @@
                 </div>
             </div>
             <!-- Vue liste -->
-            <ul ng-show="!timelineIsVisible">
-                <div ng-if="selected.eleve.coursWithConflit.length">
-                    <h4><i18n>viescolaire.absences.conflit.cours</i18n></h4>
-                    <div ng-repeat="cours in selected.eleve.coursWithConflit">
-                        <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]].
-                        <i18n>viescolaire.absences.conflit</i18n>:
-                        <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
-                        <span ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
-                    </div>
-                </div>
-                <div ng-if="selected.eleve.arrayConflitAbscPrev.length">
-                    <h4><i18n>viescolaire.absences.conflit.absenceprev</i18n></h4>
-
-                    <div ng-repeat="abscPrev in selected.eleve.arrayConflitAbscPrev" class="twelve cell">
-                        <div>
-                            <i18n>viescolaire.utils.from</i18n> [[getFormattedDateTime(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[getFormattedDateTime(abscPrev.endMoment)]].
-                            <b><i18n>viescolaire.absences.reason</i18n>: </b>[[abscPrev.motif.libelle]]
-                        </div>
-                    </div>
-                </div>
-            </ul>
+            <div ng-show="!timelineIsVisible">
+                <table ng-if="selected.eleve.coursWithConflit.length" class="twelve">
+                    <thead>
+                        <tr>
+                            <th><i18n>viescolaire.absences.conflit.cours</i18n></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="cours in selected.eleve.coursWithConflit">
+                            <td>
+                                <div class="six cell twelve-mobile">
+                                    <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]].
+                                </div>
+                                <div class="six cell twelve-mobile">
+                                    <b><i18n>viescolaire.absences.conflit</i18n>: </b>
+                                    <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
+                                    <span ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table ng-if="selected.eleve.arrayConflitAbscPrev.length" class="twelve">
+                    <thead>
+                    <tr>
+                        <th><i18n>viescolaire.absences.conflit.absenceprev</i18n></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="abscPrev in selected.eleve.arrayConflitAbscPrev">
+                        <td>
+                            <div class="six cell twelve-mobile">
+                                <i18n>viescolaire.utils.from</i18n> [[getFormattedDateTime(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[getFormattedDateTime(abscPrev.endMoment)]].
+                            </div>
+                            <div class="six cell twelve-mobile">
+                                <b><i18n>viescolaire.absences.reason</i18n>: </b>[[abscPrev.motif.libelle]]
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <p><i18n>viescolaire.absences.confirm.replace.save.periode.absence</i18n></p>

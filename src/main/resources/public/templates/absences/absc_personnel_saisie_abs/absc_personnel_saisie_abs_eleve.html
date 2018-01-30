@@ -187,20 +187,20 @@
                         </div>
 
                         <article class="horizontal-spacing cell timeline-cours-panel" ng-class="getClassTimelineCours(cours)">
-                            <p>
-                                <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]]
+                            <div>
                                 <span ng-if="!isAfterToday(cours.startMoment)">
                                     <i ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)" class="right-magnet warning-icon" tooltip="Motif différent"></i>
                                     <i ng-show="!cours.absence" class="right-magnet warning-icon" tooltip="Pas d'absence associée au cours"></i>
                                 </span>
-                            </p>
-                            <span ng-show="cours.absence"><i18n>viescolaire.absences.reason</i18n>: [[cours.absence.motif.libelle]]</span>
+                                <b>[[cours.subjectLabel.name]]</b>: <br>[[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]]
+                            </div>
+                            <div ng-show="cours.absence" class="margin-top-sm"><i18n>viescolaire.absences.reason</i18n>: [[cours.absence.motif.libelle]]</div>
                             <!-- Evenements -->
                             <a class="right-magnet" ng-click="cours.expanded = !cours.expanded;" ng-show="cours.evenements">
                                 <i18n ng-if="!cours.expanded">viescolaire.absences.show.event</i18n>
                                 <i18n ng-if="cours.expanded">viescolaire.absences.hide</i18n>
                             </a>
-                            <ul ng-show="cours.evenements && cours.expanded">
+                            <ul ng-show="cours.evenements && cours.expanded" class="remove-margin">
                                 <li ng-repeat="event in cours.evenements">
                                     <i18n ng-if="event.id_type == 2">viescolaire.absences.retard</i18n>
                                     <i18n ng-if="event.id_type == 3">viescolaire.absences.depart</i18n>

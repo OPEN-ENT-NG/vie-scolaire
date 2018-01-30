@@ -1257,9 +1257,6 @@ body.presences {
     margin: 2px;
   }
 
-  .margin-bot-md {
-    margin-bottom: 10px;
-  }
 
   .panel-animation {
     max-height: 0px;
@@ -1290,6 +1287,18 @@ body.presences {
 
   .margin-bot-sm {
     margin-bottom: 5px;
+  }
+
+  .margin-bot-md {
+    margin-bottom: 10px;
+  }
+
+  .remove-margin{
+    margin-bottom: 0px;
+  }
+
+  .margin-top-sm {
+    margin-top: 5px;
   }
 
   .padding-sm {
@@ -1378,23 +1387,23 @@ body.presences {
 
   .timeline-story .timeline-cours-panel{
     width: 45%;
+    font-size: 14px;
+    padding:10px !important;
+    margin: 0px;
   }
 
   .timeline-story .cours-has-absence {
     background-color: #ffd7d7;
   }
 
+  .timeline-story .cours-futur {
+    background-color: lightgrey;
+  }
+
   .timeline-story .timeline-section-title {
     width: 100%;
     text-align: center;
     margin-bottom: 10px;
-  }
-
-  .timeline-story .timeline-section-title > span {
-    padding: 2px;
-    background-color: #777;
-    color: #fff;
-    border-radius: 6px;
   }
 
   .timeline > li > .timeline-section-title {
@@ -1404,6 +1413,7 @@ body.presences {
   }
 
   .timeline-story .timeline-section-title > span {
+    top: 2px;
     position: relative;
     padding:4px;
     background-color:#777;
@@ -1414,12 +1424,13 @@ body.presences {
   .timeline-story .event-row .timeline-badge .round {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 65%;
     margin-top: -10px;
   }
 
   .timeline-story .event-row {
-    margin-top: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   @media (max-width: $tablette) {

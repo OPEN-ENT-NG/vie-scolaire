@@ -34,10 +34,11 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
         $scope.getClassTimelineCours = (cours) => {
             let classRightMagnet = 'right-magnet';
             let classCoursHasAbsence = 'cours-has-absence';
+            let classIsFutur = 'cours-futur';
             if (cours.absence !== undefined && cours.isFutur) {
-                return classRightMagnet + ', ' + classCoursHasAbsence;
+                return classRightMagnet + ' ' + classCoursHasAbsence + ' ' + classIsFutur;
             } else if (cours.absence === undefined && cours.isFutur) {
-                return classRightMagnet;
+                return classRightMagnet + ' ' + classIsFutur;
             } else if (cours.absence !== undefined && !cours.isFutur) {
                 return classCoursHasAbsence;
             }

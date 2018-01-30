@@ -162,6 +162,7 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             let startMoment = $scope.getSelectedPeriodStartMoment();
             let endMoment = $scope.getSelectedPeriodEndMoment();
 
+            await $scope.selected.eleve.syncEvenement(startMoment, endMoment);
             await $scope.selected.eleve.courss.sync(startMoment, endMoment, $scope.structure);
 
             let firstweek = moment($scope.selected.dateDb);

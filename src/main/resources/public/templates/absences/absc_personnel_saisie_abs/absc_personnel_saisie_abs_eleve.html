@@ -170,7 +170,27 @@
         </div>
 
 
-        <div class="body-lightbox-last-absence" ng-if="displayLightboxCheckConflit">
+        <div class="body-lightbox-conflit" ng-if="displayLightboxCheckConflit" ng-init="show.helpTimeline = false;">
+            <span ng-show="timelineIsVisible"  ng-if="selected.eleve.coursGroupByDay !== undefined || selected.eleve.coursGroupByDay.length !== 0">
+                <i class="help cell timeline-help-button" ng-click="show.helpTimeline = !show.helpTimeline;"></i>
+                <div style="position: absolute;" ng-show="show.helpTimeline">
+                    <div class="cell help timeline-help-bulle">
+                        <div>
+                            <span class="timeline-help-bloc-color background-color-lightred help--color-absences" style=""></span>
+                            <span>Cours avec une absence</span>
+                        </div>
+                        <div>
+                            <span class="timeline-help-bloc-color background-color-lightgrey help--color-absences"></span>
+                            <span>Cours à venir</span>
+                        </div>
+                        <div>
+                            <i class="warning-icon timeline-help-warning"></i>
+                            <span>Conflit avec le cours</span>
+                        </div>
+                    </div>
+                </div>
+            </span>
+
             <!-- Si Aucun ne peut être affiché -->
             <div ng-if="selected.eleve.coursGroupByDay === undefined || selected.eleve.coursGroupByDay.length === 0">
                 <i18n>viescolaire.absences.auncun.cours.conflit</i18n>
@@ -254,6 +274,10 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="timeline-message-bot" ng-show="timelineIsVisible">
+            <span>La timeline affiche uniquement les conflits avec les cours présents et passés</span>
         </div>
 
         <p><i18n>viescolaire.absences.confirm.replace.save.periode.absence</i18n></p>

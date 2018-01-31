@@ -128,14 +128,9 @@
         </div>
     </div>
     <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin">
-        <div class="hash-magnet twelve cell" id="3">
-            <article  ng-init="source.idStructure = structure.id; source.cycles = structure.cycles;">
-                    <sniplet
-                            template="itemsCompetences"
-                            application="competences"
-                            source="source"
-                    ></sniplet>
-            </article>
+        <div ng-include="items.url"
+                class="hash-magnet twelve cell" id="3">
+
         </div>
     </div>
 </div>

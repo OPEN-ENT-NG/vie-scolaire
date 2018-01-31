@@ -283,6 +283,9 @@ body.presences {
 
   .box-accueil {
 
+    margin: 10px !important;
+    padding: 5px !important;
+
     > h2 {
       text-align: center;
       margin-bottom: 0;
@@ -298,6 +301,7 @@ body.presences {
 
       .content-box-accueil--table--header {
         background: $primary;
+        padding-right: 17px;
 
         h5 {
           color: $white !important;
@@ -313,6 +317,7 @@ body.presences {
 
         > .row {
           padding: 5px 0;
+          text-indent: 10px;
         }
 
         > .row:nth-child(2n) {

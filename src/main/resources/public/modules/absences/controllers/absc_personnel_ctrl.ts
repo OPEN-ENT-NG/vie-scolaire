@@ -134,6 +134,10 @@ export let absencesController = ng.controller('AbsencesController', [
             utils.safeApply($scope);
         });
 
+        $scope.isAccueil = () => {
+            return $location.path() === '/accueil';
+        }
+
         $scope.loadData = function () {
 
             if (($scope.periode.fin.getTime() - $scope.periode.debut.getTime()) > 0) {

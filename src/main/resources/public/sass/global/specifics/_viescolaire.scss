@@ -149,6 +149,9 @@ body.viescolaire {
       }
     }
   }
+  .padding-left {
+    padding-left: 3em;
+  }
 
   .rounded {
     width: 20px;
@@ -158,4 +161,31 @@ body.viescolaire {
     position: relative;
     transition: all 200ms ease;
   }
+
+  .openedSectionDom{
+    height: 0 !important;
+    overflow: hidden!important;
+
+  }
+
+  .Domaine{
+
+    &::before {
+      @include fonticon;
+      margin-right: 0.5%;
+      content: "\e841";
+      font-size:10px;
+      float: left;
+    }
+    &.openedDom {
+      &::before {
+        @include fonticon;
+        margin-right: 1%;
+        content: "\e823";
+        font-size:10px;
+        float: left;
+      }
+    }
+  }
+
 }

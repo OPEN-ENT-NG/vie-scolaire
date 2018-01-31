@@ -125,8 +125,8 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
          * @returns {function(enseignement): (retourne true systématiquement)}
          */
         $scope.customFilterEns = function (psKeyword,enseignementsFilter,competencesFilter,search) {
-            $scope.enseignementsFilter = enseignementsFilter;
-            $scope.competencesFilter = competencesFilter;
+               $scope.enseignementsFilter = enseignementsFilter;
+               $scope.competencesFilter = competencesFilter;
 
             return function (enseignement) {
 
@@ -160,6 +160,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 return true;
             }
         };
+
 
         /**
          * Methode récursive qui determine si un enseignement / une compétence / une sous compétence
@@ -209,15 +210,19 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                             if ($scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement]
                                 !== undefined) {
                                 $scope.competencesFilter[sousCompetence.id + "_"
-                                + sousCompetence.id_enseignement].nomHtml = DisplayNomSousCompetence;
+                                + sousCompetence.id_enseignement]= {
+                                    nomHtml: DisplayNomSousCompetence,
+                                    hide: false
+                                };
                             }
                         }
 
                     } else {
                         if ($scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement]
                             !== undefined) {
-                            $scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement].nomHtml
-                                = sousCompetence.nom;
+                            $scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement]
+                                = {nomHtml: sousCompetence.nom,
+                                    hide: true};
                         }
                     }
 
@@ -239,7 +244,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
             }
         };
 
-
         /**
          * Retourne une chaine avec toutes les occurences du mot clef trouvées
          * surlignées (encadrement via des balises html)
@@ -258,35 +262,5 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 '<span class="highlightedText">$&</span>'));
         };
 
-        $scope. customFilterComp = function (competence,search) {
-
-            return function (competence) {
-
-                if (!search.haschange) {
-                    return true;
-                }
-
-
-                // on check ici si l'enseignement  match le mot clef recherché pour éviter de rechecker
-                // systématiquement dans la méthode récursive
-                competence.open = utils.containsIgnoreCase(competence.nom, search.keyword);
-                if (competence.open) {
-                    let nomhtml = $scope.highlight(competence.nom, search.keyword);
-                    // mise à jour que si la réelle valeur de la chaine html est
-                    // différente ($sce.trustAsHtml renvoie systématiquement une valeur différente)
-                    if ($sce.getTrustedHtml(competence.nomhtml)
-                        !== $sce.getTrustedHtml(nomhtml)) {
-                        competence.nomhtml = nomhtml;
-                        utils.safeApply($scope);
-                    }
-                    competence.hide = false;
-                }
-                else {
-                    competence.hide = true;
-                }
-
-                return true;
-            }
-        };
     }
 ]);

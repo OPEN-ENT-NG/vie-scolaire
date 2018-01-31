@@ -108,6 +108,7 @@
             </li>
         </filters>
         <div class="calendardiv twelve cell card" ng-show="display.calendar">
+            <i class="help calendar-help-button" ng-click="setLightboxLegendeCalendarVisible(true);"></i>
             <calendar
                     display-template="../templates/absences/absc_personnel_saisie_abs/calendar-cours-display"
                     items="selected.eleve.items"
@@ -315,6 +316,26 @@
             </div>
             <br>
             <span><i18n>viescolaire.absences.last.absences.help.remarque</i18n></span>
+        </div>
+    </lightbox>
+
+    <!-- Lightbox légende des 'Dernières absences saisies' -->
+    <lightbox show="lightboxLegendeCalendarIsVisible" on-close="lightboxLegendeCalendarIsVisible=false" class="lightbox-sm">
+        <h2><i18n>viescolaire.utils.legend</i18n></h2>
+
+        <div class="cell help">
+            <div>
+                <span class="timeline-help-bloc-color background-color-red-cours help--color-absences" style=""></span>
+                <span><i18n>viescolaire.absences.calendar.help.cours.not.futur</i18n></span>
+            </div>
+            <div>
+                <span class="timeline-help-bloc-color background-color-grey-cours-futur help--color-absences" style=""></span>
+                <span><i18n>viescolaire.absences.timeline.help.cours.futur</i18n></span>
+            </div>
+            <div>
+                <span class="timeline-help-bloc-color background-color-green-absc-prev help--color-absences"></span>
+                <span><i18n>viescolaire.absences.last.absences.help.absence.prev</i18n></span>
+            </div>
         </div>
     </lightbox>
 </div>

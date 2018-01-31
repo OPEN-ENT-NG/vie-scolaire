@@ -103,6 +103,7 @@
   "viescolaire.absences.last.absences.help.absence.cours":"Absence sur un cours",
   "viescolaire.absences.last.absences.help.absence.prev":"Absence prévisionnelle",
   "viescolaire.absences.last.absences.help.remarque":"Remarque: Les absences correspondant à une absence prévisionnelle sont affichées à l'intérieur de celle-ci.",
+  "viescolaire.absences.calendar.help.cours.not.futur":"Cours présent ou passé",
 
   "viescolaire.absences.title.delete.absence":"Suprression d'une absence",
   "viescolaire.absences.delete.absence.confirm":"Voulez-vous vraiment supprimer l'absence",

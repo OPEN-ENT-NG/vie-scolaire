@@ -1517,6 +1517,15 @@ body.presences {
     top: 3px;
   }
 
+  .calendar-help-button {
+    font-size: 16px;
+    position: absolute;
+    float: left;
+    left: 120px;
+    top: 47px;
+    z-index: 999;
+  }
+
   .display-inline-block {
     display:inline-block;
   }
@@ -1532,4 +1541,17 @@ body.presences {
   .background-color-red-absc {
     background-color: #c0392b;
   }
+
+  .background-color-red-cours{
+    background: #ef7f8f;
+  }
+
+  .background-color-grey-cours-futur{
+    background: #ddd;
+  }
+
+  .background-color-green-absc-prev{
+    background: #46bfaf;
+  }
+
 }

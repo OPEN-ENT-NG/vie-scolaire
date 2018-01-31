@@ -640,6 +640,10 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             $scope.lightboxLegendeLastAbsenceIsVisible = state;
         };
 
+        $scope.setLightboxLegendeCalendarVisible = (state) => {
+            $scope.lightboxLegendeCalendarIsVisible = state;
+        };
+
         /**
          * Retourne true si les dates de la périodes sont bien chargées
          * Vérifie la date début, l'heure début, la date de fin et l'heure de fin

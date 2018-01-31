@@ -8,6 +8,7 @@ import {AbsencePrev} from '../models/personnel/AbsencePrev';
 import {Evenement} from '../models/personnel/Evenement';
 import {safeApply} from '../../utils/functions/safeApply';
 import {Eleve} from '../models/personnel/Eleve';
+import {PLAGES} from '../constants/plages';
 import {notify} from '../../entcore/notify';
 
 
@@ -48,10 +49,10 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
         $scope.selectEleve = async () => {
             $scope.selectingEleve = true;
             try {
-                $scope.selected.dateDb = moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD');
-                $scope.selected.dateFn = moment(model.calendar.dayForWeek).add(6, 'day').hour(0).minute(0).format('YYYY-MM-DD');
-                $scope.selected.timeDb = moment().format('HH:mm');
-                $scope.selected.timeFn = moment().format('HH:mm');
+                $scope.selected.dateDb = moment().format('YYYY-MM-DD');
+                $scope.selected.dateFn = moment().format('YYYY-MM-DD');
+                $scope.selected.timeDb = moment().hour(PLAGES.heureDebut).minute(0).format('HH:mm');
+                $scope.selected.timeFn = moment().hour(PLAGES.heureFin).minute(0).format('HH:mm');
                 $scope.selected.motif = $scope.structure.motifs.all.find(m => m.id == null);
 
                 $scope.structure.isWidget = false;

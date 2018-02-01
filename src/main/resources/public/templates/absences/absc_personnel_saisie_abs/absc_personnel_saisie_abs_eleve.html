@@ -8,33 +8,33 @@
 
             <!-- Barre de recherche de l'élève -->
             <autocomplete options="structure.eleves.all" ng-change="selectEleve()" ng-model="selected.eleve"></autocomplete>
-            <div class="row ng-scope" ng-if="display.showEleveCard == true">
+            <div class="row" ng-if="display.showEleveCard == true">
 
-                <div class="three cell">
+                <div>
                     <c-round-avatar eleve="selected.eleve"></c-round-avatar>
                 </div>
 
-                <div class="nine cell padding-sm">
-                    <h2>[[selected.eleve.firstName]] [[selected.eleve.lastName]] - [[selected.eleve.className[0] ]]</h2>
-                    <p>[[getFormattedDate(selected.eleve.birthDate)]]</p>
-                    <div class="row action-item" ng-if="selected.eleve.canCommunicateWithUserConnected">
-                        <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
-                            <i class="send-mail inline"></i>
-                            <i18n>viescolaire.absences.send.message</i18n>
-                        </a>
-                    </div>
+                <div class="padding-sm text-center">
+                    <h2 class="remove-margin">[[selected.eleve.firstName]] [[selected.eleve.lastName]]</h2>
+                    <h4 class="remove-margin">[[selected.eleve.className[0] ]]</h4>
+                    <p class="remove-margin">[[getFormattedDate(selected.eleve.birthDate)]]</p>
                 </div>
-
+                <div class="row action-item text-center" ng-if="selected.eleve.canCommunicateWithUserConnected">
+                    <a ng-href="/conversation/conversation#/write-mail/[[selected.eleve.id]]" class="twelve cell">
+                        <i class="send-mail inline"></i>
+                        <i18n>viescolaire.absences.send.message</i18n>
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- Bloc absences de l'élève -->
         <article ng-show="display.showLastAbsences" class="twelve cell eleven-mobile ng-scope">
-            <h2 class="display-inline-block"><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
             <i class="help right-magnet" ng-click="setLightboxLegendeLastAbsenceVisible(true);"></i>
+            <h2><i18n>viescolaire.absences.title.last.absences.entered</i18n></h2>
 
             <!-- Si des absences sont trouvés -->
-            <div ng-show="selected.eleve.absencesToShow.length">
+            <div ng-show="selected.eleve.absencesToShow.length" class="last-absence-body-widget">
                 <div ng-repeat="absenceToShow in selected.eleve.absencesToShow | limitTo:3" class="row" >
                     <div ng-include src="'/viescolaire/public/templates/absences/absc_personnel_saisie_abs/absc_personnel_show_simple_and_prev.html'"></div>
                 </div>
@@ -194,7 +194,7 @@
             </span>
 
             <!-- Si Aucun ne peut être affiché -->
-            <div ng-if="selected.eleve.coursGroupByDay === undefined || selected.eleve.coursGroupByDay.length === 0">
+            <div ng-if="timelineIsVisible && (selected.eleve.coursGroupByDay === undefined || selected.eleve.coursGroupByDay.length === 0)" class="text-center">
                 <i18n>viescolaire.absences.auncun.cours.conflit</i18n>
             </div>
             <div class="timeline-story vertical-spacing row" ng-show="timelineIsVisible">

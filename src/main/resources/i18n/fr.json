@@ -405,5 +405,6 @@
   "last" : "dernières",
   "evaluation.search.by.enseignements" : "Vue par enseignements",
   "evaluation.search.by.domaines" : "Vue par domaines",
- "evaluation.lsu.export.button.classes" : "Exporter le bilan de fin de cycle de la classe au format XML"
+  "evaluation.search.read.only": "(consultative)",
+  "evaluation.lsu.export.button.classes" : "Exporter le bilan de fin de cycle de la classe au format XML"
 }

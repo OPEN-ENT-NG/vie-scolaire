@@ -513,6 +513,19 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             $scope.ouvrirAppel();
         };
 
+        $scope.trySelectCours = () => {
+            for (let i = 0; i < $scope.structure.creneaus.all.length; i++){
+                let creneau = $scope.structure.creneaus.all[i];
+                if (creneau.cours !== undefined) {
+                    let now = moment();
+                    if (creneau.cours.startMoment < now && now < creneau.cours.endMoment) {
+                        $scope.selectCours(creneau.cours);
+                        break;
+                    }
+                }
+            }
+        }
+
         /**
          * Charge un appel
          * @param pdtDate la date du jour souhaitée
@@ -567,6 +580,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 }
             }
 
+            $scope.trySelectCours();
             utils.safeApply($scope);
         };
 

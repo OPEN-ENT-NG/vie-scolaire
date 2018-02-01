@@ -170,6 +170,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                 await poEvt.delete();
                 $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelEnCours);
                 $scope.calcNbElevesPresents();
+                $scope.setEvenementOfEleves(poEleve);
                 utils.safeApply($scope);
                 resolve();
             });
@@ -235,6 +236,7 @@ export let abscAppelController = ng.controller('AbscAppelController', [
                         $scope.changerEtatAppel($scope.etatAppel.giIdEtatAppelEnCours);
                         $scope.calcNbElevesPresents();
                 }
+                $scope.setEvenementOfEleves(poEleve);
                 utils.safeApply($scope);
                 resolve();
             });
@@ -484,6 +486,20 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             utils.safeApply($scope);
             $scope.refreshVuesAppel();
             $scope.appel.display = true;
+        };
+
+        $scope.setEvenementOfEleves = (eleve) => {
+            eleve.eventAbsence = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementAbsence);
+            eleve.eventRetard = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementRetard);
+            eleve.eventDepart = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementDepart);
+            eleve.eventIncident = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementIncident);
+            eleve.eventObservation = $scope.getEvenement(eleve, $scope.oEvtType.giIdEvenementObservation);
+
+            eleve.eventAbsenceIsEditable = $scope.isEditable(eleve.eventAbsence);
+            eleve.eventRetardIsEditable = $scope.isEditable(eleve.eventRetard);
+            eleve.eventDepartIsEditable = $scope.isEditable(eleve.eventDepart);
+            eleve.eventIncidentIsEditable = $scope.isEditable(eleve.eventIncident);
+            eleve.eventObservationIsEditable = $scope.isEditable(eleve.eventObservation);
         };
 
         /**

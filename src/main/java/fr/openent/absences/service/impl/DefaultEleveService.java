@@ -160,10 +160,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     .append("AND cours.timestamp_dt >= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
                     .append("AND cours.timestamp_fn <= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS') " )
                     .append("AND evenement.id_type = 1 " )
-                    .append("AND ( " )
-                    .append("evenement.id_motif = 8 " )
-                        .append("OR evenement.id_motif = 2 " )
-                    .append(") " )
+                    .append("AND (evenement.id_motif IS NULL OR motif.justifiant = false) " )
                     .append( "AND cours.id_etablissement = ? " )
                 .append("ORDER BY cours.timestamp_dt DESC");
 

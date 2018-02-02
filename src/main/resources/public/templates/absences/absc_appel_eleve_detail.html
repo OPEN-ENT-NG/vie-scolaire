@@ -1,21 +1,23 @@
-<mobile-panel side="right" displayed="detailEleve.displayed">
-    <div class="six cell">
-        <h2 class="appel__detail-eleve_nom">[[currentEleve.lastName]] [[currentEleve.firstName]]</h2>
-        <h4 class="appel__detail-eleve_naissance">[[localeDate(currentEleve.birthDate)]]</h4>
-    </div>
-    <div class="six cell">
-        <div class="two cell">
-            <a href="#" ng-click="alertNonImplementee();" class="appel__detail-eleve-icon-mail"
-               tooltip="Contacter la personne">
-                <i class="mail"></i>
-            </a>
-            <a href="#" ng-click="alertNonImplementee();"
-               class="appel__detail-eleve-icon-stats" tooltip="Statistiques">
-                <i class="stats"></i>
-            </a>
+<mobile-panel side="right" displayed="detailEleve.displayed" ng-if="detailEleve.displayed">
+    <div class="row">
+        <div class="six cell">
+            <h2 class="appel__detail-eleve_nom">[[currentEleve.lastName]] [[currentEleve.firstName]]</h2>
+            <h4 class="appel__detail-eleve_naissance">[[localeDate(currentEleve.birthDate)]]</h4>
         </div>
-        <div class="ten cell">
-            <img class="appel__detail-eleve-img" src="/userbook/avatar/[[currentEleve.id]]" alt=""/>
+        <div class="six cell">
+            <div class="two cell">
+                <a href="#" ng-click="alertNonImplementee();" class="appel__detail-eleve-icon-mail"
+                   tooltip="Contacter la personne">
+                    <i class="mail"></i>
+                </a>
+                <a href="#" ng-click="alertNonImplementee();"
+                   class="appel__detail-eleve-icon-stats" tooltip="Statistiques">
+                    <i class="stats"></i>
+                </a>
+            </div>
+            <div class="ten cell">
+                <c-round-avatar eleve="currentEleve"></c-round-avatar>
+            </div>
         </div>
     </div>
 

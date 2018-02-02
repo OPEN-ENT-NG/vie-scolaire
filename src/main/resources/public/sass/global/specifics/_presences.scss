@@ -207,6 +207,10 @@ body.presences {
     }
   }
 
+  .mobile-panel {
+    overflow-y: auto;
+  }
+
   .appel__detail-eleve-close {
     text-align: right;
     color: #C0C0C0;
@@ -933,6 +937,28 @@ body.presences {
     img {
       height: 60px;
       width: 60px;
+      object-fit: cover;
+      border-radius: 50% !important;
+      border: 1px solid $medium-grey !important;
+    }
+
+    span {
+      display: none;
+    }
+  }
+
+  .page-saisie-appel .round-avatar {
+    height: 100%;
+    width: 100%;
+    margin:0;
+    text-align: center !important;
+    opacity: 0.8 !important;
+
+    img {
+      max-height: 60px;
+      max-width: 60px;
+      height: 100%;
+      width: 100%;
       object-fit: cover;
       border-radius: 50% !important;
       border: 1px solid $medium-grey !important;

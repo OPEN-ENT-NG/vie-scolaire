@@ -719,6 +719,8 @@ export let abscAppelController = ng.controller('AbscAppelController', [
             let currentDate = $scope.appel.date;
             $scope.appel.date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
             $scope.ouvrirAppel();
+        } else {
+            await $scope.structure.plages.sync();
         }
 
         if ($scope.selectedAppel != null) {

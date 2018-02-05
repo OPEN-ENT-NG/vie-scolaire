@@ -190,6 +190,11 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getInfoEleve(idEleves, getArrayBusResultHandler(message));
             }
             break;
+            case "getCycle": {
+                String idClasse = message.body().getString("idClasse");
+                eleveService.getCycle(idClasse, getArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

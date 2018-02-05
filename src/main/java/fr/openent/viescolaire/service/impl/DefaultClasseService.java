@@ -223,12 +223,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
+
     /**
      * get idClasse by idEleve
      * @param idEleve
      * @param handler id_classe
      */
-
     @Override
     public void getClasseByEleve(String idEleve, Handler<Either<String, JsonObject>> handler) {
       StringBuilder query = new StringBuilder()

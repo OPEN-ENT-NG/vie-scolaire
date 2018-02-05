@@ -211,8 +211,7 @@
                         <article class="horizontal-spacing cell timeline-cours-panel" ng-class="getClassTimelineCours(cours)">
                             <div>
                                 <span ng-if="!isAfterToday(cours.startMoment)">
-                                    <i ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)" class="right-magnet warning-icon" tooltip="Motif différent"></i>
-                                    <i ng-show="!cours.absence" class="right-magnet warning-icon" tooltip="Pas d'absence associée au cours"></i>
+                                    <i ng-show="getLibelleConflit(cours)" class="right-magnet warning-icon" tooltip="[[getLibelleConflit(cours)]]"></i>
                                 </span>
                                 <b>[[cours.subjectLabel.name]]</b>: <br>[[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]]
                             </div>
@@ -238,19 +237,29 @@
                 <table ng-if="selected.eleve.coursWithConflit.length" class="twelve">
                     <thead>
                         <tr>
-                            <th><i18n>viescolaire.absences.conflit.cours</i18n></th>
+                            <th class="text-center">
+                                <i18n>viescolaire.absences.conflit.cours</i18n>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">
+                                <div class="six cell">
+                                    <i18n>viescolaire.absences.cours</i18n>
+                                </div>
+                                <div class="six cell">
+                                    <i18n>viescolaire.absences.conflits</i18n>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="cours in selected.eleve.coursWithConflit">
+                        <tr ng-repeat="cours in selected.eleve.coursWithConflit" >
                             <td>
                                 <div class="six cell twelve-mobile">
-                                    <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]].
+                                    <b>[[cours.subjectLabel.name]]</b>: [[getFormattedDate(cours.startMoment)]] [[getFormattedTime(cours.startMoment)]] - [[getFormattedTime(cours.endMoment)]]
                                 </div>
                                 <div class="six cell twelve-mobile">
-                                    <b><i18n>viescolaire.absences.conflit</i18n>: </b>
-                                    <span ng-show="!cours.absence"><i18n>viescolaire.absences.no.absence.associated</i18n></span>
-                                    <span ng-show="cours.absence && !equalsMotifIdOfPa(cours.absence.motif.id)"><i18n>viescolaire.absences.motif.different</i18n></span>
+                                    <span>[[getLibelleConflit(cours)]]</span>
                                 </div>
                             </td>
                         </tr>
@@ -258,18 +267,30 @@
                 </table>
                 <table ng-if="selected.eleve.arrayConflitAbscPrev.length" class="twelve">
                     <thead>
-                    <tr>
-                        <th><i18n>viescolaire.absences.conflit.absenceprev</i18n></th>
-                    </tr>
+                        <tr>
+                            <th class="text-center">
+                                <i18n>viescolaire.absences.conflit.absenceprev</i18n>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">
+                                <div class="six cell">
+                                    <i18n>viescolaire.absences.last.absences.help.absences.prev</i18n>
+                                </div>
+                                <div class="six cell">
+                                    <i18n>viescolaire.absences.reason</i18n>
+                                </div>
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="abscPrev in selected.eleve.arrayConflitAbscPrev">
                         <td>
                             <div class="six cell twelve-mobile">
-                                <i18n>viescolaire.utils.from</i18n> [[getFormattedDateTime(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[getFormattedDateTime(abscPrev.endMoment)]].
+                                <i18n>viescolaire.utils.from</i18n> [[getFormattedDateTime(abscPrev.startMoment)]] <i18n>viescolaire.utils.to</i18n> [[getFormattedDateTime(abscPrev.endMoment)]]
                             </div>
                             <div class="six cell twelve-mobile">
-                                <b><i18n>viescolaire.absences.reason</i18n>: </b>[[abscPrev.motif.libelle]]
+                                [[abscPrev.motif.libelle]]
                             </div>
                         </td>
                     </tr>

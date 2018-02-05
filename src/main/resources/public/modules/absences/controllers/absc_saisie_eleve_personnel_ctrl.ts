@@ -1,7 +1,7 @@
 /**
  * Created by rahnir on 08/06/2017.
  */
-import {template, ng } from 'entcore/entcore';
+import {template, ng, idiom as lang} from 'entcore/entcore';
 import * as utils from '../utils/personnel';
 import {} from '../../entcore/template';
 import {AbsencePrev} from '../models/personnel/AbsencePrev';
@@ -349,12 +349,14 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 return;
             }
 
+            $scope.selected.eleve.coursWithConflit = [];
             $scope.selected.eleve.arrayConflitAbscPrev = [];
             $scope.selected.eleve.arrayAbscPrevToCreate = [];
             $scope.selected.eleve.arrayAbscPrevToDelete = [];
             $scope.selected.eleve.arrayAbscPrevToUpdate = [];
             $scope.selected.eleve.coursPassedWithoutAbsence = [];
             $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent = [];
+            $scope.selected.eleve.coursWithDifferentEvenement = [];
 
             let dateDebut = $scope.getSelectedPeriodStartMoment();
             let dateFin = $scope.getSelectedPeriodEndMoment();
@@ -399,16 +401,22 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
                 $scope.timelineIsVisible = false;
             }
 
-            $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.courss.all.filter((cours) => {
-                // Si le cours est passé et n'a pas d'absence, ou si le cours est passé avec une absence avec un motif différent.
-                return !$scope.isAfterToday(cours.startMoment) && (!cours.absence || !$scope.equalsMotifIdOfPa(cours.absence.motif.id));
-            });
-
             $scope.selected.eleve.coursPassedWithoutAbsence =
                 $scope.selected.eleve.courss.all.filter(cours => !$scope.isAfterToday(cours.startMoment) && !cours.absence);
 
+            $scope.selected.eleve.coursWithConflit = $scope.selected.eleve.courss.all.filter((cours) => {
+                // Si le cours est passé et : possède une absence avec un motif différent ou des évènements différents.
+                return (!$scope.isAfterToday(cours.startMoment) && $scope.hasDifferentEvent(cours))
+                    || (!$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id));
+            });
+
+            $scope.selected.eleve.coursWithDifferentEvenement =
+                $scope.selected.eleve.coursWithConflit.filter(cours => !$scope.isAfterToday(cours.startMoment) && $scope.hasDifferentEvent(cours));
+
             $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent =
-                $scope.selected.eleve.courss.all.filter(cours => !$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id) );
+                $scope.selected.eleve.coursWithConflit.filter(cours => !$scope.isAfterToday(cours.startMoment) && cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id) );
+
+
 
             // On vérifie si il y aura une absence prev, si c'est le cas, on lance la calcul des conflits avec les Absences prev
             let newAbscPrevToCreate;
@@ -504,8 +512,9 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
             }
 
             $scope.numOfConflit += arrayConflitAbscPrev.length
-                + $scope.selected.eleve.coursPassedWithoutAbsence.length
-                + $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.length;
+                + $scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.length
+                + $scope.selected.eleve.coursWithDifferentEvenement.filter(cours =>
+                    !$scope.selected.eleve.coursPassedWithAbsenceWithMotifDifferent.includes(cours)).length; // On ne compte pas les conflits en double
             utils.safeApply($scope);
         };
 
@@ -663,6 +672,34 @@ export let abscSaisieElevePersonnel = ng.controller('AbscSaisieElevePersonnel', 
 
         $scope.equalsMotifIdOfPa = (id_motif) => {
             return $scope.selected.motif.id === id_motif;
+        };
+
+        $scope.hasDifferentEvent = (cours) => {
+            // Si il y'a des evenements autres qu'une absence sur le cours
+            if (cours.evenements !== undefined) {
+                return cours.evenements.filter(event => event.id_type !== 1).length > 0;
+            } else {
+                return false;
+            }
+        };
+
+        $scope.getLibelleConflit = (cours) => {
+            let libelle = '';
+            let coursHasDifferentEvent = $scope.hasDifferentEvent(cours);
+            let coursHasAbsenceWithDiffMotif = cours.absence && !$scope.equalsMotifIdOfPa(cours.absence.motif.id);
+            if (coursHasDifferentEvent) {
+                libelle += lang.translate('viescolaire.absences.different.event');
+            }
+            if (coursHasDifferentEvent && coursHasAbsenceWithDiffMotif){
+                libelle += ', ';
+            }
+            if (coursHasAbsenceWithDiffMotif) {
+                libelle += lang.translate('viescolaire.absences.motif.different');
+            }
+            if (!coursHasDifferentEvent && !coursHasAbsenceWithDiffMotif){
+               return false;
+            }
+            return libelle;
         };
 
         $scope.isAfterToday = (strDate) => {

@@ -44,6 +44,7 @@ import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -155,7 +156,10 @@ public class CoursController extends ControllerHelper{
                         for(int i = 0; i < Ids.length; i++) {
                             IdsStr[i] = Ids[i].toString();
                         }
-                        coursService.getCoursByStudentId(dateDebut, dateFin, IdsStr,  handler);
+
+                        List<String> listIdClasse = Arrays.asList(IdsStr);
+
+                        coursService.getClasseCours(dateDebut, dateFin, listIdClasse,  handler);
                     }else{
                         log.error("This Student has no Classes or Groups");
                     }

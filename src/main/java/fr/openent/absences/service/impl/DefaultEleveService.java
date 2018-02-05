@@ -587,7 +587,33 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     .putArray("values", values).putString("action", "prepared"));
         }
 
-        // #6 - Insert evenements manquants
+
+        // #6 - Suppression des evenements autres que les absences sur les evenements.
+        if(arrayEventToCreate != null && !arrayEventToCreate.toList().isEmpty()) {
+
+            values = new JsonArray();
+            query = new StringBuilder();
+            // Query & value
+            query.append("DELETE FROM " + Viescolaire.ABSC_SCHEMA + ".evenement ");
+            query.append("WHERE id_type != 1 AND ");
+            for (int i = 0; i < arrayEventToCreate.size(); i++) {
+                JsonObject eventToCreate = arrayEventToCreate.get(i);
+
+                query.append("(id_appel = ? AND id_eleve = ?) ");
+                values.add(eventToCreate.getNumber("id_appel"));
+                values.add(idEleve);
+
+                if (i != arrayEventToCreate.size() - 1) {
+                    query.append(" OR ");
+                }
+            }
+            // Ajout du statement
+            statements.add(new JsonObject().putString("statement", query.toString())
+                    .putArray("values", values).putString("action", "prepared"));
+        }
+
+
+        // #7 - Insert evenements manquants
         if(arrayEventToCreate != null && !arrayEventToCreate.toList().isEmpty()) {
             values = new JsonArray();
             query = new StringBuilder();
@@ -615,7 +641,7 @@ public class DefaultEleveService extends SqlCrudService implements fr.openent.ab
                     .putArray("values", values).putString("action", "prepared"));
         }
 
-        // #7 - Update des evenements
+        // #8 - Update des evenements
         if(listEventIdToUpdate != null && !listEventIdToUpdate.isEmpty()) {
             values = new JsonArray();
             query = new StringBuilder();

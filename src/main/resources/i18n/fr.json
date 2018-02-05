@@ -102,6 +102,7 @@
   "viescolaire.absences.title.last.absences.entered":"Dernières absences saisies",
   "viescolaire.absences.last.absences.help.absence.cours":"Absence sur un cours",
   "viescolaire.absences.last.absences.help.absence.prev":"Absence prévisionnelle",
+ "viescolaire.absences.last.absences.help.absences.prev":"Absences prévisionnelles",
   "viescolaire.absences.last.absences.help.remarque":"Remarque: Les absences correspondant à une absence prévisionnelle sont affichées à l'intérieur de celle-ci.",
   "viescolaire.absences.calendar.help.cours.not.futur":"Cours présent ou passé",
 
@@ -148,7 +149,10 @@
  "viescolaire.absences.conflit.absenceprev":"Conflits avec les absences prévisionnelles",
  "viescolaire.absences.no.absence.associated":"Pas d'absence associée au cours",
  "viescolaire.absences.conflit":"Conflit",
- "viescolaire.absences.motif.different":"Motif différent",
+ "viescolaire.absences.conflits":"Conflits",
+  "viescolaire.absences.cours":"Cours",
+ "viescolaire.absences.different.event":"Evenements différents associés",
+ "viescolaire.absences.motif.different":"Absence avec un motif différent",
  "viescolaire.absences.vue.classes":"Vue classes",
 
   "viescolaire.absences.appel.verrouille":"Cet appel a été saisie par un CPE et n'est donc pas éditable.",

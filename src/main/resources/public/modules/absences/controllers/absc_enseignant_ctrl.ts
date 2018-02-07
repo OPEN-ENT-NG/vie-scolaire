@@ -1,8 +1,8 @@
-import { template, ng } from 'entcore';
+import { template, ng, moment } from 'entcore';
 import { presences } from '../models/absc_enseignant_mdl';
+import { FORMAT } from '../constants/formats';
 import * as utils from '../utils/personnel';
 
-let moment = require('moment');
 declare let _: any;
 
 export let absencesController = ng.controller('AbsencesController', [

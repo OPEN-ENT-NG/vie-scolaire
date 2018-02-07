@@ -20,7 +20,6 @@
 package fr.openent.absences.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.evaluations.service.impl.DefaultExportService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;

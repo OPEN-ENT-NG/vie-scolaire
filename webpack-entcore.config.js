@@ -30,7 +30,7 @@ module.exports = {
         path: __dirname + 'dest'
     },
     resolve: {
-        modulesDirectories: ['bower_components', 'node_modules'],
+        modulesDirectories: ['node_modules', 'bower_components'],
         root: path.resolve('.'),
         extensions: ['', '.js']
     },

@@ -17,7 +17,7 @@
  *
  */
 
-import { Collection, http, idiom as lang } from 'entcore/entcore';
+import { Collection, http, idiom as lang, moment } from 'entcore';
 
 import { Structure as SharedStructure } from '../shared/Structure';
 import { Enseignant } from "./Enseignant";
@@ -31,8 +31,6 @@ import {Observation} from "./Observation";
 import {MotifAppel} from "./MotifAppel";
 import {FORMAT} from "../../constants/formats";
 import {Declaration} from "./Declaration";
-
-let moment = require('moment');
 
 export class Structure extends SharedStructure {
 

@@ -1,9 +1,7 @@
-import { template,  ng } from 'entcore';
+import { template,  ng, moment } from 'entcore';
 import { Evenement } from '../models/absc_personnel_mdl';
 import * as utils from '../utils/personnel';
 
-
-let moment = require('moment');
 declare let _: any;
 
 export let abscAbssmPersonnelController = ng.controller('AbscAbssmPersonnelController', [

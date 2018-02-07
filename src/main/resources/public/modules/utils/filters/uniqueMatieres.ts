@@ -1,9 +1,8 @@
 /**
  * Created by ledunoiss on 16/09/2016.
  */
-import { ng, angular } from 'entcore/entcore';
+import { ng, angular, moment } from 'entcore';
 
-let moment = require('moment');
 declare let _:any;
 
 export let uniqueMatiereFilter = ng.filter('uniqueMatiere', function() {

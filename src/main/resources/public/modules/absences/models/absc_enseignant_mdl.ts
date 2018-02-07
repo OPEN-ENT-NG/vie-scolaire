@@ -1,9 +1,7 @@
-import { model, http, Model, Collection } from 'entcore';
-
+import { model, http, Model, Collection, moment } from 'entcore';
 import { Evenement } from './teacher/Evenement';
 import { Structure } from './teacher/Structure';
 
-let moment = require('moment');
 declare let _: any;
 
 class Presences extends Model {

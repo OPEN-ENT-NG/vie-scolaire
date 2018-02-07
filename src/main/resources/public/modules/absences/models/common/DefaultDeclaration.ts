@@ -1,18 +1,19 @@
 import { Model, IModel, http } from 'entcore/entcore';
 
 export class DefaultDeclaration extends Model implements IModel {
-
     id?: number;
     titre: string;
     commentaire: string;
     timestamp_dt: string;
     timestamp_fn: string;
 
+
+
     get api () {
         return {
             CREATE: '/viescolaire/presences/declarations?',
             UPDATE: '/viescolaire/presences/declarations?',
-            DELETE: '/viescolaire/presences/declarations?' + this.id
+            delete: '/viescolaire/presences/declarations?' + this.id
         };
     }
 
@@ -57,7 +58,7 @@ export class DefaultDeclaration extends Model implements IModel {
 
     delete(): Promise<any> {
         return new Promise((resolve, reject) => {
-            http().delete(this.api.DELETE)
+            http().delete(this.api.delete)
                 .done((data) => {
                     if (resolve && typeof resolve === 'function') {
                         resolve();

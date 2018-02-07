@@ -1,12 +1,10 @@
 /**
  * Created by ledunoiss on 19/02/2016.
  */
-import { ng } from 'entcore';
+import { ng, moment } from 'entcore';
 import * as utils from '../utils/personnel';
 import {presences} from "../models/absc_personnel_mdl";
 
-
-let moment = require('moment');
 declare let _: any;
 
 export let abscFiltresPersonnelController = ng.controller('AbscFiltresPersonnelController', [

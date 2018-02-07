@@ -17,7 +17,7 @@
  *
  */
 
-import { IModel, Collection, http } from 'entcore';
+import { IModel, Collection, http, moment } from 'entcore';
 
 import { AbsencePrev } from './AbsencePrev';
 import { Cours } from './Cours';

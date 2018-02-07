@@ -17,7 +17,7 @@
  *
  */
 
-import { IModel, Collection, http } from 'entcore/entcore';
+import { IModel, Collection, http, moment } from 'entcore';
 
 import { Evenement } from './Evenement';
 import { DefaultEleve } from "../common/DefaultEleve";

@@ -1,4 +1,4 @@
-import { Collection, idiom as lang} from 'entcore/entcore';
+import { Collection, idiom as lang, moment} from 'entcore';
 import {createActiveStructure, deleteActiveStructure} from "../../../utils/functions/activeStructures";
 import {DefaultStructure} from '../common/DefaultStructure';
 

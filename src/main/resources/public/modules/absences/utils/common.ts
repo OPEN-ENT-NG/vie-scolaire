@@ -9,6 +9,7 @@
  * @returns {any[]}
  */
 import {Cours} from '../models/shared/Cours';
+import {moment} from 'entcore';
 
 export function checkRapprochementCoursCommon (startMomentPeriod, endMomentPeriod, structure, evenements,
                                                arrayCoursPostgresRaw, arrayCoursMongoRaw) {

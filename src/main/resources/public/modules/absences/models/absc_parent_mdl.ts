@@ -1,12 +1,10 @@
-import {Collection, Model, model} from "entcore/entcore";
+import {Collection, Model, model, moment} from "entcore";
 // Import des classes
 import { Evenement } from "./parent/Evenement";
 import { Structure } from "./parent/Structure";
 
 import {getActiveStructures} from "../../utils/functions/activeStructures";
 
-
-let moment = require('moment');
 declare let _: any;
 
 class Presences extends Model {

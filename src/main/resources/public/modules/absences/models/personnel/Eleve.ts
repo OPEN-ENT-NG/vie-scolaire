@@ -1,4 +1,4 @@
-import { Collection, Model } from 'entcore';
+import { Collection, Model, moment } from 'entcore';
 import { Responsable } from './Responsable';
 import { Eleve as SharedEleve} from '../shared/Eleve';
 import { Cours } from './Cours';

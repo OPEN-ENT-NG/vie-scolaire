@@ -1,6 +1,6 @@
 import { template, ng } from 'entcore';
+import { moment } from 'entcore';
 
-let moment = require('moment');
 declare let _: any;
 
 export let vscoAppoPersonnelController = ng.controller('VscoAppoPersonnelController', [

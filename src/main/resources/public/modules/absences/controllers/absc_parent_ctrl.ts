@@ -1,4 +1,4 @@
-import { ng, template } from "entcore";
+import { ng, template, moment } from "entcore";
 import * as utils from "../utils/parent";
 import { presences } from '../models/absc_parent_mdl';
 import {Eleve} from "../models/parent/Eleve";

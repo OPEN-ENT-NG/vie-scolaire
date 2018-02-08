@@ -1,9 +1,9 @@
 import { idiom as lang, template, ng, moment, _, $ } from 'entcore';
 import {vieScolaire} from "../models/vsco_personnel_mdl";
-import {Motif} from "../../absences/models/personnel/Motif";
-import {Categorie} from "../../absences/models/personnel/Categorie";
-import {MotifAppel} from "../../absences/models/personnel/MotifAppel";
-import {CategorieAppel} from "../../absences/models/personnel/CategorieAppel";
+import {Motif} from "../models/personnel/Motif";
+import {Categorie} from "../models/personnel/Categorie";
+import {MotifAppel} from "../models/personnel/MotifAppel";
+import {CategorieAppel} from "../models/personnel/CategorieAppel";
 import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/common/Periode";

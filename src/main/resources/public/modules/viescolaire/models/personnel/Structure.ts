@@ -2,10 +2,10 @@ import { Collection, idiom as lang, moment} from 'entcore';
 import {createActiveStructure, deleteActiveStructure} from "../../../utils/functions/activeStructures";
 import {DefaultStructure} from '../common/DefaultStructure';
 
-import { Motif } from '../../../absences/models/personnel/Motif';
-import {Categorie} from "../../../absences/models/personnel/Categorie";
-import {CategorieAppel} from "../../../absences/models/personnel/CategorieAppel";
-import {MotifAppel} from "../../../absences/models/personnel/MotifAppel";
+import { Motif } from './Motif';
+import {Categorie} from "./Categorie";
+import {CategorieAppel} from "./CategorieAppel";
+import {MotifAppel} from "./MotifAppel";
 import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
 import {Cycle} from "./eval_cycle";

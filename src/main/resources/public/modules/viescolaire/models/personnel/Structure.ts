@@ -52,6 +52,9 @@ export class Structure extends DefaultStructure {
                 synchronisation: '/competences/maitrise/level/' + this.id,
                 delete : '/competences/maitrise/level/' + this.id
 
+            },
+            ITEM: {
+                delete: `/competences/items/${this.id}`
             }
         };
     }
@@ -308,6 +311,18 @@ export class Structure extends DefaultStructure {
                         resolve();
                     }
                 });
+            });
+        });
+    }
+    deletePersoItem () : Promise<any> {
+        return new Promise((resolve, reject) => {
+            http().deleteJson(this.api.ITEM.delete).done(() => {
+                // TODO
+                //this.getPersoItem().then(() => {
+                    if (resolve && (typeof(resolve) === 'function')) {
+                        resolve();
+                    }
+                //});
             });
         });
     }

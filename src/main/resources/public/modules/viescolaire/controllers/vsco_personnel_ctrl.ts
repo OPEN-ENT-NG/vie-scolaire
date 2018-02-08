@@ -9,12 +9,14 @@ import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/common/Periode";
 
 export let viescolaireController = ng.controller('ViescolaireController', [
-    '$scope', 'route', 'model', '$location', '$anchorScroll',
-    function ($scope, route, model, $location, $anchorScroll) {
+    '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
+    function ($scope, route, model, $location, $anchorScroll, $sce) {
         $scope.template = template;
         $scope.lang = lang;
         $scope.opened = {
-            lightboxCreateMotif: false
+            lightboxCreateMotif: false,
+            lightboxCreateItem: false,
+            lightboxDeletePerso: false
         };
         $scope.selected = {
             categories: [],
@@ -217,6 +219,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             utils.safeApply($scope);
         };
 
+
+
         $scope.slideAll = function (isAppel) {
             if (isAppel) {
                 $scope.structure.categorieAppels.slidedAll = !$scope.structure.categorieAppels.slidedAll;
@@ -260,7 +264,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 $scope.isAppel = false;
             }
             $scope.displayCreateCategorie = true;
-            $scope.displayText = lang.translate("viescolaire.create.categorie");
+
             $scope.newCategorie = {
                 libelle: undefined,
                 id_etablissement: $scope.structure.id
@@ -420,6 +424,15 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         route({
             accueil: function (params) {
                 moment.locale('fr');
+                let openTemplate = () => {
+                    template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                    template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
+                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
+                    // LightBox paramétrage d'items
+                    template.open('lightboxContainerCreateItem',
+                        '../templates/viescolaire/param_items/display_creation_item');
+                    utils.safeApply($scope);
+                };
                 if ( $scope.structure === undefined ) {
                     vieScolaire.structures.sync().then(() => {
                         $scope.structures = vieScolaire.structures;
@@ -433,19 +446,13 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                             if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
-                            template.open('main', '../templates/viescolaire/vsco_acu_personnel');
-                            template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
-                            template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
-                            utils.safeApply($scope);
+                            openTemplate();
                         });
                     });
                 }
                 else {
                     $scope.structures = vieScolaire.structures;
-                    template.open('main', '../templates/viescolaire/vsco_acu_personnel');
-                    template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
-                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
-                    utils.safeApply($scope);
+                    openTemplate();
                 }
             }
         });

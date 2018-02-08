@@ -21,6 +21,7 @@ public class EventBusController extends ControllerHelper {
     private EleveService eleveService;
     private MatiereService matiereService;
     private PeriodeService periodeService;
+    private EventService eventService;
 
     public EventBusController() {
         groupeService = new DefaultGroupeService();
@@ -29,6 +30,7 @@ public class EventBusController extends ControllerHelper {
         eleveService = new DefaultEleveService();
         matiereService = new DefaultMatiereService();
         periodeService = new DefaultPeriodeService();
+        eventService = new DefaultEventService();
     }
 
     @BusAddress("viescolaire")
@@ -69,6 +71,24 @@ public class EventBusController extends ControllerHelper {
             case "periode": {
                 periodeBusService(method, message);
             }
+            break;
+            case "event": {
+                periodeBusService(method, message);
+            }
+        }
+    }
+
+    private void eventBusService(String method, Message<JsonObject> message) {
+        switch (method) {
+            case "add": {
+                JsonObject formattedUser = message.body().getObject("user");
+                Number idRessource = message.body().getNumber("idRessource");
+                JsonObject ressource = message.body().getObject("ressource");
+                String event = message.body().getString("event");
+
+                eventService.add(formattedUser, idRessource, ressource, event);
+            }
+            break;
         }
     }
 

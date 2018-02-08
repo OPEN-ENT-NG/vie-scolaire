@@ -32,6 +32,18 @@ public class DefaultEventService implements EventService {
         mongo.insert(TRACE_COLLECTION, trace);
     }
 
+    @Override
+    public void add(JsonObject formattedUser, Number idRessource, JsonObject ressource, String event) {
+        JsonObject trace = new JsonObject();
+        trace.putObject("user", formattedUser)
+                .putNumber("ressource_id", idRessource)
+                .putString("event", event)
+                .putObject("ressource", ressource)
+                .putString("date", new Timestamp(System.currentTimeMillis()).toString());
+
+        mongo.insert(TRACE_COLLECTION, trace);
+    }
+
     private JsonObject formatUser (UserInfos user) {
         JsonObject u = new JsonObject();
         return  u.putString("id", user.getUserId())

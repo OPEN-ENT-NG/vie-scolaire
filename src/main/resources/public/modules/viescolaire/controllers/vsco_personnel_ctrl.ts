@@ -14,7 +14,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.template = template;
         $scope.lang = lang;
         $scope.opened = {
-            lightboxCreateMotif: false
+            lightboxCreateMotif: false,
+            lightboxCreateItem: false,
+            lightboxDeletePerso: false
         };
         $scope.selected = {
             categories: [],
@@ -420,8 +422,14 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         route({
             accueil: function (params) {
                 moment.locale('fr');
-                $scope.items = {
-                    url: '/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'
+                let openTemplate = () => {
+                    template.open('main', '../templates/viescolaire/vsco_acu_personnel');
+                    template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
+                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
+                    // LightBox paramétrage d'items
+                    template.open('lightboxContainerCreateItem',
+                        '../templates/viescolaire/param_items/display_creation_item');
+                    utils.safeApply($scope);
                 };
                 if ( $scope.structure === undefined ) {
                     vieScolaire.structures.sync().then(() => {
@@ -436,19 +444,13 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                             if ($scope.currParam === undefined) {
                                 $scope.currParam = 0;
                             }
-                            template.open('main', '../templates/viescolaire/vsco_acu_personnel');
-                            template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
-                            template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
-                            utils.safeApply($scope);
+                            openTemplate();
                         });
                     });
                 }
                 else {
                     $scope.structures = vieScolaire.structures;
-                    template.open('main', '../templates/viescolaire/vsco_acu_personnel');
-                    template.open('lightboxContainerCreateMotif', '../templates/viescolaire/display_creation_motif');
-                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
-                    utils.safeApply($scope);
+                   openTemplate();
                 }
             }
         });

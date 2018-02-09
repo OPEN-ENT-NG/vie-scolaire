@@ -14,7 +14,6 @@
                                ng-click="currParam = 2; scrollToElement(2)">
                                 <i18n>evaluation.bfc.visibility.average</i18n></a>
                         </li>
-
                         <li>
                             <a href="" ng-class="{'selected': currParam === 3}"
                                ng-click="currParam = 3; scrollToElement(3)">
@@ -128,7 +127,7 @@
         </div>
     </div>
     <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin">
-        <div ng-include="items.url"
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
                 class="hash-magnet twelve cell" id="3">
 
         </div>

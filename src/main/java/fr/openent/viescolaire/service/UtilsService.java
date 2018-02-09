@@ -68,4 +68,11 @@ public interface UtilsService {
      */
     public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Récupère les cycles des classes dans la relation classe_cycle
+     * @param idClasse liste des identifiants des classes.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler);
+
 }

@@ -168,4 +168,26 @@ public class UserController extends ControllerHelper {
             }
         });
     }
+
+    @Get("/user/list")
+    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    public void list(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if (user != null) {
+                    final String structureId = request.params().get("structureId");
+                    final String classId = request.params().get("classId");
+                    final JsonArray types = new JsonArray(request.params().getAll("profile").toArray());
+                    final String groupId = request.params().get("groupId");
+                    final String nameFilter = request.params().get("name");
+                    final String filterActive = request.params().get("filterActive");
+
+                    userService.list(structureId, classId, groupId, types, filterActive, nameFilter, user, arrayResponseHandler(request));
+                } else {
+                    unauthorized(request);
+                }
+            }
+        });
+    }
 }

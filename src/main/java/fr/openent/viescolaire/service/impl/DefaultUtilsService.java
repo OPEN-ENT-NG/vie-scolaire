@@ -6,6 +6,7 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -111,4 +112,25 @@ public class DefaultUtilsService implements UtilsService{
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
+    /**
+     * Récupère les cycles des classes dans la relation classe_cycle
+     * @param idClasse liste des identifiants des classes.
+     * @param handler Handler portant le résultat de la requête.
+     */
+    @Override
+    public void getCycle(List<String> idClasse, Handler<Either<String, JsonArray>> handler){
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new JsonArray();
+
+        query.append("SELECT id_groupe, id_cycle, libelle, value_cycle ")
+                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_groupe_cycle,  ")
+                .append( Viescolaire.EVAL_SCHEMA +".cycle ")
+                .append("WHERE id_groupe IN " + Sql.listPrepared(idClasse.toArray()))
+                .append(" AND id_cycle = cycle.id");
+
+        for(String id :  idClasse){
+            params.addString(id);
+        }
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
 }

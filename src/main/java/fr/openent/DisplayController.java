@@ -43,44 +43,9 @@ public class DisplayController extends ControllerHelper {
             @Override
             public void handle(UserInfos user) {
                 if(user.getType().equals("Teacher")) {
-                    renderView(request, null, "viescolaire/vsco_teacher.html", null);
+                    renderView(request, null, "vsco_teacher.html", null);
                 }else if(user.getType().equals("Personnel")){
-                    renderView(request, null, "viescolaire/vsco_personnel.html", null);
-                }
-            }
-        });
-    }
-
-    @Get(Viescolaire.ABSC_PATHPREFIX)
-    @ApiDoc("Get Absences HTML view")
-    @SecuredAction(value="Viescolaire.absences.view")
-    public void viewAbsences(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if(user.getType().equals("Teacher")) {
-                    renderView(request, null, "absences/absc_teacher.html", null);
-                }else if(user.getType().equals("Personnel")){
-                    renderView(request, null, "absences/absc_personnel.html", null);
-                }else if(user.getType().equals("Student") || user.getType().equals("Relative")){
-                    renderView(request, null,  "absences/absc_parents.html", null);
-                }
-            }
-        });
-    }
-
-    @Get(Viescolaire.EVAL_PATHPREFIX)
-    @ApiDoc("Get Evaluation HTML view")
-    @SecuredAction(value = "Viescolaire.evaluation.view")
-    public void viewEvaluations(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-
-            @Override
-            public void handle(UserInfos user) {
-                if(user.getType().equals("Teacher") || user.getType().equals("Personnel")) {
-                    renderView(request, null, "evaluations/eval_teacher.html", null);
-                }else if(user.getType().equals("Student") || user.getType().equals("Relative")){
-                    renderView(request, null,  "evaluations/eval_parents.html", null);
+                    renderView(request, null, "vsco_personnel.html", null);
                 }
             }
         });

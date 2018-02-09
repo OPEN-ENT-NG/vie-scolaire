@@ -19,7 +19,6 @@
 
 package fr.openent.viescolaire.controller;
 
-import fr.openent.absences.utils.Events;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CoursService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;

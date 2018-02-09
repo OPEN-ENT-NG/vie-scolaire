@@ -35,37 +35,25 @@ var paths = {
 
 function startWebpack(isLocal) {
     gulp.src("./manifests/*").pipe(clean());
-    var absc = gulp.src('./src/main/resources/public/modules/absences/')
-        .pipe(webpack(require('./src/main/resources/public/modules/absences/webpack.config.absc.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/absences'))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(rev())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/absences'))
-        .pipe(rev.manifest({path : './manifests/absc.json' }))
-        .pipe(gulp.dest('./'));
 
     var vsco = gulp.src('./src/main/resources/public/modules/viescolaire/')
         .pipe(webpack(require('./src/main/resources/public/modules/viescolaire/webpack.config.vsco.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/viescolaire'))
+        .pipe(gulp.dest('./src/main/resources/public/dist/'))
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(rev())
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/viescolaire'))
+        .pipe(gulp.dest('./src/main/resources/public/dist/'))
         .pipe(rev.manifest({path : './manifests/vsco.json' }))
         .pipe(gulp.dest('./'));
 
-    return merge([absc, vsco]);
+    return vsco;
 }
 
 function updateRefs() {
-    var absc = gulp.src(glob.sync("./src/main/resources/view-src/absences/*.html"))
-        .pipe(revReplace({manifest: gulp.src(["./manifests/absc.json", "./manifests/entcore.json"]) }))
-        .pipe(gulp.dest("./src/main/resources/view/absences"));
-    var vsco = gulp.src(glob.sync("./src/main/resources/view-src/viescolaire/*.html"))
+    var vsco = gulp.src(glob.sync("./src/main/resources/view-src//*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
-        .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
-    return merge([absc, vsco]);
+        .pipe(gulp.dest("./src/main/resources/view"));
+    return vsco;
 }
 
 gulp.task('drop-cache', function(){

@@ -22,9 +22,9 @@ export class Motif extends Model {
 
     get api () {
         return {
-            POST: '/viescolaire/presences/motif',
-            UPDATE: '/viescolaire/presences/motif',
-            UPDATE_APPEL: '/viescolaire/presences/motif/appel'
+            POST: '/presences/motif',
+            UPDATE: '/presences/motif',
+            UPDATE_APPEL: '/presences/motif/appel'
         };
     }
 

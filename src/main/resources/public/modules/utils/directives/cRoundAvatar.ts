@@ -2,7 +2,7 @@
  * Created by rollinq on 21/08/2017.
  */
 import {ng, appPrefix, skin} from 'entcore/entcore';
-import * as utils from '../../absences/utils/parent';
+import * as utils from '../functions/safeApply';
 
 export let cRoundAvatar = ng.directive("cRoundAvatar", [function () {
     return {

@@ -33,12 +33,12 @@ export class Structure extends DefaultStructure {
     get api () {
         return  {
             MOTIF_ABS : {
-                synchronization : '/viescolaire/presences/motifs?idEtablissement=' + this.id,
-                categorie : '/viescolaire/presences/categorie/absences?idEtablissement=' + this.id
+                synchronization : '/presences/motifs?idEtablissement=' + this.id,
+                categorie : '/presences/categorie/absences?idEtablissement=' + this.id
             },
             MOTIF_APPEL: {
-                synchronization: '/viescolaire/presences/motifs/appel?idEtablissement=' + this.id,
-                categorie: '/viescolaire/presences/categorie/appels?idEtablissement=' + this.id,
+                synchronization: '/presences/motifs/appel?idEtablissement=' + this.id,
+                categorie: '/presences/categorie/appels?idEtablissement=' + this.id,
             },
             CLASSE : {
                 synchronization : '/viescolaire/classes?idEtablissement=' + this.id + '&classOnly=True'

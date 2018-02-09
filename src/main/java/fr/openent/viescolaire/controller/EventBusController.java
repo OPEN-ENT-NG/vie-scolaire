@@ -73,7 +73,7 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "event": {
-                periodeBusService(method, message);
+                eventBusService(method, message);
             }
         }
     }

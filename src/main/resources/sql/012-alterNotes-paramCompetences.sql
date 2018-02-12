@@ -20,3 +20,17 @@ CREATE TABLE notes.perso_competences
   REFERENCES notes.competences (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+alter table notes.rel_competences_domaines
+drop constraint fk_competence_id,
+add constraint fk_competence_id
+   foreign key (id_competence)
+   references notes.competences(id)
+   on delete cascade;
+
+alter table notes.rel_competences_enseignements
+drop constraint fk_competence_id,
+add constraint fk_competence_id
+   foreign key (id_competence)
+   references notes.competences(id)
+   on delete cascade;

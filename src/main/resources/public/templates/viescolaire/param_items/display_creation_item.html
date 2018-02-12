@@ -23,6 +23,9 @@
             <input type="text" class="eleven twelve-mobile" ng-model="newItem.libelle">
         </div>
     </section>
+        <section ng-include="'../../../competences/public/template/personnels/param_items/showDomaine.html'">
+
+        </section>
         <div class="twelve cell">
             <input type="button"
                    ng-disabled="isStringUndefinedOrEmpty(newItem.libelle)"

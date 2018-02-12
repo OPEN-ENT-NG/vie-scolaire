@@ -38,29 +38,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
             });
         };
 
-        // Affichage des Domaines d'une compétence
-        $scope.openItemDomaine = function (competence, competencesFilter, domaines) {
-            let _c = competencesFilter[competence.id+'_'+competence.id_enseignement];
-            $scope.printDomaines = _.clone(domaines);
-            $scope.selectedDomaines = _c.data.ids_domaine_int;
-            if (template.isEmpty('patchwork'+ competence.id)) {
-                template.open('patchwork' + competence.id,
-                    '../../../competences/public/template/personnels/param_items/showDomaine');
-            }
-            else {
-                template.close('patchwork'+ competence.id);
-            }
-            if($scope.lastCompetence !== undefined &&  $scope.lastCompetence.id !== competence.id
-                && !template.isEmpty('patchwork'+$scope.lastCompetence.id)) {
-                template.close('patchwork'+$scope.lastCompetence.id);
-                utils.safeApply($scope);
-            }
-            $scope.lastCompetence = competence;
-            utils.safeApply($scope);
-        };
-        $scope.selectDomaine = function (domaine) {
-            domaine.selected = _.contains($scope.selectedDomaines, domaine.id);
-        };
         $scope.openDeletePerso = function () {
             $scope.opened.lightboxDeletePerso = true;
         };
@@ -75,11 +52,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 $scope.opened.lightboxDeletePerso = false;
                 utils.safeApply($scope);
             });
-        };
-
-        // suppression de la personnalisation des items de compétences
-        $scope.openDeletePersoItem = function () {
-            $scope.opened.lightboxDeletePersoItem = true;
         };
 
         $scope.changeEtablissementAccueil = function (structure) {

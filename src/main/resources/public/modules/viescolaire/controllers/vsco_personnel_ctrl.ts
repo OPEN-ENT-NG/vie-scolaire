@@ -428,7 +428,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
                     // LightBox paramétrage d'items
                     template.open('lightboxContainerCreateItem',
-                        '../templates/viescolaire/param_items/display_creation_item');
+                        '../../../competences/public/template/personnels/param_items/display_creation_item');
                     utils.safeApply($scope);
                 };
                 if ( $scope.structure === undefined ) {

@@ -82,7 +82,16 @@ body.vsco--global {
     content: "\f017";
   }
 
+  i.arrows-cw::after {
+    content: '\e874';
+  }
+
   i.phone::after {
-    content: '\f095'
+    content: '\f095';
+    cursor: pointer;
+  }
+  i.pencil::after {
+    content: '\e858';
+    cursor: pointer;
   }
 }

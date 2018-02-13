@@ -235,6 +235,8 @@
   "you.have": "Vous avez sélectionné ",
   "evaluations.competences": " compétences.",
   "you.have": "Vous avez ",
+  "item.mask": "Masquer cet item",
+  "item.demask": "Rendre accessible cet item",
   "evaluations.competences.title": "Compétences",
   "evaluations.competences.items.title": "Items de compétences",
   "evaluations.test.value" : "Valeur de l'évaluation",

@@ -111,23 +111,12 @@ BEGIN
   IF isManuelle
   THEN
 
-    WITH isLastQuery AS
-    (SELECT count(compDom1.id_competence) = 1 AS isLastOfDom
-     FROM (SELECT *
-           FROM notes.rel_competences_domaines
-             RIGHT JOIN notes.competences
-               ON id_competence = id
-           WHERE competences.id_etablissement IS NULL OR competences.id_etablissement = idEtablissement) AS compDom1
-       INNER JOIN
-       (SELECT *
-        FROM notes.rel_competences_domaines
-        WHERE id_competence = idCompetence) AS compDom2
-         ON compDom1.id_domaine = compDom2.id_domaine
-     GROUP BY compDom1.id_domaine)
-
-    SELECT bool_or(isLastOfDom)
-    INTO isLast
-    FROM isLastQuery;
+    SELECT count(id_competence) = 1 INTO isLast
+      FROM  notes.rel_competences_domaines AS compDom
+      RIGHT JOIN notes.competences AS comp
+      ON compDom.id_competence = comp.id
+       WHERE (comp.id_etablissement IS NULL OR comp.id_etablissement = idEtablissement) AND compDom.id_domaine = idDomaine
+     GROUP BY compDom.id_domaine;
 
     IF isLast
     THEN
@@ -172,7 +161,7 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-CREATE OR REPLACE FUNCTION masqueCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR)
+CREATE OR REPLACE FUNCTION masqueCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, valMasque IN BOOLEAN)
   RETURNS BOOLEAN AS $$
 DECLARE
   isLast     BOOLEAN;
@@ -210,7 +199,7 @@ BEGIN
     VALUES (idCompetence, idEtablissement, TRUE)
     ON CONFLICT ON CONSTRAINT perso_competences_pk
       DO UPDATE
-        SET masque = TRUE;
+        SET masque = valMasque;
     RETURN TRUE;
   END IF;
 

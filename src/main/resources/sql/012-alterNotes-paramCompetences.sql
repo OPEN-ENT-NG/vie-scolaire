@@ -39,57 +39,62 @@ DECLARE
   isManuelle BOOLEAN;
 
 BEGIN
-  WITH isLastQuery AS
-  (SELECT count(compDom1.id_competence) = 1 AS isLastOfDom
-   FROM (SELECT *
-         FROM notes.rel_competences_domaines
-           RIGHT JOIN notes.competences
-             ON id_competence = id
-         WHERE competences.id_etablissement IS NULL OR competences.id_etablissement = idEtablissement) AS compDom1
-     INNER JOIN
-     (SELECT *
-      FROM notes.rel_competences_domaines
-      WHERE id_competence = idCompetence) AS compDom2
-       ON compDom1.id_domaine = compDom2.id_domaine
-   GROUP BY compDom1.id_domaine)
+  SELECT id_etablissement IS NOT NULL
+  INTO isManuelle
+  FROM notes.competences
+  WHERE id = idCompetence;
 
-  SELECT bool_or(isLastOfDom)
-  INTO isLast
-  FROM isLastQuery;
-
-  IF isLast
+  IF isManuelle
   THEN
-    RAISE NOTICE 'DERNIERE';
-    RETURN FALSE;
-  ELSE
-    SELECT count(*)
-    INTO nbDevoir
-    FROM notes.competences_devoirs
-    WHERE id_competence = idCompetence;
+    WITH isLastQuery AS
+    (SELECT count(compDom1.id_competence) = 1 AS isLastOfDom
+     FROM (SELECT *
+           FROM notes.rel_competences_domaines
+             RIGHT JOIN notes.competences
+               ON id_competence = id
+           WHERE competences.id_etablissement IS NULL OR competences.id_etablissement = idEtablissement) AS compDom1
+       INNER JOIN
+       (SELECT *
+        FROM notes.rel_competences_domaines
+        WHERE id_competence = idCompetence) AS compDom2
+         ON compDom1.id_domaine = compDom2.id_domaine
+     GROUP BY compDom1.id_domaine)
 
-    SELECT id_etablissement IS NOT NULL
-    INTO isManuelle
-    FROM notes.competences
-    WHERE id = idCompetence;
+    SELECT bool_or(isLastOfDom)
+    INTO isLast
+    FROM isLastQuery;
 
-    IF (nbDevoir > 0) OR NOT isManuelle
+    IF isLast
     THEN
-
-      RAISE NOTICE 'MASQUAGE';
-      INSERT INTO notes.perso_competences (id_competence, id_etablissement, masque)
-      VALUES (idCompetence, idEtablissement, TRUE)
-      ON CONFLICT ON CONSTRAINT perso_competences_pk
-        DO UPDATE
-          SET masque = TRUE;
-
+      RAISE NOTICE 'DERNIERE';
+      RETURN FALSE;
     ELSE
-      RAISE NOTICE 'SUPPRESSION';
-      DELETE FROM notes.competences
-      WHERE id = idCompetence;
+      SELECT count(*)
+      INTO nbDevoir
+      FROM notes.competences_devoirs
+      WHERE id_competence = idCompetence;
+
+      IF (nbDevoir > 0)
+      THEN
+        RAISE NOTICE 'MASQUAGE';
+        INSERT INTO notes.perso_competences (id_competence, id_etablissement, masque)
+        VALUES (idCompetence, idEtablissement, TRUE)
+        ON CONFLICT ON CONSTRAINT perso_competences_pk
+          DO UPDATE
+            SET masque = TRUE;
+
+      ELSE
+        RAISE NOTICE 'SUPPRESSION';
+        DELETE FROM notes.competences
+        WHERE id = idCompetence;
+      END IF;
+      RETURN TRUE;
     END IF;
+  ELSE
+    RAISE NOTICE 'SUPPRPERSO';
+    DELETE FROM notes.perso_competences WHERE id_competence = idCompetence AND id_etablissement = idEtablissement;
     RETURN TRUE;
   END IF;
-
 END;
 $$
 LANGUAGE PLPGSQL;
@@ -112,11 +117,11 @@ BEGIN
   THEN
 
     SELECT count(id_competence) = 1 INTO isLast
-      FROM  notes.rel_competences_domaines AS compDom
+    FROM  notes.rel_competences_domaines AS compDom
       RIGHT JOIN notes.competences AS comp
-      ON compDom.id_competence = comp.id
-       WHERE (comp.id_etablissement IS NULL OR comp.id_etablissement = idEtablissement) AND compDom.id_domaine = idDomaine
-     GROUP BY compDom.id_domaine;
+        ON compDom.id_competence = comp.id
+    WHERE (comp.id_etablissement IS NULL OR comp.id_etablissement = idEtablissement) AND compDom.id_domaine = idDomaine
+    GROUP BY compDom.id_domaine;
 
     IF isLast
     THEN

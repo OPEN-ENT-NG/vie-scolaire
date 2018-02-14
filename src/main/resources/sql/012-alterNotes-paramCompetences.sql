@@ -1,9 +1,5 @@
 ALTER TABLE notes.competences
-  ADD COLUMN id_etablissement CHARACTER VARYING(36),
-  DROP CONSTRAINT fk_competence_id,
-  ADD CONSTRAINT fk_id_competence FOREIGN KEY (id_competence)
-REFERENCES notes.competences (id) MATCH SIMPLE
-ON UPDATE CASCADE ON DELETE CASCADE;
+  ADD COLUMN id_etablissement CHARACTER VARYING(36);
 
 ALTER TABLE notes.rel_competences_enseignements
   ADD CONSTRAINT uq_rel_competences_enseignements UNIQUE (id_competence, id_enseignement),

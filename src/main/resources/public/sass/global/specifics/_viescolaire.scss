@@ -1,12 +1,21 @@
 body.viescolaire {
   .param-margin {
     margin-left: 16.66667%;
+    z-index: 20;
   }
   .responsive-table table thead i {
     top: 13%;
     margin-top: 0px;
   }
-
+  .margin-top-0-5em {
+    margin-top: 0px;
+  }
+  .mask-item {
+    color: #a4a7a6;
+  }
+  .item {
+    color: #000000;
+  }
   table.fixed-head tr {
     background: #FFF;
   }

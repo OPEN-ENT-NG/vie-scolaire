@@ -2543,7 +2543,7 @@ body.evaluations {
       padding-left: 5px;
     }
     .content-box-accueil--table--content>.row {
-      height: 45px;
+      height: 40px;
     }
     .floatRight {
       float: right;
@@ -2700,6 +2700,11 @@ body.evaluations {
     margin-right: 20px !important;
     padding-bottom: 20px !important;
     border-radius: 5px !important;
+  }
+
+  .titre-libelle{
+    color: #4bafd5;
+    font-size: 18px;
   }
 
   .notes-help-bilan-eleve {

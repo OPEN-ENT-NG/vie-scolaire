@@ -130,7 +130,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
                 // dans tous les cas, à la fin, on retourne l'enseignement "racine"
                 return true;
-            }
+            };
         };
 
         /**
@@ -144,7 +144,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
         $scope.enseignementsSearchFunctionRec = function (item, psKeyword) {
 
             // Condition d'arret de l'appel récursif : pas de sous compétences (on est sur une feuille de l'arbre)
-            if (item.competences != undefined) {
+            if (item.competences !== undefined) {
 
                 // Parcours de chaque compétences / sous compétences
                 for (let i = 0; i < item.competences.all.length; i++) {
@@ -155,9 +155,10 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                     // on la déplie / replie en conséquence
                     sousCompetence.open = utils.containsIgnoreCase(sousCompetence.nom, psKeyword);
 
-                    if (sousCompetence.code_domaine != null) {
-                        if (matchDomaine = utils.containsIgnoreCase(sousCompetence.code_domaine, psKeyword))
+                    if (sousCompetence.code_domaine !== null) {
+                        if (matchDomaine = utils.containsIgnoreCase(sousCompetence.code_domaine, psKeyword)) {
                             sousCompetence.open = true;
+                        }
                     }
 
                     if (sousCompetence.open) {
@@ -206,7 +207,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
 
                     // et on check sur les compétences de l'item en cours de parcours
-                    $scope.enseignementsSearchFunctionRec(sousCompetence, psKeyword)
+                    $scope.enseignementsSearchFunctionRec(sousCompetence, psKeyword);
                 }
             }
         };
@@ -258,7 +259,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 }
 
                 return true;
-            }
+            };
         };
     }
 ]);

@@ -206,8 +206,8 @@ export class Structure extends DefaultStructure {
                             if (reject && typeof reject === 'function') {
                                 reject();
                             }
-                        })
-                })
+                        });
+                });
 
             }
         });
@@ -296,7 +296,7 @@ export class Structure extends DefaultStructure {
                 niveauCompetencesArray: _.sortBy(node, function(niv) {
                     return niv.ordre;
                 })
-            }
+            };
             cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
             cycles.push(cycleNode);
         });

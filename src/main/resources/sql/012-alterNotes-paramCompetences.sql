@@ -19,7 +19,7 @@ CREATE TABLE notes.perso_competences
 (
   id_competence     INTEGER NOT NULL,
   id_etablissement  CHARACTER VARYING(36) NOT NULL,
-  nom               CHARACTER VARYING(36),
+  nom               TEXT,
   masque            BOOLEAN DEFAULT FALSE ,
   CONSTRAINT perso_competences_pk PRIMARY KEY (id_competence, id_etablissement),
   CONSTRAINT fk_id_competence FOREIGN KEY (id_competence)

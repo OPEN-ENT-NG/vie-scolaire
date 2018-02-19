@@ -68,7 +68,8 @@ public class DefaultUserService implements UserService {
         }
         query.append(" WHERE fk4j_user_id = ?;");
 
-        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(user.getUserId()), SqlResult.validUniqueResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(user.getUserId()),
+                SqlResult.validUniqueResultHandler(handler));
     }
 
     @Override
@@ -178,7 +179,9 @@ public class DefaultUserService implements UserService {
                                 }
                             }
                         });
-                    } else result = new Either.Right<>(new JsonObject());
+                    } else {
+                        result = new Either.Right<>(new JsonObject());
+                    }
                     handler.handle(result);
                 } else {
                     handler.handle(new Either.Left<String, JsonObject>(message.body().getString("message")));
@@ -191,7 +194,9 @@ public class DefaultUserService implements UserService {
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler) {
         SqlStatementsBuilder statements = new SqlStatementsBuilder();
         for (Object u : users) {
-            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u)) continue;
+            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u)) {
+                continue;
+            }
             final JsonObject user = (JsonObject) u;
             // Insert user in the right table
             String uQuery =
@@ -274,7 +279,8 @@ public class DefaultUserService implements UserService {
      * @param handler handler comportant le resultat
      */
     @Override
-    public void getActivesIDsStructures(UserInfos userInfos, String module, Handler<Either<String, JsonArray>> handler) {
+    public void getActivesIDsStructures(UserInfos userInfos, String module,
+                                        Handler<Either<String, JsonArray>> handler) {
         StringBuilder query =new StringBuilder();
         JsonArray params = new JsonArray();
 
@@ -295,7 +301,8 @@ public class DefaultUserService implements UserService {
      * @param handler handler comportant le resultat
      */
     @Override
-    public void createActiveStructure (String id, String module, UserInfos user,Handler<Either<String, JsonArray>> handler) {
+    public void createActiveStructure (String id, String module, UserInfos user,
+                                       Handler<Either<String, JsonArray>> handler) {
         SqlStatementsBuilder s = new SqlStatementsBuilder();
         JsonObject data = new JsonObject();
         String userQuery = "SELECT " + module + ".merge_users(?,?)";

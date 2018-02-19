@@ -39,38 +39,39 @@ public interface MatiereService extends CrudService {
      * @param userId identifiant de l'élève
      * @param handler handler portant le résultat de la requête
      */
-    public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
+    void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
 
     //TODO A SUPPRIMER
-    public void listMatieres(String structureId, String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result);
+    void listMatieres(String structureId, String id, JsonArray poTitulairesIdList,
+                      Handler<Either<String, JsonArray>> result);
 
     /**
      * Récupère les enseignants en fonction d'une liste de matières données
      * @param classesFieldOfStudy Liste de matières
      * @param result handler portant le résulat de la requête
      */
-    public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
+    void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
 
     /**
      * Récupére les matiéres de l'établissment de l'utilisateurs (chef Etab)
      * @param user
      * @param handler
      */
-   public void listMatieresEtab(String idStructure, UserInfos user, Handler<Either<String, JsonArray>> handler );
+   void listMatieresEtab(String idStructure, UserInfos user, Handler<Either<String, JsonArray>> handler );
 
     /**
      * Récupère les matieres en fonction d'une liste de matières données
      * @param idMatieres Liste de matières
      * @param result handler portant le résulat de la requête
      */
-    public void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result);
+    void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result);
 
     /**
      * Récupère une matieres en fonction d'un id
      * @param idMatiere id de matières
      * @param result handler portant le résulat de la requête
      */
-    public void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result);
+    void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result);
 
 
 }

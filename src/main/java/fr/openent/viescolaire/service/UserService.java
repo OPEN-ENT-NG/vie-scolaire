@@ -24,7 +24,6 @@ import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.json.impl.Json;
 
 import java.util.List;
 
@@ -33,24 +32,24 @@ import java.util.List;
  */
 public interface UserService {
 
-    public void getUserId(UserInfos user, Handler<Either<String, JsonObject>> handler);
+    void getUserId(UserInfos user, Handler<Either<String, JsonObject>> handler);
 
-    public void getStructures(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getStructures(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-    public void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-    public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-    public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler);
+    void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler);
 
-    public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
+    void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Recupere les établissements inactifs de l'utilisateur connecté
      * @param userInfos : utilisateur connecté
      * @param handler handler comportant le resultat
      */
-    public void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
+    void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
 
     /**
      * Active un établissement
@@ -58,7 +57,7 @@ public interface UserService {
      * @param user : utilisateur connecté
      * @param handler handler comportant le resultat
      */
-    public void createActiveStructure(String id,String module ,UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void createActiveStructure(String id,String module ,UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * met à jour les établissements inactifs de l'utilisateur connecté
@@ -66,21 +65,21 @@ public interface UserService {
      * @param module : le module
      * @param handler handler comportant le resultat
      */
-    public void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
+    void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
 
     /**
      *récupère UAI d'un établissement
      * @param idEtabl
      * @param handler
      */
-    public void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
+    void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
 
     /**
      * récupère les responsables d'établissement
      * @param idsResponsable
      * @param handler
      */
-    public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>>handler);
+    void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>>handler);
 
 
     /**
@@ -88,14 +87,14 @@ public interface UserService {
      * @param idsClass
      * @param handler
      */
-    public void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
+    void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
 
     /**
      * Récupère les idDomaine, codification du domaine et le code des domaines
      * @param idClass
      * @param handler
      */
-    public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
+    void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
 
     /**
      *
@@ -103,6 +102,6 @@ public interface UserService {
      * @param handler
      */
 
-    public void getResponsablesDirection(String idStructure,Handler<Either<String,JsonArray>> handler);
+    void getResponsablesDirection(String idStructure,Handler<Either<String,JsonArray>> handler);
 
 }

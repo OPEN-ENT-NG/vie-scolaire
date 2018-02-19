@@ -75,8 +75,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("LEFT JOIN "+ Viescolaire.VSCO_SCHEMA +".rel_cours_groupes ON (cours.id = rel_cours_groupes.id_cours) ");
         query.append("WHERE ");
         query.append("		rel_cours_groupes.id_groupe IN " + Sql.listPrepared(listIdClasse.toArray()));
-        query.append("		AND cours.timestamp_dt > to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
-        query.append("		AND cours.timestamp_fn < to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
+        query.append("		AND to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') <= cours.timestamp_fn ");
+        query.append("		AND cours.timestamp_dt <= to_timestamp( ? , 'YYYY-MM-DD HH24:MI:SS') ");
         query.append("   ) ");
         query.append("GROUP BY ");
         query.append("cours.id ");

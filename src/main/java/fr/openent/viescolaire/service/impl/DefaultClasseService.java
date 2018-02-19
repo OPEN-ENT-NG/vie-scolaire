@@ -187,7 +187,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     @Override
-    public void getClasseEleve(String idEtablissement, String EleveId, Handler<Either<String, JsonArray>> handler) {
+    public void getClasseEleve(String idEtablissement, String eleveId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
         query.append(" MATCH (u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and u.id={idEleve}  and s.id={idEtablissement} ")
@@ -197,7 +197,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("OPTIONAL Match (u2:User)-[i:IN]->(f:FunctionalGroup) where u2.id = u.id  ")
                 .append("Return C + collect(f.id)  as Classes ");
         params.putString("idEtablissement", idEtablissement);
-        params.putString("idEleve", EleveId);
+        params.putString("idEleve", eleveId);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 

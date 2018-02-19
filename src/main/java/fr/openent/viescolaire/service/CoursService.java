@@ -35,7 +35,8 @@ public interface CoursService extends CrudService{
      * @param idClasse Identifiant de la classe
      * @param handler Handler de retour
      */
-    public void getClasseCours(String pSDateDebut, String pSDateFin, String idClasse, Handler<Either<String, JsonArray>> handler);
+    void getClasseCours(String pSDateDebut, String pSDateFin, String idClasse,
+                        Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupération des cours d'une classe en fonction d'une date de début ou d'une date de fin.
@@ -44,7 +45,8 @@ public interface CoursService extends CrudService{
      * @param idClasse
      * @param handler
      */
-    public void getClasseCoursBytime(String pSDateDebut, String pSDateFin, String idClasse, Handler<Either<String, JsonArray>> handler);
+    void getClasseCoursBytime(String pSDateDebut, String pSDateFin, String idClasse,
+                              Handler<Either<String, JsonArray>> handler);
     /**
      * Récupération des cours d'un tableau de classes en fonction d'une date de début et d'une date de fin.
      * @param pSDateDebut
@@ -52,7 +54,8 @@ public interface CoursService extends CrudService{
      * @param idClasse
      * @param handler
      */
-    public void getCoursByStudentId(String pSDateDebut, String pSDateFin, String[] idClasse, Handler<Either<String, JsonArray>> handler);
+    void getCoursByStudentId(String pSDateDebut, String pSDateFin, String[] idClasse,
+                             Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupération des cours d'un enseignant en fonction d'une date de début et d'une date de fin.
@@ -62,7 +65,8 @@ public interface CoursService extends CrudService{
      * @param structureId Identifiant de l'établissement en cours
      * @param handler Handler de retour
      */
-    public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId, Handler<Either<String, JsonArray>> handler);
+    void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId,
+                          Handler<Either<String, JsonArray>> handler);
 
 
 }

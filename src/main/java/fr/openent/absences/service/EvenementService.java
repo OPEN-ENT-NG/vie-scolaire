@@ -37,7 +37,7 @@ public interface EvenementService extends CrudService {
      * @param piMotif identifiant du motif
      * @param handler handler portant le résultat de la requête.
      */
-    public void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler);
+    void updateMotif(Integer piIdEvenement, Integer piMotif, Handler<Either<String, JsonArray>> handler);
 
 
     /**
@@ -45,21 +45,21 @@ public interface EvenementService extends CrudService {
      * @param poEvenement l'objet JSON représentant l'évenement
      * @param handler handler portant le résultat de la requête.
      */
-    public void createEvenement(JsonObject poEvenement, UserInfos user, Handler<Either<String, JsonObject>> handler);
+    void createEvenement(JsonObject poEvenement, UserInfos user, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Met à jour un évenement.
      * @param poEvenement l'objet JSON représentant l'évenement.
      * @param handler portant le résultat de la requête.
      */
-    public void updateEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler);
+    void updateEvenement(JsonObject poEvenement, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Supprime un évenement à partir de son identifiant.
      * @param poEvenementId Identifiant de l'evenement à supprimer.
      * @param handler portant le résultat de la requête.
      */
-    public void deleteEvenement(Number poEvenementId, Handler<Either<String, JsonObject>> handler);
+    void deleteEvenement(Number poEvenementId, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Récupère toutes les observations dans une période donnée.
@@ -68,7 +68,8 @@ public interface EvenementService extends CrudService {
      * @param psDateFin date de fin de la période.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getObservations(String psEtablissementId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+    void getObservations(String psEtablissementId, String psDateDebut, String psDateFin,
+                         Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les absences sur le cours précédent d'une classe ou d'un enseignant.
@@ -77,7 +78,7 @@ public interface EvenementService extends CrudService {
      *                  de psCoursId, ou pour le cours précédent de cette classe.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getAbsencesDernierCours(Integer psCoursId, Boolean pbTeacher, Handler<Either<String, JsonArray>> handler);
+    void getAbsencesDernierCours(Integer psCoursId, Boolean pbTeacher, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere tous les évènements pour une classe donnée sur une période donnée
@@ -86,5 +87,6 @@ public interface EvenementService extends CrudService {
      * @param psDateFin date de fin de la période.
      * @param handler handler portant le résultat de la requête.
      */
-    public void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler);
+    void getEvtClassePeriode(String piClasseId, String psDateDebut, String psDateFin,
+                             Handler<Either<String, JsonArray>> handler);
 }

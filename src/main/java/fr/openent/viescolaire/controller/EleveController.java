@@ -179,12 +179,10 @@ public class EleveController extends ControllerHelper {
     public void getAppreciationDevoirEleve(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         String idEleve = request.params().get("idEleve");
-        Long idDevoir = null;
         if (request.params().get("idDevoir") != null) {
-            idDevoir = testLongFormatParameter("idDevoir", request);
+            Long idDevoir = testLongFormatParameter("idDevoir", request);
             eleveService.getAppreciationDevoir(idDevoir, idEleve,handler);
-        }
-        else {
+        }else {
             badRequest(request, "Invalid parameter");
         }
     }

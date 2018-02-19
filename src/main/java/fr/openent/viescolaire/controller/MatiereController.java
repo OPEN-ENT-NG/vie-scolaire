@@ -214,7 +214,7 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 if (user != null && null != request.params().get("idEleve")) {
-                    if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                    if("Student".equals(user.getType()) || "Relative".equals(user.getType())){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         matiereService.listMatieresEleve(request.params().get("idEleve"), handler);
                     }
@@ -234,7 +234,7 @@ public class MatiereController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
-                if(user.getType().equals("Student") || user.getType().equals("Relative")){
+                if("Student".equals(user.getType()) || "Relative".equals(user.getType())){
                     final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     final JsonArray idMatieres = new JsonArray(request.params().getAll("idMatiere").toArray());
                     matiereService.getMatieres(idMatieres,handler);

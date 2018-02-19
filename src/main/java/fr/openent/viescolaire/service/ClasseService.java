@@ -35,14 +35,14 @@ public interface ClasseService extends CrudService {
      * @param idEtablissement Identifiant de l'établissement.
      * @param handler Handler portant le résultat de la requête.
      */
-    public void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
+    void getClasseEtablissement(String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère le nombre d'élève de chaque groupe dont l'id est passé en paramètre.
      * @param idGroupes Listes des identifiants de groupe.
      * @param handler Handler portant le résultat de la requête.
      */
-    public void getNbElevesGroupe(JsonArray idGroupes, Handler<Either<String, JsonArray>> handler);
+    void getNbElevesGroupe(JsonArray idGroupes, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère toutes les classes d'une classe donné en fonction de son id Neo4j.
@@ -50,7 +50,7 @@ public interface ClasseService extends CrudService {
      * @param idClasse
      * @param handler
      */
-    public void getEleveClasse( String idClasse, Handler<Either<String, JsonArray>> handler);
+    void getEleveClasse( String idClasse, Handler<Either<String, JsonArray>> handler);
 
     /**²
      * Récupère toutes les classes d'une Liste de classe donné en fonction de son id Neo4j.
@@ -59,9 +59,10 @@ public interface ClasseService extends CrudService {
      * @param isTeacher
      * @param handler
      */
-    public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
+    void getEleveClasses(String idEtablissement, JsonArray idClasse,
+                         Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
-    public void getElevesGroupesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getElevesGroupesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere la liste des classes et/ou groupes de l'etablissement
@@ -71,35 +72,36 @@ public interface ClasseService extends CrudService {
      * @param user              les informations du users connecte
      * @param handler           handler portant le resultat de la requete
      */
-    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
+                     Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.
      * @param idClasses Tableau des id des classes
      * @param handler Handler portant le résultat de la requête.
      */
-    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les id des etablissements auxquels appartiennent les classes dont l'id est passé en paramètre.
      * @param idClasses Tableau des id des classes
      * @param handler Handler portant le résultat de la requête.
      */
-    public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
-    public void getClasseEleve(String idEtablissement, String EleveId, Handler<Either<String, JsonArray>> handler);
+    void getClasseEleve(String idEtablissement, String eleveId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * récupère les informations d'une classe
      * @param idClasse
      * @param handler
      */
-    public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
-    public void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
+    void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
     /**
      * récupère l'id de la classe de l'élève dont l'id est passé en paramètre
      * @param idEleve
      * @param handler
      */
-    public void getClasseByEleve(String idEleve, Handler<Either<String,JsonObject>> handler);
+    void getClasseByEleve(String idEleve, Handler<Either<String,JsonObject>> handler);
 }

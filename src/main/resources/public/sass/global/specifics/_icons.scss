@@ -98,4 +98,7 @@ body.vsco--global {
     content: '\e806';
     cursor: pointer;
   }
+  i.manual-item::after {
+    content: '\e80c';
+  }
 }

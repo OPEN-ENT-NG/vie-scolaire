@@ -359,5 +359,7 @@ body.viescolaire {
     @include border-radius(10px);
     max-width: 100%;
   }
-
+  i.trash {
+    margin-right: 7.5px;
+  }
 }

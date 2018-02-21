@@ -27,7 +27,7 @@ CREATE TABLE notes.perso_competences
   ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE OR REPLACE FUNCTION deleteCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR)
+CREATE OR REPLACE FUNCTION notes.deleteCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR)
   RETURNS BOOLEAN AS $$
 DECLARE
   nbDevoir   INTEGER;
@@ -95,7 +95,7 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-CREATE OR REPLACE FUNCTION updateDomaineCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, idDomaine IN BIGINT)
+CREATE OR REPLACE FUNCTION notes.updateDomaineCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, idDomaine IN BIGINT)
   RETURNS BOOLEAN AS $$
 DECLARE
   isLast     BOOLEAN;
@@ -162,7 +162,7 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-CREATE OR REPLACE FUNCTION masqueCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, valMasque IN BOOLEAN)
+CREATE OR REPLACE FUNCTION notes.masqueCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, valMasque IN BOOLEAN)
   RETURNS BOOLEAN AS $$
 DECLARE
   isLast     BOOLEAN;

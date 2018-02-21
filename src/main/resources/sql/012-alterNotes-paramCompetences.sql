@@ -28,7 +28,7 @@ CREATE TABLE notes.perso_competences
 );
 
 CREATE OR REPLACE FUNCTION notes.deleteCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR)
-  RETURNS BOOLEAN AS $$
+  RETURNS VARCHAR AS $$
 DECLARE
   nbDevoir   INTEGER;
   isLast     BOOLEAN;
@@ -63,7 +63,7 @@ BEGIN
     IF isLast
     THEN
       RAISE NOTICE 'DERNIERE';
-      RETURN FALSE;
+      RETURN 'SUPP_KO_LAST';
     ELSE
       SELECT count(*)
       INTO nbDevoir
@@ -78,18 +78,20 @@ BEGIN
         ON CONFLICT ON CONSTRAINT perso_competences_pk
           DO UPDATE
             SET masque = TRUE;
+            RETURN 'MASQUAGE';
 
       ELSE
         RAISE NOTICE 'SUPPRESSION';
         DELETE FROM notes.competences
         WHERE id = idCompetence;
+        RETURN 'SUPP_OK';
       END IF;
-      RETURN TRUE;
+
     END IF;
   ELSE
     RAISE NOTICE 'SUPPRPERSO';
     DELETE FROM notes.perso_competences WHERE id_competence = idCompetence AND id_etablissement = idEtablissement;
-    RETURN TRUE;
+    RETURN 'SUPP_PERSO_OK';
   END IF;
 END;
 $$
@@ -163,9 +165,10 @@ $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION notes.masqueCompetence(idCompetence IN BIGINT, idEtablissement IN VARCHAR, valMasque IN BOOLEAN)
-  RETURNS BOOLEAN AS $$
+  RETURNS VARCHAR AS $$
 DECLARE
   isLast     BOOLEAN;
+  nbDevoir   INTEGER;
 
 BEGIN
 
@@ -191,7 +194,7 @@ BEGIN
   THEN
 
     RAISE NOTICE 'DERNIERE';
-    RETURN FALSE;
+    RETURN 'LAST';
 
   ELSE
     RAISE NOTICE 'ADDMASK';
@@ -201,7 +204,17 @@ BEGIN
     ON CONFLICT ON CONSTRAINT perso_competences_pk
       DO UPDATE
         SET masque = valMasque;
-    RETURN TRUE;
+    SELECT count(*)
+    INTO nbDevoir
+    FROM notes.competences_devoirs
+    WHERE id_competence = idCompetence;
+
+    IF (nbDevoir > 0)
+      THEN
+      RETURN 'use';
+      ELSE
+      RETURN 'notUse';
+    END IF;
   END IF;
 
 END;

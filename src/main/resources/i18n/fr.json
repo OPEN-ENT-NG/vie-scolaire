@@ -247,7 +247,7 @@
   "item.success.updateDomaine": "Mise à jour des domaines liés.",
   "item.success.reinit": "Item réinitialisé.",
   "item.success.delete": "Item de compétence supprimé.",
-  "item.success.delete.mask": "Attention, l'item de compétences que vous souhaitez supprimé est lié à des évaluations existantes. Elle est par conséquent masquée.",
+  "item.success.delete.mask": "Attention, l'item de compétence que vous avez masqué est lié à des évaluations existantes. Cliquer sur \"Afficher\" pour annuler.",
   "item.success.updateOrder": "Ordre des items mis à jour.",
   "item.success.delete.perso": "Items de compétences réinitialisés.",
   "item.error.unautorize.create": "Désolé, vous n'êtes pas autorisé à créer des items.",

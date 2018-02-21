@@ -1,137 +1,141 @@
 <div ng-if="structure.isActived.evaluation" class="row" xmlns="http://www.w3.org/1999/html">
-    <div class="row cell two">
-        <div class="side-col twelve-mobile" offset="65" sticky>
-            <div class="row">
-                <nav class="vertical">
-                    <ul>
-                        <li>
-                            <a href="" ng-class="{'selected': currParam === 1}"
-                               ng-click="currParam = 1; scrollToElement(1)">
-                                <i18n>evaluations.level</i18n></a>
-                        </li>
-                        <li workflow="competences.setVisibilityAverageBfc">
-                            <a href="" ng-class="{'selected': currParam === 2}"
-                               ng-click="currParam = 2; scrollToElement(2)">
-                                <i18n>evaluation.bfc.visibility.average</i18n></a>
-                        </li>
-                        <li workflow="competences.paramCompetences">
-                            <a href="" ng-class="{'selected': currParam === 3}"
-                               ng-click="currParam = 3; scrollToElement(3)">
-                                <i18n>evaluations.competences.items.title</i18n></a>
-                        </li>
-                    </ul>
-                </nav>
+    <div class="twelve cell">
+        <div class="row cell two">
+            <div class="side-col twelve-mobile" offset="65" sticky>
+                <div class="row">
+                    <nav class="vertical">
+                        <ul>
+                            <li>
+                                <a href="" ng-class="{'selected': currParam === 1}"
+                                   ng-click="currParam = 1; scrollToElement(1)">
+                                    <i18n>evaluations.level</i18n></a>
+                            </li>
+                            <li workflow="competences.setVisibilityAverageBfc">
+                                <a href="" ng-class="{'selected': currParam === 2}"
+                                   ng-click="currParam = 2; scrollToElement(2)">
+                                    <i18n>evaluation.bfc.visibility.average</i18n></a>
+                            </li>
+                            <li workflow="competences.paramCompetences">
+                                <a href="" ng-class="{'selected': currParam === 3}"
+                                   ng-click="currParam = 3; scrollToElement(3)">
+                                    <i18n>evaluations.competences.items.title</i18n></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
-    </div>
-    <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin">
-        <div class="hash-magnet twelve cell" id="1">
-            <article >
-                <div class="twelve">
-                    <h3>
-                        <i18n>evaluations.level</i18n>
+        <div class="ten cell twelve-mobile">
+            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile">
+                <div class="hash-magnet twelve cell" id="1">
+                    <article >
+                        <div class="twelve">
+                            <h3>
+                                <i18n>evaluations.level</i18n>
 
-                    </h3>
-                    <button class="marginFive magnet-right" ng-click="openDeletePerso()">
-                        <i18n>evaluations.perso.delete</i18n>
-                    </button>
-                    <lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">
-                        <p><i18n>evaluations.perso.delete.message</i18n></p>
-                        <button class="marginFive magnet-right" ng-click="deletePerso()">
-                            <i18n>evaluations.perso.ok</i18n>
-                        </button>
-                        <button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">
-                            <span><i18n>evaluations.perso.cancel</i18n></span>
-                        </button>
-                    </lightbox>
-                    <div class="twelve tabs vertical-spacing-twice heading-tabs">
-                        <header ng-repeat="cycle in structure.cycles "
-                                ng-class="{selected : cycle.selected}"
-                                class="horizontal-spacing-twice ng-scope">
-                            <div class="horizontal-spacing"  ng-click="selectCycle(cycle);">
-                                <span><i18n><span class="no-style ng-scope">[[cycle.libelle]]</span></i18n></span>
+                            </h3>
+                            <button class="marginFive magnet-right" ng-click="openDeletePerso()">
+                                <i18n>evaluations.perso.delete</i18n>
+                            </button>
+                            <lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">
+                                <p><i18n>evaluations.perso.delete.message</i18n></p>
+                                <button class="marginFive magnet-right" ng-click="deletePerso()">
+                                    <i18n>evaluations.perso.ok</i18n>
+                                </button>
+                                <button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">
+                                    <span><i18n>evaluations.perso.cancel</i18n></span>
+                                </button>
+                            </lightbox>
+                            <div class="twelve tabs vertical-spacing-twice heading-tabs">
+                                <header ng-repeat="cycle in structure.cycles "
+                                        ng-class="{selected : cycle.selected}"
+                                        class="horizontal-spacing-twice ng-scope">
+                                    <div class="horizontal-spacing"  ng-click="selectCycle(cycle);">
+                                        <span><i18n><span class="no-style ng-scope">[[cycle.libelle]]</span></i18n></span>
+                                    </div>
+                                </header>
                             </div>
-                        </header>
-                    </div>
+                        </div>
+                        <div class="row">
+                            <div class="responsive-table">
+                                <table  ng-repeat="cy in structure.cycles | filter:currentCycle"
+                                        class="fixed-head">
+                                    <thead>
+                                    <tr></tr>
+                                    <tr>
+                                        <th ng-repeat="libelle in cy.niveauCompetencesArray "
+                                            class="text-white">[[libelle.libelle]]</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td ng-repeat="couleur in cy.niveauCompetencesArray "
+                                            style="text-indent: 0px;text-align: center;">
+                                            <input type="color" name="favcolor"
+                                                   ng-change="saveNiveau(couleur)"
+                                                   ng-model="couleur.couleur" >
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td ng-repeat="lettre in cy.niveauCompetencesArray ">
+                                            <ng-form name="skillsTextForm">
+                                                <input style="text-indent: 0px;text-align: center;"
+                                                       type="text"
+                                                       name="letter"
+                                                       ng-maxlength="2"
+                                                       ng-blur="saveNiveau(lettre)"
+                                                       ng-model="lettre.lettre">
+                                                <div ng-if="skillsTextForm.letter.$error.maxlength" class="warning">
+                                                    <i18n>evaluation.skill.text.invalid</i18n>
+                                                </div>
+                                            </ng-form>
+                                        </td>
+                                    </tr>
+                                    <tr >
+                                        <td ng-repeat="result in cy.niveauCompetencesArray "
+                                            style="text-indent: 0px;text-align: center;">
+
+                                            <c-skills-bubble color="result.couleur"
+                                                             text="result.lettre">
+                                            </c-skills-bubble>
+                                        </td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </article>
                 </div>
-                <div class="row">
-                    <div class="responsive-table">
-                        <table  ng-repeat="cy in structure.cycles | filter:currentCycle"
-                                class="fixed-head">
-                            <thead>
-                            <tr></tr>
-                            <tr>
-                                <th ng-repeat="libelle in cy.niveauCompetencesArray "
-                                    class="text-white">[[libelle.libelle]]</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td ng-repeat="couleur in cy.niveauCompetencesArray "
-                                    style="text-indent: 0px;text-align: center;">
-                                    <input type="color" name="favcolor"
-                                           ng-change="saveNiveau(couleur)"
-                                           ng-model="couleur.couleur" >
-                                </td>
-                            </tr>
-                            <tr>
-                                <td ng-repeat="lettre in cy.niveauCompetencesArray ">
-                                    <ng-form name="skillsTextForm">
-                                        <input style="text-indent: 0px;text-align: center;"
-                                               type="text"
-                                               name="letter"
-                                               ng-maxlength="2"
-                                               ng-blur="saveNiveau(lettre)"
-                                               ng-model="lettre.lettre">
-                                        <div ng-if="skillsTextForm.letter.$error.maxlength" class="warning">
-                                            <i18n>evaluation.skill.text.invalid</i18n>
-                                        </div>
-                                    </ng-form>
-                                </td>
-                            </tr>
-                            <tr >
-                                <td ng-repeat="result in cy.niveauCompetencesArray "
-                                    style="text-indent: 0px;text-align: center;">
+            </div>
+            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
+                  workflow="competences.setVisibilityAverageBfc">
+                <div class="hash-magnet twelve cell" id="2">
+                    <article >
+                        <div class="twelve">
+                            <h3>
+                                <i18n>evaluation.bfc.visibility.average</i18n>
 
-                                    <c-skills-bubble color="result.couleur"
-                                                     text="result.lettre">
-                                    </c-skills-bubble>
-                                </td>
-                            </tr>
-
-                            </tbody>
-                        </table>
-
-                    </div>
+                            </h3>
+                            <div class="twelve" ng-init="source.idStructure = structure.id;">
+                                <sniplet
+                                        template="averageBFC"
+                                        application="competences"
+                                        source="source"
+                                ></sniplet>
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </article>
-        </div>
-    </div>
-    <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin"
-          workflow="competences.setVisibilityAverageBfc">
-        <div class="hash-magnet twelve cell" id="2">
-            <article >
-                <div class="twelve">
-                    <h3>
-                        <i18n>evaluation.bfc.visibility.average</i18n>
+            </div>
+            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
+                  workflow="competences.paramCompetences">
+                <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
+                     class="hash-magnet twelve cell" id="3">
 
-                    </h3>
-                    <div class="twelve" ng-init="source.idStructure = structure.id;">
-                        <sniplet
-                                template="averageBFC"
-                                application="competences"
-                                source="source"
-                        ></sniplet>
-                    </div>
                 </div>
-            </article>
-        </div>
-    </div>
-    <div  ng-init="isMode = false;"  class="ten cell twelve-mobile padd-left param-margin"
-          workflow="competences.paramCompetences">
-        <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
-                class="hash-magnet twelve cell" id="3">
-
+            </div>
         </div>
     </div>
 </div>

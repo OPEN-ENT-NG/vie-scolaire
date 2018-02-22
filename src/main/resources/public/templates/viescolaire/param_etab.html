@@ -89,7 +89,8 @@
                         </div>
                         <div class="cell">
                             <div class="classe">
-                                <span>[[ classe.name ]]</span>
+                                <span ng-if="(classe.name).length > 2" tooltip="[[ classe.name ]]">[[ classe.name ]]</span>
+                                <span ng-if="(classe.name).length <= 2">[[ classe.name ]]</span>
                             </div>
                         </div>
 

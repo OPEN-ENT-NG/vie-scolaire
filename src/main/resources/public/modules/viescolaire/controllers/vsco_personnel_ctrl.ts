@@ -158,9 +158,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.savePeriode = async (periodes) => {
 
-            $scope.lightboxPeriode.error.errorEval = await $scope.structure.checkEval(_.pluck($scope.getSelectedClasse(), 'id'));
-
-            if(!$scope.lightboxPeriode.error.errorEval && !$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
+            // $scope.lightboxPeriode.error.errorEval = await $scope.structure.checkEval(_.pluck($scope.getSelectedClasse(), 'id'));
+            //
+            // if(!$scope.lightboxPeriode.error.errorEval && !$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
                 try {
                     await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
                     $scope.lightboxPeriode.show = false;
@@ -172,7 +172,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     console.log(err);
                     $scope.lightboxPeriode.error.error = true;
                 }
-            }
+            // }
 
             utils.safeApply($scope);
         };

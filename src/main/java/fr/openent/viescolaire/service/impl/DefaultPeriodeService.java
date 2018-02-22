@@ -244,66 +244,55 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     @Override
     public void updatePeriodes(final String idEtablissement, final String[] idClasses, final JsonObject[] periodes,
                                final Handler<Either<String, JsonArray>> handler) {
-        checkEvalOnPeriode(idClasses, new Handler<Either<String, JsonObject>>() {
+        checkGroupeEtab(idClasses, new Handler<Either<String, String>>() {
             @Override
-            public void handle(Either<String, JsonObject> stringBooleanEither) {
-                if (stringBooleanEither.isRight() && !stringBooleanEither.right().getValue().getBoolean("exist")) {
-                    checkGroupeEtab(idClasses, new Handler<Either<String, String>>() {
+            public void handle(Either<String, String> stringStringEither) {
+                if (stringStringEither.isRight() && stringStringEither.right().getValue().equals(idEtablissement)) {
+                    verifCoherencePeriodes(periodes, new Handler<Either<JsonObject, Boolean>>() {
                         @Override
-                        public void handle(Either<String, String> stringStringEither) {
-                            if (stringStringEither.isRight() && stringStringEither.right().getValue().equals(idEtablissement)) {
-                                verifCoherencePeriodes(periodes, new Handler<Either<JsonObject, Boolean>>() {
+                        public void handle(Either<JsonObject, Boolean> jsonObjectBooleanEither) {
+                            if (jsonObjectBooleanEither.isRight()) {
+                                getTypeGroupe(idClasses, new Handler<Either<String, Map<Boolean, List<String>>>>() {
                                     @Override
-                                    public void handle(Either<JsonObject, Boolean> jsonObjectBooleanEither) {
-                                        if (jsonObjectBooleanEither.isRight()) {
-                                            getTypeGroupe(idClasses, new Handler<Either<String, Map<Boolean, List<String>>>>() {
+                                    public void handle(Either<String, Map<Boolean, List<String>>> stringMapEither) {
+                                        if (stringMapEither.isRight() && !stringMapEither.right().getValue().keySet().contains(false)) {
+                                            getTypePeriode(periodes, new Handler<Either<String, JsonObject[]>>() {
                                                 @Override
-                                                public void handle(Either<String, Map<Boolean, List<String>>> stringMapEither) {
-                                                    if (stringMapEither.isRight() && !stringMapEither.right().getValue().keySet().contains(false)) {
-                                                        getTypePeriode(periodes, new Handler<Either<String, JsonObject[]>>() {
-                                                            @Override
-                                                            public void handle(Either<String, JsonObject[]> stringEither) {
-                                                                if (stringEither.isRight()) {
-                                                                    final JsonObject[] periodesWithType = stringEither.right().getValue();
+                                                public void handle(Either<String, JsonObject[]> stringEither) {
+                                                    if (stringEither.isRight()) {
+                                                        final JsonObject[] periodesWithType = stringEither.right().getValue();
 
-                                                                    JsonArray statement = new JsonArray();
+                                                        JsonArray statement = new JsonArray();
 
-                                                                    statement.add(deletePeriodeStatement(idClasses));
-                                                                    statement.add(createPeriodeStatement(idEtablissement, idClasses, periodesWithType));
+                                                        statement.add(deletePeriodeStatement(idClasses));
+                                                        statement.add(createPeriodeStatement(idEtablissement, idClasses, periodesWithType));
 
-                                                                    Sql.getInstance().transaction(statement,
-                                                                            validResultHandler(handler));
-                                                                } else {
-                                                                    handler.handle(new Either.Left<String, JsonArray>(stringEither.left().getValue()));
-                                                                }
-                                                            }
-                                                        });
-                                                    } else if (stringMapEither.right().getValue().keySet().contains(false)) {
-                                                        handler.handle(new Either.Left<String, JsonArray>("updatePeriodes : One of the given id isn't " +
-                                                                "of a class"));
+                                                        Sql.getInstance().transaction(statement,
+                                                                validResultHandler(handler));
                                                     } else {
-                                                        handler.handle(new Either.Left<String, JsonArray>(stringMapEither.left().getValue()));
+                                                        handler.handle(new Either.Left<String, JsonArray>(stringEither.left().getValue()));
                                                     }
                                                 }
                                             });
+                                        } else if (stringMapEither.right().getValue().keySet().contains(false)) {
+                                            handler.handle(new Either.Left<String, JsonArray>("updatePeriodes : One of the given id isn't " +
+                                                    "of a class"));
                                         } else {
-                                            handler.handle(new Either.Left<String, JsonArray>(jsonObjectBooleanEither.left().getValue().encode()));
+                                            handler.handle(new Either.Left<String, JsonArray>(stringMapEither.left().getValue()));
                                         }
                                     }
                                 });
-                            } else if (stringStringEither.isRight()
-                                    && !stringStringEither.right().getValue().equals(idEtablissement)) {
-                                handler.handle(new Either.Left<String, JsonArray>(
-                                        "updatePeriodes : Groups aren't in the given structure."));
                             } else {
-                                handler.handle(new Either.Left<String, JsonArray>(stringStringEither.left().getValue()));
+                                handler.handle(new Either.Left<String, JsonArray>(jsonObjectBooleanEither.left().getValue().encode()));
                             }
                         }
                     });
-                } else if (stringBooleanEither.right().getValue().getBoolean("exist")) {
-                    handler.handle(new Either.Left<String, JsonArray>(String.valueOf(stringBooleanEither.right().getValue().getBoolean("exist"))));
+                } else if (stringStringEither.isRight()
+                        && !stringStringEither.right().getValue().equals(idEtablissement)) {
+                    handler.handle(new Either.Left<String, JsonArray>(
+                            "updatePeriodes : Groups aren't in the given structure."));
                 } else {
-                    handler.handle(new Either.Left<String, JsonArray>(stringBooleanEither.left().getValue()));
+                    handler.handle(new Either.Left<String, JsonArray>(stringStringEither.left().getValue()));
                 }
             }
         });

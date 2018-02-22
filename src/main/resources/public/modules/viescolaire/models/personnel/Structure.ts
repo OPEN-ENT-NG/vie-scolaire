@@ -270,18 +270,18 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    checkEval(idClasses):Promise<any> {
-        return new Promise((resolve, reject) => {
-            let url = this.api.PERIODE.evalOnPeriode;
-            _.each(idClasses, (idClasse, index) => {
-                url += "idClasse=" + idClasse;
-                if( index != idClasses.length - 1 ) url +='&' ;
-            });
-            http().getJson(url).done((boolean) => {
-                resolve(boolean.exist);
-            });
-        });
-    }
+    // checkEval(idClasses):Promise<any> {
+    //     return new Promise((resolve, reject) => {
+    //         let url = this.api.PERIODE.evalOnPeriode;
+    //         _.each(idClasses, (idClasse, index) => {
+    //             url += "idClasse=" + idClasse;
+    //             if( index != idClasses.length - 1 ) url +='&' ;
+    //         });
+    //         http().getJson(url).done((boolean) => {
+    //             resolve(boolean.exist);
+    //         });
+    //     });
+    // }
 
     async getMaitrise() {
         await this.niveauCompetences.sync();

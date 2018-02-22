@@ -81,6 +81,24 @@ body.presences {
     }
   }
 
+  label input[type=checkbox]:checked + span::before, label input[type=checkbox]:checked + i18n::before {
+    content: " ";
+    transform: rotate(40deg);
+    -webkit-transform: rotate(40deg);
+    border-color: $green;
+    height: 25px;
+    width: 20px;
+    margin-top: -12px !important;
+  }
+
+  checkbox-liste-appel {
+    margin-left: 5px;
+  }
+  checkbox-liste-appel > span{
+    text-indent: 0px;
+  }
+
+
   //$retard-color:#E88010;
   //$depart-color:#F75A92;
   //$incident-color:#E62727;
@@ -129,10 +147,14 @@ body.presences {
 
   .retard-color-icon {
     @include appel__evenement-icon(25px, 10deg, $retard-color);
+    top: 1px;
+    position: relative;
   }
 
   .depart-color-icon {
     @include appel__evenement-icon(25px, 350deg, $depart-color);
+    top: 3px;
+    position: relative;
   }
 
   .incident-color-icon {

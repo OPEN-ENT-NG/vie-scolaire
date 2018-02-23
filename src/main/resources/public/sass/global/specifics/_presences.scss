@@ -133,8 +133,6 @@ body.presences {
   }
 
 
-
-
   .incident-color {
     background-color: $incident-color;
   }
@@ -1026,16 +1024,6 @@ body.presences {
       color: $white;
     }
 
-    .content-box-accueil--table--header {
-      box-sizing: border-box;
-      padding: 10px;
-
-      h5 {
-        display: inline-block;
-        margin: 0;
-      }
-    }
-
     .content-list {
       margin: 0 0 0 4%;
       @include box-shadow(0px 1px 1px rgba(0, 0, 0, 0.4));
@@ -1549,6 +1537,11 @@ body.presences {
     padding: 2px;
     border: 2px solid grey;
     text-align: center;
+  }
+
+  .clock-declaration {
+    color: #666;
+    font-size: 18px;
   }
 
   .timeline-help-bloc-color {

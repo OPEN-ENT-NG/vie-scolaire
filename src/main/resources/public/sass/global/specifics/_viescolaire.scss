@@ -118,7 +118,8 @@ body.viescolaire {
       border-bottom: solid 1px $grey;
 
       .classe {
-        height: auto;
+        height: 25px;
+        overflow-y: hidden;
         background-color: $primary-lighter;
         border-radius: 12px;
         padding: 0 5px;

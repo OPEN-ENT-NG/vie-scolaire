@@ -1,7 +1,6 @@
-<h2>Paramétrage des classes sélectionnées</h2>
-<section>
-    <p>Type de configuration : </p>
-    <div>
+<h2><i18n>viescolaire.parametrage.classes.selected</i18n></h2>
+<div class="twelve row">
+    <p><i18n>viescolaire.type.config</i18n> :
         <label ng-repeat="typePeriode in getTypePeriode()">
             <input type="radio"
                    ng-model="lightboxPeriode.typePeriode"
@@ -9,16 +8,16 @@
                    value="[[typePeriode]]">
             <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
         </label>
+    </p>
     </div>
-</section>
 
 <div class="twelve row"
      ng-if="lightboxPeriode.typePeriode != null">
     <div class="twelve row head-param-periode">
         <div class="cell two "><i class="table "></i></div>
-        <div class="cell three"><i class="calendar"></i> Début</div>
-        <div class="cell three"><i class="calendar"></i> Fin</div>
-        <div class="cell three"><i class="calendar"></i> Fin de saisie</div>
+        <div class="cell three"><i class="calendar"></i> <i18n>evaluations.remplacement.debut</i18n></div>
+        <div class="cell three"><i class="calendar"></i> <i18n>evaluations.remplacement.fin</i18n></div>
+        <div class="cell three"><i class="calendar"></i> <i18n>viescolaire.fin.saisie</i18n></div>
     </div>
 
     <div class="twelve row"
@@ -52,32 +51,28 @@
 <div class="twelve row">
     <div class="warning"
          ng-if="lightboxPeriode.error.errorFn">
-        La date de fin ne peut être anterieur à la date de début.
+        <i18n>viescolaire.dateFin.anterieure.dateDebut</i18n>
     </div>
     <div class="warning"
          ng-if="lightboxPeriode.error.errorFnS">
-        La date de fin de saisie ne peut être anterieur à la date de début.
-    </div>
-    <div class="warning"
-         ng-if="lightboxPeriode.error.errorEval">
-        Certaines périodes à modifier contiennent des devoirs.
+        <i18n>viescolaire.dateFinSaisie.anterieure.dateDebut</i18n>
     </div>
     <div class="warning"
          ng-if="lightboxPeriode.error.errorOver">
-        Les periodes ne doivent pas se chevaucher.
+        <i18n>viescolaire.chevauchement.periodes</i18n>
     </div>
     <div class="warning"
          ng-if="lightboxPeriode.error.errorContig">
-        Les periodes doivent etre contigues.
+        <i18n>viescolaire.periodes.contigues</i18n>
     </div>
     <div class="warning"
          ng-if="lightboxPeriode.error.error">
-        Une erreur est survenue lors de la sauvegarde.
+        <i18n>viescolaire.erreur sauvegarde</i18n>
     </div>
     <button class="marginFive magnet-right"
             ng-class="anyError()"
             ng-disabled="anyError()"
             ng-click="savePeriode(lightboxPeriode.periodes)">
-        <i18n>Enregistrer</i18n>
+        <i18n>viescolaire.utils.save</i18n>
     </button>
 </div>

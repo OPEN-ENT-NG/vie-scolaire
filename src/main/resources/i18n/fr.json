@@ -240,7 +240,7 @@
   "item.modify": "Modifier",
   "item.delete": "Supprimer",
   "item.reinit": "Réinitialiser",
-  "item.show.domaine": "Afficher les domaines",
+  "item.show.domaine": "Afficher/Cacher les domaines",
   "item.success.create": "Nouvel item de compétence créé.",
   "item.success.updateMask": "Mise à jour du masque.",
   "item.success.updateName": "Mise à jour du libellé de l'item.",

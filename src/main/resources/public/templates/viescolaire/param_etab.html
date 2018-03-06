@@ -77,7 +77,7 @@
             </div>
             <div class="twelve cell expandable-list-body">
                 <div class="row expandable-list-item"
-                     ng-repeat="classe in structure.classes.all | periodeSearch:search"
+                     ng-repeat="classe in structure.classes.all | orderBy : 'name' | periodeSearch:search"
                      ng-class="{ displayed : classe.displayed }">
                     <div class="row expandable-list-item-main" ng-click="classe.displayed = !classe.displayed">
                         <div class="cell">

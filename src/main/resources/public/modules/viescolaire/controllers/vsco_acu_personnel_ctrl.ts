@@ -231,7 +231,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 '<span class="highlightedText">$&</span>'));
         };
 
-        $scope. customFilterComp = function (competence,search) {
+        $scope.customFilterComp = function (competence,search) {
 
             return function (competence) {
 

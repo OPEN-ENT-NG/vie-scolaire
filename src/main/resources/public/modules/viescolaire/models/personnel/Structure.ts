@@ -24,6 +24,7 @@ export class Structure extends DefaultStructure {
     motifAppels: Collection<MotifAppel>;
     categorieAppels: Collection<CategorieAppel>;
     classes : Collection<Classe>;
+    classesGroupes: Collection<Classe>;
 
     // evaluation
     niveauCompetences: Collection<NiveauCompetence>;
@@ -319,11 +320,29 @@ export class Structure extends DefaultStructure {
             http().deleteJson(this.api.ITEM.delete).done(() => {
                 // TODO
                 //this.getPersoItem().then(() => {
-                    if (resolve && (typeof(resolve) === 'function')) {
-                        resolve();
-                    }
+                if (resolve && (typeof(resolve) === 'function')) {
+                    resolve();
+                }
                 //});
             });
         });
     }
+
+    private libelle = {
+        CLASSE: 'Classe',
+        GROUPE: "Groupe d'enseignement"
+    };
+    private castClasses = (classes) => {
+        return _.map(classes, (classe) => {
+            let libelleClasse;
+            if (classe.type_groupe_libelle = classe.type_groupe === 0) {
+                libelleClasse = this.libelle.CLASSE;
+            } else {
+                libelleClasse = this.libelle.GROUPE;
+            }
+            classe.type_groupe_libelle = libelleClasse;
+            classe = new Classe(classe);
+            return classe;
+        });
+    };
 }

@@ -20,6 +20,12 @@
                                    ng-click="currParam = 3; scrollToElement(3)">
                                     <i18n>evaluations.competences.items.title</i18n></a>
                             </li>
+                            <li workflow="competences.linkGroupCycle">
+                                <a href="" ng-class="{'selected': currParam === 4}"
+                                   ng-click="currParam = 4; scrollToElement(4)">
+                                    <i18n>evaluation.link.group.cycle</i18n></a>
+                            </li>
+
                         </ul>
                     </nav>
                 </div>
@@ -134,6 +140,20 @@
                 <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
                      class="hash-magnet twelve cell" id="3">
 
+                </div>
+            </div>
+            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
+                  workflow="competences.linkGroupCycle" >
+                <div class="hash-magnet twelve cell" id="4">
+                    <article  ng-init="source.idStructure = structure.id;
+                    source.cycles = structure.cycles;
+                    source.lastSelectedCycle = lastSelectedCycle;">
+                        <sniplet
+                                template="linkGroupCycle"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
+                    </article>
                 </div>
             </div>
         </div>

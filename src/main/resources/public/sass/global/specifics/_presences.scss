@@ -1333,56 +1333,327 @@ body.presences {
     border: 2px solid grey;
   }
 
-  .margin-bot-sm {
-    margin-bottom: 5px;
-  }
-
-  .margin-bot-md {
-    margin-bottom: 10px;
-  }
-
-  .margin-left-md {
-    margin-left: 10px;
-  }
-
-  .remove-margin{
-    margin: 0px;
-  }
-
-  .margin-top-sm {
-    margin-top: 5px;
-  }
-
-  .padding-sm {
-    padding: 5px;
-  }
-
-  .padding-bot-sm {
-    padding-bottom: 5px;
-  }
-
-  .padding-left-sm {
-    padding-left: 5px;
-  }
-
-  .padding-right-md {
-    padding-right: 10px;
-  }
 
   .first-letter-uppercase:first-letter {
     text-transform: uppercase;
   }
+
+  $cours-absence-justifiant-color: #fed2ba;
+  $cours-absence-non-justifiant-color: #ef7f8f;
+
+  .visibility-hidden {
+    visibility: hidden;
+  }
+
+
+  /* Item Popup */
+
+  #popup-item{
+    z-index:1200;
+    transition:visibility 0.3s linear,opacity 0.3s linear;
+  }
+
+  #popup-item {
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+    width: 400px;
+    border-radius: 5px;
+    padding: 10px;
+
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1200;
+    top: 0px;
+    left: 0px;
+
+    .evenement {
+      margin-bottom: 5px;
+    }
+
+    .title {
+      color: white;
+      padding: 0 5px;
+      display: block;
+      margin-top: 0;
+    }
+
+    select {
+      background: #ffffff;
+      border: 1px solid grey !important;
+      height: 24px;
+      color: #555;
+      margin-bottom: 0px;
+
+      &:disabled {
+        background-color: #ebebe4;
+      }
+    }
+
+    .button-tooltip {
+      display: inline-block;
+      float: none;
+      line-height: 12px;
+      padding: 9px 16px 8px;
+      margin-bottom: 0;
+    }
+  }
+
+  /* The Modal (background) */
+  .modal {
+    transition:visibility 0.3s linear,opacity 0.3s linear;
+    opacity:0;
+    visibility: hidden;
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  /* Item tooltip */
+  .tooltip-container {
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(186, 186, 186, 0.4);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(186, 186, 186, 0.4);
+    box-shadow: 0px 0px 5px 0px rgba(186, 186, 186, 0.4);
+    width: 300px;
+    border-radius: 5px;
+    padding: 10px;
+
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1200;
+    top: 0px;
+    left: 0px;
+
+
+    .title {
+      color: white;
+      padding: 0 5px;
+      display: block;
+      margin-top: 0;
+    }
+
+    .block-absence-justifiant {
+      background-color: $cours-absence-justifiant-color;
+      padding: 0 5px;
+      margin-top: 0;
+    }
+
+    .block-absence-non-justifiant {
+      background-color: $cours-absence-non-justifiant-color;
+      color: #fff;
+      padding: 0 5px;
+      margin-top: 0;
+    }
+
+    .block-evenements {
+      color: #fff !important;
+      display: flex;
+      flex-direction: row;
+
+      div {
+        width: 100%;
+
+        div {
+          box-sizing: border-box;
+          width: 100%;
+          text-indent: 5px;
+          display: inline-block;
+
+          span {
+            top: 4px;
+            position: relative;
+          }
+        }
+
+        i {
+          font-size:22px;
+          color: #fff;
+        }
+      }
+      .block-retard {
+
+        background-color: $retard-color;
+
+        i {
+          top:4px;
+        }
+      }
+
+      .block-incident {
+        background-color: $incident-color;
+
+        i {
+          position: relative;
+          top:2px;
+        }
+      }
+
+      .block-depart {
+        background-color: $depart-color;
+        i {
+          top:4px;
+        }
+      }
+    }
+
+    .orange-text {
+      color: #ff8500;
+    }
+
+    .yellow-text {
+      color: #ffd900;
+    }
+
+    .green-text {
+      color: #30b32f;
+    }
+
+    .red-text {
+      color: red;
+    }
+
+    .gray-text {
+      color: #999;
+    }
+
+    .start-to-end-container {
+      font-size: 1.1em;
+      color: #78daff;
+    }
+  }
+
+
+  .circle {
+    background: #f00;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .tooltip-container .validation-label i {
+    float: right;
+    display: block;
+    width: 20px;
+    text-align: center;
+  }
+
+  /* END TOOLTIP*/
   .schedule-item-content{
-    &.red{
-      background: #ef7f8f !important;
+    border: 2px solid white;
+    border-radius: 5px;
+    line-height: 12px !important;
+    &:hover{
+      border: 2px solid rgba(0, 0, 0, 0.8) !important;
+      border-radius: 5px;
+    }
+
+    &.item-cours {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    &.selected {
+      border: 2px solid black !important;
+      &:hover{
+        border: 2px solid black !important;
+      }
+    }
+
+    .absence-small-icon {
+      color: $absence-color;
+    }
+
+    .depart-small-icon {
+      font-size: 22px;
+      color: $depart-color;
+      top: 3px;
+      position: relative;
+    }
+
+    .retard-small-icon {
+      font-size: 22px;
+      color: $retard-color;
+      top: 3px;
+      position: relative;
+    }
+
+    .incident-small-icon {
+      font-size: 22px;
+      color: $incident-color;
+      position: relative;
+    }
+
+    &.cours-absence-non-justifiant{
+      background: $cours-absence-non-justifiant-color !important;
+      border-color: $cours-absence-non-justifiant-color;
       color: white !important;
     }
-    &.grey{
-      background: #ddd !important;
+
+    &.cours-absence-justifiant{
+      background-color: $cours-absence-justifiant-color !important;
+      border-color: $cours-absence-justifiant-color;
       color: black !important;
     }
-    &.green{
+
+    &.cours-not-futur{
+      background: white !important;
+      border-color: #ddd;
+      color: black !important;
+    }
+
+    &.cours-futur{
+      background: #ddd !important;
+      border-color: #ddd;
+      color: black !important;
+    }
+
+    &.item-period-absence-selected{
       background: #46bfaf !important;
+      border-color: #46bfaf;
+      color: white !important;
+    }
+
+    &.item-period-absence{
+      background: #a0cac5 !important;
+      border-color: #a0cac5;
+      color: white !important;
+    }
+
+    &.inside-period{
+      border: 2px solid rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+    }
+
+    &.light-red{
+      background: #ff97a6 !important;
+      color: white !important;
+    }
+    &.light-grey{
+      background: #96e4d9 !important;
+      color: white !important;
+    }
+    &.light-green{
+      background: #ef7f8f !important;
       color: white !important;
     }
   }
@@ -1573,13 +1844,6 @@ body.presences {
     z-index: 999;
   }
 
-  .display-inline-block {
-    display:inline-block;
-  }
-
-  .text-center {
-    text-align: center;
-  }
 
   .background-color-grey-absc-prev {
     background-color: #777;
@@ -1601,33 +1865,28 @@ body.presences {
     background: #46bfaf;
   }
 
-  div.box1:hover a {
-    display:block;
-  }
-  div.box1:before{
+  div.timeslot-selected:before{
     content:'';
-    background: #000;
+    background: #46bfaf;
+    border-bottom: solid 1px #46bfaf;
     position:absolute;
     left: 0;
     top: 0;
     bottom:0;
     right:0;
-    z-index: 999;
+    z-index: 1000;
     width: 100%;
     height: 100%;
     transition:0.4s;
-    opacity:0;
-  }
-  div.box1:hover:before{
-    opacity:0.75;
+    opacity:0.5;
   }
 
-  div.box2:hover a {
-    display:block;
+  div.timeslot-selected:hover:before{
+    opacity:0.30;
   }
-  div.box2:before{
+
+  div.selecting-timeslot:before{
     content:'';
-    background: deepskyblue;
     position:absolute;
     left: 0;
     top: 0;
@@ -1636,10 +1895,110 @@ body.presences {
     z-index: 999;
     width: 100%;
     height: 100%;
-    transition:0.4s;
-    opacity:0.3;
   }
-  div.box2:hover:before{
-    opacity:0.30;
+
+  // region Atomic class
+
+  .display-inline-block {
+    display:inline-block;
   }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-left {
+    text-align: left;
+  }
+
+
+  // Margin
+
+  .remove-margin{
+    margin: 0px;
+  }
+
+  .margin-bot-sm {
+    margin-bottom: 5px;
+  }
+  .margin-top-sm {
+    margin-top: 5px;
+  }
+  .margin-left-sm {
+    margin-left: 5px;
+  }
+  .margin-right-sm {
+    margin-right: 5px;
+  }
+
+  .margin-bottom-md {
+    margin-bottom: 10px;
+  }
+  .margin-top-md {
+    margin-top: 10px;
+  }
+  .margin-left-md {
+    margin-left: 10px;
+  }
+  .margin-right-md {
+    margin-right: 10px;
+  }
+
+  .margin-bottom-lg {
+    margin-bottom: 20px;
+  }
+  .margin-top-lg {
+    margin-top: 20px;
+  }
+  .margin-left-lg {
+    margin-left: 20px;
+  }
+  .margin-right-lg {
+    margin-right: 20px;
+  }
+
+
+
+  // Padding
+
+  .remove-padding {
+    margin: 0px;
+  }
+
+  .padding-sm {
+    padding: 5px;
+  }
+
+  .padding-bottom-sm {
+    padding-bottom: 5px;
+  }
+  .padding-top-sm {
+    padding-top: 5px;
+  }
+  .padding-left-sm {
+    padding-left: 5px;
+  }
+  .padding-right-sm {
+    padding-right: 5px;
+  }
+
+  .padding-bottom-md {
+    padding-bottom: 10px;
+  }
+  .padding-top-md {
+    padding-top: 10px;
+  }
+  .padding-left-md {
+    padding-left: 10px;
+  }
+  .padding-right-md {
+    padding-right: 10px;
+  }
+
+  // endregion
+
 }

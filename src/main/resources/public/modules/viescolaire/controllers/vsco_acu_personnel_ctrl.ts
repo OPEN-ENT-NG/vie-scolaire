@@ -11,6 +11,7 @@ declare let _: any;
 export let adminVieScolaireController = ng.controller('VscoAdminController', [
     '$scope', 'route', 'model', '$sce',
     function ($scope, route, model, $sce) {
+        model.me.workflow.load(['competences','presences','edt']);
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
         $scope.chargeStructure = (structure) =>  {

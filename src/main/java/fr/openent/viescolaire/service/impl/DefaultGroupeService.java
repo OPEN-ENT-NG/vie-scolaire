@@ -38,27 +38,54 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (n:FunctionalGroup)-[:IN]-(u:User{profiles:['Student']}) ")
-                .append("WHERE n.id IN {idGroupe} WITH  n, u ")
-                .append("MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, COLLECT(DISTINCT c.id) AS id_classes");
-        params.putArray("idGroupe", new JsonArray(idGroupe));
+        query.append(" MATCH (n:FunctionalGroup)-[:IN]-(u:User{profiles:['Student']}) ")
+                .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+                .append(" COLLECT(DISTINCT c.id) AS id_classes")
+                .append(" UNION ")
+                .append(" MATCH (n:ManualGroup)-[:IN]-(u:User{profiles:['Student']}) ")
+                .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+                .append(" COLLECT(DISTINCT c.id) AS id_classes")
+        ;
+        params.putArray("idGroupe", new JsonArray(idGroupe))
+            .putArray("idGroupe", new JsonArray(idGroupe));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
     @Override
     public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
+        StringBuilder queryBody = new StringBuilder();
+        StringBuilder queryFunctionalGroup = new StringBuilder()
+                .append("MATCH (g:FunctionalGroup {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]-")
+                .append("(:ProfileGroup)-[DEPENDS]->(c:Class) ");
+        StringBuilder queryManualGroup = new StringBuilder()
+                .append("MATCH (g:ManualGroup {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]-")
+                .append("(:ProfileGroup)-[DEPENDS]->(c:Class) ");
         JsonObject values = new JsonObject();
-        query.append("MATCH (g:FunctionalGroup {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]-(:ProfileGroup)-[DEPENDS]->(c:Class) ");
+
         if(!StringUtils.isEmpty(profile)){
-            query.append("where users.profiles =[{profile}] ");
+            queryBody.append(" where users.profiles =[{profile}] ");
             values.putString("profile", profile);
+            values.putString("groupeEnseignementId", groupeEnseignementId);
+            values.putString("profile", profile);
+            values.putString("groupeEnseignementId", groupeEnseignementId);
         }
-        query.append( "RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, ")
-                .append("users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
-                .append("users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER BY lastName, firstName ");
-        values.putString("groupeEnseignementId", groupeEnseignementId);
+        else{
+            values.putString("groupeEnseignementId", groupeEnseignementId);
+            values.putString("groupeEnseignementId", groupeEnseignementId);
+        }
+
+        queryBody.append(" RETURN users.lastName as lastName, users.firstName as firstName, users.id as id, ")
+                .append(" users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
+                .append(" users.blocked as blocked, users.source as source, c.name as className, c.id as classId ")
+                .append(" ORDER BY lastName, firstName ");
+
+        queryManualGroup.append(queryBody.toString());
+        queryFunctionalGroup.append(queryBody);
+        StringBuilder query = new StringBuilder().append(queryFunctionalGroup.toString())
+                                    .append(" UNION " + queryManualGroup);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }

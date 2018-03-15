@@ -44,9 +44,13 @@ public class DefaultUtilsService implements UtilsService{
         JsonObject values = new JsonObject();
 
         query.append("MATCH (c:Class) WHERE c.id IN {id_classes} RETURN c.id AS id, c IS NOT NULL AS isClass UNION ")
-                .append("MATCH (g:FunctionalGroup) WHERE g.id IN {id_classes} RETURN g.id AS id, NOT(g IS NOT NULL) AS isClass");
+                .append(" MATCH (g:FunctionalGroup) WHERE g.id IN {id_classes} RETURN g.id AS id, NOT(g IS NOT NULL) ")
+                .append(" AS isClass UNION")
+                .append(" MATCH (g:ManualGroup) WHERE g.id IN {id_classes} RETURN g.id AS id, NOT(g IS NOT NULL) ")
+                .append(" AS isClass ");
 
-        values.putArray("id_classes", new JsonArray(id_classes));
+        values.putArray("id_classes", new JsonArray(id_classes))
+                .putArray("id_classes", new JsonArray(id_classes));
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }

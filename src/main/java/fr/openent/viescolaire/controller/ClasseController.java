@@ -74,7 +74,7 @@ public class ClasseController extends BaseController {
                     } else {
                         if (("Personnel".equals(user.getType())
                                 && !user.getFunctions().isEmpty()
-                            ) || "Teacher".equals(user.getType())) {
+                        ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse, handler);
@@ -141,10 +141,17 @@ public class ClasseController extends BaseController {
                                 List<String> idGroupes = new ArrayList<>();
                                 for (int i = 0; i < recipient.size(); i++) {
                                     classe = recipient.get(i);
-                                    classe = classe.getObject("g");
+                                    classe = classe.getObject("m");
                                     object = classe.getObject("metadata");
                                     classe = classe.getObject("data");
-                                    classe.putNumber("type_groupe", object.getArray("labels").contains("Class") ? 0 : 1);
+                                    if (object.getArray("labels").contains("Class"))
+                                        classe.putNumber("type_groupe",  Viescolaire.CLASSE_TYPE);
+                                    else if (object.getArray("labels").contains("FunctionalGroup")){
+                                        classe.putNumber("type_groupe",  Viescolaire.GROUPE_TYPE);
+                                    } else if (object.getArray("labels").contains("ManualGroup")) {
+                                        classe.putNumber("type_groupe",  Viescolaire.GROUPE_MANUEL_TYPE);
+                                    }
+
                                     idGroupes.add(classe.getString("id"));
                                     classes.addObject(classe);
                                 }
@@ -154,7 +161,7 @@ public class ClasseController extends BaseController {
                                             .putString("action", "utils.getCycle")
                                             .putArray("ids", new JsonArray(idGroupes.toArray()));
 
-                                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
                                         @Override
                                         public void handle(Message<JsonObject> message) {
                                             if ("ok".equals(message.body().getString("status"))) {

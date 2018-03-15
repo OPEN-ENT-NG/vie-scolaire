@@ -73,10 +73,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
 
-        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] AND f.id IN {idClasse} " +
-                "RETURN f.id as id_groupe, count(distinct u) as nb " +
-                        "UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] AND f.id IN {idGroupe} " +
-                "RETURN f.id as id_groupe, count(distinct u) as nb");
+        query.append("MATCH (u:User)-[:IN]-(:ProfileGroup)--(f:Class) WHERE u.profiles=[\"Student\"] " +
+                " AND f.id IN {idClasse} RETURN f.id as id_groupe, count(distinct u) as nb " +
+                " UNION ALL MATCH (u:User)--(f:FunctionalGroup) WHERE u.profiles=[\"Student\"] " +
+                " AND f.id IN {idGroupe} RETURN f.id as id_groupe, count(distinct u) as nb " +
+                " UNION ALL MATCH (u:User)--(f:ManualGroup) WHERE u.profiles=[\"Student\"] " +
+                " AND f.id IN {idGroupe} RETURN f.id as id_groupe, count(distinct u) as nb ");
 
         values.putArray(mParameterIdClasse, idGroupes);
         values.putArray("idGroupe", idGroupes);
@@ -129,28 +131,50 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         JsonObject params = new JsonObject();
         // Dans le cas du chef d'établissement, on récupère toutes les classes
 
-        String queryClass = "MATCH (g:Class)-[b:BELONGS]->(s:Structure) ";
-        String queryGroup = "MATCH (g:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
+        String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
+        String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
         String paramEtab = "s.id = {idEtablissement} ";
-        String paramClass = "g.id IN {classes} ";
-        String paramGroup = "g.id IN {groups} ";
+        String paramClass = "m.id IN {classes} ";
+        String paramGroup = "m.id IN {groups} ";
+        String paramGroupManuel = ("Personnel".equals(user.getType()))? paramEtab : paramGroup + " AND " + paramEtab;
+
+        String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->"
+                                        +"(s:Structure)" +
+                                " WITH m, s" +
+                                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup)" +
+                                " WHERE m2.id = m.id AND " + paramGroupManuel +
+                                " RETURN m " +
+                                " UNION " +
+                                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-"
+                                        +"[BELONGS]->(s:Structure) " +
+                                " WITH m, s " +
+                                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup) " +
+                                " WHERE m2.id = m.id AND " + paramGroupManuel +
+                                " RETURN distinct(m) ";
         String param1;
         String param2;
 
         if ("Personnel".equals(user.getType())) {
-            param1 = "WHERE " + paramEtab + "RETURN g ";
+            param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
-            params.putString("idEtablissement", idEtablissement);
+            params.putString("idEtablissement", idEtablissement)
+                    .putString("idEtablissement", idEtablissement)
+                    .putString("idEtablissement", idEtablissement);
         } else {
-            param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN g ";
-            param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN g ";
+            param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
+            param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";
             params.putArray("classes", new JsonArray(user.getClasses().toArray()))
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+                    .putString("idEtablissement", idEtablissement)
+                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
+                    .putString("idEtablissement", idEtablissement)
                     .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
                     .putString("idEtablissement", idEtablissement);
         }
 
         if(classOnly == null){
-            query = queryClass + param1 + "UNION ALL " + queryGroup + param2;
+            query = queryClass + param1 + " UNION " + queryGroup + param2;
+            query = query + " UNION " +  queryGroupManuel ;
         } else if (classOnly){
             query = queryClass + param1;
         } else {
@@ -179,8 +203,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
-        query.append("MATCH (g:Class)-[:BELONGS]->(s:Structure) WHERE g.id IN {idClasses} return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses ")
-            .append("UNION MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
+        query.append("MATCH (g:Class)-[:BELONGS]->(s:Structure) WHERE g.id IN {idClasses} ")
+                .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses ")
+                .append(" UNION MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} ")
+                .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses ")
+                .append(" UNION MATCH (g:ManualGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} ")
+                .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
         params.putArray("idClasses", new JsonArray(idClasses));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

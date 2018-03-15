@@ -71,6 +71,7 @@ public class Viescolaire extends BaseServer {
 	public static final String SCHEMA_ABSPREV_CREATE = "absc_createAbscPrev";
 	public static final Integer CLASSE_TYPE = 0;
 	public static final Integer GROUPE_TYPE = 1;
+	public static final Integer GROUPE_MANUEL_TYPE = 2;
 
 	public static final String COMPETENCES_BUS_ADDRESS = "competences";
 

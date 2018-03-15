@@ -1,0 +1,1 @@
+ALTER TABLE notes.rel_groupe_cycle ADD CONSTRAINT unique_id_groupe UNIQUE (id_groupe);

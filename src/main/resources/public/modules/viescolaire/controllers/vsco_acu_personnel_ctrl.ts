@@ -10,8 +10,8 @@ declare let _: any;
 
 export let adminVieScolaireController = ng.controller('VscoAdminController', [
     '$scope', 'route', 'model', '$sce',
-    function ($scope, route, model, $sce) {
-        model.me.workflow.load(['competences','presences','edt']);
+    async function ($scope, route, model, $sce) {
+        model.me.workflow.load(['competences', 'presences', 'edt']);
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
         $scope.chargeStructure = (structure) =>  {
@@ -98,8 +98,8 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
          * @returns {function(enseignement): (retourne true systématiquement)}
          */
         $scope.customFilterEns = function (psKeyword,enseignementsFilter,competencesFilter,search) {
-               $scope.enseignementsFilter = enseignementsFilter;
-               $scope.competencesFilter = competencesFilter;
+            $scope.enseignementsFilter = enseignementsFilter;
+            $scope.competencesFilter = competencesFilter;
 
             return function (enseignement) {
 
@@ -191,7 +191,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                         if ($scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement]
                             !== undefined) {
                             $scope.competencesFilter[sousCompetence.id + "_" + sousCompetence.id_enseignement].nomHtml
-                            = sousCompetence.nom;
+                                = sousCompetence.nom;
                         }
                     }
 

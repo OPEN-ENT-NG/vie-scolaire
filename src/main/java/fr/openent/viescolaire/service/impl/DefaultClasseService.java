@@ -208,6 +208,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" UNION MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} ")
                 .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses ")
                 .append(" UNION MATCH (g:ManualGroup)-[:DEPENDS]->(s:Structure) WHERE g.id IN {idClasses} ")
+                .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses")
+                .append(" UNION MATCH (g:ManualGroup)-[:DEPENDS]->(:Class)-[BELONGS]->(s:Structure) ")
+                .append(" WHERE g.id IN {idClasses} ")
                 .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
         params.putArray("idClasses", new JsonArray(idClasses));
 

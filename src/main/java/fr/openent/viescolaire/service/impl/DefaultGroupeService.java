@@ -27,7 +27,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     public void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject values = new JsonObject();
-        query.append("MATCH (u:User {id :{userId}})-[DEPENDS]->(g:FunctionalGroup) return g");
+        query.append("MATCH (u:User {id :{userId}})-[DEPENDS]->(g:FunctionalGroup) return g ")
+                .append(" UNION MATCH (u:User {id :{userId}})-[DEPENDS]->(g:ManualGroup) return g ");
         values.putString("userId", userId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
@@ -96,6 +97,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         query.append("MATCH (c:`Class` {id: {groupeId} }) RETURN c.id as id,  c.name as name ");
         query.append("UNION ");
         query.append("MATCH (g:`FunctionalGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
+        query.append("UNION ");
+        query.append("MATCH (g:`ManualGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
         values.putString("groupeId", idGroupe);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));

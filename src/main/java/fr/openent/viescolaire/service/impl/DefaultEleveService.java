@@ -252,6 +252,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         query.append("MATCH (n:FunctionalGroup)-[:IN]-(u:User{id:{userId}}) ")
                 .append(" WITH  n, u ")
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe ")
+                .append(" UNION MATCH (n:ManualGroup)-[:IN]-(u:User{id:{userId}}) ")
+                .append(" WITH  n, u ")
                 .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe ");
         params.putString("userId", idEleve);
 

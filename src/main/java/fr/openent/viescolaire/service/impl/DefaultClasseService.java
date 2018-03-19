@@ -57,13 +57,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     //TODO Revoir avec getEleveClasses
     @Override
     public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
-		String RETURN_VALUES = "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes, "+
-                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ORDER BY lastName, firstName ";
+		String RETURN_VALUES = "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,"
+                            + " u.level as level, u.classes as classes, " +
+                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
+                " ORDER BY lastName, firstName ";
 		StringBuilder query = new StringBuilder();
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id: {idClasse}}) ")
 				.append(RETURN_VALUES)
 				.append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id: {idClasse}}) ")
-				.append(RETURN_VALUES);
+				.append(RETURN_VALUES)
+                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id: {idClasse}}) ")
+                .append(RETURN_VALUES);
         neo4j.execute(query.toString(), new JsonObject().putString(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
 
     }
@@ -111,10 +115,16 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class)")
                 .append(" WHERE c.id IN {idClasses}")
-                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName")
+                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName,")
+                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName")
                 .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
                 .append(" WHERE c.id IN {idClasses}")
-                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");
+                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, ")
+                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName")
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
+                .append(" WHERE c.id IN {idClasses}")
+                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, ")
+                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName");
         params.putArray("idClasses", new JsonArray(idClasses));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
@@ -193,6 +203,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ")
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
                 .append("WHERE c.id IN {idClasses} ")
+                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ")
+                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
+                .append("WHERE c.id IN {idClasses} ")
                 .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
         params.putArray("idClasses", new JsonArray(idClasses));
 
@@ -221,12 +234,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getClasseEleve(String idEtablissement, String eleveId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
-        query.append(" MATCH (u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and u.id={idEleve}  and s.id={idEtablissement} ")
-                .append("with u  ")
-                .append("Match  (c:Class) where  c.externalId IN u.classes ")
-                .append("with  collect(DISTINCT c.id) as C,  u ")
-                .append("OPTIONAL Match (u2:User)-[i:IN]->(f:FunctionalGroup) where u2.id = u.id  ")
-                .append("Return C + collect(f.id)  as Classes ");
+        query.append(" MATCH (u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] ")
+                .append(" and u.id={idEleve}  and s.id={idEtablissement} ")
+                .append(" with u  ")
+                .append(" Match  (c:Class) where  c.externalId IN u.classes ")
+                .append(" with   c, u ")
+                .append(" OPTIONAL Match (u2:User)-[i:IN]->(f:ManualGroup) where u.id = u2.id  ")
+                .append(" with  collect(DISTINCT c.id) as C,  u2 ")
+                .append(" OPTIONAL Match (u3:User)-[i:IN]->(f:FunctionalGroup) where u2.id = u3.id  ")
+                .append(" Return C + collect(f.id)  as Classes ");
         params.putString("idEtablissement", idEtablissement);
         params.putString("idEleve", eleveId);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

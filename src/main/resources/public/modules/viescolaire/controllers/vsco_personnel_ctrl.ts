@@ -129,17 +129,25 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         };
 
         $scope.setPeriodes = () => {
-            if ($scope.getSelectedClasse().length == 1) {
-                let classe = _.first($scope.getSelectedClasse());
-                $scope.lightboxPeriode.periodes = _.map(classe.periodes.all, (periode) => {
+            $scope.selectedClasseSorted = _.sortBy($scope.getSelectedClasse(), 'name');
+            let classe = _.first($scope.selectedClasseSorted);
+            $scope.lightboxPeriode.periodes = _.map(classe.periodes.all, (periode) => {
+                return _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+            });
+            $scope.lightboxPeriode.typePeriode = classe.periodes.all.length;
+            $scope.diffPeriodesError = !$scope.checkDiffPeriodsClasse($scope.selectedClasseSorted);
+        };
+
+        $scope.checkDiffPeriodsClasse = function (selectedClasseSorted) {
+            for(let c in selectedClasseSorted){
+                $scope.periodesTemp = _.map(selectedClasseSorted[c].periodes.all, (periode) => {
                     return _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
                 });
-                $scope.lightboxPeriode.typePeriode = classe.periodes.all.length;
-            } else {
-                $scope.lightboxPeriode.periodes = [];
-                $scope.lightboxPeriode.typePeriode = null;
+                if(!_.isEqual($scope.periodesTemp, $scope.lightboxPeriode.periodes))
+                    return false;
             }
-        };
+            return true;
+        }
 
         $scope.buildPeriodes = (typePeriode) => {
             let periodes = [];

@@ -383,6 +383,8 @@
  "viescolaire.erreur.sauvegarde": "Une erreur est survenue lors de la sauvegarde.",
  "viescolaire.dateFinSaisie.anterieure.dateDebut": "La date de fin de saisie ne peut être antérieure à la date de début.",
  "viescolaire.periodes.contigues": "Les périodes doivent être contigues.",
+  "viescolaire.differentes.periodes": "Attention les classes que vous avez sélectionnées n’ont pas les même dates de période.",
+  "viescolaire.dates.premiere.classe": "Les dates de la première classe ont été chargées.",
  "viescolaire.dateFin.anterieure.dateDebut": "La date de fin ne peut être anterieure à la date de début.",
  "viescolaire.erreur sauvegarde": "Une erreur est survenue lors de la sauvegarde.",
  "viescolaire.fin.saisie": "Fin de saisie",

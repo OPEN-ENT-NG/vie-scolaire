@@ -131,7 +131,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class)-[:BELONGS]->(s:Structure) ")
                 .append("WHERE u.id IN {idEleves} ")
                 .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName,  c.id as idClasse, c.name as classeName, s.id as idEtablissement ")
-                .append("ORDER BY classeName, lastName");
+                .append("ORDER BY lastName");
         params.putArray("idEleves", new JsonArray(idEleves));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

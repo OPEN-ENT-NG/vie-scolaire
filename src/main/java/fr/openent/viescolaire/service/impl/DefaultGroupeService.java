@@ -39,11 +39,18 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append(" MATCH (n:Group)-[:IN]-(u:User{profiles:['Student']}) ")
+        query.append(" MATCH (n:FunctionalGroup)-[:IN]-(u:User{profiles:['Student']}) ")
                 .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
-                .append("MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
-                .append("COLLECT(DISTINCT c.id) AS id_classes");
-        params.putArray("idGroupe", new JsonArray(idGroupe));
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+                .append(" COLLECT(DISTINCT c.id) AS id_classes")
+                .append(" UNION ")
+                .append(" MATCH (n:ManualGroup)-[:IN]-(u:User{profiles:['Student']}) ")
+                .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
+                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+                .append(" COLLECT(DISTINCT c.id) AS id_classes")
+        ;
+        params.putArray("idGroupe", new JsonArray(idGroupe))
+                .putArray("idGroupe", new JsonArray(idGroupe));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -83,7 +90,9 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         JsonObject values = new JsonObject();
         query.append("MATCH (c:`Class` {id: {groupeId} }) RETURN c.id as id,  c.name as name ");
         query.append("UNION ");
-        query.append("MATCH (g:`Group` {id: {groupeId}}) return g.id as id, g.name as name ");
+        query.append("MATCH (g:`FunctionalGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
+        query.append("UNION ");
+        query.append("MATCH (g:`ManualGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
         values.putString("groupeId", idGroupe);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));

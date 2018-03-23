@@ -19,7 +19,6 @@
 
 package fr.openent;
 
-import fr.openent.absences.controller.*;
 import fr.openent.viescolaire.controller.*;
 import fr.openent.viescolaire.controller.EleveController;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
@@ -100,17 +99,6 @@ public class Viescolaire extends BaseServer {
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
-
-
-		/*
-			CONTROLEURS ABSENCES
-		 */
-		addController(new fr.openent.absences.controller.EleveController());
-		addController(new MotifController());
-		addController(new MotifAppelController());
-		addController(new AppelController());
-		addController(new AbsencePrevisionnelleController());
-		addController(new EvenementController());
 
         addController(new EventBusController());
 

@@ -35,11 +35,10 @@ public interface CoursService extends CrudService{
      * Récupération des cours d'une classe en fonction d'une date de début et d'une date de fin.
      * @param pSDateDebut Date de début de la période
      * @param pSDateFin Date de fin de la période
-     * @param idClasse Identifiant de la classe
+     * @param listIdClasse Liste des id des classes
      * @param handler Handler de retour
      */
-    void getClasseCours(String pSDateDebut, String pSDateFin, String idClasse,
-                        Handler<Either<String, JsonArray>> handler);
+    public void getClasseCours(String pSDateDebut, String pSDateFin, List<String> listIdClasse, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupération des cours d'une classe en fonction d'une date de début ou d'une date de fin.

@@ -74,7 +74,7 @@ public class ClasseController extends BaseController {
                     } else {
                         if (("Personnel".equals(user.getType())
                                 && !user.getFunctions().isEmpty()
-                        ) || "Teacher".equals(user.getType())) {
+                            ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse, handler);
@@ -126,6 +126,14 @@ public class ClasseController extends BaseController {
                         && request.params().contains("idEtablissement")) {
                     Boolean classOnly = null;
                     String idEtablissement = request.params().get("idEtablissement");
+
+                    final boolean isPresence;
+                    if(request.params().get("isPresence") != null) {
+                        isPresence = Boolean.parseBoolean(request.params().get("isPresence"));
+                    } else {
+                        isPresence = false;
+                    }
+
                     if(request.params().get("classOnly") != null) {
                         classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                     }
@@ -161,26 +169,30 @@ public class ClasseController extends BaseController {
                                             .putString("action", "utils.getCycle")
                                             .putArray("ids", new JsonArray(idGroupes.toArray()));
 
-                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
-                                        @Override
-                                        public void handle(Message<JsonObject> message) {
-                                            if ("ok".equals(message.body().getString("status"))) {
-                                                JsonArray returnedList = new JsonArray();
-                                                JsonObject object;
-                                                JsonObject cycles = utilsService.mapListNumber(message.body().getArray("results"), "id_groupe", "id_cycle");
-                                                JsonObject cycleLibelle = utilsService.mapListString(message.body().getArray("results"), "id_groupe", "libelle");
-                                                for (int i = 0; i < classes.size(); i++) {
-                                                    object = classes.get(i);
-                                                    object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));
-                                                    object.putString("libelle_cycle", cycleLibelle.getString(object.getString("id")));
-                                                    returnedList.addObject(object);
+                                    if (isPresence) {
+                                            renderJson(request, classes);
+                                    } else {
+                                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+                                            @Override
+                                            public void handle(Message<JsonObject> message) {
+                                                if ("ok".equals(message.body().getString("status"))) {
+                                                    JsonArray returnedList = new JsonArray();
+                                                    JsonObject object;
+                                                    JsonObject cycles = utilsService.mapListNumber(message.body().getArray("results"), "id_groupe", "id_cycle");
+                                                    JsonObject cycleLibelle = utilsService.mapListString(message.body().getArray("results"), "id_groupe", "libelle");
+                                                    for (int i = 0; i < classes.size(); i++) {
+                                                        object = classes.get(i);
+                                                        object.putNumber("id_cycle", cycles.getNumber(object.getString("id")));
+                                                        object.putString("libelle_cycle", cycleLibelle.getString(object.getString("id")));
+                                                        returnedList.addObject(object);
+                                                    }
+                                                    renderJson(request, returnedList);
+                                                } else {
+                                                    badRequest(request);
                                                 }
-                                                renderJson(request, returnedList);
-                                            } else {
-                                                badRequest(request);
                                             }
-                                        }
-                                    });
+                                        });
+                                    }
                                 } else {
                                     renderJson(request, new JsonArray(idGroupes.toArray()));
                                 }

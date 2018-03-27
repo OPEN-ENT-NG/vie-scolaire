@@ -252,6 +252,27 @@ public class EventBusController extends ControllerHelper {
                 }
             }
             break;
+            case "getPeriodes": {
+                List<String> l = message.body().getArray("idGroupes").toList();
+                String [] idGroupes = l.toArray(new String[l.size()]);
+                String idEtablissement = message.body().getString("idEtablissement");
+
+                JsonObject request = message.body().getObject("request");
+                periodeService.getPeriodes(idEtablissement, idGroupes,
+                        new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> res) {
+                                if (res.isRight()) {
+                                    message.reply(new JsonObject()
+                                            .putString("status", "ok")
+                                            .putArray("result", res.right().getValue()));
+                                } else {
+                                    message.reply(getErrorReply(res.left().getValue()));
+                                }
+                            }
+                        });
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

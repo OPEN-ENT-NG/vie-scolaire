@@ -185,6 +185,28 @@ body.viescolaire {
     padding-left: 3em;
     min-width: 60%;
   }
+  .header-class{
+    & > div {
+      height: 30px;
+      font-weight: bold;
+      >label.checkbox{
+        >input[type="checkbox"]:checked + span::before{
+          border-color: $white;
+        }
+      }
+    }
+    & > div:first-child{
+      padding: 5px;
+    }
+    & > div:last-child{
+      width: 10%;
+      padding: 5px 0px 5px 0px;
+    }
+  }
+  .list-classes{
+    margin-left: 5px;
+  }
+
 
   .rounded {
     width: 20px;

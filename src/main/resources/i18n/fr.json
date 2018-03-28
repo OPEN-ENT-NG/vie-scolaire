@@ -459,6 +459,7 @@
   "evaluation.link.group.edit": "Rattacher le cycle",
   "evaluation.link.group.lightbox.title": "Rattachement cycle",
   "evaluation.link.group.to": "Rattachement au ",
+  "evaluation.link.group.classes":"Toutes les classes",
   "evaluation.link.success": "Rattachement effectué",
   "evaluation.error.unautorize": "Désolé, vous n'avez pas le droit d'effectuer cette action",
   "evaluation.link.error.request": "Une erreur est survenue lors du rattachement.",

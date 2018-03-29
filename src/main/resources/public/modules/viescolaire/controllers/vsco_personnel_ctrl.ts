@@ -192,7 +192,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             let now = moment();
             let res;
             _.each(classe.periodes.all, (periode) => {
-                if (moment(periode.timestamp_dt).isBefore(now) && moment(periode.timestamp_fn).isAfter(now)) {
+                if (moment(periode.timestamp_dt).isSameOrBefore(now, 'day' ) && moment(periode.timestamp_fn).isSameOrAfter(now,'day')) {
                     res = periode;
                 }
             });

@@ -14,3 +14,4 @@ CREATE TABLE notes.langues_culture_regionale (
 
 ALTER TABLE notes.eleve_enseignement_complement ADD COLUMN id_langue bigint DEFAULT NULL;
 ALTER TABLE notes.eleve_enseignement_complement ADD CONSTRAINT fk_langue_id FOREIGN KEY (id_langue) REFERENCES notes.langues_culture_regionale (id);
+ALTER TABLE notes.eleve_enseignement_complement ADD COLUMN niveau_lcr bigint DEFAULT NULL;

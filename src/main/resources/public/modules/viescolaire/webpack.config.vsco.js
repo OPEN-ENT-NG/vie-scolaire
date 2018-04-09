@@ -22,7 +22,8 @@ var path = require('path');
 
 module.exports = {
     entry: {
-        vsco_personnels: './src/main/resources/public/modules/viescolaire/apps/personnels.ts'
+        vsco_personnels: './src/main/resources/public/modules/viescolaire/apps/personnels.ts',
+        behaviours: './src/main/resources/public/modules/viescolaire/ts/behaviours.ts'
     },
     output: {
         filename: './[name].js',

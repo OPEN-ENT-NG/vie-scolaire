@@ -57,9 +57,16 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
     @Override
-    public void listMatieresEtab(String idStructure, UserInfos user,  Handler<Either<String, JsonArray>> handler){
+    public void listMatieresEtab(String idStructure, Boolean onlyId, Handler<Either<String, JsonArray>> handler){
+        String returndata;
+        if (onlyId) {
+            returndata = "RETURN collect(sub.id) as res ";
+        }
+        else {
+            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name";
+        }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
-				"RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name";
+				returndata;
         JsonObject values = new JsonObject().putString("idStructure", idStructure);
         neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
     }

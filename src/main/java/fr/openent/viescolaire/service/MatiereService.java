@@ -54,10 +54,10 @@ public interface MatiereService extends CrudService {
 
     /**
      * Récupére les matiéres de l'établissment de l'utilisateurs (chef Etab)
-     * @param user
+     * @param onlyId
      * @param handler
      */
-   void listMatieresEtab(String idStructure, UserInfos user, Handler<Either<String, JsonArray>> handler );
+   void listMatieresEtab(String idStructure, Boolean onlyId, Handler<Either<String, JsonArray>> handler );
 
     /**
      * Récupère les matieres en fonction d'une liste de matières données

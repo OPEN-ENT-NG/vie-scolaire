@@ -36,6 +36,7 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
@@ -106,62 +107,105 @@ public class MatiereController extends ControllerHelper {
         });
     }
 
-    private void listMatieres(final UserInfos user, final String structureId , JsonArray poTitulairesIdList, final HttpServerRequest request) {
-        matiereService.listMatieres(structureId , request.params().get("idEnseignant"), poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
-            @Override
-            public void handle(Either<String, JsonArray> event) {
-                if(event.isRight()){
-                    final JsonArray resultats = event.right().getValue();
-                    if (resultats.size() > 0) {
+    public void listMatieres(final String structureId , JsonArray poTitulairesIdList,
+                             final HttpServerRequest request, final Message<JsonObject> message, String idEnseignant,
+                             final Boolean onlyId) {
+        String _idEnseignant = (null == request) ? idEnseignant : request.params().get("idEnseignant");
+        matiereService.listMatieres(structureId , _idEnseignant,
+                poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if(event.isRight()){
+                            final JsonArray resultats = event.right().getValue();
+                            if (resultats.size() > 0) {
 
-                        final List<String> ids = new ArrayList<String>();
+                                final List<String> ids = new ArrayList<String>();
 
-                        final JsonArray reponseJA = new JsonArray();
-                        JsonArray libelleGroups, libelleClasses;
-                        for (Object res : resultats) {
-                            final JsonObject r = (JsonObject) res;
-                            libelleGroups = r.getArray("libelleGroupes");
-                            libelleClasses = r.getArray("libelleClasses");
-                            libelleGroups = libelleGroups == null ? new JsonArray() : libelleGroups;
-                            libelleClasses = libelleClasses == null ? new JsonArray() : libelleClasses;
+                                final JsonArray reponseJA = new JsonArray();
+                                JsonArray libelleGroups, libelleClasses;
+                                for (Object res : resultats) {
+                                    final JsonObject r = (JsonObject) res;
+                                    libelleGroups = r.getArray("libelleGroupes");
+                                    libelleClasses = r.getArray("libelleClasses");
+                                    libelleGroups = libelleGroups == null ? new JsonArray() : libelleGroups;
+                                    libelleClasses = libelleClasses == null ? new JsonArray() : libelleClasses;
                             r.putArray("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
-                            r.removeField("libelleGroupes");
-                            reponseJA.addObject(r);
-                            ids.add(r.getString("id"));
-                        }
-                        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event_ssmatiere) {
-                                if (event_ssmatiere.right().isRight()) {
-                                    JsonArray finalresponse = new JsonArray();
-                                    JsonArray res = event_ssmatiere.right().getValue();
-                                    for (int i = 0; i < reponseJA.size(); i++) {
-                                        JsonObject matiere = reponseJA.get(i);
-                                        String id = matiere.getString("id");
-                                        JsonArray ssms = new JsonArray();
-                                        for (int j = 0; j < res.size(); j++) {
-                                            JsonObject ssm = res.get(j);
-                                            if (ssm.getString("id_matiere").equals(id)) {
-                                                ssms.addObject(ssm);
+                                    r.removeField("libelleGroupes");
+                                    reponseJA.addObject(r);
+                                    ids.add(r.getString("id"));
+                                }
+                        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
+                                new Handler<Either<String, JsonArray>>() {
+                                            @Override
+                                            public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                                if (event_ssmatiere.right().isRight()) {
+                                                    JsonArray finalresponse = new JsonArray();
+                                                    JsonArray res = event_ssmatiere.right().getValue();
+                                                    for (int i = 0; i < reponseJA.size(); i++) {
+                                                        JsonObject matiere = reponseJA.get(i);
+                                                        String id = matiere.getString("id");
+                                                        JsonArray ssms = new JsonArray();
+                                                        for (int j = 0; j < res.size(); j++) {
+                                                            JsonObject ssm = res.get(j);
+                                                            if (ssm.getString("id_matiere").equals(id)) {
+                                                                ssms.addObject(ssm);
+                                                            }
+                                                        }
+                                                        matiere.putArray("sous_matieres", ssms);
+                                                        finalresponse.addObject(matiere);
+                                                    }
+
+                                                    if (message != null) {
+                                                        JsonArray _res = (onlyId)? new JsonArray(ids.toArray()):
+                                                                finalresponse;
+                                                        message.reply(new JsonObject()
+                                                                .putString("status", "ok")
+                                                                .putArray("results",_res));
+                                                    } else {
+                                                        Renders.renderJson(request, finalresponse);
+                                                    }
+                                                }
+                                                else {
+                                                    if (message != null) {
+                                                        message.reply(new JsonObject()
+                                                                .putString("status", "error")
+                                                                .putString("message",
+                                                                        event_ssmatiere.left().getValue()));
+                                                    } else {
+                                                        leftToResponse(request, event_ssmatiere.left());
+                                                    }
+
+                                                }
+                                            }
+                                        });
+                            } else {
+                                if (request == null) {
+                                    matiereService.listMatieresEtab(structureId, onlyId,
+                                            new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> result) {
+                                            if (result.isRight()) {
+                                                message.reply(new JsonObject()
+                                                        .putString("status", "ok")
+                                                        .putArray("results", result.right().getValue()));
+                                            } else {
+                                                message.reply(new JsonObject()
+                                                        .putString("status", "error")
+                                                        .putString("message", result.left().getValue()));
                                             }
                                         }
-                                        matiere.putArray("sous_matieres", ssms);
-                                        finalresponse.addObject(matiere);
-                                    }
-                                    Renders.renderJson(request, finalresponse);
-                                } else {
-                                    leftToResponse(request, event_ssmatiere.left());
+                                    });
+
+                                }
+                                else {
+                                    matiereService.listMatieresEtab(structureId, onlyId, arrayResponseHandler(request));
                                 }
                             }
-                        });
-                    } else {
-                        matiereService.listMatieresEtab(structureId, user, arrayResponseHandler(request));
+                        }else{
+                            leftToResponse(request, event.left());
+                        }
                     }
-                }else{
-                    leftToResponse(request, event.left());
-                }
-            }
-        });
+                });
     }
 
     /**
@@ -179,14 +223,17 @@ public class MatiereController extends ControllerHelper {
                 if(user != null && null != request.params().get("idEtablissement")){
                     if("Personnel".equals(user.getType())){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        matiereService.listMatieresEtab(request.params().get("idEtablissement"), user, handler);
+                        matiereService.listMatieresEtab(request.params().get("idEtablissement"), false, handler);
                     }else{
-                        utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0), new Handler<Either<String, JsonArray>>() {
+                        utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0),
+                                new Handler<Either<String, JsonArray>>() {
                                     @Override
                                     public void handle(Either<String, JsonArray> event) {
                                         if (event.isRight()) {
                                             JsonArray oTitulairesIdList = event.right().getValue();
-                                            listMatieres(user, request.params().get("idEtablissement"), oTitulairesIdList, request);
+                                            listMatieres(request.params().get("idEtablissement"),
+                                                    oTitulairesIdList, request,null,
+                                            null,false);
                                         } else {
                                             leftToResponse(request, event.left());
                                         }

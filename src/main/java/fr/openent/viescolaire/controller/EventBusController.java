@@ -221,7 +221,7 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
-    private void matiereBusService(String method, Message<JsonObject> message) {
+    private void matiereBusService(String method, final Message<JsonObject> message) {
         switch (method) {
             case "getMatieres": {
                 JsonArray idMatieres = message.body().getArray("idMatieres");
@@ -231,6 +231,31 @@ public class EventBusController extends ControllerHelper {
             case "getMatiere": {
                 String idMatiere = message.body().getString("idMatiere");
                 matiereService.getMatiere(idMatiere, getObjectBusResultHandler(message));
+            }
+            break;
+            case "getMatieresForUser": {
+                final String userType = message.body().getString("userType");
+                final String idEnseignant = message.body().getString("idUser");
+                final String idStructure = message.body().getString("idStructure");
+                final Boolean onlyId = message.body().getBoolean("onlyId");
+                if ("Personnel".equals(userType)) {
+                    matiereService.listMatieresEtab(idStructure, onlyId,getArrayBusResultHandler(message));
+                } else {
+                    new DefaultUtilsService()
+                            .getTitulaires(idEnseignant, idStructure, new Handler<Either<String, JsonArray>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonArray> event) {
+                                            if (event.isRight()) {
+                                                JsonArray oTitulairesIdList = event.right().getValue();
+                                                new MatiereController().listMatieres(idStructure,
+                                                        oTitulairesIdList,null, message, idEnseignant, onlyId);
+                                            } else {
+                                                message.reply(getErrorReply(event.left().getValue()));
+                                            }
+                                        }
+                                    }
+                            );
+                }
             }
             break;
             default: {

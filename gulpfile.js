@@ -78,7 +78,7 @@ gulp.task('rev', ['webpack'], function () {
 
 gulp.task('build', ['rev'], function () {
     var refs = updateRefs();
-    var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
+    var copyBehaviours = gulp.src('./src/main/resources/public/dist/viescolaire/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
     return merge[refs, copyBehaviours];
 });

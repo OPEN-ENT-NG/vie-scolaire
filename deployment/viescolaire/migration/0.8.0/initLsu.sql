@@ -14,8 +14,8 @@ INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Découverte pr
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langue des signes française', 'LSF');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langue vivante étrangère', 'LVE');
 
-UPDATE notes.cycle SET value_cycle=4 WHERE libelle='cycle 4';
-UPDATE notes.cycle SET value_cycle=3 WHERE libelle='cycle 3';
+UPDATE notes.cycle SET value_cycle=4 WHERE libelle='Cycle 4';
+UPDATE notes.cycle SET value_cycle=3 WHERE libelle='Cycle 3';
 
 INSERT INTO notes.calc_millesime(code_level, increment) VALUES ('6EME', 0);
 INSERT INTO notes.calc_millesime(code_level, increment) VALUES ('5EME', 2);

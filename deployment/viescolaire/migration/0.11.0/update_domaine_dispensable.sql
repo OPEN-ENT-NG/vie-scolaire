@@ -1,0 +1,1 @@
+UPDATE ONLY notes.domaines SET dispensable = true WHERE codification = 'D1.2' AND id_cycle = 1;

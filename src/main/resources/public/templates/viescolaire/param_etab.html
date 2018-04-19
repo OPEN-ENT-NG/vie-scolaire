@@ -88,10 +88,8 @@
                             </label>
                         </div>
                         <div class="cell">
-                            <div class="classe">
-                                <span ng-if="(classe.name).length > 2" tooltip="[[ classe.name ]]">[[ classe.name ]]</span>
-                                <span ng-if="(classe.name).length <= 2">[[ classe.name ]]</span>
-                            </div>
+                            <div class="classe text-overflow" ng-if="(classe.name).length > 2" tooltip="[[ classe.name ]]">[[ classe.name ]]</div>
+                            <div class="classe" ng-if="(classe.name).length <= 2">[[ classe.name ]]</div>
                         </div>
 
                         <div class="cell" ng-show="search.type != 0">

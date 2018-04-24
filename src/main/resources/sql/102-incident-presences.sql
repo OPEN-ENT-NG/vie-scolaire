@@ -11,7 +11,7 @@ CREATE TABLE presences.incident_gravite
   id_etablissement          CHARACTER VARYING(36) NOT NULL,
   niveau            BIGINT NOT NULL,
   libelle         	CHARACTER VARYING,
-  CONSTRAINT incident_gravite_pk PRIMARY KEY (niveau)
+  CONSTRAINT incident_gravite_pk PRIMARY KEY (niveau, id_etablissement)
 );
 
 CREATE TABLE presences.incident_lieu
@@ -45,25 +45,24 @@ CREATE TABLE presences.incident
   id_etablissement          CHARACTER VARYING(36) NOT NULL,
   timestamp_at     		timestamp without time zone,
   hour_is_selected		BOOLEAN DEFAULT FALSE,
-  
+
   id_type 	BIGINT NOT NULL,
   id_lieu         	BIGINT NOT NULL,
   id_partenaire     BIGINT NOT NULL,
-  
+
   niveau_gravite   	BIGINT NOT NULL,
   description      	CHARACTER VARYING,
-	
+
   created          TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified         TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   is_traited        	BOOLEAN DEFAULT FALSE ,
-  CHECK (niveau_gravite >= 0 AND niveau_gravite <= 5),
   CONSTRAINT incident_pk PRIMARY KEY (id),
   CONSTRAINT fk_incident_type_id
         FOREIGN KEY (id_type)
         REFERENCES presences.incident_type(id),
 	CONSTRAINT fk_incident_gravite_niveau
-        FOREIGN KEY (niveau_gravite)
-        REFERENCES presences.incident_gravite(niveau),
+        FOREIGN KEY (niveau_gravite, id_etablissement)
+        REFERENCES presences.incident_gravite(niveau, id_etablissement),
 	CONSTRAINT fk_incident_lieu_id
         FOREIGN KEY (id_lieu)
         REFERENCES presences.incident_lieu(id),

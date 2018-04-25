@@ -1,4 +1,16 @@
 body.viescolaire {
+  .selectable-list li:hover {
+    background: $white;
+    color: $orange;
+    border-bottom-color: grey;
+  }
+
+  .selectable-list li.selected:hover {
+    background: $orange !important;
+    color: $white !important;
+    border-bottom-color: grey;
+  }
+
   .devoirToDelete {
     height: 200px;
     overflow-y: scroll;

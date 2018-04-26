@@ -128,9 +128,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class)-[:BELONGS]->(s:Structure) ")
-                .append("WHERE u.id IN {idEleves} ")
-                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName,  c.id as idClasse, c.name as classeName, s.id as idEtablissement ")
+        query.append("MATCH (f:FunctionalGroup)<-[i:IN]-(u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) WHERE u.profiles= [\"Student\"]  ")
+                .append("AND u.id IN {idEleves} WITH u, s, COLLECT(f.id) as f ")
+                .append("MATCH (c:Class) where c.externalId IN u.classes ")
+                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, c.id as idClasse, c.name as classeName, s.id as idEtablissement, f as idGroupes ")
                 .append("ORDER BY lastName");
         params.putArray("idEleves", new JsonArray(idEleves));
 

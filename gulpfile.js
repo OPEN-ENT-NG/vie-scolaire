@@ -52,7 +52,7 @@ function startWebpack(isLocal) {
 function updateRefs() {
     var vsco = gulp.src(glob.sync("./src/main/resources/view-src//*.html"))
         .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
-        .pipe(gulp.dest("./src/main/resources/view"));
+        .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
     return vsco;
 }
 

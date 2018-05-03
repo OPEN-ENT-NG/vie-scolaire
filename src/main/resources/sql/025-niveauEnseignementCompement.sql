@@ -2,10 +2,9 @@ CREATE TABLE notes.niveau_ens_complement
 (
 	id bigint NOT NULL,
 	libelle character varying(50) NOT NULL,
-	niveau int NOT NULL,
-	bareme_brevet int NOT NULL,
+	niveau int ,
+	bareme_brevet int ,
 	CONSTRAINT niveau_ens_compl_pk PRIMARY KEY(id)
-
 );
 
 INSERT INTO notes.niveau_ens_complement (id,libelle,niveau,bareme_brevet)

@@ -48,7 +48,7 @@ CREATE TABLE presences.incident
 
   id_type 	BIGINT NOT NULL,
   id_lieu         	BIGINT NOT NULL,
-  id_partenaire     BIGINT NOT NULL,
+  id_partenaire     BIGINT,
 
   niveau_gravite   	BIGINT NOT NULL,
   description      	CHARACTER VARYING,

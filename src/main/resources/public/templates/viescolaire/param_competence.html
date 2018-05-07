@@ -15,14 +15,19 @@
                                    ng-click="currParam = 2; scrollToElement(2)">
                                     <i18n>evaluation.bfc.visibility.average</i18n></a>
                             </li>
-                            <li workflow="competences.paramCompetences">
+                            <li workflow="competences.setVisibilityAverageBfc">
                                 <a href="" ng-class="{'selected': currParam === 3}"
                                    ng-click="currParam = 3; scrollToElement(3)">
+                                    <i18n>evaluation.bfc.visibility.baremeBFC</i18n></a>
+                            </li>
+                            <li workflow="competences.paramCompetences">
+                                <a href="" ng-class="{'selected': currParam === 4}"
+                                   ng-click="currParam = 4; scrollToElement(4)">
                                     <i18n>evaluations.competences.items.title</i18n></a>
                             </li>
                             <li workflow="competences.linkGroupCycle">
-                                <a href="" ng-class="{'selected': currParam === 4}"
-                                   ng-click="currParam = 4; scrollToElement(4)">
+                                <a href="" ng-class="{'selected': currParam === 5}"
+                                   ng-click="currParam = 5; scrollToElement(5)">
                                     <i18n>evaluation.link.group.cycle</i18n></a>
                             </li>
 
@@ -124,9 +129,31 @@
                                 <i18n>evaluation.bfc.visibility.average</i18n>
 
                             </h3>
-                            <div class="twelve" ng-init="source.idStructure = structure.id;">
+                            <!--idVisibility = 1 Visibilité de la moyenne BFC-->
+                            <div class="twelve" ng-init="source.idStructure = structure.id; ">
                                 <sniplet
-                                        template="averageBFC"
+                                        template="visibilitymoyBFC"
+                                        application="competences"
+                                        source="source"
+                                ></sniplet>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
+                  workflow="competences.setVisibilityAverageBfc">
+                <div class="hash-magnet twelve cell" id="3">
+                    <article >
+                        <div class="twelve">
+                            <h3>
+                                <i18n>evaluation.bfc.visibility.baremeBFC</i18n>
+
+                            </h3>
+                            <!--idVisibility = 2 Visibilité du barèmeBrevet -->
+                            <div class="twelve" ng-init="source.idStructure = structure.id; ">
+                                <sniplet
+                                        template="visibilityDNB"
                                         application="competences"
                                         source="source"
                                 ></sniplet>
@@ -138,13 +165,13 @@
             <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
                   workflow="competences.paramCompetences">
                 <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
-                     class="hash-magnet twelve cell" id="3">
+                     class="hash-magnet twelve cell" id="4">
 
                 </div>
             </div>
             <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
                   workflow="competences.linkGroupCycle" >
-                <div class="hash-magnet twelve cell" id="4">
+                <div class="hash-magnet twelve cell" id="5">
                     <article  ng-init="source.idStructure = structure.id;
                     source.cycles = structure.cycles;
                     source.lastSelectedCycle = lastSelectedCycle;">

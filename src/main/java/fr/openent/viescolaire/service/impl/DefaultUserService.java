@@ -346,7 +346,7 @@ public class DefaultUserService implements UserService {
         query.append("MATCH (c:Class)<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']}) WHERE c.id IN {idClass}");
         query.append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,");
         query.append("r.externalId as externalIdRelative, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
-        query.append("c.id as idClass, c.name as nameClass ORDER BY nameClass, lastName");
+        query.append("c.id as idClass, c.name as nameClass, c.externalId as externalIdClass ORDER BY nameClass, lastName");
         param.putArray("idClass", new JsonArray(idsClass.toArray()));
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }

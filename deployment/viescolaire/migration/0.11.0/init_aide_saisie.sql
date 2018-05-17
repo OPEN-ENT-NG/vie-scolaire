@@ -478,8 +478,8 @@ INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (102, 'Compre
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (103, 'Utiliser des expressions et des phrases simples
-Se présenter brièvement, parler en termes simples de quelqu’un, d’une activité, d’un lieu', 33);
+INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (103, 'Utiliser des expressions et des phrases simples', 33);
+INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (461, 'Se présenter brièvement, parler en termes simples de quelqu’un, d’une activité, d’un lieu', 33);
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -619,7 +619,7 @@ INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (177, 'Reconn
 
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (178, 'Prendre part à une discussion, un débat ou un dialogue', 54);
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (179, 'Nuancer son point de vue en tenant compte du point de vue des autres', 54);
-INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (180, 'Comprendre la laïcité', 53);
+INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (180, 'Comprendre la laïcité', 54);
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (181, 'Prendre conscience des enjeux civiques de l’usage de l’informatique et de l’Internet', 54);
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (182, 'Distinguer son intérêt personnel de l’intérêt collectif', 54);
 
@@ -1164,6 +1164,7 @@ INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (456, 'Les ar
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (457, 'Utiliser les médias et les informations de manière autonome', 141);
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (458, 'Exploiter l’information de manière raisonnée', 141);
 INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (459, 'Utiliser les médias de manière responsable', 141);
+INSERT INTO notes.proposition(id, libelle, id_sous_domaine)	VALUES (462, 'Produire, communiquer, partager des informations', 141);
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 

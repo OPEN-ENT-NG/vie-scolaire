@@ -34,12 +34,12 @@ import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -93,7 +93,7 @@ public class UserController extends ControllerHelper {
                 RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
                     @Override
                     public void handle(JsonObject body) {
-                        if(user != null && body.containsField("structureId")){
+                        if(user != null && body.containsKey("structureId")){
                             final String structureId = body.getString("structureId");
                             final String module = body.getString("module");
                             Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
@@ -178,7 +178,7 @@ public class UserController extends ControllerHelper {
                 if (user != null) {
                     final String structureId = request.params().get("structureId");
                     final String classId = request.params().get("classId");
-                    final JsonArray types = new JsonArray(request.params().getAll("profile").toArray());
+                    final JsonArray types = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("profile"));
                     final String groupId = request.params().get("groupId");
                     final String nameFilter = request.params().get("name");
                     final String filterActive = request.params().get("filterActive");

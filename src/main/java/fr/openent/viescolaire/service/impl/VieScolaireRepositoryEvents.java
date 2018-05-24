@@ -22,12 +22,12 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.RepositoryEvents;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 /**
  * Created by ledunoiss on 29/03/2017.

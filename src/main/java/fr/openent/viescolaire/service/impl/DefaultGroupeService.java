@@ -7,9 +7,11 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.utils.StringUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+
+import java.util.Arrays;
 
 /**
  * Created by vogelmt on 13/02/2017.
@@ -29,7 +31,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         JsonObject values = new JsonObject();
         query.append("MATCH (u:User {id :{userId}})-[DEPENDS]->(g:FunctionalGroup) return g ")
                 .append(" UNION MATCH (u:User {id :{userId}})-[DEPENDS]->(g:ManualGroup) return g ");
-        values.putString("userId", userId);
+        values.put("userId", userId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -49,8 +51,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
                 .append(" COLLECT(DISTINCT c.id) AS id_classes")
         ;
-        params.putArray("idGroupe", new JsonArray(idGroupe))
-                .putArray("idGroupe", new JsonArray(idGroupe));
+        params.put("idGroupe", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idGroupe)))
+                .put("idGroupe", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idGroupe)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -68,7 +70,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         if(!StringUtils.isEmpty(profile)){
             query.append(" where users.profiles =[{profile}] ");
             queryGetClass.append(" where users.profiles =[{profile}] ");
-            values.putString("profile", profile);
+            values.put("profile", profile);
         }
         StringBuilder queryReturn = new StringBuilder().append( " RETURN users.lastName as lastName, ")
                 .append(" users.firstName as firstName, users.id as id, ")
@@ -80,7 +82,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         queryGetClass.append(queryReturn.toString());
         query.append(" UNION ")
                 .append(queryGetClass.toString());
-        values.putString("groupeEnseignementId", groupeEnseignementId);
+        values.put("groupeEnseignementId", groupeEnseignementId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -93,7 +95,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         query.append("MATCH (g:`FunctionalGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
         query.append("UNION ");
         query.append("MATCH (g:`ManualGroup` {id: {groupeId}}) return g.id as id, g.name as name ");
-        values.putString("groupeId", idGroupe);
+        values.put("groupeId", idGroupe);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }

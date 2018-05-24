@@ -6,10 +6,10 @@ import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.request.JsonHttpServerRequest;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.List;
 
@@ -39,8 +39,8 @@ public class EventBusController extends ControllerHelper {
 
         if (action == null) {
             log.warn("[@BusAddress](viescolaire) Invalid action.");
-            message.reply(new JsonObject().putString("status", "error")
-                    .putString("message", "Invalid action."));
+            message.reply(new JsonObject().put("status", "error")
+                    .put("message", "Invalid action."));
             return;
         }
 
@@ -81,9 +81,9 @@ public class EventBusController extends ControllerHelper {
     private void eventBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "add": {
-                JsonObject formattedUser = message.body().getObject("user");
-                Number idRessource = message.body().getNumber("idRessource");
-                JsonObject ressource = message.body().getObject("ressource");
+                JsonObject formattedUser = message.body().getJsonObject("user");
+                Number idRessource = message.body().getLong("idRessource");
+                JsonObject ressource = message.body().getJsonObject("ressource");
                 String event = message.body().getString("event");
 
                 eventService.add(formattedUser, idRessource, ressource, event);
@@ -97,12 +97,12 @@ public class EventBusController extends ControllerHelper {
             case "listUsersByGroupeEnseignementId": {
                 String groupeEnseignementId = message.body().getString("groupEnseignementId");
                 String profile = message.body().getString("profile");
-                groupeService.listUsersByGroupeEnseignementId(groupeEnseignementId, profile, getArrayBusResultHandler(message));
+                groupeService.listUsersByGroupeEnseignementId(groupeEnseignementId, profile, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listGroupesEnseignementsByUserId": {
                 String userId = message.body().getString("userId");
-                groupeService.listGroupesEnseignementsByUserId(userId, getArrayBusResultHandler(message));
+                groupeService.listGroupesEnseignementsByUserId(userId, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -114,43 +114,43 @@ public class EventBusController extends ControllerHelper {
     private void classeBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "getNbElevesGroupe": {
-                JsonArray idGroupes = message.body().getArray("idGroupes");
-                classeService.getNbElevesGroupe(idGroupes, getArrayBusResultHandler(message));
+                JsonArray idGroupes = message.body().getJsonArray("idGroupes");
+                classeService.getNbElevesGroupe(idGroupes, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getEtabClasses": {
-                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
-                classeService.getEtabClasses(idClasses, getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
+                classeService.getEtabClasses(idClasses, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getClasseEtablissement": {
                 String idEtablissement = message.body().getString("idEtablissement");
-                classeService.getClasseEtablissement(idEtablissement, getArrayBusResultHandler(message));
+                classeService.getClasseEtablissement(idEtablissement, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesClasses": {
-                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
-                classeService.getElevesClasses(idClasses, getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
+                classeService.getElevesClasses(idClasses, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getEleveClasse": {
                 String idClasse = message.body().getString("idClasse");
-                classeService.getEleveClasse(idClasse, getArrayBusResultHandler(message));
+                classeService.getEleveClasse(idClasse, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getClasseInfo": {
                 String idClasse = message.body().getString("idClasse");
-                classeService.getClasseInfo(idClasse, getObjectBusResultHandler(message));
+                classeService.getClasseInfo(idClasse, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getClasseByEleve": {
                 String idEleve = message.body().getString("idEleve");
-                classeService.getClasseByEleve(idEleve, getObjectBusResultHandler(message));
+                classeService.getClasseByEleve(idEleve, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getElevesGroupesClasses": {
-                String[] idClasses = convertJsonArrayToStringArray(message.body().getArray("idClasses"));
-                classeService.getElevesGroupesClasses(idClasses, getArrayBusResultHandler(message));
+                String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
+                classeService.getElevesGroupesClasses(idClasses, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -163,33 +163,33 @@ public class EventBusController extends ControllerHelper {
         switch (method) {
             case "getMoyenne": {
                 String idEleve = message.body().getString("idEleve");
-                Long[] idDevoirs = convertJsonArrayToLongArray(message.body().getArray("idDevoirs"));
-                userService.getMoyenne(idEleve, idDevoirs, getObjectBusResultHandler(message));
+                Long[] idDevoirs = convertJsonArrayToLongArray(message.body().getJsonArray("idDevoirs"));
+                userService.getMoyenne(idEleve, idDevoirs, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getUAI": {
                 String idEtabl = message.body().getString("idEtabl");
-                userService.getUAI(idEtabl, getObjectBusResultHandler(message));
+                userService.getUAI(idEtabl, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getResponsablesEtabl": {
-                List<String> idsResponsable = message.body().getArray("idsResponsable").toList();
-                userService.getResponsablesEtabl(idsResponsable, getArrayBusResultHandler(message));
+                List<String> idsResponsable = message.body().getJsonArray("idsResponsable").getList();
+                userService.getResponsablesEtabl(idsResponsable, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {
-                List<String> idsClass = message.body().getArray("idsClass").toList();
-                userService.getElevesRelatives(idsClass, getArrayBusResultHandler(message));
+                List<String> idsClass = message.body().getJsonArray("idsClass").getList();
+                userService.getElevesRelatives(idsClass, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getCodeDomaine": {
                 String idClass = message.body().getString("idClass");
-                userService.getCodeDomaine(idClass, getArrayBusResultHandler(message));
+                userService.getCodeDomaine(idClass, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getResponsablesDirection": {
                 String idStructure = message.body().getString("idStructure");
-                userService.getResponsablesDirection(idStructure, getArrayBusResultHandler(message));
+                userService.getResponsablesDirection(idStructure, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -201,18 +201,18 @@ public class EventBusController extends ControllerHelper {
     private void eleveBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "getUsers": {
-                JsonArray idUsers = message.body().getArray("idUsers");
-                eleveService.getUsers(idUsers, getArrayBusResultHandler(message));
+                JsonArray idUsers = message.body().getJsonArray("idUsers");
+                eleveService.getUsers(idUsers, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getInfoEleve": {
-                String[] idEleves = convertJsonArrayToStringArray(message.body().getArray("idEleves"));
-                eleveService.getInfoEleve(idEleves, getArrayBusResultHandler(message));
+                String[] idEleves = convertJsonArrayToStringArray(message.body().getJsonArray("idEleves"));
+                eleveService.getInfoEleve(idEleves, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getCycle": {
                 String idClasse = message.body().getString("idClasse");
-                eleveService.getCycle(idClasse, getArrayBusResultHandler(message));
+                eleveService.getCycle(idClasse, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -224,13 +224,13 @@ public class EventBusController extends ControllerHelper {
     private void matiereBusService(String method, final Message<JsonObject> message) {
         switch (method) {
             case "getMatieres": {
-                JsonArray idMatieres = message.body().getArray("idMatieres");
-                matiereService.getMatieres(idMatieres, getArrayBusResultHandler(message));
+                JsonArray idMatieres = message.body().getJsonArray("idMatieres");
+                matiereService.getMatieres(idMatieres, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getMatiere": {
                 String idMatiere = message.body().getString("idMatiere");
-                matiereService.getMatiere(idMatiere, getObjectBusResultHandler(message));
+                matiereService.getMatiere(idMatiere, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getMatieresForUser": {
@@ -239,7 +239,7 @@ public class EventBusController extends ControllerHelper {
                 final String idStructure = message.body().getString("idStructure");
                 final Boolean onlyId = message.body().getBoolean("onlyId");
                 if ("Personnel".equals(userType)) {
-                    matiereService.listMatieresEtab(idStructure, onlyId,getArrayBusResultHandler(message));
+                    matiereService.listMatieresEtab(idStructure, onlyId,getJsonArrayBusResultHandler(message));
                 } else {
                     new DefaultUtilsService()
                             .getTitulaires(idEnseignant, idStructure, new Handler<Either<String, JsonArray>>() {
@@ -267,28 +267,28 @@ public class EventBusController extends ControllerHelper {
     private void periodeBusService(String method, final Message<JsonObject> message) {
         switch (method) {
             case "getLibellePeriode": {
-                if (message.body().containsField("ordre")) {
+                if (message.body().containsKey("ordre")) {
                     Integer type = message.body().getInteger("type");
                     Integer ordre = message.body().getInteger("ordre");
-                    JsonObject request = message.body().getObject("request");
+                    JsonObject request = message.body().getJsonObject("request");
 
                     String libelle = periodeService.getLibellePeriode(type, ordre, new JsonHttpServerRequest(request));
                     message.reply(new JsonObject()
-                            .putString("status", "ok")
-                            .putString("result", libelle));
+                            .put("status", "ok")
+                            .put("result", libelle));
                 } else {
                     Integer idType = message.body().getInteger("idType") == null
                             ? 0
                             : message.body().getInteger("idType");
-                    JsonObject request = message.body().getObject("request");
+                    JsonObject request = message.body().getJsonObject("request");
                     periodeService.getLibellePeriode(Long.parseLong(idType.toString()),
                             new JsonHttpServerRequest(request), new Handler<Either<String, String>>() {
                                 @Override
                                 public void handle(Either<String, String> res) {
                                     if (res.isRight()) {
                                         message.reply(new JsonObject()
-                                                .putString("status", "ok")
-                                                .putString("result", res.right().getValue()));
+                                                .put("status", "ok")
+                                                .put("result", res.right().getValue()));
                                     } else {
                                         message.reply(getErrorReply(res.left().getValue()));
                                     }
@@ -298,19 +298,19 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getPeriodes": {
-                List<String> l = message.body().getArray("idGroupes").toList();
+                List<String> l = message.body().getJsonArray("idGroupes").getList();
                 String [] idGroupes = l.toArray(new String[l.size()]);
                 String idEtablissement = message.body().getString("idEtablissement");
 
-                JsonObject request = message.body().getObject("request");
+                JsonObject request = message.body().getJsonObject("request");
                 periodeService.getPeriodes(idEtablissement, idGroupes,
                         new Handler<Either<String, JsonArray>>() {
                             @Override
                             public void handle(Either<String, JsonArray> res) {
                                 if (res.isRight()) {
                                     message.reply(new JsonObject()
-                                            .putString("status", "ok")
-                                            .putArray("result", res.right().getValue()));
+                                            .put("status", "ok")
+                                            .put("result", res.right().getValue()));
                                 } else {
                                     message.reply(getErrorReply(res.left().getValue()));
                                 }
@@ -324,14 +324,14 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
-    private Handler<Either<String, JsonArray>> getArrayBusResultHandler(final Message<JsonObject> message) {
+    private Handler<Either<String, JsonArray>> getJsonArrayBusResultHandler(final Message<JsonObject> message) {
         return new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> result) {
                 if (result.isRight()) {
                     message.reply(new JsonObject()
-                            .putString("status", "ok")
-                            .putArray("results", result.right().getValue()));
+                            .put("status", "ok")
+                            .put("results", result.right().getValue()));
                 } else {
                     message.reply(getErrorReply(result.left().getValue()));
                 }
@@ -339,14 +339,14 @@ public class EventBusController extends ControllerHelper {
         };
     }
 
-    private Handler<Either<String, JsonObject>> getObjectBusResultHandler(final Message<JsonObject> message) {
+    private Handler<Either<String, JsonObject>> getJsonObjectBusResultHandler(final Message<JsonObject> message) {
         return new Handler<Either<String, JsonObject>>() {
             @Override
             public void handle(Either<String, JsonObject> result) {
                 if (result.isRight()) {
                     message.reply(new JsonObject()
-                            .putString("status", "ok")
-                            .putObject("result", result.right().getValue()));
+                            .put("status", "ok")
+                            .put("result", result.right().getValue()));
                 } else {
                     message.reply(getErrorReply(result.left().getValue()));
                 }
@@ -356,14 +356,14 @@ public class EventBusController extends ControllerHelper {
 
     private JsonObject getErrorReply(String message) {
         return new JsonObject()
-                .putString("status", "error")
-                .putString("message", message);
+                .put("status", "error")
+                .put("message", message);
     }
 
     private String[] convertJsonArrayToStringArray(JsonArray list) {
         String[] objects = new String[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            objects[i] = list.get(i);
+            objects[i] = list.getString(i);
         }
 
         return objects;
@@ -372,7 +372,7 @@ public class EventBusController extends ControllerHelper {
     private Long[] convertJsonArrayToLongArray(JsonArray list) {
         Long[] objects = new Long[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            objects[i] = list.get(i);
+            objects[i] = list.getLong(i);
         }
 
         return objects;

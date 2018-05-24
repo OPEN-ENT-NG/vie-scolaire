@@ -35,12 +35,12 @@ import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,13 +141,13 @@ public class CoursController extends ControllerHelper{
                 String dateFin= request.params().get("dateFin")+' '+request.params().get("timeFn");
                 if(event.isRight()){
                     //get key
-                    JsonObject obj = event.right().getValue().get(0);
-                    int size = obj.getArray("Classes").size();
+                    JsonObject obj = event.right().getValue().getJsonObject(0);
+                    int size = obj.getJsonArray("Classes").size();
                     if(size > 0) {
                         Object[] Ids = new Object[size];
                         String[] IdsStr = new String[size];
                         try {
-                            Ids = obj.getArray("Classes").toArray();
+                            Ids = obj.getJsonArray("Classes").getList().toArray();
                         } catch (ClassCastException e) {
                             log.error("Cannot cast evenementId to Number on delete evenement : " + e);
                         }
@@ -188,7 +188,7 @@ public class CoursController extends ControllerHelper{
                                 Renders.renderJson(request, stringJsonArrayEither.right().getValue());
                             } else {
                                 JsonObject error = new JsonObject()
-                                        .putString("error", stringJsonArrayEither.left().getValue());
+                                        .put("error", stringJsonArrayEither.left().getValue());
                                 log.error(stringJsonArrayEither.left().getValue());
                                 Renders.renderJson(request, error, 400);
                             }
@@ -218,8 +218,8 @@ public class CoursController extends ControllerHelper{
                         String dateDebut = resource.getString("dateDebut"); //format YYYY-MM-DD HH:mm
                         String dateFin = resource.getString("dateFin"); //format YYYY-MM-DD HH:mm
 
-                        List<String> listIdClasse = resource.getArray("classeIds").toList();
-                        List<String> listIdTeacher = resource.getArray("teacherIds").toList();
+                        List<String> listIdClasse = resource.getJsonArray("classeIds").getList();
+                        List<String> listIdTeacher = resource.getJsonArray("teacherIds").getList();
 
                         Handler<Either<String, JsonObject>> handler = defaultResponseHandler(request);
 

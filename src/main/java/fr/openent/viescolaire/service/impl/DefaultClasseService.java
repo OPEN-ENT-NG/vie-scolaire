@@ -26,9 +26,11 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+
+import java.util.Arrays;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -49,7 +51,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         JsonObject params = new JsonObject();
 
         query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} RETURN c.id as idClasse ORDER BY c.name");
-        params.putString("idEtablissement", idEtablissement);
+        params.put("idEtablissement", idEtablissement);
 
         neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
     }
@@ -68,7 +70,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 				.append(RETURN_VALUES)
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id: {idClasse}}) ")
                 .append(RETURN_VALUES);
-        neo4j.execute(query.toString(), new JsonObject().putString(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
 
     }
 
@@ -84,8 +86,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " UNION ALL MATCH (u:User)--(f:ManualGroup) WHERE u.profiles=[\"Student\"] " +
                 " AND f.id IN {idGroupe} RETURN f.id as id_groupe, count(distinct u) as nb ");
 
-        values.putArray(mParameterIdClasse, idGroupes);
-        values.putArray("idGroupe", idGroupes);
+        values.put(mParameterIdClasse, idGroupes);
+        values.put("idGroupe", idGroupes);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -97,10 +99,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         JsonObject params =  new JsonObject();
         query.append("MATCH (s:Structure)<-[BELONGS]-(c:Class)<-[DEPENDS]")
                 .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) WHERE s.id = {idEtablissement} ");
-        params.putString("idEtablissement", idEtablissement);
+        params.put("idEtablissement", idEtablissement);
         if(isTeacher){
             query.append(" AND c.id IN {idClasse}");
-            params.putArray(mParameterIdClasse, idClasse);
+            params.put(mParameterIdClasse, idClasse);
         }
         query.append("RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");
 
@@ -125,7 +127,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" WHERE c.id IN {idClasses}")
                 .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, ")
                 .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName");
-        params.putArray("idClasses", new JsonArray(idClasses));
+        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -167,19 +169,19 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         if ("Personnel".equals(user.getType())) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
-            params.putString("idEtablissement", idEtablissement)
-                    .putString("idEtablissement", idEtablissement)
-                    .putString("idEtablissement", idEtablissement);
+            params.put("idEtablissement", idEtablissement)
+                    .put("idEtablissement", idEtablissement)
+                    .put("idEtablissement", idEtablissement);
         } else {
             param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
             param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";
-            params.putArray("classes", new JsonArray(user.getClasses().toArray()))
-                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
-                    .putString("idEtablissement", idEtablissement)
-                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
-                    .putString("idEtablissement", idEtablissement)
-                    .putArray("groups", new JsonArray(user.getGroupsIds().toArray()))
-                    .putString("idEtablissement", idEtablissement);
+            params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
+                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
+                    .put("idEtablissement", idEtablissement)
+                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
+                    .put("idEtablissement", idEtablissement)
+                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
+                    .put("idEtablissement", idEtablissement);
         }
 
         if(classOnly == null){
@@ -207,7 +209,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
                 .append("WHERE c.id IN {idClasses} ")
                 .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
-        params.putArray("idClasses", new JsonArray(idClasses));
+        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -225,7 +227,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" UNION MATCH (g:ManualGroup)-[:DEPENDS]->(:Class)-[BELONGS]->(s:Structure) ")
                 .append(" WHERE g.id IN {idClasses} ")
                 .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
-        params.putArray("idClasses", new JsonArray(idClasses));
+        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -243,8 +245,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" with  collect(DISTINCT c.id) as C,  u2 ")
                 .append(" OPTIONAL Match (u3:User)-[i:IN]->(f:FunctionalGroup) where u2.id = u3.id  ")
                 .append(" Return C + collect(f.id)  as Classes ");
-        params.putString("idEtablissement", idEtablissement);
-        params.putString("idEleve", eleveId);
+        params.put("idEtablissement", idEtablissement);
+        params.put("idEleve", eleveId);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
@@ -255,7 +257,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         JsonObject params = new JsonObject();
         query.append("MATCH (c {id: {idClasse}}) return c");
 
-        params.putString("idClasse", idClasse);
+        params.put("idClasse", idClasse);
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
     }
     @Override
@@ -266,7 +268,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         query.append("MATCH (g:FunctionalGroup)--(u:User {profiles:['Student']})--(:profileGroup)--(c:Class) ")
                 .append("WHERE c.id IN {idClasses} ")
                 .append("RETURN c.id as id_classe, COLLECT(DISTINCT g.id) AS id_groupes");
-        params.putArray("idClasses", new JsonArray(idClasses));
+        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -281,6 +283,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
       StringBuilder query = new StringBuilder()
               .append("MATCH (u:User {id :{id_eleve}}) with u MATCH (c:Class) ")
               .append("WHERE c.externalId IN u.classes return c");
-      neo4j.execute(query.toString(),new JsonObject().putString("id_eleve", idEleve),Neo4jResult.validUniqueResultHandler(handler));
+      neo4j.execute(query.toString(),new JsonObject().put("id_eleve", idEleve),Neo4jResult.validUniqueResultHandler(handler));
     }
 }

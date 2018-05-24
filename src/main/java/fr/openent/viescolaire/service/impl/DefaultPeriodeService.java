@@ -30,12 +30,12 @@ import fr.wseduc.webutils.I18n;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -86,10 +86,10 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     @Override
     public void getLibellePeriode(Long idTypePeriode, final HttpServerRequest request, final Handler<Either<String, String>> handler){
         StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT type, ordre FROM viesco.rel_type_periode WHERE id = ?");
-        params.addNumber(idTypePeriode);
+        params.add(idTypePeriode);
 
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
             @Override
@@ -97,8 +97,8 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 if(stringJsonArrayEither.isRight()) {
                     String result;
                     if(stringJsonArrayEither.right().getValue().size() > 0) {
-                        String type = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().get(0)).getNumber("type"));
-                        String ordre = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().get(0)).getNumber("ordre"));
+                        String type = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().getJsonObject(0)).getInteger("type"));
+                        String ordre = String.valueOf(((JsonObject) stringJsonArrayEither.right().getValue().getJsonObject(0)).getInteger("ordre"));
                         result = I18n.getInstance().translate("viescolaire.periode." + type, getHost(request),
                                 I18n.acceptLanguage(request)) + " " + ordre;
                     } else {
@@ -128,7 +128,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                                 final AtomicBoolean handled = new AtomicBoolean();
                                 final AtomicBoolean groupesDone = new AtomicBoolean(groupes == null);
                                 final AtomicBoolean classesDone = new AtomicBoolean(classes == null);
-                                final JsonArray result = new JsonArray();
+                                final JsonArray result = new fr.wseduc.webutils.collections.JsonArray();
 
                                 final Handler<Either<String, JsonArray>> finalHandler = new Handler<Either<String, JsonArray>>() {
                                     @Override
@@ -153,7 +153,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                                 if (groupes != null && !groupes.isEmpty()) {
 
                                     final AtomicInteger nbGroupe = new AtomicInteger(groupes.size());
-                                    final JsonArray groupePeriodeResult = new JsonArray();
+                                    final JsonArray groupePeriodeResult = new fr.wseduc.webutils.collections.JsonArray();
                                     final AtomicBoolean groupeHandled = new AtomicBoolean();
 
                                     final Handler<Either<String, JsonArray>> groupHandler = new Handler<Either<String, JsonArray>>() {
@@ -194,7 +194,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                                                                     if (stringJsonArrayEither.isRight()) {
                                                                         for (Object o : stringJsonArrayEither.right().getValue()) {
                                                                             JsonObject groupePeriode = (JsonObject) o;
-                                                                            groupePeriode.putString("id_groupe", idGroupe);
+                                                                            groupePeriode.put("id_groupe", idGroupe);
                                                                         }
                                                                         groupHandler.handle(new Either.Right<String, JsonArray>(stringJsonArrayEither.right().getValue()));
                                                                     } else {
@@ -236,8 +236,8 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
 
     @Override
     public void getTypePeriodes(Handler<Either<String, JsonArray>> handler) {
-        JsonArray fields = new JsonArray();
-        fields.addString("id").addString("type").addString("ordre");
+        JsonArray fields = new fr.wseduc.webutils.collections.JsonArray();
+        fields.add("id").add("type").add("ordre");
         Sql.getInstance().select("viesco.rel_type_periode", fields, validResultHandler(handler));
     }
 
@@ -262,7 +262,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                                                     if (stringEither.isRight()) {
                                                         final JsonObject[] periodesWithType = stringEither.right().getValue();
 
-                                                        JsonArray statement = new JsonArray();
+                                                        JsonArray statement = new fr.wseduc.webutils.collections.JsonArray();
 
                                                         statement.add(deletePeriodeStatement(idClasses));
                                                         statement.add(createPeriodeStatement(idEtablissement, idClasses, periodesWithType));
@@ -302,7 +302,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     @Override
     public void checkEvalOnPeriode(String[] idClasses, final Handler<Either<String, JsonObject>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
         query.append("SELECT devoirs.id ")
                 .append("FROM notes.devoirs ")
                 .append("LEFT JOIN notes.rel_devoirs_groupes ")
@@ -310,7 +310,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 .append("WHERE rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idClasses));
 
         for (String id : idClasses) {
-            values.addString(id);
+            values.add(id);
         }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(new Handler<Either<String, JsonArray>>() {
@@ -318,9 +318,9 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             public void handle(Either<String, JsonArray> stringJsonArrayEither) {
                 if (stringJsonArrayEither.isRight()) {
                     if(stringJsonArrayEither.right().getValue().size() == 0) {
-                        handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putBoolean("exist", false)));
+                        handler.handle(new Either.Right<String, JsonObject>(new JsonObject().put("exist", false)));
                     } else {
-                        handler.handle(new Either.Right<String, JsonObject>(new JsonObject().putBoolean("exist", true)));
+                        handler.handle(new Either.Right<String, JsonObject>(new JsonObject().put("exist", true)));
                     }
                 } else {
                     handler.handle(new Either.Left<String, JsonObject>(stringJsonArrayEither.left().getValue()));
@@ -337,7 +337,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         }
 
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT periode.id_type, MAX(periode.timestamp_dt) AS timestamp_dt, ")
                 .append("MIN(timestamp_fn) AS timestamp_fn, MIN(date_fin_saisie) AS date_fin_saisie ")
@@ -346,7 +346,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
 
         if(idEtablissement != null) {
             query.append("periode.id_etablissement = ? ");
-            values.addString(idEtablissement);
+            values.add(idEtablissement);
         }
         if(idEtablissement != null && idClasses != null && idClasses.length > 0) {
             query.append(" AND ");
@@ -355,7 +355,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             query.append("periode.id_classe IN ").append(Sql.listPrepared(idClasses));
 
             for (String id_groupe : idClasses) {
-                values.addString(id_groupe);
+                values.add(id_groupe);
             }
         }
         query.append(" GROUP BY periode.id_type");
@@ -372,14 +372,14 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         }
 
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT periode.* ")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + ".periode WHERE ");
 
         if (idEtablissement != null) {
             query.append("periode.id_etablissement = ? ");
-            values.addString(idEtablissement);
+            values.add(idEtablissement);
         }
         if (idEtablissement != null && idClasses != null && idClasses.length > 0) {
             query.append(" AND ");
@@ -387,7 +387,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         if (idClasses != null && idClasses.length > 0) {
             query.append("id_classe IN ").append(Sql.listPrepared(idClasses));
             for (String id_classe : idClasses) {
-                values.addString(id_classe);
+                values.add(id_classe);
             }
         }
 
@@ -410,7 +410,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     public void handle(final Either<String, JsonArray> stringJsonArrayEither) {
                         if (stringJsonArrayEither.isRight()) {
                             List<String> idClasses = new ArrayList<>();
-                            for(Object o : ((JsonObject) stringJsonArrayEither.right().getValue().iterator().next()).getArray("id_classes")) {
+                            for(Object o : ((JsonObject) stringJsonArrayEither.right().getValue().iterator().next()).getJsonArray("id_classes")) {
                                 idClasses.add((String) o);
                             }
 
@@ -488,8 +488,8 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         }
 
         //////////////// Setting id type by period ////////////////
-        final JsonArray values = new JsonArray();
-        values.addNumber(periodes.length);
+        final JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        values.add(periodes.length);
 
         Sql.getInstance().prepared("SELECT * FROM viesco.rel_type_periode WHERE type = ? ORDER BY ordre", values,
                 validResultHandler(new Handler<Either<String, JsonArray>>() {
@@ -505,7 +505,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                             }
 
                             for (int i = 0; i < result.size(); i++) {
-                                periodes[i].putNumber("id_type", ((JsonObject) result.get(i)).getLong("id"));
+                                periodes[i].put("id_type", (result.getJsonObject(i)).getLong("id"));
                             }
 
                             handler.handle(new Either.Right<String, JsonObject[]>(periodes));
@@ -605,7 +605,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             JsonObject result = new JsonObject();
             for (int i = 0; i < periodes.length; i++) {
                 if(errorList.get(i) != null) {
-                    result.putObject("periode " + String.valueOf(i), new JsonObject(errorList.get(i)));
+                    result.put("periode " + String.valueOf(i), new JsonObject(errorList.get(i)));
                 }
             }
             handler.handle(new Either.Left<JsonObject, Boolean>(result));
@@ -622,7 +622,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     for (Object o : stringJsonArrayEither.right().getValue()) {
                         JsonObject etab = (JsonObject) o;
                         mapEtab.put(etab.getString("idStructure"),
-                                etab.getArray("idClasses").toList());
+                                etab.getJsonArray("idClasses").getList());
                     }
 
                     if (mapEtab.keySet().size() > 1) {
@@ -660,7 +660,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     private JsonObject createPeriodeStatement(String idEtablissement, String[] idClasses, JsonObject[] periodes) {
 
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("INSERT INTO viesco.periode ")
                 .append("(id_etablissement, id_classe, timestamp_dt, timestamp_fn, date_fin_saisie,  id_type) ")
@@ -672,19 +672,19 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 query.append("( ?, ?, to_timestamp(?,'YYYY-MM-DD'), ");
 
                 query.append("to_timestamp(?,'YYYY-MM-DD'), to_timestamp(?,'YYYY-MM-DD'), ?),");
-                values.addString(idEtablissement);
-                values.addString(idClasse);
-                values.addString(periode.getString("timestamp_dt"));
-                values.addString(periode.getString("timestamp_fn"));
-                values.addString(periode.getString("date_fin_saisie"));
-                values.addNumber(periode.getNumber("id_type"));
+                values.add(idEtablissement);
+                values.add(idClasse);
+                values.add(periode.getString("timestamp_dt"));
+                values.add(periode.getString("timestamp_fn"));
+                values.add(periode.getString("date_fin_saisie"));
+                values.add(periode.getInteger("id_type"));
             }
         }
         query.deleteCharAt(query.length() - 1);
         return new JsonObject()
-                .putString("statement", query.toString())
-                .putArray("values", values)
-                .putString("action", "prepared");
+                .put("statement", query.toString())
+                .put("values", values)
+                .put("action", "prepared");
     }
 
     /**
@@ -694,18 +694,18 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
      */
     private JsonObject deletePeriodeStatement(String[] idClasses) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("DELETE FROM viesco.periode WHERE id_classe IN " + Sql.listPrepared(idClasses));
 
         for(String id : idClasses) {
-            values.addString(id);
+            values.add(id);
         }
 
         return new JsonObject()
-                .putString("statement", query.toString())
-                .putArray("values", values)
-                .putString("action", "prepared");
+                .put("statement", query.toString())
+                .put("values", values)
+                .put("action", "prepared");
     }
     /**
      * Supprime les periodes passees en parametre
@@ -714,7 +714,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
      */
     private JsonObject updatePeriodesDevoir(String[] idClasses) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("UPDATE notes.devoirs " )
                 .append(" SET id_periode = subquery.id_type" )
@@ -728,15 +728,15 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 .append("                WHERE rel_devoirs_groupes.id_groupe IN  " + Sql.listPrepared(idClasses) + ")");
 
         for(String id : idClasses) {
-            values.addString(id);
+            values.add(id);
         }
         for(String id : idClasses) {
-            values.addString(id);
+            values.add(id);
         }
         return new JsonObject()
-                .putString("statement", query.toString())
-                .putArray("values", values)
-                .putString("action", "prepared");
+                .put("statement", query.toString())
+                .put("values", values)
+                .put("action", "prepared");
     }
 
     private void getTypeGroupe(String[] id_classes, final Handler<Either<String, Map<Boolean, List<String>>>> handler) {

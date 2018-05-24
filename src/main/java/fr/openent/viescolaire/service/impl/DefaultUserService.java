@@ -22,21 +22,23 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.neo4j.Neo4j;
-import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -71,7 +73,7 @@ public class DefaultUserService implements UserService {
         }
         query.append(" WHERE fk4j_user_id = ?;");
 
-        Sql.getInstance().prepared(query.toString(), new JsonArray().addString(user.getUserId()),
+        Sql.getInstance().prepared(query.toString(), new fr.wseduc.webutils.collections.JsonArray().add(user.getUserId()),
                 SqlResult.validUniqueResultHandler(handler));
     }
 
@@ -81,9 +83,9 @@ public class DefaultUserService implements UserService {
         StringBuilder query = new StringBuilder()
                 .append("SELECT * FROM " + Viescolaire.VSCO_SCHEMA + ".structure " +
                         "WHERE structure.fk4j_structure_id IN " + Sql.listPrepared(structures.toArray()));
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
         for (int i = 0; i < structures.size(); i++) {
-            params.addString(structures.get(i));
+            params.add(structures.get(i));
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
@@ -91,12 +93,12 @@ public class DefaultUserService implements UserService {
     @Override
     public void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         List<String> classes = user.getClasses();
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
         StringBuilder query = new StringBuilder()
                 .append("SELECT * FROM " + Viescolaire.VSCO_SCHEMA + ".classe " +
                         "WHERE classe.fk4j_classe_id IN " + Sql.listPrepared(classes.toArray()));
         for (int i = 0; i < classes.size(); i++) {
-            params.addString(classes.get(i));
+            params.add(classes.get(i));
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
@@ -104,14 +106,14 @@ public class DefaultUserService implements UserService {
     @Override
     public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
         switch (user.getType()) {
             case "Teacher" : {
                 query.append("SELECT matiere.* " +
                         "FROM " + Viescolaire.VSCO_SCHEMA + ".matiere " +
                         "INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".personnel ON (personnel.id = matiere.id_professeur)" +
                         "WHERE personnel.fk4j_user_id = ?");
-                params.addString(user.getUserId());
+                params.add(user.getUserId());
             }
             break;
             case "Eleve" : {
@@ -122,12 +124,12 @@ public class DefaultUserService implements UserService {
                         "INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".classe ON (rel_personnel_classe.id_classe = classe.id) " +
                         "WHERE classe.externalid IN " + Sql.listPrepared(classes.toArray()));
                 for (int i = 0; i < classes.size(); i++) {
-                    params.addString(classes.get(i));
+                    params.add(classes.get(i));
                 }
             }
             break;
             default : {
-                handler.handle(new Either.Right<String, JsonArray>(new JsonArray()));
+                handler.handle(new Either.Right<String, JsonArray>(new fr.wseduc.webutils.collections.JsonArray()));
             }
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
@@ -136,26 +138,26 @@ public class DefaultUserService implements UserService {
     @Override
     public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler) {
         JsonObject action = new JsonObject()
-                .putString("action", "note.getNotesParElevesParDevoirs")
-                .putArray("idEleves", new JsonArray().addString(idEleve))
-                .putArray("idDevoirs", new JsonArray(idDevoirs));
+                .put("action", "note.getNotesParElevesParDevoirs")
+                .put("idEleves", new fr.wseduc.webutils.collections.JsonArray().add(idEleve))
+                .put("idDevoirs", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idDevoirs)));
 
-        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> message) {
                 if ("ok".equals(message.body().getString("status"))) {
-                    JsonArray notes = new JsonArray();
-                    JsonArray listNotes = message.body().getArray("results");
+                    JsonArray notes = new fr.wseduc.webutils.collections.JsonArray();
+                    JsonArray listNotes = message.body().getJsonArray("results");
 
                     for (int i = 0; i < listNotes.size(); i++) {
 
-                        JsonObject note = listNotes.get(i);
+                        JsonObject note = listNotes.getJsonObject(i);
 
                         JsonObject noteDevoir = new JsonObject()
-                                .putNumber("valeur", Double.valueOf(note.getString("valeur")))
-                                .putNumber("diviseur", Double.valueOf(note.getString("diviseur")))
-                                .putBoolean("ramenerSur", note.getBoolean("ramener_sur"))
-                                .putNumber("coefficient", Double.valueOf(note.getString("coefficient")));
+                                .put("valeur", Double.valueOf(note.getString("valeur")))
+                                .put("diviseur", Double.valueOf(note.getString("diviseur")))
+                                .put("ramenerSur", note.getBoolean("ramener_sur"))
+                                .put("coefficient", Double.valueOf(note.getString("coefficient")));
 
                         notes.add(noteDevoir);
                     }
@@ -164,24 +166,24 @@ public class DefaultUserService implements UserService {
 
                     if (notes.size() > 0) {
                         JsonObject action = new JsonObject()
-                                .putString("action", "note.calculMoyenne")
-                                .putArray("listeNoteDevoirs", notes)
-                                .putBoolean("statistiques", false)
-                                .putNumber("diviseurM", 20);
+                                .put("action", "note.calculMoyenne")
+                                .put("listeNoteDevoirs", notes)
+                                .put("statistiques", false)
+                                .put("diviseurM", 20);
 
-                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, new Handler<Message<JsonObject>>() {
+                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
                             @Override
                             public void handle(Message<JsonObject> message) {
                                 Either<String, JsonObject> result = null;
                                 if ("ok".equals(message.body().getString("status"))) {
-                                    result = new Either.Right<String, JsonObject>(message.body().getObject("result"));
+                                    result = new Either.Right<String, JsonObject>(message.body().getJsonObject("result"));
                                     handler.handle(result);
                                 } else {
                                     result = new Either.Left<>(message.body().getString("message"));
                                     handler.handle(result);
                                 }
                             }
-                        });
+                        }));
                     } else {
                         result = new Either.Right<>(new JsonObject());
                     }
@@ -190,7 +192,7 @@ public class DefaultUserService implements UserService {
                     handler.handle(new Either.Left<String, JsonObject>(message.body().getString("message")));
                 }
             }
-        });
+        }));
     }
 
     @Override
@@ -205,25 +207,25 @@ public class DefaultUserService implements UserService {
             String uQuery =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, first_name, last_name) " +
                     "VALUES (?, ?, ?, ?, ?);";
-            JsonArray uParams = new JsonArray()
-                    .addString(user.getString("id"))
-                    .addString(user.getString("displayName"))
-                    .addString(user.getString("type"))
-					.addString(user.getString("firstName"))
-					.addString(user.getString("lastName"));
+            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                    .add(user.getString("id"))
+                    .add(user.getString("displayName"))
+                    .add(user.getString("type"))
+					.add(user.getString("firstName"))
+					.add(user.getString("lastName"));
 
             statements.prepared(uQuery, uParams);
 
-            if (user.containsField("classIds") && user.getArray("classIds").size() > 0) {
-               formatGroups(user.getArray("classIds"), user.getString("id"), statements, Viescolaire.CLASSE_TYPE);
+            if (user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0) {
+               formatGroups(user.getJsonArray("classIds"), user.getString("id"), statements, Viescolaire.CLASSE_TYPE);
             }
 
-            if (user.containsField("groupIds") && user.getArray("groupIds").size() > 0) {
-                formatGroups(user.getArray("groupIds"), user.getString("id"), statements, Viescolaire.GROUPE_TYPE);
+            if (user.containsKey("groupIds") && user.getJsonArray("groupIds").size() > 0) {
+                formatGroups(user.getJsonArray("groupIds"), user.getString("id"), statements, Viescolaire.GROUPE_TYPE);
             }
 
-            if (user.containsField("structureIds") && user.getArray("structureIds").size() > 0) {
-                formatStructure(user.getArray("structureIds"), user.getString("id"), statements);
+            if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {
+                formatStructure(user.getJsonArray("structureIds"), user.getString("id"), statements);
             }
         }
         Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
@@ -241,10 +243,10 @@ public class DefaultUserService implements UserService {
             String query =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp(id_groupe, id_user, type_groupe) " +
                     "VALUES (?, ?, ?);";
-            JsonArray params = new JsonArray()
-                    .addString(ids.get(i).toString())
-                    .addString(userId)
-                    .addNumber(type);
+            JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+                    .add(ids.getString(i))
+                    .add(userId)
+                    .add(type);
             statements.prepared(query, params);
         }
     }
@@ -269,9 +271,9 @@ public class DefaultUserService implements UserService {
             String query =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp(id_structure, id_user) " +
                             "VALUES (?, ?);";
-            JsonArray params = new JsonArray()
-                    .addString(ids.get(i).toString())
-                    .addString(userId);
+            JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+                    .add(ids.getString(i))
+                    .add(userId);
             statements.prepared(query, params);
         }
     }
@@ -285,7 +287,7 @@ public class DefaultUserService implements UserService {
     public void getActivesIDsStructures(UserInfos userInfos, String module,
                                         Handler<Either<String, JsonArray>> handler) {
         StringBuilder query =new StringBuilder();
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT id_etablissement ")
                 .append("FROM "+ module +".etablissements_actifs  ")
@@ -293,7 +295,7 @@ public class DefaultUserService implements UserService {
                 .append(" AND actif = TRUE");
 
         for(String idStructure :  userInfos.getStructures()){
-            params.addString(idStructure);
+            params.add(idStructure);
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
     }
@@ -309,9 +311,9 @@ public class DefaultUserService implements UserService {
         SqlStatementsBuilder s = new SqlStatementsBuilder();
         JsonObject data = new JsonObject();
         String userQuery = "SELECT " + module + ".merge_users(?,?)";
-        s.prepared(userQuery, (new JsonArray()).add(user.getUserId()).add(user.getUsername()));
-        data.putString("id_etablissement", id);
-        data.putBoolean("actif", true);
+        s.prepared(userQuery, (new fr.wseduc.webutils.collections.JsonArray()).add(user.getUserId()).add(user.getUsername()));
+        data.put("id_etablissement", id);
+        data.put("actif", true);
         s.insert(module + ".etablissements_actifs ", data, "id_etablissement");
         Sql.getInstance().transaction(s.build(), SqlResult.validResultHandler(handler));
 
@@ -325,21 +327,21 @@ public class DefaultUserService implements UserService {
     @Override
     public void deleteActiveStructure(String id, String module, Handler<Either<String, JsonArray>> handler) {
         String query = "DELETE FROM " + module + ".etablissements_actifs WHERE id_etablissement = ?";
-        Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
+        Sql.getInstance().prepared(query, (new fr.wseduc.webutils.collections.JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
     }
 
     @Override
     public void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler){
         StringBuilder query= new StringBuilder();
         query.append("MATCH(s:Structure) WHERE s.id={id} RETURN s.UAI as uai");
-        Neo4j.getInstance().execute(query.toString(), new JsonObject().putString("id", idEtabl), Neo4jResult.validUniqueResultHandler(handler));
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id", idEtabl), Neo4jResult.validUniqueResultHandler(handler));
     }
 
     @Override
     public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>> handler){
         StringBuilder query=new StringBuilder();
         query.append("MATCH (u:User) WHERE u.id IN {id} RETURN u.externalId as externalId, u.displayName as displayName");
-        Neo4j.getInstance().execute(query.toString(), new JsonObject().putArray("id",new JsonArray(idsResponsable.toArray())), Neo4jResult.validResultHandler(handler));
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(idsResponsable)), Neo4jResult.validResultHandler(handler));
     }
 
     @Override
@@ -350,7 +352,7 @@ public class DefaultUserService implements UserService {
         query.append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,");
         query.append("r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
         query.append("c.id as idClass, c.name as nameClass, c.externalId as externalIdClass ORDER BY nameClass, lastName");
-        param.putArray("idClass", new JsonArray(idsClass.toArray()));
+        param.put("idClass", new fr.wseduc.webutils.collections.JsonArray(idsClass));
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
 
@@ -362,9 +364,9 @@ public class DefaultUserService implements UserService {
           query.append("FROM notes.domaines INNER JOIN notes.rel_groupe_cycle ");
           query.append("ON notes.domaines.id_cycle= notes.rel_groupe_cycle.id_cycle ");
           query.append("WHERE notes.rel_groupe_cycle.id_groupe = ? AND code_domaine IS NOT NULL");
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
 
-        params.addString(idClass);
+        params.add(idClass);
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
 
     }
@@ -375,7 +377,7 @@ public class DefaultUserService implements UserService {
                 "WHERE ANY(function IN u.functions WHERE function =~ '(?i).*\\\\$DIR\\\\$.*')" +
                 " RETURN u.id as id, u.displayName as displayName, u.externalId as externalId";
         JsonObject param = new JsonObject();
-        param.putString("structureId",idStructure);
+        param.put("structureId",idStructure);
         Neo4j.getInstance().execute(query,param,Neo4jResult.validResultHandler(handler));
     }
 
@@ -390,7 +392,7 @@ public class DefaultUserService implements UserService {
         StringBuilder query = new StringBuilder();
         query.append("MATCH (m:User {id: {id}})<-[:RELATED]-(n:User)")
                 .append("RETURN n.id as id, n.firstName as firstName, n.lastName as lastName,  n.level as level, n.classes as classes, n.birthDate as birthDate ORDER BY lastName");
-        neo4j.execute(query.toString(), new JsonObject().putString("id", idUser), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("id", idUser), Neo4jResult.validResultHandler(handler));
     }
 
     /**
@@ -404,7 +406,7 @@ public class DefaultUserService implements UserService {
         query.append("MATCH (u:User)")
                 .append("WHERE ANY (x IN u.profiles WHERE x IN ['Teacher', 'Personnel']) AND u.id IN {idPersonnel}")
                 .append("RETURN u.id as id, u.lastName as lastName, u.firstName as firstName, u.emailAcademy as emailAcademy");
-        neo4j.execute(query.toString(), new JsonObject().putArray("idPersonnel", new JsonArray(idPersonnels.toArray())), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("idPersonnel", new fr.wseduc.webutils.collections.JsonArray(idPersonnels)), Neo4jResult.validResultHandler(handler));
 
     }
 
@@ -422,24 +424,24 @@ public class DefaultUserService implements UserService {
                         "OPTIONAL MATCH u-[rf:HAS_FUNCTION]->fg-[:CONTAINS_FUNCTION*0..1]->(f:Function) ";
         if (expectedProfiles != null && expectedProfiles.size() > 0) {
             filterProfile += "AND p.name IN {expectedProfiles} ";
-            params.putArray("expectedProfiles", expectedProfiles);
+            params.put("expectedProfiles", expectedProfiles);
         }
         if (classId != null && !classId.trim().isEmpty()) {
             filter = "(n:Class {id : {classId}})<-[:DEPENDS]-(g:ProfileGroup)<-[:IN]-";
-            params.putString("classId", classId);
+            params.put("classId", classId);
         } else if (structureId != null && !structureId.trim().isEmpty()) {
             filter = "(n:Structure {id : {structureId}})<-[:DEPENDS]-(g:ProfileGroup)<-[:IN]-";
-            params.putString("structureId", structureId);
+            params.put("structureId", structureId);
         } else if (groupId != null && !groupId.trim().isEmpty()) {
             filter = "(n:Group {id : {groupId}})<-[:IN]-";
-            params.putString("groupId", groupId);
+            params.put("groupId", groupId);
         }
         String condition = "";
         String functionMatch = "WITH u MATCH (s:Structure)<-[:DEPENDS]-(pg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile), u-[:IN]->pg ";
 
         if(nameFilter != null && !nameFilter.trim().isEmpty()){
             condition += "AND u.displayName =~ {regex}  ";
-            params.putString("regex", "(?i)^.*?" + Pattern.quote(nameFilter.trim()) + ".*?$");
+            params.put("regex", "(?i)^.*?" + Pattern.quote(nameFilter.trim()) + ".*?$");
         }
         if(filterActivated != null){
             if("inactive".equals(filterActivated)){

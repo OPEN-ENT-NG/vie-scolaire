@@ -25,11 +25,11 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +53,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getClasseCours(String pSDateDebut, String pSDateFin, List<String> listIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT" );
                 query.append("   cours.*, ");
@@ -84,16 +84,16 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("cours.timestamp_fn ASC;");
 
         for (Integer i=0; i< listIdClasse.size(); i++){
-            values.addString(listIdClasse.get(i));
+            values.add(listIdClasse.get(i));
         }
-        values.addString(pSDateDebut).addString(pSDateFin);
+        values.add(pSDateDebut).add(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
     @Override
     public void getClasseCoursBytime(String pSDateDebut, String pSDateFin, String pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT cours.* , appel.id id_appel, rel_cours_groupes.id_groupe as id_classe ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
@@ -107,14 +107,14 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 .append("ORDER BY cours.timestamp_fn ASC");
 
 
-        values.addString(pLIdClasse).addString(pSDateFin).addString(pSDateDebut).addString(pSDateDebut).addString(pSDateFin);
+        values.add(pLIdClasse).add(pSDateFin).add(pSDateDebut).add(pSDateDebut).add(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
     @Override
     public void getCoursByStudentId(String pSDateDebut, String pSDateFin, String[] pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT cours.*, appel.id id_appel, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
                 .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
@@ -126,10 +126,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         for(int i = 0; i < pLIdClasse.length; i++) {
             if(i == pLIdClasse.length-1){
                 query.append("?) ");
-                values.addString(pLIdClasse[i]);
+                values.add(pLIdClasse[i]);
             }else{
                 query.append("?,");
-                values.addString(pLIdClasse[i]);
+                values.add(pLIdClasse[i]);
             }
         }
         query.append("AND ( ( cours.timestamp_dt <= to_timestamp(? ,'YYYY-MM-DD HH24:MI:SS') ")
@@ -140,7 +140,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 .append("ORDER BY cours.timestamp_fn ASC");
 
 
-        values.addString(pSDateFin).addString(pSDateDebut).addString(pSDateDebut).addString(pSDateFin);
+        values.add(pSDateFin).add(pSDateDebut).add(pSDateDebut).add(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
@@ -148,7 +148,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT" );
         query.append("   cours.*, ");
@@ -179,10 +179,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         query.append("ORDER BY ");
         query.append("cours.timestamp_fn ASC;");
 
-        values.addString(psUserId);
-        values.addString(structureId);
-        values.addString(pSDateDebut);
-        values.addString(pSDateFin);
+        values.add(psUserId);
+        values.add(structureId);
+        values.add(pSDateDebut);
+        values.add(pSDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
@@ -190,14 +190,14 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getCoursById(List<Long> idCours, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT cours.*")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + ".cours ")
                 .append("WHERE id IN " + Sql.listPrepared(idCours.toArray()));
 
         for(Long l : idCours) {
-            values.addNumber(l);
+            values.add(l);
         }
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
@@ -209,7 +209,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         log.debug("DEBUG : DEBUT : createCours");
 
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT cours.*, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ");
         query.append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ");
@@ -233,7 +233,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
             public void handle(Either<String, JsonObject> result) {
                 if(result.isRight()){
                     boolean coursFoundButNotEquals = false;
-                    if (result.right().getValue().toMap().size() != 0){
+                    if (result.right().getValue().size() != 0){
                         // On récupère les classes et on les prépare pour la comparaison
                         String[] arrayClasses = listIdClasse.toArray(new String[0]);
                         String[] arrayClassesFound  = result.right().getValue().getString("classes").split(",");
@@ -252,7 +252,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                         }
                     }
 
-                    if(coursFoundButNotEquals || result.right().getValue().toMap().size() == 0){
+                    if(coursFoundButNotEquals || result.right().getValue().size() == 0){
 
                         final String queryNewCours =
                                 "SELECT nextval('" + Viescolaire.VSCO_SCHEMA + ".cours_id_seq') as id";
@@ -264,11 +264,11 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                                     Long idCours = event.right().getValue().getLong("id");
 
                                     StringBuilder query = new StringBuilder();
-                                    JsonArray values = new JsonArray();
-                                    JsonArray statements = new JsonArray();
+                                    JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+                                    JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
 
                                     //#4 - Insert cours
-                                    values = new JsonArray();
+                                    values = new fr.wseduc.webutils.collections.JsonArray();
                                     query = new StringBuilder();
                                     // Query & value
                                     query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".cours ");
@@ -282,12 +282,12 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                                     values.add(idMatiere);
 
                                     // Ajout du statement
-                                    statements.add(new JsonObject().putString("statement", query.toString())
-                                            .putArray("values", values).putString("action", "prepared"));
+                                    statements.add(new JsonObject().put("statement", query.toString())
+                                            .put("values", values).put("action", "prepared"));
 
                                     //#4.1 Insert dans rel_cours_groupes
                                     if (listIdClasse != null && !listIdClasse.isEmpty()) {
-                                        values = new JsonArray();
+                                        values = new fr.wseduc.webutils.collections.JsonArray();
                                         query = new StringBuilder();
                                         // Query & value
                                         query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ");
@@ -305,13 +305,13 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                                         }
 
                                         // Ajout du statement
-                                        statements.add(new JsonObject().putString("statement", query.toString())
-                                                .putArray("values", values).putString("action", "prepared"));
+                                        statements.add(new JsonObject().put("statement", query.toString())
+                                                .put("values", values).put("action", "prepared"));
                                     }
 
                                     //#4.2 Insert dans rel_cours_users
                                     if (listIdPersonnel != null && !listIdPersonnel.isEmpty()) {
-                                        values = new JsonArray();
+                                        values = new fr.wseduc.webutils.collections.JsonArray();
                                         query = new StringBuilder();
                                         // Query & value
                                         query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ");
@@ -330,8 +330,8 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                                     }
 
                                     // Ajout du statement
-                                    statements.add(new JsonObject().putString("statement", query.toString())
-                                            .putArray("values", values).putString("action", "prepared"));
+                                    statements.add(new JsonObject().put("statement", query.toString())
+                                            .put("values", values).put("action", "prepared"));
 
                                     Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
                                     log.debug("DEBUG : FIN : createCours");

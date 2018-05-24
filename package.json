@@ -7,8 +7,7 @@
     "axios": "^0.17.1",
     "entcore": "~3.0.0-dev.1",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
-    "ts-loader": "^3.3.0",
-    "typescript": "^2.4.1"
+    "ts-loader": "^3.3.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,23 +24,23 @@
   "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
   "devDependencies": {
     "@types/core-js": "^0.9.45",
-    "@types/node": "^7.0.5",
-    "bower": "^1.7.9",
-    "colors": "^1.1.2",
-    "core-js": "^2.4.1",
+    "@types/node": "^7.0.64",
+    "bower": "^1.8.4",
+    "colors": "^1.2.5",
+    "core-js": "^2.5.6",
     "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",
     "gulp-clean": "^0.3.2",
     "gulp-modify": "^0.1.1",
     "gulp-rev": "^7.0.0",
-    "gulp-rev-replace": "^0.4.3",
-    "gulp-sourcemaps": "^1.6.0",
+    "gulp-rev-replace": "^0.4.4",
+    "gulp-sourcemaps": "^1.12.1",
     "gulp-typescript": "2.12.2",
     "gulp-watch": "^4.3.5",
-    "merge2": "^1.0.2",
+    "merge2": "^1.2.2",
     "source-map-loader": "^0.1.5",
-    "typescript": "2.1.1",
+    "typescript": "^2.8.3",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.1.0"
   }

@@ -12,10 +12,10 @@ import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -50,13 +50,13 @@ public class GroupeEnseignementController extends ControllerHelper {
                             if(event.isRight()){
                                 JsonArray r = event.right().getValue();
                                 JsonObject groupeEnseignement, g;
-                                JsonArray groupesEnseignementJsonArray = new JsonArray();
+                                JsonArray groupesEnseignementJsonArray = new fr.wseduc.webutils.collections.JsonArray();
 
                                 for(int i = 0; i < r.size(); i++){
-                                    JsonObject o = r.get(i);
-                                    g = o.getObject("g");
-                                    groupeEnseignement = g.getObject("data");
-                                    groupesEnseignementJsonArray.addObject(groupeEnseignement);
+                                    JsonObject o = r.getJsonObject(i);
+                                    g = o.getJsonObject("g");
+                                    groupeEnseignement = g.getJsonObject("data");
+                                    groupesEnseignementJsonArray.add(groupeEnseignement);
                                 }
 
                                 Renders.renderJson(request, groupesEnseignementJsonArray);

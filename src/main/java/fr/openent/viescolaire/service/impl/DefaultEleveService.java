@@ -27,11 +27,12 @@ import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -50,14 +51,14 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
                 .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes ORDER BY lastName");
 
-        neo4j.execute(query.toString(), new JsonObject().putString("idClasse", pSIdClasse), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("idClasse", pSIdClasse), Neo4jResult.validResultHandler(handler));
 
     }
 
     @Override
     public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT evenement.* ")
                 .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
@@ -67,9 +68,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("AND to_date(?, 'DD-MM-YYYY') < cours.timestamp_dt ")
                 .append("AND cours.timestamp_fn < to_date(?, 'DD-MM-YYYY')");
 
-        values.addNumber(new Integer(psIdEleve));
-        values.addString(psDateDebut);
-        values.addString(psDateFin);
+        values.add(new Integer(psIdEleve));
+        values.add(psDateDebut);
+        values.add(psDateFin);
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
@@ -80,7 +81,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append(" MATCH (u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and s.id = {idEtab}  with u ")
                 .append("Optional MATCH (g:FunctionalGroup)<-[IN]-(u) ")
                 .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName, u.birthDate as birthDate, u.level as level, collect(g.id) as groupesId, u.classes as classesId  ");
-        neo4j.execute(query.toString(), new JsonObject().putString("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
     }
 
     @Override
@@ -89,7 +90,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append(" MATCH (f:FunctionalGroup)<-[i:IN]-(u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) where u.profiles= [\"Student\"] and s.id = {idEtab}  with u, collect(f.id) as f ")
                 .append("Match (c:Class) where c.externalId IN u.classes ")
                 .append("RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, collect(c.id) as classes ,f as groupes");
-        neo4j.execute(query.toString(), new JsonObject().putString("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("idEtab", idEtab), Neo4jResult.validResultHandler(handler));
     }
 
     @Override
@@ -101,7 +102,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("WHERE u.id= {idEleve} ")
                 .append("RETURN r.id AS id, r.address AS address, r.city AS city, r.zipCode AS zipCode, r.country AS country, ")
                 .append("r.lastName AS lastName, r.firstName AS firstName, r.homePhone AS homePhone, r.workPhone AS workPhone, r.mobilePhone AS mobilePhone");
-        params.putString("idEleve", idEleve);
+        params.put("idEleve", idEleve);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -119,7 +120,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" WHERE j in u.classes and f.code in u.fieldOfStudy and s.externalId in u.structures ")
                 .append("  return ens.id as id, ens.firstName as firstName, ens.surname as name, f.id as id_matiere")
                 .append(" , f.label as name_matiere");
-        params.putString("idEleve", idEleve);
+        params.put("idEleve", idEleve);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -133,7 +134,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("MATCH (c:Class) where c.externalId IN u.classes ")
                 .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, c.id as idClasse, c.name as classeName, s.id as idEtablissement, f as idGroupes ")
                 .append("ORDER BY lastName");
-        params.putArray("idEleves", new JsonArray(idEleves));
+        params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -146,7 +147,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append("MATCH (u:`User`) WHERE u.id IN {idUsers} ")
                 .append("RETURN u.id as id, u.firstName as firstName, u.surname as name, u.displayName as displayName, ")
                 .append("u as data ");
-        params.putArray("idUsers", idUsers);
+        params.put("idUsers", idUsers);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
@@ -154,7 +155,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
                 .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
@@ -163,10 +164,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" inner JOIN notes.annotations on annotations.id = id_annotation ")
                 .append(" inner join notes.type on devoirs.id_type = type.id  ")
                 .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
-        values.addString(idEleve);
+        values.add(idEleve);
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
-            values.addNumber(idPeriode);
+            values.add(idPeriode);
         }
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
@@ -174,7 +175,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups,
                                Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         // competences_notes.id IN " + Sql.listPrepared(idNotes.toArray())
         query.append( "SELECT res.id_devoir,id_competence , max(evaluation) as evaluation, owner, id_eleve, ")
@@ -192,10 +193,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" inner join notes.type on devoirs.id_type = type.id ")
                 .append(" INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
                 .append(" WHERE date_publication <= Now() AND id_eleve = ? ");
-        values.addString(idEleve);
+        values.add(idEleve);
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
-            values.addNumber(idPeriode);
+            values.add(idPeriode);
         }
         query.append(" UNION ")
                 .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
@@ -209,15 +210,15 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" inner JOIN notes.rel_devoirs_groupes on ")
                 .append(" competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
                 .append(" inner join "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
-                .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.toArray()))
+                .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()))
                 .append(" WHERE date_publication <= Now()") ;
-        values.addString(idEleve);
+        values.add(idEleve);
         for (int i = 0; i < idGroups.size(); i++) {
-            values.add(idGroups.get(i));
+            values.add(idGroups.getString(i));
         }
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
-            values.addNumber(idPeriode);
+            values.add(idPeriode);
         }
         query.append(" ) AS res ")
                 .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )
@@ -229,22 +230,22 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
         query.append("SELECT id_cycle ")
                 .append(" FROM notes.rel_groupe_cycle ")
                 .append(" WHERE id_groupe = ? ");
-        values.addString(idClasse);
+        values.add(idClasse);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override
     public void getAppreciationDevoir(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
         query.append("SELECT valeur as appreciation  ")
                 .append(" FROM notes.appreciations INNER JOIN notes.devoirs  ON appreciations.id_devoir = devoirs.id ")
                 .append(" WHERE id_eleve = ?  AND id_devoir = ? AND devoirs.apprec_visible = true");
-        values.addString(idEleve);
-        values.addNumber(idDevoir);
+        values.add(idEleve);
+        values.add(idDevoir);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override
@@ -258,7 +259,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" UNION MATCH (n:ManualGroup)-[:IN]-(u:User{id:{userId}}) ")
                 .append(" WITH  n, u ")
                 .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe ");
-        params.putString("userId", idEleve);
+        params.put("userId", idEleve);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }

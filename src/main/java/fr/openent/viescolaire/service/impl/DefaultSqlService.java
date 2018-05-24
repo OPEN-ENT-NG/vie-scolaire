@@ -23,9 +23,9 @@ import fr.openent.viescolaire.service.SqlService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Created by ledunoiss on 01/03/2017.

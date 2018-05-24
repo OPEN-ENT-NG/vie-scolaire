@@ -7,9 +7,9 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,8 +50,8 @@ public class DefaultUtilsService implements UtilsService{
                 .append(" MATCH (g:ManualGroup) WHERE g.id IN {id_classes} RETURN g.id AS id, NOT(g IS NOT NULL) ")
                 .append(" AS isClass ");
 
-        values.putArray("id_classes", new JsonArray(id_classes))
-                .putArray("id_classes", new JsonArray(id_classes));
+        values.put("id_classes", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(id_classes)))
+                .put("id_classes", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(id_classes)));
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -61,8 +61,8 @@ public class DefaultUtilsService implements UtilsService{
         JsonObject values = new JsonObject();
         JsonObject o;
         for (int i = 0; i < list.size(); i++) {
-            o = list.get(i);
-            values.putNumber(o.getString(key), o.getNumber(value));
+            o = list.getJsonObject(i);
+            values.put(o.getString(key), o.getInteger(value));
         }
         return values;
     }
@@ -72,8 +72,8 @@ public class DefaultUtilsService implements UtilsService{
         JsonObject values = new JsonObject();
         JsonObject o;
         for (int i = 0; i < list.size(); i++) {
-            o = list.get(i);
-            values.putString(o.getString(key), o.getString(value));
+            o = list.getJsonObject(i);
+            values.put(o.getString(key), o.getString(value));
         }
         return values;
     }
@@ -81,7 +81,7 @@ public class DefaultUtilsService implements UtilsService{
     @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
-            recipient.add(list.get(i));
+            recipient.add(list.getString(i));
         }
         return recipient;
     }
@@ -97,7 +97,7 @@ public class DefaultUtilsService implements UtilsService{
      */
     public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT DISTINCT id_titulaire ")
                 .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_professeurs_remplacants ")

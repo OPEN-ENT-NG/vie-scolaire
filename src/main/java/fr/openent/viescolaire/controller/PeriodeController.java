@@ -33,10 +33,10 @@ import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,8 +135,8 @@ public class PeriodeController extends ControllerHelper {
                         public void handle(JsonObject resource) {
 
                             final String idEtablissement = resource.getString("idEtablissement");
-                            final String[] idClasses = Arrays.asList(resource.getArray("idClasses").toArray()).toArray(new String[0]);
-                            final JsonObject[] periodes = utilsService.convertTo(resource.getArray("periodes").toArray());
+                            final String[] idClasses = (String[]) resource.getJsonArray("idClasses").getList().toArray(new String[0]);
+                            final JsonObject[] periodes = utilsService.convertTo(resource.getJsonArray("periodes").getList().toArray());
 
                             if (idEtablissement == null || idClasses.length == 0 || periodes.length == 0) {
                                 badRequest(request);

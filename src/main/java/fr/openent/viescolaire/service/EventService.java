@@ -1,7 +1,7 @@
 package fr.openent.viescolaire.service;
 
 import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 
 public interface EventService {
 

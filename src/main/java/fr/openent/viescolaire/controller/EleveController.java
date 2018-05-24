@@ -30,10 +30,10 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
@@ -113,7 +113,7 @@ public class EleveController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getUsersById(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        final JsonArray idUsers = new JsonArray(request.params().getAll("idUser").toArray());
+        final JsonArray idUsers = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idUser"));
         eleveService.getUsers(idUsers,handler);
     }
 
@@ -133,7 +133,7 @@ public class EleveController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getUsersByIdBis(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        final JsonArray idUsers = new JsonArray(request.params().getAll("idUser").toArray());
+        final JsonArray idUsers = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idUser"));
         eleveService.getUsers(idUsers,handler);
     }
 
@@ -166,12 +166,12 @@ public class EleveController extends ControllerHelper {
                 if (request.params().get("idPeriode") != null) {
                     idPeriode = testLongFormatParameter("idPeriode", request);
                 }
-                JsonArray idGroups = new JsonArray().add(idClasse);
+                JsonArray idGroups = new fr.wseduc.webutils.collections.JsonArray().add(idClasse);
                 if (event.isRight()) {
                     JsonArray values = event.right().getValue();
                     if (values.size() > 0) {
                         for (int i=0; i < values.size(); i++) {
-                            JsonObject o = values.get(i);
+                            JsonObject o = values.getJsonObject(i);
                             idGroups.add(o.getString("id_groupe"));
                         }
                     }

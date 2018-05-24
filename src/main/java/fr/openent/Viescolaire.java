@@ -23,8 +23,8 @@ import fr.openent.viescolaire.controller.*;
 import fr.openent.viescolaire.controller.EleveController;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import org.entcore.common.http.BaseServer;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 
 public class Viescolaire extends BaseServer {
 
@@ -77,12 +77,12 @@ public class Viescolaire extends BaseServer {
 	public static JsonObject LSUN_CONFIG;
 
 	@Override
-	public void start() {
+	public void start() throws Exception {
 		super.start();
 
         final EventBus eb = getEventBus(vertx);
 
-		LSUN_CONFIG = config.getObject("lsun");
+		LSUN_CONFIG = config.getJsonObject("lsun");
         /*
 			DISPLAY CONTROLLER
 		 */

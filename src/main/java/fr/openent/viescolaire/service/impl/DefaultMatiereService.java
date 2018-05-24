@@ -26,9 +26,9 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         query.append("MATCH (u:`User` {id:{userId}}),(s:Structure)<-[:SUBJECT]-(f:Subject)")
         .append(" WHERE f.code in u.fieldOfStudy and s.externalId in u.structures")
         .append(" return f.id as id, f.code as externalId, f.label as name");
-        values.putString("userId", userId);
+        values.put("userId", userId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -67,7 +67,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
 				returndata;
-        JsonObject values = new JsonObject().putString("idStructure", idStructure);
+        JsonObject values = new JsonObject().put("idStructure", idStructure);
         neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
     }
     @Override
@@ -79,12 +79,12 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         final String returnQuery = " return s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, r.classes as libelleClasses, r.groups as libelleGroupes";
 
         if(poTitulairesIdList == null || poTitulairesIdList.size() == 0) {
-            params.putString("id", id);
+            params.put("id", id);
             query.append("(u:User{id:{id}}) where s.id = {structureId}");
         } else{
             query.append("(u:User) WHERE u.id IN {userIdList} AND s.id = {structureId} ");
 
-            JsonArray oUserIdList = new JsonArray();
+            JsonArray oUserIdList = new fr.wseduc.webutils.collections.JsonArray();
             oUserIdList.add(id);
 
             for (Object oTitulaire:poTitulairesIdList) {
@@ -92,9 +92,9 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                 oUserIdList.add(sIdTitulaire);
             }
 
-            params.putArray("userIdList", oUserIdList);
+            params.put("userIdList", oUserIdList);
         }
-        params.putString("structureId", structureId);
+        params.put("structureId", structureId);
         query.append(returnQuery);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
@@ -111,7 +111,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             query.append("{id")
                     .append(i)
                     .append("} in n.classesFieldOfStudy ");
-            params.putString("id"+i, classesFieldOfStudy.get(i));
+            params.put("id"+i, classesFieldOfStudy.get(i));
             if(i != classesFieldOfStudy.size()-1){
                 query.append("OR ");
             }
@@ -127,7 +127,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         query.append("MATCH (f:Subject) WHERE f.id IN {idMatieres} ")
         .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
-        params.putArray("idMatieres", idMatieres);
+        params.put("idMatieres", idMatieres);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
@@ -139,7 +139,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         JsonObject params = new JsonObject();
 
         query.append("  MATCH (n:Subject {id: {idMatiere}}) RETURN n ");
-        params.putString("idMatiere", idMatiere);
+        params.put("idMatiere", idMatiere);
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(result));
     }
 }

@@ -25,8 +25,8 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -42,7 +42,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     @Override
     public void listSousMatieres(String id, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT sousmatiere.id ,type_sousmatiere.libelle ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".sousmatiere, "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ")
@@ -57,7 +57,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     @Override
     public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
         query.append("SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".sousmatiere INNER JOIN "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
                 " WHERE sousmatiere.id_matiere IN ")
                 .append(Sql.listPrepared(ids))

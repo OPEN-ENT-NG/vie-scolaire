@@ -11,6 +11,7 @@ import {Periode} from "../models/common/Periode";
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
     function ($scope, route, model, $location, $anchorScroll, $sce) {
+        model.me.workflow.load(['competences', 'presences', 'edt']);
         $scope.template = template;
         $scope.lang = lang;
         $scope.opened = {

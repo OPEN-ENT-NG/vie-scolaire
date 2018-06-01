@@ -22,14 +22,14 @@
                 <span><i18n>viescolaire.utils.school</i18n></span>
             </a>
         </header>
-        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}"
+        <header ng-if="canAccessCompetences()" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.notes.title')]]"
                class="horizontal-spacing">
                 <span><i18n>evaluations.competences.title</i18n></span>
             </a>
         </header>
-        <header  ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
+        <header ng-if="canAccessPresences()" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.presences.title')]]"
                class="horizontal-spacing">
@@ -40,7 +40,7 @@
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
     </div>
-    <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
+    <div ng-if="canAccessCompetences() && findParam('filter') === lang.translate('viescolaire.notes.title')">
         <article class="twelve">
             <span class="three"><i18n>activated.module</i18n></span>
 
@@ -57,7 +57,7 @@
         </article>
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_competence.html'"></div>
     </div>
-    <div ng-if="findParam('filter') === lang.translate('viescolaire.presences.title')">
+    <div ng-if="canAccessPresences() && findParam('filter') === lang.translate('viescolaire.presences.title')">
         <article class="twelve">
             <label for="structure.isActived.presence" ><i18n>activated.module</i18n></label>
             <div class="cell one">

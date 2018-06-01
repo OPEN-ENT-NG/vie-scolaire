@@ -10,6 +10,7 @@ import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
 import {Cycle} from "./eval_cycle";
 import {TypePeriode} from "../common/TypePeriode";
+import {Utils} from "../../utils/Utils";
 
 
 export class Structure extends DefaultStructure {
@@ -215,20 +216,22 @@ export class Structure extends DefaultStructure {
     }
 
     async sync(): Promise<any> {
-
-        // Récupération du niveau de compétences et construction de l'abre des cycles.
-        this.getMaitrise();
-
-        // motifs et Catégorie d'appel
-        await this.motifAppels.sync();
-        await this.categorieAppels.sync();
-        // motifs et Catégrorie d'absences
-        await this.motifs.sync();
-        await this.categories.sync();
-        //classes
-        await this.classes.sync();
-        await this.typePeriodes.sync();
-        await this.getPeriodes();
+        if (Utils.canAccessCompetences()) {
+            // Récupération du niveau de compétences et construction de l'abre des cycles.
+            this.getMaitrise();
+            // classes
+            await this.classes.sync();
+            await this.typePeriodes.sync();
+            await this.getPeriodes();
+        }
+        if (Utils.canAccessPresences()) {
+            // motifs et Catégorie d'appel
+            await this.motifAppels.sync();
+            await this.categorieAppels.sync();
+            // motifs et Catégrorie d'absences
+            await this.motifs.sync();
+            await this.categories.sync();
+        }
     }
 
     async  activate(module: string, isActif, idStructure) {

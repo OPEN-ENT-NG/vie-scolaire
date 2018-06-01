@@ -467,7 +467,7 @@
   "evaluation.bfc.visibility.baremeBFC": "Visibilité du barème DNB affiché sur le BFC",
 
   "evaluation.bfc.set.visiblity.all" : "Visible par tout le monde",
-  "evaluation.bfc.set.visiblity.authorized" : "Visible uniquement des personnes habilitées (chefs établissement, personnels de direction, ...",
+  "evaluation.bfc.set.visiblity.authorized" : "Visible uniquement des personnes habilitées (chefs établissement, personnels de direction, ...)",
   "evaluation.bfc.set.visiblity.nobody" : "Masqué pour tout le monde",
 
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",

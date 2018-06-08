@@ -88,7 +88,7 @@ public class ClasseController extends BaseController {
         });
     }
 
-    @Get("/eleves")
+    @Get("/classe/eleves")
     @ApiDoc("Recupere tous les élèves d'une liste de classes.")
     @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)

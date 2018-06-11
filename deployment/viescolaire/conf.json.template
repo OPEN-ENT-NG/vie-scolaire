@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~viescolaire~0.12.4",
+      "name": "fr.openent~viescolaire~0.13-SNAPSHOT",
       "config": {
         "main" : "fr.openent.Viescolaire",
         "port" : 8128,

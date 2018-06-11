@@ -21,7 +21,9 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CoursService;
+import fr.openent.viescolaire.service.MongoCoursService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultMongoCoursService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
@@ -45,7 +47,6 @@ import io.vertx.core.logging.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
@@ -56,12 +57,14 @@ public class CoursController extends ControllerHelper{
 
     private final CoursService coursService;
     private final ClasseService classeService;
+    private final MongoCoursService mongoCoursService;
     protected static final Logger log = LoggerFactory.getLogger(CoursController.class);
 
     public CoursController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         coursService = new DefaultCoursService();
         classeService = new DefaultClasseService();
+        mongoCoursService = new DefaultMongoCoursService(eb);
     }
 
     // TODO : Ajouter le filtre
@@ -82,6 +85,23 @@ public class CoursController extends ControllerHelper{
         coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
     }
 
+    @Get("/mongo/courses/:structureId/:begin/:end")
+    @ApiDoc("Get courses for a structure between two dates by optional teacher id and/or optional group name.")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void listCoursesBetweenTwoDates(final HttpServerRequest request) {
+        final String structureId = request.params().get("structureId");
+        final List<String> teacherId = request.params().getAll("teacherId");
+        final List<String> groupName = request.params().getAll("group");
+        final String beginDate = request.params().get("begin");
+        final String endDate = request.params().get("end");
+
+        if (beginDate!=null && endDate != null &&
+                beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            mongoCoursService.listCoursesBetweenTwoDatesFormatted(structureId, teacherId, groupName, beginDate, endDate, arrayResponseHandler(request));
+        } else {
+            badRequest(request, "timetable.invalid.dates");
+        }
+    }
 
     @Get("/cours/classes/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les cours d'une liste de classe dans une période donnée.")
@@ -229,4 +249,6 @@ public class CoursController extends ControllerHelper{
             }
         });
     }
+
+
 }

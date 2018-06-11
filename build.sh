@@ -16,7 +16,7 @@ case `uname -s` in
       USER_UID=`id -u`
       GROUP_GID=`id -g`
     fi
-esacbuil
+esac
 
 clean () {
   docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle clean
@@ -72,3 +72,4 @@ do
     exit 1
   fi
 done
+

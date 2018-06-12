@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -21,9 +22,9 @@ public interface UtilsService {
      * @param <T>       type de la valeur a ajouter
      * @param <V>       type de la cle a laquelle ajouter la valeur
      */
-    public <T, V> void addToMap(V value, T key, Map<T, List<V>> map);
+     <T, V> void addToMap(V value, T key, Map<T, List<V>> map);
 
-    public JsonObject[] convertTo(Object[] value);
+     JsonObject[] convertTo(Object[] value);
 
     /**
      * Renvoie le type des groupes identifies par id. True si le groupe est une classe, false si c'est un groupe
@@ -31,7 +32,7 @@ public interface UtilsService {
      * @param idClasses       ids des groupes a identifier
      * @param handler          handler portant le resultat de la requete
      */
-    public void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+     void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Get a Fix Color for a List of Classes name
@@ -46,7 +47,7 @@ public interface UtilsService {
      * @param value valeur
      * @return Un object Json contenant les clés et les valeurs
      */
-    public JsonObject mapListNumber(JsonArray list, String key, String value);
+     JsonObject mapListNumber(JsonArray list, String key, String value);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur
@@ -55,7 +56,7 @@ public interface UtilsService {
      * @param value valeur
      * @return Un object Json contenant les clés et les valeurs
      */
-    public JsonObject mapListString(JsonArray list, String key, String value);
+     JsonObject mapListString(JsonArray list, String key, String value);
 
     /**
      * Réalise une union de deux JsonArray de String
@@ -63,7 +64,7 @@ public interface UtilsService {
      * @param list Tableau à transférer
      * @return Un JsonArray contenant les deux tableau
      */
-    public JsonArray saUnion(JsonArray recipient, JsonArray list);
+     JsonArray saUnion(JsonArray recipient, JsonArray list);
 
     /**
      * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
@@ -72,6 +73,27 @@ public interface UtilsService {
      * @param psIdEtablissement identifiant de l'établissement
      * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des titulaires
      */
-    public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+     void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
 
-}
+    /**
+     *
+     * @param idClasse
+     * @param idStructure
+     * @param idEleves
+     * @param handler
+     * @return
+     */
+    Handler<Message<JsonObject>> addStoredDeletedStudent(JsonArray idClasse,
+                                     String idStructure, String[] idEleves, String [] sortedField, Long idPeriode,
+                                                         Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Trie une liste en fonction des champs passé en paramètre
+     * @param jsonArr
+     * @param sortedField
+     * @return
+     */
+    JsonArray sortArray(JsonArray jsonArr, String[] sortedField);
+
+
+    }

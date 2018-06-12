@@ -21,10 +21,14 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.eventbus.ResultMessage;
+import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.sql.Sql;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -41,8 +45,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     private static final String mParameterIdClasse = "idClasse";
 
+    private UtilsService utilsService;
+
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
+        utilsService = new DefaultUtilsService();
     }
 
     @Override
@@ -58,19 +65,34 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     //TODO Revoir avec getEleveClasses
     @Override
-    public void getEleveClasse(  String idClasse, Handler<Either<String, JsonArray>> handler){
-		String RETURN_VALUES = "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,"
-                            + " u.level as level, u.classes as classes, " +
+    public void getEleveClasse(String idClasse, Long idPeriode,Handler<Either<String, JsonArray>> handler){
+
+        StringBuilder query = new StringBuilder();
+
+        String RETURN_VALUES = " RETURN u.id as id, u.firstName as firstName, u.lastName as lastName," +
+                " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
-		StringBuilder query = new StringBuilder();
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id: {idClasse}}) ")
-				.append(RETURN_VALUES)
-				.append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id: {idClasse}}) ")
-				.append(RETURN_VALUES)
-                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id: {idClasse}}) ")
+
+
+        query.append(" MATCH (u:User),(s:Structure),(c:Class) ")
+                .append( "WHERE ")
+                .append( " u.profiles= [\"Student\"] ")
+                .append(" AND c.id = {idClasse} ")
+                .append(" AND c.externalId IN u.classes ")
+                .append(" AND s.externalId IN u.structures ")
+                .append(" with u, c, s ")
+                .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f ")
+                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u) ")
                 .append(RETURN_VALUES);
-        neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse), Neo4jResult.validResultHandler(handler));
+
+        String [] sortedField = new  String[2];
+        sortedField[0] = "lastName";
+        sortedField[1] = "firstName";
+
+            neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
+                    utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
+                            null, sortedField, idPeriode, handler));
 
     }
 
@@ -94,19 +116,46 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     //TODO Revoir avec getEleveClasse
     @Override
-    public void getEleveClasses(String idEtablissement, JsonArray idClasse,Boolean isTeacher, Handler<Either<String, JsonArray>> handler){
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,
+                                 Handler<Either<String, JsonArray>> handler){
+
         StringBuilder query = new StringBuilder();
         JsonObject params =  new JsonObject();
-        query.append("MATCH (s:Structure)<-[BELONGS]-(c:Class)<-[DEPENDS]")
-                .append("-(:ProfileGroup)<-[IN]-(u:User {profiles: ['Student']}) WHERE s.id = {idEtablissement} ");
-        params.put("idEtablissement", idEtablissement);
-        if(isTeacher){
-            query.append(" AND c.id IN {idClasse}");
+
+        // Rajout de filtre pour les enseignants
+        String FILTER;
+        if(isTeacher) {
+            FILTER = " AND c.id IN {idClasse} ";
             params.put(mParameterIdClasse, idClasse);
         }
-        query.append("RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, c.id as idClasse ORDER BY displayName");
+        else {
+            FILTER = " ";
+        }
 
-        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
+        // Requête Néo
+        query.append(" MATCH (u:User {profiles: ['Student']}),(s:Structure),(c:Class) ")
+                .append(" WHERE  c.externalId IN u.classes ")
+                .append(" AND s.externalId IN u.structures ")
+                .append(" AND s.id = {idEtablissement} ")
+                .append(FILTER)
+
+                // Format de retour des données
+                .append(" RETURN distinct(u.id) as id, u.displayName as ")
+                .append(" displayName, u.firstName as firstName, u.lastName as lastName, ")
+                .append(" c.id as idClasse, u.deleteDate ")
+                .append(" ORDER BY displayName ");
+
+        params.put("idEtablissement", idEtablissement);
+
+        // Rajout des élèves supprimés et absent de l'annuaire
+        String [] sortedField = new  String[1];
+        sortedField[0]= "displayName";
+        neo4j.execute(query.toString(),params,
+                utilsService.addStoredDeletedStudent(isTeacher? idClasse : null,
+                        !isTeacher? idEtablissement :null,
+                        null,
+                        sortedField, null,
+                        handler));
 
     }
 
@@ -156,18 +205,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         }
 
         String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->"
-                                        +"(s:Structure)" +
-                                " WITH m, s" +
-                                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup)" +
-                                " WHERE m2.id = m.id AND " + paramGroupManuel +
-                                " RETURN m " +
-                                " UNION " +
-                                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-"
-                                        +"[BELONGS]->(s:Structure) " +
-                                " WITH m, s " +
-                                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup) " +
-                                " WHERE m2.id = m.id AND " + paramGroupManuel +
-                                " RETURN distinct(m) ";
+                +"(s:Structure)" +
+                " WITH m, s" +
+                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup)" +
+                " WHERE m2.id = m.id AND " + paramGroupManuel +
+                " RETURN m " +
+                " UNION " +
+                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-"
+                +"[BELONGS]->(s:Structure) " +
+                " WITH m, s " +
+                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup) " +
+                " WHERE m2.id = m.id AND " + paramGroupManuel +
+                " RETURN distinct(m) ";
         String param1;
         String param2;
 
@@ -205,15 +254,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
-                .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ")
-                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
-                .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ")
-                .append("UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
-                .append("WHERE c.id IN {idClasses} ")
-                .append("RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
+
+        query.append(" MATCH (u:User {profiles: ['Student']}),(c:Class) ")
+                .append(" WHERE c.id IN {idClasses} ")
+                .append(" AND c.externalId IN u.classes ")
+                .append(" RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
@@ -284,10 +329,55 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
      */
 
     @Override
-    public void getClasseByEleve(String idEleve, Handler<Either<String, JsonObject>> handler) {
-      StringBuilder query = new StringBuilder()
-              .append("MATCH (u:User {id :{id_eleve}}) with u MATCH (c:Class) ")
-              .append("WHERE c.externalId IN u.classes return c");
-      neo4j.execute(query.toString(),new JsonObject().put("id_eleve", idEleve),Neo4jResult.validUniqueResultHandler(handler));
+    public void getClasseIdByEleve(String idEleve, Handler<Either<String, JsonObject>> handler) {
+        StringBuilder query = new StringBuilder()
+                .append("MATCH (u:User {id :{id_eleve}}) with u MATCH (c:Class) ")
+                .append("WHERE c.externalId IN u.classes return c");
+
+
+        neo4j.execute(query.toString(),new JsonObject().put("id_eleve", idEleve),
+                new Handler<Message<JsonObject>>() {
+                    public void handle(Message<JsonObject> event) {
+                        if ("ok".equals(((JsonObject) event.body()).getString("status"))) {
+
+                            // Si l'élève est présent dans l'annuaire.
+                            JsonArray rNeo = ((JsonObject) event.body()).getJsonArray("result",
+                                    new fr.wseduc.webutils.collections.JsonArray());
+                            if (rNeo.size() > 0) {
+                                handler.handle(Neo4jResult.validUniqueResult(event));
+                            } else {
+                                // Sinon on recherche l'élève parmis les élèves supprimés.
+                                String[] idEleves = new String[1];
+                                idEleves[0] = idEleve;
+                                new DefaultEleveService().getStoredDeletedStudent(null, null,
+                                        idEleves,
+                                        new Handler<Either<String, JsonArray>>() {
+                                            public void handle(Either<String, JsonArray> event) {
+                                                if (event.isRight()) {
+                                                    UtilsService utilsService = new DefaultUtilsService();
+                                                    JsonArray rPostgres = event.right().getValue();
+
+                                                    if (rPostgres.size() > 0) {
+                                                        String idGroupe = rPostgres.getJsonObject(0)
+                                                                .getString("idGroupes");
+                                                        JsonObject result;
+                                                        result = new JsonObject().put("c", new JsonObject().put("data",
+                                                                        new JsonObject().put("id", idGroupe)));
+                                                        handler.handle(new Either.Right(result));
+                                                    }
+
+                                                } else {
+                                                    handler.handle(new Either.Right(rNeo));
+                                                }
+                                            }
+                                        });
+
+                            }
+                        } else {
+                            handler.handle(new Either.Left<>("Error While get User in Neo4J "));
+                        }
+                    }
+                });
+
     }
 }

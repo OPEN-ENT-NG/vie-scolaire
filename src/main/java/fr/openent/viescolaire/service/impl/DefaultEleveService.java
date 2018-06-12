@@ -21,7 +21,10 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.EleveService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.Utils;
+import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -40,12 +43,15 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  * Created by ledunoiss on 10/02/2016.
  */
 public class DefaultEleveService extends SqlCrudService implements EleveService {
+
     public DefaultEleveService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_ELEVE_TABLE);
     }
+
     private final Neo4j neo4j = Neo4j.getInstance();
+
     @Override
-    public void getEleveClasse(String pSIdClasse, Handler<Either<String, JsonArray>> handler) {
+    public void getEleveClasse(String pSIdClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         query.append("Match (c:Class{id: {idClasse} }) with c ")
                 .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
@@ -126,6 +132,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     }
     @Override
     public void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler) {
+
+        // Récupération d'élèves en présuppression
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
@@ -138,11 +146,22 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("     with u, c, s")
                 .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")
                 .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u)")
-                .append(" RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, c.id as idClasse, c.name as classeName, s.id as idEtablissement, COLLECT(f.id) as idGroupes , COLLECT(g.id) as idManualGroupes")
-                .append(" ORDER BY lastName, firstName");
+
+                // Format de Retour des données
+                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
+                .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
+                .append(" COLLECT(f.id) as idGroupes, ")
+                .append(" COLLECT(g.id) as idManualGroupes")
+                .append(" ORDER BY lastName ");
+
         params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+
+        // Rajout des élèves supprimés au résultat
+        String [] sortedField = new  String[1];
+        sortedField[0]= "lastName";
+        neo4j.execute(query.toString(), params, new DefaultUtilsService().addStoredDeletedStudent(null,
+                null,idEleves, sortedField, null, handler));
     }
 
     @Override
@@ -268,6 +287,53 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         params.put("userId", idEleve);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+    }
+
+    @Override
+    public void getStoredDeletedStudent(JsonArray idClasse,String idStructure, String[] idEleves,
+                                        Handler<Either<String, JsonArray>> handler){
+
+        StringBuilder query = new StringBuilder();
+        JsonArray values  = new fr.wseduc.webutils.collections.JsonArray();
+
+        // Sélection des critères de récupérations
+         if (idClasse != null){
+             for(int i=0; i< idClasse.size(); i++) {
+                 values.add(idClasse.getValue(i));
+             }
+        }
+        if (idStructure != null) {
+            values.add(idStructure);
+        }
+        if (idEleves != null) {
+            for(int i=0; i < idEleves.length; i++ ) {
+                values.add(idEleves[i]);
+            }
+        }
+
+        // Requête finale
+        query.append(" SELECT DISTINCT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
+                .append(" personnes_supp.id_user as \"idEleve\", display_name as \"displayName\", ")
+                .append(" delete_date as \"deleteDate\", first_name as \"firstName\", last_name as \"lastName\", ")
+                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',') AS \"idGroupes\",  ")
+                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',') AS \"idClasse\"")
+                .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp")
+
+                // Jointure table de relation structure
+                .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp ")
+                .append(" ON personnes_supp.id_user = rel_structures_personne_supp.id_user ")
+                .append(" AND user_type = 'Student' ")
+                .append((idStructure != null)?" AND id_structure = ? " : "")
+                .append((idEleves != null)? " AND personnes_supp.id_user IN " + Sql.listPrepared(idEleves): "")
+
+                // Jointure table de relation structure
+                .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp ")
+                .append(" ON personnes_supp.id_user = rel_groupes_personne_supp.id_user ")
+                .append((idClasse != null)? "WHERE id_groupe IN" + Sql.listPrepared(idClasse.getList().toArray()): "")
+                .append(" GROUP BY  personnes_supp.id_user ");
+
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+
     }
 
 

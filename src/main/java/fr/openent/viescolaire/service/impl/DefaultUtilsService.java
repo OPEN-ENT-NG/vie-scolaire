@@ -1,8 +1,10 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
@@ -11,16 +13,21 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
     private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
+    private EleveService eleveService = new DefaultEleveService();
 
     @Override
     public <T, V> void addToMap(V value, T key, Map<T, List<V>> map) {
@@ -91,11 +98,51 @@ public class DefaultUtilsService implements UtilsService{
     @Override
     public JsonArray saUnion(JsonArray recipient, JsonArray list) {
         for (int i = 0; i < list.size(); i++) {
-            recipient.add(list.getString(i));
+            recipient.add(list.getValue(i));
         }
         return recipient;
     }
 
+    @Override
+    public JsonArray sortArray(JsonArray jsonArr, String[] sortedField) {
+        JsonArray sortedJsonArray = new JsonArray();
+
+        List<JsonObject> jsonValues = new ArrayList<JsonObject>();
+        if (jsonArr.size() > 0 && ! (jsonArr.getValue(0) instanceof  JsonObject)) {
+            return jsonArr;
+        }
+        else{
+            for (int i = 0; i < jsonArr.size(); i++) {
+                jsonValues.add(jsonArr.getJsonObject(i));
+            }
+            Collections.sort(jsonValues, new Comparator<JsonObject>() {
+
+                @Override
+                public int compare(JsonObject a, JsonObject b) {
+                    String valA = new String();
+                    String valB = new String();
+
+                    try {
+                        for (int i = 0; i < sortedField.length; i++) {
+                            valA += (String) a.getValue(sortedField[i]);
+                            valB += (String) b.getValue(sortedField[i]);
+                        }
+                    } catch (Exception e) {
+                        //do something
+                    }
+
+                    return valA.compareTo(valB);
+                    //if you want to change the sort order, simply use the following:
+                    //return -valA.compareTo(valB);
+                }
+            });
+
+            for (int i = 0; i < jsonArr.size(); i++) {
+                sortedJsonArray.add(jsonValues.get(i));
+            }
+            return sortedJsonArray;
+        }
+    }
     @Override
     /**
      * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
@@ -122,4 +169,143 @@ public class DefaultUtilsService implements UtilsService{
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
+    @Override
+    public Handler<Message<JsonObject>> addStoredDeletedStudent( JsonArray idClasse,
+                                     String idStructure,String[] idEleves, String [] sortedField,
+                                                                 Long idPeriode,
+                                                                 Handler<Either<String, JsonArray>> handler) {
+
+        return  new Handler<Message<JsonObject>>() {
+            public void handle(Message<JsonObject> event) {
+                if ("ok".equals(((JsonObject)event.body()).getString("status"))) {
+
+                    // Récupération des élèves présents dans l'annuaire
+                    JsonArray rNeo = ((JsonObject)event.body()).getJsonArray("result",
+                            new fr.wseduc.webutils.collections.JsonArray());
+
+                    // Récupération des élèves supprimés et stockés dans postgres
+                    eleveService.getStoredDeletedStudent(idClasse,idStructure, idEleves,
+                            new Handler<Either<String, JsonArray>>() {
+                                public void handle(Either<String, JsonArray> event) {
+                                    if (event.isRight()) {
+                                        JsonArray rPostgres = event.right().getValue();
+                                        JsonArray result =  saUnion(rNeo, rPostgres);
+                                        if (null == idPeriode) {
+                                            handler.handle(new Either.Right(sortArray(result, sortedField)));
+                                        }
+                                        else {
+                                            // Si on veut filtrer sur la période
+                                            new DefaultPeriodeService().getPeriodes(null,
+                                                    (String[])idClasse.getList().toArray(new String[1]),
+                                            new  Handler<Either<String, JsonArray>>() {
+                                                @Override
+                                                public void handle(Either<String, JsonArray> message) {
+
+                                                    if (message.isRight()) {
+                                                        JsonArray periodes = message.right().getValue();
+                                                        JsonArray elevesAvailable = new JsonArray();
+
+                                                        // On récupére la période de la classe
+                                                        JsonObject periode = null;
+                                                        for (int i = 0; i < periodes.size(); i++) {
+
+                                                            if (idPeriode.intValue()
+                                                                    == ((JsonObject) periodes.getJsonObject(i))
+                                                                    .getInteger("id_type").intValue()) {
+                                                                periode = (JsonObject) periodes.getJsonObject(i);
+                                                                break;
+                                                            }
+                                                        }
+                                                        if (periode != null) {
+                                                            String debutPeriode = periode.getString("timestamp_dt")
+                                                                    .split("T")[0];
+                                                            String finPeriode = periode.getString("timestamp_fn")
+                                                                    .split("T")[0];
+
+                                                            DateFormat formatter =
+                                                                    new SimpleDateFormat("yy-MM-dd");
+                                                            try {
+                                                                final Date dateDebutPeriode =
+                                                                        formatter.parse(debutPeriode);
+                                                                final Date dateFinPeriode =
+                                                                        formatter.parse(finPeriode);
+
+                                                                getAvailableStudent(result, idPeriode,
+                                                                        dateDebutPeriode, dateFinPeriode,
+                                                                        sortedField,handler);
+
+                                                            } catch (ParseException e) {
+                                                                String messageLog = "Error :can not calcul students " +
+                                                                        "of groupe : " + idClasse;
+                                                                handler.handle(new Either.Left<>(messageLog));
+                                                            }
+                                                        } else {
+                                                            handler.handle(new Either.Right<>(sortArray(result,
+                                                                    sortedField)));
+                                                        }
+                                                    }
+
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                       handler.handle(new Either.Right<>(rNeo));
+                                    }
+                                }
+                            });
+
+
+                } else {
+                    handler.handle(new Either.Left<>("Error While get User in Neo4J "));
+                }
+            }
+        };
+    }
+
+    protected void getAvailableStudent (JsonArray students, Long idPeriode,
+                                      Date dateDebutPeriode, Date dateFinPeriode,String [] sortedField,
+                                      Handler<Either<String, JsonArray>> handler ) {
+        JsonArray eleveAvailable = new JsonArray();
+
+            // Si aucune période n'est sélectionnée, on rajoute tous les élèves
+            for (int i = 0; i < students.size(); i++) {
+                JsonObject student = (JsonObject)students.getValue(i);
+                // Sinon Si l'élève n'est pas Supprimé on l'ajoute
+                if (    idPeriode == null ||
+                        student.getValue("deleteDate") == null ){
+                    eleveAvailable.add(student);
+                }
+                // Sinon S'il sa date sa suppression survient avant la fin de
+                // la période, on l'ajoute aussi
+                else {
+                    Date deleteDate = new Date();
+
+                    if (student.getValue("deleteDate")
+                            instanceof Number) {
+                        deleteDate = new Date(student.getLong("deleteDate"));
+                    }
+                    else {
+                        try {
+
+                            deleteDate = new SimpleDateFormat("yy-MM-dd")
+                                    .parse(student.getString("deleteDate").split("T")[0]);
+
+                        } catch (ParseException e) {
+                            String messageLog = "PB While read date of deleted Student : "
+                                    + student.getString("id");
+                        }
+
+                    }
+                    if ( (deleteDate.after(dateFinPeriode) || deleteDate.equals(dateFinPeriode))
+                            ||
+                            ((deleteDate.after(dateDebutPeriode)
+                                    || deleteDate.equals(dateDebutPeriode))
+                                    && (deleteDate.before(dateFinPeriode)
+                                    || deleteDate.equals(dateFinPeriode)))) {
+                        eleveAvailable.add(student);
+                    }
+                }
+            }
+        handler.handle(new Either.Right<>(sortArray(eleveAvailable,sortedField)));
+    }
 }

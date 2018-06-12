@@ -50,7 +50,7 @@ public interface ClasseService extends CrudService {
      * @param idClasse
      * @param handler
      */
-    void getEleveClasse( String idClasse, Handler<Either<String, JsonArray>> handler);
+    void getEleveClasse( String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler);
 
     /**²
      * Récupère toutes les classes d'une Liste de classe donné en fonction de son id Neo4j.
@@ -89,6 +89,12 @@ public interface ClasseService extends CrudService {
      */
     void getEtabClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     *
+     * @param idEtablissement
+     * @param eleveId
+     * @param handler
+     */
     void getClasseEleve(String idEtablissement, String eleveId, Handler<Either<String, JsonArray>> handler);
 
     /**
@@ -97,11 +103,18 @@ public interface ClasseService extends CrudService {
      * @param handler
      */
     void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     *
+     * @param idClasses
+     * @param handler
+     */
     void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+
     /**
      * récupère l'id de la classe de l'élève dont l'id est passé en paramètre
      * @param idEleve
      * @param handler
      */
-    void getClasseByEleve(String idEleve, Handler<Either<String,JsonObject>> handler);
+    void getClasseIdByEleve(String idEleve, Handler<Either<String,JsonObject>> handler);
 }

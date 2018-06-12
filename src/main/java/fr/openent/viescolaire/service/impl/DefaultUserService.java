@@ -205,23 +205,27 @@ public class DefaultUserService implements UserService {
             final JsonObject user = (JsonObject) u;
             // Insert user in the right table
             String uQuery =
-                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, first_name, last_name) " +
-                    "VALUES (?, ?, ?, ?, ?);";
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, " +
+                            "first_name, last_name, delete_date, birth_date ) " +
+                    "VALUES (?, ?, ?, ?, ?, to_timestamp(? /1000) );";
             JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
                     .add(user.getString("id"))
                     .add(user.getString("displayName"))
                     .add(user.getString("type"))
 					.add(user.getString("firstName"))
-					.add(user.getString("lastName"));
+					.add(user.getString("lastName"))
+                    .add(user.getString("deleteDate"));
 
             statements.prepared(uQuery, uParams);
 
             if (user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0) {
-               formatGroups(user.getJsonArray("classIds"), user.getString("id"), statements, Viescolaire.CLASSE_TYPE);
+               formatGroups(user.getJsonArray("classIds"), user.getString("id"), statements,
+                       Viescolaire.CLASSE_TYPE);
             }
 
             if (user.containsKey("groupIds") && user.getJsonArray("groupIds").size() > 0) {
-                formatGroups(user.getJsonArray("groupIds"), user.getString("id"), statements, Viescolaire.GROUPE_TYPE);
+                formatGroups(user.getJsonArray("groupIds"), user.getString("id"), statements,
+                        Viescolaire.GROUPE_TYPE);
             }
 
             if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {

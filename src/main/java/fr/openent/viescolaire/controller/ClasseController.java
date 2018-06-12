@@ -78,7 +78,7 @@ public class ClasseController extends BaseController {
                             ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
-                            classeService.getEleveClasse(idClasse, handler);
+                            classeService.getEleveClasse(idClasse,null, handler);
                         }
                     }
                 }else{

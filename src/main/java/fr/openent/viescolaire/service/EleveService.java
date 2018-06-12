@@ -103,8 +103,37 @@ public interface EleveService extends CrudService {
      */
     void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> result);
 
+    /**
+     *
+     * @param idClasse
+     * @param handler
+     */
     void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler);
 
+
+    /**
+     *
+     * @param idDevoir
+     * @param idEleve
+     * @param handler
+     */
     void getAppreciationDevoir(Long idDevoir, String idEleve,Handler<Either<String, JsonArray>> handler);
+
+    /**
+     *
+     * @param idEleve
+     * @param result
+     */
     void getGroups(String idEleve, Handler<Either<String, JsonArray>> result);
+
+    /**
+     * Récupère les élèves supprimés de l'annuaire et stockés dans la base de donnée de viesolaire
+     * @param idClasse
+     * @param idStructure
+     * @param idEleves
+     * @param handler
+     */
+    void getStoredDeletedStudent(JsonArray idClasse,String idStructure,String[] idEleves,
+                                 Handler<Either<String, JsonArray>> handler);
+
 }

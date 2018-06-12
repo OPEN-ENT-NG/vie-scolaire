@@ -140,7 +140,8 @@ public class EventBusController extends ControllerHelper {
             break;
             case "getEleveClasse": {
                 String idClasse = message.body().getString("idClasse");
-                classeService.getEleveClasse(idClasse, getJsonArrayBusResultHandler(message));
+                Long idPeriode = message.body().getLong("idPeriode");
+                classeService.getEleveClasse(idClasse, idPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getClasseInfo": {
@@ -148,15 +149,16 @@ public class EventBusController extends ControllerHelper {
                 classeService.getClasseInfo(idClasse, getJsonObjectBusResultHandler(message));
             }
             break;
-            case "getClasseByEleve": {
+            case "getClasseIdByEleve": {
                 String idEleve = message.body().getString("idEleve");
-                classeService.getClasseByEleve(idEleve, getJsonObjectBusResultHandler(message));
+                classeService.getClasseIdByEleve(idEleve, getJsonObjectBusResultHandler(message));
             }
             break;
             case "getElevesGroupesClasses": {
                 String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
                 classeService.getElevesGroupesClasses(idClasses, getJsonArrayBusResultHandler(message));
             }
+            break;
             case "listClasses": {
                 String idEtablissement = message.body().getString("idStructure");
                 classeService.listClasses(idEtablissement, true,null, getJsonArrayBusResultHandler(message));

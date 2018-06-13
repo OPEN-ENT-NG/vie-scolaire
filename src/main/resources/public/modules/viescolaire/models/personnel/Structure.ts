@@ -218,7 +218,7 @@ export class Structure extends DefaultStructure {
     async sync(): Promise<any> {
         if (Utils.canAccessCompetences()) {
             // Récupération du niveau de compétences et construction de l'abre des cycles.
-            this.getMaitrise();
+            await this.getMaitrise();
             // classes
             await this.classes.sync();
             await this.typePeriodes.sync();

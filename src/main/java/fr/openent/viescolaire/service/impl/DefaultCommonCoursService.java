@@ -29,7 +29,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private final EventBus eb;
     private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
-            .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1).put(COURSE_TABLE.everyTwoWeek,1);
+            .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
+            .put(COURSE_TABLE.everyWeek,1).put(COURSE_TABLE.manual,1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -102,7 +103,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
             JsonObject course =  courseOccurrence.getJsonObject(i);
             if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate)) ){
                 Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
-                startMoment.set(Calendar.DAY_OF_WEEK,course.getInteger(COURSE_TABLE.dayOfWeek)+1);
+                startMoment.set(Calendar.DAY_OF_WEEK,getDayOfWeek(course, handler));
                 Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
                 course.put(COURSE_TABLE.startDate, startMoment.getTime().toInstant().toString());
                 double numberWeek = Math.floor( daysBetween(startMoment, endMoment) / (double) 7 );
@@ -126,6 +127,21 @@ public class DefaultCommonCoursService implements CommonCoursService {
             }
         }
         return result;
+    }
+    private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
+        Integer dayOfWeek = null;
+        if(course.containsKey(COURSE_TABLE.manual) && course.getBoolean(COURSE_TABLE.manual) ){
+            try{
+                dayOfWeek = Integer.parseInt( course.getString(COURSE_TABLE.dayOfWeek) );
+            } catch (ClassCastException e) {
+                LOG.error("Error formatting dayOfWeek ");
+                handler.handle(new Either.Left<>("Error formatting dayOfWeek"));
+            }
+        }else{
+            dayOfWeek = course.getInteger(COURSE_TABLE.dayOfWeek) ;
+        }
+        dayOfWeek = dayOfWeek + 1 ;
+        return dayOfWeek;
     }
     private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end) {
         JsonObject course = new JsonObject(occurence.toString());
@@ -157,7 +173,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     private Calendar getCalendarDate(String stringDate, Handler<Either<String,JsonArray>> handler){
         SimpleDateFormat formatter = new SimpleDateFormat(START_END_DATE_FORMAT);
-        Date date =new Date() ;
+        Date date = new Date() ;
         try {
             if(stringDate.matches(".*Z$")){
                 stringDate = stringDate.replaceAll("[.]\\d*Z", "");
@@ -173,18 +189,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
 }
 
- class Course {
-     protected final String startDate = "startDate";
-     protected final String _id = "_id";
-     protected final String structureId = "structureId";
-     protected final String subjectId = "subjectId";
-     protected final String roomLabels = "roomLabels";
-     protected final String equipmentLabels = " equipmentLabels";
-     protected final String teacherIds = "teacherIds";
-     protected final String personnelIds = "personnelIds";
-     protected final String classes = "classes";
-     protected final String groups = "groups";
-     protected final String dayOfWeek = "dayOfWeek";
-     protected final String endDate = "endDate";
-     protected final String everyTwoWeek = "everyTwoWeek";
- }
+class Course {
+    protected final String startDate = "startDate";
+    protected final String _id = "_id";
+    protected final String structureId = "structureId";
+    protected final String subjectId = "subjectId";
+    protected final String roomLabels = "roomLabels";
+    protected final String equipmentLabels = " equipmentLabels";
+    protected final String teacherIds = "teacherIds";
+    protected final String personnelIds = "personnelIds";
+    protected final String classes = "classes";
+    protected final String groups = "groups";
+    protected final String dayOfWeek = "dayOfWeek";
+    protected final String endDate = "endDate";
+    protected final String everyWeek = "everyWeek";
+    protected final String manual = "manual";
+}

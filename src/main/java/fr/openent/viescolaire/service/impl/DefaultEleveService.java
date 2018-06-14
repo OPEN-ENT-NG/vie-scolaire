@@ -129,11 +129,17 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (f:FunctionalGroup)<-[i:IN]-(u:User)-[r:ADMINISTRATIVE_ATTACHMENT]->(s:Structure) WHERE u.profiles= [\"Student\"]  ")
-                .append("AND u.id IN {idEleves} WITH u, s, COLLECT(f.id) as f ")
-                .append("MATCH (c:Class) where c.externalId IN u.classes ")
-                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, c.id as idClasse, c.name as classeName, s.id as idEtablissement, f as idGroupes ")
-                .append("ORDER BY lastName");
+        query.append("MATCH (u:User),(s:Structure),(c:Class)  ")
+                .append(" WHERE ")
+                .append(" u.profiles= [\"Student\"]  ")
+                .append(" AND u.id IN {idEleves}")
+                .append("  AND c.externalId IN u.classes ")
+                .append("  AND s.externalId IN u.structures")
+                .append("     with u, c, s")
+                .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")
+                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u)")
+                .append(" RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, c.id as idClasse, c.name as classeName, s.id as idEtablissement, COLLECT(f.id) as idGroupes , COLLECT(g.id) as idManualGroupes")
+                .append(" ORDER BY lastName, firstName");
         params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

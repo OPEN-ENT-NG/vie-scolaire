@@ -30,7 +30,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
             .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
-            .put(COURSE_TABLE.everyWeek,1).put(COURSE_TABLE.manual,1);
+            .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -102,23 +102,27 @@ public class DefaultCommonCoursService implements CommonCoursService {
         for(int i=0; i < courseOccurrence.size() ; i++) {
             JsonObject course =  courseOccurrence.getJsonObject(i);
             if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate)) ){
-                Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
+                course.put("startCourse",course.getString(COURSE_TABLE.startDate))
+                        .put("endCourse",course.getString(COURSE_TABLE.endDate));
+                Calendar startMoment = getCalendarDate( course.getString(COURSE_TABLE.startDate), handler);
                 startMoment.set(Calendar.DAY_OF_WEEK,getDayOfWeek(course, handler));
                 Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
                 course.put(COURSE_TABLE.startDate, startMoment.getTime().toInstant().toString());
                 double numberWeek = Math.floor( daysBetween(startMoment, endMoment) / (double) 7 );
                 if (numberWeek > 0) {
+
                     String endDateCombine = course.getString(COURSE_TABLE.startDate)
                             .replaceAll("T.*$", 'T' + course.getString(COURSE_TABLE.endDate).replaceAll("^.*T", ""));
                     endMoment = getCalendarDate(endDateCombine, handler);
+                    int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
-                        JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment).toString());
+                        JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment, true).toString());
                         result.add(c);
-                        startMoment.add(Calendar.DATE, 7);
-                        endMoment.add(Calendar.DATE, 7);
+                        startMoment.add(Calendar.DATE, cadence);
+                        endMoment.add(Calendar.DATE, cadence);
                     }
                 } else {
-                    JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment).toString());
+                    JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment, false).toString());
                     result.add(c);
                 }
             }else {
@@ -130,24 +134,20 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
     private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
         Integer dayOfWeek = null;
-        if(course.containsKey(COURSE_TABLE.manual) && course.getBoolean(COURSE_TABLE.manual) ){
-            try{
-                dayOfWeek = Integer.parseInt( course.getString(COURSE_TABLE.dayOfWeek) );
-            } catch (ClassCastException e) {
-                LOG.error("Error formatting dayOfWeek ");
-                handler.handle(new Either.Left<>("Error formatting dayOfWeek"));
-            }
-        }else{
+        try{
             dayOfWeek = course.getInteger(COURSE_TABLE.dayOfWeek) ;
+        } catch (ClassCastException e) {
+            LOG.error("Error formatting dayOfWeek ");
+            handler.handle(new Either.Left<>("Error formatting dayOfWeek"));
         }
         dayOfWeek = dayOfWeek + 1 ;
         return dayOfWeek;
     }
-    private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end) {
+    private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end, boolean isRecurent) {
         JsonObject course = new JsonObject(occurence.toString());
+        course.put("is_recurrent", isRecurent);
         course.put("color",  getColor(occurence.getJsonArray("classes")));
         course.put("is_periodic",false);
-        course.put("everyTwoWeek",false);
         course.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
         course.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
         return course;
@@ -202,6 +202,6 @@ class Course {
     protected final String groups = "groups";
     protected final String dayOfWeek = "dayOfWeek";
     protected final String endDate = "endDate";
-    protected final String everyWeek = "everyWeek";
+    protected final String everyTwoWeek = "everyTwoWeek";
     protected final String manual = "manual";
 }

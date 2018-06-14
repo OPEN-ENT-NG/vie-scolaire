@@ -2,7 +2,6 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.MongoCoursService;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
@@ -25,16 +24,16 @@ import static org.entcore.common.mongodb.MongoDbResult.*;
 
 public class DefaultMongoCoursService implements MongoCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodeService.class);
+    private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
     private final EventBus eb;
-    private static final JsonObject KEYS = new JsonObject().put("_id", 1).put("structureId", 1).put("subjectId", 1)
-            .put("roomLabels", 1).put("equipmentLabels", 1).put("teacherIds", 1).put("personnelIds", 1)
-            .put("classes", 1).put("groups", 1).put("dayOfWeek", 1).put("startDate", 1).put("endDate", 1)
-            .put("subjectId", 1).put("roomLabels", 1);
+    private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
+            .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
+            .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1).put(COURSE_TABLE.everyTwoWeek,1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final String[] colors = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey"};
+    private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
     public DefaultMongoCoursService(EventBus eb) {
         this.eb = eb;
     }
@@ -46,7 +45,7 @@ public class DefaultMongoCoursService implements MongoCoursService {
 
         query.put("structureId", structureId);
 
-        if (teacherId != null && teacherId.size() != 0){
+        if (teacherId != null && !teacherId.isEmpty() ){
             query.put("teacherIds", teacherId);
         }
 
@@ -59,15 +58,15 @@ public class DefaultMongoCoursService implements MongoCoursService {
         JsonObject betweenEnd = new JsonObject();
         betweenEnd.put("$gte", startDate);
 
-        if (groups != null && groups.size() != 0) {
+        if (groups != null && !groups.isEmpty()) {
             JsonObject dateOperand =  new JsonObject()
                     .put("$and", new fr.wseduc.webutils.collections.JsonArray()
-                            .add(new JsonObject().put("startDate" ,betweenStart))
-                            .add(new JsonObject().put("endDate" ,betweenEnd)));
+                            .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
+                            .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
             JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
             for(String group : groups){
-                groupOperand.add(new JsonObject().put("classes", group))
-                        .add(new JsonObject().put("groups", group));
+                groupOperand.add(new JsonObject().put(COURSE_TABLE.classes, group))
+                        .add(new JsonObject().put(COURSE_TABLE.groups, group));
             }
 
             JsonObject groupsOperand = new JsonObject()
@@ -75,11 +74,11 @@ public class DefaultMongoCoursService implements MongoCoursService {
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray().add(dateOperand).add(groupsOperand));
         } else {
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
-                    .add(new JsonObject().put("startDate", betweenStart))
+                    .add(new JsonObject().put(COURSE_TABLE.startDate, betweenStart))
                     .add(new JsonObject().put("endDate", betweenEnd)));
         }
 
-        final JsonObject sort = new JsonObject().put("startDate", 1);
+        final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
 
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
     }
@@ -100,25 +99,25 @@ public class DefaultMongoCoursService implements MongoCoursService {
     private JsonArray formatCourses(JsonArray courseOccurrence,  Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
         for(int i=0; i < courseOccurrence.size() ; i++) {
-            JsonObject occurence =  courseOccurrence.getJsonObject(i);
-            if(goodFormatDate(occurence.getString("startDate")) && goodFormatDate(occurence.getString("endDate")) ){
-                Calendar startMoment = getCalendarDate(occurence.getString("startDate"), handler);
-                startMoment.set(Calendar.DAY_OF_WEEK,occurence.getInteger("dayOfWeek")+1);
-                Calendar endMoment = getCalendarDate(occurence.getString("endDate"), handler);
-                occurence.put("startDate", startMoment.getTime().toInstant().toString());
+            JsonObject course =  courseOccurrence.getJsonObject(i);
+            if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate)) ){
+                Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
+                startMoment.set(Calendar.DAY_OF_WEEK,course.getInteger(COURSE_TABLE.dayOfWeek)+1);
+                Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
+                course.put(COURSE_TABLE.startDate, startMoment.getTime().toInstant().toString());
                 double numberWeek = Math.floor( daysBetween(startMoment, endMoment) / (double) 7 );
                 if (numberWeek > 0) {
-                    String endDateCombine = occurence.getString("startDate")
-                            .replaceAll("T.*$", 'T' + occurence.getString("endDate").replaceAll("^.*T", ""));
+                    String endDateCombine = course.getString(COURSE_TABLE.startDate)
+                            .replaceAll("T.*$", 'T' + course.getString(COURSE_TABLE.endDate).replaceAll("^.*T", ""));
                     endMoment = getCalendarDate(endDateCombine, handler);
                     for (int j = 0; j < numberWeek + 1; j++) {
-                        JsonObject c = new JsonObject(formatCourse(occurence, startMoment, endMoment).toString());
+                        JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment).toString());
                         result.add(c);
                         startMoment.add(Calendar.DATE, 7);
                         endMoment.add(Calendar.DATE, 7);
                     }
                 } else {
-                    JsonObject c = new JsonObject(formatCourse(occurence, startMoment, endMoment).toString());
+                    JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment).toString());
                     result.add(c);
                 }
             }else {
@@ -130,11 +129,11 @@ public class DefaultMongoCoursService implements MongoCoursService {
     }
     private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end) {
         JsonObject course = new JsonObject(occurence.toString());
-        course.put("color", colors[(int) Math.floor(Math.random() * colors.length)] );
+        course.put("color",  getColor(occurence.getJsonArray("classes")));
         course.put("is_periodic",false);
         course.put("everyTwoWeek",false);
-        course.put("startDate", start.getTime().toInstant().toString());
-        course.put("endDate", end.getTime().toInstant().toString());
+        course.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
+        course.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
         return course;
     }
     private static long daysBetween(Calendar startDate, Calendar endDate) {
@@ -146,20 +145,46 @@ public class DefaultMongoCoursService implements MongoCoursService {
         return date.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*");
     }
 
+    private static String getColor(JsonArray classes) {
+        byte[] bytes = classes.getString(0).getBytes();
+        int number = 0;
+        for (int i = 0; i < bytes.length ; i++){
+            number += (int) bytes[i];
+        }
+        number = (int) Math.abs(Math.floor(Math.sin( (double) number) * 10 ) ) ;
+        return  COLORS[number];
+    }
+
     private Calendar getCalendarDate(String stringDate, Handler<Either<String,JsonArray>> handler){
         SimpleDateFormat formatter = new SimpleDateFormat(START_END_DATE_FORMAT);
-        Date Date =new Date() ;
+        Date date =new Date() ;
         try {
             if(stringDate.matches(".*Z$")){
                 stringDate = stringDate.replaceAll("[.]\\d*Z", "");
             }
-            Date = formatter.parse(stringDate);
+            date = formatter.parse(stringDate);
         } catch (ParseException e) {
             LOG.error("Error formatting Date ");
             handler.handle(new Either.Left<>("Error formatting Date"));
         }
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.setTime(Date);
+        startCalendar.setTime(date);
         return startCalendar;
     }
 }
+
+ class Course {
+     protected final String startDate = "startDate";
+     protected final String _id = "_id";
+     protected final String structureId = "structureId";
+     protected final String subjectId = "subjectId";
+     protected final String roomLabels = "roomLabels";
+     protected final String equipmentLabels = " equipmentLabels";
+     protected final String teacherIds = "teacherIds";
+     protected final String personnelIds = "personnelIds";
+     protected final String classes = "classes";
+     protected final String groups = "groups";
+     protected final String dayOfWeek = "dayOfWeek";
+     protected final String endDate = "endDate";
+     protected final String everyTwoWeek = "everyTwoWeek";
+ }

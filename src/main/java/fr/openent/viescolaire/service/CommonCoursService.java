@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonArray;
 
 import java.util.List;
 
-public interface MongoCoursService {
+public interface CommonCoursService {
     void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler);
 
     void listCoursesBetweenTwoDatesFormatted(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler);

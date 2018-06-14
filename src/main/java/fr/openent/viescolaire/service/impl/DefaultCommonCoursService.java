@@ -1,6 +1,6 @@
 package fr.openent.viescolaire.service.impl;
 
-import fr.openent.viescolaire.service.MongoCoursService;
+import fr.openent.viescolaire.service.CommonCoursService;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
 
-public class DefaultMongoCoursService implements MongoCoursService {
+public class DefaultCommonCoursService implements CommonCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodeService.class);
     private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
@@ -34,7 +34,7 @@ public class DefaultMongoCoursService implements MongoCoursService {
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
-    public DefaultMongoCoursService(EventBus eb) {
+    public DefaultCommonCoursService(EventBus eb) {
         this.eb = eb;
     }
 

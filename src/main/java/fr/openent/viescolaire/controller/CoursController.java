@@ -20,10 +20,10 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.CoursService;
-import fr.openent.viescolaire.service.MongoCoursService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
-import fr.openent.viescolaire.service.impl.DefaultMongoCoursService;
+import fr.openent.viescolaire.service.impl.DefaultCommonCoursService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
@@ -57,14 +57,14 @@ public class CoursController extends ControllerHelper{
 
     private final CoursService coursService;
     private final ClasseService classeService;
-    private final MongoCoursService mongoCoursService;
+    private final CommonCoursService commonCoursService;
     protected static final Logger log = LoggerFactory.getLogger(CoursController.class);
 
     public CoursController(){
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         coursService = new DefaultCoursService();
         classeService = new DefaultClasseService();
-        mongoCoursService = new DefaultMongoCoursService(eb);
+        commonCoursService = new DefaultCommonCoursService(eb);
     }
 
     // TODO : Ajouter le filtre
@@ -85,7 +85,7 @@ public class CoursController extends ControllerHelper{
         coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
     }
 
-    @Get("/mongo/courses/:structureId/:begin/:end")
+    @Get("/common/courses/:structureId/:begin/:end")
     @ApiDoc("Get courses for a structure between two dates by optional teacher id and/or optional group name.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void listCoursesBetweenTwoDates(final HttpServerRequest request) {
@@ -97,7 +97,7 @@ public class CoursController extends ControllerHelper{
 
         if (beginDate!=null && endDate != null &&
                 beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            mongoCoursService.listCoursesBetweenTwoDatesFormatted(structureId, teacherId, groupName, beginDate, endDate, arrayResponseHandler(request));
+            commonCoursService.listCoursesBetweenTwoDatesFormatted(structureId, teacherId, groupName, beginDate, endDate, arrayResponseHandler(request));
         } else {
             badRequest(request, "timetable.invalid.dates");
         }

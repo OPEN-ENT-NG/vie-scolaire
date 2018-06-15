@@ -184,7 +184,7 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(NiveauCompetence, {
-            sync: async function () {
+            sync: function () {
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
                 return new Promise((resolve, reject) => {
                     http().getJson(this.composer.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
@@ -215,24 +215,43 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    async sync(): Promise<any> {
-        if (Utils.canAccessCompetences()) {
-            // Récupération du niveau de compétences et construction de l'abre des cycles.
-            await this.getMaitrise();
-            // classes
-            await this.classes.sync();
-            await this.typePeriodes.sync();
-            await this.getPeriodes();
-        }
-        if (Utils.canAccessPresences()) {
-            // motifs et Catégorie d'appel
-            await this.motifAppels.sync();
-            await this.categorieAppels.sync();
-            // motifs et Catégrorie d'absences
-            await this.motifs.sync();
-            await this.categories.sync();
-        }
-    }
+    sync() {
+        return new Promise((resolve, reject) => {
+            var that = this;
+             // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
+
+            // TODO rajouter le test d'acces à competences
+            // Actuellement les workflow sont chargés trop tard si on a une connexion lente
+            // on ne rentre alors jamais dans le if
+
+            //if (Utils.canAccessCompetences()) {
+                //console.log("canAccessCompetences=true");
+                // Récupération du niveau de compétences et construction de l'abre des cycles.
+                that.getMaitrise().then(() => {
+                    that.classes.sync().then(() => {
+                        that.typePeriodes.sync().then(() => {
+                            that.getPeriodes().then(() => {
+                                resolve();
+                            });
+                        });
+                    });
+                });
+            //}
+
+            if (Utils.canAccessPresences()) {
+                //console.log("canAccessPresences=true");
+                that.motifAppels.sync().then(() => {
+                    that.categorieAppels.sync().then(() => {
+                        that.motifs.sync().then(() => {
+                            that.categories.sync().then(() => {
+                                resolve();
+                            });
+                        });
+                    });
+                });
+            }
+        })
+    };
 
     async  activate(module: string, isActif, idStructure) {
         if (!isActif) {
@@ -287,24 +306,30 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    async getMaitrise() {
-        await this.niveauCompetences.sync();
-        let cycles = [];
-        let tree = _.groupBy(this.niveauCompetences.all,"id_cycle");
+    getMaitrise():Promise<any> {
+        return new Promise((resolve, reject) => {
+            var that = this;
+            this.niveauCompetences.sync().then(() => {
+                let cycles = [];
+                let tree = _.groupBy(this.niveauCompetences.all, "id_cycle");
 
-        _.map(tree, function (node) {
-            let cycleNode  = {
-                id_cycle: node[0].id_cycle,
-                libelle: node[0].cycle,
-                selected: false,
-                niveauCompetencesArray: _.sortBy(node, function(niv) {
-                    return niv.ordre;
-                })
-            };
-            cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
-            cycles.push(cycleNode);
+                _.map(tree, function (node) {
+                    let cycleNode = {
+                        id_cycle: node[0].id_cycle,
+                        libelle: node[0].cycle,
+                        selected: false,
+                        niveauCompetencesArray: _.sortBy(node, function (niv) {
+                            return niv.ordre;
+                        })
+                    };
+                    cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
+                    cycles.push(cycleNode);
+                });
+                that.cycles = cycles;
+                console.log("cycles loaded");
+                resolve()
+            });
         });
-        this.cycles = cycles;
     }
 
     deletePerso () : Promise<any> {

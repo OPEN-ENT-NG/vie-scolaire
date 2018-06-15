@@ -62,6 +62,7 @@ export class VieScolaire extends Model {
 export let vieScolaire = new VieScolaire();
 
 model.build = function () {
+    model.me.workflow.load(['competences', 'presences', 'edt']);
     (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();
 };

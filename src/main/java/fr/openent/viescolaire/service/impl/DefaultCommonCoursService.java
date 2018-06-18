@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.CommonCoursService;
+import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
@@ -24,6 +25,7 @@ import static org.entcore.common.mongodb.MongoDbResult.*;
 
 public class DefaultCommonCoursService implements CommonCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodeService.class);
+    private static UtilsService utilsService= new DefaultUtilsService();
     private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
     private final EventBus eb;
@@ -34,7 +36,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
+
     public DefaultCommonCoursService(EventBus eb) {
         this.eb = eb;
     }
@@ -47,7 +49,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put("structureId", structureId);
 
         if (teacherId != null && !teacherId.isEmpty() ){
-            query.put("teacherIds", teacherId);
+            query.put("$or", getTeachersFilterTable(teacherId));
         }
 
         final String startDate = begin + START_DATE_PATTERN;
@@ -64,24 +66,33 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     .put("$and", new fr.wseduc.webutils.collections.JsonArray()
                             .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
                             .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
-            JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
-            for(String group : groups){
-                groupOperand.add(new JsonObject().put(COURSE_TABLE.classes, group))
-                        .add(new JsonObject().put(COURSE_TABLE.groups, group));
-            }
-
-            JsonObject groupsOperand = new JsonObject()
-                    .put("$or", groupOperand );
+            JsonObject groupsOperand = getGroupsFilterTable( groups);
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray().add(dateOperand).add(groupsOperand));
         } else {
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
                     .add(new JsonObject().put(COURSE_TABLE.startDate, betweenStart))
-                    .add(new JsonObject().put("endDate", betweenEnd)));
+                    .add(new JsonObject().put(COURSE_TABLE.endDate, betweenEnd)));
         }
 
         final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
 
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
+    }
+    private JsonObject getGroupsFilterTable(List<String>  groups) {
+        JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
+        for(String group : groups){
+            groupOperand.add(new JsonObject().put(COURSE_TABLE.classes, group))
+                    .add(new JsonObject().put(COURSE_TABLE.groups, group));
+        }
+
+        return  new JsonObject().put("$or", groupOperand );
+    }
+    private JsonArray getTeachersFilterTable(List<String>  teachers) {
+        JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
+        for(String teacher : teachers){
+            groupOperand.add(new JsonObject().put(COURSE_TABLE.teacherIds, teacher));
+        }
+        return groupOperand ;
     }
     @Override
     public void listCoursesBetweenTwoDatesFormatted(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler){
@@ -146,7 +157,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end, boolean isRecurent) {
         JsonObject course = new JsonObject(occurence.toString());
         course.put("is_recurrent", isRecurent);
-        course.put("color",  getColor(occurence.getJsonArray("classes")));
+        course.put("color", utilsService.getColor(occurence.getJsonArray("classes").getString(0)));
         course.put("is_periodic",false);
         course.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
         course.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
@@ -161,15 +172,6 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return date.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*");
     }
 
-    private static String getColor(JsonArray classes) {
-        byte[] bytes = classes.getString(0).getBytes();
-        int number = 0;
-        for (int i = 0; i < bytes.length ; i++){
-            number += (int) bytes[i];
-        }
-        number = (int) Math.abs(Math.floor(Math.sin( (double) number) * 10 ) ) ;
-        return  COLORS[number];
-    }
 
     private Calendar getCalendarDate(String stringDate, Handler<Either<String,JsonArray>> handler){
         SimpleDateFormat formatter = new SimpleDateFormat(START_END_DATE_FORMAT);

@@ -20,6 +20,7 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
 public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
+    private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
 
     @Override
     public <T, V> void addToMap(V value, T key, Map<T, List<V>> map) {
@@ -38,6 +39,15 @@ public class DefaultUtilsService implements UtilsService{
         return result.toArray(new JsonObject[0]);
     }
 
+    public String getColor(String classes) {
+            byte[] bytes = classes.getBytes();
+            int number = 0;
+            for (int i = 0; i < bytes.length ; i++){
+                number += (int) bytes[i];
+            }
+            number = (int) Math.abs(Math.floor(Math.sin( (double) number) * 10 ) ) ;
+        return COLORS[number] ;
+    }
     @Override
     public void getTypeGroupe(String[] id_classes, Handler<Either<String, JsonArray>> handler) {
 

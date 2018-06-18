@@ -134,7 +134,12 @@ public class ClasseController extends BaseController {
                     } else {
                         isPresence = false;
                     }
-
+                    final boolean isEdt;
+                    if(request.params().contains("isEdt")) {
+                        isEdt = Boolean.parseBoolean(request.params().get("isEdt"));
+                    } else {
+                        isEdt = false;
+                    }
                     if(request.params().get("classOnly") != null) {
                         classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                     }
@@ -160,7 +165,7 @@ public class ClasseController extends BaseController {
                                     } else if (object.getJsonArray("labels").contains("ManualGroup")) {
                                         classe.put("type_groupe",  Viescolaire.GROUPE_MANUEL_TYPE);
                                     }
-
+                                    if(isEdt){ classe.put("color", utilsService.getColor(classe.getString("name")));}
                                     idGroupes.add(classe.getString("id"));
                                     classes.add(classe);
                                 }
@@ -172,7 +177,8 @@ public class ClasseController extends BaseController {
 
                                     if (isPresence) {
                                             renderJson(request, classes);
-                                    } else {
+                                    }
+                                    else {
                                         eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
                                             @Override
                                             public void handle(Message<JsonObject> message) {

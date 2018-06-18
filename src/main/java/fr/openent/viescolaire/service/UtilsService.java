@@ -34,6 +34,12 @@ public interface UtilsService {
     public void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
+     * Get a Fix Color for a List of Classes name
+     */
+    public String getColor(String classes) ;
+
+
+    /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur
      * @param list liste à mapper
      * @param key clé

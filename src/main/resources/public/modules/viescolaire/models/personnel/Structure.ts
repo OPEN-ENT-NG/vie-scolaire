@@ -215,23 +215,22 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    async sync(): Promise<any> {
-        if (Utils.canAccessCompetences()) {
-            // Récupération du niveau de compétences et construction de l'abre des cycles.
-            await this.getMaitrise();
-            // classes
-            await this.classes.sync();
-            await this.typePeriodes.sync();
-            await this.getPeriodes();
-        }
-        if (Utils.canAccessPresences()) {
-            // motifs et Catégorie d'appel
-            await this.motifAppels.sync();
-            await this.categorieAppels.sync();
-            // motifs et Catégrorie d'absences
-            await this.motifs.sync();
-            await this.categories.sync();
-        }
+    sync() {
+        return new Promise( async (resolve, reject) => {
+            if (Utils.canAccessCompetences()) {
+                await Promise.all([this.getMaitrise(), this.classes.sync(), this.typePeriodes.sync(),
+                    this.getPeriodes()]);
+            }
+
+            if (Utils.canAccessPresences()) {
+                // motifs et Catégorie d'appel
+                await this.motifAppels.sync();
+                await this.categorieAppels.sync();
+                // motifs et Catégrorie d'absences
+                await this.motifs.sync();
+                await this.categories.sync();
+            }
+        });
     }
 
     async  activate(module: string, isActif, idStructure) {
@@ -287,24 +286,27 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    async getMaitrise() {
-        await this.niveauCompetences.sync();
-        let cycles = [];
-        let tree = _.groupBy(this.niveauCompetences.all,"id_cycle");
+     getMaitrise() : Promise<any> {
+        return new Promise( async (resolve, reject) => {
+            await this.niveauCompetences.sync();
+            let cycles = [];
+            let tree = _.groupBy(this.niveauCompetences.all, "id_cycle");
 
-        _.map(tree, function (node) {
-            let cycleNode  = {
-                id_cycle: node[0].id_cycle,
-                libelle: node[0].cycle,
-                selected: false,
-                niveauCompetencesArray: _.sortBy(node, function(niv) {
-                    return niv.ordre;
-                })
-            };
-            cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
-            cycles.push(cycleNode);
+            _.map(tree, function (node) {
+                let cycleNode = {
+                    id_cycle: node[0].id_cycle,
+                    libelle: node[0].cycle,
+                    selected: false,
+                    niveauCompetencesArray: _.sortBy(node, function (niv) {
+                        return niv.ordre;
+                    })
+                };
+                cycleNode.niveauCompetencesArray = cycleNode.niveauCompetencesArray.reverse();
+                cycles.push(cycleNode);
+            });
+            this.cycles = cycles;
+            resolve();
         });
-        this.cycles = cycles;
     }
 
     deletePerso () : Promise<any> {

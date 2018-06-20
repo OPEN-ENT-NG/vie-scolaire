@@ -301,6 +301,23 @@ public class DefaultUserService implements UserService {
     }
 
     /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    @Override
+    public void getActivesIDsStructures( String module,
+                                        Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query =new StringBuilder();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+
+        query.append("SELECT id_etablissement ")
+                .append("FROM "+ module +".etablissements_actifs  ")
+                .append("WHERE actif = TRUE");
+
+        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+    }
+
+    /**
      * Active un établissement
      * @param id : établissement
      * @param handler handler comportant le resultat

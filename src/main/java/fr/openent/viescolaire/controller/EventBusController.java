@@ -10,6 +10,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.user.UserInfos;
 
 import java.util.List;
 
@@ -70,6 +71,10 @@ public class EventBusController extends ControllerHelper {
             break;
             case "periode": {
                 periodeBusService(method, message);
+            }
+            break;
+            case "structure": {
+                structureBusService(method, message);
             }
             break;
             case "event": {
@@ -152,6 +157,10 @@ public class EventBusController extends ControllerHelper {
                 String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
                 classeService.getElevesGroupesClasses(idClasses, getJsonArrayBusResultHandler(message));
             }
+            case "listClasses": {
+                String idEtablissement = message.body().getString("idStructure");
+                classeService.listClasses(idEtablissement, true,null, getJsonArrayBusResultHandler(message));
+            }
             break;
             default: {
                 message.reply(getErrorReply("Method not found"));
@@ -213,6 +222,19 @@ public class EventBusController extends ControllerHelper {
             case "getCycle": {
                 String idClasse = message.body().getString("idClasse");
                 eleveService.getCycle(idClasse, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            default: {
+                message.reply(getErrorReply("Method not found"));
+            }
+        }
+    }
+
+    private void structureBusService(String method, Message<JsonObject> message) {
+        switch (method) {
+            case "getStructuresActives": {
+                String module = message.body().getString("module");
+                userService.getActivesIDsStructures(module,getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

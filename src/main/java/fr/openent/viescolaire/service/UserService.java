@@ -52,6 +52,12 @@ public interface UserService {
     public void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
 
     /**
+     * Recupere les établissements inactifs de l'utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void getActivesIDsStructures( String module, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Active un établissement
      * @param id : id établissement
      * @param user : utilisateur connecté

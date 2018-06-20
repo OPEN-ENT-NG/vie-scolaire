@@ -148,7 +148,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String paramEtab = "s.id = {idEtablissement} ";
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
-        String paramGroupManuel = ("Personnel".equals(user.getType()))? paramEtab : paramGroup + " AND " + paramEtab;
+        String paramGroupManuel = "";
+        if(null == user || "Personnel".equals(user.getType())){
+            paramGroupManuel =  paramEtab;
+        } else {
+            paramGroupManuel =  paramGroup + " AND " + paramEtab;
+        }
 
         String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->"
                                         +"(s:Structure)" +
@@ -166,7 +171,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String param1;
         String param2;
 
-        if ("Personnel".equals(user.getType())) {
+        if (null == user || "Personnel".equals(user.getType())) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
             params.put("idEtablissement", idEtablissement)

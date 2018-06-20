@@ -230,6 +230,8 @@ export class Structure extends DefaultStructure {
                 await this.motifs.sync();
                 await this.categories.sync();
             }
+
+            resolve();
         });
     }
 

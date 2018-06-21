@@ -184,7 +184,7 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(NiveauCompetence, {
-            sync: async function () {
+            sync: function () {
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
                 return new Promise((resolve, reject) => {
                     http().getJson(this.composer.api.NIVEAU_COMPETENCES.synchronisation).done(function (niveauCompetences) {
@@ -215,24 +215,23 @@ export class Structure extends DefaultStructure {
         });
     }
 
-    sync() {
-        return new Promise( async (resolve, reject) => {
-            if (Utils.canAccessCompetences()) {
-                await Promise.all([this.getMaitrise(), this.classes.sync(), this.typePeriodes.sync(),
-                    this.getPeriodes()]);
-            }
-
-            if (Utils.canAccessPresences()) {
-                // motifs et Catégorie d'appel
-                await this.motifAppels.sync();
-                await this.categorieAppels.sync();
-                // motifs et Catégrorie d'absences
-                await this.motifs.sync();
-                await this.categories.sync();
-            }
-
-            resolve();
-        });
+    async sync() {
+        if (Utils.canAccessCompetences()) {
+            // Récupération du niveau de compétences et construction de l'abre des cycles.
+            await this.getMaitrise();
+            // classes
+            await this.classes.sync();
+            await this.typePeriodes.sync();
+            await this.getPeriodes();
+        }
+        if (Utils.canAccessPresences()) {
+            // motifs et Catégorie d'appel
+            await this.motifAppels.sync();
+            await this.categorieAppels.sync();
+            // motifs et Catégrorie d'absences
+            await this.motifs.sync();
+            await this.categories.sync();
+        }
     }
 
     async  activate(module: string, isActif, idStructure) {
@@ -288,8 +287,7 @@ export class Structure extends DefaultStructure {
         });
     }
 
-     getMaitrise() : Promise<any> {
-        return new Promise( async (resolve, reject) => {
+     async getMaitrise() : Promise<any> {
             await this.niveauCompetences.sync();
             let cycles = [];
             let tree = _.groupBy(this.niveauCompetences.all, "id_cycle");
@@ -307,8 +305,6 @@ export class Structure extends DefaultStructure {
                 cycles.push(cycleNode);
             });
             this.cycles = cycles;
-            resolve();
-        });
     }
 
     deletePerso () : Promise<any> {

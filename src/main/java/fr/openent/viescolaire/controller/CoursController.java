@@ -97,7 +97,7 @@ public class CoursController extends ControllerHelper{
 
         if (beginDate!=null && endDate != null &&
                 beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            commonCoursService.listCoursesBetweenTwoDatesFormatted(structureId, teacherId, groupName, beginDate, endDate, arrayResponseHandler(request));
+            commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, arrayResponseHandler(request));
         } else {
             badRequest(request, "timetable.invalid.dates");
         }

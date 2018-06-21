@@ -318,6 +318,12 @@ public class EventBusController extends ControllerHelper {
                         });
             }
             break;
+            case "getDatesDtFnAnneeByClasse": {
+                List<String> idClasses = message.body().getJsonArray("idClasses").getList();
+                String idEtablissement = message.body().getString("idEtablissement");
+                periodeService.getDatesDtFnAnneeByClasse(idEtablissement, idClasses,getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

@@ -106,4 +106,13 @@ public interface PeriodeService extends CrudService {
     public void getPeriodesClasses(String idEtablissement, String[] idClasses,
                                    Handler<Either<String, JsonArray>> handler);
 
+    /**
+     *
+     * @param idEtablissement identifiant de l'etablissement
+     * @param idClasses identifiant des classes
+     * @param handler handler portant pour chaque classe la date de début de la premiere periode et
+     *                la date de fin de la derniere periode
+     */
+    public void getDatesDtFnAnneeByClasse(String idEtablissement, List<String> idClasses,
+                                          Handler<Either<String, JsonArray>> handler);
 }

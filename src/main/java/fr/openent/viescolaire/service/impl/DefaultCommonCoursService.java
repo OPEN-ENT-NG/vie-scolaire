@@ -16,9 +16,13 @@ import io.vertx.core.logging.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
@@ -95,11 +99,22 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return groupOperand ;
     }
     @Override
-    public void listCoursesBetweenTwoDatesFormatted(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler){
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, courseOccurrenceObject -> {
-                    if (courseOccurrenceObject.isRight()) {
-                        JsonArray courseOccurrence = courseOccurrenceObject.right().getValue();
-                        handler.handle(new Either.Right<>(formatCourses(courseOccurrence, handler)));
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler){
+        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, response -> {
+                    if (response.isRight()) {
+                        JsonArray arrayCourses = response.right().getValue();
+
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date queryStartDate = new Date();
+                        Date queryEndDate = new Date();
+                        try {
+                            queryStartDate = formatter.parse(begin + " 00:00:00");
+                            queryEndDate = formatter.parse(end + " 23:59:59");
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStartDate, queryEndDate, arrayCourses, handler)));
                     } else {
                         LOG.error("can't get courses from mongo");
                         handler.handle(new Either.Left<>("can't get courses from mongo"));
@@ -108,13 +123,16 @@ public class DefaultCommonCoursService implements CommonCoursService {
         );
     }
 
-    private JsonArray formatCourses(JsonArray courseOccurrence,  Handler<Either<String,JsonArray>> handler) {
+    private JsonArray getOccurencesWithCourses(Date queryStartDate, Date queryEndDate, JsonArray arrayCourses, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
-        for(int i=0; i < courseOccurrence.size() ; i++) {
-            JsonObject course =  courseOccurrence.getJsonObject(i);
+        for(int i=0; i < arrayCourses.size() ; i++) {
+            JsonObject course =  arrayCourses.getJsonObject(i);
+
+            // Pour chaque course je vérifie si c'est le bon format de date.
             if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate)) ){
                 course.put("startCourse",course.getString(COURSE_TABLE.startDate))
                         .put("endCourse",course.getString(COURSE_TABLE.endDate));
+
                 Calendar startMoment = getCalendarDate( course.getString(COURSE_TABLE.startDate), handler);
                 startMoment.set(Calendar.DAY_OF_WEEK,getDayOfWeek(course, handler));
                 Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
@@ -127,14 +145,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     endMoment = getCalendarDate(endDateCombine, handler);
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
-                        JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment, true).toString());
-                        result.add(c);
+                        JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, true).toString());
+                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())) {
+                            result.add(c);
+                        }
                         startMoment.add(Calendar.DATE, cadence);
                         endMoment.add(Calendar.DATE, cadence);
                     }
                 } else {
-                    JsonObject c = new JsonObject(formatCourse(course, startMoment, endMoment, false).toString());
-                    result.add(c);
+                    JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, false).toString());
+
+                    if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())) {
+                        result.add(c);
+                    }
                 }
             }else {
                 LOG.error("Error bad data format Date ");
@@ -143,6 +166,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
         }
         return result;
     }
+
+    private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){
+        return aStart.before(bEnd) && bStart.before(aEnd);
+    }
+
     private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
         Integer dayOfWeek = null;
         try{
@@ -154,14 +182,14 @@ public class DefaultCommonCoursService implements CommonCoursService {
         dayOfWeek = dayOfWeek + 1 ;
         return dayOfWeek;
     }
-    private static JsonObject formatCourse(JsonObject occurence, Calendar start , Calendar end, boolean isRecurent) {
-        JsonObject course = new JsonObject(occurence.toString());
-        course.put("is_recurrent", isRecurent);
-        course.put("color", utilsService.getColor(occurence.getJsonArray("classes").getString(0)));
-        course.put("is_periodic",false);
-        course.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
-        course.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
-        return course;
+    private static JsonObject formatOccurence(JsonObject course, Calendar start , Calendar end, boolean isRecurent) {
+        JsonObject occurence = new JsonObject(course.toString());
+        occurence.put("is_recurrent", isRecurent);
+        occurence.put("color", utilsService.getColor(course.getJsonArray("classes").getString(0)));
+        occurence.put("is_periodic",false);
+        occurence.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
+        occurence.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
+        return occurence;
     }
     private static long daysBetween(Calendar startDate, Calendar endDate) {
         long end = endDate.getTimeInMillis();

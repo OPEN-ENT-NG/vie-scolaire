@@ -396,6 +396,24 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 
+    @Override
+    public void getDatesDtFnAnneeByClasse(String idEtablissement, List<String> idClasses, Handler<Either<String, JsonArray>> handler) {
+        String query = new String();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        query = "SELECT id_etablissement, id_classe,MIN( timestamp_dt) as date_debut, MAX(timestamp_fn)as date_fin FROM " +
+                "(SELECT id, id_etablissement,timestamp_dt, timestamp_fn , id_classe, id_type FROM "+ Viescolaire.VSCO_SCHEMA+ ".periode "+
+                "WHERE id_etablissement = ? AND id_classe IN "+ Sql.listPrepared(idClasses) +") date "+
+                "GROUP BY id_classe, id_etablissement";
+
+        values.add(idEtablissement);
+        for(String id : idClasses){
+            values.add(id);
+        }
+
+    Sql.getInstance().prepared(query, values, validResultHandler(handler));
+
+    }
+
     /**
      * S'assure de la coherence des periodes pour les classes liees au groupe passe en parametre
      * @param idEtablissement   identifiant de l'etablissement du groupe

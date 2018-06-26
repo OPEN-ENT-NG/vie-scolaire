@@ -93,7 +93,7 @@ public interface EleveService extends CrudService {
      * @param idEleve
      * @param result
      */
-    void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups,
+    void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle,
                         Handler<Either<String, JsonArray>> result);
 
     /**

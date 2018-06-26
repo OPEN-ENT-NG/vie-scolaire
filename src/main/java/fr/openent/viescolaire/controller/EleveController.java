@@ -176,7 +176,19 @@ public class EleveController extends ControllerHelper {
                         }
                     }
                 }
-                eleveService.getCompetences(idEleve,idPeriode,idGroups, handler);
+                Long idCycle;
+                if (request.params().contains("idCycle")) {
+                    try {
+                        idCycle = Long.parseLong(request.params().get("idCycle"));
+                    } catch (NumberFormatException e) {
+                        log.error("Error : idCycle must be a long object ", e);
+                        badRequest(request, e.getMessage());
+                        return;
+                    }
+                } else {
+                    idCycle = null;
+                }
+                eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, handler);
 
             }
         });

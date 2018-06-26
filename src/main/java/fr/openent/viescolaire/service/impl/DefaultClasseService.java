@@ -69,21 +69,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         StringBuilder query = new StringBuilder();
 
-        String RETURN_VALUES = " RETURN u.id as id, u.firstName as firstName, u.lastName as lastName," +
+        String RETURN_VALUES = " RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
                 " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
-
-        query.append(" MATCH (u:User),(s:Structure),(c:Class) ")
-                .append( "WHERE ")
-                .append( " u.profiles= [\"Student\"] ")
-                .append(" AND c.id = {idClasse} ")
-                .append(" AND c.externalId IN u.classes ")
-                .append(" AND s.externalId IN u.structures ")
-                .append(" with u, c, s ")
-                .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f ")
-                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u) ")
+        query.append("MATCH (u:User {profiles: ['Student']}),(c:Class {id:{idClasse}})  ")
+                .append(" WHERE ")
+                .append("  c.externalId IN u.classes ")
+                .append("   with u, c ")
+                .append(" OPTIONAL MATCH (f:FunctionalGroup {id:{idClasse}})<-[i:IN]-(u) with  u, c, f")
+                .append(" OPTIONAL MATCH (g:ManualGroup {id:{idClasse}})<-[i:IN]-(u)")
                 .append(RETURN_VALUES);
 
         String [] sortedField = new  String[2];

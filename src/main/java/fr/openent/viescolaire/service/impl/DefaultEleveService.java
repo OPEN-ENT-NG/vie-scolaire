@@ -197,7 +197,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override
-    public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups,
+    public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle,
                                Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
@@ -209,9 +209,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("  , _type_libelle, owner_name  FROM ( ")
                 .append(" select cd.id_devoir,cd.id_competence , evaluation, cn.owner, id_eleve, ")
                 .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, name, devoirs.is_evaluated, ")
-                .append(" id_periode, id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append(" id_periode, devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
                 .append(" , type.nom as _type_libelle, users.username as owner_name ")
                 .append(" from notes.competences_devoirs as cd ")
+                .append(" inner join notes.competences on cd.id_competence = competences.id ")
                 .append(" inner join notes.competences_notes as cn on cd.id_devoir = cn.id_devoir ")
                 .append(" and  cd.id_competence = cn.id_competence ")
                 .append(" inner JOIN notes.devoirs on devoirs.id = cd.id_devoir ")
@@ -244,6 +245,12 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
             values.add(idPeriode);
+        }
+        if (idCycle != null) {
+            query.append("AND competences.id_cycle = ? ");
+            values.add(idCycle);
+        } else {
+            query.append("AND devoirs.eval_lib_historise = false ");
         }
         query.append(" ) AS res ")
                 .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )

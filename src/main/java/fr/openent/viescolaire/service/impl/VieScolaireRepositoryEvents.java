@@ -61,7 +61,16 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
                 if (event.isLeft()) {
                     log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
                 }
+                else {
+                    log.info("[VieScolaireRepositoryEvents] : Stored ");
+                }
             }
         });
     }
+
+    @Override
+    public void transition(JsonObject structure) {
+        log.info("[VieScolaireRepositoryEvents] : transition event is not implemented");
+    }
+
 }

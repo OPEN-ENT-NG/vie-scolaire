@@ -214,7 +214,7 @@ public class DefaultUserService implements UserService {
                     .add(user.getString("type"))
 					.add(user.getString("firstName"))
 					.add(user.getString("lastName"))
-                    .add(user.getString("deleteDate"))
+                    .add(user.getLong("deleteDate"))
                     .add(user.getString("birthDate"));
 
             statements.prepared(uQuery, uParams);

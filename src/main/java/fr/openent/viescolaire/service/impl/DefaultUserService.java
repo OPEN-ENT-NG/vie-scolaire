@@ -207,14 +207,14 @@ public class DefaultUserService implements UserService {
             String uQuery =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, " +
                             "first_name, last_name, delete_date, birth_date) " +
-                    "VALUES (?, ?, ?, ?, ?, to_timestamp(? /1000), ? );";
+                    "VALUES (?, ?, ?, ?, ?, to_timestamp(?), ? );";
             JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
                     .add(user.getString("id"))
                     .add(user.getString("displayName"))
                     .add(user.getString("type"))
 					.add(user.getString("firstName"))
 					.add(user.getString("lastName"))
-                    .add(user.getLong("deleteDate"))
+                    .add((float) user.getLong("deleteDate") / 1000)
                     .add(user.getString("birthDate"));
 
             statements.prepared(uQuery, uParams);

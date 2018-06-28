@@ -175,7 +175,7 @@ public class ClasseController extends BaseController {
                                             .put("action", "utils.getCycle")
                                             .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
 
-                                    if (isPresence) {
+                                    if (isPresence || isEdt) {
                                             renderJson(request, classes);
                                     }
                                     else {

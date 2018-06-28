@@ -14,15 +14,14 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
 import java.util.concurrent.TimeUnit;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
@@ -122,7 +121,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 }
         );
     }
-
+    public void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler ) {
+        final JsonObject query = new JsonObject();
+        query.put(COURSE_TABLE._id, idCourse);
+        MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
+    }
     private JsonArray getOccurencesWithCourses(Date queryStartDate, Date queryEndDate, JsonArray arrayCourses, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
         for(int i=0; i < arrayCourses.size() ; i++) {

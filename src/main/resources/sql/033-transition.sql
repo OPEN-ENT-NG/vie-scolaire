@@ -30,3 +30,9 @@ CREATE TABLE notes.transition
   date  TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );
 
+ALTER TABLE notes.devoirs DROP CONSTRAINT IF EXISTS fk_periode_id ;
+ALTER TABLE notes.devoirs DROP CONSTRAINT IF EXISTS fk_devoirs_type_periode;
+ALTER TABLE notes.devoirs ADD CONSTRAINT fk_devoirs_type_periode FOREIGN KEY (id_periode)
+REFERENCES viesco.rel_type_periode (id) MATCH SIMPLE
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+

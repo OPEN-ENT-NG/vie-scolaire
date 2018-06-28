@@ -33,6 +33,7 @@ import fr.wseduc.webutils.Either;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.impl.DefaultCoursService;
 import fr.wseduc.webutils.http.Renders;
+import fr.wseduc.webutils.http.response.DefaultResponseHandler;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
@@ -101,6 +102,14 @@ public class CoursController extends ControllerHelper{
         } else {
             badRequest(request, "timetable.invalid.dates");
         }
+    }
+    @Get("/common/course/:idCourse")
+    @ApiDoc("Get course by id.")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void courseById(final HttpServerRequest request) {
+        final String idCourse = request.params().get("idCourse");
+        commonCoursService.getCourse(idCourse, notEmptyResponseHandler(request));
+
     }
 
     @Get("/cours/classes/:dateDebut/:dateFin")

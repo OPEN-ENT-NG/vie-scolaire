@@ -135,7 +135,8 @@ public class EventBusController extends ControllerHelper {
             break;
             case "getElevesClasses": {
                 String[] idClasses = convertJsonArrayToStringArray(message.body().getJsonArray("idClasses"));
-                classeService.getElevesClasses(idClasses, getJsonArrayBusResultHandler(message));
+                Long idPeriode = message.body().getLong("idPeriode");
+                classeService.getElevesClasses(idClasses, idPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getEleveClasse": {

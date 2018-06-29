@@ -78,9 +78,12 @@ public interface ClasseService extends CrudService {
     /**
      * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.
      * @param idClasses Tableau des id des classes
+     * @param idPeriode
      * @param handler Handler portant le résultat de la requête.
      */
-    void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getElevesClasses(String[] idClasses,
+                          Long idPeriode,
+                          Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les id des etablissements auxquels appartiennent les classes dont l'id est passé en paramètre.

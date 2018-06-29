@@ -23,12 +23,10 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.eventbus.ResultMessage;
 import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
-import org.entcore.common.sql.Sql;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -86,9 +84,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
-            neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
-                    utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
-                            null, sortedField, idPeriode, handler));
+        neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
+                utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
+                        null, sortedField, idPeriode, handler));
 
     }
 
@@ -113,7 +111,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     //TODO Revoir avec getEleveClasse
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,
-                                 Handler<Either<String, JsonArray>> handler){
+                                Handler<Either<String, JsonArray>> handler){
 
         StringBuilder query = new StringBuilder();
         JsonObject params =  new JsonObject();
@@ -246,15 +244,33 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     @Override
-    public void getElevesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+    public void getElevesClasses(String[] idClasses,
+                                 Long idPeriode,
+                                 Handler<Either<String, JsonArray>> handler) {
+
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
+        String RETURNING = " RETURN c.id as idClasse, u.id as idEleve, c.name, u.lastName, u.firstName, u.deleteDate" +
+                " ORDER BY c.name, " +
+                " u.lastName, u.firstName ";
 
-
-        query.append(" MATCH (u:User {profiles: ['Student']}),(c:Class) ")
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
                 .append(" WHERE c.id IN {idClasses} ")
-                .append(" AND c.externalId IN u.classes ")
-                .append(" RETURN c.id as idClasse, u.id as idEleve ORDER BY c.name, u.lastName, u.firstName ");
+                .append(RETURNING)
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
+                .append(" WHERE c.id IN {idClasses} ")
+                .append(RETURNING)
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
+                .append(" WHERE c.id IN {idClasses} ")
+                .append(RETURNING)
+                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup) ,")
+                .append( " (g:Group), (c:Class) ")
+                .append(" WHERE HAS(u.deleteDate) ")
+                .append(" AND ( (g.id IN b.IN_OUTGOING AND NOT g.id = dg.id) ")
+                .append("      OR c.externalId IN u.classes ) ")
+                .append(" AND (c.id IN {idClasses} " )
+                .append("      OR g.id IN {idClasses} ) ")
+                .append(RETURNING);
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
@@ -358,7 +374,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                                 .getString("idGroupes");
                                                         JsonObject result;
                                                         result = new JsonObject().put("c", new JsonObject().put("data",
-                                                                        new JsonObject().put("id", idGroupe)));
+                                                                new JsonObject().put("id", idGroupe)));
                                                         handler.handle(new Either.Right(result));
                                                     }
 

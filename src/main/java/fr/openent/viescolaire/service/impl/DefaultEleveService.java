@@ -228,16 +228,19 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
                 .append(" -1 as evaluation, owner, ? as id_eleve, ")
                 .append(" created, modified, id_matiere, name, is_evaluated, id_periode, " )
-                .append(" id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
+                .append(" devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
                 .append(" , type.nom as _type_libelle , users.username as owner_name ")
                 .append(" from notes.competences_devoirs inner JOIN notes.devoirs on ")
                 .append(" devoirs.id = competences_devoirs.id_devoir " )
-                .append(" inner join notes.type on devoirs.id_type = type.id ")
-                .append(" inner JOIN notes.rel_devoirs_groupes on ")
+                .append(" inner join notes.type on devoirs.id_type = type.id ");
+        if (idCycle != null) {
+            query.append(" INNER JOIN notes.competences ON competences.id = competences_devoirs.id_competence ");
+        }
+        query.append(" inner JOIN notes.rel_devoirs_groupes on ")
                 .append(" competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
                 .append(" inner join "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
                 .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()))
-                .append(" WHERE date_publication <= Now()") ;
+                .append(" WHERE date_publication <= Now() ") ;
         values.add(idEleve);
         for (int i = 0; i < idGroups.size(); i++) {
             values.add(idGroups.getString(i));

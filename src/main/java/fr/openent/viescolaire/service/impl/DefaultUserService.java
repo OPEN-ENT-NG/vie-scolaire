@@ -342,7 +342,7 @@ public class DefaultUserService implements UserService {
     }
 
     /**
-     * Supprime un étbalissement actif
+     * Supprime un établissement actif
      * @param id : utilisateur connecté
      * @param handler handler comportant le resultat
      */

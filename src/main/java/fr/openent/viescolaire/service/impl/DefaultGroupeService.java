@@ -61,7 +61,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
                                             if (rPostgres.size() > 0) {
                                                 String idGroupe = rPostgres.getJsonObject(0)
-                                                        .getString("idGroupes");
+                                                        .getString("idClasse");
 
                                                 StringBuilder queryGroup = new StringBuilder();
                                                 JsonObject valuesGroup = new JsonObject();

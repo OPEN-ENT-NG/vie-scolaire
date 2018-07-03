@@ -113,7 +113,8 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     }
 
     @Override
-    public void getPeriodes(final String idEtablissement, final String[] idGroupes, final Handler<Either<String, JsonArray>> handler) {
+    public void getPeriodes(final String idEtablissement, final String[] idGroupes,
+                            final Handler<Either<String, JsonArray>> handler) {
         if (idEtablissement != null && (idGroupes == null || idGroupes.length == 0)) {
             getPeriodesClasses(idEtablissement, null, handler);
         } else {

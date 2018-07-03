@@ -5,10 +5,11 @@ import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
-import org.entcore.common.sql.SqlResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -17,10 +18,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 public class DefaultUtilsService implements UtilsService{
@@ -28,6 +26,7 @@ public class DefaultUtilsService implements UtilsService{
     private final Neo4j neo4j = Neo4j.getInstance();
     private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
     private EleveService eleveService = new DefaultEleveService();
+    protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);
 
     @Override
     public <T, V> void addToMap(V value, T key, Map<T, List<V>> map) {
@@ -129,6 +128,7 @@ public class DefaultUtilsService implements UtilsService{
                         }
                     } catch (Exception e) {
                         //do something
+                        log.error("Pb While Sorting Two Array",e);
                     }
 
                     return valA.compareTo(valB);
@@ -237,6 +237,7 @@ public class DefaultUtilsService implements UtilsService{
                                                             } catch (ParseException e) {
                                                                 String messageLog = "Error :can not calcul students " +
                                                                         "of groupe : " + idClasse;
+                                                                log.error(messageLog, e);
                                                                 handler.handle(new Either.Left<>(messageLog));
                                                             }
                                                         } else {
@@ -262,7 +263,7 @@ public class DefaultUtilsService implements UtilsService{
         };
     }
 
-    protected void getAvailableStudent (JsonArray students, Long idPeriode,
+    public void getAvailableStudent (JsonArray students, Long idPeriode,
                                       Date dateDebutPeriode, Date dateFinPeriode,String [] sortedField,
                                       Handler<Either<String, JsonArray>> handler ) {
         JsonArray eleveAvailable = new JsonArray();
@@ -293,6 +294,7 @@ public class DefaultUtilsService implements UtilsService{
                         } catch (ParseException e) {
                             String messageLog = "PB While read date of deleted Student : "
                                     + student.getString("id");
+                            log.error(messageLog, e);
                         }
 
                     }

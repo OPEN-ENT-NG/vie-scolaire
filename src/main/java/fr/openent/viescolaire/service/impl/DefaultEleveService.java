@@ -322,11 +322,12 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         }
 
         // Requête finale
-        query.append(" SELECT DISTINCT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
+        query.append("SELECT res.*, id_groupe AS \"idClasse\"  FROM( ")
+
+                .append(" SELECT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
                 .append(" personnes_supp.id_user as \"idEleve\", display_name as \"displayName\", ")
                 .append(" delete_date as \"deleteDate\", first_name as \"firstName\", last_name as \"lastName\", ")
-                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',') AS \"idGroupes\",  ")
-                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',') AS \"idClasse\"")
+                .append(" json_agg( rel_groupes_personne_supp.id_groupe)  AS \"idGroupes\"  ")
                 .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp")
 
                 // Jointure table de relation structure
@@ -340,7 +341,11 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp ")
                 .append(" ON personnes_supp.id_user = rel_groupes_personne_supp.id_user ")
                 .append((idClasse != null)? "WHERE id_groupe IN" + Sql.listPrepared(idClasse.getList().toArray()): "")
-                .append(" GROUP BY  personnes_supp.id_user ");
+                .append(" GROUP BY  personnes_supp.id_user ")
+
+                .append(" ) AS res ")
+                .append(" INNER JOIN viesco.rel_groupes_personne_supp  ")
+                .append(" ON res.id = rel_groupes_personne_supp.id_user AND type_groupe = 0 ");
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
 

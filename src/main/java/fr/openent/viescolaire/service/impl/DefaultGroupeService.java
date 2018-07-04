@@ -119,7 +119,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         String PROFILFILTER = " true" ;
 
         // Format de retour des données
-        StringBuilder RETURNING = new StringBuilder().append( " RETURN users.lastName as lastName, ")
+        StringBuilder RETURNING = new StringBuilder().append( " RETURN DISTINCT users.lastName as lastName, ")
                 .append(" users.firstName as firstName, users.id as id, users.deleteDate as deleteDate, ")
                 .append(" users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
                 .append(" users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER")
@@ -147,13 +147,12 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         // Récupération des utilisateurs en instance de suppression (plus liés aux classes ni aux groupes)
         // Mais toujours présents dans l'annuaire
         StringBuilder queryGetDeleteUsers = new StringBuilder();
-        queryGetDeleteUsers.append("MATCH (:DeleteGroup)<-[:IN]-(users:User),(fgroup:FunctionalGroup), (c:Class) ")
+        queryGetDeleteUsers.append("MATCH (:DeleteGroup)<-[:IN]-(users:User),(fgroup:Group) ")
                 .append(" WHERE HAS(users.deleteDate) ")
-                .append(" AND ( fgroup.externalId IN users.groups ")
-                .append("      OR c.externalId IN users.classes ) ")
-                .append(" AND (c.id = {groupeEnseignementId} " )
-                .append("      OR fgroup.id = {groupeEnseignementId} )")
+                .append(" AND fgroup.id = {groupeEnseignementId} ")
+                .append(" AND fgroup.externalId IN users.groups ")
                 .append(" AND " + PROFILFILTER)
+                .append(" OPTIONAL MATCH (c:Class) WHERE c.externalId IN users.classes ")
                 .append(RETURNING.toString());
 
 

@@ -81,22 +81,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
-                .append(" WHERE c.id = {idClasse} ")
+        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id :{idClasse}}) ")
                 .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
-                .append(" WHERE c.id = {idClasse} ")
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
                 .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
-                .append(" WHERE c.id = {idClasse} ")
+                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
                 .append(RETURNING)
-                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup) ,")
+                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User) ,")
                 .append(" (g:Group), (c:Class) ")
                 .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND ( (g.id IN b.IN_OUTGOING AND NOT g.id = dg.id) ")
-                .append("      OR c.externalId IN u.classes ) ")
+                .append(" AND  c.externalId IN u.classes ")
                 .append(" AND (c.id = {idClasse} ")
-                .append("      OR g.id = {idClasse} ) ")
+                .append("      OR (g.id = {idClasse}  AND g.externalId IN u.groups)) ")
                 .append(RETURNING);
 
         String [] sortedField = new  String[2];
@@ -170,28 +166,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                         sortedField, null,
                         handler));
 
-    }
-
-    @Override
-    public void getElevesGroupesClasses(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
-
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class)")
-                .append(" WHERE c.id IN {idClasses}")
-                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName,")
-                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName")
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup) ")
-                .append(" WHERE c.id IN {idClasses}")
-                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, ")
-                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName")
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
-                .append(" WHERE c.id IN {idClasses}")
-                .append(" RETURN distinct(u.id) as id, u.displayName as displayName, u.firstName as firstName, ")
-                .append(" u.lastName as lastName, c.id as idClasse ORDER BY displayName");
-        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
-
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
     /**
@@ -269,8 +243,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
-        String RETURNING = " RETURN c.id as idClasse, u.id as idEleve, c.name, u.lastName, u.firstName, u.deleteDate" +
-                " ORDER BY c.name, " +
+        String RETURNING = " RETURN c.id as idClasse, " +
+                "u.id as idEleve, c.name as name , u.lastName as lastName, u.firstName as firstName, " +
+                "u.deleteDate as deleteDate ,u.displayName as displayName" +
+                " ORDER BY c.name,  " +
                 " u.lastName, u.firstName ";
 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
@@ -282,15 +258,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
                 .append(" WHERE c.id IN {idClasses} ")
                 .append(RETURNING)
-                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup) ,")
+                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User),")
                 .append(" (g:Group), (c:Class) ")
                 .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND ( (g.id IN b.IN_OUTGOING AND NOT g.id = dg.id) ")
-                .append("      OR c.externalId IN u.classes ) ")
+                .append(" AND c.externalId IN u.classes ")
                 .append(" AND (c.id IN {idClasses} ")
-                .append("      OR g.id IN {idClasses} ) ")
+                .append("      OR (g.id IN {idClasses} AND g.externalId IN u.groups) ) ")
                 .append(RETURNING);
-
 
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
@@ -355,6 +329,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                                 o.put("lastName", student.getString("lastName"));
                                                                 o.put("firstName", student.getString("firstName"));
                                                                 o.put("deleteDate", student.getString("deleteDate"));
+                                                                o.put("displayName", student.getString("displayName"));
 
                                                                 studentPostgres.add(o);
                                                             }

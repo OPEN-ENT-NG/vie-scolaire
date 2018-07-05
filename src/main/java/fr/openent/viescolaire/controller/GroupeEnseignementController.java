@@ -88,7 +88,7 @@ public class GroupeEnseignementController extends ControllerHelper {
                     if (groupId != null && !groupId.trim().isEmpty()) {
                         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         final String profile = request.params().get("type");
-                        groupeService.listUsersByGroupeEnseignementId(groupId, profile, handler);
+                        groupeService.listUsersByGroupeEnseignementId(groupId, profile, null, handler);
                     }else{
                         log.error("Error getGroupesEnseignementUsers : groupId can't be null ");
                         badRequest(request);

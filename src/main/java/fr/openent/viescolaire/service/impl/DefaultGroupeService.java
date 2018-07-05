@@ -112,6 +112,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
     @Override
     public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile,
+                                                Long idPeriode,
                                                 Handler<Either<String, JsonArray>> handler) {
 
 
@@ -170,7 +171,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         sortedField[1] = "firstName";
         neo4j.execute(query.toString(), values,
                 utilsService.addStoredDeletedStudent(new JsonArray().add(groupeEnseignementId),
-                        null,null, sortedField, null, handler));
+                        null,null, sortedField, idPeriode, handler));
     }
 
     @Override

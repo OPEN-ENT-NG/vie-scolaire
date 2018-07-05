@@ -102,7 +102,9 @@ public class EventBusController extends ControllerHelper {
             case "listUsersByGroupeEnseignementId": {
                 String groupeEnseignementId = message.body().getString("groupEnseignementId");
                 String profile = message.body().getString("profile");
-                groupeService.listUsersByGroupeEnseignementId(groupeEnseignementId, profile, getJsonArrayBusResultHandler(message));
+                Long idPeriode = message.body().getLong("idPeriode");
+                groupeService.listUsersByGroupeEnseignementId(groupeEnseignementId, profile,
+                        idPeriode,getJsonArrayBusResultHandler(message));
             }
             break;
             case "listGroupesEnseignementsByUserId": {

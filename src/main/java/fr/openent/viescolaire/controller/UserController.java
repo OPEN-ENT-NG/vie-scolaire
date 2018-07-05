@@ -21,7 +21,9 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Delete;
 import fr.wseduc.rs.Get;
@@ -42,6 +44,11 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -49,11 +56,106 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 public class UserController extends ControllerHelper {
 
     private UserService userService;
+    private final UtilsService utilsService;
+
     protected static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         userService = new DefaultUserService(eb);
+        utilsService = new DefaultUtilsService();
+    }
+
+    public JsonArray instanciateUsers() {
+        JsonArray users = new JsonArray();
+        JsonObject us1 = new JsonObject();
+        JsonArray classes1 = new JsonArray();
+        JsonArray oldClasses1 = new JsonArray();
+        classes1.add("3075$31_AGL1");
+        oldClasses1.add("3075$3LCALA-2");
+        us1.put("userId", "de6089f6-7650-4de8-bf81-6656a5fabc26");
+        us1.put("userExternalId", "4502970");
+        us1.put("classes", classes1);
+        us1.put("oldClasses", oldClasses1);
+        us1.put("timestamp", 1528459302114L);
+        users.add(us1);
+
+        JsonObject us2 = new JsonObject();
+        JsonArray classes2 = new JsonArray();
+        JsonArray oldClasses2 = new JsonArray();
+        us2.put("userId", "6fc2be57-2582-4716-881c-458cdfdf622d");
+        us2.put("userExternalId", "4507913");
+        classes2.add("3075$31_A");
+        oldClasses2.add("3075$3LCALA-2");
+        us2.put("classes", classes2);
+        us2.put("oldClasses", oldClasses2);
+        us2.put("timestamp", 1528459302114L);
+        users.add(us2);
+
+        JsonObject us3 = new JsonObject();
+        JsonArray classes3 = new JsonArray();
+        JsonArray oldClasses3 = new JsonArray();
+        us3.put("userId", "12bacd8d-cacd-4c29-aa25-80edd481e152");
+        us3.put("userExternalId", "4502972");
+        classes3.add("3075$31_B");
+        oldClasses3.add("3075$34_A");
+        oldClasses3.add("3075$31_B");
+        us3.put("classes", classes3);
+        us3.put("oldClasses", oldClasses3);
+        us3.put("timestamp", 1528459302114L);
+        users.add(us3);
+
+        JsonObject us4 = new JsonObject();
+        JsonArray classes4 = new JsonArray();
+        JsonArray oldClasses4 = new JsonArray();
+        us4.put("userId", "8bd64509-8cfd-4e6c-8ea3-de4844ab5334"); //6b8d9b0c-678e-4513-9b6f-4deab94777d9
+        us4.put("userExternalId", "4502945");
+        oldClasses4.add("3075$31_B");
+        us4.put("classes", classes4);
+        us4.put("oldClasses", oldClasses4);
+        us4.put("timestamp", 1528459302114L);
+        users.add(us4);
+
+        return users;
+    }
+
+    @Get("/doRequest")
+    @ApiDoc("doRequest")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void doRequest(final HttpServerRequest request){
+
+        JsonArray users = instanciateUsers();
+//        userService.parseUsersData(users, new Handler<Either<String, JsonArray>>() {
+//            @Override
+//            public void handle(Either<String, JsonArray> event) {
+//                if (event.isRight()) {
+//                    JsonArray result = event.right().getValue();
+//                    userService.createPersonnesSupp(result, new Handler<Either<String, JsonObject>>() {
+//                        @Override
+//                        public void handle(Either<String, JsonObject> event) {
+//                            if (event.isLeft()) {
+//                                log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
+//                            }
+//                            else {
+//                                userService.insertAnnotationsNewClasses(result, new Handler<Either<String, JsonObject>>() {
+//                                    @Override
+//                                    public void handle(Either<String, JsonObject> event) {
+//                                        if (event.isLeft()) {
+//                                            log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
+//                                        }
+//                                        else {
+//                                            log.info("[VieScolaireRepositoryEvents] : Stored ");
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//                } else {
+//                    log.error("[VieScolaireRepositoryEvents] : An error occured when retrieving users data");
+//                }
+//            }
+//        });
     }
 
     /**

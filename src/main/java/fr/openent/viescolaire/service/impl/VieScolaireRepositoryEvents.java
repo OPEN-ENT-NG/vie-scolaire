@@ -20,6 +20,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.RepositoryEvents;
 import io.vertx.core.Handler;
@@ -29,6 +30,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by ledunoiss on 29/03/2017.
  */
@@ -36,11 +42,13 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     private static final Logger log = LoggerFactory.getLogger(VieScolaireRepositoryEvents.class);
     private final UserService userService;
+    private final UtilsService utilsService;
     private EventBus eb;
 
     public VieScolaireRepositoryEvents(EventBus eb) {
         this.eb = eb;
         userService = new DefaultUserService(eb);
+        utilsService = new DefaultUtilsService();
     }
 
     @Override
@@ -63,6 +71,41 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
                 }
                 else {
                     log.info("[VieScolaireRepositoryEvents] : Stored ");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void usersClassesUpdated(JsonArray users) {
+        userService.parseUsersData(users, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if (event.isRight()) {
+                    JsonArray result = event.right().getValue();
+                    userService.createPersonnesSupp(result, new Handler<Either<String, JsonObject>>() {
+                        @Override
+                        public void handle(Either<String, JsonObject> event) {
+                            if (event.isLeft()) {
+                                log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
+                            }
+                            else {
+                                userService.insertAnnotationsNewClasses(result, new Handler<Either<String, JsonObject>>() {
+                                    @Override
+                                    public void handle(Either<String, JsonObject> event) {
+                                        if (event.isLeft()) {
+                                            log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
+                                        }
+                                        else {
+                                            log.info("[VieScolaireRepositoryEvents] : Stored ");
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    log.error("[VieScolaireRepositoryEvents] : An error occured when retrieving users data");
                 }
             }
         });

@@ -21,6 +21,7 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
@@ -34,8 +35,7 @@ import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
@@ -47,9 +47,11 @@ public class DefaultUserService implements UserService {
 
     private EventBus eb;
     private final Neo4j neo4j = Neo4j.getInstance();
+    private final UtilsService utilsService;
 
     public DefaultUserService(EventBus eb) {
         this.eb = eb;
+        utilsService = new DefaultUtilsService();
     }
 
     @Override
@@ -196,6 +198,122 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
+    public void parseUsersData(JsonArray users, Handler<Either<String, JsonArray>> handler){
+        List<String> idUsers = new LinkedList<String>();
+        List<String> externalIdGroups = new LinkedList<String>();
+        JsonObject newClasses = new JsonObject();
+
+        for (Object u : users) {
+            newClasses.put(((JsonObject) u).getString("userId"), ((JsonObject) u).getJsonArray("classes"));
+            idUsers.add(((JsonObject) u).getString("userId"));
+
+            JsonArray allClasses = ((JsonObject) u).getJsonArray("classes");
+            allClasses.addAll(((JsonObject) u).getJsonArray("oldClasses"));
+            for(Object c : allClasses){
+                if(!externalIdGroups.contains((String) c))
+                    externalIdGroups.add((String) c);
+            }
+        }
+        getUsers(idUsers, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> event) {
+                if (event.isRight()) {
+
+                    Map<String, JsonObject> usersMap = new HashMap<String, JsonObject>();
+                    for (Object u : event.right().getValue()) {
+                        JsonObject user = (JsonObject) u;
+                        usersMap.put(user.getString("id"), user); // ajoute un user dans userMap idUser -> user
+                        JsonArray classeEnTrop = new JsonArray();
+
+                        //on verifie que les nouvelles classes de l'utilisateur envoyées par l'evenement
+                        // existent bien sur l'utilisateur dans Neo4J
+                        for (Object nouvelleClasse : newClasses.getJsonArray(user.getString("id"))) {
+
+                            if(!user.getJsonArray("currentGroupExternalIds").contains(nouvelleClasse) && !user.getJsonArray("currentClassExternalIds").contains(nouvelleClasse)){
+                                classeEnTrop.add(nouvelleClasse);
+                            }
+                        }
+                        for (Object d : classeEnTrop) {
+                            ((JsonArray) newClasses.getJsonArray(user.getString("id"))).remove((String)d);
+                            // TODO message erreur /enregistrer erreur en bdd
+                        }
+                    }
+                    utilsService.getIdGroupByExternalId(externalIdGroups, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                Map<String, Object> classIdsMap = new HashMap<String, Object>();
+                                JsonArray arrayIdExternalIdClasses = event.right().getValue();
+                                // on stock dans une map l''association id/externalId
+                                for (Object c : arrayIdExternalIdClasses) {
+                                    final JsonObject classId = (JsonObject) c;
+                                    classIdsMap.put(classId.getString("externalId"),
+                                            classId.getString("id"));
+                                }
+
+                                JsonArray dataUsers = new JsonArray();
+
+                                for (Object o : users) {
+                                    final JsonObject u = (JsonObject) o;
+                                    String userId = u.getString("userId");
+                                    if(usersMap.containsKey(u.getString("userId"))){
+
+                                        JsonArray oldClassesExternalIds = u.getJsonArray("oldClasses");
+                                        JsonArray newClassesExternalIds = newClasses.getJsonArray(userId);
+
+                                        //classes à supprimer (qui n'existent pas dans neo4j)
+                                        JsonArray classesEnTrop = new JsonArray();
+
+                                        // listes d'ids neo4j des anciennes et nouvelles classes
+                                        JsonArray oldClassesIds = new JsonArray();
+                                        JsonArray newClassesIds = new JsonArray();
+
+                                        for(Object classe : newClassesExternalIds){
+                                            //si la nouvelle classe était déjà dans les anciennes
+                                            // ce n'est pas ré
+                                            if(oldClassesExternalIds.contains(classe)) {
+                                                oldClassesExternalIds.remove(classe);
+                                                classesEnTrop.add(classe);
+                                            } else {
+                                                if(classIdsMap.containsKey(classe))
+                                                    newClassesIds.add(classIdsMap.get(classe));
+                                            }
+                                        }
+
+
+                                        for (Object classeSupp : classesEnTrop) {
+                                            newClassesExternalIds.remove(classeSupp);
+                                        }
+
+                                        for(Object classeExternalId : oldClassesExternalIds){
+                                            if(classIdsMap.containsKey(classeExternalId))
+                                                oldClassesIds.add(classIdsMap.get(classeExternalId));
+                                        }
+
+                                        JsonObject user = usersMap.get(userId);
+                                        String type = user.getJsonArray("type").getString(0);
+                                        user.remove("type");
+                                        user.put("type", type);
+                                        user.put("classIds", oldClassesIds);
+                                        user.put("newClassIds", newClassesIds);
+                                        user.put("deleteDate", u.getLong("timestamp"));
+                                        dataUsers.add(user);
+                                    }
+                                }
+                                handler.handle(new Either.Right<String, JsonArray>(dataUsers));
+                            } else {
+                                handler.handle(new Either.Left<>("Error message"));
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<>("Error message"));
+                }
+            }
+        });
+    }
+
+    @Override
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler) {
         SqlStatementsBuilder statements = new SqlStatementsBuilder();
         for (Object u : users) {
@@ -238,6 +356,39 @@ public class DefaultUserService implements UserService {
             }
         }
         Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler){
+
+        StringBuilder query = new StringBuilder();
+        JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+
+        for(Object u : users){
+            JsonObject user = (JsonObject) u;
+            List<String> newClassIds = user.getJsonArray("newClassIds").getList();
+
+            if(newClassIds != null && newClassIds.size() > 0) {
+                query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve)" +
+                             "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " +
+                             "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
+                             "WHERE libelle_court = 'NN' " +
+                             "AND id_etablissement = ?), ? FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes WHERE id_groupe IN " + Sql.listPrepared(newClassIds) + ");");
+
+                params.add(user.getJsonArray("currentStructureIds").getValue(0));
+                params.add(user.getString("id"));
+                for (Object idGroup : user.getJsonArray("newClassIds")) {
+                    params.add(idGroup);
+                }
+            }
+        }
+        statements.add(new JsonObject()
+                .put("statement", query.toString())
+                .put("values", params)
+                .put("action", "prepared"));
+
+        Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
     }
 
     /**
@@ -364,10 +515,19 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>> handler){
+    public void getUsers(List<String> idUsers, Handler<Either<String, JsonArray>> handler){
         StringBuilder query=new StringBuilder();
-        query.append("MATCH (u:User) WHERE u.id IN {id} RETURN u.externalId as externalId, u.displayName as displayName");
-        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(idsResponsable)), Neo4jResult.validResultHandler(handler));
+        query.append("MATCH (u:User) WHERE u.id IN {id} " +
+                     "OPTIONAL MATCH (s:Structure) " +
+                     "WHERE s.externalId IN u.structures " +
+                     "OPTIONAL MATCH (g:Group) " +
+                     "WHERE g.externalId IN u.groups " +
+                     "OPTIONAL MATCH (c:Class) " +
+                     "WHERE c.externalId IN u.classes " +
+                     "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, " +
+                     "COLLECT(DISTINCT s.id) AS currentStructureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
+                     "COLLECT(DISTINCT g.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(idUsers)), Neo4jResult.validResultHandler(handler));
     }
 
     @Override

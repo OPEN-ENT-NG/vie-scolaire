@@ -183,7 +183,7 @@ public class EventBusController extends ControllerHelper {
             break;
             case "getResponsablesEtabl": {
                 List<String> idsResponsable = message.body().getJsonArray("idsResponsable").getList();
-                userService.getResponsablesEtabl(idsResponsable, getJsonArrayBusResultHandler(message));
+                userService.getUsers(idsResponsable, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {

@@ -104,5 +104,11 @@ public interface UtilsService {
      */
     Handler<Message<JsonObject>> getEleveWithClasseName(String[] idClasses, String[] idEleves, Long idPeriode,
                                                                Handler<Either<String, JsonArray>> handler);
+    /**
+     * Récupère les ids de classes et de groupes à partir de leur externalIds
+     * @param externalIdStructures
+     * @param handler handler comportant le resultat
+     */
+    public void getIdGroupByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler);
 
     }

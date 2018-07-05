@@ -45,6 +45,20 @@ public interface UserService {
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
     /**
+     * Insertion des annotations NN sur les anciens des nouvelles classes
+     * @param users : utilisateur connecté
+     * @param handler handler comportant le resultat
+     */
+    public void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Récupère les données des utilisateurs à supprimer
+     * @param users : utilisateurs à supprimer
+     * @param handler handler comportant le resultat
+     */
+    public void parseUsersData(JsonArray users, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * Recupere les établissements inactifs de l'utilisateur connecté
      * @param userInfos : utilisateur connecté
      * @param handler handler comportant le resultat
@@ -82,10 +96,10 @@ public interface UserService {
 
     /**
      * récupère les responsables d'établissement
-     * @param idsResponsable
+     * @param idUsers
      * @param handler
      */
-    public void getResponsablesEtabl(List<String> idsResponsable, Handler<Either<String,JsonArray>>handler);
+    public void getUsers(List<String> idUsers, Handler<Either<String,JsonArray>>handler);
 
 
     /**

@@ -224,9 +224,13 @@ public class DefaultUserService implements UserService {
                        Viescolaire.CLASSE_TYPE);
             }
 
-            if (user.containsKey("groupIds") && user.getJsonArray("groupIds").size() > 0) {
-                formatGroups(user.getJsonArray("groupIds"), user.getString("id"), statements,
+            if (user.containsKey("functionalGroupsIds") && user.getJsonArray("functionalGroupsIds").size() > 0) {
+                formatGroups(user.getJsonArray("functionalGroupsIds"), user.getString("id"), statements,
                         Viescolaire.GROUPE_TYPE);
+            }
+            if (user.containsKey("manualGroupsIds") && user.getJsonArray("manualGroupsIds").size() > 0) {
+                formatGroups(user.getJsonArray("manualGroupsIds"), user.getString("id"), statements,
+                        Viescolaire.GROUPE_MANUEL_TYPE);
             }
 
             if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {

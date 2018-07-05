@@ -87,12 +87,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(RETURNING)
                 .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
                 .append(RETURNING)
-                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User) ,")
+                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup) ,")
                 .append(" (g:Group), (c:Class) ")
                 .append(" WHERE HAS(u.deleteDate) ")
                 .append(" AND  c.externalId IN u.classes ")
                 .append(" AND (c.id = {idClasse} ")
-                .append("      OR (g.id = {idClasse}  AND g.externalId IN u.groups)) ")
+                .append("      OR (g.id = {idClasse}  AND (g.externalId IN u.groups OR g.id IN b.IN_OUTGOING) )) ")
                 .append(RETURNING);
 
         String [] sortedField = new  String[2];
@@ -258,12 +258,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup) ")
                 .append(" WHERE c.id IN {idClasses} ")
                 .append(RETURNING)
-                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User),")
+                .append(" UNION MATCH (dg:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup),")
                 .append(" (g:Group), (c:Class) ")
                 .append(" WHERE HAS(u.deleteDate) ")
                 .append(" AND c.externalId IN u.classes ")
                 .append(" AND (c.id IN {idClasses} ")
-                .append("      OR (g.id IN {idClasses} AND g.externalId IN u.groups) ) ")
+                .append("      OR (g.id IN {idClasses} AND (g.externalId IN u.groups  OR g.id IN b.IN_OUTGOING ) ) ) ")
                 .append(RETURNING);
 
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));

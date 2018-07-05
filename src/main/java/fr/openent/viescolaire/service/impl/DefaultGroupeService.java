@@ -147,10 +147,11 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         // Récupération des utilisateurs en instance de suppression (plus liés aux classes ni aux groupes)
         // Mais toujours présents dans l'annuaire
         StringBuilder queryGetDeleteUsers = new StringBuilder();
-        queryGetDeleteUsers.append("MATCH (:DeleteGroup)<-[:IN]-(users:User),(fgroup:Group) ")
+        queryGetDeleteUsers.append("MATCH (:DeleteGroup)<-[:IN]-(users:User)-[:HAS_RELATIONSHIPS]->(b:Backup),")
+                .append(" (fgroup:Group) ")
                 .append(" WHERE HAS(users.deleteDate) ")
                 .append(" AND fgroup.id = {groupeEnseignementId} ")
-                .append(" AND fgroup.externalId IN users.groups ")
+                .append(" AND (fgroup.externalId IN users.groups  OR fgroup.id IN b.IN_OUTGOING) ")
                 .append(" AND " + PROFILFILTER)
                 .append(" OPTIONAL MATCH (c:Class) WHERE c.externalId IN users.classes ")
                 .append(RETURNING.toString());

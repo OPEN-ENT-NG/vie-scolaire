@@ -382,22 +382,34 @@ public class DefaultUserService implements UserService {
         for(Object u : users){
             JsonObject user = (JsonObject) u;
             List<String> newClassIds = user.getJsonArray("newClassIds").getList();
+            String idUser = user.getString("id");
 
             if(newClassIds != null && newClassIds.size() > 0) {
                 query = new StringBuilder();
                 params = new fr.wseduc.webutils.collections.JsonArray();
-                query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve)" +
-                             "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " +
-                             "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
-                             "WHERE libelle_court = 'NN' " +
-                             "AND id_etablissement = ?), ? FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes WHERE id_groupe IN " + Sql.listPrepared(newClassIds) + ") " +
-                             "ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING ");
+                query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve) " +
+                                "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " + // Récupère les ids des devoirs sur la classe/groupe
+                                    "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id " + // Récupère les ids de l'annotaion NN de l'étab
+                                       "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
+                                       "WHERE libelle_court = 'NN' " +
+                                          "AND id_etablissement = ?), ? " +
+                             "FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
+                             "WHERE id_groupe IN " + Sql.listPrepared(newClassIds) +
+                             " AND NOT EXISTS (SELECT 1 " +
+                                                "FROM " + Viescolaire.EVAL_SCHEMA + ".notes " +
+                                                "WHERE notes.id_eleve = ? AND notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de note sur le devoir
+                             " AND NOT EXISTS (SELECT 1" +
+                                                "FROM " + Viescolaire.EVAL_SCHEMA + ".competences_notes " +
+                                                "WHERE competences_notes.id_eleve = ? AND competences_notes.id_devoir = rel_devoirs_groupes.id_devoir)) " + // Vérifie que l'élève n'a pas de compétences notes sur le devoir
+                             " ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
 
                 params.add(user.getJsonArray("currentStructureIds").getValue(0));
-                params.add(user.getString("id"));
+                params.add(idUser);
                 for (Object idGroup : user.getJsonArray("newClassIds")) {
                     params.add(idGroup);
                 }
+                params.add(idUser);
+                params.add(idUser);
                 statements.add(new JsonObject()
                         .put("statement", query.toString())
                         .put("values", params)

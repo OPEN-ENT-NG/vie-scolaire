@@ -206,9 +206,19 @@ public class DefaultUserService implements UserService {
         for (Object u : users) {
             newClasses.put(((JsonObject) u).getString("userId"), ((JsonObject) u).getJsonArray("classes"));
             idUsers.add(((JsonObject) u).getString("userId"));
-
-            JsonArray allClasses = ((JsonObject) u).getJsonArray("classes");
-            allClasses.addAll(((JsonObject) u).getJsonArray("oldClasses"));
+            JsonArray allClasses = new JsonArray();
+            // On ajoute les classes de l'utilisateur si non null
+            JsonArray jsonArrayClasses = ((JsonObject) u).getJsonArray("classes");
+            if(null != jsonArrayClasses
+                    && jsonArrayClasses.size() > 0){
+                allClasses.addAll(jsonArrayClasses);
+            }
+            // On ajoute les anciennes classes de l'utilisateur si non null
+            JsonArray jsonArrayOldClasses = ((JsonObject) u).getJsonArray("oldClasses");
+            if(null != jsonArrayOldClasses
+                    && jsonArrayOldClasses.size() > 0){
+                allClasses.addAll(jsonArrayOldClasses);
+            }
             for(Object c : allClasses){
                 if(!externalIdGroups.contains((String) c))
                     externalIdGroups.add((String) c);
@@ -256,40 +266,43 @@ public class DefaultUserService implements UserService {
                                 for (Object o : users) {
                                     final JsonObject u = (JsonObject) o;
                                     String userId = u.getString("userId");
-                                    if(usersMap.containsKey(u.getString("userId"))){
 
-                                        JsonArray oldClassesExternalIds = u.getJsonArray("oldClasses");
-                                        JsonArray newClassesExternalIds = newClasses.getJsonArray(userId);
+                                    JsonArray oldClassesExternalIds = u.getJsonArray("oldClasses");
+                                    JsonArray newClassesExternalIds = newClasses.getJsonArray(userId);
 
-                                        //classes à supprimer (qui n'existent pas dans neo4j)
-                                        JsonArray classesEnTrop = new JsonArray();
+                                    //classes à supprimer (qui n'existent pas dans neo4j)
+                                    JsonArray classesEnTrop = new JsonArray();
 
-                                        // listes d'ids neo4j des anciennes et nouvelles classes
-                                        JsonArray oldClassesIds = new JsonArray();
-                                        JsonArray newClassesIds = new JsonArray();
+                                    // listes d'ids neo4j des anciennes et nouvelles classes
+                                    JsonArray oldClassesIds = new JsonArray();
+                                    JsonArray newClassesIds = new JsonArray();
 
-                                        for(Object classe : newClassesExternalIds){
-                                            //si la nouvelle classe était déjà dans les anciennes
-                                            // ce n'est pas ré
-                                            if(oldClassesExternalIds.contains(classe)) {
-                                                oldClassesExternalIds.remove(classe);
-                                                classesEnTrop.add(classe);
-                                            } else {
-                                                if(classIdsMap.containsKey(classe))
-                                                    newClassesIds.add(classIdsMap.get(classe));
-                                            }
+                                    for(Object classe : newClassesExternalIds){
+                                        //si la nouvelle classe était déjà dans les anciennes
+                                        // ce n'est pas ré
+                                        if(null != oldClassesExternalIds && oldClassesExternalIds.contains(classe)) {
+                                            oldClassesExternalIds.remove(classe);
+                                            classesEnTrop.add(classe);
+                                        } else {
+                                            if(classIdsMap.containsKey(classe))
+                                                newClassesIds.add(classIdsMap.get(classe));
                                         }
+                                    }
 
 
-                                        for (Object classeSupp : classesEnTrop) {
-                                            newClassesExternalIds.remove(classeSupp);
-                                        }
+                                    for (Object classeSupp : classesEnTrop) {
+                                        newClassesExternalIds.remove(classeSupp);
+                                    }
 
+                                    if(null != oldClassesExternalIds){
                                         for(Object classeExternalId : oldClassesExternalIds){
                                             if(classIdsMap.containsKey(classeExternalId))
                                                 oldClassesIds.add(classIdsMap.get(classeExternalId));
                                         }
+                                    }
 
+
+                                    if(null != newClassesIds && newClassesIds.size() > 0){
                                         JsonObject user = usersMap.get(userId);
                                         String type = user.getJsonArray("type").getString(0);
                                         user.remove("type");
@@ -325,7 +338,8 @@ public class DefaultUserService implements UserService {
             String uQuery =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, " +
                             "first_name, last_name, delete_date, birth_date) " +
-                    "VALUES (?, ?, ?, ?, ?, to_timestamp(?), ? );";
+                    "VALUES (?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
+                    "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
             JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
                     .add(user.getString("id"))
                     .add(user.getString("displayName"))
@@ -361,32 +375,36 @@ public class DefaultUserService implements UserService {
     @Override
     public void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler){
 
-        StringBuilder query = new StringBuilder();
+        StringBuilder query ;
         JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params;
 
         for(Object u : users){
             JsonObject user = (JsonObject) u;
             List<String> newClassIds = user.getJsonArray("newClassIds").getList();
 
             if(newClassIds != null && newClassIds.size() > 0) {
+                query = new StringBuilder();
+                params = new fr.wseduc.webutils.collections.JsonArray();
                 query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve)" +
                              "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " +
                              "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
                              "WHERE libelle_court = 'NN' " +
-                             "AND id_etablissement = ?), ? FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes WHERE id_groupe IN " + Sql.listPrepared(newClassIds) + ");");
+                             "AND id_etablissement = ?), ? FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes WHERE id_groupe IN " + Sql.listPrepared(newClassIds) + ") " +
+                             "ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING ");
 
                 params.add(user.getJsonArray("currentStructureIds").getValue(0));
                 params.add(user.getString("id"));
                 for (Object idGroup : user.getJsonArray("newClassIds")) {
                     params.add(idGroup);
                 }
+                statements.add(new JsonObject()
+                        .put("statement", query.toString())
+                        .put("values", params)
+                        .put("action", "prepared"));
             }
         }
-        statements.add(new JsonObject()
-                .put("statement", query.toString())
-                .put("values", params)
-                .put("action", "prepared"));
+
 
         Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
     }

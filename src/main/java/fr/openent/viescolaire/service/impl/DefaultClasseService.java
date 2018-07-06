@@ -246,7 +246,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String RETURNING = " RETURN c.id as idClasse, " +
                 "u.id as idEleve, c.name as name , u.lastName as lastName, u.firstName as firstName, " +
                 "u.deleteDate as deleteDate ,u.displayName as displayName" +
-                " ORDER BY c.name,  " +
+                " ORDER BY  " +
                 " u.lastName, u.firstName ";
 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) ")
@@ -338,10 +338,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
 
                                                             JsonArray result =  utilsService.saUnion(rNeo, studentPostgres);
-                                                            String [] sortedField = new  String[3];
-                                                            sortedField[0] = "name";
-                                                            sortedField[1] = "lastName";
-                                                            sortedField[2] = "firstName";
+                                                            String [] sortedField = new  String[2];
+                                                            sortedField[0] = "lastName";
+                                                            sortedField[1] = "firstName";
                                                             if (null == idPeriode) {
                                                                 handler.handle(new Either.Right(
                                                                         utilsService.sortArray(result, sortedField)));

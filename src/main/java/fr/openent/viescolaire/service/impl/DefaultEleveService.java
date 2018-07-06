@@ -152,14 +152,15 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
                 .append(" COLLECT(f.id) as idGroupes, ")
                 .append(" COLLECT(g.id) as idManualGroupes")
-                .append(" ORDER BY lastName ");
+                .append(" ORDER BY lastName, firstName ");
 
         params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
 
         // Rajout des élèves supprimés au résultat
-        String [] sortedField = new  String[1];
-        sortedField[0]= "lastName";
+        String [] sortedField = new  String[2];
+        sortedField[0] = "lastName";
+        sortedField[1] = "firstName";
         neo4j.execute(query.toString(), params, new DefaultUtilsService().addStoredDeletedStudent(null,
                 null,idEleves, sortedField, null, handler));
     }

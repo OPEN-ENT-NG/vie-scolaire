@@ -21,9 +21,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
-import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
-import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Delete;
 import fr.wseduc.rs.Get;
@@ -44,11 +42,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -56,15 +49,13 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 public class UserController extends ControllerHelper {
 
     private UserService userService;
-    private final UtilsService utilsService;
-
     protected static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     public UserController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         userService = new DefaultUserService(eb);
-        utilsService = new DefaultUtilsService();
     }
+
     /**
      * Retourne retourne le cycle de la classe
      * @param request

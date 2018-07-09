@@ -158,11 +158,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
 
         // Rajout des élèves supprimés au résultat
-        String [] sortedField = new  String[2];
-        sortedField[0] = "lastName";
-        sortedField[1] = "firstName";
-        neo4j.execute(query.toString(), params, new DefaultUtilsService().addStoredDeletedStudent(null,
-                null,idEleves, sortedField, null, handler));
+        neo4j.execute(query.toString(), params, new DefaultUtilsService().getEleveWithClasseName(null,
+                idEleves,null,handler));
     }
 
     @Override
@@ -328,7 +325,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" SELECT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
                 .append(" personnes_supp.id_user as \"idEleve\", display_name as \"displayName\", ")
                 .append(" delete_date as \"deleteDate\", first_name as \"firstName\", last_name as \"lastName\", ")
-                .append(" json_agg( rel_groupes_personne_supp.id_groupe)  AS \"idGroupes\"  ")
+                .append("  string_agg(distinct rel_groupes_personne_supp.id_groupe , ',')   AS \"idGroupes\"  ")
                 .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp")
 
                 // Jointure table de relation structure

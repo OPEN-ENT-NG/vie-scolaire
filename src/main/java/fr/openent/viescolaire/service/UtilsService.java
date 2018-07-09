@@ -95,5 +95,14 @@ public interface UtilsService {
      */
     JsonArray sortArray(JsonArray jsonArr, String[] sortedField);
 
+    /**
+     *
+     * @param idClasses
+     * @param idPeriode
+     * @param handler
+     * @return
+     */
+    Handler<Message<JsonObject>> getEleveWithClasseName(String[] idClasses, String[] idEleves, Long idPeriode,
+                                                               Handler<Either<String, JsonArray>> handler);
 
     }

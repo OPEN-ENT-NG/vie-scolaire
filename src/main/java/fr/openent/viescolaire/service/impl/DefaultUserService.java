@@ -379,6 +379,11 @@ public class DefaultUserService implements UserService {
         query.append("r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
         query.append("c.id as idClass, c.name as nameClass, c.externalId as externalIdClass ORDER BY nameClass, lastName");
         param.put("idClass", new fr.wseduc.webutils.collections.JsonArray(idsClass));
+        // TODO PUT ExternalId of deleted students and store deleted parents
+        /*
+        Neo4j.getInstance().execute(query.toString(), param, new DefaultUtilsService()
+                .getEleveWithClasseName((String[])idsClass.toArray(),null,null,handler));
+        */
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
 

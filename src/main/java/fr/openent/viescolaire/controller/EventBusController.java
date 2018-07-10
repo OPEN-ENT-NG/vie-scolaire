@@ -224,6 +224,12 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getCycle(idClasse, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "isEvaluableOnPeriode": {
+                String idEleve = message.body().getString("idEleve");
+                Long idPeriode = message.body().getLong("idPeriode");
+                eleveService.isEvaluableOnPeriode(idEleve, idPeriode, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

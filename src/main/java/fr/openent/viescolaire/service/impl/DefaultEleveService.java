@@ -34,8 +34,12 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -137,37 +141,22 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        // Format de retour des données
-        StringBuilder RETURNING = new StringBuilder().append("RETURN u.id as idEleve, u.firstName as firstName, ")
-                .append(" u.lastName as lastName, ")
-                .append(" u.deleteDate as deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
-                .append(" COLLECT(g.id) as idGroupes ")
-                .append(" ORDER BY lastName, firstName ");
-
-
         query.append("MATCH (u:User),(s:Structure),(c:Class)  ")
                 .append(" WHERE ")
-                .append(" u.profiles= [\"Student\"] AND NOT HAS(u.deleteDate) ")
+                .append(" u.profiles= [\"Student\"]  ")
                 .append(" AND u.id IN {idEleves}")
                 .append("  AND c.externalId IN u.classes ")
                 .append("  AND s.externalId IN u.structures")
                 .append("     with u, c, s")
-                .append(" OPTIONAL MATCH (g:Group)<-[i:IN]-(u) with  u, c, s, g ")
-                .append(RETURNING.toString())
+                .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")
+                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u)")
 
-                // Récupération des utilisateurs en instances de suppression
-                .append(" UNION ")
-                .append(" MATCH (:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup),")
-                .append(" (s:Structure),(c:Class)")
-                .append(" WHERE ")
-                .append(" u.profiles= [\"Student\"] AND HAS(u.deleteDate)  ")
-                .append(" AND u.id IN {idEleves}")
-                .append("  AND c.externalId IN u.classes ")
-                .append("  AND s.externalId IN u.structures")
-                .append("     with u, c, s, b ")
-                .append(" OPTIONAL MATCH (g:Group) WHERE  g.id IN b.IN_OUTGOING OR g.externalId IN u.groups ")
-                .append(" with  u, c, s, g, b ")
-                .append(RETURNING.toString());
+                // Format de Retour des données
+                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
+                .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
+                .append(" COLLECT(f.id) as idGroupes, ")
+                .append(" COLLECT(g.id) as idManualGroupes")
+                .append(" ORDER BY lastName, firstName ");
 
         params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
@@ -363,6 +352,63 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
 
+    }
+
+    public void isEvaluableOnPeriode(String idEleve, Long idPeriode,
+                              Handler<Either<String, JsonArray>> handler){
+
+        String[] idEleves = new String[1];
+        idEleves[0] = idEleve;
+        getInfoEleve(idEleves, new Handler<Either<String, JsonArray>>(){
+            public void handle(Either<String, JsonArray> result) {
+                if (result.isRight()) {
+                    JsonObject infosEleve = result.right().getValue().getJsonObject(0);
+                    String idClasse = infosEleve.getString("idClasse");
+                    String idEtablissement = infosEleve.getString("idEtablissement");
+                    String[] idClasses = new String[1];
+                    idClasses[0] = idClasse;
+                    new DefaultPeriodeService().getPeriodesClasses(idEtablissement, idClasses, new Handler<Either<String, JsonArray>>(){
+
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+
+                                JsonArray periodes = event.right().getValue();
+                                String[] sortedField = new String[1];
+                                sortedField[0] = "idEleve";
+
+                                for(Object p : periodes){
+
+                                    JsonObject periode = (JsonObject)p;
+                                    if(periode.getLong("id_type").equals(idPeriode)){
+                                        String debutPeriode = periode.getString("timestamp_dt");
+                                        String finPeriode = periode.getString("timestamp_fn");
+                                        DateFormat formatter = new SimpleDateFormat("yy-MM-dd");
+
+                                        try {
+                                            final Date dateDebutPeriode = formatter.parse(debutPeriode);
+                                            final Date dateFinPeriode = formatter.parse(finPeriode);
+
+                                            new DefaultUtilsService().getAvailableStudent(
+                                                    result.right().getValue(), idPeriode,
+                                                    dateDebutPeriode,
+                                                    dateFinPeriode,
+                                                    sortedField, handler);
+
+                                        } catch (ParseException e) {
+                                            handler.handle(new Either.Left<>("Error :can not calcul students of groupe : " + idClasses[0]));
+                                        }
+                                    }
+                                }
+                            }else{
+                                handler.handle(new Either.Left<>("Periode not found"));
+                            }
+                        }
+                    });
+                } else {
+                    handler.handle(new Either.Left<>("Infos eleve not found"));
+                }
+            }
+        });
     }
 
 

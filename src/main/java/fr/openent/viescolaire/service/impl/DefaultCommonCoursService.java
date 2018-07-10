@@ -14,7 +14,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 
-
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -186,12 +186,15 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return dayOfWeek;
     }
     private static JsonObject formatOccurence(JsonObject course, Calendar start , Calendar end, boolean isRecurent) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        df.format(start.getTime());
+
         JsonObject occurence = new JsonObject(course.toString());
         occurence.put("is_recurrent", isRecurent);
         occurence.put("color", utilsService.getColor(course.getJsonArray("classes").getString(0)));
         occurence.put("is_periodic",false);
-        occurence.put(COURSE_TABLE.startDate, start.getTime().toInstant().toString());
-        occurence.put(COURSE_TABLE.endDate, end.getTime().toInstant().toString());
+        occurence.put(COURSE_TABLE.startDate, df.format(start.getTime()));
+        occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));
         return occurence;
     }
     private static long daysBetween(Calendar startDate, Calendar endDate) {

@@ -37,7 +37,7 @@ public interface UtilsService {
     /**
      * Get a Fix Color for a List of Classes name
      */
-    public String getColor(String classes) ;
+     String getColor(String classes) ;
 
 
     /**

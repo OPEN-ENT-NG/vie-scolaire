@@ -378,6 +378,7 @@ public class DefaultUtilsService implements UtilsService{
                                                                 o.put("firstName", student.getString("firstName"));
                                                                 o.put("deleteDate", student.getString("deleteDate"));
                                                                 o.put("displayName", student.getString("displayName"));
+                                                                o.put("idGroupes", student.getString("idGroupes"));
 
                                                                 studentPostgres.add(o);
                                                             }
@@ -386,10 +387,9 @@ public class DefaultUtilsService implements UtilsService{
 
 
                                                             JsonArray result =  utilsService.saUnion(rNeo, studentPostgres);
-                                                            String [] sortedField = new  String[3];
-                                                            sortedField[0] = "name";
-                                                            sortedField[1] = "lastName";
-                                                            sortedField[2] = "firstName";
+                                                            String [] sortedField = new  String[2];
+                                                            sortedField[0] = "lastName";
+                                                            sortedField[1] = "firstName";
                                                             if (null == idPeriode) {
                                                                 handler.handle(new Either.Right(
                                                                         utilsService.sortArray(result, sortedField)));

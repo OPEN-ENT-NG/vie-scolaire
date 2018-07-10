@@ -137,22 +137,37 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
+        // Format de retour des données
+        StringBuilder RETURNING = new StringBuilder().append("RETURN u.id as idEleve, u.firstName as firstName, ")
+                .append(" u.lastName as lastName, ")
+                .append(" u.deleteDate as deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
+                .append(" COLLECT(g.id) as idGroupes ")
+                .append(" ORDER BY lastName, firstName ");
+
+
         query.append("MATCH (u:User),(s:Structure),(c:Class)  ")
                 .append(" WHERE ")
-                .append(" u.profiles= [\"Student\"]  ")
+                .append(" u.profiles= [\"Student\"] AND NOT HAS(u.deleteDate) ")
                 .append(" AND u.id IN {idEleves}")
                 .append("  AND c.externalId IN u.classes ")
                 .append("  AND s.externalId IN u.structures")
                 .append("     with u, c, s")
-                .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")
-                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u)")
+                .append(" OPTIONAL MATCH (g:Group)<-[i:IN]-(u) with  u, c, s, g ")
+                .append(RETURNING.toString())
 
-                // Format de Retour des données
-                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
-                .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
-                .append(" COLLECT(f.id) as idGroupes, ")
-                .append(" COLLECT(g.id) as idManualGroupes")
-                .append(" ORDER BY lastName, firstName ");
+                // Récupération des utilisateurs en instances de suppression
+                .append(" UNION ")
+                .append(" MATCH (:DeleteGroup)<-[:IN]-(u:User)-[:HAS_RELATIONSHIPS]->(b:Backup),")
+                .append(" (s:Structure),(c:Class)")
+                .append(" WHERE ")
+                .append(" u.profiles= [\"Student\"] AND HAS(u.deleteDate)  ")
+                .append(" AND u.id IN {idEleves}")
+                .append("  AND c.externalId IN u.classes ")
+                .append("  AND s.externalId IN u.structures")
+                .append("     with u, c, s, b ")
+                .append(" OPTIONAL MATCH (g:Group) WHERE  g.id IN b.IN_OUTGOING OR g.externalId IN u.groups ")
+                .append(" with  u, c, s, g, b ")
+                .append(RETURNING.toString());
 
         params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 

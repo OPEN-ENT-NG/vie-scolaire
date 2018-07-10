@@ -371,7 +371,7 @@ public class DefaultUtilsService implements UtilsService{
 
                                                                 // Formatage des données pour union
                                                                 o.put("name", mapClasseName.get(studentIdClasse));
-                                                                o.put("ClasseName", mapClasseName.get(studentIdClasse));
+                                                                o.put("classeName", mapClasseName.get(studentIdClasse));
                                                                 o.put("idClasse", studentIdClasse);
                                                                 o.put("idEleve", student.getString("idEleve"));
                                                                 o.put("lastName", student.getString("lastName"));
@@ -379,7 +379,7 @@ public class DefaultUtilsService implements UtilsService{
                                                                 o.put("deleteDate", student.getString("deleteDate"));
                                                                 o.put("displayName", student.getString("displayName"));
                                                                 o.put("idGroupes", student.getString("idGroupes"));
-
+                                                                o.put("idEtablissement",student.getString("idEtablissement"));
                                                                 studentPostgres.add(o);
                                                             }
                                                             DefaultUtilsService utilsService = new DefaultUtilsService();

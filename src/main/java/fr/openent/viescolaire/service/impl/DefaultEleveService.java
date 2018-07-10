@@ -340,7 +340,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" SELECT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
                 .append(" personnes_supp.id_user as \"idEleve\", display_name as \"displayName\", ")
                 .append(" delete_date as \"deleteDate\", first_name as \"firstName\", last_name as \"lastName\", ")
-                .append("  string_agg(distinct rel_groupes_personne_supp.id_groupe , ',')   AS \"idGroupes\"  ")
+                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',')   AS \"idGroupes\",  ")
+                .append(" id_structure as \"idEtablissement\"")
                 .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp")
 
                 // Jointure table de relation structure
@@ -354,7 +355,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp ")
                 .append(" ON personnes_supp.id_user = rel_groupes_personne_supp.id_user ")
                 .append((idClasse != null)? "WHERE id_groupe IN" + Sql.listPrepared(idClasse.getList().toArray()): "")
-                .append(" GROUP BY  personnes_supp.id_user ")
+                .append(" GROUP BY  personnes_supp.id_user, rel_structures_personne_supp.id_structure ")
 
                 .append(" ) AS res ")
                 .append(" INNER JOIN viesco.rel_groupes_personne_supp  ")

@@ -1,0 +1,1 @@
+ALTER TABLE notes.eleve_enseignement_complement ADD COLUMN id_cycle bigint DEFAULT NULL;

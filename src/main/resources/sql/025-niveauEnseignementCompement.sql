@@ -28,5 +28,3 @@ UPDATE notes.eleve_enseignement_complement SET id_niveau=3 WHERE id_niveau=0;
 ALTER TABLE notes.eleve_enseignement_complement ADD CONSTRAINT fk_niveau_id FOREIGN KEY(id_niveau)
  REFERENCES notes.niveau_ens_complement (id) MATCH SIMPLE
  ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-ALTER TABLE notes.eleve_enseignement_complement ADD COLUMN id_cycle bigint DEFAULT NULL;

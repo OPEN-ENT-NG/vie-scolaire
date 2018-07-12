@@ -359,7 +359,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                 String[] idEleves = new String[1];
                                 idEleves[0] = idEleve;
                                 new DefaultEleveService().getStoredDeletedStudent(null, null,
-                                        idEleves,
+                                        idEleves, rNeo,
                                         new Handler<Either<String, JsonArray>>() {
                                             public void handle(Either<String, JsonArray> event) {
                                                 if (event.isRight()) {

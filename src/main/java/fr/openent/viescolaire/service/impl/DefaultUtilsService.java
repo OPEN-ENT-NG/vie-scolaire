@@ -184,7 +184,7 @@ public class DefaultUtilsService implements UtilsService{
                             new fr.wseduc.webutils.collections.JsonArray());
 
                     // Récupération des élèves supprimés et stockés dans postgres
-                    eleveService.getStoredDeletedStudent(idClasse,idStructure, idEleves,
+                    eleveService.getStoredDeletedStudent(idClasse,idStructure, idEleves, rNeo,
                             new Handler<Either<String, JsonArray>>() {
                                 public void handle(Either<String, JsonArray> event) {
                                     if (event.isRight()) {
@@ -321,7 +321,7 @@ public class DefaultUtilsService implements UtilsService{
                     JsonArray rNeo = eventNeo.body().getJsonArray("result");
                     new DefaultEleveService().getStoredDeletedStudent(
                             (null != idClasses)?new JsonArray(Arrays.asList(idClasses)) : null,
-                            null, idEleves,
+                            null, idEleves, rNeo,
                             new Handler<Either<String, JsonArray>>() {
                                 public void handle(Either<String, JsonArray> eventPostgres) {
                                     if (eventPostgres.isLeft()) {

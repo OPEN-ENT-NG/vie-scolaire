@@ -131,9 +131,10 @@ public interface EleveService extends CrudService {
      * @param idClasse
      * @param idStructure
      * @param idEleves
+     * @param idsNeo
      * @param handler
      */
-    void getStoredDeletedStudent(JsonArray idClasse,String idStructure,String[] idEleves,
+    void getStoredDeletedStudent(JsonArray idClasse,String idStructure,String[] idEleves, JsonArray idsNeo,
                                  Handler<Either<String, JsonArray>> handler);
 
     /**

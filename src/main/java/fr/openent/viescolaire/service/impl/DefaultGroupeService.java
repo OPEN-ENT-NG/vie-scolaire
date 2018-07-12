@@ -52,7 +52,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                         String[] idEleves = new String[1];
                         idEleves[0] = userId;
                         new DefaultEleveService().getStoredDeletedStudent(null, null,
-                                idEleves,
+                                idEleves,rNeo,
                                 new Handler<Either<String, JsonArray>>() {
                                     public void handle(Either<String, JsonArray> event) {
                                         if (event.isRight()) {

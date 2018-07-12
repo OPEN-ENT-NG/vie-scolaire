@@ -30,6 +30,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
+import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
@@ -43,13 +44,20 @@ import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 /**
  * Created by ledunoiss on 08/11/2016.
  */
-public class DefaultUserService implements UserService {
+public class DefaultUserService extends SqlCrudService implements UserService {
 
     private EventBus eb;
     private final Neo4j neo4j = Neo4j.getInstance();
     private final UtilsService utilsService;
 
+    public DefaultUserService() {
+        super(Viescolaire.VSCO_SCHEMA, null);
+        this.eb = eb;
+        utilsService = new DefaultUtilsService();
+    }
+
     public DefaultUserService(EventBus eb) {
+        super(Viescolaire.VSCO_SCHEMA, null);
         this.eb = eb;
         utilsService = new DefaultUtilsService();
     }
@@ -335,43 +343,58 @@ public class DefaultUserService implements UserService {
             }
             final JsonObject user = (JsonObject) u;
             // Insert user in the right table
-            String uQuery =
-                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id_user, display_name, user_type, " +
-                            "first_name, last_name, delete_date, birth_date) " +
-                    "VALUES (?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
-                    "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
-            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
-                    .add(user.getString("id"))
-                    .add(user.getString("displayName"))
-                    .add(user.getString("type"))
-					.add(user.getString("firstName"))
-					.add(user.getString("lastName"))
-                    .add((float) user.getLong("deleteDate") / 1000)
-                    .add(user.getString("birthDate"));
+            final String queryNewCours =
+                    "SELECT nextval('" + Viescolaire.VSCO_SCHEMA + ".personnes_supp_id_seq') as id";
 
-            statements.prepared(uQuery, uParams);
+            sql.raw(queryNewCours, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
+                @Override
+                public void handle(Either<String, JsonObject> event) {
+                    if (event.isRight()) {
+                        Long idPersonneSupp = event.right().getValue().getLong("id");
 
-            if (user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0) {
-               formatGroups(user.getJsonArray("classIds"), user.getString("id"), statements,
-                       Viescolaire.CLASSE_TYPE);
-            }
+                        String uQuery =
+                                "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id, id_user, " +
+                                        "display_name, user_type, " +
+                                        "first_name, last_name, delete_date, birth_date) " +
+                                        "VALUES (?, ?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
+                                        "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
+                        JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                                .add(idPersonneSupp)
+                                .add(user.getString("id"))
+                                .add(user.getString("displayName"))
+                                .add(user.getString("type"))
+                                .add(user.getString("firstName"))
+                                .add(user.getString("lastName"))
+                                .add((float) user.getLong("deleteDate") / 1000)
+                                .add(user.getString("birthDate"));
 
-            if (user.containsKey("functionalGroupsIds") && user.getJsonArray("functionalGroupsIds").size() > 0) {
-                formatGroups(user.getJsonArray("functionalGroupsIds"), user.getString("id"), statements,
-                        Viescolaire.GROUPE_TYPE);
-            }
-            if (user.containsKey("manualGroupsIds") && user.getJsonArray("manualGroupsIds").size() > 0) {
-                formatGroups(user.getJsonArray("manualGroupsIds"), user.getString("id"), statements,
-                        Viescolaire.GROUPE_MANUEL_TYPE);
-            }
+                        statements.prepared(uQuery, uParams);
 
-            if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {
-                formatStructure(user.getJsonArray("structureIds"), user.getString("id"), statements);
-            }
+                        if (user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0) {
+                            formatGroups(user.getJsonArray("classIds"),idPersonneSupp, statements,
+                                    Viescolaire.CLASSE_TYPE);
+                        }
+
+                        if (user.containsKey("functionalGroupsIds") &&
+                                user.getJsonArray("functionalGroupsIds").size() > 0) {
+                            formatGroups(user.getJsonArray("functionalGroupsIds"), idPersonneSupp, statements,
+                                    Viescolaire.GROUPE_TYPE);
+                        }
+                        if (user.containsKey("manualGroupsIds") &&
+                                user.getJsonArray("manualGroupsIds").size() > 0) {
+                            formatGroups(user.getJsonArray("manualGroupsIds"), idPersonneSupp, statements,
+                                    Viescolaire.GROUPE_MANUEL_TYPE);
+                        }
+
+                        if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {
+                            formatStructure(user.getJsonArray("structureIds"), idPersonneSupp, statements);
+                        }
+                    }
+                    Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
+                }
+            }));
         }
-        Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
     }
-
     @Override
     public void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler){
 
@@ -428,10 +451,12 @@ public class DefaultUserService implements UserService {
      * @param statements Sql statement builder
      * @param type Group type
      */
-    private static void formatGroups (JsonArray ids, String userId, SqlStatementsBuilder statements, Integer type) {
+    private static void formatGroups (JsonArray ids, Long userId, SqlStatementsBuilder statements,
+                                      Integer type) {
         for (int i = 0; i < ids.size(); i++) {
             String query =
-                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp(id_groupe, id_user, type_groupe) " +
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA +
+                            ".rel_groupes_personne_supp(id_groupe, id, type_groupe) " +
                     "VALUES (?, ?, ?);";
             JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                     .add(ids.getString(i))
@@ -456,10 +481,10 @@ public class DefaultUserService implements UserService {
      * @param userId user id
      * @param statements Sql statement builder
      */
-    private static void formatStructure (JsonArray ids, String userId, SqlStatementsBuilder statements) {
+    private static void formatStructure (JsonArray ids, Long userId, SqlStatementsBuilder statements) {
         for (int i = 0; i < ids.size(); i++) {
             String query =
-                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp(id_structure, id_user) " +
+                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp(id_structure, id) " +
                             "VALUES (?, ?);";
             JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                     .add(ids.getString(i))

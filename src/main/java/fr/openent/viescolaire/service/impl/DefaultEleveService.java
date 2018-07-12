@@ -302,53 +302,70 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     }
 
     @Override
-    public void getStoredDeletedStudent(JsonArray idClasse,String idStructure, String[] idEleves,
+    public void getStoredDeletedStudent(JsonArray idClasse,String idStructure, String[] idEleves, JsonArray rNeo,
                                         Handler<Either<String, JsonArray>> handler){
 
         StringBuilder query = new StringBuilder();
         JsonArray values  = new fr.wseduc.webutils.collections.JsonArray();
 
-        // Sélection des critères de récupérations
+        // Si les élèves sont dans le résultat Neo, on ne les récupère pas dans postgres
+        JsonArray idsNeo = new JsonArray();
+        for (int i=0; i<rNeo.size(); i++) {
+            String idEleve = rNeo.getJsonObject(i).getString("id");
+            if (idEleve == null) {
+                idEleve = rNeo.getJsonObject(i).getString("idEleve");
+            }
+            idsNeo.add(idEleve);
+            values.add(idEleve);
+        }
          if (idClasse != null){
              for(int i=0; i< idClasse.size(); i++) {
                  values.add(idClasse.getValue(i));
              }
-        }
-        if (idStructure != null) {
-            values.add(idStructure);
         }
         if (idEleves != null) {
             for(int i=0; i < idEleves.length; i++ ) {
                 values.add(idEleves[i]);
             }
         }
+        if (idStructure != null) {
+            values.add(idStructure);
+        }
 
         // Requête finale
-        query.append("SELECT res.*, id_groupe AS \"idClasse\"  FROM( ")
+        query.append("SELECT DISTINCT \"idEleve\" AS id,\"idEleve\",\"idGroupes\", ")
+                .append(" display_name AS \"displayName\", ")
+                .append(" delete_date AS \"deleteDate\", ")
+                .append(" first_name AS \"firstName\", ")
+                .append(" last_name AS \"lastName\", ")
+                .append(" id_structure AS \"idEtablissement\", ")
+                .append(" id_groupe AS \"idClasse\", ")
+                .append(" birth_date AS \"birthDate\" ")
+                .append(" FROM ")
+                .append(" ( SELECT * FROM ")
 
-                .append(" SELECT  personnes_supp.id_user as id, birth_date as \"birthDate\"," )
-                .append(" personnes_supp.id_user as \"idEleve\", display_name as \"displayName\", ")
-                .append(" delete_date as \"deleteDate\", first_name as \"firstName\", last_name as \"lastName\", ")
-                .append(" string_agg(distinct rel_groupes_personne_supp.id_groupe , ',')   AS \"idGroupes\",  ")
-                .append(" id_structure as \"idEtablissement\"")
-                .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp")
+                // Selection
+                .append("   (SELECT personnes_supp.id_user AS \"idEleve\", MAX(delete_date) AS \"deleteDate\", ")
+                .append("           string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
+                .append("    FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp, viesco.rel_groupes_personne_supp ")
+                .append("    WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
+                .append("    AND personnes_supp.id_user NOT IN " + Sql.listPrepared(idsNeo.getList()))
+                .append((idClasse != null)? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
+                .append((idEleves != null)? " AND \"idEleve\" IN " + Sql.listPrepared(idEleves): "")
+                .append("    AND user_type = 'Student' ")
+                .append("    GROUP BY personnes_supp.id_user) AS res ")
 
-                // Jointure table de relation structure
-                .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp ")
-                .append(" ON personnes_supp.id_user = rel_structures_personne_supp.id_user ")
-                .append(" AND user_type = 'Student' ")
-                .append((idStructure != null)?" AND id_structure = ? " : "")
-                .append((idEleves != null)? " AND personnes_supp.id_user IN " + Sql.listPrepared(idEleves): "")
 
-                // Jointure table de relation structure
-                .append(" INNER JOIN "+ Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp ")
-                .append(" ON personnes_supp.id_user = rel_groupes_personne_supp.id_user ")
-                .append((idClasse != null)? "WHERE id_groupe IN" + Sql.listPrepared(idClasse.getList().toArray()): "")
-                .append(" GROUP BY  personnes_supp.id_user, rel_structures_personne_supp.id_structure ")
+                .append("  INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".personnes_supp ")
+                .append("   ON \"deleteDate\" = personnes_supp.delete_date ")
+                .append("   AND \"idEleve\" = personnes_supp.id_user)  AS res1 ")
 
-                .append(" ) AS res ")
-                .append(" INNER JOIN viesco.rel_groupes_personne_supp  ")
-                .append(" ON res.id = rel_groupes_personne_supp.id_user AND type_groupe = 0 ");
+                .append(" LEFT JOIN viesco.rel_groupes_personne_supp ON res1.id = rel_groupes_personne_supp.id ")
+                .append("                                             AND type_groupe = 0 ")
+
+                .append(" INNER JOIN viesco.rel_structures_personne_supp ON res1.id = rel_structures_personne_supp.id")
+                .append((idStructure != null)?" AND id_structure = ? " : "");
+
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
 

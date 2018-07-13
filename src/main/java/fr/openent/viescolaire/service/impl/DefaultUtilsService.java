@@ -123,8 +123,8 @@ public class DefaultUtilsService implements UtilsService{
 
                     try {
                         for (int i = 0; i < sortedField.length; i++) {
-                            valA += (String) a.getValue(sortedField[i]);
-                            valB += (String) b.getValue(sortedField[i]);
+                            valA += ((String) a.getValue(sortedField[i])).toLowerCase();
+                            valB += ((String) b.getValue(sortedField[i])).toLowerCase();
                         }
                     } catch (Exception e) {
                         //do something

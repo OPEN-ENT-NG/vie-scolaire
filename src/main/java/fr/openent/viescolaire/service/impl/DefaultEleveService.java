@@ -349,9 +349,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("           string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
                 .append("    FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp, viesco.rel_groupes_personne_supp ")
                 .append("    WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
-                .append("    AND personnes_supp.id_user NOT IN " + Sql.listPrepared(idsNeo.getList()))
+                .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
                 .append((idClasse != null)? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
-                .append((idEleves != null)? " AND \"idEleve\" IN " + Sql.listPrepared(idEleves): "")
+                .append((idEleves != null)? " AND id_user IN " + Sql.listPrepared(idEleves): "")
                 .append("    AND user_type = 'Student' ")
                 .append("    GROUP BY personnes_supp.id_user) AS res ")
 

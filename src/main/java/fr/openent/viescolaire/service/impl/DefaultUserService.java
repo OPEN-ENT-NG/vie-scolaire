@@ -238,7 +238,8 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 if (event.isRight()) {
 
                     Map<String, JsonObject> usersMap = new HashMap<String, JsonObject>();
-                    for (Object u : event.right().getValue()) {
+                    JsonArray infosUsers = event.right().getValue();
+                    for (Object u : infosUsers) {
                         JsonObject user = (JsonObject) u;
                         usersMap.put(user.getString("id"), user); // ajoute un user dans userMap idUser -> user
                         JsonArray classeEnTrop = new JsonArray();
@@ -579,7 +580,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                      "WHERE g.externalId IN u.groups " +
                      "OPTIONAL MATCH (c:Class) " +
                      "WHERE c.externalId IN u.classes " +
-                     "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, " +
+                     "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
                      "COLLECT(DISTINCT s.id) AS currentStructureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
                      "COLLECT(DISTINCT g.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
         Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(idUsers)), Neo4jResult.validResultHandler(handler));

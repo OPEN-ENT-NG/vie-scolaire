@@ -8,27 +8,38 @@
                             <li>
                                 <a href="" ng-class="{'selected': currParam === 1}"
                                    ng-click="currParam = 1; scrollToElement(1)">
-                                    <i18n>evaluations.level</i18n></a>
+                                    <i18n>evaluations.level</i18n>
+                                </a>
                             </li>
                             <li workflow="competences.setVisibilityAverageBfc">
                                 <a href="" ng-class="{'selected': currParam === 2}"
                                    ng-click="currParam = 2; scrollToElement(2)">
-                                    <i18n>evaluation.bfc.visibility.average</i18n></a>
+                                    <i18n>evaluation.bfc.visibility.average</i18n>
+                                </a>
                             </li>
                             <li workflow="competences.setVisibilityAverageBfc">
                                 <a href="" ng-class="{'selected': currParam === 3}"
                                    ng-click="currParam = 3; scrollToElement(3)">
-                                    <i18n>evaluation.bfc.visibility.baremeBFC</i18n></a>
+                                    <i18n>evaluation.bfc.visibility.baremeBFC</i18n>
+                                </a>
                             </li>
                             <li workflow="competences.paramCompetences">
                                 <a href="" ng-class="{'selected': currParam === 4}"
                                    ng-click="currParam = 4; scrollToElement(4)">
-                                    <i18n>evaluations.competences.items.title</i18n></a>
+                                    <i18n>evaluations.competences.items.title</i18n>
+                                </a>
                             </li>
                             <li workflow="competences.linkGroupCycle">
                                 <a href="" ng-class="{'selected': currParam === 5}"
                                    ng-click="currParam = 5; scrollToElement(5)">
-                                    <i18n>evaluation.link.group.cycle</i18n></a>
+                                    <i18n>evaluation.link.group.cycle</i18n>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" ng-class="{'selected': currParam === 6}"
+                                   ng-click="currParam = 6; scrollToElement(6)">
+                                    <i18n>evaluations.bilan.periodic</i18n>
+                                </a>
                             </li>
 
                         </ul>
@@ -37,9 +48,9 @@
             </div>
         </div>
         <div class="ten cell twelve-mobile">
-            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile">
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
                 <div class="hash-magnet twelve cell" id="1">
-                    <article >
+                    <article>
                         <div class="twelve">
                             <h3>
                                 <i18n>evaluations.level</i18n>
@@ -49,7 +60,9 @@
                                 <i18n>evaluations.perso.delete</i18n>
                             </button>
                             <lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">
-                                <p><i18n>evaluations.perso.delete.message</i18n></p>
+                                <p>
+                                    <i18n>evaluations.perso.delete.message</i18n>
+                                </p>
                                 <button class="marginFive magnet-right" ng-click="deletePerso()">
                                     <i18n>evaluations.perso.ok</i18n>
                                 </button>
@@ -61,21 +74,23 @@
                                 <header ng-repeat="cycle in structure.cycles "
                                         ng-class="{selected : cycle.selected}"
                                         class="horizontal-spacing-twice ng-scope">
-                                    <div class="horizontal-spacing"  ng-click="selectCycle(cycle);">
-                                        <span><i18n><span class="no-style ng-scope">[[cycle.libelle]]</span></i18n></span>
+                                    <div class="horizontal-spacing" ng-click="selectCycle(cycle);">
+                                        <span><i18n><span
+                                                class="no-style ng-scope">[[cycle.libelle]]</span></i18n></span>
                                     </div>
                                 </header>
                             </div>
                         </div>
                         <div class="row">
                             <div class="responsive-table">
-                                <table  ng-repeat="cy in structure.cycles | filter:currentCycle"
-                                        class="fixed-head">
+                                <table ng-repeat="cy in structure.cycles | filter:currentCycle"
+                                       class="fixed-head">
                                     <thead>
                                     <tr></tr>
                                     <tr>
                                         <th ng-repeat="libelle in cy.niveauCompetencesArray "
-                                            class="text-white">[[libelle.libelle]]</th>
+                                            class="text-white">[[libelle.libelle]]
+                                        </th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -84,7 +99,7 @@
                                             style="text-indent: 0px;text-align: center;">
                                             <input type="color" name="favcolor"
                                                    ng-change="saveNiveau(couleur)"
-                                                   ng-model="couleur.couleur" >
+                                                   ng-model="couleur.couleur">
                                         </td>
                                     </tr>
                                     <tr>
@@ -102,7 +117,7 @@
                                             </ng-form>
                                         </td>
                                     </tr>
-                                    <tr >
+                                    <tr>
                                         <td ng-repeat="result in cy.niveauCompetencesArray "
                                             style="text-indent: 0px;text-align: center;">
 
@@ -120,10 +135,10 @@
                     </article>
                 </div>
             </div>
-            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
-                  workflow="competences.setVisibilityAverageBfc">
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="competences.setVisibilityAverageBfc">
                 <div class="hash-magnet twelve cell" id="2">
-                    <article >
+                    <article>
                         <div class="twelve">
                             <h3>
                                 <i18n>evaluation.bfc.visibility.average</i18n>
@@ -141,10 +156,10 @@
                     </article>
                 </div>
             </div>
-            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
-                  workflow="competences.setVisibilityAverageBfc">
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="competences.setVisibilityAverageBfc">
                 <div class="hash-magnet twelve cell" id="3">
-                    <article >
+                    <article>
                         <div class="twelve">
                             <h3>
                                 <i18n>evaluation.bfc.visibility.baremeBFC</i18n>
@@ -162,17 +177,17 @@
                     </article>
                 </div>
             </div>
-            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
-                  workflow="competences.paramCompetences">
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="competences.paramCompetences">
                 <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
                      class="hash-magnet twelve cell" id="4">
 
                 </div>
             </div>
-            <div  ng-init="isMode = false;"  class="twelve cell twelve-mobile"
-                  workflow="competences.linkGroupCycle" >
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="competences.linkGroupCycle">
                 <div class="hash-magnet twelve cell" id="5">
-                    <article  ng-init="source.idStructure = structure.id;
+                    <article ng-init="source.idStructure = structure.id;
                     source.cycles = structure.cycles;
                     source.lastSelectedCycle = lastSelectedCycle;">
                         <sniplet
@@ -180,6 +195,75 @@
                                 application="competences"
                                 source="source"
                         ></sniplet>
+                    </article>
+                </div>
+            </div>
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
+                <div class="hash-magnet twelve cell" id="6">
+                    <article>
+                        <div class="twelve">
+                            <h3>
+                                <i18n>evaluations.bilan.periodic</i18n>
+                            </h3>
+                            <!--<button class="marginFive magnet-right" ng-click="openDeletePerso()">-->
+                            <!--<i18n>evaluations.perso.delete</i18n>-->
+                            <!--</button>-->
+                            <!--<lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">-->
+                            <!--<p><i18n>evaluations.perso.delete.message</i18n></p>-->
+                            <!--<button class="marginFive magnet-right" ng-click="deletePerso()">-->
+                            <!--<i18n>evaluations.perso.ok</i18n>-->
+                            <!--</button>-->
+                            <!--<button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">-->
+                            <!--<span><i18n>evaluations.perso.cancel</i18n></span>-->
+                            <!--</button>-->
+                            <!--</lightbox>-->
+                            <div class="twelve tabs vertical-spacing-twice heading-tabs">
+                                <header ng-class="{selected : bilan.selected}"
+                                        class="horizontal-spacing-twice ng-scope">
+                                    <div class="horizontal-spacing" ng-click="">
+                                        <span><i18n><span class="no-style ng-scope">evaluations.enseignements.pratiques.interdisciplinaires</span></i18n></span>
+                                    </div>
+                                </header>
+                                <header ng-class="{selected : bilan.selected}"
+                                        class="horizontal-spacing-twice ng-scope">
+                                    <div class="horizontal-spacing" ng-click="">
+                                        <span><i18n><span class="no-style ng-scope">evaluations.accompagnement.personnalise</span></i18n></span>
+                                    </div>
+                                </header>
+                                <header ng-class="{selected : bilan.selected}"
+                                        class="horizontal-spacing-twice ng-scope">
+                                    <div class="horizontal-spacing" ng-click="">
+                                        <span><i18n><span
+                                                class="no-style ng-scope">evaluations.parcours.educatifs</span></i18n></span>
+                                    </div>
+                                </header>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="responsive-table">
+                                <table class="list-view tableReleve tableRelevePadding marginTopZero">
+                                    <thead>
+                                    <tr>
+                                        <th class="colCheckbox">
+
+                                        </th>
+                                        <th class="colLibelle">
+                                            <i18n>viescolaire.libelle</i18n>
+                                        </th>
+                                        <th class="colIntervenant">
+                                            <i18n>viescolaire.intervenant</i18n>
+                                        </th>
+                                        <th class="colClasseGroupe">
+                                            <i18n>viescolaire.classe.groupe</i18n>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </article>
                 </div>
             </div>

@@ -226,6 +226,14 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             query.append(" AND id_periode = ? ");
             values.add(idPeriode);
         }
+
+        if (idCycle != null) {
+            query.append("AND competences.id_cycle = ? ");
+            values.add(idCycle);
+        } else {
+            query.append("AND devoirs.eval_lib_historise = false ");
+        }
+
         query.append(" UNION ")
                 .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
                 .append(" -1 as evaluation, owner, ? as id_eleve, ")

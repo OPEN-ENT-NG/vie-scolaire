@@ -205,18 +205,7 @@
                             <h3>
                                 <i18n>evaluations.bilan.periodic</i18n>
                             </h3>
-                            <!--<button class="marginFive magnet-right" ng-click="openDeletePerso()">-->
-                            <!--<i18n>evaluations.perso.delete</i18n>-->
-                            <!--</button>-->
-                            <!--<lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">-->
-                            <!--<p><i18n>evaluations.perso.delete.message</i18n></p>-->
-                            <!--<button class="marginFive magnet-right" ng-click="deletePerso()">-->
-                            <!--<i18n>evaluations.perso.ok</i18n>-->
-                            <!--</button>-->
-                            <!--<button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">-->
-                            <!--<span><i18n>evaluations.perso.cancel</i18n></span>-->
-                            <!--</button>-->
-                            <!--</lightbox>-->
+
                             <div class="twelve tabs vertical-spacing-twice heading-tabs">
                                 <header ng-class="{selected : bilan.selected}"
                                         class="horizontal-spacing-twice ng-scope">
@@ -239,29 +228,57 @@
                                 </header>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="responsive-table">
-                                <table class="list-view tableReleve tableRelevePadding marginTopZero">
-                                    <thead>
-                                    <tr>
-                                        <th class="colCheckbox">
 
-                                        </th>
-                                        <th class="colLibelle">
-                                            <i18n>viescolaire.libelle</i18n>
-                                        </th>
-                                        <th class="colIntervenant">
-                                            <i18n>viescolaire.intervenant</i18n>
-                                        </th>
-                                        <th class="colClasseGroupe">
-                                            <i18n>viescolaire.classe.groupe</i18n>
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                        <article class="twelve cell ">
+                            <input class="ten cell"
+                                   type="text"
+                                   ng-model="search.name"
+                                   placeholder="rechercher un EPI ...">
 
-                                    </tbody>
-                                </table>
+                            <button class="right-magnet" ng-click="">
+                                <i18n>evaluations.add.EPI</i18n>
+                            </button>
+                        </article>
+
+                        <!--<button class="marginFive magnet-right" ng-click="openDeletePersoItem()">-->
+                            <!--<i18n>evaluations.perso.delete</i18n>-->
+                        <!--</button>-->
+                        <!--<button class="marginFive magnet-right" ng-click="openDeletePerso()">-->
+                        <!--<i18n>evaluations.perso.delete</i18n>-->
+                        <!--</button>-->
+                        <!--<lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">-->
+                        <!--<p><i18n>evaluations.perso.delete.message</i18n></p>-->
+                        <!--<button class="marginFive magnet-right" ng-click="deletePerso()">-->
+                        <!--<i18n>evaluations.perso.ok</i18n>-->
+                        <!--</button>-->
+                        <!--<button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">-->
+                        <!--<span><i18n>evaluations.perso.cancel</i18n></span>-->
+                        <!--</button>-->
+                        <!--</lightbox>-->
+
+                        <div class="card twelve row">
+                            <div class="twelve cell">
+                                <div class="cell">
+                                    <label class="checkbox">
+                                        <input type="checkbox">
+                                               <!--ng-model="selected.allClassePeriode"-->
+                                               <!--ng-change="switchSelectedClasse((structure.classes.all | periodeSearch:search), selected.allClassePeriode)"-->
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="cell">
+                                    <i18n>viescolaire.competences.theme</i18n>
+                                </div>
+                                <div class="cell">
+                                    <i18n>viescolaire.competences.libelle</i18n>
+                                </div>
+                                <div class="cell">
+                                    <i18n>viescolaire.competences.intervenant</i18n>
+                                </div>
+                                <div class="cell">
+                                    <i18n>viescolaire.competences.classe.groupe</i18n>
+                                </div>
+                                <div class="cell">&nbsp</div>
                             </div>
                         </div>
                     </article>

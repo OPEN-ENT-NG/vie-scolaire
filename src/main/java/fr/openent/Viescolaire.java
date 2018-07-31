@@ -75,6 +75,7 @@ public class Viescolaire extends BaseServer {
 	public static final String COMPETENCES_BUS_ADDRESS = "competences";
 
 	public static JsonObject LSUN_CONFIG;
+	public static JsonObject UPDATE_CLASSES_CONFIG;
 
 	@Override
 	public void start() throws Exception {
@@ -83,6 +84,8 @@ public class Viescolaire extends BaseServer {
         final EventBus eb = getEventBus(vertx);
 
 		LSUN_CONFIG = config.getJsonObject("lsun");
+		UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
+
         /*
 			DISPLAY CONTROLLER
 		 */

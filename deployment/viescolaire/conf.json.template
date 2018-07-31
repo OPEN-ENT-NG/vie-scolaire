@@ -19,5 +19,9 @@
         "exports" : {
            "template-path" : "./public/templates/pdf/"
         }
+        ,
+        "update-classes" : {
+           "timeout-transaction" : 600
+        }
       }
     }

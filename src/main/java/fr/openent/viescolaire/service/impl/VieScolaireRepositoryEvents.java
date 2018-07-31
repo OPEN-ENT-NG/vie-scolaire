@@ -95,6 +95,7 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
                                         public void handle(Either<String, JsonObject> event) {
                                             if (event.isLeft()) {
                                                 log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
+                                                log.error(event.left().getValue());
                                             } else {
                                                 log.info("[VieScolaireRepositoryEvents] : Stored ");
                                                 log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated END");

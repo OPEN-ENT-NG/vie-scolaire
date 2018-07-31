@@ -24,6 +24,7 @@ import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
@@ -511,7 +512,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             log.info("0 insertAnnotationsNewClasses");
             handler.handle(new Either.Right<>(new JsonObject()));
         } else {
-            Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
+            Sql.getInstance().transaction(statements,new DeliveryOptions().setSendTimeout(Viescolaire.UPDATE_CLASSES_CONFIG.getInteger("timeout-transaction") * 1000L), SqlResult.validRowsResultHandler(handler));
         }
     }
 

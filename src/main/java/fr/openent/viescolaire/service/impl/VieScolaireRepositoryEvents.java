@@ -69,29 +69,38 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     @Override
     public void usersClassesUpdated(JsonArray users) {
+        log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated START");
+        if(users != null) {
+            log.info("users : " + users.size());
+        }
         userService.parseUsersData(users, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 if (event.isRight()) {
+
                     JsonArray result = event.right().getValue();
+                    if(result != null) {
+                        log.info("resultusers : " + result.size());
+                    }
                     userService.createPersonnesSupp(result, new Handler<Either<String, JsonObject>>() {
                         @Override
                         public void handle(Either<String, JsonObject> event) {
+                            log.info("createPersonnesSupp OUT END");
                             if (event.isLeft()) {
                                 log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
                             }
                             else {
-                                userService.insertAnnotationsNewClasses(result, new Handler<Either<String, JsonObject>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonObject> event) {
-                                        if (event.isLeft()) {
-                                            log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
+                                    userService.insertAnnotationsNewClasses(result, new Handler<Either<String, JsonObject>>() {
+                                        @Override
+                                        public void handle(Either<String, JsonObject> event) {
+                                            if (event.isLeft()) {
+                                                log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
+                                            } else {
+                                                log.info("[VieScolaireRepositoryEvents] : Stored ");
+                                                log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated END");
+                                            }
                                         }
-                                        else {
-                                            log.info("[VieScolaireRepositoryEvents] : Stored ");
-                                        }
-                                    }
-                                });
+                                    });
                             }
                         }
                     });

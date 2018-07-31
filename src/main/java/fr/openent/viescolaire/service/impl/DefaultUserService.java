@@ -28,6 +28,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -37,6 +39,7 @@ import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.user.UserInfos;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
@@ -49,6 +52,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     private EventBus eb;
     private final Neo4j neo4j = Neo4j.getInstance();
     private final UtilsService utilsService;
+    private static final Logger log = LoggerFactory.getLogger(DefaultUserService.class);
 
     public DefaultUserService() {
         super(Viescolaire.VSCO_SCHEMA, null);
@@ -232,9 +236,11 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                     externalIdGroups.add((String) c);
             }
         }
+        log.info("getUsers START");
         getUsers(idUsers, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
+                log.info("getUsers END");
                 if (event.isRight()) {
 
                     Map<String, JsonObject> usersMap = new HashMap<String, JsonObject>();
@@ -337,12 +343,34 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
     @Override
     public void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler) {
+        log.info("createPersonnesSupp START");
         SqlStatementsBuilder statements = new SqlStatementsBuilder();
+        final AtomicInteger oNbUsers = new AtomicInteger(users.size());
         for (Object u : users) {
-            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u)) {
-                continue;
-            }
             final JsonObject user = (JsonObject) u;
+            boolean hasClassIds = user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0;
+            boolean hasFunctionalGroupsIds = user.containsKey("functionalGroupsIds") && user.getJsonArray("functionalGroupsIds").size() > 0;
+            boolean hasManualGroupsIds = user.containsKey("manualGroupsIds") && user.getJsonArray("manualGroupsIds").size() > 0;
+
+            // on ne supprime l'eleve qui s'il avait des anciennes classes
+            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u) ||
+                    (!hasClassIds && !hasFunctionalGroupsIds && !hasManualGroupsIds)) {
+                oNbUsers.decrementAndGet();
+                // execute transaction when statements of all user are build
+                if(oNbUsers.intValue() == 0) {
+                    if(statements.build().isEmpty()) {
+                        log.info("0 user supp");
+                        handler.handle(new Either.Right<>(null));
+                        return;
+                    } else {
+                        Sql.getInstance().transaction(statements.build(), SqlResult.validRowsResultHandler(handler));
+                    }
+                    log.info("createPersonnesSupp END");
+                } else {
+                    continue;
+                }
+            }
+
             // Insert user in the right table
             final String queryNewCours =
                     "SELECT nextval('" + Viescolaire.VSCO_SCHEMA + ".personnes_supp_id_seq') as id";
@@ -350,55 +378,77 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             sql.raw(queryNewCours, SqlResult.validUniqueResultHandler(new Handler<Either<String, JsonObject>>() {
                 @Override
                 public void handle(Either<String, JsonObject> event) {
+                    oNbUsers.decrementAndGet();
+                    log.info("oNbUsers : " + oNbUsers.get());
                     if (event.isRight()) {
                         Long idPersonneSupp = event.right().getValue().getLong("id");
 
-                        String uQuery =
-                                "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id, id_user, " +
-                                        "display_name, user_type, " +
-                                        "first_name, last_name, delete_date, birth_date) " +
-                                        "VALUES (?, ?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
-                                        "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
-                        JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
-                                .add(idPersonneSupp)
-                                .add(user.getString("id"))
-                                .add(user.getString("displayName"))
-                                .add(user.getString("type"))
-                                .add(user.getString("firstName"))
-                                .add(user.getString("lastName"))
-                                .add((float) user.getLong("deleteDate") / 1000)
-                                .add(user.getString("birthDate"));
 
-                        statements.prepared(uQuery, uParams);
+                        if (hasClassIds || hasFunctionalGroupsIds || hasManualGroupsIds) {
+                            String uQuery =
+                                    "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".personnes_supp(id, id_user, " +
+                                            "display_name, user_type, " +
+                                            "first_name, last_name, delete_date, birth_date) " +
+                                            "VALUES (?, ?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
+                                            "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
+                            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                                    .add(idPersonneSupp)
+                                    .add(user.getString("id"))
+                                    .add(user.getString("displayName"))
+                                    .add(user.getString("type"))
+                                    .add(user.getString("firstName"))
+                                    .add(user.getString("lastName"))
+                                    .add((float) user.getLong("deleteDate") / 1000)
+                                    .add(user.getString("birthDate"));
 
-                        if (user.containsKey("classIds") && user.getJsonArray("classIds").size() > 0) {
+                            statements.prepared(uQuery, uParams);
+                        }
+
+                        if (hasClassIds) {
                             formatGroups(user.getJsonArray("classIds"),idPersonneSupp, statements,
                                     Viescolaire.CLASSE_TYPE);
                         }
 
-                        if (user.containsKey("functionalGroupsIds") &&
-                                user.getJsonArray("functionalGroupsIds").size() > 0) {
+                        if (hasFunctionalGroupsIds) {
                             formatGroups(user.getJsonArray("functionalGroupsIds"), idPersonneSupp, statements,
                                     Viescolaire.GROUPE_TYPE);
                         }
-                        if (user.containsKey("manualGroupsIds") &&
-                                user.getJsonArray("manualGroupsIds").size() > 0) {
+                        if (hasManualGroupsIds) {
                             formatGroups(user.getJsonArray("manualGroupsIds"), idPersonneSupp, statements,
                                     Viescolaire.GROUPE_MANUEL_TYPE);
                         }
 
-                        if (user.containsKey("structureIds") && user.getJsonArray("structureIds").size() > 0) {
-                            formatStructure(user.getJsonArray("structureIds"), idPersonneSupp, statements);
+                        JsonArray currentStructureIds = user.getJsonArray("currentStructureIds");
+
+                        if(currentStructureIds.size() == 0) {
+                            log.info("no currentStructureIds for user : " + idPersonneSupp);
+                        } else {
+                            log.info("currentStructureIds : " + currentStructureIds.toString());
+                            formatStructure(currentStructureIds, idPersonneSupp, statements);
+                        }
+
+                        // execute transaction when statements of all user are build
+                        if(oNbUsers.intValue() == 0) {
+                            if(statements.build().isEmpty()) {
+                                log.info("0 user supp");
+                                handler.handle(new Either.Right<>(null));
+                            } else {
+                                Sql.getInstance().transaction(statements.build(), SqlResult.validRowsResultHandler(handler));
+                            }
+                            log.info("createPersonnesSupp END");
                         }
                     }
-                    Sql.getInstance().transaction(statements.build(), SqlResult.validUniqueResultHandler(handler));
                 }
             }));
+
         }
     }
     @Override
     public void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler){
-
+        log.info("insertAnnotationsNewClasses START");
+//        if(users != null) {
+//            log.info("users : " + users.toString());
+//        }
         StringBuilder query ;
         JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
         JsonArray params;
@@ -408,7 +458,15 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             List<String> newClassIds = user.getJsonArray("newClassIds").getList();
             String idUser = user.getString("id");
 
-            if(newClassIds != null && newClassIds.size() > 0) {
+            boolean isStudent = "Student".equals(user.getString("type"));
+            JsonArray currentStructureIds = user.getJsonArray("currentStructureIds");
+
+            if(currentStructureIds.size() == 0) {
+                log.info("no structures for user : " + idUser);
+            }
+
+
+            if(isStudent && newClassIds != null && newClassIds.size() > 0 && currentStructureIds.size() > 0) {
                 query = new StringBuilder();
                 params = new fr.wseduc.webutils.collections.JsonArray();
                 query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve) " +
@@ -424,25 +482,37 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                                 "WHERE notes.id_eleve = ? AND notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de note sur le devoir
                              " AND NOT EXISTS (SELECT 1" +
                                                 "FROM " + Viescolaire.EVAL_SCHEMA + ".competences_notes " +
-                                                "WHERE competences_notes.id_eleve = ? AND competences_notes.id_devoir = rel_devoirs_groupes.id_devoir)) " + // Vérifie que l'élève n'a pas de compétences notes sur le devoir
-                             " ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
+                                                "WHERE competences_notes.id_eleve = ? AND competences_notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de compétences notes sur le devoir
+                             " AND EXISTS (SELECT 1" +
+                                            "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
+                                            "WHERE libelle_court = 'NN' AND id_etablissement = ?) " + // Vérifie que l'établissement est bien actif
+                             " ) ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
 
-                params.add(user.getJsonArray("currentStructureIds").getValue(0));
+                params.add(currentStructureIds.getValue(0));
                 params.add(idUser);
                 for (Object idGroup : user.getJsonArray("newClassIds")) {
                     params.add(idGroup);
                 }
                 params.add(idUser);
                 params.add(idUser);
+                params.add(currentStructureIds.getValue(0));
                 statements.add(new JsonObject()
                         .put("statement", query.toString())
                         .put("values", params)
                         .put("action", "prepared"));
+                log.debug(query);
+                log.debug("idUser : "+ idUser);
+                log.debug("currentStructureIds.getValue(0) : "+ currentStructureIds.getValue(0));
+                log.debug(params.toString());
             }
         }
 
-
-        Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
+        if(statements.isEmpty()) {
+            log.info("0 insertAnnotationsNewClasses");
+            handler.handle(new Either.Right<>(new JsonObject()));
+        } else {
+            Sql.getInstance().transaction(statements, SqlResult.validRowsResultHandler(handler));
+        }
     }
 
     /**
@@ -583,7 +653,11 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                      "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
                      "COLLECT(DISTINCT s.id) AS currentStructureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
                      "COLLECT(DISTINCT g.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
-        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(idUsers)), Neo4jResult.validResultHandler(handler));
+
+        fr.wseduc.webutils.collections.JsonArray usersArr = new fr.wseduc.webutils.collections.JsonArray(idUsers);
+        log.debug("usersArr : " + usersArr.toString());
+        log.info("getUsers : " + query.toString());
+        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",usersArr), Neo4jResult.validResultHandler(handler));
     }
 
     @Override

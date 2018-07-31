@@ -35,10 +35,10 @@
                                     <i18n>evaluation.link.group.cycle</i18n>
                                 </a>
                             </li>
-                            <li>
+                            <li><!--workflow="competences.bilanPeriodique"-->
                                 <a href="" ng-class="{'selected': currParam === 6}"
                                    ng-click="currParam = 6; scrollToElement(6)">
-                                    <i18n>evaluations.bilan.periodic</i18n>
+                                    <i18n>evaluations.bilan.periodique</i18n>
                                 </a>
                             </li>
 
@@ -199,91 +199,16 @@
                 </div>
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
+                 <!--workflow="competences.bilanPeriodique"-->
                 <div class="hash-magnet twelve cell" id="6">
                     <article>
-                        <div class="twelve">
-                            <h3>
-                                <i18n>evaluations.bilan.periodic</i18n>
-                            </h3>
-
-                            <div class="twelve tabs vertical-spacing-twice heading-tabs">
-                                <header ng-class="{selected : bilan.selected}"
-                                        class="horizontal-spacing-twice ng-scope">
-                                    <div class="horizontal-spacing" ng-click="">
-                                        <span><i18n><span class="no-style ng-scope">evaluations.enseignements.pratiques.interdisciplinaires</span></i18n></span>
-                                    </div>
-                                </header>
-                                <header ng-class="{selected : bilan.selected}"
-                                        class="horizontal-spacing-twice ng-scope">
-                                    <div class="horizontal-spacing" ng-click="">
-                                        <span><i18n><span class="no-style ng-scope">evaluations.accompagnement.personnalise</span></i18n></span>
-                                    </div>
-                                </header>
-                                <header ng-class="{selected : bilan.selected}"
-                                        class="horizontal-spacing-twice ng-scope">
-                                    <div class="horizontal-spacing" ng-click="">
-                                        <span><i18n><span
-                                                class="no-style ng-scope">evaluations.parcours.educatifs</span></i18n></span>
-                                    </div>
-                                </header>
-                            </div>
-                        </div>
-
-                        <article class="twelve cell ">
-                            <input class="ten cell"
-                                   type="text"
-                                   ng-model="search.name"
-                                   placeholder="rechercher un EPI ...">
-
-                            <button class="right-magnet" ng-click="">
-                                <i18n>evaluations.add.EPI</i18n>
-                            </button>
-                        </article>
-
-                        <!--<button class="marginFive magnet-right" ng-click="openDeletePersoItem()">-->
-                            <!--<i18n>evaluations.perso.delete</i18n>-->
-                        <!--</button>-->
-                        <!--<button class="marginFive magnet-right" ng-click="openDeletePerso()">-->
-                        <!--<i18n>evaluations.perso.delete</i18n>-->
-                        <!--</button>-->
-                        <!--<lightbox show="opened.lightboxDeletePerso" on-close="!opened.lightboxDeletePerso">-->
-                        <!--<p><i18n>evaluations.perso.delete.message</i18n></p>-->
-                        <!--<button class="marginFive magnet-right" ng-click="deletePerso()">-->
-                        <!--<i18n>evaluations.perso.ok</i18n>-->
-                        <!--</button>-->
-                        <!--<button data-ng-click="opened.lightboxDeletePerso=false;" class="right-magnet cancel">-->
-                        <!--<span><i18n>evaluations.perso.cancel</i18n></span>-->
-                        <!--</button>-->
-                        <!--</lightbox>-->
-
-                        <div class="card twelve row">
-                            <div class="twelve cell">
-                                <div class="cell">
-                                    <label class="checkbox">
-                                        <input type="checkbox">
-                                               <!--ng-model="selected.allClassePeriode"-->
-                                               <!--ng-change="switchSelectedClasse((structure.classes.all | periodeSearch:search), selected.allClassePeriode)"-->
-                                        <span></span>
-                                    </label>
-                                </div>
-                                <div class="cell">
-                                    <i18n>viescolaire.competences.theme</i18n>
-                                </div>
-                                <div class="cell">
-                                    <i18n>viescolaire.competences.libelle</i18n>
-                                </div>
-                                <div class="cell">
-                                    <i18n>viescolaire.competences.intervenant</i18n>
-                                </div>
-                                <div class="cell">
-                                    <i18n>viescolaire.competences.classe.groupe</i18n>
-                                </div>
-                                <div class="cell">&nbsp</div>
-                            </div>
-                        </div>
+                        <sniplet
+                                template="bilanPeriodique"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
                     </article>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>

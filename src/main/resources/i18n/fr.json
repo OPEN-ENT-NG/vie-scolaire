@@ -295,6 +295,7 @@
   "item.message.isUse":"Attention, l'item de compétence que vous avez masqué est lié à des évaluations existantes. Cliquer sur \"Rendre visible\" pour annuler.",
   "evaluations.competences.title": "Compétences",
   "evaluations.competences.items.title": "Items de compétences",
+  "evaluations.add": "Ajouter",
   "evaluations.bilan.periodique": "Bilan périodique",
   "evaluations.enseignements.pratiques.interdisciplinaires" : "EPI",
   "evaluations.accompagnement.personnalise" : "AP",

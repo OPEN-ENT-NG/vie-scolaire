@@ -221,7 +221,7 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user){
                 if(user != null && null != request.params().get("idEtablissement")){
-                    if("Personnel".equals(user.getType())){
+                    if("Personnel".equals(user.getType()) && null == request.params().get("isEnseignant")){
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         matiereService.listMatieresEtab(request.params().get("idEtablissement"), false, handler);
                     }else{

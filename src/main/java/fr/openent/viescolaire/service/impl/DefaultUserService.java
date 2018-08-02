@@ -419,13 +419,12 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                     Viescolaire.GROUPE_MANUEL_TYPE);
                         }
 
-                        JsonArray currentStructureIds = user.getJsonArray("currentStructureIds");
-
-                        if(currentStructureIds.size() == 0) {
-                            log.info("no currentStructureIds for user : " + idPersonneSupp);
+                        JsonArray structureIds = user.getJsonArray("structureIds");
+                        if(structureIds.size() == 0) {
+                            log.info("no structureIds for user : " + idPersonneSupp);
                         } else {
-                            log.info("currentStructureIds : " + currentStructureIds.toString());
-                            formatStructure(currentStructureIds, idPersonneSupp, statements);
+                            log.info("structureIds : " + structureIds.toString());
+                            formatStructure(structureIds, idPersonneSupp, statements);
                         }
 
                         // execute transaction when statements of all user are build
@@ -460,14 +459,14 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             String idUser = user.getString("id");
 
             boolean isStudent = "Student".equals(user.getString("type"));
-            JsonArray currentStructureIds = user.getJsonArray("currentStructureIds");
+            JsonArray structureIds = user.getJsonArray("structureIds");
 
-            if(currentStructureIds.size() == 0) {
+            if(structureIds.size() == 0) {
                 log.info("no structures for user : " + idUser);
             }
 
 
-            if(isStudent && newClassIds != null && newClassIds.size() > 0 && currentStructureIds.size() > 0) {
+            if(isStudent && newClassIds != null && newClassIds.size() > 0 && structureIds.size() > 0) {
                 query = new StringBuilder();
                 params = new fr.wseduc.webutils.collections.JsonArray();
                 query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve) " +
@@ -489,21 +488,21 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                             "WHERE libelle_court = 'NN' AND id_etablissement = ?) " + // Vérifie que l'établissement est bien actif
                              " ) ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
 
-                params.add(currentStructureIds.getValue(0));
+                params.add(structureIds.getValue(0));
                 params.add(idUser);
                 for (Object idGroup : user.getJsonArray("newClassIds")) {
                     params.add(idGroup);
                 }
                 params.add(idUser);
                 params.add(idUser);
-                params.add(currentStructureIds.getValue(0));
+                params.add(structureIds.getValue(0));
                 statements.add(new JsonObject()
                         .put("statement", query.toString())
                         .put("values", params)
                         .put("action", "prepared"));
                 log.debug(query);
                 log.debug("idUser : "+ idUser);
-                log.debug("currentStructureIds.getValue(0) : "+ currentStructureIds.getValue(0));
+                log.debug("structureIds.getValue(0) : "+ structureIds.getValue(0));
                 log.debug(params.toString());
             }
         }
@@ -652,7 +651,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                      "OPTIONAL MATCH (c:Class) " +
                      "WHERE c.externalId IN u.classes " +
                      "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
-                     "COLLECT(DISTINCT s.id) AS currentStructureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
+                     "COLLECT(DISTINCT s.id) AS structureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
                      "COLLECT(DISTINCT g.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
 
         fr.wseduc.webutils.collections.JsonArray usersArr = new fr.wseduc.webutils.collections.JsonArray(idUsers);

@@ -95,7 +95,7 @@ import java.util.List;
      void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
 
     /**
-     * récupère les responsables d'établissement
+     * récupère les infos des utilisateurs
      * @param idUsers
      * @param handler
      */

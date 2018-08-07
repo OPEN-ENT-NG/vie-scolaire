@@ -37,8 +37,8 @@ INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_peri
 
 CREATE TABLE notes.elt_bilan_periodique (
   id bigserial NOT NULL,
-	intitule character varying(150) NOT NULL,
-  id_thematique bigint NOT NULL,
+	intitule character varying(150),
+  id_thematique bigint,
   description character varying(600),
   type_elt_bilan_periodique bigint NOT NULL,
   id_etablissement character varying(36) NOT NULL,

@@ -107,6 +107,13 @@ public interface ClasseService extends CrudService {
     void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler);
 
     /**
+     * récupère les informations de plusieurs classes
+     * @param idClasses
+     * @param handler
+     */
+    void getClassesInfo(JsonArray idClasses, Handler<Either<String, JsonArray>> handler);
+
+    /**
      *
      * @param idClasses
      * @param handler

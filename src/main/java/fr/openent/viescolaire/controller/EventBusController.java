@@ -152,6 +152,11 @@ public class EventBusController extends ControllerHelper {
                 classeService.getClasseInfo(idClasse, getJsonObjectBusResultHandler(message));
             }
             break;
+            case "getClassesInfo": {
+                JsonArray idClasses = message.body().getJsonArray("idClasses");
+                classeService.getClassesInfo(idClasses, getJsonArrayBusResultHandler(message));
+            }
+            break;
             case "getClasseIdByEleve": {
                 String idEleve = message.body().getString("idEleve");
                 classeService.getClasseIdByEleve(idEleve, getJsonObjectBusResultHandler(message));
@@ -181,9 +186,9 @@ public class EventBusController extends ControllerHelper {
                 userService.getUAI(idEtabl, getJsonObjectBusResultHandler(message));
             }
             break;
-            case "getResponsablesEtabl": {
-                List<String> idsResponsable = message.body().getJsonArray("idsResponsable").getList();
-                userService.getUsers(idsResponsable, getJsonArrayBusResultHandler(message));
+            case "getUsers": {
+                List<String> idsUsers = message.body().getJsonArray("idUsers").getList();
+                userService.getUsers(idsUsers, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {

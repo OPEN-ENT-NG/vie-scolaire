@@ -36,6 +36,13 @@
                 <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
+        <header ng-if="canAccessDiary()" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.diary.title') }"
+                class="horizontal-spacing-twice">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.diary.title')]]"
+               class="horizontal-spacing">
+                <span><i18n>viescolaire.diary.title</i18n></span>
+            </a>
+        </header>
     </div>
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
@@ -72,6 +79,9 @@
             </div>
         </article>
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_presence.html'"></div>
+    </div>
+    <div ng-if="canAccessDiary() && findParam('filter') === lang.translate('viescolaire.diary.title')">
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_diary.html'"></div>
     </div>
 </div>
 

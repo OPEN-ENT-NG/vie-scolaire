@@ -16,7 +16,7 @@ import {Utils} from "../../utils/Utils";
 export class Structure extends DefaultStructure {
     // Fields
     id: string;
-    isActived = {presence: false, evaluation: false};
+    isActived = {presence: false, evaluation: false, diary: false};
     typePeriodes: Collection<TypePeriode>;
 
     // presence

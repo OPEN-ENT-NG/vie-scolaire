@@ -12,7 +12,7 @@ declare let _: any;
 export let adminVieScolaireController = ng.controller('VscoAdminController', [
     '$scope', 'route', 'model', '$sce',
     async function ($scope, route, model, $sce) {
-        model.me.workflow.load(['competences', 'presences', 'edt']);
+        model.me.workflow.load(['competences', 'presences', 'edt', 'diary']);
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
         $scope.chargeStructure = (structure) =>  {
@@ -25,6 +25,10 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
         $scope.canAccessPresences = function () {
             return Utils.canAccessPresences();
+        };
+
+        $scope.canAccessDiary = function () {
+            return Utils.canAccessDiary();
         };
 
         $scope.changeSelection = function (elem){

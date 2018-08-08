@@ -22,5 +22,9 @@ export class Utils {
             && Behaviours.applicationsBehaviours.presences.rights.workflow !== undefined && model.me.hasWorkflow(Behaviours.applicationsBehaviours.presences.rights.workflow.access);
     }
 
+    static canAccessDiary () {
+        let diaryRight = Behaviours.applicationsBehaviours.diary;
+        return diaryRight && diaryRight.rights && model.me.hasWorkflow(diaryRight.rights.workflow.view);
+    }
 
 }

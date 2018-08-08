@@ -1,0 +1,18 @@
+<div ng-if="structure.isActived.diary" class="row" xmlns="http://www.w3.org/1999/html">
+    <div class="twelve cell">
+        <div class="cell two">
+            <nav class="vertical">
+                <ul>
+                    <li>
+                        <a href="" ng-class="{'selected': currParam === 1}" ng-click="currParam = 1;"><i18n>diary.manage.inspector</i18n></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="ten cell twelve-mobile" ng-init="currParam = 1">
+            <article ng-if="currParam === 1" class="twelve cell" ng-init="source.structureId = structure.id;">
+                <sniplet class="diary-sniplet" template="inspector" application="diary" source="source"></sniplet>
+            </article>
+        </div>
+    </div>
+</div>

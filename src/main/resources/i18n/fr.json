@@ -101,6 +101,7 @@
   "viescolaire.absences.sans.motif":"Sans motif",
   "viescolaire.absences.title":"Absences",
   "viescolaire.presences.title":"Presences",
+  "viescolaire.diary.title":"Cahier de textes",
   "viescolaire.absences.historique":"Historique de la journée",
   "viescolaire.absences.eleves":"Elèves",
   "viescolaire.absences.observations":"Observations",
@@ -469,6 +470,14 @@
   "evaluation.bfc.set.visiblity.all" : "Visible par tout le monde",
   "evaluation.bfc.set.visiblity.authorized" : "Visible uniquement des personnes habilitées (chefs établissement, personnels de direction, ...)",
   "evaluation.bfc.set.visiblity.nobody" : "Masqué pour tout le monde",
+
+  "diary.manage.inspector" : "Gérer les inspecteurs",
+  "diary.no.habilitation": "Aucune habilitation liée à cet inspecteur",
+  "diary.add.habilitation": "Ajouter une habilitation",
+  "diary.manage.inspector.description": "Cette page vous permet d'ajouter et supprimer les habilitations des inspecteurs. Une habilitation permet à un inspecteur de voir et viser les séances de l'enseignant concerné.",
+  "choose.teacher": "Choisissez un enseignant",
+  "choose.structure": "Choisissez une structure",
+  "choose.inspector": "Choisissez un inspecteur",
 
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
   "presence.devoir.ok":"Ok",

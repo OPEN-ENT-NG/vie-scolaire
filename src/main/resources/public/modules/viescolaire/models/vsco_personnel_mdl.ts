@@ -38,6 +38,7 @@ export class VieScolaire extends Model {
                         if (_.findWhere(structuresPresences, {id : _structure.id})) {
                             _structure.isActived.presence = true;
                         }
+                        _structure.isActived.diary = true;
                         _structureTmp.push(_structure);
                     }
                     this.structures.load(_structureTmp);

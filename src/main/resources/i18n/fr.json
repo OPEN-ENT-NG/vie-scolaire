@@ -473,11 +473,16 @@
 
   "diary.manage.inspector" : "Gérer les inspecteurs",
   "diary.no.habilitation": "Aucune habilitation liée à cet inspecteur",
+  "diary.inspector.habilitations": "Habilitations de l'inspecteur",
   "diary.add.habilitation": "Ajouter une habilitation",
+  "diary.add.the.habilitation": "Ajouter l'habilitation",
   "diary.manage.inspector.description": "Cette page vous permet d'ajouter et supprimer les habilitations des inspecteurs. Une habilitation permet à un inspecteur de voir et viser les séances de l'enseignant concerné.",
   "choose.teacher": "Choisissez un enseignant",
   "choose.structure": "Choisissez une structure",
   "choose.inspector": "Choisissez un inspecteur",
+  "structure": "Structure",
+  "teacher": "Enseignant",
+  "inspector": "Inspecteur",
 
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
   "presence.devoir.ok":"Ok",

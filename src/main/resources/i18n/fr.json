@@ -149,6 +149,8 @@
   "viescolaire.utils.to":"au",
   "viescolaire.utils.teacher" : "Enseignant",
   "viescolaire.utils.themes" : "Thèmes",
+  "viescolaire.utils.themes.default" : "Thèmes par défaut",
+  "viescolaire.utils.themes.personnalise" : "Thèmes personnalisés",
   "viescolaire.utils.student":"elève",
   "viescolaire.utils.date":"Date",
   "viescolaire.utils.reason":"motif",
@@ -510,6 +512,7 @@
   "evaluation.link.error.request": "Une erreur est survenue lors du rattachement.",
   "evaluation.link.message":"Attention une ou plusieurs classes vont changer de cycle. Les devoirs suivants ne seront pas conservés :",
   "evaluation.bilan.periodique.message":"Attention un ou plusieurs élèments du bilan périodique vont être supprimés. Les appréciations existantes sur ces élèments ne seront pas conservés.",
+  "evaluation.bilan.periodique.erreur":"Attention, ce thème est déjà utilisé. Suppression impossible",
   "evaluation.link.no.cycle":"Veuillez choisir un cycle.",
   "evaluation.link.notset":"Non itinialisés"
 }

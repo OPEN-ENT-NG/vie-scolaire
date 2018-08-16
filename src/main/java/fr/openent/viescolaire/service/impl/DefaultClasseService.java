@@ -335,8 +335,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (c:Class) WHERE c.externalId IN {idClasses} return c.externalId as externalId, c.name as name ")
-                .append(" UNION MATCH (g:Group) WHERE g.externalId IN {idClasses} return g.externalId as externalId, g.name as name");
+        query.append("MATCH (c:Class) WHERE c.id IN {idClasses} return c.id as id, c.name as name ")
+                .append(" UNION MATCH (g:Group) WHERE g.id IN {idClasses} return g.id as id, g.name as name");
 
         params.put("idClasses", idClasses);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

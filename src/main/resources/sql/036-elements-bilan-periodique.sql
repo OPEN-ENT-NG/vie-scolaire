@@ -15,6 +15,7 @@ CREATE TABLE notes.thematique_bilan_periodique (
 	libelle character varying(150) NOT NULL,
   code character varying(7) NOT NULL,
   type_elt_bilan_periodique bigint NOT NULL,
+  personnalise boolean NOT NULL,
   CONSTRAINT thematique_bilan_periodique_pk PRIMARY KEY (id),
   CONSTRAINT fk_type_elt_bilan_periodique FOREIGN KEY (type_elt_bilan_periodique)
   REFERENCES notes.type_elt_bilan_periodique (id) MATCH SIMPLE
@@ -64,6 +65,7 @@ CREATE TABLE notes.rel_elt_bilan_periodique_intervenant_matiere (
 CREATE TABLE notes.rel_elt_bilan_periodique_groupe (
   id_elt_bilan_periodique bigint NOT NULL,
   id_groupe character varying(255) NOT NULL,
+  externalId_groupe character varying(255) NOT NULL,
   CONSTRAINT elt_bilan_period_groupe_unique UNIQUE (id_elt_bilan_periodique, id_groupe),
   CONSTRAINT fk_elt_bilan_periodique_id FOREIGN KEY (id_elt_bilan_periodique)
   REFERENCES notes.elt_bilan_periodique (id) MATCH SIMPLE
@@ -98,4 +100,24 @@ CREATE TABLE notes.appreciation_elt_bilan_periodique_classe (
   CONSTRAINT fk_id_periode FOREIGN KEY (id_periode)
   REFERENCES viesco.periode (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE notes.rel_groupe_appreciation_elt_classe (
+  id_appreciation bigint NOT NULL,
+  id_groupe character varying(255) NOT NULL,
+  externalId_groupe character varying(255) NOT NULL,
+  CONSTRAINT groupe_appreciation_elt_classe_unique UNIQUE (id_appreciation, id_groupe),
+  CONSTRAINT fk_appreciation_classe_id FOREIGN KEY (id_appreciation)
+  REFERENCES notes.appreciation_elt_bilan_periodique_classe (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE notes.rel_groupe_appreciation_elt_eleve (
+  id_appreciation bigint NOT NULL,
+  id_groupe character varying(255) NOT NULL,
+  externalId_groupe character varying(255) NOT NULL,
+  CONSTRAINT groupe_appreciation_elt_eleve_unique UNIQUE (id_appreciation, id_groupe),
+  CONSTRAINT fk_appreciation_eleve_id FOREIGN KEY (id_appreciation)
+  REFERENCES notes.appreciation_elt_bilan_periodique_eleve (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE
 );

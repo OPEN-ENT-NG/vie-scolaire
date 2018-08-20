@@ -66,6 +66,15 @@ BEGIN;
     --    (structureId, 'Réseau indisponible', true ),
     --    (structureId, 'Professeur malade', true );
 
+    -- TABLE: incident_type
+    INSERT INTO presences.incident_type(id_etablissement, libelle) VALUES
+      (structureId, 'Insulte' ),
+      (structureId, 'Agression' ),
+      (structureId, 'Harcèlement' ),
+      (structureId, 'Vol' ),
+      (structureId, 'Vandalisme' ),
+      (structureId, 'Non respect du RI' );
+
     -- TABLE: incident_gravite
     INSERT INTO presences.incident_gravite(id_etablissement, niveau, libelle) VALUES
       (structureId, 0, 'Bénin' ),
@@ -109,22 +118,18 @@ BEGIN;
       (structureId, 'Raison familiale',                                   true, false, false ),
       (structureId, 'Rendez-vous extérieur',                              true, false, false ),
       (structureId, 'Compétition sportive',                               true, false, false ),
-      (structureId, 'Absent de cours mais présent dans l établissement', true, false, false ),
-
+      (structureId, 'Absent de cours mais présent dans l établissement',  true, false, false ),
       -- Motifs non jutifiants
       (structureId, 'Maladie sans justificatif',                false, false, false ),
       (structureId, 'Appel famille / En attente justificatif',  false, false, false ),
       (structureId, 'Panne de réveil',                          false, false, false ),
       (structureId, 'Confusion emploi du temps',                false, false, false ),
       (structureId, 'Retard non justifié',                      false, false, false ),
-
       -- Motifs collectifs
       (structureId, 'Voyage scolaire',            true, true, false ),
       (structureId, 'Stage',                      true, true, false ),
-      (structureId, 'Compétition sportive',       true, true, false );
-
+      (structureId, 'Compétition sportive',       true, true, false ),
     -- Motifs de sanction
-    INSERT INTO presences.motif(id_etablissement, libelle, justifiant, collectif, is_sanction) VALUES
       (structureId, 'Exclusion de cours',    true, false, true ),
       (structureId, 'Exclusion temporaire',  true, false, true ),
       (structureId, 'Exclusion définitive',  true, false, true );
@@ -137,21 +142,21 @@ BEGIN;
 	
     -- TABLE: punishment_type
     INSERT INTO  presences.punishment_type(structure_id, label, require_presence_period)VALUES
-      (structureId, 'Retenue', true),
-      (structureId, 'Devoir officiel sur table', true),
-      (structureId, 'Devoir officiel à la maison', false),
-      (structureId, 'Devoir supplémentaire', false),
-      (structureId, 'Cours supplémentaire', true),
-      (structureId, 'Fiche de réflexion', false),
-      (structureId, 'TIG', false);
+      (structureId, 'Retenue',                      true),
+      (structureId, 'Devoir officiel sur table',    true),
+      (structureId, 'Devoir officiel à la maison',  false),
+      (structureId, 'Devoir supplémentaire',        false),
+      (structureId, 'Cours supplémentaire',         true),
+      (structureId, 'Fiche de réflexion',           false),
+      (structureId, 'TIG',                          false);
 	
     -- TABLE: sanction_type
     INSERT INTO presences.sanction_type(structure_id, label, require_period_absence) VALUES
-      (structureId, 'Avertissement', false),
-      (structureId, 'Blâme', false),
+      (structureId, 'Avertissement',                false),
+      (structureId, 'Blâme',                        false),
       (structureId, 'Mesure de responsabilisation', false),
-      (structureId, 'Exclusion avec sursis', false),
-      (structureId, 'Exclusion', true);
+      (structureId, 'Exclusion avec sursis',        false),
+      (structureId, 'Exclusion',                    true);
   END;
   $$ LANGUAGE plpgsql;
 END;

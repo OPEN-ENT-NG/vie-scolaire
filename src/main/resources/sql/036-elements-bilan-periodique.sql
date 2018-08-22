@@ -37,7 +37,7 @@ CREATE TABLE notes.elt_bilan_periodique (
 CREATE TABLE notes.rel_elt_bilan_periodique_intervenant_matiere (
   id_elt_bilan_periodique bigint NOT NULL,
   id_intervenant character varying(255) NOT NULL,
-  id_matiere character varying(36) NOT NULL,
+  id_matiere character varying(36),
   CONSTRAINT elt_bilan_period_interv_mat_unique UNIQUE (id_elt_bilan_periodique, id_intervenant, id_matiere),
   CONSTRAINT fk_elt_bilan_periodique_id FOREIGN KEY (id_elt_bilan_periodique)
   REFERENCES notes.elt_bilan_periodique (id) MATCH SIMPLE

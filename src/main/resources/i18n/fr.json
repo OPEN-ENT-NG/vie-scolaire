@@ -325,6 +325,8 @@
   "evalutions.competences.confirmation":"Cette action va initialiser l'ensemble des compétences à la valeur sélectionnée.",
   "evaluations.devoir.information.suppression":"Des évaluations sélectionnées seront supprimées",
   "evaluations.devoir.confirmation.question":"Souhaitez vous continuer ?",
+  "evaluations.devoir.confirmation.question.enseignant":"Souhaitez vous supprimer cet enseignant ?",
+  "evaluations.devoir.confirmation.question.classe":"Souhaitez vous supprimer cette classe ?",
   "evaluations.devoir.confirmation":"confirmer",
   "evaluations.devoir.annuler":"annuler",
   "evaluations.devoir.recaputilatif":"Récapitulatif",

@@ -652,11 +652,11 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                      "WHERE c.externalId IN u.classes " +
                      "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
                      "COLLECT(DISTINCT s.id) AS structureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
-                     "COLLECT(DISTINCT g.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
+                     "COLLECT(DISTINCT c.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
 
         fr.wseduc.webutils.collections.JsonArray usersArr = new fr.wseduc.webutils.collections.JsonArray(idUsers);
         log.debug("usersArr : " + usersArr.toString());
-        log.info("getUsers : " + query.toString());
+//        log.info("getUsers : " + query.toString());
         Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",usersArr), Neo4jResult.validResultHandler(handler));
     }
 

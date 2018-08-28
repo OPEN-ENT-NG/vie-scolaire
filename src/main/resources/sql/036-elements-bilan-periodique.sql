@@ -74,9 +74,11 @@ CREATE TABLE notes.appreciation_elt_bilan_periodique_classe (
   id bigserial NOT NULL,
   id_elt_bilan_periodique bigint NOT NULL,
   id_periode bigint NOT NULL,
+  id_groupe character varying(255) NOT NULL,
+  externalid_groupe character varying(255) NOT NULL,
   commentaire character varying(600),
   CONSTRAINT appreciation_elt_bilan_period_classe_pk PRIMARY KEY (id),
-  CONSTRAINT appreciation_elt_bilan_period_classe_unique UNIQUE (id_elt_bilan_periodique, id_periode),
+  CONSTRAINT appreciation_elt_bilan_period_classe_unique UNIQUE (id_elt_bilan_periodique, id_periode, id_groupe),
   CONSTRAINT fk_elt_bilan_periodique_id FOREIGN KEY (id_elt_bilan_periodique)
   REFERENCES notes.elt_bilan_periodique (id) MATCH SIMPLE
   ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -85,13 +87,13 @@ CREATE TABLE notes.appreciation_elt_bilan_periodique_classe (
   ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
-CREATE TABLE notes.rel_groupe_appreciation_elt_classe (
-  id_groupe character varying(255) NOT NULL,
-  externalId_groupe character varying(255) NOT NULL,
-  id_elt_bilan_periodique bigint NOT NULL,
-  id_periode bigint NOT NULL,
-  CONSTRAINT groupe_appreciation_elt_classe_unique UNIQUE (id_groupe, id_elt_bilan_periodique, id_periode)
-);
+-- CREATE TABLE notes.rel_groupe_appreciation_elt_classe (
+--   id_groupe character varying(255) NOT NULL,
+--   externalId_groupe character varying(255) NOT NULL,
+--   id_elt_bilan_periodique bigint NOT NULL,
+--   id_periode bigint NOT NULL,
+--   CONSTRAINT groupe_appreciation_elt_classe_unique UNIQUE (id_groupe, id_elt_bilan_periodique, id_periode)
+-- );
 
 CREATE TABLE notes.rel_groupe_appreciation_elt_eleve (
   id_groupe character varying(255) NOT NULL,

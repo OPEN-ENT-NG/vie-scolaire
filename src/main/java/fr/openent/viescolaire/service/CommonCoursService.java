@@ -13,4 +13,5 @@ public interface CommonCoursService {
     void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler );
+
 }

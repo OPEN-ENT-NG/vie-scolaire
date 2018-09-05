@@ -9,7 +9,7 @@ CREATE TABLE notes.type_elt_bilan_periodique (
 CREATE TABLE notes.thematique_bilan_periodique (
   id bigserial NOT NULL,
 	libelle character varying(150) NOT NULL,
-  code character varying(7) NOT NULL,
+  code character varying(50) NOT NULL,
   type_elt_bilan_periodique bigint NOT NULL,
   personnalise boolean NOT NULL,
   CONSTRAINT thematique_bilan_periodique_pk PRIMARY KEY (id),

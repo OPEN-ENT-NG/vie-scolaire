@@ -13,7 +13,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
-import org.entcore.common.sql.SqlResult;
 
 
 import java.text.DateFormat;
@@ -118,7 +117,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
                         }
                         final Date queryStart = queryStartDate, queryEnd = queryEndDate ;
 
-                        String query = "SELECT start_date, end_date  FROM " + EDT_SCHEMA + ".period_exclusion WHERE period_exclusion.id_structure = ?;";
+                        String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
+                                " FROM " + EDT_SCHEMA + ".period_exclusion WHERE period_exclusion.id_structure = ?;";
                         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
                         Sql.getInstance().prepared(query, params, (res)->{
                             JsonArray exclusions;
@@ -165,7 +165,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
                         JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, true).toString());
-                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())) {
+                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                             result.add(c);
                         }
                         startMoment.add(Calendar.DATE, cadence);
@@ -174,7 +174,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 } else {
                     JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, false).toString());
                     if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
-                            &&(overExclusions(exclusions, c))) {
+                            &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                         result.add(c);
                     }
                 }
@@ -189,10 +189,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){
         return aStart.before(bEnd) && bStart.before(aEnd);
     }
-    private static boolean overExclusions(JsonArray exclusions, JsonObject c){
+    private static boolean courseDoesntOverlapExclusionPeriods(JsonArray exclusions, JsonObject c){
         boolean canAdd = true;
         for(int i=0; i < exclusions.size(); i++){
-            SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
            Date startExclusion = getDate(exclusions.getJsonArray(i).getString(0), DATE_FORMATTER) ;
             Date endExclusion = getDate( exclusions.getJsonArray(i).getString(1), DATE_FORMATTER) ;
             Date startOccurrence = getDate( c.getString(COURSE_TABLE.startDate) , DATE_FORMATTER) ;

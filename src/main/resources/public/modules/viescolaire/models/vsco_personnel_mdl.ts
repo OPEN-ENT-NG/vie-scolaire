@@ -1,4 +1,4 @@
-import { model, Model, Collection} from 'entcore';
+import { model, Model, Collection, idiom as lang } from 'entcore';
 import { getActiveStructures } from "../../utils/functions/activeStructures";
 import {Structure} from './personnel/Structure';
 
@@ -63,6 +63,7 @@ export let vieScolaire = new VieScolaire();
 
 model.build = function () {
     model.me.workflow.load(['competences', 'presences', 'edt']);
+    lang.addBundle('/edt/i18n');
     (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();
 };

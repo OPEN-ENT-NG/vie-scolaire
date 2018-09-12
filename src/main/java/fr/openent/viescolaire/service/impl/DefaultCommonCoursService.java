@@ -12,6 +12,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.entcore.common.sql.Sql;
 
 
 import java.text.DateFormat;
@@ -31,6 +32,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static UtilsService utilsService= new DefaultUtilsService();
     private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
+    public final static String EDT_SCHEMA = "edt";
     private final EventBus eb;
     private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
@@ -81,6 +83,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
     }
+
     private JsonObject getGroupsFilterTable(List<String>  groups) {
         JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
         for(String group : groups){
@@ -98,22 +101,35 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return groupOperand ;
     }
     @Override
-    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, Handler<Either<String,JsonArray>> handler){
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, final Handler<Either<String,JsonArray>> handler){
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, response -> {
                     if (response.isRight()) {
                         JsonArray arrayCourses = response.right().getValue();
 
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date queryStartDate = new Date();
-                        Date queryEndDate = new Date();
+                        Date  queryStartDate = new Date();
+                        Date  queryEndDate = new Date();
                         try {
                             queryStartDate = formatter.parse(begin + " 00:00:00");
                             queryEndDate = formatter.parse(end + " 23:59:59");
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
+                        final Date queryStart = queryStartDate, queryEnd = queryEndDate ;
 
-                        handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStartDate, queryEndDate, arrayCourses, handler)));
+                        String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
+                                " FROM " + EDT_SCHEMA + ".period_exclusion WHERE period_exclusion.id_structure = ?;";
+                        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
+                        Sql.getInstance().prepared(query, params, (res)->{
+                            JsonArray exclusions;
+                            if (!res.isSend()) {
+                                handler.handle(new Either.Left<>("can't get exclusions days from mongo"));
+                            } else {
+                                exclusions =  res.body().getJsonArray("results");
+                                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart, queryEnd, arrayCourses, exclusions, handler)));
+                            }
+                        });
+
                     } else {
                         LOG.error("can't get courses from mongo");
                         handler.handle(new Either.Left<>("can't get courses from mongo"));
@@ -126,13 +142,13 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
     }
-    private JsonArray getOccurencesWithCourses(Date queryStartDate, Date queryEndDate, JsonArray arrayCourses, Handler<Either<String,JsonArray>> handler) {
+    private JsonArray getOccurencesWithCourses(Date queryStartDate, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
         for(int i=0; i < arrayCourses.size() ; i++) {
             JsonObject course =  arrayCourses.getJsonObject(i);
 
             // Pour chaque course je vérifie si c'est le bon format de date.
-            if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate)) ){
+            if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate))){
                 course.put("startCourse",course.getString(COURSE_TABLE.startDate))
                         .put("endCourse",course.getString(COURSE_TABLE.endDate));
 
@@ -149,7 +165,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
                         JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, true).toString());
-                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())) {
+                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                             result.add(c);
                         }
                         startMoment.add(Calendar.DATE, cadence);
@@ -157,8 +173,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     }
                 } else {
                     JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, false).toString());
-
-                    if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())) {
+                    if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
+                            &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                         result.add(c);
                     }
                 }
@@ -172,6 +188,22 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){
         return aStart.before(bEnd) && bStart.before(aEnd);
+    }
+    private static boolean courseDoesntOverlapExclusionPeriods(JsonArray exclusions, JsonObject c){
+        boolean canAdd = true;
+        for(int i=0; i < exclusions.size(); i++){
+            SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+           Date startExclusion = getDate(exclusions.getJsonArray(i).getString(0), DATE_FORMATTER) ;
+            Date endExclusion = getDate( exclusions.getJsonArray(i).getString(1), DATE_FORMATTER) ;
+            Date startOccurrence = getDate( c.getString(COURSE_TABLE.startDate) , DATE_FORMATTER) ;
+            Date endOccurrence =  getDate(c.getString(COURSE_TABLE.endDate) , DATE_FORMATTER) ;
+            if ( !( ( startOccurrence.before(startExclusion) && endOccurrence.before(startExclusion))
+                    || ( startOccurrence.after(endExclusion) && endOccurrence.after(endExclusion)) )) {
+                canAdd = false;
+                break;
+            }
+        }
+        return canAdd;
     }
 
     private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
@@ -209,7 +241,15 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private boolean goodFormatDate(String date){
         return date.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*");
     }
-
+    public static Date getDate(String dateString, SimpleDateFormat dateFormat){
+        Date date= new Date();
+        try{
+            date =  dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            LOG.error("error when casting date: ", e);
+        }
+        return date ;
+    }
 
     private Calendar getCalendarDate(String stringDate, Handler<Either<String,JsonArray>> handler){
         SimpleDateFormat formatter = new SimpleDateFormat(START_END_DATE_FORMAT);
@@ -227,6 +267,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         startCalendar.setTime(date);
         return startCalendar;
     }
+
 }
 
 class Course {

@@ -6,38 +6,38 @@
                     <nav class="vertical">
                         <ul>
                             <li>
-                                <a href="" ng-class="{'selected': currParam === 1}"
-                                   ng-click="currParam = 1; scrollToElement(1)">
+                                <a href="" ng-class="{'selected': currParam === 0 || currParam === 1}"
+                                   ng-click="currParam = 1;)">
                                     <i18n>evaluations.level</i18n>
                                 </a>
                             </li>
                             <li workflow="competences.setVisibilityAverageBfc">
                                 <a href="" ng-class="{'selected': currParam === 2}"
-                                   ng-click="currParam = 2; scrollToElement(2)">
+                                   ng-click="currParam = 2;">
                                     <i18n>evaluation.bfc.visibility.average</i18n>
                                 </a>
                             </li>
                             <li workflow="competences.setVisibilityAverageBfc">
                                 <a href="" ng-class="{'selected': currParam === 3}"
-                                   ng-click="currParam = 3; scrollToElement(3)">
+                                   ng-click="currParam = 3;">
                                     <i18n>evaluation.bfc.visibility.baremeBFC</i18n>
                                 </a>
                             </li>
                             <li workflow="competences.paramCompetences">
                                 <a href="" ng-class="{'selected': currParam === 4}"
-                                   ng-click="currParam = 4; scrollToElement(4)">
+                                   ng-click="currParam = 4;">
                                     <i18n>evaluations.competences.items.title</i18n>
                                 </a>
                             </li>
                             <li workflow="competences.linkGroupCycle">
                                 <a href="" ng-class="{'selected': currParam === 5}"
-                                   ng-click="currParam = 5; scrollToElement(5)">
+                                   ng-click="currParam = 5;">
                                     <i18n>evaluation.link.group.cycle</i18n>
                                 </a>
                             </li>
                             <li><!--workflow="competences.bilanPeriodique"-->
                                 <a href="" ng-class="{'selected': currParam === 6}"
-                                   ng-click="currParam = 6; scrollToElement(6)">
+                                   ng-click="currParam = 6;">
                                     <i18n>evaluations.bilan.periodique</i18n>
                                 </a>
                             </li>
@@ -49,7 +49,7 @@
         </div>
         <div class="ten cell twelve-mobile">
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
-                <div class="hash-magnet twelve cell" id="1">
+                <div class="hash-magnet twelve cell" id="1" ng-if="currParam === 0 || currParam === 1">
                     <article>
                         <div class="twelve">
                             <h3>
@@ -137,7 +137,7 @@
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
                  workflow="competences.setVisibilityAverageBfc">
-                <div class="hash-magnet twelve cell" id="2">
+                <div class="hash-magnet twelve cell" id="2" ng-if="currParam === 2">
                     <article>
                         <div class="twelve">
                             <h3>
@@ -158,7 +158,7 @@
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
                  workflow="competences.setVisibilityAverageBfc">
-                <div class="hash-magnet twelve cell" id="3">
+                <div class="hash-magnet twelve cell" id="3" ng-if="currParam === 3">
                     <article>
                         <div class="twelve">
                             <h3>
@@ -180,13 +180,13 @@
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
                  workflow="competences.paramCompetences">
                 <div ng-include="'/viescolaire/public/templates/viescolaire/param_items/param_items_competence.html'"
-                     class="hash-magnet twelve cell" id="4">
+                     class="hash-magnet twelve cell" id="4" ng-if="currParam === 4">
 
                 </div>
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
                  workflow="competences.linkGroupCycle">
-                <div class="hash-magnet twelve cell" id="5">
+                <div class="hash-magnet twelve cell" id="5" ng-if="currParam === 5">
                     <article ng-init="source.idStructure = structure.id;
                     source.cycles = structure.cycles;
                     source.lastSelectedCycle = lastSelectedCycle;">
@@ -198,17 +198,18 @@
                     </article>
                 </div>
             </div>
-            <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
+            <div ng-init="isMode = false; " class="twelve cell twelve-mobile">
                  <!--workflow="competences.bilanPeriodique"-->
-                <div class="hash-magnet twelve cell" id="6">
-                    <article>
+                <div class="hash-magnet twelve cell" id="6" ng-if="currParam === 6">
+                    <article ng-init="source.idStructure = structure.id;">
                         <sniplet
                                 template="bilanPeriodique"
                                 application="competences"
                                 source="source"
                         ></sniplet>
                     </article>
-
+                </div>
+            </div>
         </div>
     </div>
 </div>

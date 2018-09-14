@@ -5,7 +5,7 @@
   "dependencies": {
     "angular-chart.js": "^1.1.1",
     "axios": "^0.17.1",
-    "entcore": "2.2.6",
+    "entcore": "~3.0.0-dev.1",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0"
   },

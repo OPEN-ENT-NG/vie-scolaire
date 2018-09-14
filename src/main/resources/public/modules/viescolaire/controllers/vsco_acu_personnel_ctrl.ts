@@ -12,20 +12,20 @@ declare let _: any;
 export let adminVieScolaireController = ng.controller('VscoAdminController', [
     '$scope', 'route', 'model', '$sce',
     async function ($scope, route, model, $sce) {
-    console.log('adminVieScolaireController');
-        model.me.workflow.load(['edt', 'competences', 'presences']);
+        console.log('adminVieScolaireController');
+
+        let modulesAccess = {
+            moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
+            modulePresenceIsInstalled: $scope.modulePresenceIsInstalled,
+            canAccessPresences: $scope.canAccessPresences,
+            canAccessCompetences: $scope.canAccessCompetences
+        };
+        console.log('adminVieScolaireController ModulesAccess', modulesAccess);
+
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
         $scope.chargeStructure = (structure) =>  {
             structure.classes.sync();
-        };
-
-        $scope.canAccessCompetences = function () {
-            return Utils.canAccessCompetences();
-        };
-
-        $scope.canAccessPresences = function () {
-            return Utils.canAccessPresences();
         };
 
         $scope.changeSelection = function (elem){

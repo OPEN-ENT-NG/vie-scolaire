@@ -7,11 +7,33 @@ import {CategorieAppel} from "../models/personnel/CategorieAppel";
 import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/common/Periode";
+import {Utils} from "../utils/Utils";
 
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
     function ($scope, route, model, $location, $anchorScroll, $sce) {
-        //model.me.workflow.load(['competences', 'presences', 'edt']);
+
+        async function checkModulesAccess() {
+            await Behaviours.load('edt');
+            await Behaviours.load('competences');
+            await Behaviours.load('presences');
+
+            $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
+            $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
+            $scope.canAccessCompetences = Utils.canAccessCompetences();
+            $scope.canAccessPresences = Utils.canAccessPresences();
+
+            let modulesAccess = {
+                moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
+                modulePresenceIsInstalled: $scope.modulePresenceIsInstalled,
+                canAccessPresences: $scope.canAccessPresences,
+                canAccessCompetences: $scope.canAccessCompetences
+            };
+            console.log('Main ModulesAccess', modulesAccess);
+        }
+
+        checkModulesAccess();
+
         $scope.template = template;
         $scope.lang = lang;
         $scope.opened = {
@@ -440,6 +462,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     utils.safeApply($scope);
                 };
                 if ( $scope.structure === undefined ) {
+                    console.log('Structure is undefined');
                     vieScolaire.structures.sync().then(() => {
                         $scope.structures = vieScolaire.structures;
                         vieScolaire.structure.sync().then(() => {
@@ -457,6 +480,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     });
                 }
                 else {
+                    console.log('Structure is defined !');
                     $scope.structures = vieScolaire.structures;
                    openTemplate();
                 }

@@ -62,7 +62,6 @@ export class VieScolaire extends Model {
 export let vieScolaire = new VieScolaire();
 
 model.build = function () {
-    model.me.workflow.load(['competences', 'presences', 'edt']);
     lang.addBundle('/edt/i18n');
     (this as any).vieScolaire = vieScolaire;
     vieScolaire.sync();

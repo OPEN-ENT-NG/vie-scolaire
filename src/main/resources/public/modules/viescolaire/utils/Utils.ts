@@ -1,26 +1,42 @@
-import {model, idiom as lang, _, Behaviours} from 'entcore';
+import {model, Behaviours} from 'entcore';
 
 export class Utils {
     static canAccessCompetences () {
-
-        /*console.log("Behaviours.applicationsBehaviours.competences !== undefined = " + (Behaviours.applicationsBehaviours.competences !== undefined));
-        console.log("Behaviours.applicationsBehaviours.competences.rights !== undefined = " + (Behaviours.applicationsBehaviours.competences !== undefined && Behaviours.applicationsBehaviours.competences.rights !== undefined));
-        console.log("Behaviours.applicationsBehaviours.competences.rights.workflow !== undefined = " + (Behaviours.applicationsBehaviours.competences !== undefined && Behaviours.applicationsBehaviours.competences.rights !== undefined && Behaviours.applicationsBehaviours.competences.rights.workflow !== undefined));
-        */
-
-        return Behaviours.applicationsBehaviours.competences !== undefined && Behaviours.applicationsBehaviours.competences.rights !== undefined
-            && Behaviours.applicationsBehaviours.competences.rights.workflow !== undefined && model.me.hasWorkflow(Behaviours.applicationsBehaviours.competences.rights.workflow.access);
+        return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.competences);
     }
 
     static canAccessPresences () {
-
-        /*console.log("Behaviours.applicationsBehaviours.presences !== undefined = " + (Behaviours.applicationsBehaviours.presences !== undefined));
-        console.log("Behaviours.applicationsBehaviours.presences.rights !== undefined = " + (Behaviours.applicationsBehaviours.presences !== undefined && Behaviours.applicationsBehaviours.presences.rights !== undefined));
-        console.log("Behaviours.applicationsBehaviours.presences.rights.workflow !== undefined = " + (Behaviours.applicationsBehaviours.presences !== undefined && Behaviours.applicationsBehaviours.presences.rights !== undefined && Behaviours.applicationsBehaviours.presences.rights.workflow !== undefined));
-        */
-        return Behaviours.applicationsBehaviours.presences !== undefined && Behaviours.applicationsBehaviours.presences.rights !== undefined
-            && Behaviours.applicationsBehaviours.presences.rights.workflow !== undefined && model.me.hasWorkflow(Behaviours.applicationsBehaviours.presences.rights.workflow.access);
+        return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.presences);
     }
 
+    static modulePresenceIsInstalled() {
+        return Utils.isModuleInstalled(Behaviours.applicationsBehaviours.presences);
+    }
 
+    static moduleCompetenceIsInstalled() {
+        return Utils.isModuleInstalled(Behaviours.applicationsBehaviours.competences);
+    }
+
+    /**
+     * Return if the module is installed
+     * To determine if the module is installed we check if the 'rights' key exists
+     * @param module
+     * @returns {boolean}
+     */
+    static isModuleInstalled(module) {
+        try {
+            return !!module.rights;
+        } catch {
+            return false;
+        }
+    }
+
+    static userCanAccessModule(module) {
+        try {
+            return module.rights.workflow.access !== undefined
+                && model.me.hasWorkflow(module.rights.workflow.access);
+        } catch {
+            return false;
+        }
+    }
 }

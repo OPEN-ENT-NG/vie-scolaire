@@ -239,7 +239,6 @@ export class Structure extends DefaultStructure {
             //}
 
             if (Utils.canAccessPresences()) {
-                //console.log("canAccessPresences=true");
                 that.motifAppels.sync().then(() => {
                     that.categorieAppels.sync().then(() => {
                         that.motifs.sync().then(() => {

@@ -167,6 +167,11 @@ public class EventBusController extends ControllerHelper {
                 classeService.listClasses(idEtablissement, true,null, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "listAllGroupes": {
+                String idEtablissement = message.body().getString("idStructure");
+                classeService.listClasses(idEtablissement, null,null, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

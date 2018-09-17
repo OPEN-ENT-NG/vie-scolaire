@@ -14,14 +14,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
     async function ($scope, route, model, $sce) {
         console.log('adminVieScolaireController');
 
-        let modulesAccess = {
-            moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
-            modulePresenceIsInstalled: $scope.modulePresenceIsInstalled,
-            canAccessPresences: $scope.canAccessPresences,
-            canAccessCompetences: $scope.canAccessCompetences
-        };
-        console.log('adminVieScolaireController ModulesAccess', modulesAccess);
-
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
         $scope.chargeStructure = (structure) =>  {

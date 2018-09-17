@@ -12,27 +12,36 @@ import {Utils} from "../utils/Utils";
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
     function ($scope, route, model, $location, $anchorScroll, $sce) {
+        console.log('viescolaireController');
 
-        async function checkModulesAccess() {
-            await Behaviours.load('edt');
-            await Behaviours.load('competences');
-            await Behaviours.load('presences');
+        /**
+         * Check if the modules are installed and if the current user can access them
+         * @returns {Promise<void>}
+         */
+        async function loadAndCheckModulesAccess() {
+            await model.me.workflow.load(['competences', 'presences', 'edt']);
 
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
+            $scope.moduleEdtIsInstalled = Utils.moduleEdtIsInstalled();
             $scope.canAccessCompetences = Utils.canAccessCompetences();
             $scope.canAccessPresences = Utils.canAccessPresences();
+            $scope.canAccessEdt = Utils.canAccessEdt();
 
             let modulesAccess = {
                 moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
                 modulePresenceIsInstalled: $scope.modulePresenceIsInstalled,
+                moduleEdtIsInstalled: $scope.moduleEdtIsInstalled,
                 canAccessPresences: $scope.canAccessPresences,
-                canAccessCompetences: $scope.canAccessCompetences
+                canAccessCompetences: $scope.canAccessCompetences,
+                canAccessEdt: $scope.canAccessEdt
             };
-            console.log('Main ModulesAccess', modulesAccess);
+            console.log('ModulesAccess', modulesAccess);
         }
 
-        checkModulesAccess();
+        async function forceSynchronous() { await loadAndCheckModulesAccess() };
+
+        forceSynchronous();
 
         $scope.template = template;
         $scope.lang = lang;
@@ -450,7 +459,15 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         };
 
         route({
-            accueil: function (params) {
+            accueil: async function (params) {
+                /**
+                 * Loading modules to check rights later
+                 * @returns {Promise<void>}
+                 */
+                await Utils.loadModule('edt');
+                await Utils.loadModule('competences');
+                await Utils.loadModule('presences');
+
                 moment.locale('fr');
                 let openTemplate = () => {
                     template.open('main', '../templates/viescolaire/vsco_acu_personnel');

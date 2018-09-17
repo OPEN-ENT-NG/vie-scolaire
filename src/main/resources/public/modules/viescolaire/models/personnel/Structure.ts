@@ -220,12 +220,7 @@ export class Structure extends DefaultStructure {
             var that = this;
              // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
 
-            // TODO rajouter le test d'acces à competences
-            // Actuellement les workflow sont chargés trop tard si on a une connexion lente
-            // on ne rentre alors jamais dans le if
-
-            //if (Utils.canAccessCompetences()) {
-                //console.log("canAccessCompetences=true");
+            if (Utils.canAccessCompetences()) {
                 // Récupération du niveau de compétences et construction de l'abre des cycles.
                 that.getMaitrise().then(() => {
                     that.classes.sync().then(() => {
@@ -236,7 +231,7 @@ export class Structure extends DefaultStructure {
                         });
                     });
                 });
-            //}
+            }
 
             if (Utils.canAccessPresences()) {
                 that.motifAppels.sync().then(() => {

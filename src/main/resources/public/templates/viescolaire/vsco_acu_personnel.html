@@ -36,7 +36,7 @@
                 <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
-        <header ng-class="{selected: findParam('filter') == lang.translate('viescolaire.edt.title')}"
+        <header ng-if="canAccessEdt" ng-class="{selected: findParam('filter') == lang.translate('viescolaire.edt.title')}"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.edt.title')]]"
                class="horizontal-spacing">

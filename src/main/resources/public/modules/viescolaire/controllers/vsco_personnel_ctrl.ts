@@ -19,11 +19,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
          * @returns {Promise<void>}
          */
         async function loadAndCheckModulesAccess() {
-            try {
-                await model.me.workflow.load(['competences', 'presences', 'edt']);
-            } catch {
-                // Continue
-            }
+            await Utils.loadModule('edt');
+            await Utils.loadModule('competences');
+            await Utils.loadModule('presences');
 
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
@@ -41,6 +39,12 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 canAccessEdt: $scope.canAccessEdt
             };
             console.log('ModulesAccess', modulesAccess);
+
+            try {
+                await model.me.workflow.load(['competences', 'presences', 'edt']);
+            } catch {
+                console.log('Erreur Workflow.load : viescolaireController');
+            }
         }
 
         async function forceSynchronous() { await loadAndCheckModulesAccess() };

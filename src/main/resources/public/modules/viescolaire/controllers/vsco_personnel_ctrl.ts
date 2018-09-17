@@ -19,7 +19,11 @@ export let viescolaireController = ng.controller('ViescolaireController', [
          * @returns {Promise<void>}
          */
         async function loadAndCheckModulesAccess() {
-            await model.me.workflow.load(['competences', 'presences', 'edt']);
+            try {
+                await model.me.workflow.load(['competences', 'presences', 'edt']);
+            } catch {
+                // Continue
+            }
 
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();

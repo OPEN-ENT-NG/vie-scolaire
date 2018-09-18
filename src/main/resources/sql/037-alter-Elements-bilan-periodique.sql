@@ -1,0 +1,1 @@
+ALTER TABLE notes.thematique_bilan_periodique  ADD CONSTRAINT unique_code_constraint UNIQUE (code);

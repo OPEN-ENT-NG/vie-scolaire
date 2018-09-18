@@ -10,7 +10,7 @@ INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_peri
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Corps, santé, bien-être et sécurité', 'EPI_SAN', 1, false);
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Culture et création artistiques', 'EPI_ART', 1, false);
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Transition écologique et développement durable', 'EPI_EDD', 1, false);
-INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Information, communication, citoyenneté', 'EPI_EDD', 1, false);
+INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Information, communication, citoyenneté', 'EPI_ICC', 1, false);
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Langues et cultures de l''Antiquité', 'EPI_LGA', 1, false);
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Langues et cultures étrangères ou, le cas échéant, régionales', 'EPI_LGE', 1, false);
 INSERT INTO notes.thematique_bilan_periodique(libelle, code, type_elt_bilan_periodique, personnalise) VALUES ('Monde économique et professionnel', 'EPI_PRO', 1, false);

@@ -128,7 +128,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" UNWIND ens.classes as j")
                 .append(" WITH u,r, ens, f, j, s ")
                 .append(" WHERE j in u.classes and f.code in u.fieldOfStudy and s.externalId in u.structures ")
-                .append("  return ens.id as id, ens.firstName as firstName, ens.surname as name, f.id as id_matiere")
+                .append("  return ens.id as id, ens.firstName as firstName, ens.lastName as name, f.id as id_matiere")
                 .append(" , f.label as name_matiere");
         params.put("idEleve", idEleve);
 
@@ -172,7 +172,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonObject params = new JsonObject();
 
         query.append("MATCH (u:`User`) WHERE u.id IN {idUsers} ")
-                .append("RETURN u.id as id, u.firstName as firstName, u.surname as name, u.displayName as displayName, ")
+                .append("RETURN u.id as id, u.firstName as firstName, u.lastName as name, u.displayName as displayName, ")
                 .append("u as data ");
         params.put("idUsers", idUsers);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));

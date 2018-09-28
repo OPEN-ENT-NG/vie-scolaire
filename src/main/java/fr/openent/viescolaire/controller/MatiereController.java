@@ -92,7 +92,7 @@ public class MatiereController extends ControllerHelper {
                                 String firstNameEnsiegnant = enseignant.getString("firstName");
                                 matiereInter.put("firstNameEnseignant", firstNameEnsiegnant);
                                 matiereInter.put("firstNameInitialeEnseignant", firstNameEnsiegnant.substring(0,1));
-                                matiereInter.put("surnameEnseignant", enseignant.getString("surname"));
+                                matiereInter.put("surnameEnseignant", enseignant.getString("lastName"));
                                 matiereInter.put("idEnseignant", enseignant.getString("id"));
                                 response.add(matiereInter);
                             }

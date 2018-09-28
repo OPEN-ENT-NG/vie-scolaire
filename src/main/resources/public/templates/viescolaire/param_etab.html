@@ -3,10 +3,17 @@
         <div class="side-col twelve-mobile" offset="65" sticky>
             <div class="row">
                 <nav class="vertical">
-                    <ul>
+                    <ul ng-init="currParam = 0;">
                         <li>
-                            <a href="">
+                            <a href="" ng-class="{'selected': currParam === 0}"
+                               ng-click="currParam = 0;">
                                 <i18n>viescolaire.periode.set</i18n>
+                            </a>
+                        </li>
+                        <li workflow="viescolaire.importRetardAndAbsences">
+                            <a href=""  ng-class="{'selected': currParam === 1}"
+                               ng-click="currParam = 1;">
+                                <i18n>viescolaire.import.absence.retard.csv</i18n>
                             </a>
                         </li>
                     </ul>
@@ -15,142 +22,12 @@
         </div>
     </div>
 
-    <div class="ten cell">
-        <div class="twelve tabs vertical-spacing-twice heading-tabs">
-            <header ng-repeat="typePeriode in getTypePeriode()"
-                    ng-class="{selected : search.type == typePeriode}"
-                    class="horizontal-spacing-twice"
-              >
-                <a class="horizontal-spacing"
-                   ng-click="search.type = typePeriode; selected.allClassePeriode=false;">
-                    <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
-                </a>
-            </header>
-            <header ng-class="{selected : search.type == 0}"
-                    class="horizontal-spacing-twice ng-scope">
-                <a class="horizontal-spacing"
-                   ng-click="search.type = 0">
-                    <i18n>viescolaire.periode.notset</i18n>
-                </a>
-            </header>
-        </div>
-
-        <article class="twelve cell ">
-            <h2 class="two cell">
-                <i18n>viescolaire.viescolaire.rechercheClasse</i18n>
-            </h2>
-            <input class="ten cell"
-                   type="text"
-                   ng-model="search.name"
-                   placeholder="Nom de la classe">
-        </article>
-
-        &nbsp
-
-        <div class="card expandable-list twelve row">
-            <div class="expandable-list-header twelve cell"
-                 ng-if="(structure.classes.all | periodeSearch:search).length > 0">
-                <div class="cell">
-                    <label class="checkbox">
-                        <input type="checkbox"
-                               ng-model="selected.allClassePeriode"
-                               ng-change="switchSelectedClasse((structure.classes.all | periodeSearch:search), selected.allClassePeriode)">
-                        <span></span>
-                    </label>
-                </div>
-                <div class="cell">
-                    <i18n>viescolaire.utils.class</i18n>
-                </div>
-                <div class="cell">
-                    <i18n>viescolaire.utils.periode</i18n>
-                </div>
-                <div class="cell">
-                    <i18n>viescolaire.utils.datedebut</i18n>
-                </div>
-                <div class="cell">
-                    <i18n>viescolaire.utils.datefin</i18n>
-                </div>
-                <div class="cell">
-                    <i18n>viescolaire.utils.datefinsaisie</i18n>
-                </div>
-                <div class="cell">&nbsp</div>
-            </div>
-            <div class="twelve cell expandable-list-body">
-                <div class="row expandable-list-item"
-                     ng-repeat="classe in structure.classes.all | orderBy : 'name' | periodeSearch:search"
-                     ng-class="{ displayed : classe.displayed }">
-                    <div class="row expandable-list-item-main" ng-click="classe.displayed = !classe.displayed">
-                        <div class="cell">
-                            <label class="checkbox">
-                                <input type="checkbox"
-                                       ng-model="classe.selected">
-                                <span></span>
-                            </label>
-                        </div>
-                        <div class="cell">
-                            <div class="classe text-overflow" ng-if="(classe.name).length > 2" tooltip="[[ classe.name ]]">[[ classe.name ]]</div>
-                            <div class="classe" ng-if="(classe.name).length <= 2">[[ classe.name ]]</div>
-                        </div>
-
-                        <div class="cell" ng-show="search.type != 0">
-                            <span ng-if="getCurrentPeriode(classe)!== undefined"><i18n>Actuelle</i18n> :
-                                [[ getI18n("viescolaire.periode." + getOrdreTypePeriode(getCurrentPeriode(classe)).type)
-                                + " " + getOrdreTypePeriode(getCurrentPeriode(classe)).ordre ]]
-                            </span>
-                        </div>
-                        <div class="cell" ng-show="search.type != 0">
-                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).timestamp_dt) ]]</span>
-                        </div>
-                        <div class="cell" ng-show="search.type != 0">
-                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).timestamp_fn) ]]</span>
-                        </div>
-                        <div class="cell" ng-show="search.type != 0">
-                            <span>[[ formatDatePeriode(getCurrentPeriode(classe).date_fin_saisie) ]]</span>
-                        </div>
-                        <div class="cell" ng-show="search.type != 0">
-                            <i class="down-open"></i>
-                        </div>
-
-                    </div>
-                    <div class="row expandable-list-item-expand">
-                        <div class="row" ng-repeat="periode in classe.periodes.all">
-                            <div class="cell">&nbsp</div>
-                            <div class="cell">&nbsp</div>
-                            <div class="cell">[[ getI18n("viescolaire.periode." +
-                                getOrdreTypePeriode(periode).type) + " " +
-                                getOrdreTypePeriode(periode).ordre ]]</div>
-                            <div class="cell">
-                                [[ formatDatePeriode(periode.timestamp_dt) ]]
-                            </div>
-                            <div class="cell">
-                                [[ formatDatePeriode(periode.timestamp_fn) ]]
-                            </div>
-                            <div class="cell">
-                                [[ formatDatePeriode(periode.date_fin_saisie) ]]
-                            </div>
-                            <div class="cell">&nbsp</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Paramétrage des période-->
+    <div ng-if="currParam === 0"
+            ng-include="'/viescolaire/public/templates/viescolaire/param_periode.html'">
+    </div>
+    <!-- Import de fichiers csv -->
+    <div ng-if="currParam === 1"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_import_csv.html'">
     </div>
 </div>
-
-<section class="toggle-buttons"
-         ng-show="getSelectedClasse().length > 0">
-    <div class="toggle">
-        <div class="row">
-            <button class="cell"
-                    ng-click="setPeriodes(); lightboxPeriode.show = true">
-                <span><i18n>viescolaire.periode.edit</i18n></span>
-            </button>
-
-        </div>
-    </div>
-</section>
-
-<lightbox show="lightboxPeriode.show == true"
-          on-close="closeLightboxPeriode()">
-    <container template="lightboxPeriode"></container>
-</lightbox>

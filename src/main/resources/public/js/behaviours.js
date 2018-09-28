@@ -51,7 +51,8 @@ var behaviours =
 	entcore_1.Behaviours.register('viescolaire', {
 	    rights: {
 	        workflow: {
-	            adminChefEtab: 'fr.openent.DisplayController|view',
+	            adminChefEtab: 'fr.openent.viescolaire.controller.DisplayController|view',
+	            importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences'
 	        },
 	        resource: {}
 	    }

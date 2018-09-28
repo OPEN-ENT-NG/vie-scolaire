@@ -25,6 +25,8 @@ import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import org.entcore.common.http.BaseServer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.storage.Storage;
+import org.entcore.common.storage.StorageFactory;
 
 public class Viescolaire extends BaseServer {
 
@@ -76,12 +78,14 @@ public class Viescolaire extends BaseServer {
 
 	public static JsonObject LSUN_CONFIG;
 	public static JsonObject UPDATE_CLASSES_CONFIG;
+	public static Long IMPORT_MAX_SIZE_OCTETS = 3000000L;
 
 	@Override
 	public void start() throws Exception {
 		super.start();
 
         final EventBus eb = getEventBus(vertx);
+        final Storage storage = new StorageFactory(vertx).getStorage();
 
 		LSUN_CONFIG = config.getJsonObject("lsun");
 		UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
@@ -102,6 +106,7 @@ public class Viescolaire extends BaseServer {
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
+		addController(new ImportCsvController(storage));
 
         addController(new EventBusController());
 

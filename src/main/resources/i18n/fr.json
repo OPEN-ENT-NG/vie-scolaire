@@ -24,6 +24,8 @@
   "viescolaire.periode.set":"Paramétrage des periodes",
   "viescolaire.periode.notset":"Non itinialisées",
   "viescolaire.periode.edit":"Modifier les périodes",
+  "viescolaire.parcourir": "Parcourir",
+  "viescolaire.import.absence.retard.csv": "Import retard et absence",
   "unsetImage":"Supprimer l'image",
   "group.Teacher":"Tous les enseignants du groupe {0}.",
   "group.Personnel":"Tous les personnels du groupe {0}.",
@@ -502,6 +504,7 @@
 
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
   "presence.devoir.ok":"Ok",
+  "please.set.periode.and.classe": "La période et la classe sont obligatoires",
   "delete.annotation":"Supprime l'annotation pour revenir à la saisie de notes/compétences.",
   "add.annotation":"Ajouter une annotation. Sélectionner 'Evaluer' pour enlever l'annotation.",
   "no.annotation":"Evaluer",

@@ -1,0 +1,92 @@
+<div class="ten cell">
+    <div class="row">
+        <div class="twelve cell ">
+            <article>
+
+                <!-- Classe -->
+                <div class="twelve cell">
+                    <div class="three cell">
+                    <span>
+                        <i18n>viescolaire.utils.classe</i18n>
+                         <i class="asterisk obligatoire"></i>
+                    </span>
+                        <label  class="select right-magnet">
+                            <select ng-model="import.classe"
+                                    ng-options="c.name for c in structure.classes.all | orderBy : 'name'">
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- periode -->
+                <div class="twelve cell">
+                    <div class="three cell">
+                    <span>
+                        <i18n>viescolaire.utils.periode</i18n>
+                         <i class="asterisk obligatoire"></i>
+                    </span>
+                        <label  class="select right-magnet">
+                            <select ng-model="import.periode"
+                                    ng-options="displayPeriode(p) for p in import.classe.periodes.all | orderBy : 'ordre'">
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <!-- periode -->
+                <div class="twelve cell">
+                    <div class="three cell">
+                        <i18n>viescolaire.utils.datedebut</i18n>
+                    </div>
+                    <div class="three cell">
+                        <i18n>viescolaire.utils.datefin</i18n>
+                    </div>
+                </div>
+                <div class="twelve cell">
+                    <div ng-if="import.periode !== undefined && import.classe !== undefined" class="three cell">
+                        [[ formatDatePeriode(import.periode.timestamp_dt) ]]
+                    </div>
+                    <div ng-if="import.periode !== undefined && import.classe !== undefined" class="three cell">
+                        [[ formatDatePeriode(import.periode.timestamp_fn) ]]
+                    </div>
+                </div>
+                <!-- attachment list loaded -->
+                <div class="six cell select-file nomargin" drop-files="newAttachments" on-drop="postAttachments()">
+                    <div class="hidden-content pull-left">
+                        <input accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+            application/vnd.ms-excel"
+                               type="file" id="input-attachment-declaration" multiple
+                               files-input-change="postAttachments(this.newAttachments)"
+                               ng-model="newAttachments">
+                        <input type="text" data-display-file="">
+                    </div>
+                    <button class="flat-button file-button button-sm" translate=""><i18n>viescolaire.parcourir</i18n></button>
+                </div>
+
+                <div class="six cell">
+                    <table class="twelve" drop-files="newAttachments" on-drop="postAttachments()" ng-if="attachments.length">
+                        <tr class="no-margin removable" ng-repeat="attachment in attachments">
+                            <td width="50%" class="title">
+                                [[attachment.filename]]
+                            </td>
+                            <td width="30%" class="status-infos">
+                                <span class="small-text reduce-block-four">[[formatSize(attachment.size)]]</span>
+                            </td>
+                            <td width="20%">
+                                <i class="close"
+                                   ng-click="deleteAttachment(attachment._id)">
+                                </i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="row sous-titre">
+                    <i18n>format.attachment</i18n>: .csv
+                    -
+                    <i18n>taille.max.attachment</i18n>: 3 Mo
+                </div>
+            </article>
+        </div>
+
+    </div>
+</div>

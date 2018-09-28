@@ -68,7 +68,7 @@ var bundle = gulp.src('./node_modules/entcore/bundle/*')
     .pipe(gulp.dest('./src/main/resources/public/dist/entcore'));
 
 return merge(html, bundle);
-})
+});
 
 gulp.task('webpack', ['copy-files'], function(){ return startWebpack() });
 
@@ -76,9 +76,13 @@ gulp.task('rev', ['webpack'], function () {
     updateRefs();
 });
 
-gulp.task('build', ['rev'], function () {
+gulp.task('copyBehaviours', ['rev'], function () {
+    return gulp.src('./src/main/resources/public/dist/behaviours.js')
+        .pipe(gulp.dest('./src/main/resources/public/js'));
+});
+gulp.task('build',['copyBehaviours'], function () {
     var refs = updateRefs();
-    var copyBehaviours = gulp.src('./src/main/resources/public/dist/viescolaire/behaviours.js')
+    var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
     return merge[refs, copyBehaviours];
 });
@@ -87,6 +91,7 @@ gulp.task('removeTemp', function () {
     return gulp.src(['./src/main/resources/public/temp'], { read: false })
         .pipe(clean());
 });
+
 
 function getModName(fileContent){
     var getProp = function(prop){

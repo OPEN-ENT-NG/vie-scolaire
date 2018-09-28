@@ -14,6 +14,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
     function ($scope, route, model, $location, $anchorScroll, $sce) {
         console.log('viescolaireController');
 
+
         /**
          * Check if the modules are installed and if the current user can access them
          * @returns {Promise<void>}
@@ -154,7 +155,11 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
             }
         };
-
+        $scope.displayPeriode = function (periode) {
+            return $scope.getI18n("viescolaire.periode." +
+                $scope.getOrdreTypePeriode(periode).type) + " " +
+                $scope.getOrdreTypePeriode(periode).ordre;
+        };
         $scope.getSelectedClasse = () => {
             return _.where($scope.structure.classes.all, {selected: true});
         };
@@ -472,6 +477,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                  * Loading modules to check rights later
                  * @returns {Promise<void>}
                  */
+                await model.me.workflow.load(['viescolaire']);
                 await Utils.loadModule('edt');
                 await Utils.loadModule('competences');
                 await Utils.loadModule('presences');

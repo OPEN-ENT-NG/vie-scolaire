@@ -9,6 +9,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlStatementsBuilder;
 import org.entcore.common.storage.Storage;
@@ -22,6 +24,7 @@ import java.util.EmptyStackException;
 import java.util.Map;
 
 public class DefaultImportCsvService implements ImportCsvService {
+    protected static final Logger log = LoggerFactory.getLogger(DefaultImportCsvService.class);
 
     @Override
    public void importAbsencesAndRetard(String idClasse, Long idPeriode, Storage storage,
@@ -81,8 +84,8 @@ public class DefaultImportCsvService implements ImportCsvService {
                                if(nbLignes == 0) {
                                    colonnes = values[0].split("\";\"");
                                    withHour = (colonnes.length == 16);
-                                   isValid = colonnes[1].contains("Nom")
-                                           && colonnes[2].contains("Abs tot.");
+                                   isValid = (colonnes.length > 2) && (colonnes[1].contains("Nom")
+                                           && colonnes[2].contains("Abs tot."));
 
                                }
                                 else {
@@ -93,37 +96,23 @@ public class DefaultImportCsvService implements ImportCsvService {
                                         String [] lines = o.split("\";\"");
                                         String displayName = lines[1];
                                         Long abs = Long.valueOf(lines[2]);
-                                        Long abs_hour =  Long.valueOf(lines[3]);
+                                        Long abs_hour =  (withHour)?Long.valueOf(lines[3]) : null;
 
-                                        Long notjustifiedAbs = Long.valueOf(lines[4]);
-                                        Long notjustifiedAbsHour = Long.valueOf(lines[5]);
+                                        Long notjustifiedAbs =(withHour)?Long.valueOf(lines[4]): Long.valueOf(lines[3]);
+                                        Long notjustifiedAbsHour =(withHour)? Long.valueOf(lines[5]) : null;
 
-                                        Long justifiedAbs = Long.valueOf(lines[6]);
-                                        Long justifiedAbsHour = Long.valueOf(lines [7]);
+                                        Long justifiedAbs = (withHour)? Long.valueOf(lines[6]): Long.valueOf(lines[4]);
+                                        Long justifiedAbsHour =(withHour)? Long.valueOf(lines [7]): null;
 
-                                        Long retard = Long.valueOf(lines[10]);
+                                        Long retard = (withHour)? Long.valueOf(lines[10]): Long.valueOf(lines[6]);
 
-                                        System.out.println("  ");
-                                        System.out.println(" ------------------------ ");
-                                        System.out.println(colonnes[1] + " -> "  + lines[1]);
-                                        System.out.println(colonnes[2] + " -> "  + lines[2]);
-                                        System.out.println(colonnes[3] + " -> "  + lines[3]);
-                                        System.out.println(colonnes[4] + " -> "  + lines[4]);
-                                        System.out.println(colonnes[5] + " -> "  + lines[5]);
-                                        System.out.println(colonnes[6] + " -> "  + lines[6]);
-                                        System.out.println(colonnes[7] + " -> "  + lines[7]);
-                                        System.out.println(colonnes[10] + " -> "  + lines[10]);
                                         JsonObject student = findStudent(students, displayName);
                                         String idEleve = null;
                                         if(student != null) {
-                                            System.out.println("Find !!!! ");
                                             idEleve = student.getString("id");
                                         }
                                         else {
                                             notInsertedEleves.add(displayName);
-                                            // TODO REMOVE
-                                            idEleve = students.getJsonObject(Math.min(nbInsert, students.size() -1))
-                                                    .getString("id");
                                         }
 
                                         if(idEleve != null ) {
@@ -154,26 +143,32 @@ public class DefaultImportCsvService implements ImportCsvService {
                                 }
                                 ++ nbLignes;
                             }
-                            final int _nbLines = nbLignes;
-                            final  Boolean _isValid = isValid;
-                            Sql.getInstance().transaction(statements.build(), (res)->{
-                                JsonArray exclusions;
-                                if (!res.isSend()) {
-                                    handler.handle(new Either.Left<>(
-                                            "pb Lors de l'insertion des données importées"));
-                                } else {
+                            infos.put("nbLines", nbLignes);
+                            infos.put("isValid", isValid);
+                            infos.put("nbInsert", nbLignes - notInsertedEleves.size() - 1);
+                            infos.put("notInsertedUser", notInsertedEleves);
+                            infos.put("_id", uploaded.getString("_id"));
+                            if (nbInsert > 0 ) {
+                                Sql.getInstance().transaction(statements.build(), (res) -> {
+                                    if (!res.isSend()) {
+                                        log.error("pb Lors de l'insertion des données importées");
+                                        infos.put("error", "pb sql");
+                                    }
 
-                                    infos.put("nbLines", _nbLines);
-                                    infos.put("isValid", _isValid);
-                                    infos.put("notInsertedUser", notInsertedEleves);
+
                                     handler.handle(new Either.Right<>(infos));
-                                }
-                            });
+                                });
+                            }
+                            else {
+                                handler.handle(new Either.Right<>(infos));
+                            }
 
                         } catch (IOException e) {
+                            log.error("pb Lors de la lecture du fichier importé ");
                             throw new EmptyStackException();
                         }
                     } else {
+                        log.error("pb Lors de l'insertion des données importées");
                         System.out.println("PB ");
                     }
                 }
@@ -184,7 +179,7 @@ public class DefaultImportCsvService implements ImportCsvService {
     private JsonObject findStudent(JsonArray students, String displayName){
         JsonObject student = null;
         for (int i=0; i<students.size(); i++){
-           String _displayName = students.getJsonObject(i).getString("lastName") +
+           String _displayName = students.getJsonObject(i).getString("lastName") + " " +
                    students.getJsonObject(i).getString("firstName");
             if(displayName.equals(_displayName)){
                 student = students.getJsonObject(i);

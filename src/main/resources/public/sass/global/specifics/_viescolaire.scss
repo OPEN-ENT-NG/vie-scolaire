@@ -1,4 +1,8 @@
 body.viescolaire {
+  .sous-titre {
+    font-size: small;
+  }
+
   .selectable-list li:hover {
     background: $white;
     color: $orange;

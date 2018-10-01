@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <!-- attachment list loaded -->
-                <div class="six cell select-file nomargin" drop-files="newAttachments" on-drop="postAttachments()">
+                <div class="six cell select-file nomargin" drop-files="newAttachments">
                     <div class="hidden-content pull-left">
                         <input accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
             application/vnd.ms-excel"
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="six cell">
-                    <table class="twelve" drop-files="newAttachments" on-drop="postAttachments()" ng-if="attachments.length">
+                    <table class="twelve" drop-files="newAttachments" on-drop="" ng-if="attachments.length">
                         <tr class="no-margin removable" ng-repeat="attachment in attachments">
                             <td width="50%" class="title">
                                 [[attachment.filename]]
@@ -73,11 +73,17 @@
                             </td>
                             <td width="20%">
                                 <i class="close"
-                                   ng-click="deleteAttachment(attachment._id)">
+                                   ng-click="deleteAttachment(attachment.filename)">
                                 </i>
                             </td>
                         </tr>
                     </table>
+                </div>
+                <div class="twelve cell">
+                    <input class="right-magnet" type="button"
+                           ng-disabled="attachments.length === 0 "
+                           ng-click="importAttachments(attachments)"
+                           i18n-value="import.file">
                 </div>
 
                 <div class="row sous-titre">

@@ -539,5 +539,12 @@
   "evaluation.bilan.periodique.supp.impossible":"Suppression impossible, le thème sélectionné est déjà utilisé par un EPI.",
   "evaluation.bilan.periodique.creation.impossible":"Création impossible, ce code est déjà utilisé par un thème personnalisé.",
   "evaluation.link.no.cycle":"Veuillez choisir un cycle.",
-  "evaluation.link.notset":"Non itinialisés"
+  "evaluation.link.notset":"Non itinialisés",
+  "format.attachment":"format accepté",
+  "taille.max.attachment":"taille maximale acceptée",
+  "import.csv.error":"Erreur technique lors de l'import csv du fichier",
+  "import.csv.error.invalid": "Désolé, le format du fichier csv que vous avez fourni ne correspond pas au format attendu.",
+  "import.csv.success":"Vous venez d'importer les retards et absences de ",
+  "import.students": " élève(s), ",
+  "import.user.not.insert":" utilisateur(s) n'ont pas pu être inséré(s)."
 }

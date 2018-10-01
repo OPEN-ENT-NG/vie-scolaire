@@ -11,6 +11,7 @@ export class Attachment {
 
     constructor(file: File) {
         this.file = file;
+        this.filename = file.name;
         this.progress = {
             total: 100,
             completion: 0

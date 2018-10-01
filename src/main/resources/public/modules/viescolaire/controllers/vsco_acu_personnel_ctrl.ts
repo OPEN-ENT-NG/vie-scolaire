@@ -4,7 +4,7 @@
 import {Behaviours, model, ng, template} from 'entcore';
 import { vieScolaire} from '../models/vsco_personnel_mdl';
 import * as utils from '../../utils/personnel';
-import {postAttachments, deleteAttachment} from "../../utils/functions/import_csv";
+import {postAttachments, deleteAttachment, importAttachments} from "../../utils/functions/import_csv";
 
 let moment = require('moment');
 declare let _: any;
@@ -20,6 +20,8 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
             classe: undefined,
             periode: undefined
         };
+        $scope.loadingAttachments = [];
+        $scope.attachments = [];
 
         $scope.chargeStructure = (structure) =>  {
             structure.classes.sync();
@@ -271,13 +273,15 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
             };
         };
 
-        $scope.postAttachments = function (fichier) {
-            postAttachments(fichier, $scope);
+        $scope.postAttachments = function (fichiers) {
+            postAttachments(fichiers, $scope);
         };
 
-        $scope.deleteAttachment = function (idAttachement) {
-            deleteAttachment(idAttachement, $scope);
+        $scope.deleteAttachment = function (filemame) {
+            deleteAttachment(filemame, $scope);
         };
-
+        $scope.importAttachments =  function (fichiers) {
+            importAttachments(fichiers, $scope);
+        };
     }
 ]);

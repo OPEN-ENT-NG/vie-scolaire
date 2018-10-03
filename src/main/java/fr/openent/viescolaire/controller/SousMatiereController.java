@@ -68,4 +68,21 @@ public class SousMatiereController extends ControllerHelper {
             }
         });
     }
+
+    @Get("/types/sousmatieres")
+    @ApiDoc("Récupère les types de sous matières")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void listTypeSousMatieres(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                if(user != null){
+                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                    sousMatiereService.listTypeSousMatieres(handler);
+                }else{
+                    unauthorized(request);
+                }
+            }
+        });
+    }
 }

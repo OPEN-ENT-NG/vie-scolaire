@@ -43,4 +43,10 @@ public interface SousMatiereService extends CrudService {
      */
     public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Recupère les id des types de sous matières et leur libellé
+     * @param handler handler portant le résultat de la requête
+     */
+    public void listTypeSousMatieres(Handler<Either<String, JsonArray>> handler);
+
 }

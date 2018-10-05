@@ -27,8 +27,8 @@ public class DefaultImportCsvService implements ImportCsvService {
     protected static final Logger log = LoggerFactory.getLogger(DefaultImportCsvService.class);
 
     @Override
-   public void importAbsencesAndRetard(String idClasse, Long idPeriode, Storage storage,
-                                 HttpServerRequest request, Handler<Either<String, JsonObject>> handler){
+    public void importAbsencesAndRetard(String idClasse, Long idPeriode, Storage storage,
+                                        HttpServerRequest request, Handler<Either<String, JsonObject>> handler){
         storage.writeUploadFile(request, Viescolaire.IMPORT_MAX_SIZE_OCTETS, new Handler<JsonObject>() {
             public void handle(final JsonObject uploaded) {
                 if (!"ok".equals(uploaded.getString("status"))) {
@@ -38,19 +38,19 @@ public class DefaultImportCsvService implements ImportCsvService {
                 // Récupération des élèves de la classe
                 new DefaultClasseService().getEleveClasse(idClasse, idPeriode,
                         new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-                        if(event.isLeft()) {
-                            handler.handle(new Either.Left(event.left()));
-                            return;
-                        }
-                        else {
-                            JsonArray students = event.right().getValue();
-                            // On lance la sauvegarde des données en focntion des ids récupérés dans Neo
-                            saveImportData(storage, uploaded, students, idPeriode, handler);
-                        }
-                    }
-                });
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                if(event.isLeft()) {
+                                    handler.handle(new Either.Left(event.left()));
+                                    return;
+                                }
+                                else {
+                                    JsonArray students = event.right().getValue();
+                                    // On lance la sauvegarde des données en focntion des ids récupérés dans Neo
+                                    saveImportData(storage, uploaded, students, idPeriode, handler);
+                                }
+                            }
+                        });
             }
         });
     }
@@ -78,20 +78,22 @@ public class DefaultImportCsvService implements ImportCsvService {
                         JsonObject infos = new JsonObject();
                         JsonArray notInsertedEleves = new JsonArray();
                         SqlStatementsBuilder statements = new SqlStatementsBuilder();
+                        Boolean isUTF8 = false;
+
                         try {
                             String [] colonnes = new String[16];
                             while ((values = csv.readNext()) != null) {
-                               if(nbLignes == 0) {
-                                   colonnes = values[0].split("\";\"");
-                                   withHour = (colonnes.length == 16);
-                                   isValid = (colonnes.length > 2) && (colonnes[1].contains("Nom")
-                                           && colonnes[2].contains("Abs tot."));
-
-                               }
+                                if(nbLignes == 0) {
+                                    colonnes = values[0].split("\";\"");
+                                    withHour = (colonnes.length == 16);
+                                    isValid = (colonnes.length > 2) && (colonnes[1].contains("Nom")
+                                            && colonnes[2].contains("Abs tot."));
+                                    isUTF8 = "Nom Prénom".equals(colonnes[1]);
+                                }
                                 else {
-                                   if (!isValid) {
-                                       break;
-                                   }
+                                    if (!isValid) {
+                                        break;
+                                    }
                                     for (String o : values) {
                                         String [] lines = o.split("\";\"");
                                         String displayName = lines[1];
@@ -106,7 +108,8 @@ public class DefaultImportCsvService implements ImportCsvService {
 
                                         Long retard = (withHour)? Long.valueOf(lines[10]): Long.valueOf(lines[6]);
 
-                                        JsonObject student = findStudent(students, displayName);
+                                        // Recherche l'identifiant de l'élève
+                                        JsonObject student = findStudent(students, displayName, isUTF8);
                                         String idEleve = null;
                                         if(student != null) {
                                             idEleve = student.getString("id");
@@ -145,9 +148,10 @@ public class DefaultImportCsvService implements ImportCsvService {
                             }
                             infos.put("nbLines", nbLignes);
                             infos.put("isValid", isValid);
-                            infos.put("nbInsert", nbLignes - notInsertedEleves.size() - 1);
+                            infos.put("nbInsert", nbLignes - (notInsertedEleves.size() + 1));
                             infos.put("notInsertedUser", notInsertedEleves);
                             infos.put("_id", uploaded.getString("_id"));
+                            infos.put("filename", metadata.getString("filename"));
                             if (nbInsert > 0 ) {
                                 Sql.getInstance().transaction(statements.build(), (res) -> {
                                     if (!res.isSend()) {
@@ -176,11 +180,17 @@ public class DefaultImportCsvService implements ImportCsvService {
         }
     }
 
-    private JsonObject findStudent(JsonArray students, String displayName){
+    private JsonObject findStudent(JsonArray students, String displayName, Boolean isUTF8){
         JsonObject student = null;
+
+        displayName = (isUTF8)? displayName : displayName.replaceAll("[^\\w\\s]","");
+
         for (int i=0; i<students.size(); i++){
-           String _displayName = students.getJsonObject(i).getString("lastName") + " " +
-                   students.getJsonObject(i).getString("firstName");
+            String _displayName = students.getJsonObject(i).getString("lastName") + " " +
+                    students.getJsonObject(i).getString("firstName");
+
+            _displayName = (isUTF8)? _displayName : _displayName.replaceAll("[^\\w\\s]","");
+
             if(displayName.equals(_displayName)){
                 student = students.getJsonObject(i);
                 break;

@@ -18,11 +18,11 @@ export let importAttachments = (fichiers, $scope) => {
     const promises: Promise<any>[] = [];
 
     if($scope.import.classe !== undefined && $scope.import.periode != undefined) {
-    for (let i = 0; i < $scope.newAttachments.length; i++) {
-        const attachmentObj = $scope.newAttachments[i];
+        for (let i = 0; i < $scope.newAttachments.length; i++) {
+            const attachmentObj = $scope.newAttachments[i];
 
-        const formData = new FormData();
-        formData.append('file', attachmentObj.file);
+            const formData = new FormData();
+            formData.append('file', attachmentObj.file);
 
             let idPeriode = $scope.import.periode.id_type;
             let idClasse = $scope.import.classe.id;
@@ -39,25 +39,24 @@ export let importAttachments = (fichiers, $scope) => {
             })
                 .then(response => {
                     $scope.loadingAttachments.splice($scope.loadingAttachments.indexOf(attachmentObj), 1);
-
+                    let fileName = response.data.filename;
 
                     // On reset le file input
                     $('#input-attachment-declaration').val('');
                     if (response.data.error) {
-                        notify.error(lang.translate('import.csv.error'));
+                        notify.error(fileName + ' : ' + lang.translate('import.csv.error'));
                     }
                     else {
                         if(!response.data.isValid) {
-                            notify.error(lang.translate('import.csv.error.invalid'));
+                            notify.error(fileName + ' : ' + lang.translate('import.csv.error.invalid'));
                         }
                         else{
                             let nbInsert = response.data.nbInsert;
-                            let nbNotInsert = response.data.nbLines - nbInsert;
-                            notify.success(lang.translate('import.csv.success')
+                            let nbNotInsert = response.data.nbLines - nbInsert - 2;
+                            notify.success(fileName + ' : ' +  lang.translate('import.csv.success')
                                 +  nbInsert
                                 + lang.translate('import.students')
-                                + nbNotInsert
-                                + lang.translate('import.user.not.insert')
+                                + ((nbNotInsert > 0)?(nbNotInsert + lang.translate('import.user.not.insert')): '')
                             );
                         }
                     }
@@ -65,7 +64,7 @@ export let importAttachments = (fichiers, $scope) => {
                 })
                 .catch(e => {
                     $scope.loadingAttachments.splice($scope.loadingAttachments.indexOf(attachmentObj), 1);
-                    notify.error(lang.translate('import.csv.error'));
+                    notify.error(attachmentObj.name + ' : ' + lang.translate('import.csv.error'));
 
                     safeApply($scope);
                 });

@@ -10,7 +10,7 @@
 /*global angular: false, console: false, define, module */
 
 
-import { ng } from 'entcore/entcore';
+import { ng } from 'entcore';
 
 export let rzslider = ng.directive('rzslider', function(){
   return {

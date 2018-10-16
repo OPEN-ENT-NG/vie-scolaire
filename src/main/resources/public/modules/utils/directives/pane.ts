@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import {ng} from 'entcore/entcore';
+import {ng} from 'entcore';
 
 export let pane = ng.directive('pane', function() {
     return {

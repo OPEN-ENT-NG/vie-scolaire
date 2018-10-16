@@ -2,7 +2,7 @@
  * Created by anabah on 06/06/2017.
  */
 
-import { Model, Collection } from 'entcore/entcore';
+import { Model, Collection } from 'entcore';
 import { Motif } from './Motif';
 
 export class CategorieAppel extends Model {

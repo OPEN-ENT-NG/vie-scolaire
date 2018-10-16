@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 16/09/2016.
  */
-import { ng, angular } from 'entcore/entcore';
+import { ng, angular } from 'entcore';
 
 export let uniqueFilter = ng.filter('unique',function() {
     return function(collection, keyname) {

@@ -30,7 +30,7 @@
  * Created by ledunoiss on 09/01/2017.
  */
 
-import { ng, appPrefix, angular } from 'entcore/entcore';
+import { ng, appPrefix, angular } from 'entcore';
 
 export let rzslider = ng.directive('rzslider', ['$window', '$timeout', '$document',
     function($window, $timeout, $document){

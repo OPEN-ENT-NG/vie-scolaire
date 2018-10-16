@@ -1,4 +1,4 @@
-import { ng, idiom as lang } from 'entcore/entcore';
+import { ng, idiom as lang } from 'entcore';
 import { safeApply } from '../functions/safeApply';
 
 export let offline = ng.directive('offline', () => {

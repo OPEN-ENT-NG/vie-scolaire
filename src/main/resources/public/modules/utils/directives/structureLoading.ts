@@ -1,4 +1,4 @@
-import { ng, idiom as lang } from 'entcore/entcore';
+import { ng, idiom as lang } from 'entcore';
 
 export let structureLoader = ng.directive('structureLoader', function() {
     return {

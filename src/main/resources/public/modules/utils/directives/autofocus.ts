@@ -2,7 +2,7 @@
  * Created by ledunoiss on 26/10/2016.
  */
 
-import { ng } from 'entcore/entcore';
+import { ng } from 'entcore';
 
 export let autofocus = ng.directive('autofocus', ['$timeout',
     function ($timeout) {

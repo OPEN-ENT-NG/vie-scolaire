@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 20/09/2016.
  */
-import {ng} from 'entcore/entcore';
+import {ng} from 'entcore';
 
 export let getMatiereClasseFilter = ng.filter('getMatiereClasse', function () {
     return function (matieres, idClasse, classes, search) {

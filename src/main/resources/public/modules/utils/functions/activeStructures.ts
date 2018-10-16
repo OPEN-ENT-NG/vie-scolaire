@@ -1,4 +1,4 @@
-import { http, model } from 'entcore/entcore';
+import { http, model } from 'entcore';
 
 declare const _: any;
 

@@ -1,4 +1,4 @@
-import {idiom as lang } from 'entcore/entcore';
+import {idiom as lang } from 'entcore';
 
 /**
  * Retourne la valeur de la clé i18n

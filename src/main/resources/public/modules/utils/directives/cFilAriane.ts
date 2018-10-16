@@ -1,7 +1,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import {ng, appPrefix, idiom as lang} from 'entcore/entcore';
+import {ng, appPrefix, idiom as lang} from 'entcore';
 
 export let cFilAriane = ng.directive("cFilAriane", ["$location", "route", "$rootScope", "$route", function($location, routes, $rootScope, $route){
     return {

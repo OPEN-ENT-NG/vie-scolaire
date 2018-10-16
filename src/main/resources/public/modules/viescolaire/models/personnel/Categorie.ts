@@ -1,5 +1,6 @@
-import { Model, Collection } from 'entcore/entcore';
+
 import { Motif } from './Motif';
+import {Collection, Model} from "entcore";
 
 export class Categorie extends Model {
     id: number;

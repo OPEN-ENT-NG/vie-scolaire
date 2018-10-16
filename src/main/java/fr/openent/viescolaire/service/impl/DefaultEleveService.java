@@ -209,6 +209,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" created, modified , id_matiere, name, is_evaluated, id_periode, ")
                 .append("  id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle ")
                 .append("  , _type_libelle, owner_name  FROM ( ")
+
                 .append(" select cd.id_devoir,cd.id_competence , evaluation, cn.owner, id_eleve, ")
                 .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, name, devoirs.is_evaluated, ")
                 .append(" id_periode, devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
@@ -220,19 +221,35 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" inner JOIN notes.devoirs on devoirs.id = cd.id_devoir ")
                 .append(" inner join notes.type on devoirs.id_type = type.id ")
                 .append(" INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
-                .append(" WHERE date_publication <= Now() AND id_eleve = ? ");
+                .append(" inner JOIN notes.rel_devoirs_groupes on  cd.id_devoir = rel_devoirs_groupes.id_devoir ");
+
+        for (int i = 0; i < idGroups.size(); i++) {
+            values.add(idGroups.getString(i));
+        }
+
+        if(idCycle == null) {
+            // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
+            query.append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append("AND devoirs.eval_lib_historise = false ");
+        } else {
+            // en vue cycle recuperation des devoirs de la classe (+groupes) actuelle de l'élève
+            // + récupération des evaluations historisées
+            query.append(" AND ( (rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append(" AND devoirs.eval_lib_historise = false) OR  devoirs.eval_lib_historise = true) ");
+
+            query.append("AND competences.id_cycle = ? ");
+            values.add(idCycle);
+
+        }
+
+        query.append(" WHERE date_publication <= Now() AND id_eleve = ? ");
         values.add(idEleve);
+
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
             values.add(idPeriode);
         }
 
-        if (idCycle != null) {
-            query.append("AND competences.id_cycle = ? ");
-            values.add(idCycle);
-        } else {
-            query.append("AND devoirs.eval_lib_historise = false ");
-        }
 
         query.append(" UNION ")
                 .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
@@ -243,27 +260,40 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" from notes.competences_devoirs inner JOIN notes.devoirs on ")
                 .append(" devoirs.id = competences_devoirs.id_devoir " )
                 .append(" inner join notes.type on devoirs.id_type = type.id ");
+
+        values.add(idEleve);
+
         if (idCycle != null) {
             query.append(" INNER JOIN notes.competences ON competences.id = competences_devoirs.id_competence ");
         }
-        query.append(" inner JOIN notes.rel_devoirs_groupes on ")
-                .append(" competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
-                .append(" inner join "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ")
-                .append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()))
-                .append(" WHERE date_publication <= Now() ") ;
-        values.add(idEleve);
+        query.append(" inner JOIN notes.rel_devoirs_groupes on  competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ")
+                .append(" inner join "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) ");
+
         for (int i = 0; i < idGroups.size(); i++) {
             values.add(idGroups.getString(i));
         }
+        if(idCycle == null) {
+            // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
+            query.append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append("AND devoirs.eval_lib_historise = false ");
+        } else {
+            // en vue cycle recuperation des devoirs de la classe (+groupes) actuelle de l'élève
+            // + récupération des evaluations historisées
+            query.append(" AND ( (rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append(" AND devoirs.eval_lib_historise = false) OR  devoirs.eval_lib_historise = true) ");
+
+            query.append("AND competences.id_cycle = ? ");
+            values.add(idCycle);
+
+        }
+
+
+        query.append(" WHERE date_publication <= Now() ");
+
+
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
             values.add(idPeriode);
-        }
-        if (idCycle != null) {
-            query.append("AND competences.id_cycle = ? ");
-            values.add(idCycle);
-        } else {
-            query.append("AND devoirs.eval_lib_historise = false ");
         }
         query.append(" ) AS res ")
                 .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )

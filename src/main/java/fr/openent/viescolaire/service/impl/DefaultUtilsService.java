@@ -521,14 +521,15 @@ public class DefaultUtilsService implements UtilsService{
         JsonObject values = new JsonObject();
         values.put("id", new fr.wseduc.webutils.collections.JsonArray(externalIdGroups));
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
-        //Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(externalIdGroups)), Neo4jResult.validResultHandler(handler));
     }
 
-//    @Override
-//    public void getIdStructuresByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler){
-//        StringBuilder query = new StringBuilder();
-//        query.append("MATCH (s:Structure) WHERE s.externalId IN {id} RETURN s.id as structureIds");
-//        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(externalIdStructures)), Neo4jResult.validResultHandler(handler));
-//
-//    }
+    @Override
+    public void getStructure(String idStructure, Handler<Either<String, JsonObject>> handler){
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (s:Structure {id: {idStructure}}) return s ");
+        JsonObject params = new JsonObject().put("idStructure", idStructure);
+        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+    }
+
 }
+

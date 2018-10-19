@@ -124,4 +124,11 @@ public interface ClasseService extends CrudService {
      * @param handler
      */
     void getClasseIdByEleve(String idEleve, Handler<Either<String,JsonObject>> handler);
+
+    /**
+     * Récupère les professeurs principaux d'une classe
+     * @param idClasse
+     * @param handler
+     */
+    void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler);
 }

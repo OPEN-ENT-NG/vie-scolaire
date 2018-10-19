@@ -40,6 +40,7 @@ public class EventBusController extends ControllerHelper {
     private MatiereService matiereService;
     private PeriodeService periodeService;
     private EventService eventService;
+    private UtilsService utilsService;
 
     public EventBusController() {
         groupeService = new DefaultGroupeService();
@@ -49,6 +50,7 @@ public class EventBusController extends ControllerHelper {
         matiereService = new DefaultMatiereService();
         periodeService = new DefaultPeriodeService();
         eventService = new DefaultEventService();
+        utilsService = new DefaultUtilsService();
     }
 
     @BusAddress("viescolaire")
@@ -194,6 +196,11 @@ public class EventBusController extends ControllerHelper {
                 classeService.getGroupeClasse(idClasses, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getHeadTeachersClasse": {
+                 String idClasse = message.body().getString("idClasse");
+                classeService.getHeadTeachers(idClasse, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }
@@ -262,6 +269,11 @@ public class EventBusController extends ControllerHelper {
                 eleveService.isEvaluableOnPeriode(idEleve, idPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getResponsables": {
+                String idEleve = message.body().getString("idEleve");
+                eleveService.getResponsable(idEleve, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }
@@ -273,6 +285,11 @@ public class EventBusController extends ControllerHelper {
             case "getStructuresActives": {
                 String module = message.body().getString("module");
                 userService.getActivesIDsStructures(module,getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getStructure": {
+                String idStructure = message.body().getString("idStructure");
+                utilsService.getStructure(idStructure, getJsonObjectBusResultHandler(message));
             }
             break;
             default: {

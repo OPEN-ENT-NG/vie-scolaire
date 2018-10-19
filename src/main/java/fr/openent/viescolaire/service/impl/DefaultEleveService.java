@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -152,6 +153,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 // Format de Retour des données
                 .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
                 .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
+                .append(" u.birthDate as birthDate, ")
                 .append(" COLLECT(f.id) as idGroupes, ")
                 .append(" COLLECT(g.id) as idManualGroupes")
                 .append(" ORDER BY lastName, firstName ");
@@ -463,6 +465,23 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             }
         });
     }
+    @Override
+    public void getResponsable(String idEleve, Handler<Either<String,JsonArray>> handler){
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (u:User {id: {idEleve}})-[:RELATED]-(r:User{profiles:['Relative']}) ")
+            .append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,")
+            .append(" u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,")
+            .append(" r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, ")
+            .append(" r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city");
 
+        JsonObject param = new JsonObject();
+        param.put("idEleve", idEleve);
+        // TODO PUT ExternalId of deleted students and store deleted parents
+        /*
+        Neo4j.getInstance().execute(query.toString(), param, new DefaultUtilsService()
+                .getEleveWithClasseName((String[])idsClass.toArray(),null,null,handler));
+        */
+        Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
+    }
 
 }

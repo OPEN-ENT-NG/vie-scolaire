@@ -144,5 +144,10 @@ public interface EleveService extends CrudService {
     void isEvaluableOnPeriode(String idEleve, Long idPeriode,
                               Handler<Either<String, JsonArray>> handler);
 
-
+    /**
+     * Récupère les responsables légaux d'un élève
+     * @param idEleve
+     * @param handler
+     */
+    void getResponsable(String idEleve, Handler<Either<String,JsonArray>> handler);
 }

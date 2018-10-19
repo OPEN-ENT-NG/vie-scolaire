@@ -126,6 +126,12 @@ public interface UtilsService {
      * @param externalIdStructures
      * @param handler handler comportant le resultat
      */
-    public void getIdGroupByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler);
+    void getIdGroupByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Récupère les informations d'un établissement
+     * @param idStructure
+     * @param handler
+     */
+    void getStructure(String idStructure, Handler<Either<String, JsonObject>> handler);
     }

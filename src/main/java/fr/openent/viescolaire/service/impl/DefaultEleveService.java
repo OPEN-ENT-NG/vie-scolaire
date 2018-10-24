@@ -306,8 +306,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
-        query.append("SELECT id_cycle ")
-                .append(" FROM notes.rel_groupe_cycle ")
+        query.append("SELECT id_cycle, libelle ")
+                .append(" FROM " + Viescolaire.EVAL_SCHEMA + ".rel_groupe_cycle ")
+                .append(" INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".cycle ON cycle.id = id_cycle ")
                 .append(" WHERE id_groupe = ? ");
         values.add(idClasse);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

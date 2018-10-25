@@ -1,8 +1,9 @@
-# À propos de l'application Vie Scolaire
-* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt)
-* Développeur : CGI
-* Financeur : Département de Seine et Marne, Région Haut-de-France et Région Nouvelle-Aquitaine
-* Description : Service de vie scolaire
+# À propos de l'application Vie Scolaire  
+* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Région Hauts-de-France, Département de la Seine-et-Marne, Région Nouvelle Aquitaine, Mairie de Paris, CGI
+* Développeur(s) : CGI
+* Financeur(s) : Région Hauts-de-France, Département de la Seine-et-Marne, Région Nouvelle Aquitaine, Mairie de Paris, CGI
+
+* Description : Application de vie scolaire
 
 # Documentation technique
 

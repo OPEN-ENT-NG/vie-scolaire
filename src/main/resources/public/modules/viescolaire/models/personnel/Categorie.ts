@@ -15,8 +15,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+import { Model, Collection } from 'entcore';
 import { Motif } from './Motif';
-import {Collection, Model} from "entcore";
 
 export class Categorie extends Model {
     id: number;

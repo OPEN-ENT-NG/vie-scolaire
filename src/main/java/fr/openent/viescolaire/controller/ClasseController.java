@@ -71,9 +71,8 @@ public class ClasseController extends BaseController {
                     if (request.params().isEmpty()){
                         badRequest(request);
                     } else {
-                        if (("Personnel".equals(user.getType())
-                                && !user.getFunctions().isEmpty()
-                            ) || "Teacher".equals(user.getType())) {
+                        if ("Personnel".equals(user.getType())
+                             || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse,null, handler);

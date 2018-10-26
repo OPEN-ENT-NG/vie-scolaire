@@ -18,6 +18,7 @@ export let importAttachments = (fichiers, $scope) => {
     const promises: Promise<any>[] = [];
 
     if($scope.import.classe !== undefined && $scope.import.periode != undefined) {
+        $scope.homonymes = [];
         for (let i = 0; i < $scope.newAttachments.length; i++) {
             const attachmentObj = $scope.newAttachments[i];
 
@@ -35,12 +36,15 @@ export let importAttachments = (fichiers, $scope) => {
                         attachmentObj.progress.completion = percentage;
                         $scope.$apply();
                     }
-                }
-            })
+                }})
                 .then(response => {
                     $scope.loadingAttachments.splice($scope.loadingAttachments.indexOf(attachmentObj), 1);
                     let fileName = response.data.filename;
-
+                    if (response.data.homonymes !== undefined && response.data.homonymes.length > 0){
+                        $scope.hasHomonymes = true;
+                        $scope.homonymes.push({filename : fileName, eleves : response.data.homonymes});
+                        safeApply($scope);
+                    }
                     // On reset le file input
                     $('#input-attachment-declaration').val('');
                     if (response.data.error) {

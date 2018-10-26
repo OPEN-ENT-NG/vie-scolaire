@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultImportCsvService implements ImportCsvService {
@@ -57,7 +58,7 @@ public class DefaultImportCsvService implements ImportCsvService {
 
     private void saveImportData(Storage storage, JsonObject uploaded, JsonArray students,Long idPeriode,
                                 Handler<Either<String, JsonObject>> handler){
-        // Vérification du format qui doit-être une image ou un pdf
+        // Vérification du format qui doit-être un fichier csv ou un fichier excel
         JsonObject metadata = uploaded.getJsonObject("metadata");
         String contentType = metadata.getString("content-type");
 
@@ -73,29 +74,40 @@ public class DefaultImportCsvService implements ImportCsvService {
                         String[] values;
                         int nbLignes = 0;
                         int nbInsert = 0;
-                        Boolean withHour = false;
-                        Boolean isValid = false;
-                        JsonObject infos = new JsonObject();
+                        Boolean withHour = false;// Si en plus des nbrs en demi-journée, on a le détails  en heure
+                        Boolean isValid = false;// si le fichier csv correspond au format attendu
+                        JsonObject infos = new JsonObject(); // contient les informations sur le déroulement de l'export
                         JsonArray notInsertedEleves = new JsonArray();
                         SqlStatementsBuilder statements = new SqlStatementsBuilder();
                         Boolean isUTF8 = false;
-
+                        Map <String, JsonArray> statementMap = new HashMap<>();
+                        JsonArray homonymes = new JsonArray();
                         try {
                             String [] colonnes = new String[16];
+                            String regex  = "\";\"";
                             while ((values = csv.readNext()) != null) {
                                 if(nbLignes == 0) {
-                                    colonnes = values[0].split("\";\"");
+                                    colonnes = values[0].split(regex);
+                                    // Pour la compatibilité avec les documents excels récents
+                                    if(colonnes.length < 2){
+                                        regex = ";";
+                                    }
+                                    colonnes = values[0].split(regex);
                                     withHour = (colonnes.length == 16);
-                                    isValid = (colonnes.length > 2) && (colonnes[1].contains("Nom")
-                                            && colonnes[2].contains("Abs tot."));
-                                    isUTF8 = "Nom Prénom".equals(colonnes[1]);
+                                    // la validité du fichier dépend des colonnes d'entête (leur nombre et le libellé
+                                    // des colonnes d'index 1 et 2.
+                                    if (colonnes.length > 3) {
+                                        isValid = (colonnes[1].contains("Nom")
+                                                && colonnes[2].contains("Abs tot."));
+                                        isUTF8 = "Nom Prénom".equals(colonnes[1]);
+                                    }
                                 }
                                 else {
                                     if (!isValid) {
                                         break;
                                     }
                                     for (String o : values) {
-                                        String [] lines = o.split("\";\"");
+                                        String [] lines = o.split(regex);
                                         String displayName = lines[1];
                                         Long abs = Long.valueOf(lines[2]);
                                         Long abs_hour =  (withHour)?Long.valueOf(lines[3]) : null;
@@ -118,10 +130,11 @@ public class DefaultImportCsvService implements ImportCsvService {
                                             notInsertedEleves.add(displayName);
                                         }
 
+                                        // Si l'identifiant est trouvé, on rajoute la transaction dans la Map
                                         if(idEleve != null ) {
                                             StringBuilder query = new StringBuilder()
-                                                    .append(" INSERT INTO viesco.absences_et_retards( ")
-                                                    .append(" id_periode, id_eleve, abs_totale, abs_totale_heure, abs_non_just,")
+                                                    .append(" INSERT INTO viesco.absences_et_retards( id_periode,")
+                                                    .append(" id_eleve, abs_totale, abs_totale_heure, abs_non_just,")
                                                     .append(" abs_non_just_heure, abs_just, abs_just_heure, retard) ")
                                                     .append(" VALUES ")
                                                     .append(" (?, ?, ?, ?, ?, ?, ?, ?, ?) ")
@@ -139,7 +152,14 @@ public class DefaultImportCsvService implements ImportCsvService {
                                                     .add(notjustifiedAbs).add(notjustifiedAbsHour)
                                                     .add(justifiedAbs).add(justifiedAbsHour)
                                                     .add(retard);
-                                            statements.prepared(query.toString(),params);
+                                            JsonObject statement = new JsonObject().put("query", query.toString())
+                                                    .put("params", params).put("student", student);
+                                            if(!statementMap.containsKey(idEleve)) {
+                                                statementMap.put(idEleve, new JsonArray().add(statement));
+                                            }
+                                            else {
+                                                statementMap.get(idEleve).add(statement);
+                                            }
                                             nbInsert ++;
                                         }
                                     }
@@ -152,19 +172,44 @@ public class DefaultImportCsvService implements ImportCsvService {
                             infos.put("notInsertedUser", notInsertedEleves);
                             infos.put("_id", uploaded.getString("_id"));
                             infos.put("filename", metadata.getString("filename"));
-                            if (nbInsert > 0 ) {
-                                Sql.getInstance().transaction(statements.build(), (res) -> {
-                                    if (!res.isSend()) {
-                                        log.error("pb Lors de l'insertion des données importées");
-                                        infos.put("error", "pb sql");
-                                    }
 
-
-                                    handler.handle(new Either.Right<>(infos));
-                                });
+                            if (!(nbInsert > 0 )) {
+                                handler.handle(new Either.Right<>(infos));
                             }
                             else {
-                                handler.handle(new Either.Right<>(infos));
+                                statementMap.forEach((k,v) -> {
+                                    JsonObject currentStudent = v.getJsonObject(0).getJsonObject("student");
+                                    Boolean hasHomonyme;
+                                    if(currentStudent != null) {
+                                        hasHomonyme = currentStudent.getBoolean("hasHomonyme");
+                                        if (hasHomonyme != null && hasHomonyme == true) {
+                                            homonymes.add(currentStudent);
+                                        }
+                                        else {
+                                            if (v.size() == 1) {
+                                                statements.prepared(v.getJsonObject(0).getString("query"),
+                                                        v.getJsonObject(0).getJsonArray("params"));
+                                            } else if (v.size() > 1) {
+                                                homonymes.add(currentStudent);
+                                            }
+                                        }
+                                    }
+                                });
+                                infos.put("homonymes", homonymes);
+                                if (!(homonymes.size() < nbInsert)) {
+                                    handler.handle(new Either.Right<>(infos));
+                                }
+                                else {
+                                    Sql.getInstance().transaction(statements.build(), (res) -> {
+                                        if (!res.isSend()) {
+                                            log.error("pb Lors de l'insertion des données importées");
+                                            infos.put("error", "pb sql");
+                                        }
+
+
+                                        handler.handle(new Either.Right<>(infos));
+                                    });
+                                }
                             }
 
                         } catch (IOException e) {
@@ -184,7 +229,7 @@ public class DefaultImportCsvService implements ImportCsvService {
         JsonObject student = null;
 
         displayName = (isUTF8)? displayName : displayName.replaceAll("[^\\w\\s]","");
-
+        Boolean hasHomonyme = false;
         for (int i=0; i<students.size(); i++){
             String _displayName = students.getJsonObject(i).getString("lastName") + " " +
                     students.getJsonObject(i).getString("firstName");
@@ -193,7 +238,11 @@ public class DefaultImportCsvService implements ImportCsvService {
 
             if(displayName.equals(_displayName)){
                 student = students.getJsonObject(i);
-                break;
+                if (hasHomonyme == true) {
+                    student.put("hasHomonyme", true);
+                    break;
+                }
+                hasHomonyme = true;
             }
         }
         return student;

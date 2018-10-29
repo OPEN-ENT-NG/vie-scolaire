@@ -548,6 +548,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         Calendar timestamp_fnBis = Calendar.getInstance();
         Calendar timestamp_previous = Calendar.getInstance();
         Calendar timestamp_next = Calendar.getInstance();
+        Calendar date_conseil_classe = Calendar.getInstance();
         JsonObject periode;
         JsonObject periodeBis;
 
@@ -557,6 +558,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 timestamp_dt.setTime(dateFormat.parse(periode.getString("timestamp_dt")));
                 timestamp_fn.setTime(dateFormat.parse(periode.getString("timestamp_fn")));
                 date_fin_saisie.setTime(dateFormat.parse(periode.getString("date_fin_saisie")));
+                date_conseil_classe.setTime(dateFormat.parse(periode.getString("date_conseil_classe")));
 
                 // Erreur date_debut posterieur date_fin
                 if(timestamp_dt.after(timestamp_fn)
@@ -602,8 +604,16 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     if (timestamp_next.get(Calendar.DAY_OF_YEAR) - timestamp_fn.get(Calendar.DAY_OF_YEAR) > 1) {
                         errorList.get(i).put("errorContigNext", "La periode n'est pas contigue a la periode suivante.");
                     }
+                    if(date_conseil_classe.after(timestamp_next)){
+                        errorList.get(i).put("errorDateConseil", "La date du conseil de classe ne peut etre posterieure " +
+                                "a la date de debut de la prochaine periode.");
+                    }
                 }
-
+                // Erreur date_conseil_classe antérieure date_fin_saisie
+                if(date_conseil_classe.before(date_fin_saisie)){
+                    errorList.get(i).put("errorDateConseilBeforeFnS", "La date du conseil de classe ne peut" +
+                            " etre anterieur a la date de fin de saisie.");
+                }
             } catch(ParseException e){
                 errorList.get(i).put("errorParsing", "Parsing Error");
             }
@@ -680,7 +690,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("INSERT INTO viesco.periode ")
-                .append("(id_etablissement, id_classe, timestamp_dt, timestamp_fn, date_fin_saisie,  id_type) ")
+                .append("(id_etablissement, id_classe, timestamp_dt, timestamp_fn, date_fin_saisie,  id_type, date_conseil_classe, publication_bulletin) ")
                 .append("VALUES  ");
 
         for (int i = 0; i < periodes.length; i++) {
@@ -688,13 +698,15 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
             for(String idClasse : idClasses) {
                 query.append("( ?, ?, to_timestamp(?,'YYYY-MM-DD'), ");
 
-                query.append("to_timestamp(?,'YYYY-MM-DD'), to_timestamp(?,'YYYY-MM-DD'), ?),");
+                query.append("to_timestamp(?,'YYYY-MM-DD'), to_timestamp(?,'YYYY-MM-DD'), ?, to_timestamp(?,'YYYY-MM-DD'), ? ),");
                 values.add(idEtablissement);
                 values.add(idClasse);
                 values.add(periode.getString("timestamp_dt"));
                 values.add(periode.getString("timestamp_fn"));
                 values.add(periode.getString("date_fin_saisie"));
                 values.add(periode.getInteger("id_type"));
+                values.add(periode.getString("date_conseil_classe"));
+                values.add(periode.getBoolean("publication_bulletin"));
             }
         }
         query.deleteCharAt(query.length() - 1);

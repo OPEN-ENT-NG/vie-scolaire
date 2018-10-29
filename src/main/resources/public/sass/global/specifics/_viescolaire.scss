@@ -16,6 +16,9 @@
  */
 
 body.viescolaire {
+  .center{
+    text-align: center;
+  }
   .sous-titre {
     font-size: small;
   }
@@ -111,7 +114,7 @@ body.viescolaire {
     border-width: thin;
     border-color: #ccc;
   }
-
+ // Periodes
   .config-periode {
 
     & article > * {
@@ -125,7 +128,8 @@ body.viescolaire {
 
       & > div {
         padding: 10px;
-        width: 20%;
+        width: 13.331%;
+        text-align: center;
       }
 
       & > div:nth-child(2) {
@@ -218,7 +222,12 @@ body.viescolaire {
       }
     }
   }
-
+  //lightBox Periode
+  @media screen and (min-device-width:$tablette ) {
+    .widthLightBox div.content{
+      width: 60% !important;
+    }
+  }
   //    Tableau Bilan Périodique    //
 
 

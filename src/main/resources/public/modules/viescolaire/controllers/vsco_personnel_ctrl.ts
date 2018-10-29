@@ -98,7 +98,10 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     errorFnS: false,
                     errorOver: false,
                     errorContig: false,
-                    error: false
+                    error: false,
+                    errorDateConseil: false,
+                    errorDateConseilBeforeFnS: false
+
                 }
             };
         };
@@ -145,6 +148,20 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                         result = result || moment(periodes[index + 1].timestamp_dt).diff(moment(periode.timestamp_fn), 'days') > 1;
                     }
                     return result;
+                });
+
+            errorObject.errorDateConseilBeforeFnS =
+                _.some(periodes,(periode) => {
+                    return !moment(periode.date_conseil_classe).isSameOrAfter(moment(periode.date_fin_saisie),'days');
+                });
+
+            errorObject.errorDateConseil =
+                _.some(periodes,(periode,index) => {
+                    let validDateConseil = false;
+                    if (periodes[index + 1]) {
+                       validDateConseil = validDateConseil || moment(periode.date_conseil_classe).isAfter(moment(periodes[index + 1].timestamp_dt),'days');
+                    }
+                    return validDateConseil;
                 });
         };
 
@@ -194,12 +211,13 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.selectedClasseSorted = _.sortBy($scope.getSelectedClasse(), 'name');
             let classe = _.first($scope.selectedClasseSorted);
             $scope.lightboxPeriode.periodes = _.map(classe.periodes.all, (periode) => {
-                var periodeTmp = _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+                var periodeTmp = _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie','date_conseil_classe','publication_bulletin');
 
                 // conversion en date pour les date-picker
                 periodeTmp.timestamp_dt = new Date(periodeTmp.timestamp_dt);
                 periodeTmp.timestamp_fn = new Date(periodeTmp.timestamp_fn);
                 periodeTmp.date_fin_saisie= new Date(periodeTmp.date_fin_saisie);
+                periodeTmp.date_conseil_classe= new Date(periodeTmp.date_conseil_classe);
                 return periodeTmp;
             });
 
@@ -232,7 +250,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 periode.timestamp_fn = new Date();
                 periode.date_fin_saisie = new Date();
                 periode.id_etablissement = $scope.structure.id;
-
+                periode.date_conseil_classe = new Date();
+                periode.publication_bulletin = false;
                 periodes.push(periode);
             }
             $scope.lightboxPeriode.periodes = periodes;
@@ -241,8 +260,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.savePeriode = async (periodes) => {
 
-
-            if(!$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
+            if(!$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS && !$scope.lightboxPeriode.error.errorDateConseil) {
                 try {
                     await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
                     $scope.lightboxPeriode.show = false;

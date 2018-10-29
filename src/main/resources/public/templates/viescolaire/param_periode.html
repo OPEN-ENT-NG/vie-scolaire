@@ -56,6 +56,12 @@
             <div class="cell">
                 <i18n>viescolaire.utils.datefinsaisie</i18n>
             </div>
+            <div class="cell">
+                <i18n>viescolaire.utils.date.conseil.classe</i18n>
+            </div>
+            <div class="cell">
+                <i18n>viescolaire.utils.publication.bulletin</i18n>
+            </div>
             <div class="cell">&nbsp</div>
         </div>
         <div class="twelve cell expandable-list-body">
@@ -91,6 +97,17 @@
                         <span>[[ formatDatePeriode(getCurrentPeriode(classe).date_fin_saisie) ]]</span>
                     </div>
                     <div class="cell" ng-show="search.type != 0">
+                        <span>[[ formatDatePeriode(getCurrentPeriode(classe).date_conseil_classe) ]]</span>
+                    </div>
+                    <div class="cell">
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                   ng-model="getCurrentPeriode(classe).publication_bulletin"
+                                    ng-change="savePeriodeParam(classe)">
+                            <span></span>
+                        </label>
+                    </div>
+                    <div class="cell" ng-show="search.type != 0">
                         <i class="down-open"></i>
                     </div>
 
@@ -110,6 +127,17 @@
                         </div>
                         <div class="cell">
                             [[ formatDatePeriode(periode.date_fin_saisie) ]]
+                        </div>
+                        <div class="cell">
+                            [[ formatDatePeriode(periode.date_conseil_classe) ]]
+                        </div>
+                        <div class="cell">
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       ng-model="periode.publication_bulletin"
+                                        ng-change="savePeriodeParam(classe)">
+                                <span></span>
+                            </label>
                         </div>
                         <div class="cell">&nbsp</div>
                     </div>
@@ -133,7 +161,7 @@
     </div>
 </section>
 
-<lightbox show="lightboxPeriode.show == true"
+<lightbox show="lightboxPeriode.show == true" class="widthLightBox"
           on-close="closeLightboxPeriode()">
-    <container template="lightboxPeriode"></container>
+    <container template="lightboxPeriode" ></container>
 </lightbox>

@@ -282,7 +282,9 @@ export class Structure extends DefaultStructure {
                     return {
                         timestamp_dt: moment(periode.timestamp_dt).format("YYYY-MM-DD"),
                         timestamp_fn: moment(periode.timestamp_fn).format("YYYY-MM-DD"),
-                        date_fin_saisie: moment(periode.date_fin_saisie).format("YYYY-MM-DD")
+                        date_fin_saisie: moment(periode.date_fin_saisie).format("YYYY-MM-DD"),
+                        date_conseil_classe: moment(periode.date_conseil_classe).format("YYYY-MM-DD"),
+                        publication_bulletin: periode.publication_bulletin
                     };
                 })
             };

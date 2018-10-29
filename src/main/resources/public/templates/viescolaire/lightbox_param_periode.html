@@ -35,10 +35,12 @@
 <div class="twelve row"
      ng-if="lightboxPeriode.typePeriode != null">
     <div class="twelve row head-param-periode">
-        <div class="cell two "><i class="table "></i></div>
-        <div class="cell three"><i class="calendar"></i> <i18n>evaluations.remplacement.debut</i18n></div>
-        <div class="cell three"><i class="calendar"></i> <i18n>evaluations.remplacement.fin</i18n></div>
-        <div class="cell three"><i class="calendar"></i> <i18n>viescolaire.fin.saisie</i18n></div>
+        <div class="cell two"><i class="table "></i></div>
+        <div class="cell two"><i class="calendar"></i> <i18n>evaluations.remplacement.debut</i18n></div>
+        <div class="cell two"><i class="calendar"></i> <i18n>evaluations.remplacement.fin</i18n></div>
+        <div class="cell two"><i class="calendar"></i> <i18n>viescolaire.fin.saisie</i18n></div>
+        <div class="cell two"><i class="calendar"></i> <i18n>viescolaire.utils.date.conseil.classe</i18n></div>
+        <div class="cell two"> <i18n>viescolaire.utils.publication.bulletin</i18n></div>
     </div>
 
     <div class="twelve row"
@@ -46,27 +48,42 @@
         <div class="cell two">
             <span>[[ getI18n("viescolaire.periode." + lightboxPeriode.typePeriode) + " " + ($index + 1) ]]</span>
         </div>
-        <div class="cell three">
+        <div class="cell two">
             <label>
                 <date-picker ng-model="periode.timestamp_dt"
                              ng-change="checkError(); checkOrder()">
                 </date-picker>
             </label>
         </div>
-        <div class="cell three">
+        <div class="cell two">
             <label>
                 <date-picker ng-model="periode.timestamp_fn"
                              ng-change="checkError()">
                 </date-picker>
             </label>
         </div>
-        <div class="cell three">
+        <div class="cell two">
             <label>
                 <date-picker ng-model="periode.date_fin_saisie"
                              ng-change="checkError()">
                 </date-picker>
             </label>
         </div>
+        <div class="cell two">
+            <label>
+                <date-picker ng-model="periode.date_conseil_classe"
+                             ng-change="checkError()">
+                </date-picker>
+            </label>
+        </div>
+        <div class="cell two center">
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-model="periode.publication_bulletin">
+                <span></span>
+            </label>
+        </div>
+
     </div>
 </div>
 <div class="twelve row">
@@ -85,6 +102,14 @@
     <div class="warning"
          ng-if="lightboxPeriode.error.errorContig">
         <i18n>viescolaire.periodes.contigues</i18n>
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorDateConseilBeforeFnS">
+        <i18n>viescolaire.periodes.error.errorDateConseilBeforeFnS</i18n>
+    </div>
+    <div class="warning"
+         ng-if="lightboxPeriode.error.errorDateConseil">
+        <i18n>viescolaire.periodes.error.dateConseil</i18n>
     </div>
     <div class="warning"
          ng-if="lightboxPeriode.error.error">

@@ -18,7 +18,10 @@ export let importAttachments = (fichiers, $scope) => {
     const promises: Promise<any>[] = [];
 
     if($scope.import.classe !== undefined && $scope.import.periode != undefined) {
+
         $scope.homonymes = [];
+        safeApply($scope);
+
         for (let i = 0; i < $scope.newAttachments.length; i++) {
             const attachmentObj = $scope.newAttachments[i];
 

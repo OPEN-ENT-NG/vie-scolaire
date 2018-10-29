@@ -33,6 +33,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
+        $scope.hasHomonymes = false;
         $scope.import = {
             classe: undefined,
             periode: undefined
@@ -293,11 +294,15 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
         $scope.postAttachments = function (fichiers) {
             postAttachments(fichiers, $scope);
         };
-
+        $scope.clearHomonymes = function () {
+            $scope.hasHomonymes = false;
+            utils.safeApply($scope);
+        };
         $scope.deleteAttachment = function (filemame) {
             deleteAttachment(filemame, $scope);
         };
-        $scope.importAttachments =  function (fichiers) {
+        $scope.importAttachments =  function (fichiers, hasHomonymes) {
+            $scope.hasHomonymes = false;
             importAttachments(fichiers, $scope);
         };
     }

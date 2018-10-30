@@ -194,8 +194,15 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.selectedClasseSorted = _.sortBy($scope.getSelectedClasse(), 'name');
             let classe = _.first($scope.selectedClasseSorted);
             $scope.lightboxPeriode.periodes = _.map(classe.periodes.all, (periode) => {
-                return _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+                var periodeTmp = _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+
+                // conversion en date pour les date-picker
+                periodeTmp.timestamp_dt = new Date(periodeTmp.timestamp_dt);
+                periodeTmp.timestamp_fn = new Date(periodeTmp.timestamp_fn);
+                periodeTmp.date_fin_saisie= new Date(periodeTmp.date_fin_saisie);
+                return periodeTmp;
             });
+
             $scope.lightboxPeriode.typePeriode = classe.periodes.all.length;
             $scope.diffPeriodesError = !$scope.checkDiffPeriodsClasse($scope.selectedClasseSorted);
         };
@@ -203,13 +210,19 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         $scope.checkDiffPeriodsClasse = function (selectedClasseSorted) {
             for(let c in selectedClasseSorted){
                 $scope.periodesTemp = _.map(selectedClasseSorted[c].periodes.all, (periode) => {
-                    return _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+                    var periodeTmp = _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
+
+                    // conversion en date pour les date-picker
+                    periodeTmp.timestamp_dt = new Date(periodeTmp.timestamp_dt);
+                    periodeTmp.timestamp_fn = new Date(periodeTmp.timestamp_fn);
+                    periodeTmp.date_fin_saisie= new Date(periodeTmp.date_fin_saisie);
+                    return periodeTmp;
                 });
                 if(!_.isEqual($scope.periodesTemp, $scope.lightboxPeriode.periodes))
                     return false;
             }
             return true;
-        }
+        };
 
         $scope.buildPeriodes = (typePeriode) => {
             let periodes = [];

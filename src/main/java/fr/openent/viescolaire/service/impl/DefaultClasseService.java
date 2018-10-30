@@ -413,7 +413,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder().append(" MATCH (c:Class {id:{idClasse}}) " )
-                .append(" OPTIONAL MATCH (u:User) ")
+                .append(" OPTIONAL MATCH (u:User {profiles: ['Teacher']})-[:IN]-(:ProfileGroup)-[:DEPENDS]")
+                .append("-(c:Class {id :{idClasse}}) ")
                 .append(" WHERE (c.externalId IN u.headTeacher OR  c.externalId IN u.headTeacherManual) ")
                 .append(" RETURN CASE WHEN u.title IS NULL THEN \" \" ELSE u.title END as civility, ")
                 .append(" u.lastName as name ");

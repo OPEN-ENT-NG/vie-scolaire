@@ -15,7 +15,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-import { Model } from 'entcore';
+import {Model, notify} from 'entcore';
+import  http  from "axios";
 /**
  * Created by rahnir on 10/08/2017.
  */
@@ -29,5 +30,14 @@ export class Periode extends Model{
     id_type: number;
     date_conseil_classe: Date;
     publication_bulletin: boolean;
+
+    async savePublicationBulletion(){
+        try{
+            await http.put(`/viescolaire/periode/${this.id}?publication=${this.publication_bulletin}`);
+        }catch (e){
+            notify.error('erreur lors de l\'enregistrement de la publication' );
+            console.log(e);
+        }
+    }
 
 }

@@ -103,7 +103,7 @@
                         <label class="checkbox">
                             <input type="checkbox"
                                    ng-model="getCurrentPeriode(classe).publication_bulletin"
-                                    ng-change="savePeriodeParam(classe)">
+                                    ng-change="getCurrentPeriode(classe).savePublicationBulletion();">
                             <span></span>
                         </label>
                     </div>
@@ -135,7 +135,7 @@
                             <label class="checkbox">
                                 <input type="checkbox"
                                        ng-model="periode.publication_bulletin"
-                                        ng-change="savePeriodeParam(classe)">
+                                        ng-change="periode.savePublicationBulletion();">
                                 <span></span>
                             </label>
                         </div>

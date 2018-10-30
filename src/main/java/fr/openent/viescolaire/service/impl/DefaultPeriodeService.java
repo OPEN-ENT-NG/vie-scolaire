@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static fr.wseduc.webutils.http.Renders.getHost;
-import static org.entcore.common.sql.SqlResult.validResultHandler;
+import static org.entcore.common.sql.SqlResult.*;
 
 /**
  * Created by ledunoiss on 18/10/2016.
@@ -790,5 +790,13 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 }
             }
         });
+    }
+
+    @Override
+    public void updatePublicationBulletin(Integer idPeriode, Boolean publiBulletin, Handler<Either<String, JsonObject>> handler) {
+        String query ="UPDATE viesco.periode SET publication_bulletin = ? WHERE id= ?";
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(publiBulletin).add(idPeriode);
+
+        Sql.getInstance().prepared(query, values, validRowsResultHandler(handler));
     }
 }

@@ -113,4 +113,12 @@ public interface PeriodeService extends CrudService {
      */
     public void getDatesDtFnAnneeByClasse(String idEtablissement, List<String> idClasses,
                                           Handler<Either<String, JsonArray>> handler);
+
+    /**
+     *
+     * @param idPeriode identifiant de la periode
+     * @param publiBulletin boolean
+     * @param handler reponse
+     */
+    public void updatePublicationBulletin (Integer idPeriode, Boolean publiBulletin, Handler<Either<String,JsonObject>>handler);
 }

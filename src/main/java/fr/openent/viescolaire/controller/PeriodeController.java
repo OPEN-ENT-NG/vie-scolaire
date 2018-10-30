@@ -33,15 +33,10 @@ import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
 /**
  * Created by ledunoiss on 18/10/2016.
@@ -151,4 +146,26 @@ public class PeriodeController extends ControllerHelper {
             }
         });
     }
+
+    @Put("/periode/:id")
+    @ApiDoc("Met à jour la publication du bulletin pour une période")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void updatePublication (HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(final UserInfos user) {
+                if (user != null) {
+                    final Integer idPeriode = Integer.valueOf(request.params().get("id"));
+                    final Boolean publiBulletin = Boolean.valueOf(request.params().get("publication"));
+
+                    periodeService.updatePublicationBulletin(idPeriode, publiBulletin, notEmptyResponseHandler(request));
+
+                } else {
+                    log.debug("User not found in session.");
+                    Renders.unauthorized(request);
+                }
+            }
+        });
+    }
+
 }

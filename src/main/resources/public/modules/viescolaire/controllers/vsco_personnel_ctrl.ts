@@ -226,6 +226,10 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         };
 
         $scope.checkDiffPeriodsClasse = function (selectedClasseSorted) {
+
+            let periodesLightBoxCompare = _.map($scope.lightboxPeriode.periodes ,(periode) =>{
+                return _.omit(periode, 'date_conseil_classe','publication_bulletin');}
+                );
             for(let c in selectedClasseSorted){
                 $scope.periodesTemp = _.map(selectedClasseSorted[c].periodes.all, (periode) => {
                     var periodeTmp = _.pick(periode, 'timestamp_dt', 'timestamp_fn', 'date_fin_saisie');
@@ -236,7 +240,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     periodeTmp.date_fin_saisie= new Date(periodeTmp.date_fin_saisie);
                     return periodeTmp;
                 });
-                if(!_.isEqual($scope.periodesTemp, $scope.lightboxPeriode.periodes))
+                if(!_.isEqual($scope.periodesTemp, periodesLightBoxCompare))
                     return false;
             }
             return true;

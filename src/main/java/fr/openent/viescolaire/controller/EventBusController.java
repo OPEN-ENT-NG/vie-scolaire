@@ -275,24 +275,11 @@ public class EventBusController extends ControllerHelper {
                 final String userType = message.body().getString("userType");
                 final String idEnseignant = message.body().getString("idUser");
                 final String idStructure = message.body().getString("idStructure");
-                final Boolean onlyId = message.body().getBoolean("onlyId");
+                final Boolean onlyId = message.body().containsKey("onlyId") ? message.body().getBoolean("onlyId") : false;
                 if ("Personnel".equals(userType)) {
                     matiereService.listMatieresEtab(idStructure, onlyId,getJsonArrayBusResultHandler(message));
                 } else {
-                    new DefaultUtilsService()
-                            .getTitulaires(idEnseignant, idStructure, new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> event) {
-                                            if (event.isRight()) {
-                                                JsonArray oTitulairesIdList = event.right().getValue();
-                                                new MatiereController().listMatieres(idStructure,
-                                                        oTitulairesIdList,null, message, idEnseignant, onlyId);
-                                            } else {
-                                                message.reply(getErrorReply(event.left().getValue()));
-                                            }
-                                        }
-                                    }
-                            );
+                    matiereService.listAllMatieres(idStructure, idEnseignant, onlyId, getJsonArrayBusResultHandler(message));
                 }
             }
             break;

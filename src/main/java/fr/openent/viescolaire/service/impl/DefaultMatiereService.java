@@ -21,17 +21,22 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.MatiereService;
+import fr.openent.viescolaire.service.SousMatiereService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
-import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 
 /**
  * Created by ledunoiss on 18/10/2016.
@@ -40,8 +45,13 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
     private final Neo4j neo4j = Neo4j.getInstance();
 
+    private UtilsService utilsService;
+    private SousMatiereService sousMatiereService;
+
     public DefaultMatiereService () {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_MATIERE_TABLE);
+        utilsService = new DefaultUtilsService();
+        sousMatiereService = new DefaultSousMatiereService();
     }
 
     @Override
@@ -50,8 +60,8 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         JsonObject values = new JsonObject();
 
         query.append("MATCH (u:`User` {id:{userId}}),(s:Structure)<-[:SUBJECT]-(f:Subject)")
-        .append(" WHERE f.code in u.fieldOfStudy and s.externalId in u.structures")
-        .append(" return f.id as id, f.code as externalId, f.label as name");
+                .append(" WHERE f.code in u.fieldOfStudy and s.externalId in u.structures")
+                .append(" return f.id as id, f.code as externalId, f.label as name");
         values.put("userId", userId);
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
@@ -66,38 +76,94 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name";
         }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
-				returndata;
+                returndata;
         JsonObject values = new JsonObject().put("idStructure", idStructure);
         neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
     }
+
     @Override
-    public void listMatieres(String structureId , String id, JsonArray poTitulairesIdList, Handler<Either<String, JsonArray>> result) {
-        StringBuilder query = new StringBuilder();
-        JsonObject params = new JsonObject();
+    public void listMatieres(String structureId , JsonArray aIdEnseignant, Handler<Either<String, JsonArray>> result) {
+        String query = "MATCH (s:Structure {id : {structureId}})<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) " +
+                "WHERE u.id IN {userIdList} RETURN u.id as idEnseignant, s.id as idEtablissement, sub.id as id, " +
+                "sub.code as externalId, sub.label as name, r.classes as libelleClasses, r.groups as libelleGroupes";
+        JsonObject params = new JsonObject().put("userIdList", aIdEnseignant).put("structureId", structureId);
 
-        query.append("MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-");
-        final String returnQuery = " return s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, r.classes as libelleClasses, r.groups as libelleGroupes";
-
-        if(poTitulairesIdList == null || poTitulairesIdList.size() == 0) {
-            params.put("id", id);
-            query.append("(u:User{id:{id}}) where s.id = {structureId}");
-        } else{
-            query.append("(u:User) WHERE u.id IN {userIdList} AND s.id = {structureId} ");
-
-            JsonArray oUserIdList = new fr.wseduc.webutils.collections.JsonArray();
-            oUserIdList.add(id);
-
-            for (Object oTitulaire:poTitulairesIdList) {
-                String sIdTitulaire = ((JsonObject)oTitulaire).getString("id_titulaire");
-                oUserIdList.add(sIdTitulaire);
-            }
-
-            params.put("userIdList", oUserIdList);
-        }
         params.put("structureId", structureId);
-        query.append(returnQuery);
 
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(result));
+    }
+
+    @Override
+    public void listAllMatieres(String structureId, String idEnseignant, Boolean onlyId, Handler<Either<String, JsonArray>> handler) {
+        utilsService.getTitulaires(idEnseignant, structureId, new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle (Either < String, JsonArray > eventRemplacants) {
+                if (eventRemplacants.isRight()) {
+                    JsonArray aIdEnseignant = eventRemplacants.right().getValue();
+                    aIdEnseignant.add(idEnseignant);
+
+                    listMatieres(structureId, aIdEnseignant, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if (event.isRight()) {
+                                final JsonArray resultats = event.right().getValue();
+                                if (resultats.size() > 0) {
+
+                                    final List<String> ids = new ArrayList<String>();
+
+                                    final JsonArray reponseJA = new fr.wseduc.webutils.collections.JsonArray();
+                                    JsonArray libelleGroups, libelleClasses;
+                                    for (Object res : resultats) {
+                                        final JsonObject r = (JsonObject) res;
+                                        libelleGroups = r.getJsonArray("libelleGroupes");
+                                        libelleClasses = r.getJsonArray("libelleClasses");
+                                        libelleGroups = libelleGroups == null ? new fr.wseduc.webutils.collections.JsonArray() : libelleGroups;
+                                        libelleClasses = libelleClasses == null ? new fr.wseduc.webutils.collections.JsonArray() : libelleClasses;
+                                        r.put("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
+                                        r.remove("libelleGroupes");
+                                        reponseJA.add(r);
+                                        ids.add(r.getString("id"));
+                                    }
+                                    sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
+                                            new Handler<Either<String, JsonArray>>() {
+                                                @Override
+                                                public void handle(Either<String, JsonArray> event_ssmatiere) {
+                                                    if (event_ssmatiere.right().isRight()) {
+                                                        JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
+                                                        JsonArray res = event_ssmatiere.right().getValue();
+                                                        for (int i = 0; i < reponseJA.size(); i++) {
+                                                            JsonObject matiere = reponseJA.getJsonObject(i);
+                                                            String id = matiere.getString("id");
+                                                            JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
+                                                            for (int j = 0; j < res.size(); j++) {
+                                                                JsonObject ssm = res.getJsonObject(j);
+                                                                if (ssm.getString("id_matiere").equals(id)) {
+                                                                    ssms.add(ssm);
+                                                                }
+                                                            }
+                                                            matiere.put("sous_matieres", ssms);
+                                                            finalresponse.add(matiere);
+                                                        }
+                                                        handler.handle(new Either.Right<>(onlyId ? new JsonArray(ids) : finalresponse));
+                                                    } else {
+                                                        handler.handle(event_ssmatiere.left());
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    listMatieresEtab(structureId, onlyId, handler);
+                                }
+                            } else {
+                                handler.handle(event.left());
+                            }
+                        }
+                    });
+
+                } else {
+                    handler.handle(eventRemplacants.left());
+                }
+            }
+        });
     }
 
 
@@ -126,12 +192,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         JsonObject params = new JsonObject();
 
         query.append("MATCH (f:Subject) WHERE f.id IN {idMatieres} ")
-        .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
+                .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
         params.put("idMatieres", idMatieres);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
-
-
 
     @Override
     public void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result) {

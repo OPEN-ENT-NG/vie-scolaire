@@ -343,11 +343,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     @Override
     public void getClassesInfo(JsonArray idClasses, Handler<Either<String, JsonArray>> handler) {
-        String queries = "";
         JsonObject params = new JsonObject();
 
-        queries = "MATCH (c:Class) WHERE c.id IN {idClasses} return c.id as id, c.name as name, c.externalId as externalId " +
-                " UNION MATCH (g:Group) WHERE g.id IN {idClasses} return g.id as id, g.name as name, g.externalId as externalId";
+        String queries = "MATCH (c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND c.id IN {idClasses} " +
+                "RETURN c.id as id, c.name as name, c.externalId as externalId, labels(c) AS labels";
 
         params.put("idClasses", idClasses);
         neo4j.execute(queries, params, Neo4jResult.validResultHandler(handler));

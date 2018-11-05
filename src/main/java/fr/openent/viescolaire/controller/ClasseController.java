@@ -40,7 +40,10 @@ import io.vertx.core.json.JsonObject;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
@@ -71,8 +74,9 @@ public class ClasseController extends BaseController {
                     if (request.params().isEmpty()){
                         badRequest(request);
                     } else {
-                        if ("Personnel".equals(user.getType())
-                             || "Teacher".equals(user.getType())) {
+                        if (("Personnel".equals(user.getType())
+                                && !user.getFunctions().isEmpty()
+                        ) || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse,null, handler);
@@ -141,70 +145,118 @@ public class ClasseController extends BaseController {
                         classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                     }
 
-                    classeService.listClasses(idEtablissement, classOnly, user, null, new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if (event.isRight()) {
-                                JsonArray recipient = event.right().getValue();
-                                JsonObject classe;
-                                JsonObject object;
-                                final JsonArray classes = new fr.wseduc.webutils.collections.JsonArray();
-                                List<String> idGroupes = new ArrayList<>();
-                                for (int i = 0; i < recipient.size(); i++) {
-                                    classe = recipient.getJsonObject(i);
-                                    classe = classe.getJsonObject("m");
-                                    object = classe.getJsonObject("metadata");
-                                    classe = classe.getJsonObject("data");
-                                    if (object.getJsonArray("labels").contains("Class"))
-                                        classe.put("type_groupe",  Viescolaire.CLASSE_TYPE);
-                                    else if (object.getJsonArray("labels").contains("FunctionalGroup")){
-                                        classe.put("type_groupe",  Viescolaire.GROUPE_TYPE);
-                                    } else if (object.getJsonArray("labels").contains("ManualGroup")) {
-                                        classe.put("type_groupe",  Viescolaire.GROUPE_MANUEL_TYPE);
-                                    }
-                                    if(isEdt){ classe.put("color", utilsService.getColor(classe.getString("name")));}
-                                    idGroupes.add(classe.getString("id"));
-                                    classes.add(classe);
+                    Handler<Either<String, JsonArray>> finalHandler = event -> {
+                        if (event.isRight()) {
+                            JsonArray recipient = event.right().getValue();
+                            JsonObject classe;
+                            JsonObject object;
+                            final JsonArray classes = new fr.wseduc.webutils.collections.JsonArray();
+                            List<String> idGroupes = new ArrayList<>();
+                            for (int i = 0; i < recipient.size(); i++) {
+                                classe = recipient.getJsonObject(i);
+                                classe = classe.getJsonObject("m");
+                                object = classe.getJsonObject("metadata");
+                                classe = classe.getJsonObject("data");
+                                if (object.getJsonArray("labels").contains("Class"))
+                                    classe.put("type_groupe", Viescolaire.CLASSE_TYPE);
+                                else if (object.getJsonArray("labels").contains("FunctionalGroup")) {
+                                    classe.put("type_groupe", Viescolaire.GROUPE_TYPE);
+                                } else if (object.getJsonArray("labels").contains("ManualGroup")) {
+                                    classe.put("type_groupe", Viescolaire.GROUPE_MANUEL_TYPE);
                                 }
+                                if (isEdt) {
+                                    classe.put("color", utilsService.getColor(classe.getString("name")));
+                                }
+                                idGroupes.add(classe.getString("id"));
+                                classes.add(classe);
+                            }
 
-                                if (!idGroupes.isEmpty()) {
-                                    JsonObject action = new JsonObject()
-                                            .put("action", "utils.getCycle")
-                                            .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
+                            if (!idGroupes.isEmpty()) {
+                                JsonObject action = new JsonObject()
+                                        .put("action", "utils.getCycle")
+                                        .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
 
-                                    if (isPresence || isEdt) {
-                                            renderJson(request, classes);
-                                    }
-                                    else {
-                                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
-                                            @Override
-                                            public void handle(Message<JsonObject> message) {
-                                                if ("ok".equals(message.body().getString("status"))) {
-                                                    JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
-                                                    JsonObject object;
-                                                    JsonObject cycles = utilsService.mapListNumber(message.body().getJsonArray("results"), "id_groupe", "id_cycle");
-                                                    JsonObject cycleLibelle = utilsService.mapListString(message.body().getJsonArray("results"), "id_groupe", "libelle");
-                                                    for (int i = 0; i < classes.size(); i++) {
-                                                        object = classes.getJsonObject(i);
-                                                        object.put("id_cycle", cycles.getLong(object.getString("id")));
-                                                        object.put("libelle_cycle", cycleLibelle.getString(object.getString("id")));
-                                                        returnedList.add(object);
-                                                    }
-                                                    renderJson(request, returnedList);
-                                                } else {
-                                                    badRequest(request);
-                                                }
-                                            }
-                                        }));
-                                    }
+                                if (isPresence || isEdt) {
+                                    renderJson(request, classes);
                                 } else {
-                                    renderJson(request, new fr.wseduc.webutils.collections.JsonArray(idGroupes));
+                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+                                        @Override
+                                        public void handle(Message<JsonObject> message) {
+                                            if ("ok".equals(message.body().getString("status"))) {
+                                                JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
+                                                JsonObject object;
+                                                JsonObject cycles = utilsService.mapListNumber(message.body().getJsonArray("results"), "id_groupe", "id_cycle");
+                                                JsonObject cycleLibelle = utilsService.mapListString(message.body().getJsonArray("results"), "id_groupe", "libelle");
+                                                for (int i = 0; i < classes.size(); i++) {
+                                                    object = classes.getJsonObject(i);
+                                                    object.put("id_cycle", cycles.getLong(object.getString("id")));
+                                                    object.put("libelle_cycle", cycleLibelle.getString(object.getString("id")));
+                                                    returnedList.add(object);
+                                                }
+                                                renderJson(request, returnedList);
+                                            } else {
+                                                badRequest(request);
+                                            }
+                                        }
+                                    }));
                                 }
                             } else {
-                                badRequest(request);
+                                renderJson(request, new fr.wseduc.webutils.collections.JsonArray(idGroupes));
                             }
+                        } else {
+                            badRequest(request);
                         }
-                    });
+                    };
+
+                    Handler<Either<String, JsonArray>> classeHandler;
+                    if (isPresence || isEdt) {
+                        classeHandler = finalHandler;
+                    } else {
+                        classeHandler = event -> {
+                            JsonObject action = new JsonObject()
+                                    .put("action", "service.getServices")
+                                    .put("idStructure", idEtablissement)
+                                    .put("aIdEnseignant", new JsonArray().add(user.getUserId()));
+                            eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
+                                if ("ok".equals(message.body().getString("status"))) {
+                                    Set uniqId = new HashSet<>(utilsService.pluck(message.body().getJsonArray("results"), "id_groupe"));
+                                    classeService.getClassesInfo(new JsonArray(new ArrayList(uniqId)), classes -> {
+                                        if(classes.isRight() && classes.right().getValue().size() > 0) {
+                                            JsonArray mappedClasses = new JsonArray(
+                                                    (List) classes.right().getValue().getList().stream().map(classe -> {
+                                                        JsonObject classeObj = (JsonObject) classe;
+                                                        JsonObject finalObject = new JsonObject();
+                                                        JsonArray labels = classeObj.getJsonArray("labels");
+                                                        classeObj.remove("labels");
+                                                        JsonObject metadata = new JsonObject().put("labels", labels);
+                                                        JsonObject m = new JsonObject().put("data", classeObj).put("metadata", metadata);
+                                                        return finalObject.put("m", m);
+                                                    }
+                                            ).collect(Collectors.toList()));
+                                            event.right().getValue().addAll(mappedClasses);
+
+                                            Set<String> idClasseSeen = new HashSet<>();
+                                            JsonArray result = new JsonArray();
+                                            for(Object classe : event.right().getValue()) {
+                                                JsonObject classeObject = (JsonObject) classe;
+                                                if(!idClasseSeen.contains(classeObject.getJsonObject("m").getJsonObject("data").getString("id"))) {
+                                                    idClasseSeen.add(classeObject.getJsonObject("m").getJsonObject("data").getString("id"));
+                                                    result.add(classeObject);
+                                                }
+                                            }
+                                            finalHandler.handle(new Either.Right<>(result));
+                                        } else if (classes.isRight()) {
+                                            finalHandler.handle(event.right());
+                                        } else {
+                                            finalHandler.handle(classes.left());
+                                        }
+                                    });
+                                }
+                            }));
+                        };
+                    }
+
+                    classeService.listClasses(idEtablissement, classOnly, user, null, classeHandler);
                 } else {
                     badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
                 }

@@ -58,7 +58,12 @@
                                     <i18n>evaluations.bilan.periodique</i18n>
                                 </a>
                             </li>
-
+                            <li workflow="competences.paramServices">
+                                <a href="" ng-class="{'selected': currParam === 7}"
+                                   ng-click="currParam = 7;">
+                                    <span>Parametrage des services</span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -220,6 +225,18 @@
                     <article ng-init="source.idStructure = structure.id;">
                         <sniplet
                                 template="epi_ap_parcours"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
+                    </article>
+                </div>
+            </div>
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="competences.paramServices">
+                <div class="hash-magnet twelve cell" id="7" ng-if="currParam === 7">
+                    <article ng-init="source.idStructure = structure.id; source.classes = structure.classes">
+                        <sniplet
+                                template="paramServices"
                                 application="competences"
                                 source="source"
                         ></sniplet>

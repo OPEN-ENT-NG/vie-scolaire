@@ -21,26 +21,23 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.MatiereService;
-import fr.openent.viescolaire.service.SousMatiereService;
 import fr.openent.viescolaire.service.impl.DefaultMatiereService;
-import fr.openent.viescolaire.service.impl.DefaultSousMatiereService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
+import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -51,14 +48,10 @@ import static org.entcore.common.http.response.DefaultResponseHandler.leftToResp
 public class MatiereController extends ControllerHelper {
 
     private final MatiereService matiereService;
-    private final UtilsService utilsService;
-    private final SousMatiereService sousMatiereService;
 
-    public MatiereController() {
+    public MatiereController(EventBus eb) {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
-        matiereService = new DefaultMatiereService();
-        utilsService = new DefaultUtilsService();
-        sousMatiereService = new DefaultSousMatiereService();
+        matiereService = new DefaultMatiereService(eb);
     }
 
     public void getEnseignantsMatieres(final HttpServerRequest request, final UserInfos user, final JsonArray matieres, final String classe, ArrayList<String>classesFieldOfStudy){
@@ -97,113 +90,11 @@ public class MatiereController extends ControllerHelper {
                         }
                     }
                     Renders.renderJson(request, response);
-
                 }else{
                     leftToResponse(request, event.left());
                 }
             }
         });
-    }
-
-    public void listMatieres(final String structureId , JsonArray poTitulairesIdList,
-                             final HttpServerRequest request, final Message<JsonObject> message, String idEnseignant,
-                             final Boolean onlyId) {
-        String _idEnseignant = (null == request) ? idEnseignant : request.params().get("idEnseignant");
-        matiereService.listMatieres(structureId , _idEnseignant,
-                poTitulairesIdList, new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-                        if(event.isRight()){
-                            final JsonArray resultats = event.right().getValue();
-                            if (resultats.size() > 0) {
-
-                                final List<String> ids = new ArrayList<String>();
-
-                                final JsonArray reponseJA = new fr.wseduc.webutils.collections.JsonArray();
-                                JsonArray libelleGroups, libelleClasses;
-                                for (Object res : resultats) {
-                                    final JsonObject r = (JsonObject) res;
-                                    libelleGroups = r.getJsonArray("libelleGroupes");
-                                    libelleClasses = r.getJsonArray("libelleClasses");
-                                    libelleGroups = libelleGroups == null ? new fr.wseduc.webutils.collections.JsonArray() : libelleGroups;
-                                    libelleClasses = libelleClasses == null ? new fr.wseduc.webutils.collections.JsonArray() : libelleClasses;
-                            r.put("libelleClasses", utilsService.saUnion(libelleClasses, libelleGroups));
-                                    r.remove("libelleGroupes");
-                                    reponseJA.add(r);
-                                    ids.add(r.getString("id"));
-                                }
-                        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
-                                new Handler<Either<String, JsonArray>>() {
-                                            @Override
-                                            public void handle(Either<String, JsonArray> event_ssmatiere) {
-                                                if (event_ssmatiere.right().isRight()) {
-                                                    JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
-                                                    JsonArray res = event_ssmatiere.right().getValue();
-                                                    for (int i = 0; i < reponseJA.size(); i++) {
-                                                        JsonObject matiere = reponseJA.getJsonObject(i);
-                                                        String id = matiere.getString("id");
-                                                        JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
-                                                        for (int j = 0; j < res.size(); j++) {
-                                                            JsonObject ssm = res.getJsonObject(j);
-                                                            if (ssm.getString("id_matiere").equals(id)) {
-                                                                ssms.add(ssm);
-                                                            }
-                                                        }
-                                                        matiere.put("sous_matieres", ssms);
-                                                        finalresponse.add(matiere);
-                                                    }
-
-                                                    if (message != null) {
-                                                        JsonArray _res = (onlyId)? new fr.wseduc.webutils.collections.JsonArray(ids):
-                                                                finalresponse;
-                                                        message.reply(new JsonObject()
-                                                                .put("status", "ok")
-                                                                .put("results",_res));
-                                                    } else {
-                                                        Renders.renderJson(request, finalresponse);
-                                                    }
-                                                }
-                                                else {
-                                                    if (message != null) {
-                                                        message.reply(new JsonObject()
-                                                                .put("status", "error")
-                                                                .put("message",
-                                                                        event_ssmatiere.left().getValue()));
-                                                    } else {
-                                                        leftToResponse(request, event_ssmatiere.left());
-                                                    }
-
-                                                }
-                                            }
-                                        });
-                            } else {
-                                if (request == null) {
-                                    matiereService.listMatieresEtab(structureId, onlyId,
-                                            new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> result) {
-                                            if (result.isRight()) {
-                                                message.reply(new JsonObject()
-                                                        .put("status", "ok")
-                                                        .put("results", result.right().getValue()));
-                                            } else {
-                                                message.reply(new JsonObject()
-                                                        .put("status", "error")
-                                                        .put("message", result.left().getValue()));
-                                            }
-                                        }
-                                    });
-
-                                }
-                                else {
-                                    matiereService.listMatieresEtab(structureId, onlyId, arrayResponseHandler(request));
-                                }
-                            }
-                        }else{
-                            leftToResponse(request, event.left());
-                        }
-                    }
-                });
     }
 
     /**
@@ -220,24 +111,9 @@ public class MatiereController extends ControllerHelper {
             public void handle(final UserInfos user){
                 if(user != null && null != request.params().get("idEtablissement")){
                     if("Personnel".equals(user.getType()) && null == request.params().get("isEnseignant")){
-                        final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        matiereService.listMatieresEtab(request.params().get("idEtablissement"), false, handler);
+                        matiereService.listMatieresEtab(request.params().get("idEtablissement"), false, arrayResponseHandler(request));
                     }else{
-                        utilsService.getTitulaires(request.params().get("idEnseignant"), user.getStructures().get(0),
-                                new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> event) {
-                                        if (event.isRight()) {
-                                            JsonArray oTitulairesIdList = event.right().getValue();
-                                            listMatieres(request.params().get("idEtablissement"),
-                                                    oTitulairesIdList, request,null,
-                                            null,false);
-                                        } else {
-                                            leftToResponse(request, event.left());
-                                        }
-                                    }
-                                }
-                        );
+                        matiereService.listAllMatieres(request.params().get("idEtablissement"), request.params().get("idEnseignant"), false, arrayResponseHandler(request));
                     }
                 }else{
 

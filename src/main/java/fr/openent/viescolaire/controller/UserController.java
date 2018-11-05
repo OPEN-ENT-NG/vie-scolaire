@@ -167,6 +167,22 @@ public class UserController extends ControllerHelper {
         });
     }
 
+    /**
+     * Retourne la liste des personnels dont l'id est passe en parametre
+     *
+     * @param request
+     */
+    @Get("/teachers")
+    @ApiDoc("Retourne la liste des enseignants pour un etablissement donne")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getTeachers(final HttpServerRequest request) {
+        if (request.params().contains("idEtablissement")) {
+            userService.getTeachers(request.params().get("idEtablissement"), arrayResponseHandler(request));
+        } else {
+            badRequest(request);
+        }
+    }
+
     @Get("/user/list")
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void list(final HttpServerRequest request) {

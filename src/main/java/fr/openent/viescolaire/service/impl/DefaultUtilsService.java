@@ -35,6 +35,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -531,5 +533,81 @@ public class DefaultUtilsService implements UtilsService{
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
     }
 
-}
+//    @Override
+//    public void getIdStructuresByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler){
+//        StringBuilder query = new StringBuilder();
+//        query.append("MATCH (s:Structure) WHERE s.externalId IN {id} RETURN s.id as structureIds");
+//        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(externalIdStructures)), Neo4jResult.validResultHandler(handler));
+//
+//    }
 
+    public JsonObject findWhere(JsonArray collection, JsonObject oCriteria) {
+
+        Integer matchNeeded = oCriteria.size();
+        Integer matchFound = 0;
+
+        for (Object o : collection) {
+            JsonObject object = (JsonObject) o;
+            for (Map.Entry<String, Object> criteriaValue : oCriteria.getMap().entrySet()) {
+                if (object.containsKey(criteriaValue.getKey()) && object.getValue(criteriaValue.getKey()).equals(criteriaValue.getValue())) {
+                    matchFound++;
+                    if (matchFound.equals(matchNeeded)) {
+                        return object;
+                    }
+                }
+            }
+            matchFound = 0;
+        }
+        return null;
+    }
+
+    public Object find(Iterable collection, Predicate predicate) {
+
+        for (Object o : collection) {
+            if (predicate.test(o)) {
+                return o;
+            }
+        }
+
+        return null;
+    }
+
+    public JsonArray filter(JsonArray collection, Predicate predicate) {
+        JsonArray result = new JsonArray();
+
+        for(Object o : collection) {
+            if(predicate.test(o)) {
+                result.add(o);
+            }
+        }
+
+        return result;
+    }
+
+    public Collection pluck(Iterable collection, String key) {
+        Set result = new HashSet();
+
+        for (Object o : collection) {
+            JsonObject castedO = (JsonObject) o;
+            if (castedO.containsKey(key)) {
+                if(castedO.getValue(key) instanceof Collection) {
+                    result.addAll((Collection) castedO.getValue(key));
+                } else {
+                    result.add(castedO.getValue(key));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public Collection map(Iterable collection, Function fct) {
+        List result = new ArrayList();
+
+        for(Object o : collection) {
+            result.add(fct.apply(o));
+        }
+
+        return result;
+    }
+}

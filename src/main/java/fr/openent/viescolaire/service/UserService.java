@@ -28,46 +28,46 @@ import java.util.List;
 /**
  * Created by ledunoiss on 08/11/2016.
  */
- public interface UserService {
+public interface UserService {
 
-     void getUserId(UserInfos user, Handler<Either<String, JsonObject>> handler);
+    void getUserId(UserInfos user, Handler<Either<String, JsonObject>> handler);
 
-     void getStructures(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getStructures(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-     void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-     void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler);
 
-     void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler);
+    void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler);
 
-     void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
+    void createPersonnesSupp(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Insertion des annotations NN sur les anciens des nouvelles classes
      * @param users : utilisateur connecté
      * @param handler handler comportant le resultat
      */
-     void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler);
+    void insertAnnotationsNewClasses(JsonArray users, Handler<Either<String, JsonObject>> handler);
 
     /**
      * Récupère les données des utilisateurs à supprimer
      * @param users : utilisateurs à supprimer
      * @param handler handler comportant le resultat
      */
-     void parseUsersData(JsonArray users, Handler<Either<String, JsonArray>> handler);
+    void parseUsersData(JsonArray users, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les établissements inactifs de l'utilisateur connecté
      * @param userInfos : utilisateur connecté
      * @param handler handler comportant le resultat
      */
-     void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
+    void getActivesIDsStructures(UserInfos userInfos,String module,Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupere les établissements inactifs de l'utilisateur connecté
      * @param handler handler comportant le resultat
      */
-     void getActivesIDsStructures( String module, Handler<Either<String, JsonArray>> handler);
+    void getActivesIDsStructures( String module, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Active un établissement
@@ -75,7 +75,7 @@ import java.util.List;
      * @param user : utilisateur connecté
      * @param handler handler comportant le resultat
      */
-     void createActiveStructure(String id,String module ,UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void createActiveStructure(String id,String module ,UserInfos user, Handler<Either<String, JsonArray>> handler);
 
     /**
      * met à jour les établissements inactifs de l'utilisateur connecté
@@ -83,21 +83,21 @@ import java.util.List;
      * @param module : le module
      * @param handler handler comportant le resultat
      */
-     void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
+    void deleteActiveStructure(String id,String module ,Handler<Either<String, JsonArray>> handler);
 
     /**
      *récupère UAI d'un établissement
      * @param idEtabl
      * @param handler
      */
-     void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
+    void getUAI(String idEtabl, Handler<Either<String,JsonObject>> handler);
 
     /**
      * récupère les infos des utilisateurs
      * @param idUsers
      * @param handler
      */
-     void getUsers(List<String> idUsers, Handler<Either<String,JsonArray>>handler);
+    void getUsers(List<String> idUsers, Handler<Either<String,JsonArray>>handler);
 
 
     /**
@@ -105,21 +105,21 @@ import java.util.List;
      * @param idsClass
      * @param handler
      */
-     void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
+    void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
 
     /**
      * Récupère les idDomaine, codification du domaine et le code des domaines
      * @param idClass
      * @param handler
      */
-     void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
+    void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler);
 
     /**
      *
      * @param idStructure
      * @param handler
      */
-     void getResponsablesDirection(String idStructure,Handler<Either<String,JsonArray>> handler);
+    void getResponsablesDirection(String idStructure,Handler<Either<String,JsonArray>> handler);
 
     /**
      * Retourne la liste des enfants pour un utilisateur donné
@@ -127,7 +127,7 @@ import java.util.List;
      * @param idUser  Id de l'utilisateur
      * @param handler Handler comportant le resultat de la requete
      */
-     void getEnfants(String idUser, Handler<Either<String, JsonArray>> handler);
+    void getEnfants(String idUser, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Retourne la liste des personnels pour une liste d'id donnée
@@ -135,7 +135,9 @@ import java.util.List;
      * @param idPersonnels  ids des personnels
      * @param handler Handler comportant le resultat de la requete
      */
-     void getPersonnels(List<String> idPersonnels, Handler<Either<String, JsonArray>> handler);
+    void getPersonnels(List<String> idPersonnels, Handler<Either<String, JsonArray>> handler);
+
+    void getTeachers(String idStructure, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère la liste des utilisateurs selon les paramètres précisés
@@ -150,6 +152,6 @@ import java.util.List;
      * @param user
      * @param eitherHandler
      */
-     void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
+    void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
 
 }

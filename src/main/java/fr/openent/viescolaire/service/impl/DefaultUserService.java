@@ -726,7 +726,17 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 .append("WHERE ANY (x IN u.profiles WHERE x IN ['Teacher', 'Personnel']) AND u.id IN {idPersonnel}")
                 .append("RETURN u.id as id, u.lastName as lastName, u.firstName as firstName, u.emailAcademy as emailAcademy");
         neo4j.execute(query.toString(), new JsonObject().put("idPersonnel", new fr.wseduc.webutils.collections.JsonArray(idPersonnels)), Neo4jResult.validResultHandler(handler));
+    }
 
+    /**
+     * Retourne la liste des enseignants pour une identifiant d'etablissement donne
+     *
+     * @param idEtablissement id de l'etablissement
+     * @param handler      Handler comportant le resultat de la requete
+     */
+    public void getTeachers(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH (:Structure {id: {idEtablissement}})-[:ADMINISTRATIVE_ATTACHMENT]-(u:User {profiles: ['Teacher']}) RETURN u";
+        neo4j.execute(query, new JsonObject().put("idEtablissement", idEtablissement), Neo4jResult.validResultHandler(handler));
     }
 
     @Override

@@ -39,15 +39,15 @@ public interface MatiereService extends CrudService {
      */
     void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
 
-    //TODO A SUPPRIMER
-    void listMatieres(String structureId, String id, JsonArray poTitulairesIdList,
-                      Handler<Either<String, JsonArray>> result);
+    void listMatieres(String structureId, JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe, Handler<Either<String, JsonArray>> result);
 
-    /**
-     * Récupère les enseignants en fonction d'une liste de matières données
-     * @param classesFieldOfStudy Liste de matières
-     * @param result handler portant le résulat de la requête
-     */
+    void listAllMatieres(String structureId, String idEnseignant, Boolean onlyId, Handler<Either<String, JsonArray>> handler);
+
+        /**
+         * Récupère les enseignants en fonction d'une liste de matières données
+         * @param classesFieldOfStudy Liste de matières
+         * @param result handler portant le résulat de la requête
+         */
     void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
 
     /**

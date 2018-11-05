@@ -23,10 +23,14 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public interface UtilsService {
 
@@ -39,9 +43,9 @@ public interface UtilsService {
      * @param <T>       type de la valeur a ajouter
      * @param <V>       type de la cle a laquelle ajouter la valeur
      */
-     <T, V> void addToMap(V value, T key, Map<T, List<V>> map);
+    <T, V> void addToMap(V value, T key, Map<T, List<V>> map);
 
-     JsonObject[] convertTo(Object[] value);
+    JsonObject[] convertTo(Object[] value);
 
     /**
      * Renvoie le type des groupes identifies par id. True si le groupe est une classe, false si c'est un groupe
@@ -49,12 +53,12 @@ public interface UtilsService {
      * @param idClasses       ids des groupes a identifier
      * @param handler          handler portant le resultat de la requete
      */
-     void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
+    void getTypeGroupe(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Get a Fix Color for a List of Classes name
      */
-     String getColor(String classes) ;
+    String getColor(String classes) ;
 
 
     /**
@@ -64,7 +68,7 @@ public interface UtilsService {
      * @param value valeur
      * @return Un object Json contenant les clés et les valeurs
      */
-     JsonObject mapListNumber(JsonArray list, String key, String value);
+    JsonObject mapListNumber(JsonArray list, String key, String value);
 
     /**
      * Map une JsonArray en un JsonObject contenant une clé et une valeur
@@ -73,7 +77,7 @@ public interface UtilsService {
      * @param value valeur
      * @return Un object Json contenant les clés et les valeurs
      */
-     JsonObject mapListString(JsonArray list, String key, String value);
+    JsonObject mapListString(JsonArray list, String key, String value);
 
     /**
      * Réalise une union de deux JsonArray de String
@@ -81,7 +85,7 @@ public interface UtilsService {
      * @param list Tableau à transférer
      * @return Un JsonArray contenant les deux tableau
      */
-     JsonArray saUnion(JsonArray recipient, JsonArray list);
+    JsonArray saUnion(JsonArray recipient, JsonArray list);
 
     /**
      * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
@@ -90,7 +94,7 @@ public interface UtilsService {
      * @param psIdEtablissement identifiant de l'établissement
      * @param handler handler portant le resultat de la requête : la liste des identifiants neo4j des titulaires
      */
-     void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
+    void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      *
@@ -101,7 +105,7 @@ public interface UtilsService {
      * @return
      */
     Handler<Message<JsonObject>> addStoredDeletedStudent(JsonArray idClasse,
-                                     String idStructure, String[] idEleves, String [] sortedField, Long idPeriode,
+                                                         String idStructure, String[] idEleves, String [] sortedField, Long idPeriode,
                                                          Handler<Either<String, JsonArray>> handler);
 
     /**
@@ -120,7 +124,7 @@ public interface UtilsService {
      * @return
      */
     Handler<Message<JsonObject>> getEleveWithClasseName(String[] idClasses, String[] idEleves, Long idPeriode,
-                                                               Handler<Either<String, JsonArray>> handler);
+                                                        Handler<Either<String, JsonArray>> handler);
     /**
      * Récupère les ids de classes et de groupes à partir de leur externalIds
      * @param externalIdStructures
@@ -134,4 +138,14 @@ public interface UtilsService {
      * @param handler
      */
     void getStructure(String idStructure, Handler<Either<String, JsonObject>> handler);
-    }
+
+    JsonObject findWhere(JsonArray collection, JsonObject oCriteria);
+
+    Object find(Iterable collection, Predicate predicate);
+
+    JsonArray filter(JsonArray collection, Predicate predicate);
+
+    Collection pluck(Iterable collection, String key);
+
+    Collection map(Iterable collection, Function fct);
+}

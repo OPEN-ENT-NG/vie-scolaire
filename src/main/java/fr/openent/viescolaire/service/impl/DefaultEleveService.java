@@ -22,6 +22,7 @@ import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.Utils;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
@@ -311,7 +312,9 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".cycle ON cycle.id = id_cycle ")
                 .append(" WHERE id_groupe = ? ");
         values.add(idClasse);
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values,
+                new DeliveryOptions().setSendTimeout(Viescolaire.TIME_OUT_HANDLER),
+                SqlResult.validResultHandler(handler));
     }
     @Override
     public void getAppreciationDevoir(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler){

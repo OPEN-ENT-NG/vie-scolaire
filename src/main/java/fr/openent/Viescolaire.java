@@ -78,6 +78,8 @@ public class Viescolaire extends BaseServer {
 	public static JsonObject UPDATE_CLASSES_CONFIG;
 	public static Long IMPORT_MAX_SIZE_OCTETS = 3000000L;
 
+	public static Long TIME_OUT_HANDLER = 600 * 1000L;
+
 	@Override
 	public void start() throws Exception {
 		super.start();

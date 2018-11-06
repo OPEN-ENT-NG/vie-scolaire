@@ -25,6 +25,7 @@ import fr.openent.viescolaire.service.PeriodeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.I18n;
+import io.vertx.core.eventbus.DeliveryOptions;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
@@ -89,7 +90,9 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         query.append("SELECT type, ordre FROM viesco.rel_type_periode WHERE id = ?");
         params.add(idTypePeriode);
 
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
+        Sql.getInstance().prepared(query.toString(), params,
+                new DeliveryOptions().setSendTimeout(Viescolaire.TIME_OUT_HANDLER),
+                SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> stringJsonArrayEither) {
                 if(stringJsonArrayEither.isRight()) {
@@ -359,7 +362,9 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         }
         query.append(" GROUP BY periode.id_type");
 
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values,
+                new DeliveryOptions().setSendTimeout(Viescolaire.TIME_OUT_HANDLER),
+                validResultHandler(handler));
     }
 
     @Override
@@ -392,7 +397,9 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
 
         query.append(" ORDER BY id_etablissement, id_classe, timestamp_dt ");
 
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values,
+                new DeliveryOptions().setSendTimeout(Viescolaire.TIME_OUT_HANDLER),
+                validResultHandler(handler));
     }
 
     @Override

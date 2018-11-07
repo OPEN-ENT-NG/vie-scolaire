@@ -99,7 +99,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     errorOver: false,
                     errorContig: false,
                     error: false,
-                    errorDateConseil: false,
                     errorDateConseilBeforeFnS: false
 
                 }
@@ -153,15 +152,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             errorObject.errorDateConseilBeforeFnS =
                 _.some(periodes,(periode) => {
                     return !moment(periode.date_conseil_classe).isSameOrAfter(moment(periode.date_fin_saisie),'days');
-                });
-
-            errorObject.errorDateConseil =
-                _.some(periodes,(periode,index) => {
-                    let validDateConseil = false;
-                    if (periodes[index + 1]) {
-                       validDateConseil = validDateConseil || moment(periode.date_conseil_classe).isAfter(moment(periodes[index + 1].timestamp_dt),'days');
-                    }
-                    return validDateConseil;
                 });
         };
 
@@ -264,7 +254,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         $scope.savePeriode = async (periodes) => {
 
-            if(!$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS && !$scope.lightboxPeriode.error.errorDateConseil) {
+            if(!$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS && !$scope.lightboxPeriode.error.errorDateConseilBeforeFnS) {
                 try {
                     await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
                     $scope.lightboxPeriode.show = false;

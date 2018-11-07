@@ -611,10 +611,6 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     if (timestamp_next.get(Calendar.DAY_OF_YEAR) - timestamp_fn.get(Calendar.DAY_OF_YEAR) > 1) {
                         errorList.get(i).put("errorContigNext", "La periode n'est pas contigue a la periode suivante.");
                     }
-                    if(date_conseil_classe.after(timestamp_next)){
-                        errorList.get(i).put("errorDateConseil", "La date du conseil de classe ne peut etre posterieure " +
-                                "a la date de debut de la prochaine periode.");
-                    }
                 }
                 // Erreur date_conseil_classe antérieure date_fin_saisie
                 if(date_conseil_classe.before(date_fin_saisie)){

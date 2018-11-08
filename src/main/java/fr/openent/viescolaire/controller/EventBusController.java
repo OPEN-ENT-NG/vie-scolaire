@@ -274,6 +274,11 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getResponsable(idEleve, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getGroups": {
+                String idEleve = message.body().getString("idEleve");
+                eleveService.getGroups(idEleve, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

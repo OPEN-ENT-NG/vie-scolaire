@@ -181,22 +181,34 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
 
     @Override
-    public void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
+    public void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
+        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
                 .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
                 .append(", type.nom as _type_libelle ")
                 .append(" FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
                 .append(" inner JOIN notes.annotations on annotations.id = id_annotation ")
-                .append(" inner join notes.type on devoirs.id_type = type.id  ")
-                .append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
+                .append(" inner join notes.type on devoirs.id_type = type.id  ");
+
+        if(idGroups != null) {
+            query.append(" inner JOIN notes.rel_devoirs_groupes on  devoirs.id = rel_devoirs_groupes.id_devoir ");
+            query.append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            for (int i = 0; i < idGroups.size(); i++) {
+                values.add(idGroups.getString(i));
+            }
+        }
+
+
+
+        query.append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
         values.add(idEleve);
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
             values.add(idPeriode);
         }
+
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
     @Override

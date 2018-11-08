@@ -89,6 +89,7 @@ public interface EleveService extends CrudService {
     /**
      * Récupère les competences-notes des devoirs d'un élève.
      * @param idEleve
+     * @param idGroups groupes et classes
      * @param result
      */
     void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle,
@@ -97,9 +98,10 @@ public interface EleveService extends CrudService {
     /**
      * Récupère les annotations sur les devoirs d'un élève.
      * @param idEleve
+     * @param idGroups groupes et classes
      * @param result
      */
-    void getAnnotations(String idEleve, Long idPeriode, Handler<Either<String, JsonArray>> result);
+    void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, Handler<Either<String, JsonArray>> result);
 
     /**
      *

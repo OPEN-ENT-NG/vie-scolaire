@@ -26,12 +26,12 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import org.entcore.common.controller.ControllerHelper;
-import org.entcore.common.http.filter.ResourceFilter;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
@@ -142,11 +142,37 @@ public class EleveController extends ControllerHelper {
     public void getAnnotationStudent(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         String idEleve = request.params().get("idEleve");
+        String idClasse = request.params().get("idClasse");
         Long idPeriode = null;
         if (request.params().get("idPeriode") != null) {
             idPeriode = testLongFormatParameter("idPeriode", request);
         }
-        eleveService.getAnnotations(idEleve,idPeriode,handler);
+        final Long fIdePeriode = idPeriode;
+
+
+        if(idClasse != null) {
+            eleveService.getGroups(idEleve, new Handler<Either<String, JsonArray>>() {
+                @Override
+                public void handle(Either<String, JsonArray> event) {
+
+                    JsonArray idGroups = new fr.wseduc.webutils.collections.JsonArray().add(idClasse);
+                    if (event.isRight()) {
+                        JsonArray values = event.right().getValue();
+                        if (values.size() > 0) {
+                            for (int i=0; i < values.size(); i++) {
+                                JsonObject o = values.getJsonObject(i);
+                                idGroups.add(o.getString("id_groupe"));
+                            }
+                        }
+                    }
+
+                    eleveService.getAnnotations(idEleve,fIdePeriode,idGroups, handler);
+                }
+            });
+        } else {
+            eleveService.getAnnotations(idEleve,fIdePeriode, null, handler);
+        }
+
     }
 
     @Get("/competences/eleve/:idEleve")

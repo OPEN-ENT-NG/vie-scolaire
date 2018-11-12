@@ -541,7 +541,7 @@
   "evaluation.bilan.periodique.modification.AP":"La modification de cet AP entraînera la suppression des appréciations rattachées.",
   "evaluation.bilan.periodique.modification.parcours":"La modification de ce parcours entraînera la suppression des appréciations rattachées.",
   "evaluation.bilan.periodique.supp.impossible":"Suppression impossible, le thème sélectionné est déjà utilisé par un EPI.",
-  "evaluation.bilan.periodique.creation.impossible":"Création impossible, ce code est déjà utilisé par un thème personnalisé.",
+  "evaluation.bilan.periodique.creation.impossible":"Création impossible, ce thème personnalisé existe déjà.",
   "evaluation.link.no.cycle":"Veuillez choisir un cycle.",
   "evaluation.link.notset":"Non itinialisés",
   "format.attachment":"format accepté",

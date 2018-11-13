@@ -274,6 +274,11 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getResponsable(idEleve, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getEleveClasse": {
+                String idClass = message.body().getString("idClass");
+                eleveService.getEleveClasse(idClass, getJsonArrayBusResultHandler(message));
+            }
+            break;
             case "getGroups": {
                 String idEleve = message.body().getString("idEleve");
                 eleveService.getGroups(idEleve, getJsonArrayBusResultHandler(message));

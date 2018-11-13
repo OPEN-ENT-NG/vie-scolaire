@@ -612,11 +612,6 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                         errorList.get(i).put("errorContigNext", "La periode n'est pas contigue a la periode suivante.");
                     }
                 }
-                // Erreur date_conseil_classe antérieure date_fin_saisie
-                if(date_conseil_classe.before(date_fin_saisie)){
-                    errorList.get(i).put("errorDateConseilBeforeFnS", "La date du conseil de classe ne peut" +
-                            " etre anterieur a la date de fin de saisie.");
-                }
             } catch(ParseException e){
                 errorList.get(i).put("errorParsing", "Parsing Error");
             }

@@ -141,7 +141,7 @@ public class ClasseController extends BaseController {
                         classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                     }
 
-                    classeService.listClasses(idEtablissement, classOnly, user, new Handler<Either<String, JsonArray>>() {
+                    classeService.listClasses(idEtablissement, classOnly, user, null, new Handler<Either<String, JsonArray>>() {
                         @Override
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {

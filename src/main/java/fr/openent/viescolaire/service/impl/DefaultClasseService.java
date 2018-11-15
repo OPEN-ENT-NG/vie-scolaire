@@ -127,6 +127,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     //TODO Revoir avec getEleveClasse
+    // deprecated ?
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Long idPeriode, Boolean isTeacher,
                                 Handler<Either<String, JsonArray>> handler){
@@ -172,13 +173,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     }
 
-    /**
-     * Récupère la liste des classes de l'utilisateur
-     * @param user
-     * @param handler handler portant le résultat de la requête
-     */
-    @Override
-    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+
+    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
+                                 JsonArray idClassesAndGroups, Handler<Either<String, JsonArray>> handler) {
+
+        // TODO ajouter filtre sur classes/groupes
+        // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+
+
         String query;
         JsonObject params = new JsonObject();
         // Dans le cas du chef d'établissement, on récupère toutes les classes
@@ -191,9 +193,16 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String paramGroupManuel = "";
         if(null == user || "Personnel".equals(user.getType())){
             paramGroupManuel =  paramEtab;
+
+            if(null == user && idClassesAndGroups != null) {
+                paramGroupManuel += " AND m.id IN {idClassesAndGroups}";
+            }
+
         } else {
             paramGroupManuel =  paramGroup + " AND " + paramEtab;
         }
+
+
 
         String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->"
                 +"(s:Structure)" +
@@ -214,9 +223,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         if (null == user || "Personnel".equals(user.getType())) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
-            params.put("idEtablissement", idEtablissement)
-                    .put("idEtablissement", idEtablissement)
-                    .put("idEtablissement", idEtablissement);
+            params.put("idEtablissement", idEtablissement);
+
+            if(null == user && idClassesAndGroups != null) {
+                params.put("idClassesAndGroups", idClassesAndGroups);
+            }
+
+
         } else {
             param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
             param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";

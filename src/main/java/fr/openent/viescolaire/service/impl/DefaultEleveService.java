@@ -154,7 +154,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 // Format de Retour des données
                 .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
                 .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
-                .append(" u.birthDate as birthDate, ")
+                .append(" u.birthDate as birthDate, u.level as level, ")
                 .append(" COLLECT(f.id) as idGroupes, ")
                 .append(" COLLECT(g.id) as idManualGroupes")
                 .append(" ORDER BY lastName, firstName ");

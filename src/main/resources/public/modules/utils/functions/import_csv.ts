@@ -17,7 +17,7 @@ export let importAttachments = (fichiers, $scope) => {
     $scope.newAttachments = (fichiers !== undefined)? fichiers : [];
     const promises: Promise<any>[] = [];
 
-    if($scope.import.classe !== undefined && $scope.import.periode != undefined) {
+    if($scope.import.periode != undefined) {
 
         $scope.homonymes = [];
         safeApply($scope);
@@ -28,9 +28,9 @@ export let importAttachments = (fichiers, $scope) => {
             const formData = new FormData();
             formData.append('file', attachmentObj.file);
 
-            let idPeriode = $scope.import.periode.id_type;
-            let idClasse = $scope.import.classe.id;
-            let url = `/viescolaire/import/evenements/${idClasse}/${idPeriode}`;
+            let idPeriode = $scope.import.periode.id;
+            let idEtablissement = $scope.structure.id;
+            let url = `/viescolaire/import/evenements?idPeriode=${idPeriode}&idEtablissement=${idEtablissement}`;
             const promise = http.post(url, formData, {
                 onUploadProgress: (e: ProgressEvent) => {
                     if (e.lengthComputable) {
@@ -80,7 +80,7 @@ export let importAttachments = (fichiers, $scope) => {
         }
     }
     else {
-        notify.info('please.set.periode.and.classe');
+        notify.info('please.set.periode');
     }
     return Promise.all(promises);
 };

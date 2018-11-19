@@ -24,6 +24,7 @@ import {CategorieAppel} from "../models/personnel/CategorieAppel";
 import * as utils from '../../utils/functions/safeApply';
 import {getFormatedDate} from "../../utils/functions/formatDate";
 import {Periode} from "../models/common/Periode";
+import {TypePeriode} from "../models/common/TypePeriode";
 import {Utils} from "../utils/Utils";
 
 export let viescolaireController = ng.controller('ViescolaireController', [
@@ -176,11 +177,25 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id_type});
             }
         };
+
+        $scope.getImportOrdreTypePeriode = (periode: TypePeriode) => {
+            if (periode !== undefined) {
+                return _.findWhere($scope.structure.typePeriodes.all, {id: periode.id});
+            }
+        };
+
         $scope.displayPeriode = function (periode) {
             return $scope.getI18n("viescolaire.periode." +
                 $scope.getOrdreTypePeriode(periode).type) + " " +
                 $scope.getOrdreTypePeriode(periode).ordre;
         };
+
+        $scope.displayImportPeriode = function (periode) {
+            return $scope.getI18n("viescolaire.periode." +
+                $scope.getImportOrdreTypePeriode(periode).type) + " " +
+                $scope.getImportOrdreTypePeriode(periode).ordre;
+        };
+
         $scope.getSelectedClasse = () => {
             return _.where($scope.structure.classes.all, {selected: true});
         };
@@ -556,7 +571,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 }
             }
         });
-
 
     }
 ]);

@@ -370,6 +370,11 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     @Override
     public void getPeriodesClasses(String idEtablissement, String[] idClasses,
                                    final Handler<Either<String, JsonArray>> handler) {
+        getPeriodesClasses(idEtablissement, idClasses, null, handler);
+    }
+
+    public void getPeriodesClasses(String idEtablissement, String[] idClasses,
+                                   Long idPeriode, final Handler<Either<String, JsonArray>> handler) {
 
         if (idEtablissement == null && (idClasses == null || idClasses.length == 0)) {
             handler.handle(new Either.Left<String, JsonArray>("getPeriodesClasses : No parameter given."));
@@ -394,7 +399,14 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 values.add(id_classe);
             }
         }
-
+        if(idPeriode != null && (idEtablissement != null || (idClasses != null && idClasses.length > 0))) {
+            query.append(" AND ");
+        }
+        if(idPeriode != null)
+        {
+            query.append("periode.id_type = ? ");
+            values.add(idPeriode);
+        }
         query.append(" ORDER BY id_etablissement, id_classe, timestamp_dt ");
 
         Sql.getInstance().prepared(query.toString(), values,

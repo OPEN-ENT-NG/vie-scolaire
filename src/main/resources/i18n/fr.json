@@ -508,7 +508,7 @@
 
   "presence.personnel.cours.empty":"Il n'existe pas de cours correspondant à votre recherche",
   "presence.devoir.ok":"Ok",
-  "please.set.periode.and.classe": "La période et la classe sont obligatoires",
+  "please.set.periode": "La période est obligatoire",
   "delete.annotation":"Supprime l'annotation pour revenir à la saisie de notes/compétences.",
   "add.annotation":"Ajouter une annotation. Sélectionner 'Evaluer' pour enlever l'annotation.",
   "no.annotation":"Evaluer",
@@ -542,6 +542,7 @@
   "evaluation.bilan.periodique.modification.parcours":"La modification de ce parcours entraînera la suppression des appréciations rattachées.",
   "evaluation.bilan.periodique.supp.impossible":"Suppression impossible, le thème sélectionné est déjà utilisé par un EPI.",
   "evaluation.bilan.periodique.creation.impossible":"Création impossible, ce thème personnalisé existe déjà.",
+  "evaluation.bilan.periodique.already.exist":"Création impossible, un projet avec le même intitulé a déjà été saisi pour cet établissement et ce type de projet.",
   "evaluation.link.no.cycle":"Veuillez choisir un cycle.",
   "evaluation.link.notset":"Non itinialisés",
   "format.attachment":"format accepté",
@@ -552,7 +553,7 @@
   "import.students": " élève(s), ",
   "import.user.not.insert":" utilisateur(s) n'ont pas pu être inséré(s).",
   "import.homonyme.detected": "HOMONYMES DETECTÉS",
-  "import.homonyme.message": " Les retards et absences des élèves suivants n'ont pas étés insérés car des homonymes ont étés détectés: ",
+  "import.homonyme.message": " Les retards et absences des élèves suivants n'ont pas été insérés car des homonymes ont été détectés : ",
   "import.add.file" : "Ajouter un fichier",
   "import.list.of.files": "Liste des fichiers",
   "in.file":"Dans le fichier "

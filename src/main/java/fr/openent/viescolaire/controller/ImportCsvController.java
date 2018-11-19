@@ -1,30 +1,19 @@
 package fr.openent.viescolaire.controller;
 
-import com.opencsv.CSVReader;
-import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.ImportCsvService;
 import fr.openent.viescolaire.service.impl.DefaultImportCsvService;
 import fr.wseduc.rs.Post;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.storage.Storage;
-import org.entcore.common.storage.StorageFactory;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.EmptyStackException;
 
 public class ImportCsvController extends ControllerHelper {
     private ImportCsvService importCsvService;
@@ -35,7 +24,7 @@ public class ImportCsvController extends ControllerHelper {
         this.storage = storage;
     }
 
-    @Post("/import/evenements/:idClasse/:idPeriode")
+    @Post("/import/evenements")
     @SecuredAction("import.retards.and.absences")
     public void importRetadsAndAbsences(final HttpServerRequest request) throws IOException {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -45,10 +34,9 @@ public class ImportCsvController extends ControllerHelper {
                     unauthorized(request);
                     return;
                 }
-
-                String idClasse = request.params().get("idClasse");
+                String idEtablissement = request.params().get("idEtablissement");
                 Long idPeriode = Long.valueOf(request.params().get("idPeriode"));
-                importCsvService.importAbsencesAndRetard(idClasse, idPeriode, storage, request,
+                importCsvService.importAbsencesAndRetard(idEtablissement, idPeriode, storage, request,
                         new Handler<Either<String, JsonObject>>() {
                     @Override
                     public void handle(Either<String, JsonObject> event) {

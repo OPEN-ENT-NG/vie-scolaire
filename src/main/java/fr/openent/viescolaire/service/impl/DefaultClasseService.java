@@ -128,7 +128,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     //TODO Revoir avec getEleveClasse
     @Override
-    public void getEleveClasses(String idEtablissement, JsonArray idClasse, Boolean isTeacher,
+    public void getEleveClasses(String idEtablissement, JsonArray idClasse, Long idPeriode, Boolean isTeacher,
                                 Handler<Either<String, JsonArray>> handler){
 
         StringBuilder query = new StringBuilder();
@@ -167,7 +167,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 utilsService.addStoredDeletedStudent(isTeacher? idClasse : null,
                         !isTeacher? idEtablissement :null,
                         null,
-                        sortedField, null,
+                        sortedField, idPeriode,
                         handler));
 
     }

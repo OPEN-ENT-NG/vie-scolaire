@@ -103,7 +103,7 @@ public class ClasseController extends BaseController {
                         Boolean isTeacher = "Teacher".equals(user.getType());
                         String idEtablissement = request.params().get("idEtablissement");
 
-                        classeService.getEleveClasses(idEtablissement, idClasseArray, isTeacher, handler);
+                        classeService.getEleveClasses(idEtablissement, idClasseArray, null, isTeacher, handler);
                     }
                 } else {
                     unauthorized(request);

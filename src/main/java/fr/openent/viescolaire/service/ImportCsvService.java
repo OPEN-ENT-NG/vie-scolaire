@@ -8,6 +8,6 @@ import io.vertx.core.json.JsonObject;
 import org.entcore.common.storage.Storage;
 
 public interface ImportCsvService {
-    void importAbsencesAndRetard(String idClasse, Long idPeriode, Storage storage,
+    void importAbsencesAndRetard(String idEtablissement, Long idPeriode, Storage storage,
                                  HttpServerRequest request,  Handler<Either<String, JsonObject>> handler);
 }

@@ -4,20 +4,6 @@
             <article class="row">
 
                 <div class="six cell">
-                    <!-- Classe -->
-                    <div class="twelve cell">
-                        <div class="six cell">
-                        <span>
-                            <i18n>viescolaire.utils.classe</i18n>
-                            <i class="asterisk obligatoire"></i>
-                        </span>
-                            <label  class="select right-magnet">
-                                <select ng-model="import.classe"
-                                        ng-options="c.name for c in structure.classes.all | orderBy : 'name'">
-                                </select>
-                            </label>
-                        </div>
-                    </div>
 
                     <!-- periode -->
                     <div class="twelve cell">
@@ -28,21 +14,22 @@
                     </span>
                             <label  class="select right-magnet">
                                 <select ng-model="import.periode"
-                                        ng-options="displayPeriode(p) for p in import.classe.periodes.all | orderBy : 'ordre'">
+                                        ng-options="displayImportPeriode(p) for p in structure.typePeriodes.all | orderBy : ['type', 'ordre'] ">
+                                    <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.periode')]]</option>
                                 </select>
                             </label>
                         </div>
                     </div>
-                    <div class="twelve cell">
-                        <div ng-if="import.periode !== undefined && import.classe !== undefined"
-                             class="three cell sous-titre"><i18n>viescolaire.from</i18n>
-                            [[ formatDatePeriode(import.periode.timestamp_dt) ]]
-                        </div>
-                        <div ng-if="import.periode !== undefined && import.classe !== undefined"
-                             class="three cell sous-titre"><i18n>viescolaire.to</i18n>
-                            [[ formatDatePeriode(import.periode.timestamp_fn) ]]
-                        </div>
-                    </div>
+                    <!--<div class="twelve cell">-->
+                        <!--<div ng-if="import.periode !== undefined"-->
+                             <!--class="three cell sous-titre"><i18n>viescolaire.from</i18n>-->
+                            <!--[[ formatDatePeriode(import.periode.timestamp_dt) ]]-->
+                        <!--</div>-->
+                        <!--<div ng-if="import.periode !== undefined"-->
+                             <!--class="three cell sous-titre"><i18n>viescolaire.to</i18n>-->
+                            <!--[[ formatDatePeriode(import.periode.timestamp_fn) ]]-->
+                        <!--</div>-->
+                    <!--</div>-->
 
 
                     <!-- attachment list loaded -->
@@ -106,7 +93,7 @@
                                 </div>
                                 <ul>
                                     <li ng-repeat="eleve in object.eleves">
-                                        [[eleve.firstName]]&nbsp;[[eleve.lastName]]
+                                        [[eleve.firstName]]&nbsp;[[eleve.lastName]],&nbsp;<i18n>viescolaire.utils.classe</i18n>&nbsp;[[eleve.name]]
                                     </li>
                                 </ul>
                             </article>

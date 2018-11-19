@@ -57,7 +57,7 @@ public interface ClasseService extends CrudService {
      * @param isTeacher
      * @param handler
      */
-    void getEleveClasses(String idEtablissement, JsonArray idClasse,
+    void getEleveClasses(String idEtablissement, JsonArray idClasse, Long idPeriode,
                          Boolean isTeacher,Handler<Either<String, JsonArray>> handler);
 
 

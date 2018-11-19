@@ -19,16 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultImportCsvService implements ImportCsvService {
     protected static final Logger log = LoggerFactory.getLogger(DefaultImportCsvService.class);
 
     @Override
-    public void importAbsencesAndRetard(String idClasse, Long idPeriode, Storage storage,
+    public void importAbsencesAndRetard(String idEtablissement, Long idPeriode, Storage storage,
                                         HttpServerRequest request, Handler<Either<String, JsonObject>> handler){
         storage.writeUploadFile(request, Viescolaire.IMPORT_MAX_SIZE_OCTETS, new Handler<JsonObject>() {
             public void handle(final JsonObject uploaded) {
@@ -36,22 +33,37 @@ public class DefaultImportCsvService implements ImportCsvService {
                     handler.handle(new Either.Left(uploaded.getString("message")));
                     return;
                 }
-                // Récupération des élèves de la classe
-                new DefaultClasseService().getEleveClasse(idClasse, idPeriode,
-                        new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event) {
-                                if(event.isLeft()) {
-                                    handler.handle(new Either.Left(event.left()));
-                                    return;
-                                }
-                                else {
-                                    JsonArray students = event.right().getValue();
-                                    // On lance la sauvegarde des données en focntion des ids récupérés dans Neo
-                                    saveImportData(storage, uploaded, students, idPeriode, handler);
-                                }
+                new DefaultPeriodeService().getPeriodesClasses(idEtablissement, null, idPeriode, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if(event.isLeft()) {
+                            handler.handle(new Either.Left(event.left().getValue()));
+                            return;
                             }
-                        });
+                            else {
+                            JsonArray classes = event.right().getValue();
+                            ArrayList<String> idClasse = new ArrayList();
+
+                            for(Object o : classes) {
+                                JsonObject classe = (JsonObject) o;
+
+                                idClasse.add(classe.getString("id_classe"));
+                                }
+                                 new DefaultClasseService().getElevesClasses(idClasse.toArray(new String[0]), idPeriode, new Handler<Either<String, JsonArray>>() {
+                                     @Override
+                                     public void handle(Either<String, JsonArray> event) {
+                                         if (event.isLeft()) {
+                                             handler.handle(new Either.Left(event.left()));
+                                             return;
+                                         } else {
+                                             // On lance la sauvegarde des données en fonction des ids récupérés dans Neo
+                                             saveImportData(storage, uploaded, event.right().getValue(), idPeriode, handler);
+                                         }
+                                     }
+                                 });
+                        }
+                    }
+                });
             }
         });
     }
@@ -124,7 +136,7 @@ public class DefaultImportCsvService implements ImportCsvService {
                                         JsonObject student = findStudent(students, displayName, isUTF8);
                                         String idEleve = null;
                                         if(student != null) {
-                                            idEleve = student.getString("id");
+                                            idEleve = student.getString("idEleve");
                                         }
                                         else {
                                             notInsertedEleves.add(displayName);

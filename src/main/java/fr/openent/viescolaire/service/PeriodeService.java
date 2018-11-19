@@ -104,6 +104,9 @@ public interface PeriodeService extends CrudService {
     public void getPeriodesClasses(String idEtablissement, String[] idClasses,
                                    Handler<Either<String, JsonArray>> handler);
 
+    public void getPeriodesClasses(String idEtablissement, String[] idClasses,
+                                   Long idPeriode, Handler<Either<String, JsonArray>> handler);
+
     /**
      *
      * @param idEtablissement identifiant de l'etablissement

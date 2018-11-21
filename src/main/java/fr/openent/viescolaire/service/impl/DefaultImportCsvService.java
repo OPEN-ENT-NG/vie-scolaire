@@ -195,7 +195,11 @@ public class DefaultImportCsvService implements ImportCsvService {
                                     if(currentStudent != null) {
                                         hasHomonyme = currentStudent.getBoolean("hasHomonyme");
                                         if (hasHomonyme != null && hasHomonyme == true) {
+
+                                            boolean exist = existHomonyme(homonymes, currentStudent);
+                                            if(!exist) {
                                             homonymes.add(currentStudent);
+                                        }
                                         }
                                         else {
                                             if (v.size() == 1) {
@@ -233,15 +237,33 @@ public class DefaultImportCsvService implements ImportCsvService {
                         System.out.println("PB ");
                     }
                 }
+
             });
         }
     }
 
+    private static boolean existHomonyme (JsonArray homonymes, JsonObject currentStudent) {
+        boolean exist = false;
+
+        for (Object o : homonymes) {
+            JsonObject homo = ((JsonObject) o);
+            if (homo.getString("firstName").equals(currentStudent.getString("firstName")) &&
+                    homo.getString("lastName").equals(currentStudent.getString("lastName"))) {
+                exist = true;
+                break;
+            }
+        }
+
+        return exist;
+
+    }
+
     private JsonObject findStudent(JsonArray students, String displayName, Boolean isUTF8){
         JsonObject student = null;
+        JsonObject homonymeStudent = null;
 
         displayName = (isUTF8)? displayName : displayName.replaceAll("[^\\w\\s]","");
-        Boolean hasHomonyme = false;
+        boolean hasHomonyme = false;
         for (int i=0; i<students.size(); i++){
             String _displayName = students.getJsonObject(i).getString("lastName") + " " +
                     students.getJsonObject(i).getString("firstName");
@@ -250,13 +272,30 @@ public class DefaultImportCsvService implements ImportCsvService {
 
             if(displayName.equals(_displayName)){
                 student = students.getJsonObject(i);
-                if (hasHomonyme == true) {
-                    student.put("hasHomonyme", true);
-                    break;
+
+                // si hasHomonyme est valorisé à true c'est qu'on a déjà trouvé cet eleve auparavant
+                if (hasHomonyme) {
+                    String classesName = homonymeStudent.getString("classesName") + ", " + student.getString("name");
+                    homonymeStudent.put("classesName", classesName);
+                    homonymeStudent.put("hasHomonyme", true);
+               } else {
+                    // construction d'un potentiel homonyme
+                    homonymeStudent = student.copy();
+                    String classeName = student.getString("name");
+                    homonymeStudent.put("classesName", classeName);
                 }
                 hasHomonyme = true;
+
             }
         }
+
+        if(homonymeStudent != null &&
+                homonymeStudent.getBoolean("hasHomonyme") != null
+                && homonymeStudent.getBoolean("hasHomonyme")) {
+            return homonymeStudent;
+        } else {
         return student;
+    }
+
     }
 }

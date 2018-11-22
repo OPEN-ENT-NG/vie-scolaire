@@ -39,10 +39,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -219,8 +216,32 @@ public class ClasseController extends BaseController {
                                     .put("aIdEnseignant", new JsonArray().add(user.getUserId()));
                             eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
                                 if ("ok".equals(message.body().getString("status"))) {
-                                    Set uniqId = new HashSet<>(utilsService.pluck(message.body().getJsonArray("results"), "id_groupe"));
-                                    classeService.getClassesInfo(new JsonArray(new ArrayList(uniqId)), classes -> {
+
+                                    Set<String> toDelete = new HashSet<>();
+                                    Set<String> toAdd = new HashSet<>();
+
+                                    message.body().getJsonArray("results").stream().forEach(service -> {
+                                        JsonObject serviceObj = (JsonObject) service;
+                                        if(serviceObj.getBoolean("evaluable")) {
+                                            toAdd.add(serviceObj.getString("id_groupe"));
+                                        } else {
+                                            toDelete.add(serviceObj.getString("id_groupe"));
+                                        }
+                                    });
+                                    toDelete.removeAll(toAdd);
+
+                                    Iterator iter = event.right().getValue().iterator();
+                                    while (iter.hasNext()) {
+                                        JsonObject classe = (JsonObject) iter.next();
+                                        if (toAdd.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
+                                            toAdd.remove(classe.getJsonObject("m").getJsonObject("data").getString("id"));
+                                        }
+                                        if(toDelete.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
+                                            iter.remove();
+                                        }
+                                    }
+
+                                    classeService.getClassesInfo(new JsonArray(new ArrayList(toAdd)), classes -> {
                                         if(classes.isRight() && classes.right().getValue().size() > 0) {
                                             JsonArray mappedClasses = new JsonArray(
                                                     (List) classes.right().getValue().getList().stream().map(classe -> {
@@ -234,17 +255,7 @@ public class ClasseController extends BaseController {
                                                     }
                                             ).collect(Collectors.toList()));
                                             event.right().getValue().addAll(mappedClasses);
-
-                                            Set<String> idClasseSeen = new HashSet<>();
-                                            JsonArray result = new JsonArray();
-                                            for(Object classe : event.right().getValue()) {
-                                                JsonObject classeObject = (JsonObject) classe;
-                                                if(!idClasseSeen.contains(classeObject.getJsonObject("m").getJsonObject("data").getString("id"))) {
-                                                    idClasseSeen.add(classeObject.getJsonObject("m").getJsonObject("data").getString("id"));
-                                                    result.add(classeObject);
-                                                }
-                                            }
-                                            finalHandler.handle(new Either.Right<>(result));
+                                            finalHandler.handle(event.right());
                                         } else if (classes.isRight()) {
                                             finalHandler.handle(event.right());
                                         } else {

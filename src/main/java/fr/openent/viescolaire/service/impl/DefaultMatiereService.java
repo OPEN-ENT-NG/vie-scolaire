@@ -32,6 +32,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
@@ -216,7 +217,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         return matieres -> {
             if(matieres.isRight() && matieres.right().getValue().size() > 0) {
                 Set<Service> aMatieres = new HashSet<>();
-                aMatieres.addAll(utilsService.map(matieres.right().getValue(), serv -> new Service((JsonObject) serv)));
+                aMatieres.addAll(matieres.right().getValue().stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
 
                 JsonObject action = new JsonObject()
                         .put("action", "service.getServices")
@@ -229,10 +230,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
                             if ("ok".equals(body.getString("status"))) {
                                 Set<Service> aServices = new HashSet<>();
-                                aServices.addAll(utilsService.map(body.getJsonArray("results"), serv -> new Service((JsonObject) serv)));
+                                aServices.addAll(body.getJsonArray("results").stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
 
                                 Set idClasses = new HashSet();
-                                idClasses.addAll(utilsService.pluck(matieres.right().getValue(), "idClasses"));
+                                utilsService.pluck(matieres.right().getValue(), "idClasses").forEach(array -> idClasses.addAll(((JsonArray) array).getList()));
                                 idClasses.addAll(utilsService.pluck(body.getJsonArray("results"), "id_groupe"));
 
                                 Set idMatieres = new HashSet<>();
@@ -261,10 +262,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                                                     }
                                                 }
 
-                                                handler.handle(new Either.Right<>(new JsonArray(new ArrayList(utilsService.map(aMatieres, mat -> {
-                                                    ((Service) mat).fillMissingValues(newMatieres, classes);
-                                                    return ((Service) mat).toJson();
-                                                })))));
+                                                handler.handle(new Either.Right<>(new JsonArray(new ArrayList(aMatieres.parallelStream().filter(oMat -> !oMat.idClasses.isEmpty()).map(oMat -> {
+                                                    oMat.fillMissingValues(newMatieres, classes);
+                                                    return oMat.toJson();
+                                                }).collect(Collectors.toList())))));
                                             } else {
                                                 handler.handle(matieresEvent.left());
                                             }
@@ -330,7 +331,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         public void fillMissingValues(JsonArray matieres, JsonArray classes) {
             JsonArray classeToKeep = utilsService.filter(classes, classe -> this.idClasses.contains(((JsonObject) classe).getString("id")));
-            this.libelleClasses.addAll(utilsService.pluck(classeToKeep, "externalId"));
+            this.libelleClasses = new HashSet(utilsService.pluck(classeToKeep, "externalId"));
 
             JsonObject matiere = utilsService.findWhere(matieres, new JsonObject().put("id", this.idMatiere));
             this.name = matiere.getString("name");

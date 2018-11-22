@@ -206,6 +206,9 @@ public class DefaultImportCsvService implements ImportCsvService {
                                                 statements.prepared(v.getJsonObject(0).getString("query"),
                                                         v.getJsonObject(0).getJsonArray("params"));
                                             } else if (v.size() > 1) {
+                                                // cas plusieurs homonymes dans le fichier csv mais pas forcément dans le NEO4J (eleve changement classe / supprimé)
+                                                String classeName = currentStudent.getString("name");
+                                                currentStudent.put("classesName", classeName);
                                                 homonymes.add(currentStudent);
                                             }
                                         }

@@ -27,6 +27,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.eventbus.EventBus;
 
 import java.util.List;
 
@@ -47,6 +48,17 @@ public class EventBusController extends ControllerHelper {
         userService = new DefaultUserService(eb);
         eleveService = new DefaultEleveService();
         matiereService = new DefaultMatiereService(this.eb);
+        periodeService = new DefaultPeriodeService();
+        eventService = new DefaultEventService();
+        utilsService = new DefaultUtilsService();
+    }
+
+    public EventBusController(EventBus _eb) {
+        groupeService = new DefaultGroupeService();
+        classeService = new DefaultClasseService();
+        userService = new DefaultUserService(_eb);
+        eleveService = new DefaultEleveService();
+        matiereService = new DefaultMatiereService(_eb);
         periodeService = new DefaultPeriodeService();
         eventService = new DefaultEventService();
         utilsService = new DefaultUtilsService();

@@ -108,7 +108,7 @@ public class Viescolaire extends BaseServer {
 		addController(new UserController());
 		addController(new ImportCsvController(storage));
 
-        addController(new EventBusController());
+        addController(new EventBusController(eb));
 
         setRepositoryEvents(new VieScolaireRepositoryEvents(eb));
 	}

@@ -18,7 +18,6 @@ export let importAttachments = (fichiers, $scope) => {
     const promises: Promise<any>[] = [];
 
     if($scope.import.periode != undefined) {
-
         $scope.homonymes = [];
         safeApply($scope);
 

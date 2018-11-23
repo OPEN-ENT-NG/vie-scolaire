@@ -301,9 +301,13 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
         $scope.deleteAttachment = function (filemame) {
             deleteAttachment(filemame, $scope);
         };
-        $scope.importAttachments =  function (fichiers, hasHomonymes) {
+        $scope.importAttachments =  async function (fichiers, hasHomonymes) {
             $scope.hasHomonymes = false;
-            importAttachments(fichiers, $scope);
+            $scope.opened.displayMessageLoader = true;
+            utils.safeApply($scope);
+            await importAttachments(fichiers, $scope);
+            $scope.opened.displayMessageLoader = false;
+            utils.safeApply($scope);
         };
     }
 ]);

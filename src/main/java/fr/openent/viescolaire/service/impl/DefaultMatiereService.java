@@ -133,32 +133,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                             if(onlyId) {
                                 handler.handle(new Either.Right<>(new JsonArray(ids)));
                             } else {
-                                sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
-                                        event_ssmatiere -> {
-                                            if (event_ssmatiere.right().isRight()) {
-                                                JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
-                                                JsonArray res = event_ssmatiere.right().getValue();
-                                                for (int i = 0; i < resultats.size(); i++) {
-                                                    JsonObject matiere = resultats.getJsonObject(i);
-                                                    String id = matiere.getString("id");
-                                                    JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
-                                                    for (int j = 0; j < res.size(); j++) {
-                                                        JsonObject ssm = res.getJsonObject(j);
-                                                        if (ssm.getString("id_matiere").equals(id)) {
-                                                            ssms.add(ssm);
-                                                        }
-                                                    }
-                                                    matiere.put("sous_matieres", ssms);
-                                                    finalresponse.add(matiere);
-                                                }
-                                                handler.handle(new Either.Right<>(finalresponse));
-                                            } else {
-                                                handler.handle(event_ssmatiere.left());
-                                            }
-                                        });
+                                addSousMatiere(ids, resultats,handler);
                             }
                         } else {
-                            listMatieresEtab(structureId, onlyId, handler);
+                            listMatieresEtabWithSousMatiere(structureId,onlyId,handler);
                         }
                     } else {
                         handler.handle(event.left());
@@ -170,6 +148,65 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             }
         });
     }
+
+    private void addSousMatiere(List<String> ids, JsonArray resultats, Handler<Either<String, JsonArray>> handler){
+
+        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
+                event_ssmatiere -> {
+                    if (event_ssmatiere.right().isRight()) {
+                        JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
+                        JsonArray res = event_ssmatiere.right().getValue();
+                        for (int i = 0; i < resultats.size(); i++) {
+                            JsonObject matiere = resultats.getJsonObject(i);
+                            String id = matiere.getString("id");
+                            JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
+                            for (int j = 0; j < res.size(); j++) {
+                                JsonObject ssm = res.getJsonObject(j);
+                                if (ssm.getString("id_matiere").equals(id)) {
+                                    ssms.add(ssm);
+                                }
+                            }
+                            matiere.put("sous_matieres", ssms);
+                            finalresponse.add(matiere);
+                        }
+                        handler.handle(new Either.Right<>(finalresponse));
+                    } else {
+                        handler.handle(event_ssmatiere.left());
+                    }
+                });
+    }
+
+    public void listMatieresEtabWithSousMatiere(String structureId,
+                                                Boolean onlyId,
+                                                Handler<Either<String, JsonArray>> handler ){
+
+        listMatieresEtab(structureId, onlyId, event2 -> {
+            if (event2.isRight()) {
+
+                if(onlyId) {
+                    handler.handle(event2.right());
+                } else {
+                    JsonArray matieresEtab = event2.right().getValue();
+                    if(matieresEtab.size() > 0){
+                        final List<String> ids = new ArrayList<>();
+
+                        for (Object res : matieresEtab) {
+                            ids.add(((JsonObject) res).getString("id"));
+                        }
+                        addSousMatiere(ids,matieresEtab,handler);
+                    }else{
+                        handler.handle(new Either.Left("no subject"));
+                    }
+
+                }
+            }else{
+                handler.handle(event2.left());
+            }
+        });
+    }
+
+
+
 
 
     @Override

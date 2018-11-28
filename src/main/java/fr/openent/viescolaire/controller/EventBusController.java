@@ -343,7 +343,7 @@ public class EventBusController extends ControllerHelper {
                 final String idStructure = message.body().getString("idStructure");
                 final Boolean onlyId = message.body().containsKey("onlyId") ? message.body().getBoolean("onlyId") : false;
                 if ("Personnel".equals(userType)) {
-                    matiereService.listMatieresEtab(idStructure, onlyId,getJsonArrayBusResultHandler(message));
+                    matiereService.listMatieresEtabWithSousMatiere(idStructure, onlyId,getJsonArrayBusResultHandler(message));
                 } else {
                     matiereService.listAllMatieres(idStructure, idEnseignant, onlyId, getJsonArrayBusResultHandler(message));
                 }

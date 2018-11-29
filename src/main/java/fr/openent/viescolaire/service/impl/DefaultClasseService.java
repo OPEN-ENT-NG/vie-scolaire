@@ -361,7 +361,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class) ")
                 .append("WHERE c.id IN {idClasses} ")
-                .append("WITH u, c MATCH (u)--(g:ManualGroup) WHERE g:FunctionalGroup OR g:ManualGroup ")
+                .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
                 .append("RETURN c.id as id_classe, COLLECT(DISTINCT g.id) AS id_groupes");
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 

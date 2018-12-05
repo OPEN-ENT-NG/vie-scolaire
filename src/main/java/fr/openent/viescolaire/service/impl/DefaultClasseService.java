@@ -136,28 +136,44 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         JsonObject params =  new JsonObject();
 
         // Rajout de filtre pour les enseignants
-        String FILTER;
+        String filter;
         if(isTeacher) {
-            FILTER = " AND c.id IN {idClasse} ";
+            filter = " AND c.id IN {idClasse} ";
             params.put(mParameterIdClasse, idClasse);
         }
         else {
-            FILTER = " ";
+            filter = " ";
         }
 
-        // Requête Néo
-        query.append(" MATCH (u:User {profiles: ['Student']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure) ")
-                .append(" WHERE s.externalId IN u.structures ")
-                .append(" AND s.id = {idEtablissement} ")
-                .append(" OPTIONAL MATCH (c:Class) ")
-                .append(" WHERE  c.externalId IN u.classes ")
-                .append(FILTER)
-
-                // Format de retour des données
+        // Format de retour des données
+        StringBuilder returning = new StringBuilder()
                 .append(" RETURN u.id as id, u.displayName as ")
                 .append(" displayName, u.firstName as firstName, u.lastName as lastName, ")
                 .append(" c.id as idClasse, u.deleteDate as deleteDate ")
                 .append(" ORDER BY displayName ");
+
+        // Requête Néo
+        query.append(" MATCH (u:User {profiles: ['Student']})-")
+                .append("[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})")
+                .append(" WHERE s.externalId IN u.structures ")
+                .append(" with u,s ")
+                .append(" OPTIONAL MATCH (c:Class)-[b:BELONGS]->(s) ")
+                .append(" WHERE  c.externalId IN u.classes ")
+                .append(filter)
+                .append(returning)
+
+                .append(" UNION ")
+
+                // Récupération des élèves supprimés mais présents dans l'annuaire
+                .append(" MATCH (u:User{profiles:[\"Student\"]})-[IN]->(d:DeleteGroup), ")
+                .append(" (s:Structure {id:{idEtablissement}}) ")
+                .append(" WHERE s.externalId IN u.structures ")
+                .append(" with u, s ")
+                .append(" OPTIONAL MATCH (c:Class)-[b:BELONGS]->(s) ")
+                .append(" WHERE  c.externalId IN u.classes ")
+                .append(filter)
+                .append(returning);
+
 
         params.put("idEtablissement", idEtablissement);
 

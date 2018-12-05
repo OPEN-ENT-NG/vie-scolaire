@@ -272,7 +272,8 @@ public class EventBusController extends ControllerHelper {
             break;
             case "getInfoEleve": {
                 String[] idEleves = convertJsonArrayToStringArray(message.body().getJsonArray("idEleves"));
-                eleveService.getInfoEleve(idEleves, getJsonArrayBusResultHandler(message));
+                String idEtablissement = message.body().getString("idEtablissement");
+                eleveService.getInfoEleve(idEleves, idEtablissement, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getCycle": {
@@ -283,7 +284,9 @@ public class EventBusController extends ControllerHelper {
             case "isEvaluableOnPeriode": {
                 String idEleve = message.body().getString("idEleve");
                 Long idPeriode = message.body().getLong("idPeriode");
-                eleveService.isEvaluableOnPeriode(idEleve, idPeriode, getJsonArrayBusResultHandler(message));
+                String idEtablissement = message.body().getString("idEtablissement");
+                eleveService.isEvaluableOnPeriode(idEleve, idPeriode, idEtablissement,
+                        getJsonArrayBusResultHandler(message));
             }
             break;
             case "getResponsables": {

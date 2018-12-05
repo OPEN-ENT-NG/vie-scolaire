@@ -135,31 +135,54 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
     @Override
-    public void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler) {
+    public void getInfoEleve(String[] idEleves, String idEtablissement, Handler<Either<String, JsonArray>> handler) {
 
-        // Récupération d'élèves en présuppression
+
+        // Format de Retour des données
+        StringBuilder returning = new StringBuilder()
+                .append(" RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
+                .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
+                .append(" u.birthDate as birthDate, u.level as level, ");
+
+
+        // Condition de récupération des noeuds
+        StringBuilder condition = new StringBuilder()
+                .append(" WHERE  ")
+                .append(" u.id IN {idEleves}")
+                .append(" AND c.externalId IN u.classes ")
+                .append(" AND s.externalId IN u.structures");
+
+        StringBuilder order = new StringBuilder()
+                .append(" ORDER BY lastName, firstName ");
+
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (u:User),(s:Structure),(c:Class)  ")
-                .append(" WHERE ")
-                .append(" u.profiles= [\"Student\"]  ")
-                .append(" AND u.id IN {idEleves}")
-                .append("  AND c.externalId IN u.classes ")
-                .append("  AND s.externalId IN u.structures")
-                .append("     with u, c, s")
+        // Récupération d'élèves non supprimés
+        query.append(" MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->")
+                .append("(s:Structure {id:{idStructure}}), (c:Class)-[b:BELONGS]->(s)  ")
+                .append(condition)
+                .append(" with u, c, s")
                 .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")
-                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u)")
-
-                // Format de Retour des données
-                .append("RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
-                .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
-                .append(" u.birthDate as birthDate, u.level as level, ")
+                .append(" OPTIONAL MATCH (g:ManualGroup)<-[i:IN]-(u) ")
+                .append(returning)
                 .append(" COLLECT(f.id) as idGroupes, ")
-                .append(" COLLECT(g.id) as idManualGroupes")
-                .append(" ORDER BY lastName, firstName ");
+                .append(" COLLECT(g.id) as idManualGroupes ")
+                .append(order)
 
-        params.put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
+                .append(" UNION ")
+
+                // Récupération des élèves supprimés présents dans l'annuaire
+                .append(" MATCH (u:User{profiles:[\"Student\"]})-[IN]->(d:DeleteGroup), (c:Class)-[b:BELONGS]->(s) ")
+                .append(condition)
+                .append(returning)
+                .append(" [] as idGroupes, ")
+                .append(" [] as idManualGroupes ")
+                .append(order);
+
+
+        params.put("idStructure", idEtablissement)
+                .put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
 
         // Rajout des élèves supprimés au résultat
@@ -372,10 +395,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             idsNeo.add(idEleve);
             values.add(idEleve);
         }
-         if (idClasse != null){
-             for(int i=0; i< idClasse.size(); i++) {
-                 values.add(idClasse.getValue(i));
-             }
+        if (idClasse != null){
+            for(int i=0; i< idClasse.size(); i++) {
+                values.add(idClasse.getValue(i));
+            }
         }
         if (idEleves != null) {
             for(int i=0; i < idEleves.length; i++ ) {
@@ -425,12 +448,12 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
     }
 
-    public void isEvaluableOnPeriode(String idEleve, Long idPeriode,
-                              Handler<Either<String, JsonArray>> handler){
+    public void isEvaluableOnPeriode(String idEleve, Long idPeriode, String idEtablissement,
+                                     Handler<Either<String, JsonArray>> handler){
 
         String[] idEleves = new String[1];
         idEleves[0] = idEleve;
-        getInfoEleve(idEleves, new Handler<Either<String, JsonArray>>(){
+        getInfoEleve(idEleves, idEtablissement, new Handler<Either<String, JsonArray>>(){
             public void handle(Either<String, JsonArray> result) {
                 if (result.isRight()) {
                     JsonObject infosEleve = result.right().getValue().getJsonObject(0);
@@ -438,7 +461,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                     String idEtablissement = infosEleve.getString("idEtablissement");
                     String[] idClasses = new String[1];
                     idClasses[0] = idClasse;
-                    new DefaultPeriodeService().getPeriodesClasses(idEtablissement, idClasses, new Handler<Either<String, JsonArray>>(){
+                    new DefaultPeriodeService().getPeriodesClasses(idEtablissement, idClasses,
+                            new Handler<Either<String, JsonArray>>(){
 
                         public void handle(Either<String, JsonArray> event) {
                             if (event.isRight()) {
@@ -466,7 +490,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                                                     sortedField, handler);
 
                                         } catch (ParseException e) {
-                                            handler.handle(new Either.Left<>("Error :can not calcul students of groupe : " + idClasses[0]));
+                                            handler.handle(new Either.Left<>(
+                                                    "Error :can not calcul students of groupe : " + idClasses[0]));
                                         }
                                     }
                                 }
@@ -485,10 +510,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getResponsable(String idEleve, Handler<Either<String,JsonArray>> handler){
         StringBuilder query = new StringBuilder();
         query.append("MATCH (u:User {id: {idEleve}})-[:RELATED]-(r:User{profiles:['Relative']}) ")
-            .append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,")
-            .append(" u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,")
-            .append(" r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, ")
-            .append(" r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city");
+                .append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,")
+                .append(" u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,")
+                .append(" r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, ")
+                .append(" r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city");
 
         JsonObject param = new JsonObject();
         param.put("idEleve", idEleve);

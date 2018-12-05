@@ -75,9 +75,10 @@ public interface EleveService extends CrudService {
     /**
      * Récupère le nom, le prénom de chacun des élèves passés en paramètre, ainsi que l'id et le nom de sa classe
      * @param idEleves tableau contenant les ids des élèves
+     * @param idEtablissement id de l'etblissement des élèves
      * @param handler Handler portant le résultat de la requête.
      */
-    void getInfoEleve(String[] idEleves, Handler<Either<String, JsonArray>> handler);
+    void getInfoEleve(String[] idEleves, String idEtablissement, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère le nom, le prénom de chacun d'un ensemble d'Id passé en paramètre
@@ -141,9 +142,10 @@ public interface EleveService extends CrudService {
      * Récupère les élèves supprimés de l'annuaire et stockés dans la base de donnée de viesolaire
      * @param idEleve
      * @param idPeriode
+     * @param idEtablissement
      * @param handler
      */
-    void isEvaluableOnPeriode(String idEleve, Long idPeriode,
+    void isEvaluableOnPeriode(String idEleve, Long idPeriode, String idEtablissement,
                               Handler<Either<String, JsonArray>> handler);
 
     /**

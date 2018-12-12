@@ -74,28 +74,22 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         StringBuilder query = new StringBuilder();
 
-        String RETURNING = " RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
+        String RETURNING = " RETURN  u.id as id, u.firstName as firstName, u.lastName as lastName," +
                 " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
         query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id :{idClasse}}) ")
-                .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
-                .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
-                .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
-                .append(" (c:Group)")
+                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
+                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
+                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
+                .append(" (c:Group {id :{idClasse}})")
                 .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND (c.id = {idClasse} ")
-                .append(" AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) ) ")
-                .append(RETURNING)
-                .append(" UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
-                .append(" (c:Class)")
+                .append(" AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) ")
+                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
+                .append(" (c:Class {id :{idClasse}})")
                 .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND (c.id = {idClasse} ")
-                .append(" AND  c.externalId IN u.classes) ")
+                .append(" AND  c.externalId IN u.classes ")
                 .append(RETURNING);
 
         String [] sortedField = new  String[2];

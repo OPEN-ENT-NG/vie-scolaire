@@ -56,12 +56,25 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
     @Override
     public void getEleveClasse(String pSIdClasse,Handler<Either<String, JsonArray>> handler) {
+        StringBuilder returning = new StringBuilder()
+                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, ")
+                .append( " u.classes as classes, c.name as className ORDER BY lastName");
         StringBuilder query = new StringBuilder();
-        query.append("Match (c:Class{id: {idClasse} }) with c ")
-                .append( "MATCH (u:User{profiles :['Student']}) where c.externalId IN u.classes  ")
-                .append( "RETURN u.id as id, u.firstName as firstName, u.lastName as lastName,  u.level as level, u.classes as classes, c.name as className ORDER BY lastName");
 
-        neo4j.execute(query.toString(), new JsonObject().put("idClasse", pSIdClasse), Neo4jResult.validResultHandler(handler));
+        query.append(" MATCH (c:Class{id: {idClasse} })-[b:BELONGS]->(s)  with c, s ")
+                .append(" MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(s) ")
+                .append(" where c.externalId IN u.classes  ")
+                .append(returning)
+
+                .append(" UNION ")
+
+                .append(" MATCH (u:User{profiles:[\"Student\"]})-[IN]->(d:DeleteGroup), ")
+                .append(" (c:Class{id: {idClasse})-[b:BELONGS]->(s) ")
+                .append(returning);
+
+
+        neo4j.execute(query.toString(), new JsonObject().put("idClasse", pSIdClasse),
+                Neo4jResult.validResultHandler(handler));
 
     }
 
@@ -464,42 +477,42 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                     new DefaultPeriodeService().getPeriodesClasses(idEtablissement, idClasses,
                             new Handler<Either<String, JsonArray>>(){
 
-                        public void handle(Either<String, JsonArray> event) {
-                            if (event.isRight()) {
+                                public void handle(Either<String, JsonArray> event) {
+                                    if (event.isRight()) {
 
-                                JsonArray periodes = event.right().getValue();
-                                String[] sortedField = new String[1];
-                                sortedField[0] = "idEleve";
+                                        JsonArray periodes = event.right().getValue();
+                                        String[] sortedField = new String[1];
+                                        sortedField[0] = "idEleve";
 
-                                for(Object p : periodes){
+                                        for(Object p : periodes){
 
-                                    JsonObject periode = (JsonObject)p;
-                                    if(periode.getLong("id_type").equals(idPeriode)){
-                                        String debutPeriode = periode.getString("timestamp_dt");
-                                        String finPeriode = periode.getString("timestamp_fn");
-                                        DateFormat formatter = new SimpleDateFormat("yy-MM-dd");
+                                            JsonObject periode = (JsonObject)p;
+                                            if(periode.getLong("id_type").equals(idPeriode)){
+                                                String debutPeriode = periode.getString("timestamp_dt");
+                                                String finPeriode = periode.getString("timestamp_fn");
+                                                DateFormat formatter = new SimpleDateFormat("yy-MM-dd");
 
-                                        try {
-                                            final Date dateDebutPeriode = formatter.parse(debutPeriode);
-                                            final Date dateFinPeriode = formatter.parse(finPeriode);
+                                                try {
+                                                    final Date dateDebutPeriode = formatter.parse(debutPeriode);
+                                                    final Date dateFinPeriode = formatter.parse(finPeriode);
 
-                                            new DefaultUtilsService().getAvailableStudent(
-                                                    result.right().getValue(), idPeriode,
-                                                    dateDebutPeriode,
-                                                    dateFinPeriode,
-                                                    sortedField, handler);
+                                                    new DefaultUtilsService().getAvailableStudent(
+                                                            result.right().getValue(), idPeriode,
+                                                            dateDebutPeriode,
+                                                            dateFinPeriode,
+                                                            sortedField, handler);
 
-                                        } catch (ParseException e) {
-                                            handler.handle(new Either.Left<>(
-                                                    "Error :can not calcul students of groupe : " + idClasses[0]));
+                                                } catch (ParseException e) {
+                                                    handler.handle(new Either.Left<>(
+                                                            "Error :can not calcul students of groupe : " + idClasses[0]));
+                                                }
+                                            }
                                         }
+                                    }else{
+                                        handler.handle(new Either.Left<>("Periode not found"));
                                     }
                                 }
-                            }else{
-                                handler.handle(new Either.Left<>("Periode not found"));
-                            }
-                        }
-                    });
+                            });
                 } else {
                     handler.handle(new Either.Left<>("Infos eleve not found"));
                 }

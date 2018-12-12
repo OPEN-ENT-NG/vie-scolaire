@@ -79,15 +79,33 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
-        query.append("MATCH (u:User {profiles: ['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class {id :{idClasse}}) ")
-                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
-                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
-                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
-                .append(" (c:Group {id :{idClasse}})")
+        query.append("MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class{id:{idClasse}}) ")
+                .append( RETURNING)
+
+                .append(" UNION ")
+
+                .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
+                .append( RETURNING)
+
+                .append(" UNION ")
+
+                .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
+                .append( RETURNING)
+
+                .append(" UNION ")
+
+                .append(" MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup) ")
+                .append(" WITH  u,b ")
+                .append(" MATCH (c:Group {id :{idClasse}})")
                 .append(" WHERE HAS(u.deleteDate) ")
                 .append(" AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) ")
-                .append(" OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
-                .append(" (c:Class {id :{idClasse}})")
+                .append( RETURNING)
+
+                .append(" UNION ")
+
+                .append(" MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup)")
+                .append(" WITH  u,b ")
+                .append(" MATCH (c:Class {id :{idClasse}})")
                 .append(" WHERE HAS(u.deleteDate) ")
                 .append(" AND  c.externalId IN u.classes ")
                 .append(RETURNING);

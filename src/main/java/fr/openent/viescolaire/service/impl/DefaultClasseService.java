@@ -79,18 +79,20 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
-        query.append("MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class{id:{idClasse}}) ")
-                .append( RETURNING)
+        query.append(" OPTIONAL MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-")
+                .append("(c:Class{id:{idClasse}}) ")
+                .append( " WITH CASE WHEN count(u)=0 THEN [] ELSE collect(u) END  as userC ")
 
-                .append(" UNION ")
-
+                .append(" OPTIONAL ")
                 .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
-                .append( RETURNING)
+                .append(" WITH CASE WHEN count(u)>0 THEN userC + collect (u) ELSE userC END as userCF ")
 
-                .append(" UNION ")
-
+                .append(" OPTIONAL ")
                 .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
-                .append( RETURNING)
+                .append(" with  CASE WHEN count(u)>0 THEN userCF + collect (u) ELSE userCF END  as userCFM ")
+
+                .append(" unwind userCFM as u ")
+                .append(RETURNING)
 
                 .append(" UNION ")
 

@@ -31,6 +31,8 @@ import io.vertx.core.eventbus.EventBus;
 
 import java.util.List;
 
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
 
@@ -250,6 +252,12 @@ public class EventBusController extends ControllerHelper {
             case "getUsers": {
                 List<String> idsUsers = message.body().getJsonArray("idUsers").getList();
                 userService.getUsers(idsUsers, getJsonArrayBusResultHandler(message));
+            }
+            case "getUsersByTypeClassAndStructure": {
+                String structureId = message.body().getString("structureId");
+                String classId = message.body().getString("classId");
+                JsonArray types = message.body().getJsonArray("types");
+                userService.list(structureId, classId, null, types, null, null, null, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {

@@ -69,7 +69,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
         final JsonObject query = new JsonObject();
 
         query.put("structureId", structureId);
-
+        JsonObject deleteJson= new JsonObject();
+        deleteJson.put("$exists",false);
+        query.put("deleted", deleteJson);
         if (teacherId != null && !teacherId.isEmpty() ){
             query.put("$or", getTeachersFilterTable(teacherId));
         }
@@ -136,6 +138,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
                         String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
                                 " FROM " + EDT_SCHEMA + ".period_exclusion WHERE period_exclusion.id_structure = ?;";
+
                         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
                         Sql.getInstance().prepared(query, params, (res)->{
                             JsonArray exclusions;

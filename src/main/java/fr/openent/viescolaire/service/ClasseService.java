@@ -132,4 +132,6 @@ public interface ClasseService extends CrudService {
      * @param handler
      */
     void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler);
+
+    void getGroupeFromClasse(String[] strings, Handler<Either<String, JsonArray>> handler);
 }

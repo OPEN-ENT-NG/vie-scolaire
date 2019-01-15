@@ -468,4 +468,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
+    @Override
+    public void getGroupeFromClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class) ")
+                .append("WHERE c.id IN {idClasses} ")
+                .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
+                .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groupes");
+        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
 }

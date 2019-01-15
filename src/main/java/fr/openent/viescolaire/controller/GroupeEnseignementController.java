@@ -147,6 +147,6 @@ public class GroupeEnseignementController extends ControllerHelper {
         List<String> classesId = request.params().getAll("classes");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        classeService.getGroupeClasse(classesId.toArray(new String[0]),handler);
+        classeService.getGroupeFromClasse(classesId.toArray(new String[0]),handler);
     }
 }

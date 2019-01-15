@@ -134,7 +134,7 @@ public class EventBusController extends ControllerHelper {
                 String profile = message.body().getString("profile");
                 Long idPeriode = message.body().getLong("idPeriode");
                 groupeService.listUsersByGroupeEnseignementId(groupeEnseignementId, profile,
-                        idPeriode,getJsonArrayBusResultHandler(message));
+                        idPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listGroupesEnseignementsByUserId": {
@@ -194,18 +194,18 @@ public class EventBusController extends ControllerHelper {
             break;
             case "listClasses": {
                 String idEtablissement = message.body().getString("idStructure");
-                classeService.listClasses(idEtablissement, true,null, null, getJsonArrayBusResultHandler(message));
+                classeService.listClasses(idEtablissement, true, null, null, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupes": {
                 String idEtablissement = message.body().getString("idStructure");
-                classeService.listClasses(idEtablissement, null,null, null, getJsonArrayBusResultHandler(message));
+                classeService.listClasses(idEtablissement, null, null, null, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupesByIds": {
                 String idStructure = message.body().getString("idStructure");
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
-                classeService.listClasses(idStructure, null,null, idClassesAndGroups, getJsonArrayBusResultHandler(message));
+                classeService.listClasses(idStructure, null, null, idClassesAndGroups, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getGroupesClasse": {
@@ -214,7 +214,7 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getHeadTeachersClasse": {
-                 String idClasse = message.body().getString("idClasse");
+                String idClasse = message.body().getString("idClasse");
                 classeService.getHeadTeachers(idClasse, getJsonArrayBusResultHandler(message));
             }
             break;
@@ -314,7 +314,7 @@ public class EventBusController extends ControllerHelper {
         switch (method) {
             case "getStructuresActives": {
                 String module = message.body().getString("module");
-                userService.getActivesIDsStructures(module,getJsonArrayBusResultHandler(message));
+                userService.getActivesIDsStructures(module, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getStructure": {
@@ -346,7 +346,7 @@ public class EventBusController extends ControllerHelper {
                 final String idStructure = message.body().getString("idStructure");
                 final Boolean onlyId = message.body().containsKey("onlyId") ? message.body().getBoolean("onlyId") : false;
                 if ("Personnel".equals(userType)) {
-                    matiereService.listMatieresEtabWithSousMatiere(idStructure, onlyId,getJsonArrayBusResultHandler(message));
+                    matiereService.listMatieresEtabWithSousMatiere(idStructure, onlyId, getJsonArrayBusResultHandler(message));
                 } else {
                     matiereService.listAllMatieres(idStructure, idEnseignant, onlyId, getJsonArrayBusResultHandler(message));
                 }
@@ -398,7 +398,7 @@ public class EventBusController extends ControllerHelper {
             break;
             case "getPeriodes": {
                 List<String> l = message.body().getJsonArray("idGroupes").getList();
-                String [] idGroupes = l.toArray(new String[l.size()]);
+                String[] idGroupes = l.toArray(new String[l.size()]);
                 String idEtablissement = message.body().getString("idEtablissement");
 
                 JsonObject request = message.body().getJsonObject("request");
@@ -420,7 +420,7 @@ public class EventBusController extends ControllerHelper {
             case "getDatesDtFnAnneeByClasse": {
                 List<String> idClasses = message.body().getJsonArray("idClasses").getList();
                 String idEtablissement = message.body().getString("idEtablissement");
-                periodeService.getDatesDtFnAnneeByClasse(idEtablissement, idClasses,getJsonArrayBusResultHandler(message));
+                periodeService.getDatesDtFnAnneeByClasse(idEtablissement, idClasses, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -481,5 +481,7 @@ public class EventBusController extends ControllerHelper {
         }
 
         return objects;
-    };
+    }
+
+    ;
 }

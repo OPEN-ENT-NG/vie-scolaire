@@ -20,6 +20,8 @@ package fr.openent.viescolaire.controller;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
+import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -33,6 +35,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
@@ -43,10 +46,11 @@ import static org.entcore.common.http.response.DefaultResponseHandler.leftToResp
 public class GroupeEnseignementController extends ControllerHelper {
 
     private final GroupeService groupeService;
-
+    private final ClasseService classeService;
     public GroupeEnseignementController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         groupeService = new DefaultGroupeService();
+        classeService = new DefaultClasseService();
     }
 
     /**
@@ -131,5 +135,18 @@ public class GroupeEnseignementController extends ControllerHelper {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         groupeService.getNameOfGroupeClasse(idGroupe, handler);
+    }
+/**
+ * get the groups from a class
+ */
+    @Get("/group/from/class")
+    @ApiDoc("get the groups of a class")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getGroupsFromClass(final HttpServerRequest request){
+
+        List<String> classesId = request.params().getAll("classes");
+        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
+        classeService.getGroupeClasse(classesId.toArray(new String[0]),handler);
     }
 }

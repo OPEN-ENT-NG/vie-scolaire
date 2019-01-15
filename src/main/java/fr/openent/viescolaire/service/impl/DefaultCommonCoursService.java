@@ -72,10 +72,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject deleteJson= new JsonObject();
         deleteJson.put("$exists",false);
         query.put("deleted", deleteJson);
-        if (teacherId != null && !teacherId.isEmpty() ){
-            query.put("$or", getTeachersFilterTable(teacherId));
-        }
 
+        if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
+            query.put("$or",(getTeachersFilterTable(teacherId)));
+        }
         final String startDate = begin + START_DATE_PATTERN;
         final String endDate = end + END_DATE_PATTERN;
 
@@ -85,12 +85,12 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject betweenEnd = new JsonObject();
         betweenEnd.put("$gte", startDate);
 
-        if (groups != null && !groups.isEmpty()) {
+        if (groups != null && !groups.isEmpty()){
             JsonObject dateOperand =  new JsonObject()
                     .put("$and", new fr.wseduc.webutils.collections.JsonArray()
                             .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
                             .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
-            JsonObject groupsOperand = getGroupsFilterTable( groups);
+            JsonObject groupsOperand = getGroupsFilterTable( groups,teacherId);
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray().add(dateOperand).add(groupsOperand));
         } else {
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
@@ -99,12 +99,16 @@ public class DefaultCommonCoursService implements CommonCoursService {
         }
 
         final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
-
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
     }
 
-    private JsonObject getGroupsFilterTable(List<String>  groups) {
+    private JsonObject getGroupsFilterTable(List<String>  groups , List<String> teacherId) {
         JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
+        if (teacherId != null && !teacherId.isEmpty() ){
+            for(String teacher : teacherId){
+                groupOperand.add(new JsonObject().put(COURSE_TABLE.teacherIds, teacher));
+            }
+        }
         for(String group : groups){
             groupOperand.add(new JsonObject().put(COURSE_TABLE.classes, group))
                     .add(new JsonObject().put(COURSE_TABLE.groups, group));

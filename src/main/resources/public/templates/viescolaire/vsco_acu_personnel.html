@@ -53,13 +53,6 @@
                 <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
-        <header ng-if="canAccessEdt" ng-class="{selected: findParam('filter') == lang.translate('viescolaire.edt.title')}"
-                class="horizontal-spacing-twice">
-            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.edt.title')]]"
-               class="horizontal-spacing">
-                <span><i18n><span class="no-style">viescolaire.edt.title</span></i18n></span>
-            </a>
-        </header>
     </div>
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
@@ -96,12 +89,6 @@
             </div>
         </article>
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_presence.html'"></div>
-    </div>
-    <div  ng-if="findParam('filter') === lang.translate('viescolaire.edt.title')">
-        <sniplet
-                template="exclusion"
-                application="edt"
-        ></sniplet>
     </div>
 </div>
 

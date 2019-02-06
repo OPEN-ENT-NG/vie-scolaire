@@ -44,6 +44,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_PERIODE_TABLE = "periode";
 	public final static String VSCO_MATIERE_TABLE = "matiere";
 	public final static String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
+	public final static String VSCO_SETTING_PERIOD = "setting_period";
 
 	public final static String ABSC_APPEL_TABLE = "appel";
 	public final static String ABSC_MOTIF_TABLE = "motif";
@@ -107,6 +108,7 @@ public class Viescolaire extends BaseServer {
 		addController(new SousMatiereController());
 		addController(new UserController());
 		addController(new ImportCsvController(storage));
+		addController(new PeriodeAnneeController());
 
         addController(new EventBusController(eb));
 

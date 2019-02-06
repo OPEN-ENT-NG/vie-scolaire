@@ -1,0 +1,33 @@
+<div class="ten cell" ng-controller="periodeAnneeController">
+    <toasts notifications="notifications"></toasts>
+
+    <article class="twelve cell ">
+        <div class="row">
+            <h2 class="two cell">
+                <i18n>viescolaire.utils.annee.scolaire</i18n>&nbsp; 2018 - 2019
+            </h2>
+        </div>
+
+        <div class="row margin-top-lg">
+            <label class="cell two twelve-mobile">
+                <i18n>viescolaire.utils.datedebut</i18n>
+            </label>
+            <date-picker ng-model="periodeAnnee.start_date" class="text-center remove-padding width-10"></date-picker>
+        </div>
+
+        <div class="row">
+            <label class="cell two twelve-mobile">
+                <i18n>viescolaire.utils.datefin</i18n>
+            </label>
+            <date-picker ng-model="periodeAnnee.end_date" class="text-center remove-padding width-10"></date-picker>
+        </div>
+
+        <div class="row">
+            <button class="right-magnet" ng-click="createPeriodeAnnee()">
+                <i18n><span class="no-style ng-scope">Sauvegarder</span></i18n>
+            </button>
+        </div>
+
+    </article>
+
+</div>

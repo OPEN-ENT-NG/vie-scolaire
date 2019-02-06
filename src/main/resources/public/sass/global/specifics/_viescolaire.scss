@@ -114,7 +114,23 @@ body.viescolaire {
     border-width: thin;
     border-color: #ccc;
   }
- // Periodes
+
+
+  //    Général    //
+
+  .remove-padding {
+    padding: 0;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .margin-top-lg {
+    margin-top: 15px;
+  }
+
+  //    Periodes    //
   .config-periode {
 
     & article > * {
@@ -222,14 +238,17 @@ body.viescolaire {
       }
     }
   }
+
+
   //lightBox Periode
   @media screen and (min-device-width:$tablette ) {
     .widthLightBox div.content{
       width: 60% !important;
     }
   }
-  //    Tableau Bilan Périodique    //
 
+
+  //    Tableau Bilan Périodique    //
 
   .trSniplet {
     background: $cyan !important;
@@ -447,5 +466,11 @@ body.viescolaire {
   }
   i.trash {
     margin-right: 7.5px;
+  }
+
+  //    Paramétrage dates année scolaire    //
+
+  .width-10 {
+    width: 10em;
   }
 }

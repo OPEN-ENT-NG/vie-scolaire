@@ -21,15 +21,20 @@ import { sticky } from '../../utils/directives/sticky';
 import { cSkillsBubble } from '../../utils/directives/cSkillsBubble';
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
 import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl';
+import {periodeAnneeController} from '../controllers/vsco_periodeAnnee_ctrl';
 import {periodeSearch} from '../filtres/periodeSearch';
+import {Toasts, Toast} from '../../utils/directives/toasts';
 
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);
+ng.controllers.push(periodeAnneeController);
 
 ng.filters.push(periodeSearch);
 
 ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);
+ng.directives.push(Toasts);
+ng.directives.push(Toast);
 
 routes.define(function($routeProvider) {
     $routeProvider

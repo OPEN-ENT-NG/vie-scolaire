@@ -65,7 +65,6 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
         });
     }
 
-    @Override
     public void usersClassesUpdated(JsonArray users) {
         log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated START");
         if(users != null) {
@@ -110,7 +109,6 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
         });
     }
 
-    @Override
     public void transition(JsonObject structure) {
         log.info("[VieScolaireRepositoryEvents] : transition event is not implemented");
     }

@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package main.java.fr.openent.viescolaire.service.impl;
+package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;

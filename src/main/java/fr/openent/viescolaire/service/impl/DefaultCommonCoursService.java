@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package fr.openent.viescolaire.service.impl;
+package main.java.fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
@@ -45,8 +45,8 @@ import java.util.concurrent.TimeUnit;
 import static org.entcore.common.mongodb.MongoDbResult.*;
 
 public class DefaultCommonCoursService implements CommonCoursService {
-    protected static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodeService.class);
-    private static UtilsService utilsService= new DefaultUtilsService();
+    protected static final Logger LOG = LoggerFactory.getLogger(fr.openent.viescolaire.service.impl.DefaultPeriodeService.class);
+    private static UtilsService utilsService= new fr.openent.viescolaire.service.impl.DefaultUtilsService();
     private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
     public final static String EDT_SCHEMA = "edt";
@@ -72,6 +72,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject deleteJson= new JsonObject();
         deleteJson.put("$exists",false);
         query.put("deleted", deleteJson);
+
+        JsonObject theoreticalJson = new JsonObject();
+        deleteJson.put("$exists",false);
+        query.put("theoretical", deleteJson);
 
         if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
             query.put("$or",(getTeachersFilterTable(teacherId)));

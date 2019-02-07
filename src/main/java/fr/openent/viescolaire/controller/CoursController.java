@@ -21,7 +21,7 @@ import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.CoursService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
-import fr.openent.viescolaire.service.impl.DefaultCommonCoursService;
+import main.java.fr.openent.viescolaire.service.impl.DefaultCommonCoursService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;

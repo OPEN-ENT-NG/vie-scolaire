@@ -74,8 +74,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put("deleted", deleteJson);
 
         JsonObject theoreticalJson = new JsonObject();
-        deleteJson.put("$exists",false);
-        query.put("theoretical", deleteJson);
+        theoreticalJson.put("$exists",false);
+        query.put("theoretical", theoreticalJson);
 
         if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
             query.put("$or",(getTeachersFilterTable(teacherId)));

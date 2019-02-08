@@ -73,7 +73,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         deleteJson.put("$exists",false);
         query.put("deleted", deleteJson);
 
-      query.put("theoretical", true);
+      query.put("theoretical", false);
 
         if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
             query.put("$or",(getTeachersFilterTable(teacherId)));

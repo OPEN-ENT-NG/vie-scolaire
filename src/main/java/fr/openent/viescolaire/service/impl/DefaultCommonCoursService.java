@@ -20,6 +20,7 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
@@ -72,8 +73,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject deleteJson= new JsonObject();
         deleteJson.put("$exists",false);
         query.put("deleted", deleteJson);
-
-      query.put("theoretical", false);
+        JsonArray theoriticalArray = new JsonArray().add(new JsonObject().put("theoretical",true)).add(new JsonObject().put("$exist",false));
+        query.put("$or", theoriticalArray);
 
         if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
             query.put("$or",(getTeachersFilterTable(teacherId)));

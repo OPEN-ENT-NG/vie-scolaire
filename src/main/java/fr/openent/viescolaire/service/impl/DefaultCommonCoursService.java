@@ -73,7 +73,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject deleteJson= new JsonObject();
         deleteJson.put("$exists",false);
         query.put("deleted", deleteJson);
-        JsonArray theoriticalArray = new JsonArray().add(new JsonObject().put("theoretical",true)).add(new JsonObject().put("$exists",false));
+        JsonArray theoriticalArray = new JsonArray().add(new JsonObject().put("theoretical",true)).add(new JsonObject().put("theoretical",new JsonObject().put("$exists",false)));
         query.put("$or", theoriticalArray);
 
         if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){

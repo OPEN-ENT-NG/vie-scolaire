@@ -45,30 +45,14 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_MATIERE_TABLE = "matiere";
 	public final static String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
 	public final static String VSCO_SETTING_PERIOD = "setting_period";
+	public final static String VSCO_MATIERE_LIBELLE_TABLE = "subject_libelle";
+	public final static String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
 
-	public final static String ABSC_APPEL_TABLE = "appel";
-	public final static String ABSC_MOTIF_TABLE = "motif";
-	public final static String ABSC_MOTIF_APPEL_TABLE = "motif_appel";
-	public final static String ABSC_EVENEMENT_TABLE = "evenement";
-	public final static String ABSC_CATEGORIE_MOTIF_APPEL = "categorie_motif_appel";
-
-	public static final String EVAL_NOTES_TABLE = "notes";
 	/**
 	 * Déclaration des router préfixs
 	 */
 	public final static String VSCO_PATHPREFIX = "/viescolaire";
-	public final static String ABSC_PATHPREFIX = "/viescolaire/presences";
-	public final static String EVAL_PATHPREFIX = "/viescolaire/evaluations";
 
-	public static final String SCHEMA_APPEL_CREATE = "absc_createAppel";
-	public static final String SCHEMA_APPEL_UPDATE = "absc_updateAppel";
-	public static final String SCHEMA_CATEGORIE_ABS_CREATE = "absc_createCategorieAbs";
-	public static final String SCHEMA_CATEGORIE_ABS_UPDATE = "absc_updateCategorieAbs";
-	public static final String SCHEMA_MOTIF_CREATE = "absc_createMotif";
-	public static final String SCHEMA_MOTIF_UPDATE = "absc_updateMotif";
-	public static final String SCHEMA_EVENEMENT_CREATE = "absc_createEvenement";
-	public static final String SCHEMA_EVENEMENT_UPDATE = "absc_updateEvenement";
-	public static final String SCHEMA_ABSPREV_CREATE = "absc_createAbscPrev";
 	public static final Integer CLASSE_TYPE = 0;
 	public static final Integer GROUPE_TYPE = 1;
 	public static final Integer GROUPE_MANUEL_TYPE = 2;
@@ -80,6 +64,14 @@ public class Viescolaire extends BaseServer {
 	public static Long IMPORT_MAX_SIZE_OCTETS = 3000000L;
 
 	public static Long TIME_OUT_HANDLER = 600 * 1000L;
+
+	// usual keys
+	public static String ID_KEY = "id";
+	public static String ID_STRUCTURE_KEY = "idStructure";
+	public static String ID_ETABLISSEMENT_KEY = "idEtablissement";
+	public static String EXTERNAL_ID_KEY = "externalId";
+	public static String NAME = "name";
+
 
 	@Override
 	public void start() throws Exception {

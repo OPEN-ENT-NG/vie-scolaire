@@ -19,13 +19,11 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.CrudService;
-import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ledunoiss on 18/10/2016.

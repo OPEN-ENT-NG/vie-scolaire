@@ -64,6 +64,12 @@
                                     <span>Parametrage des services</span>
                                 </a>
                             </li>
+                            <li workflow="viescolaire.adminChefEtab">
+                                <a href="" ng-class="{'selected': currParam === 8}"
+                                   ng-click="currParam = 8;">
+                                    <span><i18n>evaluations.rename.subject.title</i18n></span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -242,6 +248,19 @@
                         ></sniplet>
                     </article>
                 </div>
+                <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                     workflow="viescolaire.adminChefEtab">
+                    <div class="hash-magnet twelve cell" id="8"
+                         ng-init="source.id = structure.id; source.opened = opened"
+                         ng-if="currParam === 8">
+                        <article>
+                            <sniplet
+                                    template="renameSubject"
+                                    application="competences"
+                                    source="source"
+                            ></sniplet>
+                        </article>
+                    </div>
             </div>
         </div>
     </div>

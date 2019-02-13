@@ -18,8 +18,6 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.service.UtilsService;
-import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.impl.DefaultMatiereService;
 import fr.wseduc.rs.ApiDoc;
@@ -39,8 +37,7 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Created by ledunoiss on 18/10/2016.

@@ -22,7 +22,11 @@ import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.SousMatiereService;
 import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.utils.FormateFutureEvent;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.I18n;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
@@ -30,10 +34,12 @@ import org.entcore.common.service.impl.SqlCrudService;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.sql.SqlResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fr.openent.Viescolaire.*;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
 /**
@@ -47,9 +53,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     private SousMatiereService sousMatiereService;
     private ClasseService classeService;
     private EventBus eb;
+    private String subjectLibelleTable = VSCO_SCHEMA + "." + VSCO_MATIERE_LIBELLE_TABLE;
+    private String modelSubjectLibelleTable = VSCO_SCHEMA + "." + VSCO_MODEL_MATIERE_LIBELLE_TABLE;
 
     public DefaultMatiereService(EventBus eb) {
-        super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_MATIERE_TABLE);
+        super(VSCO_SCHEMA, Viescolaire.VSCO_MATIERE_TABLE);
         this.eb = eb;
         utilsService = new DefaultUtilsService();
         sousMatiereService = new DefaultSousMatiereService();
@@ -75,7 +83,8 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             returndata = "RETURN collect(sub.id) as res ";
         }
         else {
-            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name";
+            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, " +
+                    "sub.label as name, sub.externalId as external_id_subject ORDER BY name ";
         }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
                 returndata;
@@ -334,7 +343,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                 this.idMatiere = matiere.getString("id");
                 this.idEnseignant = matiere.getString("idEnseignant");
                 this.idEtablissement = matiere.getString("idEtablissement");
-                this.name = matiere.getString("name");
+                this.name = matiere.getString(NAME);
                 this.externalId = matiere.getString("externalId");
                 this.idClasses = matiere.containsKey("idClasses")
                         ? new HashSet(matiere.getJsonArray("idClasses").getList())
@@ -368,11 +377,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         public void fillMissingValues(JsonArray matieres, JsonArray classes) {
             JsonArray classeToKeep = utilsService.filter(classes, classe -> this.idClasses.contains(((JsonObject) classe).getString("id")));
-            this.libelleClasses = new HashSet(utilsService.pluck(classeToKeep, "externalId"));
+            this.libelleClasses = new HashSet(utilsService.pluck(classeToKeep, EXTERNAL_ID_KEY));
 
             JsonObject matiere = utilsService.findWhere(matieres, new JsonObject().put("id", this.idMatiere));
-            this.name = matiere.getString("name");
-            this.externalId = matiere.getString("externalId");
+            this.name = matiere.getString(NAME);
+            this.externalId = matiere.getString(EXTERNAL_ID_KEY);
         }
 
         public boolean equals (Service s) {
@@ -390,10 +399,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         public JsonObject toJson() {
             return new JsonObject()
                     .put("id", this.idMatiere)
-                    .put("externalId", this.externalId)
-                    .put("idEtablissement", this.idEtablissement)
+                    .put(EXTERNAL_ID_KEY, this.externalId)
+                    .put(ID_ETABLISSEMENT_KEY, this.idEtablissement)
                     .put("libelleClasses", new JsonArray(new ArrayList(this.libelleClasses)))
-                    .put("name", this.name);
-        }
+                    .put(NAME, this.name);
+            }
     }
 }

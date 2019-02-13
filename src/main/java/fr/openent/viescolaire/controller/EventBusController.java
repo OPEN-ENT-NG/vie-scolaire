@@ -31,6 +31,8 @@ import io.vertx.core.eventbus.EventBus;
 
 import java.util.List;
 
+import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
+
 public class EventBusController extends ControllerHelper {
 
     private GroupeService groupeService;
@@ -193,17 +195,17 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "listClasses": {
-                String idEtablissement = message.body().getString("idStructure");
+                String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
                 classeService.listClasses(idEtablissement, true, null, null, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupes": {
-                String idEtablissement = message.body().getString("idStructure");
+                String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
                 classeService.listClasses(idEtablissement, null, null, null, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupesByIds": {
-                String idStructure = message.body().getString("idStructure");
+                String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
                 classeService.listClasses(idStructure, null, null, idClassesAndGroups, getJsonArrayBusResultHandler(message));
             }
@@ -253,7 +255,7 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getResponsablesDirection": {
-                String idStructure = message.body().getString("idStructure");
+                String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 userService.getResponsablesDirection(idStructure, getJsonArrayBusResultHandler(message));
             }
             break;
@@ -318,7 +320,7 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getStructure": {
-                String idStructure = message.body().getString("idStructure");
+                String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 utilsService.getStructure(idStructure, getJsonObjectBusResultHandler(message));
             }
             break;
@@ -343,7 +345,7 @@ public class EventBusController extends ControllerHelper {
             case "getMatieresForUser": {
                 final String userType = message.body().getString("userType");
                 final String idEnseignant = message.body().getString("idUser");
-                final String idStructure = message.body().getString("idStructure");
+                final String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 final Boolean onlyId = message.body().containsKey("onlyId") ? message.body().getBoolean("onlyId") : false;
                 if ("Personnel".equals(userType)) {
                     matiereService.listMatieresEtabWithSousMatiere(idStructure, onlyId, getJsonArrayBusResultHandler(message));
@@ -353,8 +355,14 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getAllMatieresEnseignants": {
-                final String idStructure = message.body().getString("idStructure");
+                final String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 matiereService.listMatieres(idStructure, null, null, null, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "listMatieresEtab": {
+                final String idStructure = message.body().getString(ID_STRUCTURE_KEY);
+                final Boolean onlyId = message.body().getBoolean("onlyId");
+                matiereService.listMatieresEtab(idStructure, onlyId, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

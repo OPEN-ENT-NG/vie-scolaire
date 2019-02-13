@@ -253,6 +253,7 @@ public class EventBusController extends ControllerHelper {
                 List<String> idsUsers = message.body().getJsonArray("idUsers").getList();
                 userService.getUsers(idsUsers, getJsonArrayBusResultHandler(message));
             }
+            break;
             case "getUsersByTypeClassAndStructure": {
                 String structureId = message.body().getString("structureId");
                 String classId = message.body().getString("classId");

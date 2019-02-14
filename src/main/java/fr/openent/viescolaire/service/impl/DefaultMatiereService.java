@@ -83,7 +83,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             returndata = "RETURN collect(sub.id) as res ";
         }
         else {
-            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, " +
+            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.source as source, " +
                     "sub.label as name, sub.externalId as external_id_subject ORDER BY name ";
         }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +

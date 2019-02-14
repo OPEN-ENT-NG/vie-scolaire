@@ -39,6 +39,10 @@ export class Utils {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.edt);
     }
 
+    static canAccessDiary () {
+        return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.diary);
+    }
+
     static moduleCompetenceIsInstalled() {
         return Utils.isModuleInstalled(Behaviours.applicationsBehaviours.competences);
     }

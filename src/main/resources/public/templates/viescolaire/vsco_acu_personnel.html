@@ -53,6 +53,13 @@
                 <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
+        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.cdt.title') }"
+                class="horizontal-spacing-twice">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.cdt.title')]]"
+               class="horizontal-spacing">
+                <span><i18n>viescolaire.cdt.title</i18n></span>
+            </a>
+        </header>
     </div>
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
@@ -75,7 +82,7 @@
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_competence.html'"></div>
     </div>
     <div ng-if="canAccessPresences && findParam('filter') === lang.translate('viescolaire.presences.title')">
-        <article class="twelve">
+        <article class="twelve" >
             <label for="structure.isActived.presence" ><i18n>activated.module</i18n></label>
             <div class="cell one">
                 <label class="checkbox">
@@ -89,6 +96,9 @@
             </div>
         </article>
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_presence.html'"></div>
+    </div>
+    <div ng-if="findParam('filter') === lang.translate('viescolaire.cdt.title')">
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_cdt.html'"></div>
     </div>
 </div>
 

@@ -41,6 +41,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             await Utils.loadModule('edt');
             await Utils.loadModule('competences');
             await Utils.loadModule('presences');
+            await Utils.loadModule('diary');
 
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
@@ -48,6 +49,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.canAccessCompetences = Utils.canAccessCompetences();
             $scope.canAccessPresences = Utils.canAccessPresences();
             $scope.canAccessEdt = Utils.canAccessEdt();
+            $scope.canAccessDiary = Utils.canAccessDiary();
 
             let modulesAccess = {
                 moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
@@ -55,12 +57,13 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 moduleEdtIsInstalled: $scope.moduleEdtIsInstalled,
                 canAccessPresences: $scope.canAccessPresences,
                 canAccessCompetences: $scope.canAccessCompetences,
-                canAccessEdt: $scope.canAccessEdt
+                canAccessEdt: $scope.canAccessEdt,
+                canAccessDiary: $scope.canAccessDiary
             };
             console.log('ModulesAccess', modulesAccess);
 
             try {
-                await model.me.workflow.load(['competences', 'presences', 'edt']);
+                await model.me.workflow.load(['competences', 'presences', 'edt', 'diary']);
             } catch {
                 console.log('Erreur Workflow.load : viescolaireController');
             }

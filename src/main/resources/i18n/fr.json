@@ -108,6 +108,7 @@
   "viescolaire.absences.title":"Absences",
   "viescolaire.presences.title":"Presences",
   "viescolaire.edt.title": "Emploi du temps",
+  "viescolaire.cdt.title": "Cahier de texte",
   "viescolaire.absences.historique":"Historique de la journée",
   "viescolaire.absences.eleves":"Elèves",
   "viescolaire.absences.observations":"Observations",
@@ -594,5 +595,17 @@
   "evaluation.service.lightboxes.deletion": "Suppression de service",
   "evaluation.service.lightboxes.switchEval": "Rendre non-évaluable un service",
   "evaluation.service.lightboxes.confirm": "Demande de confirmation",
-  "evaluation.service.lightboxes.create": "Creation de service"
+  "evaluation.service.lightboxes.create": "Creation de service",
+
+  "cdt.setting.homework.type": "Paramétrage des types de travail à faire",
+  "cdt.work.to.do": "Travail à faire",
+  "cdt.work.type": "Types de travail",
+  "cdt.create.homework.type": "Créer un type",
+  "cdt.homework.type.create": "Type de devoir créé",
+  "cdt.homework.type.create.error": "Erreur lors de la création du type de devoir",
+  "cdt.homework.type.update": "Type de devoir modifié",
+  "cdt.homework.type.update.error": "Erreur lors de la modification du type de devoir",
+  "cdt.homework.type.delete": "Type de devoir supprimé",
+  "cdt.homework.type.delete.error": "Erreur lors de la suppression du type de devoir",
+  "cdt.homework.type.delete.impossible": "Suppression impossible, ce type de devoir est déjà utilisé"
 }

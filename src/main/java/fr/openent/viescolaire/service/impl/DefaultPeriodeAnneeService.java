@@ -27,7 +27,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
     @Override
     public void listExclusion(String structureId, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
-                " WHERE id_structure = ? AND code IS null";
+                " WHERE id_structure = ? AND code = 'EXCLUSION'";
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
@@ -46,8 +46,9 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
                 .add(isOpening);
         if (periode.containsKey("code")) {
             params.add("YEAR");
-            query += ", ? ";
         }
+        else params.add("EXCLUSION");
+        query += ", ? ";
         query += ") RETURNING *;";
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));

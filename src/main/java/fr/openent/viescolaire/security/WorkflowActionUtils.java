@@ -23,6 +23,8 @@ import java.util.List;
 
 public final class WorkflowActionUtils {
 
+    static public final String PERIOD_SETTING = "period.setting";
+
     private WorkflowActionUtils() {
         throw new IllegalAccessError("Utility class");
     }

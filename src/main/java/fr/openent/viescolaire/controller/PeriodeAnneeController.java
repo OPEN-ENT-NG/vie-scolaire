@@ -1,5 +1,7 @@
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.security.PeriodSetting;
+import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeAnneeService;
 import fr.openent.viescolaire.utils.DateHelper;
@@ -32,7 +34,8 @@ public class PeriodeAnneeController extends ControllerHelper {
 
 
     @Get("/settings/periode")
-    @ApiDoc("Recupère la periode de l'année en cours")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Recupère les periodes d'inclusion et d'exclusion de l'année en cours")
     public void getPeriodeAnnee (final HttpServerRequest request) {
         if (request.params().contains("structure")) {
             periodeAnneeService.getPeriodeAnnee(request.params().get("structure"),
@@ -78,7 +81,8 @@ public class PeriodeAnneeController extends ControllerHelper {
      */
 
     @Post("/settings/exclusion")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = WorkflowActionUtils.PERIOD_SETTING, type = ActionType.WORKFLOW)
+    @ResourceFilter(PeriodSetting.class)
     @ApiDoc("Créer une période d'exclusion")
     public void createExclusion(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,
@@ -96,9 +100,9 @@ public class PeriodeAnneeController extends ControllerHelper {
     }
 
 
-    //TODO Manage security. Switch authenticated filter to ressource filter
     @Put("/settings/periode/:id")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodSetting.class)
     @ApiDoc("Update a period year based on provided id")
     public void updateYear (final HttpServerRequest request) {
         final Integer id = Integer.parseInt(request.params().get("id"));
@@ -117,7 +121,8 @@ public class PeriodeAnneeController extends ControllerHelper {
 
 
     @Put("/settings/exclusion/:id")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodSetting.class)
     @ApiDoc("Update a period exclusion based on provided id")
     public void updateExclusion (final HttpServerRequest request) {
         try {
@@ -140,9 +145,9 @@ public class PeriodeAnneeController extends ControllerHelper {
         }
     }
 
-    //TODO Manage security. Switch authenticated filter to resource filter
     @Delete("/settings/exclusion/:id")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodSetting.class)
     @ApiDoc("Delete a period exclusion based on provided id")
     public void deleteExclusion (final HttpServerRequest request) {
         try {

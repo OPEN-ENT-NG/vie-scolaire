@@ -59,7 +59,8 @@ export class Structure extends DefaultStructure {
                 categorie: '/presences/categorie/appels?idEtablissement=' + this.id,
             },
             CLASSE : {
-                synchronization : '/viescolaire/classes?idEtablissement=' + this.id + '&classOnly=True'
+                synchronization : '/viescolaire/classes?idEtablissement=' + this.id
+                + '&classOnly=True&forAdmin=true'
             },
             PERIODE : {
                 synchronization: '/viescolaire/periodes?idEtablissement=' + this.id,

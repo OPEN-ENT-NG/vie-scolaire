@@ -68,9 +68,11 @@ public interface ClasseService extends CrudService {
      *                          ET les groupes seront recuperes
      * @param idClassesAndGroups identifiants des classes et groupes que l'on souhaite récupérer
      * @param user              les informations du users connecte
+     * @param forAdmin          récupération des classes dans un but de paramétrage
      * @param handler           handler portant le resultat de la requete
      */
-    void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, JsonArray idClassesAndGroups,
+    void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
+                     JsonArray idClassesAndGroups, Boolean forAdmin,
                      Handler<Either<String, JsonArray>> handler);
 
     /**

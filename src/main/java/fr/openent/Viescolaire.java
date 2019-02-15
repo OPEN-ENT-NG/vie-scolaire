@@ -71,6 +71,7 @@ public class Viescolaire extends BaseServer {
 	public static String ID_ETABLISSEMENT_KEY = "idEtablissement";
 	public static String EXTERNAL_ID_KEY = "externalId";
 	public static String NAME = "name";
+	public static String FORADMIN = "forAdmin";
 
 
 	@Override

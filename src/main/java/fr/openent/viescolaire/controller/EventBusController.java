@@ -31,6 +31,7 @@ import io.vertx.core.eventbus.EventBus;
 
 import java.util.List;
 
+import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
 
 public class EventBusController extends ControllerHelper {
@@ -196,18 +197,25 @@ public class EventBusController extends ControllerHelper {
             break;
             case "listClasses": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
-                classeService.listClasses(idEtablissement, true, null, null, getJsonArrayBusResultHandler(message));
+                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                classeService.listClasses(idEtablissement, true, null,
+                        null, forAdmin,
+                        getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupes": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
-                classeService.listClasses(idEtablissement, null, null, null, getJsonArrayBusResultHandler(message));
+                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                classeService.listClasses(idEtablissement, null, null,
+                        null, forAdmin, getJsonArrayBusResultHandler(message));
             }
             break;
             case "listAllGroupesByIds": {
                 String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
-                classeService.listClasses(idStructure, null, null, idClassesAndGroups, getJsonArrayBusResultHandler(message));
+                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                classeService.listClasses(idStructure, null, null, idClassesAndGroups,
+                        forAdmin, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getGroupesClasse": {

@@ -18,6 +18,8 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.WorkflowActionUtils;
+import fr.openent.viescolaire.security.WorkflowActions;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
@@ -205,13 +207,23 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
 
     public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
-                                 JsonArray idClassesAndGroups, Handler<Either<String, JsonArray>> handler) {
+                            JsonArray idClassesAndGroups,
+                            Boolean forAdmin,
+                            Handler<Either<String, JsonArray>> handler) {
 
         // TODO ajouter filtre sur classes/groupes
         // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
+        Boolean hasAdminRight = false;
+        if(user != null) {
+            hasAdminRight = "Personnel".equals(user.getType());
+            if(forAdmin != null && forAdmin){
+                hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActions.ADMIN_RIGHT.toString());
+            }
+        }
 
         String query;
+
         JsonObject params = new JsonObject();
         // Dans le cas du chef d'établissement, on récupère toutes les classes
 
@@ -221,7 +233,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
         String paramGroupManuel = "";
-        if(null == user || "Personnel".equals(user.getType())){
+        if(null == user || hasAdminRight){
             paramGroupManuel =  paramEtab;
 
             if(null == user && idClassesAndGroups != null) {
@@ -250,7 +262,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String param1;
         String param2;
 
-        if (null == user || "Personnel".equals(user.getType())) {
+        if (null == user || hasAdminRight) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
             params.put("idEtablissement", idEtablissement);

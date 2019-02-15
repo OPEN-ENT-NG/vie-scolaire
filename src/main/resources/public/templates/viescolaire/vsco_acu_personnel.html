@@ -53,7 +53,7 @@
                 <span><i18n>viescolaire.presences.title</i18n></span>
             </a>
         </header>
-        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.cdt.title') }"
+        <header ng-if="canAccessDiary" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.cdt.title') }"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.cdt.title')]]"
                class="horizontal-spacing">

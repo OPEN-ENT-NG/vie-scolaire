@@ -383,8 +383,11 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT periode.* ")
-                .append("FROM " + Viescolaire.VSCO_SCHEMA + ".periode WHERE ");
+        query.append("SELECT periode.* , type ")
+                .append(" FROM " + Viescolaire.VSCO_SCHEMA + ".periode ")
+                .append(" INNER JOIN ")
+                .append( Viescolaire.VSCO_SCHEMA + ".rel_type_periode ON id_type = rel_type_periode.id ")
+                .append(" WHERE ");
 
         if (idEtablissement != null) {
             query.append("periode.id_etablissement = ? ");

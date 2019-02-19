@@ -509,7 +509,7 @@
   "evaluation.bfc.export.button.classe" : "Exporter le bilan de fin de cycle de la classe au format PDF",
   "evaluation.bfc.visibility.average": "Visibilité du niveau calculé du BFC par domaine",
   "evaluation.bfc.visibility.baremeBFC": "Visibilité du barème DNB affiché sur le BFC ",
-  "evaluation.bfc.visibility.diviseur": ":/400",
+  "evaluation.bfc.visibility.diviseur": " /400 :",
 
   "evaluation.bfc.set.visiblity.all" : "Visible par tout le monde",
   "evaluation.bfc.set.visiblity.authorized" : "Visible uniquement des personnes habilitées (chefs établissement, personnels de direction, ...)",

@@ -607,5 +607,9 @@
   "cdt.homework.type.update.error": "Erreur lors de la modification du type de devoir",
   "cdt.homework.type.delete": "Type de devoir supprimé",
   "cdt.homework.type.delete.error": "Erreur lors de la suppression du type de devoir",
-  "cdt.homework.type.delete.impossible": "Suppression impossible, ce type de devoir est déjà utilisé"
+  "cdt.homework.type.delete.impossible": "Suppression impossible, ce type de devoir est déjà utilisé",
+
+  "cdt.data.init": "Initilisation des données",
+  "cdt.setting.data.init": "Initialisation des données de l'application",
+  "cdt.start.init": "Lancer l'initialisation"
 }

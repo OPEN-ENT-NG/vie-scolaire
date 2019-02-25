@@ -341,6 +341,10 @@ public class EventBusController extends ControllerHelper {
                 utilsService.getStructure(idStructure, getJsonObjectBusResultHandler(message));
             }
             break;
+            case "getAllStructures": {
+                utilsService.getStructures(getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

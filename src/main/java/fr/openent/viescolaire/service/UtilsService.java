@@ -139,6 +139,13 @@ public interface UtilsService {
      */
     void getStructure(String idStructure, Handler<Either<String, JsonObject>> handler);
 
+    /**
+     * Return all the structures
+     *
+     * @param jsonObjectBusResultHandler
+     */
+    void getStructures(Handler<Either<String, JsonArray>> jsonObjectBusResultHandler);
+
     JsonObject findWhere(JsonArray collection, JsonObject oCriteria);
 
     Object find(Iterable collection, Predicate predicate);
@@ -148,4 +155,6 @@ public interface UtilsService {
     Collection pluck(Iterable collection, String key);
 
     Collection map(Iterable collection, Function fct);
+
+
 }

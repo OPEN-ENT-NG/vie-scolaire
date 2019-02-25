@@ -533,6 +533,13 @@ public class DefaultUtilsService implements UtilsService{
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
     }
 
+    @Override
+    public void getStructures(Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (s:Structure) return s.id ");
+        neo4j.execute(query.toString(), new JsonObject(), Neo4jResult.validResultHandler(handler));
+    }
+
 //    @Override
 //    public void getIdStructuresByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler){
 //        StringBuilder query = new StringBuilder();

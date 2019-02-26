@@ -4,18 +4,19 @@ import {Utils} from "../../utils/Utils";
 import {Mix} from "toolkit";
 
 export class PeriodeAnnee {
-
     id: number;
     start_date: string;
     end_date: string;
     structure: string;
     description: string;
     isOpening: boolean;
+    isExist: boolean;
     code: string;
     loading: boolean;
 
     constructor(id_structure?: string) {
         this.loading = false;
+        this.isExist = false;
         this.description = '';
         if (id_structure) this.structure = id_structure;
     }
@@ -33,6 +34,10 @@ export class PeriodeAnnee {
 
     isLoading (): boolean {
         return this.loading || false;
+    }
+
+    setIsExist(isExist: boolean) {
+        this.isExist = isExist;
     }
 
     toJson() {
@@ -53,7 +58,7 @@ export class PeriodeAnnee {
                 this.start_date = data.start_date;
                 this.end_date = data.end_date;
                 this.code = data.code;
-                this.isOpening = data.isOpening ;
+                this.isOpening = data.isOpening;
             }
         } catch (e) {
             notify.error('viescolaire.error.sync');

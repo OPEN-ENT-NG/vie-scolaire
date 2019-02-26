@@ -460,8 +460,8 @@
   "viescolaire.fin.saisie": "Fin de saisie",
   "viescolaire.type.config": "Type de configuration",
   "viescolaire.parametrage.classes.selected": "Paramétrage des classes sélectionnées",
-  "viescolaire.creation.periode.annee.scolaire": "La periode de l'année scolaire a bien été sauvegardé",
-  "viescolaire.modification.periode.annee.scolaire": "La periode de l'année scolaire a bien été modifié",
+  "viescolaire.creation.periode.annee.scolaire": "La periode de l'année scolaire a bien été sauvegardée",
+  "viescolaire.modification.periode.annee.scolaire": "La periode de l'année scolaire a bien été modifiée",
   "ariane.viescolaire.createDevoir":"Ajouter une évaluation",
   "ariane.viescolaire.editDevoir":"Modifier une évaluation",
   "ariane.viescolaire.displayReleveNotes":"Relevé de notes",
@@ -611,5 +611,9 @@
 
   "cdt.data.init": "Initilisation des données",
   "cdt.setting.data.init": "Initialisation des données de l'application",
-  "cdt.start.init": "Lancer l'initialisation"
+  "cdt.data.init.are": "Les données qui seront initialisées sont",
+  "cdt.start.init": "Lancer l'initialisation",
+  "cdt.data.init.success": "Les données ont été correctement initialisées",
+  "cdt.data.init.error": "Une erreur est survenue lors de l'initialisation des données",
+  "cdt.state.homework": "Etat des devoirs"
 }

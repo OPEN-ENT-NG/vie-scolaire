@@ -23,8 +23,17 @@
         </div>
 
         <div class="row">
-            <button class="right-magnet" ng-click="createPeriodeAnnee()">
-                <i18n><span class="no-style ng-scope">Sauvegarder</span></i18n>
+            <button ng-if="!periodeAnnee.isExist"
+                    class="right-magnet"
+                    ng-click="createPeriodeAnnee()"
+                    ng-disabled="!isValidForm()">
+                <span class="no-style ng-scope"><i18n>viescolaire.save</i18n></span>
+            </button>
+            <button ng-if="periodeAnnee.isExist"
+                    class="right-magnet"
+                    ng-click="createPeriodeAnnee()"
+                    ng-disabled="!isValidForm()">
+                <span class="no-style ng-scope"><i18n>item.modify</i18n></span>
             </button>
         </div>
 

@@ -126,6 +126,7 @@ public class ClasseController extends BaseController {
                     Boolean classOnly = null;
                     String idEtablissement = request.params().get("idEtablissement");
 
+                    Map<String, JsonArray> info = new HashMap<>();
                     final boolean isPresence;
                     if(request.params().get("isPresence") != null) {
                         isPresence = Boolean.parseBoolean(request.params().get("isPresence"));
@@ -176,7 +177,8 @@ public class ClasseController extends BaseController {
                                 if (isPresence || isEdt) {
                                     renderJson(request, classes);
                                 } else {
-                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action,
+                                            handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
                                         @Override
                                         public void handle(Message<JsonObject> message) {
                                             if ("ok".equals(message.body().getString("status"))) {
@@ -187,7 +189,9 @@ public class ClasseController extends BaseController {
                                                 for (int i = 0; i < classes.size(); i++) {
                                                     object = classes.getJsonObject(i);
                                                     object.put("id_cycle", cycles.getLong(object.getString("id")));
-                                                    object.put("libelle_cycle", cycleLibelle.getString(object.getString("id")));
+                                                    object.put("libelle_cycle",
+                                                            cycleLibelle.getString(object.getString("id")));
+                                                    object.put("services", info.get(object.getString("id")));
                                                     returnedList.add(object);
                                                 }
                                                 renderJson(request, returnedList);
@@ -209,6 +213,7 @@ public class ClasseController extends BaseController {
                     if (isPresence || isEdt) {
                         classeHandler = finalHandler;
                     } else {
+
                         classeHandler = event -> {
                             JsonObject action = new JsonObject()
                                     .put("action", "service.getServices")
@@ -217,27 +222,26 @@ public class ClasseController extends BaseController {
                             eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
                                 if ("ok".equals(message.body().getString("status"))) {
 
-                                    Set<String> toDelete = new HashSet<>();
                                     Set<String> toAdd = new HashSet<>();
 
                                     message.body().getJsonArray("results").stream().forEach(service -> {
                                         JsonObject serviceObj = (JsonObject) service;
-                                        if(serviceObj.getBoolean("evaluable")) {
-                                            toAdd.add(serviceObj.getString("id_groupe"));
-                                        } else {
-                                            toDelete.add(serviceObj.getString("id_groupe"));
+                                        String idGroupe = serviceObj.getString("id_groupe");
+
+                                        if(!info.containsKey(idGroupe)){
+                                            info.put(idGroupe, new JsonArray());
                                         }
+                                        if(serviceObj.getBoolean("evaluable")) {
+                                            toAdd.add(idGroupe);
+                                        }
+                                        info.get(idGroupe).add(serviceObj);
                                     });
-                                    toDelete.removeAll(toAdd);
 
                                     Iterator iter = event.right().getValue().iterator();
                                     while (iter.hasNext()) {
                                         JsonObject classe = (JsonObject) iter.next();
                                         if (toAdd.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
                                             toAdd.remove(classe.getJsonObject("m").getJsonObject("data").getString("id"));
-                                        }
-                                        if(toDelete.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
-                                            iter.remove();
                                         }
                                     }
 
@@ -250,7 +254,8 @@ public class ClasseController extends BaseController {
                                                         JsonArray labels = classeObj.getJsonArray("labels");
                                                         classeObj.remove("labels");
                                                         JsonObject metadata = new JsonObject().put("labels", labels);
-                                                        JsonObject m = new JsonObject().put("data", classeObj).put("metadata", metadata);
+                                                        JsonObject m = new JsonObject().put("data", classeObj)
+                                                                .put("metadata", metadata);
                                                         return finalObject.put("m", m);
                                                     }
                                             ).collect(Collectors.toList()));

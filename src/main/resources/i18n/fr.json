@@ -611,9 +611,19 @@
 
   "cdt.data.init": "Initilisation des données",
   "cdt.setting.data.init": "Initialisation des données de l'application",
-  "cdt.data.init.are": "Les données qui seront initialisées sont",
+  "cdt.data.init.are": "Les données suivantes seront initialisées",
   "cdt.start.init": "Lancer l'initialisation",
   "cdt.data.init.success": "Les données ont été correctement initialisées",
   "cdt.data.init.error": "Une erreur est survenue lors de l'initialisation des données",
-  "cdt.state.homework": "Etat des devoirs"
+  "cdt.state.homework": "Etat des devoirs",
+
+  "edt.data.init": "Initialisation des données",
+  "edt.setting.data.init": "Initialisation des données de l'application",
+  "edt.data.init.are": "Les données suivantes seront initialisées",
+  "edt.data.information": "Si des données sont déjà existantes, l'initialisation n'aura pas d'impact et les données ne seront pas remplacées.",
+  "edt.start.init": "Lancer l'initialisation",
+  "edt.data.init.success": "Les données ont été correctement initialisées",
+  "edt.data.init.error": "Une erreur est survenue lors de l'initialisation des données",
+  "edt.year.start.end.date": "Début et fin de l'année scolaire",
+  "edt.public.holiday": "Jours fériés"
 }

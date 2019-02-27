@@ -60,6 +60,13 @@
                 <span><i18n>viescolaire.cdt.title</i18n></span>
             </a>
         </header>
+        <header ng-if="canAccessEdt" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.edt.title') }"
+                class="horizontal-spacing-twice">
+            <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.edt.title')]]"
+               class="horizontal-spacing">
+                <span><i18n>viescolaire.edt.title</i18n></span>
+            </a>
+        </header>
     </div>
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
@@ -99,6 +106,9 @@
     </div>
     <div ng-if="findParam('filter') === lang.translate('viescolaire.cdt.title')">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_cdt.html'"></div>
+    </div>
+    <div ng-if="findParam('filter') === lang.translate('viescolaire.edt.title')">
+        <div ng-include="'/viescolaire/public/templates/viescolaire/param_edt.html'"></div>
     </div>
 </div>
 

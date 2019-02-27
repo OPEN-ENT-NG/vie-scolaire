@@ -4,7 +4,7 @@ CREATE TABLE viesco.setting_period (
   end_date timestamp without time zone NOT NULL,
   description character varying,
   id_structure character varying(36) NOT NULL,
-  code character varying UNIQUE,
+  code character varying (36),
   is_opening boolean NOT NULL,
   CONSTRAINT period_exclusion_pkey PRIMARY KEY (id)
 );

@@ -89,12 +89,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
         betweenEnd.put("$gte", startDate);
 
         if (groups != null && !groups.isEmpty()){
-            JsonObject dateOperand =  new JsonObject()
-                    .put("$and", new fr.wseduc.webutils.collections.JsonArray()
+            query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
                             .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
                             .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
-            JsonObject groupsOperand = getGroupsFilterTable( groups,teacherId);
-            query.put("$and", new fr.wseduc.webutils.collections.JsonArray().add(dateOperand).add(groupsOperand));
+            query.put ("$and",new fr.wseduc.webutils.collections.JsonArray().add(getGroupsFilterTable( groups,teacherId)));
         } else {
             query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
                     .add(new JsonObject().put(COURSE_TABLE.startDate, betweenStart))

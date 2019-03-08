@@ -34,13 +34,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -209,14 +203,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
                             JsonArray idClassesAndGroups,
                             Boolean forAdmin,
-                            Handler<Either<String, JsonArray>> handler) {
+                            Handler<Either<String, JsonArray>> handler, boolean isEdt) {
 
         // TODO ajouter filtre sur classes/groupes
         // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         Boolean hasAdminRight = false;
         if(user != null) {
-            hasAdminRight = "Personnel".equals(user.getType());
+            hasAdminRight = "Personnel".equals(user.getType()) || isEdt;
             if(forAdmin != null && forAdmin){
                 hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActions.ADMIN_RIGHT.toString());
             }

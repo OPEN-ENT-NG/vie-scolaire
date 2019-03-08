@@ -31,8 +31,6 @@ import io.vertx.core.eventbus.EventBus;
 
 import java.util.List;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
 
@@ -202,14 +200,14 @@ public class EventBusController extends ControllerHelper {
                 Boolean forAdmin =  message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idEtablissement, true, null,
                         null, forAdmin,
-                        getJsonArrayBusResultHandler(message));
+                        getJsonArrayBusResultHandler(message), false);
             }
             break;
             case "listAllGroupes": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
                 Boolean forAdmin =  message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idEtablissement, null, null,
-                        null, forAdmin, getJsonArrayBusResultHandler(message));
+                        null, forAdmin, getJsonArrayBusResultHandler(message), false);
             }
             break;
             case "listAllGroupesByIds": {
@@ -217,7 +215,7 @@ public class EventBusController extends ControllerHelper {
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
                 Boolean forAdmin =  message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idStructure, null, null, idClassesAndGroups,
-                        forAdmin, getJsonArrayBusResultHandler(message));
+                        forAdmin, getJsonArrayBusResultHandler(message), false);
             }
             break;
             case "getGroupesClasse": {

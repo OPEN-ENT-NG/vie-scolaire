@@ -274,7 +274,7 @@ public class ClasseController extends BaseController {
                     String forAdminStr = request.params().get("forAdmin");
                     Boolean forAdmin = (forAdminStr == null)?false:Boolean.valueOf(forAdminStr);
                     classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
-                            classeHandler);
+                            classeHandler, isEdt);
                 } else {
                     badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
                 }

@@ -36,15 +36,38 @@ public class PeriodeAnneeController extends ControllerHelper {
     @Get("/settings/periode")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Recupère les periodes d'inclusion et d'exclusion de l'année en cours")
-    public void getPeriodeAnnee (final HttpServerRequest request) {
+    public void getPeriodeAnnee(final HttpServerRequest request) {
         if (request.params().contains("structure")) {
             periodeAnneeService.getPeriodeAnnee(request.params().get("structure"),
                     defaultResponseHandler(request));
         } else if (request.params().contains("structureId")) {
             periodeAnneeService.listExclusion(request.params().get("structureId"),
                     arrayResponseHandler(request));
+        } else {
+            badRequest(request);
         }
-        else {
+    }
+
+    @Get("/settings/periode/schoolyear")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Recupère la date de début et de fin de l'année en cours")
+    public void getSchoolyear(final HttpServerRequest request) {
+        if (request.params().contains("structureId")) {
+            periodeAnneeService.getPeriodeAnnee(request.params().get("structureId"),
+                    defaultResponseHandler(request));
+        } else {
+            badRequest(request);
+        }
+    }
+
+    @Get("/settings/periodes/exclusions")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Recupère les periodes d'exclusion de l'année en cours")
+    public void getExclusion(final HttpServerRequest request) {
+       if (request.params().contains("structureId")) {
+            periodeAnneeService.listExclusion(request.params().get("structureId"),
+                    arrayResponseHandler(request));
+        } else {
             badRequest(request);
         }
     }

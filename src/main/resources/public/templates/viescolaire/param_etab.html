@@ -29,14 +29,14 @@
                         </li>
                         <li>
                             <a href="" ng-class="{'selected': currParam === 1}"
-                               ng-click="currParam = 1;">
-                                <i18n>viescolaire.exclusion.set</i18n>
+                               ng-click="currParam = 2;">
+                                <i18n>viescolaire.periode.set</i18n>
                             </a>
                         </li>
                         <li>
                             <a href="" ng-class="{'selected': currParam === 2}"
-                               ng-click="currParam = 2;">
-                                <i18n>viescolaire.periode.set</i18n>
+                               ng-click="currParam = 1;">
+                                <i18n>viescolaire.exclusion.set</i18n>
                             </a>
                         </li>
                         <li workflow="viescolaire.importRetardAndAbsences">
@@ -55,16 +55,16 @@
     <div ng-if="currParam === 0"
          ng-include="'/viescolaire/public/templates/viescolaire/param_annee_scolaire.html'">
     </div>
+    <!-- Paramétrage des périodes -->
+    <div ng-if="currParam === 2"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_periode.html'">
+    </div>
     <!-- Paramétrage periode exclusion -->
     <div  ng-if="currParam === 1">
         <sniplet
                 template="exclusion"
                 application="edt"
         ></sniplet>
-    </div>
-    <!-- Paramétrage des périodes -->
-    <div ng-if="currParam === 2"
-            ng-include="'/viescolaire/public/templates/viescolaire/param_periode.html'">
     </div>
     <!-- Import de fichiers csv -->
     <div ng-if="currParam === 3"

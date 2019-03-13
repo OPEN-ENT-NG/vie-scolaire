@@ -91,17 +91,14 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
                 .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
         if (groups != null && !groups.isEmpty()){
-            query.put ("$and",new fr.wseduc.webutils.collections.JsonArray()
-                    .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
-                    .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd))
-                    .add(getGroupsFilterTable( groups,teacherId)));
+                    query.put("$or",getGroupsFilterTable( groups,teacherId));
         }
 
         final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
     }
 
-    private JsonObject getGroupsFilterTable(List<String>  groups , List<String> teacherId) {
+    private JsonArray getGroupsFilterTable(List<String>  groups , List<String> teacherId) {
         JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
         if (teacherId != null && !teacherId.isEmpty() ){
             for(String teacher : teacherId){
@@ -113,7 +110,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     .add(new JsonObject().put(COURSE_TABLE.groups, group));
         }
 
-        return  new JsonObject().put("$or", groupOperand );
+        return groupOperand ;
     }
     private JsonArray getTeachersFilterTable(List<String>  teachers) {
         JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();

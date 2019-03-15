@@ -21,13 +21,13 @@
             <div class="row">
                 <nav class="vertical">
                     <ul ng-init="currParam = 0;">
-                        <li ng-if="canAccessDiary">
+                        <li>
                             <a href=""  ng-class="{'selected': currParam === 0}"
                                ng-click="currParam = 0;">
                                 <i18n>cdt.data.init</i18n>
                             </a>
                         </li>
-                        <li ng-if="canAccessDiary">
+                        <li>
                             <a href=""  ng-class="{'selected': currParam === 1}"
                                ng-click="currParam = 1;">
                                 <i18n>cdt.work.to.do</i18n>

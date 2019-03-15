@@ -21,7 +21,7 @@
             <div class="row">
                 <nav class="vertical">
                     <ul ng-init="currParam = 0;">
-                        <li>
+                        <li ng-if="canAccessEdt">
                             <a href=""  ng-class="{'selected': currParam === 0}"
                                ng-click="currParam = 0;">
                                 <i18n>edt.data.init</i18n>

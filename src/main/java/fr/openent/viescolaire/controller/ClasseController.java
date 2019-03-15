@@ -134,10 +134,17 @@ public class ClasseController extends BaseController {
                         isPresence = false;
                     }
                     final boolean isEdt;
+                    final boolean isTeacherEdt;
                     if(request.params().contains("isEdt")) {
                         isEdt = Boolean.parseBoolean(request.params().get("isEdt"));
+                        if(request.params().contains("isTeacherEdt")){
+                            isTeacherEdt = Boolean.parseBoolean(request.params().get("isTeacherEdt"));
+                        }else {
+                            isTeacherEdt = false;
+                        }
                     } else {
                         isEdt = false;
+                        isTeacherEdt = false;
                     }
                     if(request.params().get("classOnly") != null) {
                         classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
@@ -274,7 +281,7 @@ public class ClasseController extends BaseController {
                     String forAdminStr = request.params().get("forAdmin");
                     Boolean forAdmin = (forAdminStr == null)?false:Boolean.valueOf(forAdminStr);
                     classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
-                            classeHandler, isEdt);
+                            classeHandler, isTeacherEdt);
                 } else {
                     badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
                 }

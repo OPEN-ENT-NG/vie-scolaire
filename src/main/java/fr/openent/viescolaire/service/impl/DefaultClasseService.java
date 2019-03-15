@@ -203,14 +203,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
                             JsonArray idClassesAndGroups,
                             Boolean forAdmin,
-                            Handler<Either<String, JsonArray>> handler, boolean isEdt) {
+                            Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
 
         // TODO ajouter filtre sur classes/groupes
         // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         Boolean hasAdminRight = false;
         if(user != null) {
-            hasAdminRight = "Personnel".equals(user.getType()) || isEdt;
+            hasAdminRight = "Personnel".equals(user.getType()) || isTeacherEdt;
             if(forAdmin != null && forAdmin){
                 hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActions.ADMIN_RIGHT.toString());
             }

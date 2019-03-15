@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.PeriodeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
@@ -168,4 +169,6 @@ public class PeriodeController extends ControllerHelper {
         });
     }
 
+    @SecuredAction(value = WorkflowActionUtils.PERIOD_SETTING, type = ActionType.WORKFLOW)
+    public void periodWorkflow(final HttpServerRequest request){}
 }

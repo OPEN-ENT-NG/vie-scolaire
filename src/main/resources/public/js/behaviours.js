@@ -68,7 +68,8 @@ var behaviours =
 	    rights: {
 	        workflow: {
 	            adminChefEtab: 'fr.openent.DisplayController|view',
-	            importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences'
+	            importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences',
+	            periodSettings: 'fr.openent.viescolaire.controller.PeriodeController|periodWorkflow'
 	        },
 	        resource: {}
 	    }

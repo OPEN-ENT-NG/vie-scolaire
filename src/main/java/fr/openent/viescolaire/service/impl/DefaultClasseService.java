@@ -473,7 +473,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class) ")
                 .append("WHERE c.id IN {idClasses} ")
                 .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
-                .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groupes");
+                .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups ,COLLECT(DISTINCT g.id) as id_groups");
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

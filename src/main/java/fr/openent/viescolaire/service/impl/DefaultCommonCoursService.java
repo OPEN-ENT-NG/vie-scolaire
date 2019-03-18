@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.eventbus.EventBus;
@@ -137,7 +138,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
                         final Date queryStart = queryStartDate, queryEnd = queryEndDate ;
 
                         String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
-                                " FROM " + EDT_SCHEMA + ".period_exclusion WHERE period_exclusion.id_structure = ?;";
+                                " FROM "+Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
+                                " WHERE id_structure = ? AND code = 'EXCLUSION'";
 
                         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
                         Sql.getInstance().prepared(query, params, (res)->{

@@ -20,6 +20,8 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -122,42 +124,50 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, final Handler<Either<String,JsonArray>> handler){
+        Future<JsonArray> coursesFuture = Future.future();
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, response -> {
                     if (response.isRight()) {
-                        JsonArray arrayCourses = response.right().getValue();
-
-                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date  queryStartDate = new Date();
-                        Date  queryEndDate = new Date();
-                        try {
-                            queryStartDate = formatter.parse(begin + " 00:00:00");
-                            queryEndDate = formatter.parse(end + " 23:59:59");
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        final Date queryStart = queryStartDate, queryEnd = queryEndDate ;
-
-                        String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
-                                " FROM "+Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
-                                " WHERE id_structure = ? AND code = 'EXCLUSION'";
-
-                        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
-                        Sql.getInstance().prepared(query, params, (res)->{
-                            JsonArray exclusions;
-                            if (!res.isSend()) {
-                                handler.handle(new Either.Left<>("can't get exclusions days from mongo"));
-                            } else {
-                                exclusions =  res.body().getJsonArray("results");
-                                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart, queryEnd, arrayCourses, exclusions, handler)));
-                            }
-                        });
-
+                        coursesFuture.complete(response.right().getValue());
                     } else {
-                        LOG.error("can't get courses from mongo");
-                        handler.handle(new Either.Left<>("can't get courses from mongo"));
+                        coursesFuture.fail("can't get courses from mongo");
                     }
                 }
         );
+        //Exlusion part
+        Future<JsonArray> exclusionsFuture = Future.future();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date queryStartDate = new Date();
+        Date queryEndDate = new Date();
+        try {
+            queryStartDate = formatter.parse(begin + " 00:00:00");
+            queryEndDate = formatter.parse(end + " 23:59:59");
+        } catch (ParseException e) {
+            exclusionsFuture.fail("can't parse init date to exclusions query");
+        }
+        final Date queryStart = queryStartDate, queryEnd = queryEndDate;
+        String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
+                " FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
+                " WHERE id_structure = ? AND code = 'EXCLUSION'";
+
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
+        Sql.getInstance().prepared(query, params, (res) -> {
+            JsonArray exclusions;
+            if (!res.isSend()) {
+                exclusionsFuture.fail("can't get exclusions days from mongo");
+            } else {
+                exclusionsFuture.complete(res.body().getJsonArray("results"));
+            }
+        });
+
+        CompositeFuture.all(coursesFuture, exclusionsFuture).setHandler(event -> {
+            if (event.succeeded()) {
+                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
+
+            } else {
+                handler.handle(new Either.Left<>(event.cause().getMessage()));
+            }
+        });
+
     }
     public void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler ) {
         final JsonObject query = new JsonObject();

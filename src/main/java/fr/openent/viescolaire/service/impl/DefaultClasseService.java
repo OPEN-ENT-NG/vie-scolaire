@@ -459,7 +459,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("-(c:Class {id :{idClasse}}) ")
                 .append(" WHERE (c.externalId IN u.headTeacher OR  c.externalId IN u.headTeacherManual) ")
                 .append(" RETURN CASE WHEN u.title IS NULL THEN \" \" ELSE u.title END as civility, ")
-                .append(" u.lastName as name, u.firstName as firstName ");
+                .append(" u.lastName as name, u.firstName as firstName, u.birthDate as birthDate, u.id as id ");
         JsonObject params = new JsonObject().put("idClasse", idClasse);
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));

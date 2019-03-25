@@ -164,11 +164,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         // Requête Néo
         query.append(" MATCH (u:User {profiles: ['Student']})-")
-                .append("[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})")
-                .append(" WHERE s.externalId IN u.structures ")
-                .append(" with u,s ")
-                .append(" OPTIONAL MATCH (c:Class)-[b:BELONGS]->(s) ")
+                .append("[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})<-[b:BELONGS]-(c:Class) ")
                 .append(" WHERE  c.externalId IN u.classes ")
+                .append(" AND    s.externalId IN u.structures ")
                 .append(filter)
                 .append(returning)
 
@@ -179,7 +177,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" (s:Structure {id:{idEtablissement}}) ")
                 .append(" WHERE s.externalId IN u.structures ")
                 .append(" with u, s ")
-                .append(" OPTIONAL MATCH (c:Class)-[b:BELONGS]->(s) ")
+                .append(((!isTeacher)?" OPTIONAL" : "" )+ " MATCH (c:Class)-[b:BELONGS]->(s) ")
                 .append(" WHERE  c.externalId IN u.classes ")
                 .append(filter)
                 .append(returning);

@@ -97,7 +97,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         String query = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) ";
         String returnValue = " WITH r.classes + r.groups as libelleClasses, s, u, sub " +
-                "MATCH (s)--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND c.externalId IN libelleClasses " +
+                "MATCH (s)--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
                 "RETURN u.id as idEnseignant, s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, libelleClasses, COLLECT(c.id) as idClasses";
         String condition = "WHERE s.id = {structureId}";
         JsonObject params = new JsonObject().put("structureId", structureId);

@@ -241,7 +241,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
         Integer dayOfWeek = null;
         try{
-            dayOfWeek = course.getInteger(COURSE_TABLE.dayOfWeek) ;
+            dayOfWeek = Integer.parseInt(String.valueOf(course.getValue(COURSE_TABLE.dayOfWeek)));
         } catch (ClassCastException e) {
             LOG.error("Error formatting dayOfWeek ");
             handler.handle(new Either.Left<>("Error formatting dayOfWeek"));

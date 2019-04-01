@@ -229,7 +229,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             paramGroupManuel =  paramEtab;
 
             if(null == user && idClassesAndGroups != null) {
-                paramGroupManuel += " AND m.id IN {idClassesAndGroups}";
+                paramGroupManuel += " m.id IN {idClassesAndGroups}";
             }
 
         } else {
@@ -237,20 +237,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         }
 
 
-
-        String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->"
-                +"(s:Structure)" +
-                " WITH m, s" +
-                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup)" +
-                " WHERE m2.id = m.id AND " + paramGroupManuel +
-                " RETURN m " +
+        String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(s:Structure)" +
+                " WHERE " + paramGroupManuel +
+                " WITH m MATCH (u:User{profiles :['Teacher']})-[i:IN]->m RETURN m " +
                 " UNION " +
-                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-"
-                +"[BELONGS]->(s:Structure) " +
-                " WITH m, s " +
-                " MATCH (u:User{profiles :['Teacher']})-[i:IN]->(m2:ManualGroup) " +
-                " WHERE m2.id = m.id AND " + paramGroupManuel +
-                " RETURN distinct(m) ";
+                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-[BELONGS]->(s:Structure)" +
+                " WHERE " + paramGroupManuel +
+                " WITH m MATCH (u:User{profiles :['Teacher']})-[i:IN]->m RETURN distinct(m) ";
         String param1;
         String param2;
 

@@ -133,7 +133,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     }
                 }
         );
-        boolean onlyOneGroup = group.size() == 1;
+        boolean onlyOneGroup = group.size() == 1 && teacherId.isEmpty() ;
         //Exlusion part
         Future<JsonArray> exclusionsFuture = Future.future();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

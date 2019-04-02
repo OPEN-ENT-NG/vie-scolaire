@@ -37,6 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -201,16 +203,38 @@ public class DefaultUtilsService implements UtilsService{
                     // Récupération des élèves présents dans l'annuaire
                     JsonArray rNeo = ((JsonObject)event.body()).getJsonArray("result",
                             new fr.wseduc.webutils.collections.JsonArray());
-
+                    JsonArray idsNeo = new fr.wseduc.webutils.collections.JsonArray();
+                    for (int i=0; i<rNeo.size(); i++) {
+                        String idEleve = rNeo.getJsonObject(i).getString("id");
+                        if (idEleve == null) {
+                            idEleve = rNeo.getJsonObject(i).getString("idEleve");
+                        }
+                        idsNeo.add(idEleve);
+                    }
                     // Récupération des élèves supprimés et stockés dans postgres
                     eleveService.getStoredDeletedStudent(idClasse,idStructure, idEleves, rNeo,
                             new Handler<Either<String, JsonArray>>() {
                                 public void handle(Either<String, JsonArray> event) {
                                     if (event.isRight()) {
                                         JsonArray rPostgres = event.right().getValue();
+                                        if(rPostgres !=null && rPostgres.size() > 0){
+
+                                            /*JsonArray elevesToDelete = (JsonArray) rPostgres.stream().filter( eleveDeleted ->{
+                                              return( idsNeo.contains(((JsonObject)eleveDeleted).getString("id")));
+                                            }).collect(Collectors.toList());
+                                            elevesToDelete.forEach(eleveDeleted -> {
+                                                rPostgres.remove(eleveDeleted);
+                                            } );*/
+                                            List<Object> eleveNeoInrPostgres = rPostgres.stream().filter(eleveDeleted ->
+                                                    idsNeo.contains(((JsonObject)eleveDeleted).getString("id"))).collect(Collectors.toList());
+                                            eleveNeoInrPostgres.forEach(eleveDeleted -> {
+                                                rPostgres.remove(eleveDeleted);
+                                            } );
+                                        }
+
                                         JsonArray result =  saUnion(rNeo, rPostgres);
-                                        if (null == idPeriode) {
-                                            handler.handle(new Either.Right(sortArray(result, sortedField)));
+                                    if (null == idPeriode) {
+                                        handler.handle(new Either.Right(sortArray(result, sortedField)));
                                         }
                                         else {
                                             // Si on veut filtrer sur la période

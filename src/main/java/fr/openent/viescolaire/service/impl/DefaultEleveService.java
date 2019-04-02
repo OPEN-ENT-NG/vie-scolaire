@@ -399,15 +399,15 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values  = new fr.wseduc.webutils.collections.JsonArray();
 
         // Si les élèves sont dans le résultat Neo, on ne les récupère pas dans postgres
-        JsonArray idsNeo = new JsonArray();
+        /*JsonArray idsNeo = new JsonArray();
         for (int i=0; i<rNeo.size(); i++) {
             String idEleve = rNeo.getJsonObject(i).getString("id");
             if (idEleve == null) {
                 idEleve = rNeo.getJsonObject(i).getString("idEleve");
             }
             idsNeo.add(idEleve);
-            values.add(idEleve);
-        }
+            //values.add(idEleve);
+        }*/
         if (idClasse != null){
             for(int i=0; i< idClasse.size(); i++) {
                 values.add(idClasse.getValue(i));
@@ -439,7 +439,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("           string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
                 .append("    FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp, viesco.rel_groupes_personne_supp ")
                 .append("    WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
-                .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
+               // .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
                 .append((idClasse != null)? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
                 .append((idEleves != null)? " AND id_user IN " + Sql.listPrepared(idEleves): "")
                 .append("    AND user_type = 'Student' ")

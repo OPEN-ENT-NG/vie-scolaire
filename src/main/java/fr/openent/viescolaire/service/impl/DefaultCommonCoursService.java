@@ -94,7 +94,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
                 .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
         if (groups != null && !groups.isEmpty()){
-                    query.put("$or",getGroupsFilterTable( groups,teacherId));
+            query.put("$or",getGroupsFilterTable( groups,teacherId));
         }
 
         final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
@@ -133,6 +133,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     }
                 }
         );
+        boolean onlyOneGroup = group.size() == 1;
         //Exlusion part
         Future<JsonArray> exclusionsFuture = Future.future();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -161,7 +162,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         CompositeFuture.all(coursesFuture, exclusionsFuture).setHandler(event -> {
             if (event.succeeded()) {
-                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
+                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart,onlyOneGroup, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
 
             } else {
                 handler.handle(new Either.Left<>(event.cause().getMessage()));
@@ -174,7 +175,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
     }
-    private JsonArray getOccurencesWithCourses(Date queryStartDate, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
+    private JsonArray getOccurencesWithCourses(Date queryStartDate,boolean onlyOneGroup, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
         for(int i=0; i < arrayCourses.size() ; i++) {
             JsonObject course =  arrayCourses.getJsonObject(i);
@@ -196,7 +197,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     endMoment = getCalendarDate(endDateCombine, handler);
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
-                        JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, true).toString());
+                        JsonObject c = new JsonObject(formatOccurence(course,onlyOneGroup, startMoment, endMoment, true).toString());
                         if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                             result.add(c);
                         }
@@ -204,7 +205,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                         endMoment.add(Calendar.DATE, cadence);
                     }
                 } else {
-                    JsonObject c = new JsonObject(formatOccurence(course, startMoment, endMoment, false).toString());
+                    JsonObject c = new JsonObject(formatOccurence(course,onlyOneGroup, startMoment, endMoment, false).toString());
                     if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
                             &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                         result.add(c);
@@ -225,7 +226,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         boolean canAdd = true;
         for(int i=0; i < exclusions.size(); i++){
             SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-           Date startExclusion = getDate(exclusions.getJsonArray(i).getString(0), DATE_FORMATTER) ;
+            Date startExclusion = getDate(exclusions.getJsonArray(i).getString(0), DATE_FORMATTER) ;
             Date endExclusion = getDate( exclusions.getJsonArray(i).getString(1), DATE_FORMATTER) ;
             Date startOccurrence = getDate( c.getString(COURSE_TABLE.startDate) , DATE_FORMATTER) ;
             Date endOccurrence =  getDate(c.getString(COURSE_TABLE.endDate) , DATE_FORMATTER) ;
@@ -249,7 +250,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         dayOfWeek = dayOfWeek + 1 ;
         return dayOfWeek;
     }
-    private static JsonObject formatOccurence(JsonObject course, Calendar start , Calendar end, boolean isRecurent) {
+    private static JsonObject formatOccurence(JsonObject course, boolean onlyOneGroup, Calendar start , Calendar end, boolean isRecurent) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.format(start.getTime());
 
@@ -257,9 +258,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put("is_recurrent", isRecurent);
 
         occurence.put("color", utilsService.getColor(
-                course.getJsonArray("classes").size() > 0
-                        ? course.getJsonArray("classes").getString(0)
-                        : course.getJsonArray("groups").getString(0)));
+                !onlyOneGroup ?
+                        ( ( course.getJsonArray("classes").size() > 0)
+                                ? course.getJsonArray("classes").getString(0)
+                                : course.getJsonArray("groups").getString(0))
+                        :  course.getString("subjectId")));
         occurence.put("is_periodic",false);
         occurence.put(COURSE_TABLE.startDate, df.format(start.getTime()));
         occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));

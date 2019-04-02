@@ -18,7 +18,8 @@ workspace.xml
 /src/test/
 /src/main/resources/public/modules/entcore
 /src/main/resources/public/template/entcore/*.html
-/src/main/resources/public/templates/entcore
+/src/main/resources/public/templates/entcore/**/*
+/src/main/resources/public/template/entcore/*
 /src/main/resources/view
 /manifests
 *.bat

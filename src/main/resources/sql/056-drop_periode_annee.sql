@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS viesco.periode_annee;

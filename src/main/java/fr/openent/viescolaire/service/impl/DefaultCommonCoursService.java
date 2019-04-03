@@ -58,7 +58,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
             .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
-            .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1).put(COURSE_TABLE.exceptionnal,1);
+            .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1).put(COURSE_TABLE.exceptionnal,1).put(COURSE_TABLE.author,1).put(COURSE_TABLE.lastUser,1)
+            .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -180,7 +181,6 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         for(int i=0; i < arrayCourses.size() ; i++) {
             JsonObject course =  arrayCourses.getJsonObject(i);
-            //Check if it s an exceptionnal course (trip ...)
 
 
             // Pour chaque course je vérifie si c'est le bon format de date.
@@ -271,8 +271,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));
         if(course.getString("subjectId").equals(Course.exceptionnalSubject)){
             occurence.put(COURSE_TABLE.exceptionnal, course.getString(COURSE_TABLE.exceptionnal));
-
         }
+        occurence.put(COURSE_TABLE.updated, course.getString(COURSE_TABLE.updated));
+        occurence.put(COURSE_TABLE.created, course.getString(COURSE_TABLE.created));
+        occurence.put(COURSE_TABLE.author, course.getString(COURSE_TABLE.author));
+        occurence.put(COURSE_TABLE.lastUser, course.getString(COURSE_TABLE.lastUser));
 
         return occurence;
     }
@@ -330,4 +333,9 @@ class Course {
     protected final String everyTwoWeek = "everyTwoWeek";
     protected final String manual = "manual";
     protected final String exceptionnal = "exceptionnal";
+    protected final String author = "author";
+    protected final String created = "created";
+    protected final String updated = "updated";
+    protected final String lastUser = "lastUser";
+
 }

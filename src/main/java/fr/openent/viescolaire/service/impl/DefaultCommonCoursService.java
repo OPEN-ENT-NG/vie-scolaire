@@ -33,6 +33,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
 
 
@@ -40,6 +42,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +66,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private final Neo4j neo4j = Neo4j.getInstance();
 
     public DefaultCommonCoursService(EventBus eb) {
         this.eb = eb;
@@ -125,6 +129,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, final Handler<Either<String,JsonArray>> handler){
+
         Future<JsonArray> coursesFuture = Future.future();
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, response -> {
                     if (response.isRight()) {
@@ -134,7 +139,16 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     }
                 }
         );
-        boolean onlyOneGroup = group.size() == 1 && teacherId.isEmpty() ;
+        Future<JsonArray> classeFuture = Future.future();
+
+        checkGroupFromClass(group,structureId,  response -> {
+            if (response.isRight()) {
+                classeFuture.complete(response.right().getValue());
+            } else {
+                classeFuture.fail("can't get courses from mongo");
+            }
+
+        }) ;
         //Exlusion part
         Future<JsonArray> exclusionsFuture = Future.future();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -161,9 +175,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
             }
         });
 
-        CompositeFuture.all(coursesFuture, exclusionsFuture).setHandler(event -> {
+        CompositeFuture.all(coursesFuture,classeFuture, exclusionsFuture).setHandler(event -> {
             if (event.succeeded()) {
-                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart,onlyOneGroup, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
+                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart,classeFuture.result(),group,teacherId, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
 
             } else {
                 handler.handle(new Either.Left<>(event.cause().getMessage()));
@@ -171,14 +185,31 @@ public class DefaultCommonCoursService implements CommonCoursService {
         });
 
     }
+
+    private void checkGroupFromClass(List<String> group,String structureId,  Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonObject params = new JsonObject();
+
+        query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class)--(s:Structure) ")
+                .append("WHERE s.id = {idStructure} and c.name IN {labelClasses} ")
+                .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
+                .append("RETURN  c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups");
+        params.put("idStructure",structureId);
+        params.put("labelClasses", new fr.wseduc.webutils.collections.JsonArray(group));
+
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+
+    }
+
     public void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler ) {
         final JsonObject query = new JsonObject();
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
     }
-    private JsonArray getOccurencesWithCourses(Date queryStartDate,boolean onlyOneGroup, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
+    private JsonArray getOccurencesWithCourses(Date queryStartDate,JsonArray arrayGroups, List<String>  group, List<String> teacherId, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
 
+        boolean onlyOneClass = isOneClass(arrayGroups,teacherId,group);
         for(int i=0; i < arrayCourses.size() ; i++) {
             JsonObject course =  arrayCourses.getJsonObject(i);
 
@@ -200,7 +231,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     endMoment = getCalendarDate(endDateCombine, handler);
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
-                        JsonObject c = new JsonObject(formatOccurence(course,onlyOneGroup, startMoment, endMoment, true).toString());
+                        JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, true).toString());
                         if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                             result.add(c);
                         }
@@ -208,7 +239,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                         endMoment.add(Calendar.DATE, cadence);
                     }
                 } else {
-                    JsonObject c = new JsonObject(formatOccurence(course,onlyOneGroup, startMoment, endMoment, false).toString());
+                    JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, false).toString());
                     if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
                             &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                         result.add(c);
@@ -220,6 +251,46 @@ public class DefaultCommonCoursService implements CommonCoursService {
             }
         }
         return result;
+    }
+
+    /**
+     * Check if only one class and is group is called
+     * @param arrayGroups
+     * @param teacherId
+     * @param groups
+     * @return
+     */
+    private boolean isOneClass(JsonArray arrayGroups,List<String> teacherId, List<String> groups) {
+        if (  !teacherId.isEmpty() || arrayGroups.size()>1){
+            return false;
+        }
+        if(arrayGroups.size() == 0){
+            return groups.size() == 1;
+        }
+
+
+        JsonObject result = arrayGroups.getJsonObject(0);
+        String classe = result.getString("name_classe");
+        JsonArray groupsFromNeo = result.getJsonArray("name_groups");
+
+
+        for(int j = 0; j < groups.size(); j++){
+            if(classe.equals(groups.get(j))){
+                groups.remove(j);
+            }
+            for(int i = 0; i < groupsFromNeo.size();i++){
+
+                if(groups.size()>0)
+                    if(groups.get(j).equals(groupsFromNeo.getString(i))){
+                        groups.remove(j);
+                    }
+            }
+        }
+        if(groups.size()==0){
+           return  true;
+        }else{
+            return false;
+        }
     }
 
     private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){

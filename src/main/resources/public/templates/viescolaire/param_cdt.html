@@ -33,6 +33,12 @@
                                 <i18n>cdt.work.to.do</i18n>
                             </a>
                         </li>
+                        <li>
+                            <a href=""  ng-class="{'selected': currParam === 2}"
+                               ng-click="currParam = 2;">
+                                <i18n>cdt.session.type</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -51,6 +57,15 @@
     <div  ng-if="currParam === 1" ng-init="source.idStructure = structure.id;">
         <sniplet
                 template="homework_type"
+                application="diary"
+                source="source"
+                class="ng-scope"
+        ></sniplet>
+    </div>
+    <!-- Setting session types -->
+    <div  ng-if="currParam === 2" ng-init="source.idStructure = structure.id;">
+        <sniplet
+                template="session_type"
                 application="diary"
                 source="source"
                 class="ng-scope"

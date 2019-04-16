@@ -399,6 +399,7 @@ public class DefaultUtilsService implements UtilsService{
                                                                 o.put("displayName", student.getString("displayName"));
                                                                 o.put("idGroupes", student.getString("idGroupes"));
                                                                 o.put("idEtablissement",student.getString("idEtablissement"));
+                                                                o.put("birthDate",student.getString("birthDate"));
                                                                 studentPostgres.add(o);
                                                             }
                                                             DefaultUtilsService utilsService = new DefaultUtilsService();

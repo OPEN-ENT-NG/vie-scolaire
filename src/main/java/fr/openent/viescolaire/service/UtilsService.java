@@ -157,4 +157,5 @@ public interface UtilsService {
     Collection map(Iterable collection, Function fct);
 
 
+    String getSubjectColor(String subjectId);
 }

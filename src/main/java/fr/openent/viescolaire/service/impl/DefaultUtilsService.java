@@ -46,6 +46,9 @@ public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
     private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
+    private static final String[] COURSE_COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow","solid-green","solid-blue","magenta",
+    "light-pink","light-orange","solid-red","light-red","light-green"};
+
     private EleveService eleveService = new DefaultEleveService();
     protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);
 
@@ -74,7 +77,23 @@ public class DefaultUtilsService implements UtilsService{
             }
             number = (int) Math.abs(Math.floor(Math.sin( (double) number) * 10 ) ) ;
         return COLORS[number] ;
+//        return "solid-green";
     }
+
+    @Override
+    public String getSubjectColor(String subjectId) {
+        byte[] bytes = subjectId.getBytes();
+        int number = 0;
+        for (int i = 0; i < bytes.length ; i++){
+            number += (int) bytes[i];
+        }
+
+        number = number % COURSE_COLORS.length ;
+        return COURSE_COLORS[number] ;
+//        return "solid-green";
+    }
+
+
     @Override
     public void getTypeGroupe(String[] id_classes, Handler<Either<String, JsonArray>> handler) {
 
@@ -642,4 +661,6 @@ public class DefaultUtilsService implements UtilsService{
 
         return result;
     }
+
+
 }

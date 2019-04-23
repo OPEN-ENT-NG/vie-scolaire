@@ -47,7 +47,7 @@ public class DefaultUtilsService implements UtilsService{
     private final Neo4j neo4j = Neo4j.getInstance();
     private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
     private static final String[] COURSE_COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow","solid-green","solid-blue","magenta",
-    "light-pink","light-orange","solid-red","light-red","light-green"};
+    "light-pink","light-orange","solid-red","light-red","light-green","solid-orange"};
 
     private EleveService eleveService = new DefaultEleveService();
     protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);

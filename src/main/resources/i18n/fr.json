@@ -637,6 +637,9 @@
   "edt.data.init.error": "Une erreur est survenue lors de l'initialisation des données",
   "edt.year.start.end.date": "Début et fin de l'année scolaire",
   "edt.public.holiday": "Jours fériés",
+  "edt.time.slots": "Plages horaires",
+  "edt.choice.schedule": "Choix de la grille horaire définie dans l'emploi du temps",
+  "edt.time.slots.structure": "Plage établissement",
 
   "presences.data.init": "Initialisation des données",
   "presences.setting.data.init": "Initialisation des données de l'application",

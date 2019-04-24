@@ -27,6 +27,12 @@
                                 <i18n>edt.data.init</i18n>
                             </a>
                         </li>
+                        <li>
+                            <a href=""  ng-class="{'selected': currParam === 1}"
+                               ng-click="currParam = 1;">
+                                <i18n>edt.time.slots</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -36,6 +42,15 @@
     <div  ng-if="currParam === 0" ng-init="source.idStructure = structure.id;">
         <sniplet
                 template="init_data_edt"
+                application="edt"
+                source="source"
+                class="ng-scope"
+        ></sniplet>
+    </div>
+    <!-- Time slots -->
+    <div  ng-if="currParam === 1" ng-init="source.idStructure = structure.id;">
+        <sniplet
+                template="time_slots"
                 application="edt"
                 source="source"
                 class="ng-scope"

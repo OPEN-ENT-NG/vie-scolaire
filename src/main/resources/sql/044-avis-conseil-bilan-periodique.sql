@@ -7,10 +7,15 @@ CREATE TABLE notes.avis_conseil_bilan_periodique
   CONSTRAINT avis_conseil_bilan_periodique_pk PRIMARY KEY (id)
 );
 
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (1, 'Félicitations', 1);
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (2, 'Compliments', 1);
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (3, 'Encouragements', 1);
-
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (4, 'Admis en classe supérieur', 2);
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (5, 'Redoublement', 2);
-INSERT INTO notes.avis_conseil_bilan_periodique(id, libelle, type_avis) VALUES (6, 'Réorientation', 2);
+INSERT INTO notes.avis_conseil_bilan_periodique(libelle, type_avis)
+VALUES ('Félicitations', 1),
+        ('Compliments', 1),
+        ('Encouragements', 1),
+        ('Félicitations à l’unanimité du conseil', 1),
+        ('Admis(e) en 2nd générale', 2),
+        ('Admis(e) en 2nd professionnelle', 2),
+        ('Admis(e) en CAP', 2),
+        ('Admis(e) en 3ème', 2),
+        ('Admis(e) en 4ème', 2),
+        ('Admis(e) en 5ème', 2),
+        ('Redoublement', 2);

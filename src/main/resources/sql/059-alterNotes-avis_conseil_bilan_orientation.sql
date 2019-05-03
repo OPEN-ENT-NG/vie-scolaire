@@ -1,3 +1,5 @@
+DROP TABLE notes.avis_conseil_orientation;
+
 CREATE TABLE notes.avis_conseil_orientation
 (
   id_avis_conseil_bilan bigint NOT NULL,

@@ -8,6 +8,7 @@ VALUES ('Félicitations', 1),
         ('Admis(e) en 2nd générale', 2),
         ('Admis(e) en 2nd professionnelle', 2),
         ('Admis(e) en CAP', 2),
+        ('Admis(e) en 3ème', 2),
         ('Admis(e) en 4ème', 2),
         ('Admis(e) en 5ème', 2),
         ('Redoublement', 2);

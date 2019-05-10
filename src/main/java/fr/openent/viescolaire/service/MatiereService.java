@@ -49,7 +49,7 @@ public interface MatiereService extends CrudService {
     void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result);
 
     /**
-     * Récupére les matiéres de l'établissment de l'utilisateurs (chef Etab)
+     * Récupére les matières de l'établissment de l'utilisateurs (chef Etab)
      * @param onlyId
      * @param handler
      */

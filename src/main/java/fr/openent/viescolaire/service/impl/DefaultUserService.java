@@ -799,4 +799,30 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         neo4j.execute(query, params,  Neo4jResult.validResultHandler(results));
     }
 
+    @Override
+    public void search(String structure_id, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler) {
+
+        String filter = "";
+
+        for (int i = 0; i < fields.size(); i++) {
+            String field = fields.get(i);
+            if (i > 0) {
+                filter += "OR ";
+            }
+            filter += "toLower(u." + field + ") CONTAINS '" + query.toLowerCase() + "' ";
+        }
+
+        String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure) " +
+                "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
+                "AND (" + filter + ")" +
+                "RETURN distinct u.id as id, u.displayName as displayName, u.lastName as lastName, u.firstName as firstName, u.classes as idClasse";
+
+        JsonObject params = new JsonObject()
+                .put("structureId", structure_id)
+                .put("profiles", new JsonArray().add(profile));
+
+
+        neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));
+    }
+
 }

@@ -39,9 +39,16 @@
                                 <i18n>viescolaire.exclusion.set</i18n>
                             </a>
                         </li>
-                        <li workflow="viescolaire.importRetardAndAbsences">
+                        <!-- TODO add workflow -->
+                        <li>
                             <a href=""  ng-class="{'selected': currParam === 3}"
                                ng-click="currParam = 3;">
+                                <i18n>viescolaire.time.slots</i18n>
+                            </a>
+                        </li>
+                        <li workflow="viescolaire.importRetardAndAbsences">
+                            <a href=""  ng-class="{'selected': currParam === 4}"
+                               ng-click="currParam = 4;">
                                 <i18n>viescolaire.import.absence.retard.csv</i18n>
                             </a>
                         </li>
@@ -66,8 +73,12 @@
                 application="edt"
         ></sniplet>
     </div>
-    <!-- Import de fichiers csv -->
+    <!-- Plages horaires -->
     <div ng-if="currParam === 3"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_time_slots.html'">
+    </div>
+    <!-- Import de fichiers csv -->
+    <div ng-if="currParam === 4"
          ng-include="'/viescolaire/public/templates/viescolaire/param_import_csv.html'">
     </div>
 </div>

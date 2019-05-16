@@ -33,6 +33,8 @@ import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 
+import java.util.List;
+
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 
@@ -243,6 +245,9 @@ public class EleveController extends ControllerHelper {
             badRequest(request, "Invalid parameter");
         }
     }
+
+
+
     Long testLongFormatParameter(String name,final HttpServerRequest request) {
         Long param = null;
         try {

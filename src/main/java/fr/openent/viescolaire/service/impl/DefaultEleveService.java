@@ -537,5 +537,4 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         */
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
-
 }

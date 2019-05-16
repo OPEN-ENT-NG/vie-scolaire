@@ -28,6 +28,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.eventbus.EventBus;
+import org.entcore.common.user.UserInfos;
 
 import java.util.List;
 
@@ -44,17 +45,8 @@ public class EventBusController extends ControllerHelper {
     private PeriodeService periodeService;
     private EventService eventService;
     private UtilsService utilsService;
-
-    public EventBusController() {
-        groupeService = new DefaultGroupeService();
-        classeService = new DefaultClasseService();
-        userService = new DefaultUserService(eb);
-        eleveService = new DefaultEleveService();
-        matiereService = new DefaultMatiereService(this.eb);
-        periodeService = new DefaultPeriodeService();
-        eventService = new DefaultEventService();
-        utilsService = new DefaultUtilsService();
-    }
+    private CommonCoursService commonCoursService;
+    private TimeSlotService timeSlotService;
 
     public EventBusController(EventBus _eb) {
         groupeService = new DefaultGroupeService();
@@ -65,6 +57,8 @@ public class EventBusController extends ControllerHelper {
         periodeService = new DefaultPeriodeService();
         eventService = new DefaultEventService();
         utilsService = new DefaultUtilsService();
+        commonCoursService = new DefaultCommonCoursService(_eb);
+        timeSlotService = new DefaultTimeSlotService();
     }
 
     @BusAddress("viescolaire")
@@ -113,6 +107,64 @@ public class EventBusController extends ControllerHelper {
             case "event": {
                 eventBusService(method, message);
             }
+            break;
+            case "course": {
+                courseBusService(method, message);
+            }
+            break;
+            case "timeslot": {
+                timeslotBusService(method, message);
+            }
+        }
+    }
+
+    private void timeslotBusService(String method, Message<JsonObject> message) {
+        switch (method) {
+            case "getSlotProfiles": {
+                JsonObject body = message.body();
+                String structureId = body.getString("structureId");
+                timeSlotService.getSlotProfiles(structureId, event -> {
+                    if (event.isLeft()) {
+                        message.reply(getErrorReply(event.left().getValue()));
+                    } else {
+                        if (event.right().getValue().size() == 0) {
+                            message.reply(new JsonObject()
+                                    .put("status", "ok")
+                                    .put("results", new JsonArray()));
+                            return;
+                        }
+                        String slotProfile = event.right().getValue().getJsonObject(0).getString("id");
+                        JsonObject action = new JsonObject()
+                                .put("action", "list-slots")
+                                .put("slotProfileId", slotProfile );
+                        eb.send("directory", action, directoryMessage -> {
+                            String status = ((JsonObject) directoryMessage.result().body()).getString("status");
+                            if ("error".equals(status)) {
+                                message.reply(getErrorReply(directoryMessage.cause().getMessage()));
+                            } else {
+                                message.reply(directoryMessage.result().body());
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    private void courseBusService(String method, Message<JsonObject> message) {
+        switch (method) {
+            case "getCoursesOccurences": {
+                JsonObject body = message.body();
+                String structureId = body.getString("structureId");
+                List<String> teacherId = body.getJsonArray("teacherId").getList();
+                List<String> groupName = body.getJsonArray("group").getList();
+                String beginDate = body.getString("begin");
+                String endDate = body.getString("end");
+                if (beginDate!=null && endDate != null &&
+                        beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, getJsonArrayBusResultHandler(message));
+                }
+            }
         }
     }
 
@@ -143,6 +195,13 @@ public class EventBusController extends ControllerHelper {
             case "listGroupesEnseignementsByUserId": {
                 String userId = message.body().getString("userId");
                 groupeService.listGroupesEnseignementsByUserId(userId, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "search": {
+                String query = message.body().getString("q");
+                List<String> fields = message.body().getJsonArray("fields").getList();
+                String structureId = message.body().getString("structureId");
+                groupeService.search(structureId, query, fields, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -236,6 +295,14 @@ public class EventBusController extends ControllerHelper {
 
     private void userBusService(String method, Message<JsonObject> message) {
         switch (method) {
+            case "getActivesStructure": {
+                JsonArray structures = message.body().getJsonArray("structures");
+                String module = message.body().getString("module");
+                UserInfos user = new UserInfos();
+                user.setStructures(structures.getList());
+                userService.getActivesIDsStructures(user, module, getJsonArrayBusResultHandler(message));
+            }
+            break;
             case "getMoyenne": {
                 String idEleve = message.body().getString("idEleve");
                 Long[] idDevoirs = convertJsonArrayToLongArray(message.body().getJsonArray("idDevoirs"));
@@ -272,6 +339,14 @@ public class EventBusController extends ControllerHelper {
             case "getResponsablesDirection": {
                 String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 userService.getResponsablesDirection(idStructure, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "search": {
+                String query = message.body().getString("q");
+                List<String> fields = message.body().getJsonArray("fields").getList();
+                String profile = message.body().getString("profile");
+                String structureId = message.body().getString("structureId");
+                userService.search(structureId, query, fields, profile, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

@@ -62,7 +62,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
             .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
             .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1).put(COURSE_TABLE.exceptionnal,1).put(COURSE_TABLE.author,1).put(COURSE_TABLE.lastUser,1)
-            .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1);
+            .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1).put(COURSE_TABLE.idStartSlot, 1).put(COURSE_TABLE.idEndSlot, 1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -76,33 +76,33 @@ public class DefaultCommonCoursService implements CommonCoursService {
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  groups, String begin, String end, Handler<Either<String,JsonArray>> handler){
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
+        query.put("structureId", structureId)
+                .put("deleted", new JsonObject().put("$exists", false));
 
-        query.put("structureId", structureId);
-        JsonObject deleteJson= new JsonObject();
-        deleteJson.put("$exists",false);
-        query.put("deleted", deleteJson);
-        JsonArray theoriticalArray = new JsonArray().add(new JsonObject().put("theoretical",true)).add(new JsonObject().put("theoretical",new JsonObject().put("$exists",false)));
-        query.put("$or", theoriticalArray);
-
-        if (teacherId != null && !teacherId.isEmpty() &&( groups == null || groups.isEmpty())){
-            query.put("$or",(getTeachersFilterTable(teacherId)));
-        }
-        final String startDate = begin + START_DATE_PATTERN;
-        final String endDate = end + END_DATE_PATTERN;
-
-        JsonObject betweenStart = new JsonObject();
-        betweenStart.put("$lte", endDate);
-
-        JsonObject betweenEnd = new JsonObject();
-        betweenEnd.put("$gte", startDate);
-        query.put("$and", new fr.wseduc.webutils.collections.JsonArray()
-                .add(new JsonObject().put(COURSE_TABLE.startDate ,betweenStart))
-                .add(new JsonObject().put(COURSE_TABLE.endDate ,betweenEnd)));
-        if (groups != null && !groups.isEmpty()){
-            query.put("$or",getGroupsFilterTable( groups,teacherId));
+        JsonArray $and = new JsonArray();
+        String startDate = begin + START_DATE_PATTERN;
+        String endDate = end + END_DATE_PATTERN;
+        JsonObject startFilter = new JsonObject().put("$lte", startDate);
+        JsonObject endFilter = new JsonObject().put("$gte", endDate);
+        $and.add(new JsonObject().put("startDate", startFilter))
+                .add(new JsonObject().put("endDate", endFilter));
+        if (!teacherId.isEmpty()) {
+            JsonObject $in = new JsonObject()
+                    .put("$in", new JsonArray(teacherId));
+            $and.add(new JsonObject().put("teacherIds", $in));
         }
 
-        final JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
+        if (!groups.isEmpty()) {
+            JsonArray $or = new JsonArray();
+            JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
+            $or.add(new JsonObject().put("groups", filter))
+                    .add(new JsonObject().put("classes", filter));
+
+            $and.add(new JsonObject().put("$or", $or));
+        }
+
+        query.put("$and", $and);
+        JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
     }
 
@@ -409,5 +409,6 @@ class Course {
     protected final String created = "created";
     protected final String updated = "updated";
     protected final String lastUser = "lastUser";
-
+    protected final String idStartSlot = "idStartSlot";
+    protected final String idEndSlot = "idEndSlot";
 }

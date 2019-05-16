@@ -32,6 +32,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by vogelmt on 13/02/2017.
@@ -150,15 +151,15 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
         // Si l'id en entrée est celui d'un groupe d'enseignement ou un groupe manuel
         StringBuilder query = new StringBuilder();
-        query.append("MATCH (g:Group {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]-(:ProfileGroup)-")
-                .append("[DEPENDS]->(c:Class)  WHERE ")
+        query.append("MATCH (g:Group {id : {groupeEnseignementId}})<-[:IN]-(users)-[:IN]->(:ProfileGroup)-")
+                .append("[:DEPENDS]->(c:Class) WHERE ")
                 .append(PROFILFILTER)
                 .append(RETURNING.toString());
 
         // Si l'id en entrée est celui d'une classe
         StringBuilder queryGetClass = new StringBuilder();
-        queryGetClass.append("MATCH (users)-[:IN]-(:ProfileGroup)-")
-                .append("[DEPENDS]->(c:Class {id : {groupeEnseignementId}})  WHERE ")
+        queryGetClass.append("MATCH (users)-[:IN]->(:ProfileGroup)-")
+                .append("[:DEPENDS]->(c:Class {id : {groupeEnseignementId}})  WHERE ")
                 .append(PROFILFILTER)
                 .append(RETURNING.toString());
 
@@ -205,5 +206,29 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 
+    @Override
+    public void search(String structure_id, String query, List<String> fields, Handler<Either<String, JsonArray>> handler) {
+        String filter = "";
+
+        for (int i = 0; i < fields.size(); i++) {
+            String field = fields.get(i);
+            if (i > 0) {
+                filter += "OR ";
+            }
+
+            filter += "toLower(g." + field + ") CONTAINS '" + query.toLowerCase() + "' ";
+        }
+
+        String neo4jquery = "MATCH (g:Class)-[:BELONGS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id"
+                + " UNION " +
+                "MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id"
+                + " UNION " +
+                "MATCH (g:ManualGroup)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id";
+
+        JsonObject params = new JsonObject()
+                .put("structureId", structure_id);
+
+        neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));
+    }
 
 }

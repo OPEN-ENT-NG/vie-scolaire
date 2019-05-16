@@ -154,4 +154,13 @@ public interface UserService {
      */
     void list(String structureId, String classId, String groupId, JsonArray types, String filterActive, String nameFilter, UserInfos user, Handler<Either<String, JsonArray>> eitherHandler);
 
+
+    /**
+     * @param structure_id  structure identifier
+     * @param query         query searching
+     * @param fields         neo4j fields
+     * @param profile       user type
+     * @param handler
+     */
+    void search(String structure_id, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler);
 }

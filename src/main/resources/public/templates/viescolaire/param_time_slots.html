@@ -1,0 +1,22 @@
+<div class="times-slot ten cell" ng-controller="timeSlotsController">
+    <toasts notifications="notifications"></toasts>
+    <article class="row">
+
+        <h3 class="row margin-bottom-lg">
+            <i18n>viescolaire.time.slots</i18n>
+        </h3>
+
+        <div class="cell twelve-mobile twelve">
+            <h4 class="four twelve-mobile float-left"><i18n>viescolaire.choice.schedule</i18n></h4>
+            <select class="four twelve-mobile margin-md"
+                    ng-model="timeSlot"
+                    ng-options="item.name for item in timeSlots.all"
+                    ng-change="saveTimeProfil()">
+                <option value="" disabled selected>
+                    [[lang.translate('viescolaire.time.slots.structure')]]
+                </option>
+            </select>
+        </div>
+
+    </article>
+</div>

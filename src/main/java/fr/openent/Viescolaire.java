@@ -19,6 +19,7 @@ package fr.openent;
 
 import fr.openent.viescolaire.controller.*;
 import fr.openent.viescolaire.controller.EleveController;
+import fr.openent.viescolaire.service.impl.DefaultTimeSlotService;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import org.entcore.common.http.BaseServer;
 import io.vertx.core.eventbus.EventBus;
@@ -47,6 +48,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_SETTING_PERIOD = "setting_period";
 	public final static String VSCO_MATIERE_LIBELLE_TABLE = "subject_libelle";
 	public final static String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
+	public final static String VSCO_TIME_SLOTS = "time_slots";
 
 	/**
 	 * Déclaration des router préfixs
@@ -72,6 +74,7 @@ public class Viescolaire extends BaseServer {
 	public static String EXTERNAL_ID_KEY = "externalId";
 	public static String NAME = "name";
 	public static String FORADMIN = "forAdmin";
+	public final static String DIRECTORY_ADDRESS = "directory";
 
 
 	@Override
@@ -102,6 +105,7 @@ public class Viescolaire extends BaseServer {
 		addController(new UserController());
 		addController(new ImportCsvController(storage));
 		addController(new PeriodeAnneeController());
+		addController(new TimeSlotController(new DefaultTimeSlotService()));
 
         addController(new EventBusController(eb));
 

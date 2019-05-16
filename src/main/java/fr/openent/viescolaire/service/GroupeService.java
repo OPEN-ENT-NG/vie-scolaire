@@ -22,6 +22,8 @@ import org.entcore.common.service.CrudService;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 
+import java.util.List;
+
 /**
  * Created by vogelmt on 13/02/2017.
  */
@@ -58,4 +60,13 @@ public interface GroupeService extends CrudService {
      * @param handler
      */
     public void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Search for group based on given name. Search for group in classes, functional groups and manual groups
+     * @param structure_id Structure identifier
+     * @param query query matcher
+     * @param fields field matcher
+     * @param handler Function handler returning data
+     */
+    void search(String structure_id, String query, List<String> fields, Handler<Either<String, JsonArray>> handler);
 }

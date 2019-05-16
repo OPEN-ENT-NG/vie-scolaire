@@ -24,10 +24,12 @@ import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl
 import {periodeAnneeController} from '../controllers/vsco_periodeAnnee_ctrl';
 import {periodeSearch} from '../filtres/periodeSearch';
 import {Toasts, Toast} from '../../utils/directives/toasts';
+import {timeSlotsController} from "../controllers/vsco_time_slots_ctrl";
 
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);
 ng.controllers.push(periodeAnneeController);
+ng.controllers.push(timeSlotsController);
 
 ng.filters.push(periodeSearch);
 

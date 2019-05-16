@@ -80,8 +80,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .put("deleted", new JsonObject().put("$exists", false));
 
         JsonArray $and = new JsonArray();
-        String startDate = begin + START_DATE_PATTERN;
-        String endDate = end + END_DATE_PATTERN;
+        String startDate = end + END_DATE_PATTERN;
+        String endDate =  begin + START_DATE_PATTERN;
         JsonObject startFilter = new JsonObject().put("$lte", startDate);
         JsonObject endFilter = new JsonObject().put("$gte", endDate);
         $and.add(new JsonObject().put("startDate", startFilter))

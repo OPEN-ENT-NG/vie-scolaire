@@ -167,4 +167,12 @@ public interface EleveService extends CrudService {
      * @param handler
      */
     void getResponsable(String idEleve, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * get deleted Student for a class and deletedDate > beginningPeriode
+     * @param idClass idClass
+     * @param beginningPeriode date of period
+     * @param handler response
+     */
+    void getDeletedStudentByPeriodeByClass(String idClass, String beginningPeriode, Handler<Either<String,JsonArray>> handler);
 }

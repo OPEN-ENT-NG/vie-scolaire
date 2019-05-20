@@ -24,6 +24,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ledunoiss on 08/11/2016.
@@ -107,6 +108,14 @@ public interface UserService {
      */
     void getElevesRelatives(List<String> idsClass,Handler<Either<String,JsonArray>>handler);
 
+    /**
+     * get specifications of all Students (student in Classes list and students have changed class)
+     * @param idStructure idStructure
+     * @param idsClass  list of Classes
+     * @param deletedStudentsPostegre ids of postgres deleted Student
+     * @param handler response JsonArray
+     */
+    void getAllElevesWithTheirRelatives(String idStructure,List<String> idsClass, List<String> deletedStudentsPostegre,Handler<Either<String,JsonArray>>handler);
     /**
      * Récupère les idDomaine, codification du domaine et le code des domaines
      * @param idClass

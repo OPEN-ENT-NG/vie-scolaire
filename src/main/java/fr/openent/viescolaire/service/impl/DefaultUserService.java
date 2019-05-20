@@ -675,6 +675,49 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
 
+    @Override
+    public void getAllElevesWithTheirRelatives(String idStructure,
+                                               List<String> idsClass,
+                                               List<String> deletedStudentsPostegre,
+                                               Handler<Either<String, JsonArray>> handler) {
+        JsonObject params = new JsonObject();
+        String query = "MATCH (s:Structure{id:{structureId}})<-[:BELONGS]-(c:Class)"+
+                "<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']})"+
+                " WHERE c.id IN {classIds}"+
+                " RETURN c.id as idClass, c.name as nameClass, c.externalId as externalIdClass, u.id as idEleve, "+
+                "u.created as createdDate,u.deleteDate as deleteDate, u.externalId as externalId,u.attachmentId as attachmentId, "+
+                "u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative, " +
+                "r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, "+
+                "r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city " +
+                "ORDER BY nameClass, lastName "+
+        "UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), " +
+                "(s:Structure{id:{structureId}})<-[:BELONGS]-(c:Class) WHERE HAS(u.deleteDate) AND "+
+                "(c.id IN {classIds} AND c.externalId IN u.classes) " +
+                "RETURN c.id as idClass, c.name as nameClass, c.externalId as externalIdClass, " +
+                "u.id as idEleve, u.created as createdDate, u.deleteDate as deleteDate,u.externalId as externalId, " +
+                "u.attachmentId as attachmentId, u.lastName as lastName, u.level as level, u.firstName as firstName, " +
+                "u.relative as relative, null as externalIdRelative, null as civilite, null as lastNameRelative, " +
+                "null as firstNameRelative, null as address, null as zipCode, null as city "+
+                "ORDER BY nameClass, lastName";
+
+        params.put("structureId", idStructure).put("classIds",idsClass);
+
+        if(deletedStudentsPostegre != null && deletedStudentsPostegre.size() > 0){
+            query +=" UNION MATCH (s:Structure{id:{structureId}})<-[:BELONGS]-(c:Class)<-[:DEPENDS]-(:ProfileGroup)"+
+                    "<-[:IN]-(u:User {profiles:['Student']})-[:RELATED]-(r:User{profiles:['Relative']}) " +
+                    "WHERE u.id IN {idsDeletedStudent}" +
+                    "RETURN c.id as idClass, c.name as nameClass, c.externalId as externalIdClass, u.id as idEleve, " +
+                    "u.created as createdDate, u.deleteDate as deleteDate, u.externalId as externalId, "+
+                    "u.attachmentId as attachmentId, u.lastName as lastName, u.level as level, u.firstName as firstName, " +
+                    "u.relative as relative, r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, " +
+                    "r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city " +
+                    "ORDER BY nameClass, lastName";
+            params.put("idsDeletedStudent", deletedStudentsPostegre);
+        }
+
+       Neo4j.getInstance().execute(query,params, Neo4jResult.validResultHandler(handler));
+    }
+
 
     @Override
     public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler){

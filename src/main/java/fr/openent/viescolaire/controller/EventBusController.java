@@ -349,6 +349,13 @@ public class EventBusController extends ControllerHelper {
                 userService.search(structureId, query, fields, profile, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getAllElevesWithTheirRelatives":{
+                String idStructure = message.body().getString((ID_STRUCTURE_KEY));
+                List<String> idsClass = message.body().getJsonArray("idsClass").getList();
+                List<String> idsDletedElevePostgres = message.body().getJsonArray("idsDeletedStudent").getList();
+                userService.getAllElevesWithTheirRelatives(idStructure, idsClass, idsDletedElevePostgres, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }
@@ -394,6 +401,12 @@ public class EventBusController extends ControllerHelper {
             case "getGroups": {
                 String idEleve = message.body().getString("idEleve");
                 eleveService.getGroups(idEleve, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getDeletedStudentByPeriodeByClass": {
+                String idClass = message.body().getString("idClass");
+                String beginningPeriode = message.body().getString("beginningPeriode");
+                eleveService.getDeletedStudentByPeriodeByClass(idClass,beginningPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

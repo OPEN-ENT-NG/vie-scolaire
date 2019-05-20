@@ -537,4 +537,22 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         */
         Neo4j.getInstance().execute(query.toString(), param, Neo4jResult.validResultHandler(handler));
     }
+
+    @Override
+    public void getDeletedStudentByPeriodeByClass(String idClass, String beginningPeriode, Handler<Either<String, JsonArray>> handler) {
+
+        String query = "SELECT id_user, display_name,first_name,last_name," +
+                " json_agg(json_build_object(\'deleteDate\', personnes_supp.delete_date, \'oldIdClass\',rel_groupes_personne_supp.id_groupe))" +
+                " AS delete_date_id_class FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp"+
+                " INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".rel_groupes_personne_supp"+
+                " ON personnes_supp.id = rel_groupes_personne_supp.id"+
+                " WHERE rel_groupes_personne_supp.id_groupe = ? AND personnes_supp.user_type ='Student'"+
+                " AND personnes_supp.delete_date > to_timestamp(?,'YYYY-MM-DD') " +
+                " GROUP BY id_user,display_name,first_name,last_name";
+
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(idClass).add(beginningPeriode);
+
+        Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
+    }
+
 }

@@ -41,7 +41,8 @@ export class VieScolaire extends Model {
                     let _structureTmp = [];
 
                     // récupération des structures actives par module
-                    structuresPresences = await getActiveStructures('presences');
+                    // structuresPresences = await getActiveStructures('presences');
+                    structuresPresences = [];
                     structuresEvaluations = await getActiveStructures('notes');
                     for (let i = 0; i < model.me.structures.length; i++) {
                         let _structure = new Structure({

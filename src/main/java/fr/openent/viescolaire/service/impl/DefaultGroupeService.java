@@ -219,11 +219,13 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
             filter += "toLower(g." + field + ") CONTAINS '" + query.toLowerCase() + "' ";
         }
 
-        String neo4jquery = "MATCH (g:Class)-[:BELONGS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id"
-                + " UNION " +
-                "MATCH (g:FunctionalGroup)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id"
-                + " UNION " +
-                "MATCH (g:ManualGroup)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter + "RETURN g.name as name, g.id as id";
+        String neo4jquery = "MATCH (g:Class)-[:BELONGS]->(s:Structure {id:{structureId}}) WHERE " + filter +
+                "WITH collect({id: g.id, name: g.name}) as classes " +
+                "MATCH (g:Group)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter +
+                "WITH classes + collect({id: g.id, name: g.name}) as groups " +
+                "UNWIND groups as group " +
+                "RETURN group.id as id, group.name as name " +
+                "ORDER BY group.name";
 
         JsonObject params = new JsonObject()
                 .put("structureId", structure_id);

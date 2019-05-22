@@ -859,7 +859,8 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure) " +
                 "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
                 "AND (" + filter + ")" +
-                "RETURN distinct u.id as id, u.displayName as displayName, u.lastName as lastName, u.firstName as firstName, u.classes as idClasse";
+                "RETURN distinct u.id as id, u.displayName as displayName, u.lastName as lastName, u.firstName as firstName, u.classes as idClasse " +
+                "ORDER BY u.displayName;";
 
         JsonObject params = new JsonObject()
                 .put("structureId", structure_id)

@@ -283,6 +283,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 if(groups.size()>0)
                     if(groups.get(j).equals(groupsFromNeo.getString(i))){
                         groups.remove(j);
+                        j--;
                     }
             }
         }

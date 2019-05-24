@@ -88,6 +88,14 @@ public interface UtilsService {
     JsonArray saUnion(JsonArray recipient, JsonArray list);
 
     /**
+     * Réalise une union de deux JsonArray de String
+     * @param recipient Tableau d'accueil
+     * @param list Tableau à transférer
+     * @return Un JsonArray contenant les deux tableau
+     */
+    JsonArray saUnionUniq(JsonArray recipient, JsonArray list);
+
+    /**
      * Récupère la liste des professeurs titulaires d'un remplaçant sur un établissement donné
      * (si lien titulaire/remplaçant toujours actif à l'instant T)
      * @param psIdRemplacant identifiant neo4j du remplaçant

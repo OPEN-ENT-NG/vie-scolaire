@@ -142,6 +142,26 @@ public class DefaultUtilsService implements UtilsService{
         return recipient;
     }
 
+    public JsonArray saUnionUniq(JsonArray recipient, JsonArray list) {
+        for (int i = 0; i < list.size(); i++) {
+            JsonObject element = (JsonObject) list.getValue(i);
+            Object eleve = recipient.getList().stream()
+                    .filter(p ->
+
+                            ((JsonObject) p).getString("idEleve").equals(element.getString("idEleve"))
+                                    && ((JsonObject) p).getString("idClasse").equals(element.getString("idClasse"))
+
+
+                    )
+                    .findFirst()
+                    .orElse(null);
+
+            if(eleve == null) {
+                recipient.add(element);
+            }
+        }
+        return recipient;
+    }
     @Override
     public JsonArray sortArray(JsonArray jsonArr, String[] sortedField) {
         JsonArray sortedJsonArray = new JsonArray();
@@ -447,9 +467,9 @@ public class DefaultUtilsService implements UtilsService{
                                                             }
                                                             DefaultUtilsService utilsService = new DefaultUtilsService();
 
+                                                            // TODO rendre robuste le code et ne pas ajouter l'élève s'il existe déjà pour la classe donnée
 
-
-                                                            JsonArray result =  utilsService.saUnion(rNeo, studentPostgres);
+                                                            JsonArray result =  utilsService.saUnionUniq(rNeo, studentPostgres);
                                                             String [] sortedField = new  String[2];
                                                             sortedField[0] = "lastName";
                                                             sortedField[1] = "firstName";

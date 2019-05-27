@@ -149,7 +149,7 @@ public class DefaultUtilsService implements UtilsService{
                     .filter(p ->
 
                             ((JsonObject) p).getString("idEleve").equals(element.getString("idEleve"))
-                                    && ((JsonObject) p).getString("idClasse").equals(element.getString("idClasse"))
+                                    /*&& ((JsonObject) p).getString("idClasse").equals(element.getString("idClasse"))*/
 
 
                     )

@@ -334,7 +334,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put("is_recurrent", isRecurent);
 
         occurence.put("color",  !onlyOneGroup ?
-                ( ( course.getJsonArray("classes").size() > 0)
+                ( ( course.getJsonArray("classes") != null && course.getJsonArray("classes").size() > 0)
                         ?  utilsService.getColor(course.getJsonArray("classes").getString(0))
                         :  utilsService.getColor(course.getJsonArray("groups").getString(0)))
                 :   utilsService.getSubjectColor(course.getString("subjectId")));
@@ -346,11 +346,6 @@ public class DefaultCommonCoursService implements CommonCoursService {
         if(course.getString("subjectId").equals(Course.exceptionnalSubject)){
             occurence.put(COURSE_TABLE.exceptionnal, course.getString(COURSE_TABLE.exceptionnal));
         }
-        occurence.put(COURSE_TABLE.updated, course.getString(COURSE_TABLE.updated));
-        occurence.put(COURSE_TABLE.created, course.getString(COURSE_TABLE.created));
-        occurence.put(COURSE_TABLE.author, course.getString(COURSE_TABLE.author));
-        occurence.put(COURSE_TABLE.lastUser, course.getString(COURSE_TABLE.lastUser));
-
         return occurence;
     }
     private static long daysBetween(Calendar startDate, Calendar endDate) {

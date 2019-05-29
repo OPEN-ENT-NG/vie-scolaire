@@ -158,6 +158,22 @@ public class DefaultUtilsService implements UtilsService{
 
             if(eleve == null) {
                 recipient.add(element);
+            } else {
+                JsonObject jsonEleve = (JsonObject) eleve;
+                // si l'eleve existe déjà on ajoute uniquement ses anciennes classes
+                // (cas élève ayant changé de classe ou supprimé)
+                String oldClasseName =  element.getString("classeName");
+                String oldClasseId =  element.getString("idClasse");
+
+                JsonObject oldClasses = jsonEleve.getJsonObject("oldClasses");
+
+                if(oldClasses == null) {
+                    oldClasses = new JsonObject();
+                }
+
+                Map<String, Object> mapOldClasses = oldClasses.getMap();
+                mapOldClasses.put(oldClasseId, oldClasseName);
+                jsonEleve.put("oldClasses", new JsonObject(mapOldClasses));
             }
         }
         return recipient;
@@ -466,8 +482,6 @@ public class DefaultUtilsService implements UtilsService{
                                                                 studentPostgres.add(o);
                                                             }
                                                             DefaultUtilsService utilsService = new DefaultUtilsService();
-
-                                                            // TODO rendre robuste le code et ne pas ajouter l'élève s'il existe déjà pour la classe donnée
 
                                                             JsonArray result =  utilsService.saUnionUniq(rNeo, studentPostgres);
                                                             String [] sortedField = new  String[2];

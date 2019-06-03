@@ -778,7 +778,8 @@ public class DefaultUserService extends SqlCrudService implements UserService {
      * @param handler      Handler comportant le resultat de la requete
      */
     public void getTeachers(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (:Structure {id: {idEtablissement}})-[:ADMINISTRATIVE_ATTACHMENT]-(u:User {profiles: ['Teacher']}) RETURN u";
+        //String query = "MATCH (:Structure {id: {idEtablissement}})-[:ADMINISTRATIVE_ATTACHMENT]-(u:User {profiles: ['Teacher']}) RETURN u";
+        String query = "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure {id: {idEtablissement}}) RETURN distinct(u)";
         neo4j.execute(query, new JsonObject().put("idEtablissement", idEtablissement), Neo4jResult.validResultHandler(handler));
     }
 

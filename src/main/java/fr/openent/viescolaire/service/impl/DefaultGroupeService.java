@@ -220,7 +220,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         }
 
         String neo4jquery = "MATCH (g)-[:BELONGS|:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " + filter +
-                "AND (g:Class OR g:Group) " +
+                "AND (g:Class OR g:FunctionalGroup) " +
                 "RETURN g.id as id, g.name as name " +
                 "ORDER BY g.name";
 

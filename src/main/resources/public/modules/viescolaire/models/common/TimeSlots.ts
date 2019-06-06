@@ -6,7 +6,7 @@ import {Utils} from "../../utils/Utils";
 export class TimeSlot {
     _id: string;
     name: string;
-    schoolId: string
+    schoolId: string;
 
     constructor(id_structure?: string) {
         if (id_structure) this.schoolId = id_structure;
@@ -22,19 +22,6 @@ export class TimeSlot {
     async save (): Promise<void> {
         let response = await http.post('/viescolaire/time-slots', this.toJson());
         return Utils.setToastMessage(response, 'viescolaire.save.time.slot.profil','viescolaire.error.sauvegarde');
-    }
-
-    async sync () {
-        try {
-            let {data} = await http.get(`/viescolaire/time-slot?structureId=${this.schoolId}`);
-            for(let i= 0; i < data.length ; i++) {
-                if (data[i].id !== undefined) {
-                    this._id = data[i].id;
-                }
-            }
-        } catch (e) {
-            notify.error('viescolaire.error.sync.slot.profile');
-        }
     }
 }
 

@@ -22,6 +22,7 @@ import {Behaviours, model, ng, template} from 'entcore';
 import { vieScolaire} from '../models/vsco_personnel_mdl';
 import * as utils from '../../utils/personnel';
 import {postAttachments, deleteAttachment, importAttachments} from "../../utils/functions/import_csv";
+import {TimeSlots} from "../models/common/TimeSlots";
 
 let moment = require('moment');
 declare let _: any;
@@ -33,6 +34,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
         $scope.template = template;
         $scope.structures = vieScolaire.structures;
+        $scope.timeSlots = new TimeSlots($scope.structure.id);
         $scope.hasHomonymes = false;
         $scope.import = {
             classe: undefined,
@@ -108,6 +110,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 }
                 utils.safeApply($scope);
             });
+            $scope.timeSlots.syncAll();
         };
 
         $scope.formatDate = function(pODateDebut, pODateFin) {

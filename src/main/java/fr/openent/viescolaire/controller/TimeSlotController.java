@@ -21,6 +21,7 @@ import org.entcore.common.http.response.DefaultResponseHandler;
 import static fr.openent.Viescolaire.DIRECTORY_ADDRESS;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 
 public class TimeSlotController extends ControllerHelper {
 
@@ -103,6 +104,31 @@ public class TimeSlotController extends ControllerHelper {
                 timeSlot -> {
                     timeSlotService.saveTimeProfil(timeSlot, arrayResponseHandler(request));
                 });
+    }
+
+
+    @Get("/structures/:id/time-slot")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Retrieve default structure time slot")
+    public void getDefaultStructureTimeSlot(final HttpServerRequest request) {
+        String structureId = request.getParam("id");
+
+        timeSlotService.getSlotProfiles(structureId, either -> {
+            if (either.isLeft()) {
+                log.error("[Viescolaire@TimeSlotController] Failed to retrieve default structure time slot", either.left().getValue());
+                renderError(request, new JsonObject().put("error", either.left().getValue()));
+                return;
+            }
+
+            JsonArray slots = either.right().getValue();
+            if (slots.isEmpty()) {
+                renderJson(request, new JsonObject());
+                return;
+            }
+
+            JsonObject setting = slots.getJsonObject(0);
+            timeSlotService.getDefaultTimeSlot(setting.getString("id"), defaultResponseHandler(request));
+        });
     }
 
 }

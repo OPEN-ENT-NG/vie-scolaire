@@ -11,4 +11,11 @@ public interface TimeSlotService {
 
     void saveTimeProfil(JsonObject timeSlot, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     * Retrieve default structure timeslot. Returns slots sort by hour
+     * @param id Structure identifier
+     * @param handler Function handler returning data
+     */
+    void getDefaultTimeSlot(String id, Handler<Either<String, JsonObject>> handler);
+
 }

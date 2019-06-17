@@ -9,9 +9,7 @@ UPDATE ONLY notes.domaines SET code_domaine = 'REP_MND' WHERE codification = 'D5
 
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Aucun', 'AUC');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langues et cultures de l''Antiquité', 'LCA');
-INSERT INTO notes.enseignement_complement(libelle, code)   VALUES ('Langues et cultures européennes', 'LCE');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langue et culture régionale', 'LCR');
-INSERT INTO notes.enseignement_complement(libelle, code)   VALUES ('Chant choral', 'CHK');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Découverte professionnelle', 'PRO');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langue des signes française', 'LSF');
 INSERT INTO notes.enseignement_complement(libelle, code) VALUES ('Langue vivante étrangère', 'LVE');

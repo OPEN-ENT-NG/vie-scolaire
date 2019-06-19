@@ -1,1 +1,1 @@
-DROP SCHEMA presences CASCADE;
+--DROP SCHEMA presences CASCADE;

@@ -22,9 +22,15 @@
                 <nav class="vertical">
                     <ul ng-init="currParam = 0;">
                         <li>
-                            <a href=""  ng-class="{'selected': currParam === 0}"
+                            <a href="" ng-class="{'selected': currParam === 0}"
                                ng-click="currParam = 0;">
                                 <i18n>edt.data.init</i18n>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="" ng-class="{'selected': currParam === 1}"
+                               ng-click="currParam = 1;">
+                                <i18n>edt.admin.impotSts</i18n>
                             </a>
                         </li>
                     </ul>
@@ -33,9 +39,17 @@
         </div>
     </div>
     <!-- Data initialization -->
-    <div  ng-if="currParam === 0" ng-init="source.idStructure = structure.id;">
+    <div ng-if="currParam === 0" ng-init="source.idStructure = structure.id;">
         <sniplet
                 template="init_data_edt"
+                application="edt"
+                source="source"
+                class="ng-scope"
+        ></sniplet>
+    </div>
+    <div ng-if="currParam === 1" ng-init="source.idStructure = structure.id;">
+        <sniplet
+                template="import_sts"
                 application="edt"
                 source="source"
                 class="ng-scope"

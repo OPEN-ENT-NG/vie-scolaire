@@ -15,10 +15,9 @@ export const timeSlotsController = ng.controller('timeSlotsController', [
             for (let i = 0; i < $scope.timeSlots.all.length; i ++) {
                 if ($scope.timeSlots.all[i].default) {
                     $scope.timeSlot = $scope.timeSlots.all[i];
-                    utils.safeApply($scope);
-                    return;
                 }
             }
+            utils.safeApply($scope);
        });
 
         $scope.toastHttpCall = (response) => {

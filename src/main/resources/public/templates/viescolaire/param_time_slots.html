@@ -16,6 +16,10 @@
                     [[lang.translate('viescolaire.time.slots.structure')]]
                 </option>
             </select>
+                <p ng-repeat="slot in timeSlot.slots">
+
+                    [[slot.name]] : [[slot.startHour]] - [[slot.endHour]]
+                </p>
         </div>
 
     </article>

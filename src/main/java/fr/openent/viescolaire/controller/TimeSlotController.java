@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.TimeSlotService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
@@ -34,7 +35,7 @@ public class TimeSlotController extends ControllerHelper {
     }
 
     @Get("/time-slots")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = WorkflowActionUtils.TIME_SLOTS_READ, type = ActionType.WORKFLOW)
     public void getSlotProfilesByStructure(final HttpServerRequest request) {
         final String structureId = request.params().get("structureId");
         if (structureId == null) {
@@ -97,7 +98,7 @@ public class TimeSlotController extends ControllerHelper {
      */
 
     @Post("/time-slots")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = WorkflowActionUtils.TIME_SLOTS_MANAGE, type = ActionType.WORKFLOW)
     @ApiDoc("Save a profile slot")
     public void saveTimeProfil(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,

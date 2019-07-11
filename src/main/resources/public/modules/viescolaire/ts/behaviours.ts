@@ -22,7 +22,8 @@ Behaviours.register('viescolaire', {
         workflow: {
             adminChefEtab: 'fr.openent.DisplayController|view',
             importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences',
-            periodSetting : 'fr.openent.viescolaire.controller.PeriodeController|periodWorkflow'
+            periodYearManage: 'fr.openent.viescolaire.controller.PeriodeAnneeController|PeriodYearManage',
+            timeSlotsManage: 'fr.openent.viescolaire.controller.TimeSlotController|getSlotProfilesByStructure'
         },
         resource: {}
     }

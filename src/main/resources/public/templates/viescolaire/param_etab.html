@@ -21,7 +21,7 @@
             <div class="row">
                 <nav class="vertical">
                     <ul ng-init="currParam = 1;">
-                        <li workflow="viescolaire.periodSetting">
+                        <li workflow="viescolaire.periodYearManage">
                             <a href=""  ng-class="{'selected': currParam === 0}"
                                ng-click="currParam = 0;">
                                 <i18n>viescolaire.year.set</i18n>
@@ -33,14 +33,13 @@
                                 <i18n>viescolaire.periode.set</i18n>
                             </a>
                         </li>
-                        <li workflow="viescolaire.periodSetting">
+                        <li workflow="viescolaire.periodYearManage">
                             <a href="" ng-class="{'selected': currParam === 2}"
                                ng-click="currParam = 2;">
                                 <i18n>viescolaire.exclusion.set</i18n>
                             </a>
                         </li>
-                        <!-- TODO add workflow -->
-                        <li>
+                        <li workflow="viescolaire.timeSlotsManage">
                             <a href=""  ng-class="{'selected': currParam === 3}"
                                ng-click="currParam = 3;">
                                 <i18n>viescolaire.time.slots</i18n>

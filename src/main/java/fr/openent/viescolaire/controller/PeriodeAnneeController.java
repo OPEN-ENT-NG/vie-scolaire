@@ -1,7 +1,6 @@
 package fr.openent.viescolaire.controller;
 
-import fr.openent.viescolaire.security.PeriodSetting;
-import fr.openent.viescolaire.security.WorkflowActionUtils;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeAnneeService;
 import fr.openent.viescolaire.utils.DateHelper;
@@ -32,9 +31,15 @@ public class PeriodeAnneeController extends ControllerHelper {
         periodeAnneeService = new DefaultPeriodeAnneeService();
     }
 
+    @SecuredAction(value = WorkflowActionUtils.PERIOD_YEAR_READ, type = ActionType.WORKFLOW)
+    public void PeriodYearRead(final HttpServerRequest request) { }
+
+    @SecuredAction(value = WorkflowActionUtils.PERIOD_YEAR_MANAGE, type = ActionType.WORKFLOW)
+    public void PeriodYearManage(final HttpServerRequest request) { }
 
     @Get("/settings/periode")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodYearRead.class)
     @ApiDoc("Recupère les periodes d'inclusion et d'exclusion de l'année en cours")
     public void getPeriodeAnnee(final HttpServerRequest request) {
         if (request.params().contains("structure")) {
@@ -49,7 +54,8 @@ public class PeriodeAnneeController extends ControllerHelper {
     }
 
     @Get("/settings/periode/schoolyear")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodYearRead.class)
     @ApiDoc("Recupère la date de début et de fin de l'année en cours")
     public void getSchoolyear(final HttpServerRequest request) {
         if (request.params().contains("structureId")) {
@@ -61,7 +67,8 @@ public class PeriodeAnneeController extends ControllerHelper {
     }
 
     @Get("/settings/periodes/exclusions")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodYearManage.class)
     @ApiDoc("Recupère les periodes d'exclusion de l'année en cours")
     public void getExclusion(final HttpServerRequest request) {
        if (request.params().contains("structureId")) {
@@ -75,12 +82,11 @@ public class PeriodeAnneeController extends ControllerHelper {
 
     /**
      * Créer une periode  d'inclusion avec les données passées en POST
-     *
-     * @param request
      */
 
     @Post("/settings/periode")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodYearManage.class)
     @ApiDoc("Créer une période pour l'année scolaire en cours")
     public void createYear(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,
@@ -99,14 +105,11 @@ public class PeriodeAnneeController extends ControllerHelper {
 
     /**
      * Créer une periode  d'exlusion avec les données passées en POST
-     *
-     * @param request
      */
 
     @Post("/settings/exclusion")
-    @SecuredAction(value = WorkflowActionUtils.PERIOD_SETTING, type = ActionType.WORKFLOW)
-    @ResourceFilter(PeriodSetting.class)
-    @ApiDoc("Créer une période d'exclusion")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(PeriodYearManage.class)
     public void createExclusion(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,
                 periode -> {
@@ -125,7 +128,7 @@ public class PeriodeAnneeController extends ControllerHelper {
 
     @Put("/settings/periode/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodSetting.class)
+    @ResourceFilter(PeriodYearManage.class)
     @ApiDoc("Update a period year based on provided id")
     public void updateYear (final HttpServerRequest request) {
         final Integer id = Integer.parseInt(request.params().get("id"));
@@ -145,7 +148,7 @@ public class PeriodeAnneeController extends ControllerHelper {
 
     @Put("/settings/exclusion/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodSetting.class)
+    @ResourceFilter(PeriodYearManage.class)
     @ApiDoc("Update a period exclusion based on provided id")
     public void updateExclusion (final HttpServerRequest request) {
         try {
@@ -170,7 +173,7 @@ public class PeriodeAnneeController extends ControllerHelper {
 
     @Delete("/settings/exclusion/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodSetting.class)
+    @ResourceFilter(PeriodYearManage.class)
     @ApiDoc("Delete a period exclusion based on provided id")
     public void deleteExclusion (final HttpServerRequest request) {
         try {

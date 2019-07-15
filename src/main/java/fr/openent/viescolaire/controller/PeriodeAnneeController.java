@@ -38,8 +38,7 @@ public class PeriodeAnneeController extends ControllerHelper {
     public void PeriodYearManage(final HttpServerRequest request) { }
 
     @Get("/settings/periode")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodYearRead.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Recupère les periodes d'inclusion et d'exclusion de l'année en cours")
     public void getPeriodeAnnee(final HttpServerRequest request) {
         if (request.params().contains("structure")) {
@@ -54,8 +53,7 @@ public class PeriodeAnneeController extends ControllerHelper {
     }
 
     @Get("/settings/periode/schoolyear")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodYearRead.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Recupère la date de début et de fin de l'année en cours")
     public void getSchoolyear(final HttpServerRequest request) {
         if (request.params().contains("structureId")) {
@@ -67,8 +65,7 @@ public class PeriodeAnneeController extends ControllerHelper {
     }
 
     @Get("/settings/periodes/exclusions")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(PeriodYearManage.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Recupère les periodes d'exclusion de l'année en cours")
     public void getExclusion(final HttpServerRequest request) {
        if (request.params().contains("structureId")) {

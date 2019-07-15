@@ -10,6 +10,6 @@ public class PeriodYearRead implements ResourcesProvider {
     @Override
     public void authorize(HttpServerRequest resourceRequest, Binding binding, UserInfos user,
                           Handler<Boolean> handler) {
-        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.PERIOD_YEAR_MANAGE));
+        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.PERIOD_YEAR_READ));
     }
 }

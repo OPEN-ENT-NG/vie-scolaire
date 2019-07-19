@@ -1,0 +1,1 @@
+ALTER TABLE notes.archive_bulletins ADD COLUMN file_name CHARACTER VARYING NOT NULL;

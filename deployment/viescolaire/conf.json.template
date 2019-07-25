@@ -21,7 +21,7 @@
         }
         ,
         "update-classes" : {
-           "timeout-transaction" : 600
+           "timeout-transaction" : 1000
         }
       }
     }

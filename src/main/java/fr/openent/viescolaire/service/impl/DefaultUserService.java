@@ -598,7 +598,9 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 .append("FROM "+ module +".etablissements_actifs  ")
                 .append("WHERE actif = TRUE");
 
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), params,
+                new DeliveryOptions().setSendTimeout(Viescolaire.UPDATE_CLASSES_CONFIG.getInteger("timeout-transaction") * 1000L),
+                SqlResult.validResultHandler(handler));
     }
 
     /**

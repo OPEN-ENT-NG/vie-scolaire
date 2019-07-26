@@ -281,15 +281,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     @Override
-    public void getElevesClasses(String[] idClasses,
-                                 Long idPeriode,
-                                 Handler<Either<String, JsonArray>> handler) {
-
+    public void getElevesClasses(String[] idClasses, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
         String RETURNING = " RETURN c.id as idClasse, " +
-                "u.id as idEleve, c.name as name , u.lastName as lastName, u.firstName as firstName, " +
-                "u.deleteDate as deleteDate ,u.displayName as displayName" +
+                " u.id as idEleve, c.name as name , u.lastName as lastName, u.firstName as firstName, " +
+                " u.deleteDate as deleteDate ,u.displayName as displayName, " +
+                " u.birthDate as birthDate " +
                 " ORDER BY  " +
                 " u.lastName, u.firstName ";
 

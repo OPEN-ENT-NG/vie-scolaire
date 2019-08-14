@@ -261,38 +261,23 @@ public class DefaultCommonCoursService implements CommonCoursService {
      * @return
      */
     private boolean isOneClass(JsonArray arrayGroups,List<String> teacherId, List<String> groups) {
-        if (  !teacherId.isEmpty() || arrayGroups.size()>1){
+        if (!teacherId.isEmpty() || arrayGroups.size() > 1){
             return false;
         }
-        if(arrayGroups.size() == 0){
+        if(arrayGroups.isEmpty()){
             return groups.size() == 1;
         }
 
-
+        int count = arrayGroups.size();
         JsonObject result = arrayGroups.getJsonObject(0);
+        List<String> groupsFromNeo = result.getJsonArray("name_groups").getList();
         String classe = result.getString("name_classe");
-        JsonArray groupsFromNeo = result.getJsonArray("name_groups");
-
-
-        for(int j = 0; j < groups.size(); j++){
-            if(classe.equals(groups.get(j))){
-                groups.remove(j);
-            }
-            for(int i = 0; i < groupsFromNeo.size();i++){
-
-                if(groups.size()>0)
-                    if(groups.get(j).equals(groupsFromNeo.getString(i))){
-                        groups.remove(j);
-                        if(j > 0)
-                            j--;
-                    }
-            }
+        if (groups.contains(classe)) count--;
+        for (String group: groupsFromNeo) {
+            if (groups.contains(group)) count--;
         }
-        if(groups.size()==0){
-            return  true;
-        }else{
-            return false;
-        }
+
+        return count == 0;
     }
 
     private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){

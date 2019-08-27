@@ -130,7 +130,7 @@ public class EventBusController extends ControllerHelper {
                         if (event.right().getValue().size() == 0) {
                             message.reply(new JsonObject()
                                     .put("status", "ok")
-                                    .put("results", new JsonArray()));
+                                    .put("result", new JsonObject()));
                             return;
                         }
                         String slotProfile = event.right().getValue().getJsonObject(0).getString("id");

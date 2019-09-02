@@ -376,7 +376,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                         $scope.structures = vieScolaire.structures;
                         vieScolaire.structure.sync().then(() => {
                             $scope.structure = vieScolaire.structure;
-                            if ($scope.structure.cycles.length > 0) {
+                            if ($scope.structure.cycles !== undefined && $scope.structure.cycles.length > 0) {
                                 $scope.lastSelectedCycle = $scope.structure.cycles[0];
                                 $scope.lastSelectedCycle.selected = true;
                             }

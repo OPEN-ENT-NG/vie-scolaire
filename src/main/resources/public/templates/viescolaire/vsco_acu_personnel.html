@@ -39,7 +39,8 @@
                 <span><i18n>viescolaire.utils.school</i18n></span>
             </a>
         </header>
-        <header ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}"
+        <header ng-if="canAccessCompetences"
+                ng-class="{selected : findParam('filter') === lang.translate('viescolaire.notes.title')}"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.notes.title')]]"
                class="horizontal-spacing">

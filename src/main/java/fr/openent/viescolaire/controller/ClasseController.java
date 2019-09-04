@@ -113,178 +113,60 @@ public class ClasseController extends BaseController {
         });
     }
 
+    private static Boolean getBoolean(final HttpServerRequest request, String param) {
+        Boolean value;
+        if(request.params().get(param) != null) {
+            value = Boolean.parseBoolean(request.params().get(param));
+        } else {
+            value = false;
+        }
+
+        return value;
+    }
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'établissement")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getClasses(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if (user != null
-                        && !request.params().isEmpty()
-                        && request.params().contains("idEtablissement")) {
-                    Boolean classOnly = null;
-                    String idEtablissement = request.params().get("idEtablissement");
 
-                    Map<String, JsonArray> info = new HashMap<>();
-                    final boolean isPresence;
-                    if(request.params().get("isPresence") != null) {
-                        isPresence = Boolean.parseBoolean(request.params().get("isPresence"));
-                    } else {
-                        isPresence = false;
-                    }
-                    final boolean isEdt;
-                    final boolean isTeacherEdt;
-                    if(request.params().contains("isEdt")) {
-                        isEdt = Boolean.parseBoolean(request.params().get("isEdt"));
-                        if(request.params().contains("isTeacherEdt")){
-                            isTeacherEdt = Boolean.parseBoolean(request.params().get("isTeacherEdt"));
-                        }else {
-                            isTeacherEdt = false;
-                        }
-                    } else {
-                        isEdt = false;
-                        isTeacherEdt = false;
-                    }
-                    if(request.params().get("classOnly") != null) {
-                        classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
-                    }
+        UserUtils.getUserInfos(eb, request, user -> {
 
-                    Handler<Either<String, JsonArray>> finalHandler = event -> {
-                        if (event.isRight()) {
-                            JsonArray recipient = event.right().getValue();
-                            JsonObject classe;
-                            JsonObject object;
-                            final JsonArray classes = new fr.wseduc.webutils.collections.JsonArray();
-                            List<String> idGroupes = new ArrayList<>();
-                            for (int i = 0; i < recipient.size(); i++) {
-                                classe = recipient.getJsonObject(i);
-                                classe = classe.getJsonObject("m");
-                                object = classe.getJsonObject("metadata");
-                                classe = classe.getJsonObject("data");
-                                if (object.getJsonArray("labels").contains("Class"))
-                                    classe.put("type_groupe", Viescolaire.CLASSE_TYPE);
-                                else if (object.getJsonArray("labels").contains("FunctionalGroup")) {
-                                    classe.put("type_groupe", Viescolaire.GROUPE_TYPE);
-                                } else if (object.getJsonArray("labels").contains("ManualGroup")) {
-                                    classe.put("type_groupe", Viescolaire.GROUPE_MANUEL_TYPE);
-                                }
-                                if (isEdt) {
-                                    classe.put("color", utilsService.getColor(classe.getString("name")));
-                                }
-                                idGroupes.add(classe.getString("id"));
-                                classes.add(classe);
-                            }
-
-                            if (!idGroupes.isEmpty()) {
-                                JsonObject action = new JsonObject()
-                                        .put("action", "utils.getCycle")
-                                        .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
-
-                                if (isPresence || isEdt) {
-                                    renderJson(request, classes);
-                                } else {
-                                    eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action,
-                                            handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
-                                        @Override
-                                        public void handle(Message<JsonObject> message) {
-                                            if ("ok".equals(message.body().getString("status"))) {
-                                                JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
-                                                JsonObject object;
-                                                JsonObject cycles = utilsService.mapListNumber(message.body().getJsonArray("results"), "id_groupe", "id_cycle");
-                                                JsonObject cycleLibelle = utilsService.mapListString(message.body().getJsonArray("results"), "id_groupe", "libelle");
-                                                for (int i = 0; i < classes.size(); i++) {
-                                                    object = classes.getJsonObject(i);
-                                                    object.put("id_cycle", cycles.getLong(object.getString("id")));
-                                                    object.put("libelle_cycle",
-                                                            cycleLibelle.getString(object.getString("id")));
-                                                    object.put("services", info.get(object.getString("id")));
-                                                    returnedList.add(object);
-                                                }
-                                                renderJson(request, returnedList);
-                                            } else {
-                                                badRequest(request);
-                                            }
-                                        }
-                                    }));
-                                }
-                            } else {
-                                renderJson(request, new fr.wseduc.webutils.collections.JsonArray(idGroupes));
-                            }
-                        } else {
-                            badRequest(request);
-                        }
-                    };
-
-                    Handler<Either<String, JsonArray>> classeHandler;
-                    if (isPresence || isEdt) {
-                        classeHandler = finalHandler;
-                    } else {
-
-                        classeHandler = event -> {
-                            JsonObject action = new JsonObject()
-                                    .put("action", "service.getServices")
-                                    .put("idStructure", idEtablissement)
-                                    .put("aIdEnseignant", new JsonArray().add(user.getUserId()));
-                            eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
-                                if ("ok".equals(message.body().getString("status"))) {
-
-                                    Set<String> toAdd = new HashSet<>();
-
-                                    message.body().getJsonArray("results").stream().forEach(service -> {
-                                        JsonObject serviceObj = (JsonObject) service;
-                                        String idGroupe = serviceObj.getString("id_groupe");
-
-                                        if(!info.containsKey(idGroupe)){
-                                            info.put(idGroupe, new JsonArray());
-                                        }
-                                        if(serviceObj.getBoolean("evaluable")) {
-                                            toAdd.add(idGroupe);
-                                        }
-                                        info.get(idGroupe).add(serviceObj);
-                                    });
-
-                                    Iterator iter = event.right().getValue().iterator();
-                                    while (iter.hasNext()) {
-                                        JsonObject classe = (JsonObject) iter.next();
-                                        if (toAdd.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
-                                            toAdd.remove(classe.getJsonObject("m").getJsonObject("data").getString("id"));
-                                        }
-                                    }
-
-                                    classeService.getClassesInfo(new JsonArray(new ArrayList(toAdd)), classes -> {
-                                        if(classes.isRight() && classes.right().getValue().size() > 0) {
-                                            JsonArray mappedClasses = new JsonArray(
-                                                    (List) classes.right().getValue().getList().stream().map(classe -> {
-                                                        JsonObject classeObj = (JsonObject) classe;
-                                                        JsonObject finalObject = new JsonObject();
-                                                        JsonArray labels = classeObj.getJsonArray("labels");
-                                                        classeObj.remove("labels");
-                                                        JsonObject metadata = new JsonObject().put("labels", labels);
-                                                        JsonObject m = new JsonObject().put("data", classeObj)
-                                                                .put("metadata", metadata);
-                                                        return finalObject.put("m", m);
-                                                    }
-                                            ).collect(Collectors.toList()));
-                                            event.right().getValue().addAll(mappedClasses);
-                                            finalHandler.handle(event.right());
-                                        } else if (classes.isRight()) {
-                                            finalHandler.handle(event.right());
-                                        } else {
-                                            finalHandler.handle(classes.left());
-                                        }
-                                    });
-                                }
-                            }));
-                        };
-                    }
-                    String forAdminStr = request.params().get("forAdmin");
-                    Boolean forAdmin = (forAdminStr == null)?false:Boolean.valueOf(forAdminStr);
-                    classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
-                            classeHandler, isTeacherEdt);
-                } else {
-                    badRequest(request , "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
+            if (!(user != null && !request.params().isEmpty() && request.params().contains("idEtablissement"))) {
+                badRequest(request, "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
+            }
+            else {
+                String idEtablissement = request.params().get("idEtablissement");
+                final boolean isPresence = getBoolean(request, "isPresence");
+                final boolean isEdt = getBoolean(request,"isEdt");
+                final boolean isTeacherEdt = getBoolean(request,"isTeacherEdt");
+                final boolean noCompetence = getBoolean(request,"noCompetence");
+                Map<String, JsonArray> info = new HashMap<>();
+                Boolean classOnly = null;
+                if(request.params().get("classOnly") != null) {
+                    classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                 }
+
+                // On rajoute les info des cycles de chaque classe si !(isPresence || isEdt || noCompetence)
+                Handler<Either<String, JsonArray>> finalHandler = classeService.addCycleClasses(request, eb,
+                        idEtablissement, isPresence, isEdt, isTeacherEdt, noCompetence, info, classOnly );
+
+                // Handler qui va contenir la réponse de l'API
+                Handler<Either<String, JsonArray>> classeHandler;
+
+
+                if (isPresence || isEdt || noCompetence) {
+                    classeHandler = finalHandler;
+                }
+
+                // Si !(isPresence || isEdt || noCompetence)
+                // On aurant en plus les services paramétrés pour chaque classe
+                else {
+                    classeHandler = classeService.addServivesClasses(request, eb, idEtablissement, isPresence, isEdt,
+                            isTeacherEdt, noCompetence, info, classOnly, user, finalHandler );
+                }
+                String forAdminStr = request.params().get("forAdmin");
+                Boolean forAdmin = (forAdminStr == null)?false:Boolean.valueOf(forAdminStr);
+                classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
+                        classeHandler, isTeacherEdt);
             }
         });
     }

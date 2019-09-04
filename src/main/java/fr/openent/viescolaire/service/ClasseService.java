@@ -18,11 +18,15 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
+import java.util.Map;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -137,4 +141,19 @@ public interface ClasseService extends CrudService {
     void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler);
 
     void getGroupeFromClasse(String[] strings, Handler<Either<String, JsonArray>> handler);
+
+    Handler<Either<String, JsonArray>> addCycleClasses(final HttpServerRequest request, EventBus eb,
+                                                       String idEtablissement, final boolean isPresence,
+                                                       final boolean isEdt, final boolean isTeacherEdt,
+                                                       final boolean noCompetence,
+                                                       Map<String, JsonArray> info, Boolean classOnly );
+
+    Handler<Either<String, JsonArray>> addServivesClasses(final HttpServerRequest request, EventBus eb,
+                                                          String idEtablissement, final boolean isPresence,
+                                                          final boolean isEdt, final boolean isTeacherEdt,
+                                                          final boolean noCompetence,
+                                                          Map<String, JsonArray> info, Boolean classOnly,
+                                                          UserInfos user ,
+                                                          Handler<Either<String, JsonArray>> handler );
+
 }

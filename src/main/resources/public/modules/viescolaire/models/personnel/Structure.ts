@@ -34,7 +34,7 @@ export class Structure extends DefaultStructure {
     // Fields
     id: string;
     isActived = {presence: false, evaluation: false};
-    typePeriodes: Collection<TypePeriode>;
+     typePeriodes: Collection<TypePeriode>;
 
     // presence
     motifs: Collection<Motif>;
@@ -104,11 +104,14 @@ export class Structure extends DefaultStructure {
             }
         });
         this.collection(Classe, {
-            sync: async function () {
+            sync: async function (noCompetence?) {
                 // Récupération des classes et groupes de l'etab
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
                     let url = that.api.CLASSE.synchronization;
+                    if(noCompetence !== undefined){
+                        url+= '&noCompetence=true';
+                    }
                     http().getJson(url).done(function (classe) {
                         that.classes.load(classe);
                         resolve();
@@ -234,11 +237,12 @@ export class Structure extends DefaultStructure {
     }
 
     sync() {
-        return new Promise((resolve, reject) => {
-            var that = this;
+        return new Promise((resolve) => {
+            let that = this;
              // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
-
-            if (Utils.canAccessCompetences()) {
+            let canAccessCompetences = Utils.canAccessCompetences();
+            let canAccessPresences = Utils.canAccessPresences();
+            if (canAccessCompetences) {
                 // Récupération du niveau de compétences et construction de l'abre des cycles.
                 that.getMaitrise().then(() => {
                     that.classes.sync().then(() => {
@@ -251,7 +255,7 @@ export class Structure extends DefaultStructure {
                 });
             }
 
-            if (Utils.canAccessPresences()) {
+            if (canAccessPresences) {
                 that.motifAppels.sync().then(() => {
                     that.categorieAppels.sync().then(() => {
                         that.motifs.sync().then(() => {
@@ -262,6 +266,16 @@ export class Structure extends DefaultStructure {
                     });
                 });
             }
+            if(!canAccessCompetences && ! canAccessPresences){
+                that.classes.sync(true).then(() => {
+                    that.typePeriodes.sync().then(() => {
+                        that.getPeriodes().then(() => {
+                            resolve();
+                        });
+                    });
+                });
+            }
+
         })
     };
 

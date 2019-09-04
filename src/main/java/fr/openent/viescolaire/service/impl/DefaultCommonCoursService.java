@@ -318,12 +318,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject occurence = new JsonObject(course.toString());
         occurence.put("is_recurrent", isRecurent);
 
-        occurence.put("color",  !onlyOneGroup ?
-                ( ( course.getJsonArray("classes") != null && course.getJsonArray("classes").size() > 0)
-                        ?  utilsService.getColor(course.getJsonArray("classes").getString(0))
-                        :  utilsService.getColor(course.getJsonArray("groups").getString(0)))
-                :   utilsService.getSubjectColor(course.getString("subjectId")));
-
+        String color = "";
+        if(!onlyOneGroup) {
+            if( course.getJsonArray("classes") != null && course.getJsonArray("classes").size() > 0){
+                color = utilsService.getColor(course.getJsonArray("classes").getString(0));
+            }
+            else if(course.getJsonArray("groups") != null && course.getJsonArray("groups").size() > 0){
+                color = utilsService.getColor(course.getJsonArray("groups").getString(0));
+            }
+        }
+        if(color.isEmpty() && course.containsKey("subjectId")) {
+            color = utilsService.getSubjectColor(course.getString("subjectId"));
+        }
+        occurence.put("color", color);
 
         occurence.put("is_periodic",false);
         occurence.put(COURSE_TABLE.startDate, df.format(start.getTime()));

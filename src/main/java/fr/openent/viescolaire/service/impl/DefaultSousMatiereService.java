@@ -69,7 +69,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     }
 
     public void listTypeSousMatieres(Handler<Either<String, JsonArray>> handler) {
-        String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ";
+        String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ORDER BY id ";
         Sql.getInstance().raw(query, validResultHandler(handler));
     }
 }

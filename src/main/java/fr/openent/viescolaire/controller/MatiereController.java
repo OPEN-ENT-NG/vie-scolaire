@@ -108,7 +108,8 @@ public class MatiereController extends ControllerHelper {
             public void handle(final UserInfos user){
                 if(user != null && null != request.params().get("idEtablissement")){
                     if("Personnel".equals(user.getType()) && null == request.params().get("isEnseignant")){
-                        matiereService.listMatieresEtabWithSousMatiere(request.params().get("idEtablissement"), false, arrayResponseHandler(request));
+                        matiereService.listMatieresEtabWithSousMatiere(request.params().get("idEtablissement"),
+                                false, arrayResponseHandler(request));
                     }else{
                         matiereService.listAllMatieres(request.params().get("idEtablissement"), request.params().get("idEnseignant"), false, arrayResponseHandler(request));
                     }

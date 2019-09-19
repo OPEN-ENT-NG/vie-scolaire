@@ -61,9 +61,8 @@ public interface MatiereService extends CrudService {
      * @param onlyId
      * @param handler
      */
-    void listMatieresEtabWithSousMatiere(String structureId,
-                                    Boolean onlyId,
-                                    Handler<Either<String, JsonArray>> handler );
+    void listMatieresEtabWithSousMatiere(String structureId, Boolean onlyId,
+                                         Handler<Either<String, JsonArray>> handler );
 
     /**
      * Récupère les matieres en fonction d'une liste de matières données

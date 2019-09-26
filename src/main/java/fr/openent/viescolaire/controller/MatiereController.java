@@ -155,7 +155,7 @@ public class MatiereController extends ControllerHelper {
                 if("Student".equals(user.getType()) || "Relative".equals(user.getType())){
                     final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                     final JsonArray idMatieres = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idMatiere"));
-                    matiereService.getMatieres(idMatieres,handler);
+                    matiereService.subjectsListWithUnderSubjects(idMatieres,handler);
                 }
             }
         });

@@ -79,5 +79,13 @@ public interface MatiereService extends CrudService {
      */
     void getMatiere(String idMatiere, Handler<Either<String, JsonObject>> result);
 
+    /**
+     * Get subjects with under subjects from the subject ids
+     * @param idsSubject ids
+     * @param handler answer
+     */
+
+    void subjectsListWithUnderSubjects( JsonArray idsSubject, Handler<Either<String,JsonArray>> handler);
+
 
 }

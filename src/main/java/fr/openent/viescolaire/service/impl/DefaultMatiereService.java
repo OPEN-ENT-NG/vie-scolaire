@@ -258,6 +258,23 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(result));
     }
 
+    @Override
+    public void subjectsListWithUnderSubjects (JsonArray idsSubject, Handler<Either<String, JsonArray>> handler) {
+        getMatieres(idsSubject, subjectsResponse -> {
+            if(subjectsResponse.isRight()){
+                JsonArray subjects = subjectsResponse.right().getValue();
+                if(subjects.isEmpty()){
+                   handler.handle(new Either.Left<>(" no subject "));
+                }else {
+                    addSousMatiere(idsSubject.getList(), subjects, handler);
+                }
+            }else{
+                handler.handle(new Either.Left<>(subjectsResponse.left().getValue()));
+            }
+        });
+
+    }
+
     private Handler<Either<String, JsonArray>> checkOverwrite(String idStructure, JsonArray aIdEnseignant, Handler<Either<String, JsonArray>> handler) {
 
         return matieres -> {
@@ -332,6 +349,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         };
     }
 
+
     private class Service {
 
         public String idMatiere, idEnseignant, idEtablissement, name, externalId, modalite;
@@ -405,4 +423,5 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                     .put(NAME, this.name);
             }
     }
+
 }

@@ -221,7 +221,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, name, is_evaluated, id_periode,")
+        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode,")
                 .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
                 .append(", type.nom as _type_libelle ")
                 .append(" FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
@@ -255,12 +255,12 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         // competences_notes.id IN " + Sql.listPrepared(idNotes.toArray())
         query.append( "SELECT res.id_devoir,id_competence , max(evaluation) as evaluation, owner, id_eleve, ")
-                .append(" created, modified , id_matiere, name, is_evaluated, id_periode, ")
+                .append(" created, modified , id_matiere,id_sousmatiere, name, is_evaluated, id_periode, ")
                 .append("  id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle ")
                 .append("  , _type_libelle, owner_name  FROM ( ")
 
                 .append(" select cd.id_devoir,cd.id_competence , evaluation, cn.owner, id_eleve, ")
-                .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, name, devoirs.is_evaluated, ")
+                .append(" devoirs.created, devoirs.modified, devoirs.id_matiere, devoirs.id_sousmatiere, name, devoirs.is_evaluated, ")
                 .append(" id_periode, devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
                 .append(" , type.nom as _type_libelle, users.username as owner_name ")
                 .append(" from notes.competences_devoirs as cd ")
@@ -303,7 +303,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         query.append(" UNION ")
                 .append(" select competences_devoirs.id_devoir, competences_devoirs.id_competence , ")
                 .append(" -1 as evaluation, owner, ? as id_eleve, ")
-                .append(" created, modified, id_matiere, name, is_evaluated, id_periode, " )
+                .append(" created, modified, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, " )
                 .append(" devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle")
                 .append(" , type.nom as _type_libelle , users.username as owner_name ")
                 .append(" from notes.competences_devoirs inner JOIN notes.devoirs on ")
@@ -346,7 +346,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         }
         query.append(" ) AS res ")
                 .append(" GROUP BY res.id_devoir,id_competence, owner, id_eleve, created, modified, " )
-                .append("id_matiere, name, is_evaluated, id_periode, id_type, diviseur, date_publication, ")
+                .append("id_matiere, id_sousmatiere, name, is_evaluated, id_periode, id_type, diviseur, date_publication, ")
                 .append(" date, apprec_visible, coefficient, libelle , _type_libelle, owner_name ");
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

@@ -30,6 +30,10 @@
                                 <a href="" ng-class="{'selected': currParam == 1}" ng-click="currParam = 1;">
                                     <i18n>viescolaire.utils.manage.motifs</i18n></a>
                             </li>
+                            <li>
+                                <a href="" ng-class="{'selected': currParam == 2}" ng-click="currParam = 2;">
+                                    <i18n>viescolaire.presences.manage</i18n></a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -54,6 +58,12 @@
                     source="source"
                     class="ng-scope"
             ></sniplet>
+        </div>
+
+
+        <!-- Presences manage -->
+        <div ng-if="currParam === 2">
+            <sniplet template="presences-manage" application="presences"></sniplet>
         </div>
 
     </div>

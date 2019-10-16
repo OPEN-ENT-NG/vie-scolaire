@@ -162,9 +162,15 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
                 event_ssmatiere -> {
-                    if (event_ssmatiere.right().isRight()) {
+                    if (event_ssmatiere.isRight()) {
                         JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
                         JsonArray res = event_ssmatiere.right().getValue();
+                        if(res == null) {
+                            System.out.println(" res null");
+                        }
+                        if(resultats == null) {
+                            System.out.println(" resultats null");
+                        }
                         for (int i = 0; i < resultats.size(); i++) {
                             JsonObject matiere = resultats.getJsonObject(i);
                             String id = matiere.getString("id");
@@ -324,11 +330,15 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                                                         aMatieres.add(oService);
                                                     }
                                                 }
-
-                                                handler.handle(new Either.Right<>(new JsonArray(new ArrayList(aMatieres.parallelStream().filter(oMat -> !oMat.idClasses.isEmpty()).map(oMat -> {
-                                                    oMat.fillMissingValues(newMatieres, classes);
+                                                JsonArray res = new JsonArray(
+                                                new ArrayList(
+                                                        aMatieres.parallelStream().filter(
+                                                                oMat -> oMat!= null && oMat.idClasses!= null &&
+                                                                        !oMat.idClasses.isEmpty()).map(oMat -> {
+                                                                            oMat.fillMissingValues(newMatieres, classes);
                                                     return oMat.toJson();
-                                                }).collect(Collectors.toList())))));
+                                                }).collect(Collectors.toList())));
+                                                handler.handle(new Either.Right<>(res));
                                             } else {
                                                 handler.handle(matieresEvent.left());
                                             }
@@ -398,8 +408,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             this.libelleClasses = new HashSet(utilsService.pluck(classeToKeep, EXTERNAL_ID_KEY));
 
             JsonObject matiere = utilsService.findWhere(matieres, new JsonObject().put("id", this.idMatiere));
-            this.name = matiere.getString(NAME);
-            this.externalId = matiere.getString(EXTERNAL_ID_KEY);
+            if (matiere != null){
+                this.name = matiere.getString(NAME);
+                this.externalId = matiere.getString(EXTERNAL_ID_KEY);
+            }
+
         }
 
         public boolean equals (Service s) {

@@ -29,7 +29,7 @@ import {Utils} from "../utils/Utils";
 
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
-    function ($scope, route, model, $location, $anchorScroll, $sce) {
+    async function ($scope, route, model, $location, $anchorScroll, $sce) {
         console.log('viescolaireController');
 
 
@@ -37,12 +37,10 @@ export let viescolaireController = ng.controller('ViescolaireController', [
          * Check if the modules are installed and if the current user can access them
          * @returns {Promise<void>}
          */
-        async function loadAndCheckModulesAccess() {
-            await Utils.loadModule('edt');
-            await Utils.loadModule('competences');
-            await Utils.loadModule('presences');
-            await Utils.loadModule('diary');
-
+        async function loadAndCheckModulesAccess($scope) {
+            let modulesPromises = [Utils.loadModule('edt'), Utils.loadModule('diary'),
+                Utils.loadModule('competences'), Utils.loadModule('presences')];
+            await Promise.all(modulesPromises);
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
             $scope.moduleEdtIsInstalled = Utils.moduleEdtIsInstalled();
@@ -61,17 +59,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 canAccessDiary: $scope.canAccessDiary
             };
             console.log('ModulesAccess', modulesAccess);
-
-            try {
-                await model.me.workflow.load(['competences', 'presences', 'edt', 'diary']);
-            } catch {
-                console.log('Erreur Workflow.load : viescolaireController');
-            }
-        }
-
-        async function forceSynchronous() { await loadAndCheckModulesAccess() };
-
-        forceSynchronous();
+        };
 
         $scope.template = template;
         $scope.lang = lang;
@@ -354,10 +342,9 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                  * Loading modules to check rights later
                  * @returns {Promise<void>}
                  */
+
                 await model.me.workflow.load(['viescolaire']);
-                await Utils.loadModule('edt');
-                await Utils.loadModule('competences');
-                await Utils.loadModule('presences');
+                await loadAndCheckModulesAccess($scope);
 
                 moment.locale('fr');
                 let openTemplate = () => {

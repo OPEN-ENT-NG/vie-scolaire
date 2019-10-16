@@ -23,7 +23,7 @@ export class Utils {
         try {
             await Behaviours.load(moduleName);
         } catch {
-            console.log(`Failed loading ${moduleName}`);
+           console.log(`Failed loading ${moduleName}`);
         }
     }
 

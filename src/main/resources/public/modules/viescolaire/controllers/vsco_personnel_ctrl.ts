@@ -59,6 +59,12 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 canAccessDiary: $scope.canAccessDiary
             };
             console.log('ModulesAccess', modulesAccess);
+
+            try {
+                await model.me.workflow.load(['competences', 'presences', 'edt', 'diary']);
+            } catch {
+                console.log('Erreur Workflow.load : viescolaireController');
+            }
         };
 
         $scope.template = template;

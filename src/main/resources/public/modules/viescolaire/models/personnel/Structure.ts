@@ -21,8 +21,6 @@ import {DefaultStructure} from '../common/DefaultStructure';
 
 import { Motif } from './Motif';
 import {Categorie} from "./Categorie";
-import {CategorieAppel} from "./CategorieAppel";
-import {MotifAppel} from "./MotifAppel";
 import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
 import {Cycle} from "./eval_cycle";
@@ -39,8 +37,6 @@ export class Structure extends DefaultStructure {
     // presence
     motifs: Collection<Motif>;
     categories: Collection<Categorie>;
-    motifAppels: Collection<MotifAppel>;
-    categorieAppels: Collection<CategorieAppel>;
     classes : Collection<Classe>;
     classesGroupes: Collection<Classe>;
 
@@ -53,10 +49,6 @@ export class Structure extends DefaultStructure {
             MOTIF_ABS : {
                 synchronization : '/presences/motifs?idEtablissement=' + this.id,
                 categorie : '/presences/categorie/absences?idEtablissement=' + this.id
-            },
-            MOTIF_APPEL: {
-                synchronization: '/presences/motifs/appel?idEtablissement=' + this.id,
-                categorie: '/presences/categorie/appels?idEtablissement=' + this.id,
             },
             CLASSE : {
                 synchronization : '/viescolaire/classes?idEtablissement=' + this.id
@@ -157,53 +149,6 @@ export class Structure extends DefaultStructure {
                 });
             }
         });
-        this.collection(MotifAppel, {
-            sync: async function () {
-                // Récupération des motifs pour l'établissement en cours
-                let that = this.composer;
-                return new Promise((resolve, reject) => {
-                    let url = that.api.MOTIF_APPEL.synchronization;
-                    http().getJson(url).done(function (motifs) {
-                        that.motifAppels.load(motifs);
-                        that.motifAppels.map((motif) => {
-                            motif.is_appel_oublie = true;
-                            motif.justifiant_libelle = motif.justifiant ?
-                                lang.translate("viescolaire.utils.justifiant") : lang.translate("viescolaire.utils.nonjustifiant");
-                            return motif;
-                        });
-                        resolve();
-                    });
-                });
-            }
-        });
-        this.collection(CategorieAppel, {
-            sync: async function () {
-                let that = this.composer;
-                // Récupération (sous forme d'arbre) des catégories des motifs d'absence pour l'établissement en cours
-                return new Promise((resolve, reject) => {
-                    let url = that.api.MOTIF_APPEL.categorie;
-
-                    http().getJson(url).done(function (categories) {
-                        let _categorieTree = categories;
-                        if (categories.length > 0) {
-                            _.map(_categorieTree, (categorie) => {
-                                // récupération des motifs-fils de la catégorie courante
-                                let _currentMotifs = that.motifAppels.filter(function (motif) {
-                                    return motif.id_categorie === categorie.id;
-                                });
-                                categorie.slided = false;
-                                categorie.is_appel_oublie = true;
-                                categorie.motifAppels = {
-                                    all: _currentMotifs
-                                };
-                            });
-                        }
-                        that.categorieAppels.load(_categorieTree);
-                        resolve();
-                    });
-                });
-            }
-        });
         this.collection(NiveauCompetence, {
             sync: function () {
                 // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
@@ -242,10 +187,26 @@ export class Structure extends DefaultStructure {
              // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
             let canAccessCompetences = Utils.canAccessCompetences();
             let canAccessPresences = Utils.canAccessPresences();
+            const promises = [];
             if (canAccessCompetences) {
                 // Récupération du niveau de compétences et construction de l'abre des cycles.
-                that.getMaitrise().then(() => {
-                    that.classes.sync().then(() => {
+                let p1 = new Promise((resolve, reject) => {
+                    that.getMaitrise().then(() => {
+                        that.classes.sync().then(() => {
+                            that.typePeriodes.sync().then(() => {
+                                that.getPeriodes().then(() => {
+                                    resolve();
+                                });
+                            });
+                        });
+                    });
+                });
+                promises.push(p1);
+            }
+
+            if(!canAccessCompetences && ! canAccessPresences){
+                let p2 = new Promise((resolve, reject) => {
+                    that.classes.sync(true).then(() => {
                         that.typePeriodes.sync().then(() => {
                             that.getPeriodes().then(() => {
                                 resolve();
@@ -253,27 +214,13 @@ export class Structure extends DefaultStructure {
                         });
                     });
                 });
+                promises.push(p2);
             }
 
-            if (canAccessPresences) {
-                that.motifAppels.sync().then(() => {
-                    that.categorieAppels.sync().then(() => {
-                        that.motifs.sync().then(() => {
-                            that.categories.sync().then(() => {
-                                resolve();
-                            });
-                        });
-                    });
-                });
-            }
-            if(!canAccessCompetences && ! canAccessPresences){
-                that.classes.sync(true).then(() => {
-                    that.typePeriodes.sync().then(() => {
-                        that.getPeriodes().then(() => {
-                            resolve();
-                        });
-                    });
-                });
+            if (promises.length > 0) {
+                Promise.all(promises).then(resolve);
+            } else {
+                resolve();
             }
 
         })

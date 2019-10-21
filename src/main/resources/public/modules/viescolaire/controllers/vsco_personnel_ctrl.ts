@@ -27,20 +27,37 @@ import {Periode} from "../models/common/Periode";
 import {TypePeriode} from "../models/common/TypePeriode";
 import {Utils} from "../utils/Utils";
 
+declare let window: any;
+
 export let viescolaireController = ng.controller('ViescolaireController', [
     '$scope', 'route', 'model', '$location', '$anchorScroll', '$sce',
     async function ($scope, route, model, $location, $anchorScroll, $sce) {
         console.log('viescolaireController');
 
+        async function enableModule (module: string): Promise<void> {
+            try {
+                await Behaviours.load(module);
+                await model.me.workflow.load([module]);
+                await lang.addBundlePromise(`/${module}/i18n`);
+            } catch (err) {
+                console.error(`Failed to enable module ${module}`);
+                throw err;
+            }
+        }
 
         /**
          * Check if the modules are installed and if the current user can access them
          * @returns {Promise<void>}
          */
-        async function loadAndCheckModulesAccess($scope) {
-            let modulesPromises = [Utils.loadModule('edt'), Utils.loadModule('diary'),
-                Utils.loadModule('competences'), Utils.loadModule('presences')];
-            await Promise.all(modulesPromises);
+        async function loadAndCheckModulesAccess() {
+            const promises = [];
+            for (let service in window.services) {
+                if (window.services[service]) promises.push(enableModule(service).catch(e => e));
+            }
+
+            //Do not use Promise.allSettled due to lack of implementation
+            await Promise.all(promises);
+
             $scope.moduleCompetenceIsInstalled = Utils.moduleCompetenceIsInstalled();
             $scope.modulePresenceIsInstalled = Utils.modulePresenceIsInstalled();
             $scope.moduleEdtIsInstalled = Utils.moduleEdtIsInstalled();
@@ -48,7 +65,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.canAccessPresences = Utils.canAccessPresences();
             $scope.canAccessEdt = Utils.canAccessEdt();
             $scope.canAccessDiary = Utils.canAccessDiary();
-
+            //
             let modulesAccess = {
                 moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,
                 modulePresenceIsInstalled: $scope.modulePresenceIsInstalled,
@@ -59,12 +76,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                 canAccessDiary: $scope.canAccessDiary
             };
             console.log('ModulesAccess', modulesAccess);
-
-            try {
-                await model.me.workflow.load(['competences', 'presences', 'edt', 'diary']);
-            } catch {
-                console.log('Erreur Workflow.load : viescolaireController');
-            }
         };
 
         $scope.template = template;
@@ -344,13 +355,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
 
         route({
             accueil: async function (params) {
-                /**
-                 * Loading modules to check rights later
-                 * @returns {Promise<void>}
-                 */
-
-                await model.me.workflow.load(['viescolaire']);
-                await loadAndCheckModulesAccess($scope);
 
                 moment.locale('fr');
                 let openTemplate = () => {
@@ -358,9 +362,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     template.open('lightboxContainerCreateMotif',
                         '../../../presences/public/template/lightbox/display_creation_motif');
                     template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
-                    // LightBox paramétrage d'items
-                    template.open('lightboxContainerCreateItem',
-                        '../../../competences/public/template/personnels/param_items/display_creation_item');
                     utils.safeApply($scope);
                 };
                 if ( $scope.structure === undefined ) {

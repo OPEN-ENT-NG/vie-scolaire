@@ -20,6 +20,7 @@ package fr.openent;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.SecuredAction;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import io.vertx.core.http.HttpServerRequest;
 
@@ -33,6 +34,13 @@ public class DisplayController extends ControllerHelper {
     @ApiDoc("Get Vie Scolaire HTML view")
     @SecuredAction(value = "Viescolaire.view")
     public void view(final HttpServerRequest request) {
-        renderView(request, null, "viescolaire/vsco_personnel.html", null);
+        JsonObject services = config.getJsonObject("services", new JsonObject());
+        JsonObject params = new JsonObject()
+                .put("ENABLE_COMPETENCES", services.getBoolean("competences", false))
+                .put("ENABLE_PRESENCES", services.getBoolean("presences", false))
+                .put("ENABLE_DIARY", services.getBoolean("diary", false))
+                .put("ENABLE_EDT", services.getBoolean("edt", false))
+                .put("ENABLE_MASSMAILING", services.getBoolean("massmailing", false));
+        renderView(request, params, "viescolaire/vsco_personnel.html", null);
     }
 }

@@ -25,6 +25,15 @@
 		<script src="/viescolaire/public/dist/entcore/ng-app.js" id="context" type="text/javascript"></script>
 		<script src="/viescolaire/public/dist/vsco_personnels.js" type="text/javascript"></script>
 		<script type="text/ng-template" id="empty"></script>
+		<script>
+			var services = {
+				competences: {{ENABLE_COMPETENCES}},
+				presences: {{ENABLE_PRESENCES}},
+				diary: {{ENABLE_DIARY}},
+				edt: {{ENABLE_EDT}},
+				massmailing: {{ENABLE_MASSMAILING}}
+			}
+		</script>
 	</head>
 	<body ng-controller="ViescolaireController" class="viescolaire vsco--global">
 	<toasts notifications="notifications"></toasts>

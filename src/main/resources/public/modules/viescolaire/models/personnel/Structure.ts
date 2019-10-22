@@ -101,9 +101,6 @@ export class Structure extends DefaultStructure {
                 let that = this.composer;
                 return new Promise((resolve, reject) => {
                     let url = that.api.CLASSE.synchronization;
-                    if(noCompetence !== undefined){
-                        url+= '&noCompetence=true';
-                    }
                     http().getJson(url).done(function (classe) {
                         that.classes.load(classe);
                         resolve();

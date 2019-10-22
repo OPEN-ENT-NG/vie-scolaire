@@ -364,6 +364,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
                     utils.safeApply($scope);
                 };
+                await loadAndCheckModulesAccess();
                 if ( $scope.structure === undefined ) {
                     console.log('Structure is undefined');
                     vieScolaire.structures.sync().then(() => {

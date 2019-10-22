@@ -33,15 +33,13 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 /**
@@ -138,7 +136,8 @@ public class ClasseController extends BaseController {
                 final boolean isPresence = getBoolean(request, "isPresence");
                 final boolean isEdt = getBoolean(request,"isEdt");
                 final boolean isTeacherEdt = getBoolean(request,"isTeacherEdt");
-                final boolean noCompetence = getBoolean(request,"noCompetence");
+                JsonObject services =  config.getJsonObject("services");
+                final boolean noCompetence = isNull(services)? true : !services.getBoolean("competences");
                 Map<String, JsonArray> info = new HashMap<>();
                 Boolean classOnly = null;
                 if(request.params().get("classOnly") != null) {

@@ -43,6 +43,7 @@ public class EventBusController extends ControllerHelper {
     private EleveService eleveService;
     private MatiereService matiereService;
     private PeriodeService periodeService;
+    private PeriodeAnneeService periodeAnneeService;
     private EventService eventService;
     private UtilsService utilsService;
     private CommonCoursService commonCoursService;
@@ -55,6 +56,7 @@ public class EventBusController extends ControllerHelper {
         eleveService = new DefaultEleveService();
         matiereService = new DefaultMatiereService(_eb);
         periodeService = new DefaultPeriodeService();
+        periodeAnneeService = new DefaultPeriodeAnneeService();
         eventService = new DefaultEventService();
         utilsService = new DefaultUtilsService();
         commonCoursService = new DefaultCommonCoursService(_eb);
@@ -536,6 +538,11 @@ public class EventBusController extends ControllerHelper {
                 List<String> idClasses = message.body().getJsonArray("idClasses").getList();
                 String idEtablissement = message.body().getString("idEtablissement");
                 periodeService.getDatesDtFnAnneeByClasse(idEtablissement, idClasses, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getExclusionDays": {
+                String idEtablissement = message.body().getString("idEtablissement");
+                periodeAnneeService.listExclusion(idEtablissement, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

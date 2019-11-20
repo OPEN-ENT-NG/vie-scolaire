@@ -92,7 +92,7 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 if ($scope.currParam === undefined) {
                     $scope.currParam = 0;
                 }
-                if (vieScolaire.structure.cycles.length > 0) {
+                if (vieScolaire.structure.cycles && vieScolaire.structure.cycles.length > 0) {
                     let id_cycle = vieScolaire.structure.cycles[0].id_cycle;
                     if ($scope.lastSelectedCycle !== undefined) {
                         $scope.lastSelectedCycle.selected = false;
@@ -110,7 +110,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
                 }
                 utils.safeApply($scope);
             });
-            $scope.timeSlots.syncAll();
         };
 
         $scope.formatDate = function(pODateDebut, pODateFin) {

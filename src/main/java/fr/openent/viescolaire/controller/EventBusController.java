@@ -121,10 +121,10 @@ public class EventBusController extends ControllerHelper {
     }
 
     private void timeslotBusService(String method, Message<JsonObject> message) {
+        JsonObject body = message.body();
+        String structureId = body.getString("structure_id");
         switch (method) {
             case "getSlotProfiles": {
-                JsonObject body = message.body();
-                String structureId = body.getString("structureId");
                 timeSlotService.getSlotProfiles(structureId, event -> {
                     if (event.isLeft()) {
                         message.reply(getErrorReply(event.left().getValue()));
@@ -150,6 +150,11 @@ public class EventBusController extends ControllerHelper {
                     }
                 });
             }
+            break;
+            case "getDefaultSlots": {
+                timeSlotService.getDefaultSlots(structureId, getJsonArrayBusResultHandler(message));
+            }
+            break;
         }
     }
 

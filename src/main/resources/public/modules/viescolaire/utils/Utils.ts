@@ -103,4 +103,17 @@ export class Utils {
         return response;
     }
 
+    /**
+     * Modify all key name with underscore to camelCase Style (e.g 'last_name' to 'lastName')
+     * @param array
+     * @returns array with all key camelCased
+     */
+    static toCamelCase(array: Array<any>): Array<any> {
+        return JSON.parse(JSON.stringify(array).replace(/\B([-_][a-z])/ig, ($1) => {
+            return $1.toUpperCase()
+                .replace('-', '')
+                .replace('_', '');
+        }));
+    }
+
 }

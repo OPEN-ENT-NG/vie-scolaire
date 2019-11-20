@@ -49,6 +49,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_MATIERE_LIBELLE_TABLE = "subject_libelle";
 	public final static String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
 	public final static String VSCO_TIME_SLOTS = "time_slots";
+	public final static String VSCO_SLOTS = "slots";
 
 	/**
 	 * Déclaration des router préfixs

@@ -4,7 +4,6 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.TimeSlotService;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -31,15 +30,80 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     @Override
+    public void getDefaultSlots(String structureId, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SLOTS +
+                " WHERE structure_id = ?";
+        JsonArray params = new JsonArray().add(structureId);
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
     public void saveTimeProfil(JsonObject timeSlot, Handler<Either<String, JsonArray>> handler) {
+        JsonArray statements = new JsonArray();
+        getTimeSlot(timeSlot.getString("id"), slotResult -> {
+            statements.add(setTimeSlotDefault(timeSlot));
+            if (slotResult.right().getValue().getJsonArray("slots").size() > 0) {
+                addStructureToSlots(timeSlot.getString("id_structure"), slotResult.right().getValue().getJsonArray("slots"));
+                statements.add(insertSlot(slotResult.right().getValue().getJsonArray("slots")));
+            }
+            Sql.getInstance().transaction(statements, statementResults -> {
+                Either<String, JsonArray> either = SqlResult.validResult(0, statementResults);
+                if (either.isLeft()) {
+                    String err = "[Viescolaire@DefaultTimeSlotService] Failed to update timeSlot by default or to update slots";
+                    LOGGER.error(err, either.left().getValue());
+                }
+                handler.handle(either);
+            });
+        });
+    }
+
+    private JsonObject setTimeSlotDefault(JsonObject timeSlot) {
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
-                "(id_structure, id) " +  "VALUES (?, ?)" + "ON CONFLICT (id_structure) DO UPDATE SET id = ? RETURNING *;";
+        "(id_structure, id) " +  "VALUES (?, ?)" + "ON CONFLICT (id_structure) DO UPDATE SET id = ? RETURNING *;";
+
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                 .add(timeSlot.getString("id_structure"))
                 .add(timeSlot.getString("id"))
                 .add(timeSlot.getString("id"));
 
-        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
+        return new JsonObject()
+                .put("action", "prepared")
+                .put("statement", query)
+                .put("values", params);
+    }
+
+    @Override
+    public void updateEndOfHalfDay(String id, String time, String structureId, Handler<Either<String, JsonObject>> handler) {
+        String query = "UPDATE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
+                " SET end_of_half_day = ? WHERE id = ? returning id";
+        JsonArray params = new JsonArray().add(time).add(id);
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
+    }
+
+    private void addStructureToSlots(String structureId, JsonArray slots) {
+        for (int i = 0; i < slots.size(); i++) {
+            JsonObject slot = slots.getJsonObject(i);
+            slot.put("structureId", structureId);
+        }
+    }
+
+    private JsonObject insertSlot(JsonArray slots) {
+        StringBuilder query = new StringBuilder("INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SLOTS +
+                "(id, structure_id, name, start_hour, end_hour) " + "VALUES ");
+        for (int i = 0; i < slots.size(); i++) {
+           query.append(addSlot(slots.getJsonObject(i))).append((i == (slots.size() - 1) ? "" : ","));
+        }
+        return new JsonObject()
+                .put("action", "raw")
+                .put("command", query.toString());
+    }
+
+    private String addSlot(JsonObject slot) {
+        return  "('" + slot.getString("id") + "','" +
+                slot.getString("structureId") + "','" +
+                slot.getString("name") + "','" +
+                slot.getString("startHour") + "','" +
+                slot.getString("endHour") + "')";
     }
 
     @Override
@@ -73,6 +137,17 @@ public class DefaultTimeSlotService implements TimeSlotService {
                 future.complete(either.right().getValue());
             }
         });
+    }
+
+    private void getTimeSlot(String slotId, Handler<Either<String, JsonObject>> handler) {
+        Future<JsonObject> future = Future.future();
+        getTimeSlot(slotId, future.setHandler(event -> {
+            if (event.failed()) {
+                handler.handle(new Either.Left<>(event.cause().toString()));
+            } else {
+                handler.handle(new Either.Right<>(event.result()));
+            }
+        }));
     }
 
     private void getSortedSlots(String slotId, Future<JsonArray> future) {

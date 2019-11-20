@@ -1,13 +1,18 @@
 <div class="times-slot ten cell" ng-controller="timeSlotsController">
     <toasts notifications="notifications"></toasts>
-    <article class="row">
+    <div class="row">
 
+        <!-- title -->
         <h3 class="row margin-bottom-lg">
             <i18n>viescolaire.time.slots</i18n>
         </h3>
 
-        <div class="cell twelve-mobile twelve">
-            <h4 class="four twelve-mobile float-left"><i18n>viescolaire.choice.schedule</i18n></h4>
+        <!-- Select choice schedule -->
+        <div class="times-slot-choiceSchedule cell twelve-mobile twelve">
+            <span class="four twelve-mobile">
+                <i18n>viescolaire.choice.schedule</i18n>
+            </span>
+
             <select class="four twelve-mobile margin-md"
                     ng-model="timeSlot"
                     ng-options="item.name for item in timeSlots.all"
@@ -16,11 +21,34 @@
                     [[lang.translate('viescolaire.time.slots.structure')]]
                 </option>
             </select>
-                <p ng-repeat="slot in timeSlot.slots">
-
-                    [[slot.name]] : [[slot.startHour]] - [[slot.endHour]]
-                </p>
         </div>
 
-    </article>
+        <!-- Schedule -->
+        <div class="times-slot-schedule" ng-show="hasDefaultTimeSlot()">
+            <div class="times-slot-schedule-title">
+                <span><i18n>viescolaire.label</i18n></span>
+                <span><i18n>viescolaire.start.date</i18n></span>
+                <span><i18n>viescolaire.end.date</i18n></span>
+            </div>
+            <div class="times-slot-schedule-list" ng-repeat="slot in timeSlot.slots">
+                <span>[[slot.name]]</span>
+                <span>[[slot.startHour]]</span>
+                <span>[[slot.endHour]]</span>
+            </div>
+        </div>
+
+        <!-- Select the end of the half day -->
+        <div class="" ng-show="hasDefaultTimeSlot()">
+            <span class="twelve-mobile">
+                <i18n>viescolaire.choice.end.half.day</i18n>
+            </span>
+
+            <select class="four twelve-mobile margin-md"
+                    ng-model="timeSlot.endOfHalfDay"
+                    ng-options="endTime for endTime in endTimes"
+                    ng-change="updateEndOfHalfDay()">
+            </select>
+        </div>
+
+    </div>
 </div>

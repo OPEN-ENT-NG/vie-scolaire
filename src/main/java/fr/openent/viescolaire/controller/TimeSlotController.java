@@ -5,6 +5,7 @@ import fr.openent.viescolaire.service.TimeSlotService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
+import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -17,6 +18,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.response.DefaultResponseHandler;
 
 import static fr.openent.Viescolaire.DIRECTORY_ADDRESS;
@@ -69,16 +71,14 @@ public class TimeSlotController extends ControllerHelper {
                             }
 
                             String id = slots.getJsonObject(0).getString("id");
-                            boolean found = false; int i = 0;
-                            while (!found && i < slotProfiles.size()) {
+                            String endHalfDay = slots.getJsonObject(0).getString("end_of_half_day");
+                            for (int i = 0; i < slotProfiles.size(); i++) {
                                 if (slotProfiles.getJsonObject(i).getString("_id").equals(id)) {
-                                    found = true;
+                                    slotProfiles.getJsonObject(i).put("end_of_half_day", endHalfDay);
                                     slotProfiles.getJsonObject(i).put("default", true);
-
                                     renderJson(request, slotProfiles);
                                     return;
                                 }
-                                i++;
                             }
                             renderJson(request, slotProfiles);
                         }
@@ -132,4 +132,23 @@ public class TimeSlotController extends ControllerHelper {
         });
     }
 
+    @Put("/time-slots")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Update forgotten notebook")
+    public void update(final HttpServerRequest request) {
+        if (!request.params().contains("id")) {
+            badRequest(request);
+            return;
+        }
+        String timeSlotId = request.getParam("id");
+        RequestUtils.bodyToJson(request, timeSlotBody -> {
+            if (!timeSlotBody.containsKey("time") && !timeSlotBody.containsKey("structureId")) {
+                badRequest(request);
+                return;
+            }
+            String time = timeSlotBody.getString("time");
+            String structureId = timeSlotBody.getString("structureId");
+            timeSlotService.updateEndOfHalfDay(timeSlotId, time, structureId, DefaultResponseHandler.defaultResponseHandler(request));
+        });
+    }
 }

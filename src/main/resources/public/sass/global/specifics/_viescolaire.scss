@@ -87,6 +87,11 @@ body.viescolaire {
     border: none;
   }
 
+  .responsive-table table.bigLibelle tbody tr td:first-child {
+    padding-left: 45px;
+    text-indent: unset;
+  }
+
   .responsive-table table tbody tr td:first-child {
     text-indent: 45px;
   }

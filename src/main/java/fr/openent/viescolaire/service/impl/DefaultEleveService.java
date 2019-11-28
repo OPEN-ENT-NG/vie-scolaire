@@ -210,7 +210,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         query.append("MATCH (u:`User`) WHERE u.id IN {idUsers} ")
                 .append("RETURN u.id as id, u.firstName as firstName, u.lastName as name, u.displayName as displayName, ")
-                .append("u as data ");
+                .append("u.birthDate AS birthDate, u as data ");
         params.put("idUsers", idUsers);
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }

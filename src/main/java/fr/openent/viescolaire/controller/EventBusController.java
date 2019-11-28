@@ -122,7 +122,7 @@ public class EventBusController extends ControllerHelper {
 
     private void timeslotBusService(String method, Message<JsonObject> message) {
         JsonObject body = message.body();
-        String structureId = body.getString("structure_id");
+        String structureId = body.getString("structureId");
         switch (method) {
             case "getSlotProfiles": {
                 timeSlotService.getSlotProfiles(structureId, event -> {

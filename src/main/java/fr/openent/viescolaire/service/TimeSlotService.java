@@ -9,6 +9,8 @@ public interface TimeSlotService {
 
     void getSlotProfiles(String id_structure, Handler<Either<String, JsonArray>> handler);
 
+    void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler);
+
     /**
      * Retrieve ONLY slots defined by your default time slots. Returns slots
      * @param structureId   Structure identifier

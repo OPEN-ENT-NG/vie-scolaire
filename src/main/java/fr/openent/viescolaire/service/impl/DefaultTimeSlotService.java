@@ -29,10 +29,18 @@ public class DefaultTimeSlotService implements TimeSlotService {
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
 
+    public void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler) {
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
+                " WHERE id_structure = ?";
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(id_structure);
+
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
+    }
+
     @Override
     public void getDefaultSlots(String structureId, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SLOTS +
-                " WHERE structure_id = ?";
+                " WHERE structure_id = ? ORDER BY start_hour";
         JsonArray params = new JsonArray().add(structureId);
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }

@@ -155,6 +155,9 @@ public class EventBusController extends ControllerHelper {
                 timeSlotService.getDefaultSlots(structureId, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getSlotProfileSettings": {
+                timeSlotService.getSlotProfileSetting(structureId, getJsonObjectBusResultHandler(message));
+            }
         }
     }
 

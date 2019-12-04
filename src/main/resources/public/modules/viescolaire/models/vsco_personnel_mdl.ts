@@ -84,8 +84,6 @@ export class VieScolaire extends Model {
 export let vieScolaire = new VieScolaire();
 
 model.build = async function () {
-    await lang.addBundle('/edt/i18n');
-    await lang.addBundle('/competences/i18n');
     (this as any).vieScolaire = vieScolaire;
     await vieScolaire.sync();
 };

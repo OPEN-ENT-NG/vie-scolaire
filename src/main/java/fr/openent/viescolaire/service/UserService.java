@@ -172,4 +172,12 @@ public interface UserService {
      * @param handler
      */
     void search(String structure_id, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * get lastName and first name of deleted teachers
+     *
+     * @param idsTeacher ids of teacher
+     * @param handler response
+     */
+    void getDeletedTeachers(List<String> idsTeacher, Handler<Either<String, JsonArray>> handler);
 }

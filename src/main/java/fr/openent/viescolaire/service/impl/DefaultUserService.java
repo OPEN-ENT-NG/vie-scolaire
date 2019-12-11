@@ -872,4 +872,22 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));
     }
 
+    /**
+     * get lastName and first name of deleted teachers
+     *
+     * @param idsTeacher ids of teacher
+     * @param handler    response
+     */
+    @Override
+    public void getDeletedTeachers (List<String> idsTeacher, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA + ".personnes_supp WHERE user_type = 'Teacher' " +
+                "AND id_user IN "+Sql.listPrepared(idsTeacher);
+
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        for (String idTeacher : idsTeacher) values.add(idTeacher);
+
+        Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
+
+    }
+
 }

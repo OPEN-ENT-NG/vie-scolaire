@@ -366,6 +366,11 @@ public class EventBusController extends ControllerHelper {
                 userService.getAllElevesWithTheirRelatives(idStructure, idsClass, idsDletedElevePostgres, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getDeletedTeachers" : {
+                List<String> idsTeacher = message.body().getJsonArray("idsTeacher").getList();
+                userService.getDeletedTeachers(idsTeacher,getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

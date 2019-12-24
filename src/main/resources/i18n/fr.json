@@ -613,7 +613,7 @@
   "evaluation.service.lightboxes.deletion": "Suppression de service",
   "evaluation.service.lightboxes.switchEval": "Rendre non-évaluable un service",
   "evaluation.service.lightboxes.confirm": "Demande de confirmation",
-  "evaluation.service.lightboxes.create": "Creation de service",
+  "evaluation.service.lightboxes.create": "Créer un service",
 
   "cdt.setting.homework.type": "Paramétrage des types de travail à faire",
   "cdt.homework.type": "Types de travail à faire",

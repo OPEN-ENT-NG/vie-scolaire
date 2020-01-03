@@ -228,9 +228,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
         String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
+        String queryLastGroup = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) WHERE ";
         String paramEtab = "s.id = {idEtablissement} ";
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
+        String paramUser = "u.id = {userId} ";
         String paramGroupManuel = "";
         if(null == user || hasAdminRight){
             paramGroupManuel =  paramEtab;
@@ -253,10 +255,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " WITH m MATCH (u:User{profiles :['Teacher']})-[i:IN]->m RETURN distinct(m) ";
         String param1;
         String param2;
+        String param3;
 
         if (null == user || hasAdminRight) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
+            param3 = paramEtab;
             params.put("idEtablissement", idEtablissement);
 
             if(null == user && idClassesAndGroups != null) {
@@ -267,23 +271,34 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         } else {
             param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
             param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";
+            param3 = paramUser + "AND " + paramEtab;
             params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
                     .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
                     .put("idEtablissement", idEtablissement)
-                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
-                    .put("idEtablissement", idEtablissement)
-                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
-                    .put("idEtablissement", idEtablissement);
+                    .put("userId",user.getUserId());
         }
 
         if(classOnly == null){
             query = queryClass + param1 + " UNION " + queryGroup + param2;
-            query = query + " UNION " +  queryGroupManuel ;
+            query = query + " UNION " +  queryGroupManuel;
+            query = query + " UNION " + queryLastGroup + param3;
+            query += "WITH r.classes + r.groups";
         } else if (classOnly){
             query = queryClass + param1;
+            query = query + " UNION " + queryLastGroup + param3;
+            query += "WITH r.classes";
         } else {
             query = queryGroup + param2;
+            query = query + " UNION " + queryLastGroup + param3;
+            query += "WITH r.groups";
         }
+
+        String returnQueryLastGroup = " as libelleClasses, s, u, sub MATCH (s)--(c) " +
+                "WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
+                "RETURN c AS m;";
+
+        query += returnQueryLastGroup;
+
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 

@@ -737,9 +737,9 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
     @Override
     public void getResponsablesDirection(String idStructure, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (u:User{profiles:['Personnel']})-[IN]->(g:Group)-[DEPENDS]->(s:Structure {id:{structureId}}) " +
-                "WHERE ANY(function IN u.functions WHERE function =~ (s.externalId+'\\\\$DIR\\\\$.*'))" +
-                " RETURN DISTINCT u.id as id, u.displayName as displayName, u.externalId as externalId";
+        String query = "MATCH (u:User{profiles:['Personnel']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{structureId}}) " +
+                "WHERE ANY(function IN u.functions WHERE function =~ '(?i).*\\\\$DIR\\\\$.*')" +
+                " RETURN u.id as id, u.displayName as displayName, u.externalId as externalId";
         JsonObject param = new JsonObject();
         param.put("structureId",idStructure);
         Neo4j.getInstance().execute(query,param,Neo4jResult.validResultHandler(handler));

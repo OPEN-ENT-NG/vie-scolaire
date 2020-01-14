@@ -468,23 +468,23 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 query = new StringBuilder();
                 params = new fr.wseduc.webutils.collections.JsonArray();
                 query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve) " +
-                                "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " + // Récupère les ids des devoirs sur la classe/groupe
-                                    "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id " + // Récupère les ids de l'annotaion NN de l'étab
-                                       "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
-                                       "WHERE libelle_court = 'NN' " +
-                                          "AND id_etablissement = ?), ? " +
-                             "FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
-                             "WHERE id_groupe IN " + Sql.listPrepared(newClassIds) +
-                             " AND NOT EXISTS (SELECT 1 " +
-                                                "FROM " + Viescolaire.EVAL_SCHEMA + ".notes " +
-                                                "WHERE notes.id_eleve = ? AND notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de note sur le devoir
-                             " AND NOT EXISTS (SELECT 1" +
-                                                "FROM " + Viescolaire.EVAL_SCHEMA + ".competences_notes " +
-                                                "WHERE competences_notes.id_eleve = ? AND competences_notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de compétences notes sur le devoir
-                             " AND EXISTS (SELECT 1" +
-                                            "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
-                                            "WHERE libelle_court = 'NN' AND id_etablissement = ?) " + // Vérifie que l'établissement est bien actif
-                             " ) ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
+                        "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " + // Récupère les ids des devoirs sur la classe/groupe
+                        "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id " + // Récupère les ids de l'annotaion NN de l'étab
+                        "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
+                        "WHERE libelle_court = 'NN' " +
+                        "AND id_etablissement = ?), ? " +
+                        "FROM " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes " +
+                        "WHERE id_groupe IN " + Sql.listPrepared(newClassIds) +
+                        " AND NOT EXISTS (SELECT 1 " +
+                        "FROM " + Viescolaire.EVAL_SCHEMA + ".notes " +
+                        "WHERE notes.id_eleve = ? AND notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de note sur le devoir
+                        " AND NOT EXISTS (SELECT 1" +
+                        "FROM " + Viescolaire.EVAL_SCHEMA + ".competences_notes " +
+                        "WHERE competences_notes.id_eleve = ? AND competences_notes.id_devoir = rel_devoirs_groupes.id_devoir) " + // Vérifie que l'élève n'a pas de compétences notes sur le devoir
+                        " AND EXISTS (SELECT 1" +
+                        "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
+                        "WHERE libelle_court = 'NN' AND id_etablissement = ?) " + // Vérifie que l'établissement est bien actif
+                        " ) ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
 
                 params.add(structureIds.getValue(0));
                 params.add(idUser);
@@ -526,7 +526,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             String query =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA +
                             ".rel_groupes_personne_supp(id_groupe, id, type_groupe) " +
-                    "VALUES (?, ?, ?);";
+                            "VALUES (?, ?, ?);";
             JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                     .add(ids.getString(i))
                     .add(userId)
@@ -590,7 +590,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
      */
     @Override
     public void getActivesIDsStructures( String module,
-                                        Handler<Either<String, JsonArray>> handler) {
+                                         Handler<Either<String, JsonArray>> handler) {
         StringBuilder query =new StringBuilder();
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
 
@@ -644,15 +644,15 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     public void getUsers(List<String> idUsers, Handler<Either<String, JsonArray>> handler){
         StringBuilder query=new StringBuilder();
         query.append("MATCH (u:User) WHERE u.id IN {id} " +
-                     "OPTIONAL MATCH (s:Structure) " +
-                     "WHERE s.externalId IN u.structures " +
-                     "OPTIONAL MATCH (g:Group) " +
-                     "WHERE g.externalId IN u.groups " +
-                     "OPTIONAL MATCH (c:Class) " +
-                     "WHERE c.externalId IN u.classes " +
-                     "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
-                     "COLLECT(DISTINCT s.id) AS structureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
-                     "COLLECT(DISTINCT c.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
+                "OPTIONAL MATCH (s:Structure) " +
+                "WHERE s.externalId IN u.structures " +
+                "OPTIONAL MATCH (g:Group) " +
+                "WHERE g.externalId IN u.groups " +
+                "OPTIONAL MATCH (c:Class) " +
+                "WHERE c.externalId IN u.classes " +
+                "RETURN u.externalId AS externalId, u.id AS id, u.displayName AS displayName, u.firstName AS firstName, u.lastName AS lastName, u.profiles as type, u.birthDate AS birthDate, " +
+                "COLLECT(DISTINCT s.id) AS structureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
+                "COLLECT(DISTINCT c.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
 
         fr.wseduc.webutils.collections.JsonArray usersArr = new fr.wseduc.webutils.collections.JsonArray(idUsers);
         log.debug("usersArr : " + usersArr.toString());
@@ -692,7 +692,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 "r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, "+
                 "r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city " +
                 "ORDER BY nameClass, lastName "+
-        "UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), " +
+                "UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), " +
                 "(s:Structure{id:{structureId}})<-[:BELONGS]-(c:Class) WHERE HAS(u.deleteDate) AND "+
                 "(c.id IN {classIds} AND c.externalId IN u.classes) " +
                 "RETURN c.id as idClass, c.name as nameClass, c.externalId as externalIdClass, " +
@@ -717,17 +717,17 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             params.put("idsDeletedStudent", deletedStudentsPostegre);
         }
 
-       Neo4j.getInstance().execute(query,params, Neo4jResult.validResultHandler(handler));
+        Neo4j.getInstance().execute(query,params, Neo4jResult.validResultHandler(handler));
     }
 
 
     @Override
     public void getCodeDomaine(String idClass,Handler<Either<String,JsonArray>> handler){
         StringBuilder query = new StringBuilder();
-          query.append("SELECT id_groupe,id as id_domaine, code_domaine as code_domaine ");
-          query.append("FROM notes.domaines INNER JOIN notes.rel_groupe_cycle ");
-          query.append("ON notes.domaines.id_cycle= notes.rel_groupe_cycle.id_cycle ");
-          query.append("WHERE notes.rel_groupe_cycle.id_groupe = ? AND code_domaine IS NOT NULL");
+        query.append("SELECT id_groupe,id as id_domaine, code_domaine as code_domaine ");
+        query.append("FROM notes.domaines INNER JOIN notes.rel_groupe_cycle ");
+        query.append("ON notes.domaines.id_cycle= notes.rel_groupe_cycle.id_cycle ");
+        query.append("WHERE notes.rel_groupe_cycle.id_groupe = ? AND code_domaine IS NOT NULL");
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
 
         params.add(idClass);
@@ -737,9 +737,9 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
     @Override
     public void getResponsablesDirection(String idStructure, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (u:User{profiles:['Personnel']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{structureId}}) " +
-                "WHERE ANY(function IN u.functions WHERE function =~ '(?i).*\\\\$DIR\\\\$.*')" +
-                " RETURN u.id as id, u.displayName as displayName, u.externalId as externalId";
+        String query = "MATCH (u:User{profiles:['Personnel']})-[IN]->(g:Group)-[DEPENDS]->(s:Structure {id:{structureId}}) " +
+                "WHERE ANY(function IN u.functions WHERE function =~ (s.externalId+'\\\\$DIR\\\\$.*'))" +
+                " RETURN DISTINCT u.id as id, u.displayName as displayName, u.externalId as externalId";
         JsonObject param = new JsonObject();
         param.put("structureId",idStructure);
         Neo4j.getInstance().execute(query,param,Neo4jResult.validResultHandler(handler));

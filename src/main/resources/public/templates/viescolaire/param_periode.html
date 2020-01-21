@@ -99,7 +99,7 @@
                     <div class="cell" ng-show="search.type != 0">
                         <span>[[ formatDatePeriode(getCurrentPeriode(classe).date_conseil_classe) ]]</span>
                     </div>
-                    <div class="cell">
+                    <div class="cell" tooltip="<center>[[lang.translate('viescolaire.utils.publication.bulletin.explication')]]</center>">
                         <label class="checkbox">
                             <input type="checkbox"
                                    ng-model="getCurrentPeriode(classe).publication_bulletin"

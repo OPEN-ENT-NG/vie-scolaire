@@ -15,7 +15,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-import {Behaviours, http} from 'entcore';
+import {Behaviours} from 'entcore';
+import {MementoSniplet} from './memento/sniplet';
 
 Behaviours.register('viescolaire', {
     rights: {
@@ -26,5 +27,8 @@ Behaviours.register('viescolaire', {
             timeSlotsManage: 'fr.openent.viescolaire.controller.TimeSlotController|getSlotProfilesByStructure'
         },
         resource: {}
+    },
+    sniplets: {
+        'memento': MementoSniplet
     }
 });

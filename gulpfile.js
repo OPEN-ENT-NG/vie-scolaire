@@ -70,10 +70,15 @@ var bundle = gulp.src('./node_modules/entcore/bundle/*')
 return merge(html, bundle);
 });
 
-gulp.task('webpack', ['copy-files'], function(){ return startWebpack() });
+gulp.task('webpack', ['copy-mdi-font'], function(){ return startWebpack() });
 
 gulp.task('rev', ['webpack'], function () {
     updateRefs();
+});
+
+gulp.task('copy-mdi-font', ['copy-files'], function () {
+    return gulp.src('./node_modules/@mdi/font/fonts/*')
+        .pipe(gulp.dest('./src/main/resources/public/font/material-design/fonts'));
 });
 
 gulp.task('copyBehaviours', ['rev'], function () {

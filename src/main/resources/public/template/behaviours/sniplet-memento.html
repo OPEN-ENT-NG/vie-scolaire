@@ -1,0 +1,93 @@
+<div class="memento" data-ng-show="vm.show">
+    <div class="centered eleven">
+        <div class="header vertical-spacing-six">
+            <div class="student">
+                <div class="avatar">
+                    <img src="[['/userbook/avatar/' + vm.studentId]]" alt="">
+                </div>
+                <div class="horizontal-margin-twice">
+                    <h4>[[vm.student.name]]</h4>
+                    <div class="vertical-spacing-twice">
+                        <i class="birth-date"></i>
+                        <i18n>viescolaire.memento.borned</i18n>
+                        : [[vm.formatBirthDate(vm.student.birth_date)]]
+                    </div>
+                    <div class="groups"><i class="school"></i>
+                        <span data-ng-repeat="class in vm.student.classes">[[class]]</span>
+                        <span data-ng-repeat="group in vm.student.groups">[[group]]</span></div>
+                </div>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li data-ng-click="vm.scrollToSection('relatives-section')"
+                        ng-class="{focused: vm.focusedSection === 'relatives-section'}">
+                        <i class="relatives-icon"></i>
+                        <i18n>viescolaire.memento.relatives</i18n>
+                    </li>
+                    <li data-ng-if="vm.config.presences" data-ng-click="vm.scrollToSection('absences-section')"
+                        ng-class="{focused: vm.focusedSection === 'absences-section'}">
+                        <i class="absences"></i>
+                        <i18n>viescolaire.memento.absences</i18n>
+                    </li>
+                    <!--                    <li data-ng-if="vm.config.competences">-->
+                    <!--                        <i class="marks"></i>-->
+                    <!--                        <i18n>viescolaire.memento.notes</i18n>-->
+                    <!--                    </li>-->
+                    <!--                    <li data-ng-if="vm.config.presences">-->
+                    <!--                        <i class="sanctions"></i>-->
+                    <!--                        <i18n>viescolaire.memento.sanctions</i18n>-->
+                    <!--                    </li>-->
+                    <!--                    <li data-ng-if="vm.config.competences">-->
+                    <!--                        <i class="teachers-conference"></i>-->
+                    <!--                        <i18n>viescolaire.memento.teachers.conference</i18n>-->
+                    <!--                    </li>-->
+                </ul>
+            </div>
+            <div class="user-comment">
+                <label>
+                    <i18n>viescolaire.memento.student.comment</i18n>
+                    <textarea data-ng-model="vm.student.comment"
+                              data-ng-blur="vm.saveComment(vm.student.comment)"
+                              i18n-placeholder="viescolaire.memento.student.comment.placeholder"></textarea>
+                </label>
+            </div>
+            <div class="actions">
+                <div class="row">
+                    <i class="close right-magnet" data-ng-click="vm.closeMemento()"></i>
+                </div>
+                <div class="row">
+                    <async-autocomplete
+                            data-ng-disabled="false"
+                            data-ng-model="vm.search.value"
+                            data-ng-change="vm.selectStudent"
+                            data-on-search="vm.searchForStudent"
+                            data-options="vm.search.list"
+                            data-placeholder="viescolaire.memento.student.serch.placeholder"
+                            data-search="vm.search.value"></async-autocomplete>
+                </div>
+            </div>
+        </div>
+        <div class="card" id="relatives-section">
+            <div class="section-title">
+                <i18n>viescolaire.memento.relatives</i18n>
+            </div>
+            <div class="relatives">
+                <div class="relative" data-ng-repeat="relative in vm.student.relatives">
+                    <div class="data" data-ng-class="{disabled: !relative.activated}">
+                        <h4>[[relative.title]] [[relative.name]]</h4>
+                        <div><i class="email"></i> [[relative.email]]</div>
+                        <div><i class="mobile"></i> [[relative.mobile || "-"]]</div>
+                        <div><i class="phone"></i> [[relative.phone || "-"]]</div>
+                        <div><i class="address"></i> [[relative.address]]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-ng-if="vm.config.presences" id="absences-section">
+            <sniplet application="presences" template="memento/absences"></sniplet>
+        </div>
+<!--        <div data-ng-if="vm.config.presences">-->
+<!--            Incidents-->
+<!--        </div>-->
+    </div>
+</div>

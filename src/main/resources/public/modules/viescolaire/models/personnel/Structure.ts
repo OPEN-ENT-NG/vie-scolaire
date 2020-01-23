@@ -15,11 +15,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-import { Collection, idiom as lang, moment} from 'entcore';
+import {Collection, idiom as lang, moment} from 'entcore';
 import {createActiveStructure, deleteActiveStructure} from "../../../utils/functions/activeStructures";
 import {DefaultStructure} from '../common/DefaultStructure';
 
-import { Motif } from './Motif';
+import {Motif} from './Motif';
 import {Categorie} from "./Categorie";
 import {Classe} from "./Classe";
 import {Defaultcolors, NiveauCompetence} from "./eval_niveau_comp";
@@ -183,7 +183,6 @@ export class Structure extends DefaultStructure {
             let that = this;
              // Récupération (sous forme d'arbre) des niveaux de compétences de l'établissement en cours
             let canAccessCompetences = Utils.canAccessCompetences();
-            let canAccessPresences = Utils.canAccessPresences();
             const promises = [];
             if (canAccessCompetences) {
                 // Récupération du niveau de compétences et construction de l'abre des cycles.
@@ -201,18 +200,16 @@ export class Structure extends DefaultStructure {
                 promises.push(p1);
             }
 
-            if(!canAccessCompetences && ! canAccessPresences){
-                let p2 = new Promise((resolve, reject) => {
-                    that.classes.sync(true).then(() => {
-                        that.typePeriodes.sync().then(() => {
-                            that.getPeriodes().then(() => {
-                                resolve();
-                            });
+            let p2 = new Promise((resolve, reject) => {
+                that.classes.sync(true).then(() => {
+                    that.typePeriodes.sync().then(() => {
+                        that.getPeriodes().then(() => {
+                            resolve();
                         });
                     });
                 });
-                promises.push(p2);
-            }
+            });
+            promises.push(p2);
 
             if (promises.length > 0) {
                 Promise.all(promises).then(resolve);

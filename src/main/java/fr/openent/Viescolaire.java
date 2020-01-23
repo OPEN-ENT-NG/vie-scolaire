@@ -18,12 +18,11 @@
 package fr.openent;
 
 import fr.openent.viescolaire.controller.*;
-import fr.openent.viescolaire.controller.EleveController;
 import fr.openent.viescolaire.service.impl.DefaultTimeSlotService;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
-import org.entcore.common.http.BaseServer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.http.BaseServer;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
 
@@ -35,6 +34,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_SCHEMA = "viesco";
 	public final static String EVAL_SCHEMA = "notes";
 	public final static String ABSC_SCHEMA = "presences";
+	public final static String MEMENTO_SCHEMA = "memento";
 
 	/**
 	 * Déclaration des tables
@@ -107,10 +107,12 @@ public class Viescolaire extends BaseServer {
 		addController(new ImportCsvController(storage));
 		addController(new PeriodeAnneeController());
 		addController(new TimeSlotController(new DefaultTimeSlotService()));
+		addController(new MementoController(eb));
+		addController(new ConfigController());
 
-        addController(new EventBusController(eb));
+		addController(new EventBusController(eb));
 
-        setRepositoryEvents(new VieScolaireRepositoryEvents(eb));
+		setRepositoryEvents(new VieScolaireRepositoryEvents(eb));
 	}
 
 }

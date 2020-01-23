@@ -26,3 +26,5 @@ workspace.xml
 tslint.json
 .gitignore
 /nbproject/private/
+/src/main/resources/public/font
+/src/main/resources/public/js/behaviours.js

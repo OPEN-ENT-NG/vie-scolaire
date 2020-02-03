@@ -20,6 +20,10 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.SousMatiereService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
@@ -33,6 +37,7 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
  */
 public class DefaultSousMatiereService extends SqlCrudService implements SousMatiereService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSousMatiereService.class);
     public DefaultSousMatiereService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_SOUSMATIERE_TABLE);
     }
@@ -72,4 +77,152 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
         String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ORDER BY id ";
         Sql.getInstance().raw(query, validResultHandler(handler));
     }
+
+    @Override
+    public void create(Handler<Either<String, JsonObject>> handler, JsonObject event) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray().add(event.getString("libelle"));
+        query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere (id,libelle) " +
+                "VALUES (nextval('" + Viescolaire.VSCO_SCHEMA + " .type_sousmatiere_id_seq'),?) RETURNING id " );
+        Sql.getInstance().prepared(query.toString(),params,SqlResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public void update(Handler<Either<String, JsonObject>> handler, int id, JsonObject event) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray().add(event.getString("libelle")).add(id);
+        query.append("UPDATE " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere"+
+                " SET libelle = ? " +
+                "WHERE id = ?" +
+                " RETURNING id " );
+        Sql.getInstance().prepared(query.toString(),params,SqlResult.validUniqueResultHandler(handler));
+
+    }
+
+
+    private JsonObject updateEvaluationQuery(String id_topic, Integer id_sub_topic) {
+        String query=
+
+                "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
+                        " SET id_sousmatiere = ?"+
+                        " WHERE  id_matiere = ? " +
+                        " AND ( " +
+                        " id_sousmatiere IS NULL  " +
+                        " OR id_sousmatiere NOT  IN( " +
+                        "   SELECT id_type_sousmatiere " +
+                        "  FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
+                        " INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ? " +
+                        " ) " +
+                        ") " ;
+
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+                .add(id_sub_topic).add(id_topic).add(id_topic);
+
+        return new JsonObject()
+                .put("statement", query)
+                .put("values", params)
+                .put("action", "prepared");
+    }
+
+    private JsonObject resetEvaluationQuery(String id_topic) {
+        String query=
+
+                "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
+                        " SET id_sousmatiere = null"+
+                        " WHERE  id_matiere = ? " +
+                        " AND  " +
+                        "  id_sousmatiere NOT  IN( " +
+                        "   SELECT id_type_sousmatiere " +
+                        "  FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
+                        " INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ? " +
+                        "  " +
+                        ") " ;
+
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+                .add(id_topic).add(id_topic);
+
+        return new JsonObject()
+                .put("statement", query)
+                .put("values", params)
+                .put("action", "prepared");
+    }
+    private JsonObject insertQuery(String id_topic, Integer id_sub_topic){
+        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".sousmatiere (id_matiere,id_type_sousmatiere) " +
+                " VALUES (? , ? )";
+
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+                .add(id_topic).add(id_sub_topic);
+
+        return new JsonObject()
+                .put("statement", query)
+                .put("values", params)
+                .put("action", "prepared");
+    }
+
+    @Override
+    public void updateMatiereRelation(JsonArray topics, JsonArray subTopics, Handler<Either<String, JsonArray>> handler) {
+        StringBuilder query = new StringBuilder();
+        JsonArray params = new JsonArray();
+        query.append("DELETE FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere "+
+                " WHERE id_matiere IN ")
+                .append(Sql.listPrepared(topics.getList()));
+        for (int i = 0 ; i < topics.size();i++){
+            params.add(topics.getValue(i));
+        }
+
+
+
+        JsonArray statements=new JsonArray();
+
+
+
+        Sql.getInstance().prepared(query.toString(), params, createStatements(topics, subTopics, handler, statements));
+
+    }
+
+    private Handler<Message<JsonObject>> createStatements(JsonArray topics, JsonArray subTopics, Handler<Either<String, JsonArray>> handler, JsonArray statements) {
+        return new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(Message<JsonObject> event) {
+                if (event.body().getString("status").equals("ok")) {
+                    String id_topic;
+                    Integer id_sub_topic;
+                    if (subTopics.size() > 0) {
+                        for (int i = 0; i < topics.size(); i++) {
+                            id_topic = topics.getString(i);
+                            for (int j = 0; j < subTopics.size(); j++) {
+                                id_sub_topic = subTopics.getInteger(j);
+                                statements.add(insertQuery(id_topic, id_sub_topic));
+                            }
+                            statements.add(updateEvaluationQuery(id_topic, subTopics.getInteger(0)));
+
+                        }
+                        handleStatementsTransaction(statements, handler);
+                    } else {
+                        for (int i = 0; i < topics.size(); i++) {
+                            id_topic = topics.getString(i);
+                            statements.add(resetEvaluationQuery(id_topic));
+                        }
+                        handleStatementsTransaction(statements, handler);
+                    }
+                } else {
+                    handler.handle(new Either.Left<>("[Viescolaire@DefaultSousMatiereService] Failed to Delete previous relations"));
+                    LOGGER.error("[Viescolaire@DefaultSousMatiereService] Failed to Delete previous relations");
+                }
+            }
+        };
+    }
+
+    private void handleStatementsTransaction(JsonArray statements, Handler<Either<String, JsonArray>> handler) {
+        Sql.getInstance().transaction(statements, statementResults -> {
+            Either<String, JsonArray> either = SqlResult.validResult(0, statementResults);
+            if (either.isLeft()) {
+                String err = "[Viescolaire@DefaultSousMatiereService] Failed to insert New Relations";
+                LOGGER.error(err, either.left().getValue());
+            }
+            handler.handle(either);
+        });
+    }
+
+
 }

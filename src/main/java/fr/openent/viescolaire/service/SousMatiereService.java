@@ -18,6 +18,8 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.service.CrudService;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -47,4 +49,9 @@ public interface SousMatiereService extends CrudService {
      */
     public void listTypeSousMatieres(Handler<Either<String, JsonArray>> handler);
 
+    public void create(Handler<Either<String, JsonObject>> handler, JsonObject event);
+
+    public void update(Handler<Either<String, JsonObject>> handler, int id, JsonObject event);
+
+    void updateMatiereRelation(JsonArray topics, JsonArray subTopics, Handler<Either<String, JsonArray>> handler);
 }

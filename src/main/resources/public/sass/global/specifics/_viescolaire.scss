@@ -109,6 +109,7 @@ body.viescolaire {
   .head-param-periode {
     > div {
       margin-bottom: 3%;
+      text-align: center;
     }
   }
   .head-tableau-periode {
@@ -142,10 +143,36 @@ body.viescolaire {
       margin-bottom: 0;
     }
 
-    .expandable-list-header, .expandable-list-item-main, .expandable-list-item-expand > .row {
+    .expandable-list-item-main, .expandable-list-item-expand > .row {
       padding: 0;
       overflow: hidden;
       height: 40px;
+
+      & > div {
+        padding: 10px;
+        width: 13.331%;
+        text-align: center;
+      }
+
+      & > div:nth-child(2) {
+        width: 10%;
+      }
+
+      & > div:nth-child(3) {
+        color: $primary;
+        font-weight: bold;
+      }
+
+      & > div:first-child, & > div:last-child {
+        width: 5%;
+        text-align: center;
+      }
+    }
+
+    .expandable-list-header {
+      padding: 0;
+      overflow: hidden;
+      height: 65px;
 
       & > div {
         padding: 10px;
@@ -183,6 +210,10 @@ body.viescolaire {
           border-color: $white;
         }
       }
+      min-height: 65px;
+      align-items: center;
+      display: flex;
+      justify-content: center;
     }
 
     .expandable-list-item {

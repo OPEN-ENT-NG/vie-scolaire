@@ -246,11 +246,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(s:Structure)" +
                 " WHERE " + paramGroupManuel +
-                " WITH m MATCH (u:User{profiles :['Teacher']})-[i:IN]->m RETURN m " +
+                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN m " +
                 " UNION " +
                 " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-[BELONGS]->(s:Structure)" +
                 " WHERE " + paramGroupManuel +
-                " WITH m MATCH (u:User{profiles :['Teacher']})-[i:IN]->m RETURN distinct(m) ";
+                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN distinct(m) ";
         String param1;
         String param2;
 

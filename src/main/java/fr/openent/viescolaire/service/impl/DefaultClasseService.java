@@ -244,13 +244,21 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         }
 
 
-        String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(s:Structure)" +
+        /*String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(s:Structure)" +
                 " WHERE " + paramGroupManuel +
                 " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN m " +
                 " UNION " +
                 " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-[BELONGS]->(s:Structure)" +
                 " WHERE " + paramGroupManuel +
-                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN distinct(m) ";
+                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN distinct(m) ";*/
+
+        // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
+        String queryGroupManuel = "MATCH (s:Structure)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User{profiles: ['Student']})" +
+        " WHERE " + paramGroupManuel +
+        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN m " + 
+        " UNION MATCH (s:Structure)<-[:BELONGS]-(:Class)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User {profiles: ['Student']})" +
+        " WHERE " + paramGroupManuel +
+        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN distinct(m) ";
         String param1;
         String param2;
 

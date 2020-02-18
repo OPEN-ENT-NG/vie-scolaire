@@ -153,11 +153,9 @@ public class MatiereController extends ControllerHelper {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {
-                if("Student".equals(user.getType()) || "Relative".equals(user.getType())){
-                    final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    final JsonArray idMatieres = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idMatiere"));
-                    matiereService.subjectsListWithUnderSubjects(idMatieres,handler);
-                }
+                final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                final JsonArray idMatieres = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idMatiere"));
+                matiereService.subjectsListWithUnderSubjects(idMatieres,handler);
             }
         });
     }

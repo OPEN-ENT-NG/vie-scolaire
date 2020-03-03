@@ -77,42 +77,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         StringBuilder query = new StringBuilder();
 
-        String RETURNING = " RETURN  u.id as id, u.firstName as firstName, u.lastName as lastName," +
+        query.append("MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) " +
+                " OPTIONAL MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) "+
+                " OPTIONAL MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) "+
+
+                " OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup) " +
+                " WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) " +
+
+                " RETURN  u.id as id, u.firstName as firstName, u.lastName as lastName," +
                 " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
-                " ORDER BY lastName, firstName ";
-
-        query.append(" OPTIONAL MATCH (c:Class{id:{idClasse}})-[:DEPENDS]-(:ProfileGroup)-[:IN]-(u:User {profiles:['Student']}) ")
-                .append( " WITH CASE WHEN count(u)=0 THEN [] ELSE collect(u) END  as userC ")
-
-                .append(" OPTIONAL ")
-                .append(" MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
-                .append(" WITH CASE WHEN count(u)>0 THEN userC + collect (u) ELSE userC END as userCF ")
-
-                .append(" OPTIONAL ")
-                .append(" MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
-                .append(" with  CASE WHEN count(u)>0 THEN userCF + collect (u) ELSE userCF END  as userCFM ")
-
-                .append(" unwind userCFM as u ")
-                .append(RETURNING)
-
-                .append(" UNION ")
-
-                .append(" MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup) ")
-                .append(" WITH  u,b ")
-                .append(" MATCH (c:Group {id :{idClasse}})")
-                .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) ")
-                .append( RETURNING)
-
-                .append(" UNION ")
-
-                .append(" MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup)")
-                .append(" WITH  u,b ")
-                .append(" MATCH (c:Class {id :{idClasse}})")
-                .append(" WHERE HAS(u.deleteDate) ")
-                .append(" AND  c.externalId IN u.classes ")
-                .append(RETURNING);
+                " ORDER BY lastName, firstName ");
 
         String [] sortedField = new  String[2];
         sortedField[0] = "lastName";
@@ -169,21 +144,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" ORDER BY displayName ");
 
         // Requête Néo
-        query.append(" MATCH (u:User {profiles: ['Student']})-")
-                .append("[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})<-[b:BELONGS]-(c:Class) ")
-                .append(" WHERE  c.externalId IN u.classes ")
-                .append(" AND    s.externalId IN u.structures ")
+        query.append(" MATCH (u:User {profiles: ['Student']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})<-[b:BELONGS]-(c:Class) ")
+                .append(" WHERE  c.externalId IN u.classes AND s.externalId IN u.structures ")
                 .append(filter)
                 .append(returning)
 
                 .append(" UNION ")
 
                 // Récupération des élèves supprimés mais présents dans l'annuaire
-                .append(" MATCH (u:User{profiles:[\"Student\"]})-[IN]->(d:DeleteGroup), ")
+                .append(" MATCH (u:User{profiles:['Student']})-[IN]->(d:DeleteGroup), ")
                 .append(" (s:Structure {id:{idEtablissement}}) ")
                 .append(" WHERE s.externalId IN u.structures ")
-                .append(" with u, s ")
-                .append(((!isTeacher)?" OPTIONAL" : "" )+ " MATCH (c:Class)-[b:BELONGS]->(s) ")
+                .append(" OPTIONAL MATCH (c:Class)-[b:BELONGS]->(s) ")
                 .append(" WHERE  c.externalId IN u.classes ")
                 .append(filter)
                 .append(returning);

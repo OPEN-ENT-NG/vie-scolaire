@@ -82,16 +82,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ";
 
-        query.append(" OPTIONAL MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-")
-                .append("(c:Class{id:{idClasse}}) ")
+        query.append(" OPTIONAL MATCH (c:Class{id:{idClasse}})-[:DEPENDS]-(:ProfileGroup)-[:IN]-(u:User {profiles:['Student']}) ")
                 .append( " WITH CASE WHEN count(u)=0 THEN [] ELSE collect(u) END  as userC ")
 
                 .append(" OPTIONAL ")
-                .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:FunctionalGroup {id :{idClasse}}) ")
+                .append(" MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
                 .append(" WITH CASE WHEN count(u)>0 THEN userC + collect (u) ELSE userC END as userCF ")
 
                 .append(" OPTIONAL ")
-                .append(" MATCH (u:User {profiles: ['Student']})-[:IN]-(c:ManualGroup {id :{idClasse}}) ")
+                .append(" MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
                 .append(" with  CASE WHEN count(u)>0 THEN userCF + collect (u) ELSE userCF END  as userCFM ")
 
                 .append(" unwind userCFM as u ")

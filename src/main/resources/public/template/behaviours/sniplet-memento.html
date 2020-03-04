@@ -33,9 +33,10 @@
                     <!--                        <i class="marks"></i>-->
                     <!--                        <i18n>viescolaire.memento.notes</i18n>-->
                     <!--                    </li>-->
-                    <!--                    <li data-ng-if="vm.config.presences">-->
-                    <!--                        <i class="sanctions"></i>-->
-                    <!--                        <i18n>viescolaire.memento.sanctions</i18n>-->
+                    <li data-ng-if="vm.config.presences" data-ng-click="vm.scrollToSection('incidents-section')"
+                        ng-class="{focused: vm.focusedSection === 'incidents-section'}">
+                        <i class="sanctions"></i>
+                        <i18n>viescolaire.memento.sanctions</i18n>
                     <!--                    </li>-->
                     <!--                    <li data-ng-if="vm.config.competences">-->
                     <!--                        <i class="teachers-conference"></i>-->
@@ -86,8 +87,8 @@
         <div data-ng-if="vm.config.presences" id="absences-section">
             <sniplet application="presences" template="memento/absences"></sniplet>
         </div>
-<!--        <div data-ng-if="vm.config.presences">-->
-<!--            Incidents-->
-<!--        </div>-->
+        <div data-ng-if="vm.config.presences" id="incidents-section">
+            <sniplet application="incidents" template="memento/incidents"></sniplet>
+        </div>
     </div>
 </div>

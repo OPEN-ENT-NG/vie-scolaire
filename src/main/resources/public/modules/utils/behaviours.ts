@@ -31,5 +31,6 @@ Behaviours.register('viescolaire', {
     utils : {},
     evaluations : {},
     absences : {},
-    viescolaire : {}
+    viescolaire : {},
+    incidents : {}
 });

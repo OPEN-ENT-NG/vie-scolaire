@@ -666,7 +666,6 @@
 
   "incident.place.title": "Lieux d'incidents",
   "incident.place.form.input": "Saisissez ici un lieu d'incidents que vous pourrez utiliser dans l'application Présences",
-  "incident.place.form.input.placeholder": "Cours de récréation, classe...",
   "incident.place.lists": "Lieux d'incidents existants",
   "incident.place.form.input.edit": "Modifier le lieu d'incident",
   "incident.place.form.input.edit.warning": "Attention, la modification d'un lieu d'incident entraînera une modification sur tous les incidents déjà saisis avec ce lieu d'incident.",

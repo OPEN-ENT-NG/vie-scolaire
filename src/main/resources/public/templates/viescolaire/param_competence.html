@@ -70,6 +70,12 @@
                                     <span><i18n>evaluations.rename.subject.title</i18n></span>
                                 </a>
                             </li>
+                            <li workflow="viescolaire.importRetardAndAbsences">
+                                <a href=""  ng-class="{'selected': currParam === 9}"
+                                   ng-click="currParam = 9;">
+                                    <i18n>viescolaire.param.absence.retard</i18n>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -261,6 +267,16 @@
                                 source="source"
                         ></sniplet>
                     </article>
+                </div>
+            </div>
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile">
+                <!-- Import de fichiers csv -->
+                <div class="hash-magnet twelve cell" id="9" ng-if="currParam === 9" ng-init="source = structure;">
+                    <sniplet
+                            template="param_import_csv"
+                            application="competences"
+                            source="source"
+                    ></sniplet>
                 </div>
             </div>
         </div>

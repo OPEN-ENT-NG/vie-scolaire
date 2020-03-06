@@ -563,7 +563,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     }
 
     /**
-     * Recupere les établissements inactifs de l'utilisateur connecté
+     * Recupere les établissements actifs de l'utilisateur connecté
      * @param userInfos : utilisateur connecté
      * @param handler handler comportant le resultat
      */

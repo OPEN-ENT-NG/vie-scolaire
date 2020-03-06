@@ -16,7 +16,7 @@
  */
 
 import { model, Model, Collection, idiom as lang } from 'entcore';
-import { getActiveStructures } from "../../utils/functions/activeStructures";
+import {getActiveStructures} from "../../utils/functions/activeStructures";
 import {Structure} from './personnel/Structure';
 
 
@@ -39,6 +39,7 @@ export class VieScolaire extends Model {
                 try {
                     let structuresPresences;
                     let structuresEvaluations;
+                    let structuresAbsencesRetardsFromPresences;
                     let _structureTmp = [];
 
                     // récupération des structures actives par module

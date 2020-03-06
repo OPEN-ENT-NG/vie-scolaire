@@ -108,9 +108,9 @@ public class Viescolaire extends BaseServer {
 		addController(new PeriodeAnneeController());
 		addController(new TimeSlotController(new DefaultTimeSlotService()));
 		addController(new MementoController(eb));
-		addController(new ConfigController());
+		addController(new ConfigController(config));
 
-		addController(new EventBusController(eb));
+		addController(new EventBusController(eb,config));
 
 		setRepositoryEvents(new VieScolaireRepositoryEvents(eb));
 	}

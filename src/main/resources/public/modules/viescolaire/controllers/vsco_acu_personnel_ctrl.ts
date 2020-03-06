@@ -21,7 +21,6 @@
 import {Behaviours, model, ng, template} from 'entcore';
 import { vieScolaire} from '../models/vsco_personnel_mdl';
 import * as utils from '../../utils/personnel';
-import {postAttachments, deleteAttachment, importAttachments} from "../../utils/functions/import_csv";
 import {TimeSlots} from "../models/common/TimeSlots";
 
 let moment = require('moment');
@@ -291,25 +290,6 @@ export let adminVieScolaireController = ng.controller('VscoAdminController', [
 
                 return true;
             };
-        };
-
-        $scope.postAttachments = function (fichiers) {
-            postAttachments(fichiers, $scope);
-        };
-        $scope.clearHomonymes = function () {
-            $scope.hasHomonymes = false;
-            utils.safeApply($scope);
-        };
-        $scope.deleteAttachment = function (filemame) {
-            deleteAttachment(filemame, $scope);
-        };
-        $scope.importAttachments =  async function (fichiers, hasHomonymes) {
-            $scope.hasHomonymes = false;
-            $scope.opened.displayMessageLoader = true;
-            utils.safeApply($scope);
-            await importAttachments(fichiers, $scope);
-            $scope.opened.displayMessageLoader = false;
-            utils.safeApply($scope);
         };
     }
 ]);

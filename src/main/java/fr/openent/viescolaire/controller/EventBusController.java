@@ -48,8 +48,9 @@ public class EventBusController extends ControllerHelper {
     private UtilsService utilsService;
     private CommonCoursService commonCoursService;
     private TimeSlotService timeSlotService;
+    private ConfigController configController;
 
-    public EventBusController(EventBus _eb) {
+    public EventBusController(EventBus _eb, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
         userService = new DefaultUserService(_eb);
@@ -61,6 +62,7 @@ public class EventBusController extends ControllerHelper {
         utilsService = new DefaultUtilsService();
         commonCoursService = new DefaultCommonCoursService(_eb);
         timeSlotService = new DefaultTimeSlotService();
+        configController = new ConfigController(_config);
     }
 
     @BusAddress("viescolaire")
@@ -117,6 +119,10 @@ public class EventBusController extends ControllerHelper {
             case "timeslot": {
                 timeslotBusService(method, message);
             }
+            break;
+            case "config": {
+                configBusService(method, message);
+            }
         }
     }
 
@@ -158,6 +164,14 @@ public class EventBusController extends ControllerHelper {
             case "getSlotProfileSettings": {
                 timeSlotService.getSlotProfileSetting(structureId, getJsonObjectBusResultHandler(message));
             }
+        }
+    }
+
+    private void configBusService(String method, Message<JsonObject> message) {
+        if ("generale".equals(method)) {
+            message.reply(new JsonObject()
+                    .put("status", "ok")
+                    .put("result", configController.getConfig()));
         }
     }
 

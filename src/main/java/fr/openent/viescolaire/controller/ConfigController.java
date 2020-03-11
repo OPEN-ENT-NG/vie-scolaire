@@ -9,6 +9,12 @@ import org.entcore.common.controller.ControllerHelper;
 
 public class ConfigController extends ControllerHelper {
 
+    private JsonObject config;
+
+    public ConfigController(JsonObject config) {
+        this.config = config;
+    }
+
     @Get("/config")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getConfig(HttpServerRequest request) {
@@ -20,5 +26,15 @@ public class ConfigController extends ControllerHelper {
                 .put("edt", services.getBoolean("edt", false))
                 .put("massmailing", services.getBoolean("massmailing", false));
         renderJson(request, config);
+    }
+
+    public JsonObject getConfig() {
+        JsonObject services = config.getJsonObject("services", new JsonObject());
+        return new JsonObject()
+                .put("competences", services.getBoolean("competences", false))
+                .put("presences", services.getBoolean("presences", false))
+                .put("diary", services.getBoolean("diary", false))
+                .put("edt", services.getBoolean("edt", false))
+                .put("massmailing", services.getBoolean("massmailing", false));
     }
 }

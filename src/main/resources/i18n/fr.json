@@ -732,5 +732,10 @@
   "viescolaire.memento.student.comment": "Commentaire",
   "viescolaire.memento.student.comment.placeholder": "Entrer du texte ici",
   "viescolaire.memento.student.comment.error": "Une erreur est survenue lors de l'enregistrement du commentaire",
-  "viescolaire.memento.student.serch.placeholder": "Chercher un autre élève"
+  "viescolaire.memento.student.serch.placeholder": "Chercher un autre élève",
+
+  "viescolaire.conference.opinions": "Avis du conseil de classe",
+  "viescolaire.conference.opinions.class.create": "Créer un avis conseil",
+  "viescolaire.conference.opinions.orientation.create": "Créer un avis orientation",
+  "viescolaire.conference.opinions.service.delete.error":"Erreur lors de la suppression d'un avis"
 }

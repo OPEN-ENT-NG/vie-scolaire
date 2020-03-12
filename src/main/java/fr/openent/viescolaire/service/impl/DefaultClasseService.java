@@ -84,7 +84,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup) " +
                 " WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) " +
 
-                " RETURN  u.id as id, u.firstName as firstName, u.lastName as lastName," +
+                " RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
                 " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
                 " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
                 " ORDER BY lastName, firstName ");

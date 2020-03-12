@@ -76,6 +76,12 @@
                                     <i18n>viescolaire.param.absence.retard</i18n>
                                 </a>
                             </li>
+                            <li workflow="">
+                                <a href="" ng-class="{'selected': currParam === 10}"
+                                   ng-click="currParam = 10;">
+                                    <span><i18n>viescolaire.conference.opinions</i18n></span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -277,6 +283,20 @@
                             application="competences"
                             source="source"
                     ></sniplet>
+                </div>
+            </div>
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="">
+                <div class="hash-magnet twelve cell" id="10"
+                     ng-init="source.idStructure = structure.id;"
+                     ng-if="currParam === 10">
+                    <article>
+                        <sniplet
+                                template="opinionConference"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
+                    </article>
                 </div>
             </div>
         </div>

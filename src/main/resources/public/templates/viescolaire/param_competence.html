@@ -94,7 +94,6 @@
                         <div class="twelve">
                             <h3>
                                 <i18n>evaluations.level</i18n>
-
                             </h3>
                             <button class="marginFive magnet-right" ng-click="openDeletePerso()">
                                 <i18n>evaluations.perso.delete</i18n>
@@ -128,8 +127,14 @@
                                     <thead>
                                     <tr></tr>
                                     <tr>
-                                        <th ng-repeat="libelle in cy.niveauCompetencesArray "
-                                            class="text-white">[[libelle.libelle]]
+                                        <th ng-repeat="libelle in cy.niveauCompetencesArray ">
+                                            <input style="text-indent: 0px;text-align: center;"
+                                                   class="bold"
+                                                   type="text"
+                                                   name="libelle"
+                                                   ng-maxlength="36"
+                                                   ng-blur="saveNiveau(libelle)"
+                                                   ng-model="libelle.libelle" />
                                         </th>
                                     </tr>
                                     </thead>

@@ -359,12 +359,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     @Override
     public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler) {
-        StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
-        query.append("MATCH (c {id: {idClasse}}) return c");
+        String query = "MATCH (c:Class {id: {idClasse}}) RETURN c "+
+                "UNION MATCH (c:FunctionnalGroup {id: {idClasse}}) RETURN c "+
+                "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
 
         params.put("idClasse", idClasse);
-        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+        neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
     }
 
     @Override

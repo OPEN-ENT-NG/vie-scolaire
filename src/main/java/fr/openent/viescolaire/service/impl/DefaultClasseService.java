@@ -176,7 +176,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
 
-    public void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
+    public void listClasses(String idStructure, Boolean classOnly, UserInfos user,
                             JsonArray idClassesAndGroups,
                             Boolean forAdmin,
                             Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
@@ -200,7 +200,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
         String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
         String queryLastGroup = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) WHERE ";
-        String paramEtab = "s.id = {idEtablissement} ";
+        String paramEtab = "s.id = {idStructure} ";
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
         String paramUser = "u.id = {userId} ";
@@ -228,7 +228,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
         String queryGroupManuel = "MATCH (s:Structure)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User{profiles: ['Student']})" +
         " WHERE " + paramGroupManuel +
-        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN m " + 
+        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN m " +
         " UNION MATCH (s:Structure)<-[:BELONGS]-(:Class)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User {profiles: ['Student']})" +
         " WHERE " + paramGroupManuel +
         " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN distinct(m) ";
@@ -240,7 +240,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
             param3 = paramEtab;
-            params.put("idEtablissement", idEtablissement);
+            params.put("idStructure", idStructure);
 
             if(null == user && idClassesAndGroups != null) {
                 params.put("idClassesAndGroups", idClassesAndGroups);
@@ -253,30 +253,27 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             param3 = paramUser + "AND " + paramEtab;
             params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
                     .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
-                    .put("idEtablissement", idEtablissement)
+                    .put("idStructure", idStructure)
                     .put("userId",user.getUserId());
         }
 
         if(classOnly == null){
+            log.info("case 1");
             query = queryClass + param1 + " UNION " + queryGroup + param2;
             query = query + " UNION " +  queryGroupManuel;
-            query = query + " UNION " + queryLastGroup + param3;
-            query += "WITH r.classes + r.groups";
+            query = query + " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND EXISTS(c.externalId) return c as m";
+
         } else if (classOnly){
+            log.info("case 2");
             query = queryClass + param1;
-            query = query + " UNION " + queryLastGroup + param3;
-            query += "WITH r.classes";
+            query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND EXISTS(c.externalId) return c as m";
+
         } else {
+            log.info("case 13");
             query = queryGroup + param2;
-            query = query + " UNION " + queryLastGroup + param3;
-            query += "WITH r.groups";
+            query = query + " UNION  MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND EXISTS(c.externalId) return c as m";
         }
 
-        String returnQueryLastGroup = " as libelleClasses, s, u, sub MATCH (s)--(c) " +
-                "WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
-                "RETURN c AS m;";
-
-        query += returnQueryLastGroup;
 
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }

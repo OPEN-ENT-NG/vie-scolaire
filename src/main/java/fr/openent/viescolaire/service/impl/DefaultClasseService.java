@@ -268,7 +268,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         } else if (classOnly){
             query = queryClass + param1;
-            query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND EXISTS(c.externalId) return c as m";
+            query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class) AND EXISTS(c.externalId) return c as m";
 
         } else {
             query = queryGroup + param2;

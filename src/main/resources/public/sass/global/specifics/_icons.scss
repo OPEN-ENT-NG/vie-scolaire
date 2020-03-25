@@ -71,6 +71,11 @@ body.vsco--global {
     content: '\e873';
   }
 
+  i.trash-orange::before{
+    content: '\e8cf';
+    color: #FF8500;
+  }
+
   i.down-open {
     content: '\e841';
   }

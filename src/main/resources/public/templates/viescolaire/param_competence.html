@@ -126,9 +126,9 @@
                                        class="fixed-head">
                                     <thead>
                                     <tr>
-                                        <th ng-repeat="libelle in cy.niveauCompetencesArray ">
-                                            <input style="text-indent: 0px;text-align: center;"
-                                                   class="bold"
+                                        <th ng-repeat="libelle in cy.niveauCompetencesArray"
+                                            class="center no-indent">
+                                            <input class="bold center no-indent"
                                                    type="text"
                                                    name="libelle"
                                                    ng-maxlength="36"
@@ -139,17 +139,18 @@
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td ng-repeat="couleur in cy.niveauCompetencesArray "
-                                            style="text-indent: 0px;text-align: center;">
+                                        <td ng-repeat="couleur in cy.niveauCompetencesArray"
+                                            class="center no-indent">
                                             <input type="color" name="favcolor"
                                                    ng-change="saveNiveau(couleur)"
                                                    ng-model="couleur.couleur">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td ng-repeat="lettre in cy.niveauCompetencesArray ">
+                                        <td ng-repeat="lettre in cy.niveauCompetencesArray"
+                                            class="center no-indent">
                                             <ng-form name="skillsTextForm">
-                                                <input style="text-indent: 0px;text-align: center;"
+                                                <input class="center no-indent"
                                                        type="text"
                                                        name="letter"
                                                        ng-maxlength="2"
@@ -162,9 +163,8 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td ng-repeat="result in cy.niveauCompetencesArray "
-                                            style="text-indent: 0px;text-align: center;">
-
+                                        <td ng-repeat="result in cy.niveauCompetencesArray"
+                                            class="center no-indent">
                                             <c-skills-bubble color="result.couleur"
                                                              text="result.lettre">
                                             </c-skills-bubble>

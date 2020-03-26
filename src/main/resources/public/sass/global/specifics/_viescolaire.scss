@@ -17,7 +17,11 @@
 
 body.viescolaire {
   .center{
-    text-align: center;
+    text-align: center !important;
+  }
+
+  .no-indent {
+    text-indent: 0 !important;
   }
   .sous-titre {
     font-size: small;

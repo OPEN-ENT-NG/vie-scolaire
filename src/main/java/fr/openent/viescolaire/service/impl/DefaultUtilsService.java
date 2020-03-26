@@ -699,4 +699,23 @@ public class DefaultUtilsService implements UtilsService{
     }
 
 
+    public JsonArray flatten(JsonArray collection, String keyToFlatten) {
+        log.debug("DEBUT flatten");
+        JsonArray result = new JsonArray();
+        for (Object o : collection) {
+            JsonObject castedO = (JsonObject) o;
+            if (castedO.containsKey(keyToFlatten)) {
+                JsonArray arrayToFlatten = castedO.getJsonArray(keyToFlatten);
+                for (Object item : arrayToFlatten) {
+                    JsonObject newObject = new JsonObject(new HashMap<>(castedO.getMap()));
+                    newObject.remove(keyToFlatten);
+                    newObject.put(keyToFlatten, item);
+                    result.add(newObject);
+                }
+            }
+        }
+        log.debug("FIN flatten");
+        return result;
+    }
+
 }

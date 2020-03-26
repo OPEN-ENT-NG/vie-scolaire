@@ -27,6 +27,7 @@ public final class WorkflowActionUtils {
     static public final String PERIOD_YEAR_READ = "period.year.read";
     static public final String TIME_SLOTS_MANAGE = "time.slot.manage";
     static public final String TIME_SLOTS_READ = "time.slot.read";
+    static public final String PARAM_SERVICES_RIGHT = "viescolaire.paramServices";
 
     private WorkflowActionUtils() {
         throw new IllegalAccessError("Utility class");

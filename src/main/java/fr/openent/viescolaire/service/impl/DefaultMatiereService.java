@@ -18,15 +18,8 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.service.ClasseService;
-import fr.openent.viescolaire.service.MatiereService;
-import fr.openent.viescolaire.service.SousMatiereService;
-import fr.openent.viescolaire.service.UtilsService;
-import fr.openent.viescolaire.utils.FormateFutureEvent;
+import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.I18n;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
@@ -34,13 +27,11 @@ import org.entcore.common.service.impl.SqlCrudService;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.entcore.common.sql.SqlResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static fr.openent.Viescolaire.*;
-import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
 /**
  * Created by ledunoiss on 18/10/2016.
@@ -48,6 +39,8 @@ import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 public class DefaultMatiereService extends SqlCrudService implements MatiereService {
 
     private final Neo4j neo4j = Neo4j.getInstance();
+    private ServicesService servicesService;
+
 
     private UtilsService utilsService;
     private SousMatiereService sousMatiereService;
@@ -62,6 +55,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         utilsService = new DefaultUtilsService();
         sousMatiereService = new DefaultSousMatiereService();
         classeService = new DefaultClasseService();
+        servicesService = new DefaultServicesService();
     }
 
     @Override
@@ -126,6 +120,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     public void listAllMatieres(String structureId, String idEnseignant, Boolean onlyId, Handler<Either<String, JsonArray>> handler) {
         utilsService.getTitulaires(idEnseignant, structureId, eventRemplacants -> {
             if (eventRemplacants.isRight()) {
+
                 JsonArray aIdEnseignant = eventRemplacants.right().getValue();
                 aIdEnseignant.add(idEnseignant);
 
@@ -153,6 +148,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                 }));
 
             } else {
+                System.out.println("cc");
                 handler.handle(eventRemplacants.left());
             }
         });
@@ -282,32 +278,26 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     private Handler<Either<String, JsonArray>> checkOverwrite(String idStructure, JsonArray aIdEnseignant, Handler<Either<String, JsonArray>> handler) {
-
         return matieres -> {
             if(matieres.isRight() && matieres.right().getValue().size() > 0) {
                 Set<Service> aMatieres = new HashSet<>();
                 aMatieres.addAll(matieres.right().getValue().stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
+                servicesService.getServicesSQL(idStructure,
+                        new JsonObject().put("id_enseignant", aIdEnseignant), new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                JsonArray results = event.right().getValue();
 
-                JsonObject action = new JsonObject()
-                        .put("action", "service.getServices")
-                        .put("idStructure", idStructure)
-                        .put("aIdEnseignant", aIdEnseignant);
-
-                eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action,
-                        handlerToAsyncHandler(message -> {
-                            JsonObject body = message.body();
-
-                            if ("ok".equals(body.getString("status"))) {
                                 Set<Service> aServices = new HashSet<>();
-                                aServices.addAll(body.getJsonArray("results").stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
+                                aServices.addAll(results.stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
 
                                 Set idClasses = new HashSet();
                                 utilsService.pluck(matieres.right().getValue(), "idClasses").forEach(array -> idClasses.addAll(((JsonArray) array).getList()));
-                                idClasses.addAll(utilsService.pluck(body.getJsonArray("results"), "id_groupe"));
+                                idClasses.addAll(utilsService.pluck(results, "id_groupe"));
 
                                 Set idMatieres = new HashSet<>();
                                 idMatieres.addAll(utilsService.pluck(matieres.right().getValue(), "id"));
-                                idMatieres.addAll(utilsService.pluck(body.getJsonArray("results"), "id_matiere"));
+                                idMatieres.addAll(utilsService.pluck(results, "id_matiere"));
 
                                 classeService.getClassesInfo(new JsonArray(new ArrayList(idClasses)), classesEvent -> {
                                     if (classesEvent.isRight()) {
@@ -331,13 +321,13 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                                                     }
                                                 }
                                                 JsonArray res = new JsonArray(
-                                                new ArrayList(
-                                                        aMatieres.parallelStream().filter(
-                                                                oMat -> oMat!= null && oMat.idClasses!= null &&
-                                                                        !oMat.idClasses.isEmpty()).map(oMat -> {
-                                                                            oMat.fillMissingValues(newMatieres, classes);
-                                                    return oMat.toJson();
-                                                }).collect(Collectors.toList())));
+                                                        new ArrayList(
+                                                                aMatieres.parallelStream().filter(
+                                                                        oMat -> oMat!= null && oMat.idClasses!= null &&
+                                                                                !oMat.idClasses.isEmpty()).map(oMat -> {
+                                                                    oMat.fillMissingValues(newMatieres, classes);
+                                                                    return oMat.toJson();
+                                                                }).collect(Collectors.toList())));
                                                 handler.handle(new Either.Right<>(res));
                                             } else {
                                                 handler.handle(matieresEvent.left());
@@ -347,10 +337,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                                         handler.handle(classesEvent.left());
                                     }
                                 });
-                            }
-                        })
-                );
 
+                            }
+                        }
+
+                );
             } else if (matieres.isRight()) {
                 handler.handle(matieres.right());
             } else {

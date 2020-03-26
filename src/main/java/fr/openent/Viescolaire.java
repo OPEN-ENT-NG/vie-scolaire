@@ -50,6 +50,7 @@ public class Viescolaire extends BaseServer {
 	public final static String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
 	public final static String VSCO_TIME_SLOTS = "time_slots";
 	public final static String VSCO_SLOTS = "slots";
+	public static final String SERVICES_TABLE = "services";
 
 	/**
 	 * Déclaration des router préfixs
@@ -60,7 +61,10 @@ public class Viescolaire extends BaseServer {
 	public static final Integer GROUPE_TYPE = 1;
 	public static final Integer GROUPE_MANUEL_TYPE = 2;
 
+
 	public static final String COMPETENCES_BUS_ADDRESS = "competences";
+	public static final String VIESCO_BUS_ADDRESS = "viescolaire";
+
 
 	public static JsonObject LSUN_CONFIG;
 	public static JsonObject UPDATE_CLASSES_CONFIG;
@@ -101,11 +105,13 @@ public class Viescolaire extends BaseServer {
 		addController(new ClasseController());
 		addController(new PeriodeController());
 		addController(new MatiereController(eb));
+		addController(new MultiTeachingController());
 		addController(new GroupeEnseignementController());
 		addController(new SousMatiereController());
 		addController(new UserController());
 		addController(new ImportCsvController(storage));
 		addController(new PeriodeAnneeController());
+		addController(new ServicesController());
 		addController(new TimeSlotController(new DefaultTimeSlotService()));
 		addController(new MementoController(eb));
 		addController(new ConfigController(config));

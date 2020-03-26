@@ -96,22 +96,22 @@
                             <span ng-show="service.substituteTeacher.coTeachers.length === 0">
                                 [[service.nom_enseignant]]
                             </span>
-                            <div ng-if ="service.multiTeaching.coTeachers != undefined && service.coTeachers.length > 0"
-                                  ng-repeat="coTeacher in service.multiTeaching.coTeachers">
-                                <i class="eye-open-orange"></i>
-                                [[coTeacher.displayName]]
-                                <i class="cancel" ng-click="deleteCoTeacher(service.multiTeaching, $index)" ></i>
-                            </div>
+<!--                            <div ng-if ="service.multiTeaching.coTeachers != undefined && service.coTeachers.length > 0"-->
+<!--                                  ng-repeat="coTeacher in service.multiTeaching.coTeachers">-->
+<!--                                <i class="eye-open-orange"></i>-->
+<!--                                [[coTeacher.displayName]]-->
+<!--                                <i class="cancel" ng-click="deleteCoTeacher(service.multiTeaching, $index)" ></i>-->
+<!--                            </div>-->
                         </div>
                         <div class="[[columns.remplacement.size]] cellTab ellipsis cellTab-center">
-                            <span ng-show="service.substituteTeacher.coTeachers.length > 0">
-                                <i class="eye-open-orange"></i>
-                                [[service.substituteTeacher.coTeachers[0].displayName]]
-                                <i class="pencil" ng-click="openAddTeacherLightbox(service, false, true);$event.stopPropagation()" ></i>
-                            </span>
+<!--                            <span ng-show="service.substituteTeacher.coTeachers.length > 0">-->
+<!--                                <i class="eye-open-orange"></i>-->
+<!--                                [[service.substituteTeacher.coTeachers[0].displayName]]-->
+<!--                                <i class="pencil" ng-click="openAddTeacherLightbox(service, false, true);$event.stopPropagation()" ></i>-->
+<!--                            </span>-->
                             <div ng-show="service.substituteTeacher.coTeachers.length === 0" class="svg-image">
-                              <input type="image" class="image-center" src="/viescolaire/public/img/scss/plus-circle.svg"
-                                     ng-click="openAddTeacherLightbox(service, false); $event.stopPropagation()" alt="plop">
+<!--                              <input type="image" class="image-center" src="/viescolaire/public/img/scss/plus-circle.svg"-->
+<!--                                     ng-click="openAddTeacherLightbox(service, false); $event.stopPropagation()" alt="plop">-->
                             </div>
                         </div>
 
@@ -120,8 +120,8 @@
                                 <div class=" svg-image">
                                     <input type="image" src="/viescolaire/public/img/scss/plus-box-multiple.svg"
                                            ng-click="openSubEducationLightBoxCreation(service.id_matiere);$event.stopPropagation()" alt="plop">
-                                    <input type="image" src="/viescolaire/public/img/scss/account-multiple-plus.svg"
-                                           ng-click="openAddTeacherLightbox(service, true); $event.stopPropagation()" alt="plop">
+<!--                                    <input type="image" src="/viescolaire/public/img/scss/account-multiple-plus.svg"-->
+<!--                                           ng-click="openAddTeacherLightbox(service, true); $event.stopPropagation()" alt="plop">-->
                                   <span ng-if="service.isManual"> <i class="trash-orange"  ng-click="deleteService(service);$event.stopPropagation();"></i></span>
                                 </div>
                             </div>
@@ -136,8 +136,8 @@
         </div>
 
 
-        <div ng-include="'/viescolaire/public/templates/viescolaire/services/createLigthbox.html'"></div>
-        <div ng-include="'/viescolaire/public/templates/viescolaire/services/addTeacherLigthbox.html'"></div>
+<!--        <div ng-include="'/viescolaire/public/templates/viescolaire/services/createLigthbox.html'"></div>-->
+<!--        <div ng-include="'/viescolaire/public/templates/viescolaire/services/addTeacherLigthbox.html'"></div>-->
 
         <lightbox show="lightboxes.switchEval" on-close="lightboxes.switchEval = false">
             <h3>

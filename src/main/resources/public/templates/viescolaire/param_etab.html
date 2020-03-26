@@ -45,6 +45,12 @@
                                 <i18n>viescolaire.time.slots</i18n>
                             </a>
                         </li>
+                        <li>
+                            <a href=""  ng-class="{'selected': currParam === 5}"
+                               ng-click="currParam = 5;">
+                                <i18n>evaluation.service.title</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -69,5 +75,9 @@
     <!-- Plages horaires -->
     <div ng-if="currParam === 3"
          ng-include="'/viescolaire/public/templates/viescolaire/param_time_slots.html'">
+    </div>
+
+    <div ng-if="currParam === 5"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_services.html'">
     </div>
 </div>

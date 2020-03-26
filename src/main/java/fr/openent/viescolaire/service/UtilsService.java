@@ -164,6 +164,8 @@ public interface UtilsService {
 
     Collection map(Iterable collection, Function fct);
 
+    JsonArray flatten(JsonArray collection, String keyToFlatten);
+
 
     String getSubjectColor(String subjectId);
 }

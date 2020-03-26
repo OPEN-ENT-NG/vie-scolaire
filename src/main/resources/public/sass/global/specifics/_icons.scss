@@ -67,8 +67,16 @@ body.vsco--global {
     content: '\e904';
   }
 
-  i.eye-open::before {
+  i.eye-open::before::before {
     content: '\e873';
+  }
+  i.eye-open-orange::before {
+    content: '\e873';
+    color: #FF8500;
+  }
+  i.trash-orange::before{
+    content: '\e8cf';
+    color: #FF8500;
   }
 
   i.trash-orange::before{
@@ -126,5 +134,10 @@ body.vsco--global {
   }
   i.manual-item::after {
     content: '\e80c';
+  }
+  i.calendar-o::after {
+    content: "\e917";
+    color: #4bafd5;
+    padding: 0 5px;
   }
 }

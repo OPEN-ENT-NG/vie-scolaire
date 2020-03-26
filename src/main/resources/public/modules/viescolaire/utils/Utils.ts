@@ -69,6 +69,11 @@ export class Utils {
         }
     }
 
+    static isNull =  function (object) {
+        return (object === undefined) || (object === null);
+    };
+
+
     /**
      * Return true if the current has the 'access' right on the module
      * @param module

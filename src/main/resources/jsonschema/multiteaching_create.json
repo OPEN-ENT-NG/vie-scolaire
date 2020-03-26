@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "structure_id": {
+      "type": "string"
+    },
+    "main_teacher_id": {
+      "type": "string"
+    },
+    "second_teacher_ids": {
+      "type": "array"
+    },
+    "subject_id": {
+      "type": "string"
+    },
+    "class_or_group_ids": {
+      "type": "array"
+    },
+    "start_date": {
+      "type": "string"
+    },
+    "end_date": {
+      "type": "string"
+    },
+    "entered_end_date": {
+      "type": "string"
+    },
+    "co_teaching": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "structure_id",
+    "main_teacher_id",
+    "second_teacher_ids",
+    "subject_id",
+    "class_or_group_ids"
+  ]
+}

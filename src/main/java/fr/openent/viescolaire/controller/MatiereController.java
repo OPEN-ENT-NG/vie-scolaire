@@ -114,7 +114,6 @@ public class MatiereController extends ControllerHelper {
                         matiereService.listAllMatieres(request.params().get("idEtablissement"), request.params().get("idEnseignant"), false, arrayResponseHandler(request));
                     }
                 }else{
-
                     badRequest(request);
                 }
             }

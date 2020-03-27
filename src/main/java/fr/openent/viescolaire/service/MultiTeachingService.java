@@ -57,7 +57,7 @@ public interface MultiTeachingService {
 
     void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler);
 
-    void getSubTeachersandCoTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler);
+    void getSubTeachersandCoTeachers(String userId, String idStructure, String subjectId, Handler<Either<String, JsonArray>> handler);
 
     void getCoTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler);
 }

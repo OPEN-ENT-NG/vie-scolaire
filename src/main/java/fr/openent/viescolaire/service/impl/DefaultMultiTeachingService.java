@@ -174,21 +174,21 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
     @Override
-    public void getSubTeachersandCoTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
+    public void getSubTeachersandCoTeachers(String userId, String idStructure, String subjectId,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT DISTINCT main_teacher_id ")
+        query.append("SELECT DISTINCT main_teacher_id")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + ".multi_teaching ")
                 .append("WHERE second_teacher_id = ? ")
                 .append("AND structure_id = ? ")
+                .append("AND subject_id = ? ")
                 .append("AND start_date <= current_date ")
                 .append("AND current_date <= end_date ");
 
         values.add(userId);
         values.add(idStructure);
-        log.info(query);
-        log.info(values);
+        values.add(subjectId);
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
 

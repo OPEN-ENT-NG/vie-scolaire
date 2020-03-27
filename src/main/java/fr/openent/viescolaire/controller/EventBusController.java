@@ -50,7 +50,7 @@ public class EventBusController extends ControllerHelper {
     private TimeSlotService timeSlotService;
     private ServicesService servicesService;
     private ConfigController configController;
-
+    private MultiTeachingService multiTeachingService;
     public EventBusController(EventBus _eb, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
@@ -65,7 +65,7 @@ public class EventBusController extends ControllerHelper {
         timeSlotService = new DefaultTimeSlotService();
         configController = new ConfigController(_config);
         servicesService = new DefaultServicesService();
-
+        multiTeachingService = new DefaultMultiTeachingService();
     }
 
     @BusAddress("viescolaire")
@@ -128,6 +128,21 @@ public class EventBusController extends ControllerHelper {
             }
             case "service":{
                 serviceBusService(method,message);
+            }
+            case "multiTeaching":{
+                multiTeachingBusService (method,message);
+            }
+        }
+    }
+
+    private void multiTeachingBusService(String method, Message<JsonObject> message) {
+        JsonObject body = message.body();
+        switch (method) {
+            case "getIdMutliTeachers":{
+                String structureId = body.getString("structureId");
+                String subjectId = body.getString("subjectId");
+                String userId = body.getString("userId");
+                multiTeachingService.getSubTeachersandCoTeachers(userId, structureId,subjectId, getJsonArrayBusResultHandler(message));
             }
         }
     }

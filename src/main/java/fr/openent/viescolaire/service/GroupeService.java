@@ -69,4 +69,6 @@ public interface GroupeService extends CrudService {
      * @param handler Function handler returning data
      */
     void search(String structure_id, String query, List<String> fields, Handler<Either<String, JsonArray>> handler);
+
+    public void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler);
 }

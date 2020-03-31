@@ -15,7 +15,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+
 body.vsco--global {
+  .tooltip{
+    max-width: 400px;
+  }
   #structure-loader{
     &.overlay{
       position: fixed;

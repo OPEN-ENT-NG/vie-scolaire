@@ -21,6 +21,7 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.security.WorkflowActions;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.EventBus;
@@ -52,12 +53,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     protected static final Logger log = LoggerFactory.getLogger(DefaultClasseService.class);
 
     private static final String mParameterIdClasse = "idClasse";
+    private ServicesService servicesService;
 
     private UtilsService utilsService;
 
     public DefaultClasseService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
         utilsService = new DefaultUtilsService();
+        servicesService = new DefaultServicesService();
     }
 
     @Override
@@ -481,10 +484,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     public Handler<Either<String, JsonArray>> addCycleClasses(final HttpServerRequest request, EventBus eb,
-                                                                       String idEtablissement, final boolean isPresence,
-                                                                       final boolean isEdt, final boolean isTeacherEdt,
-                                                                       final boolean noCompetence,
-                                                                       Map<String, JsonArray> info, Boolean classOnly ){
+                                                              String idEtablissement, final boolean isPresence,
+                                                              final boolean isEdt, final boolean isTeacherEdt,
+                                                              final boolean noCompetence,
+                                                              Map<String, JsonArray> info, Boolean classOnly ){
         return  event -> {
             if (event.isLeft())  {
                 badRequest(request);
@@ -550,25 +553,98 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             }
         };
     }
-
+    //TODO essayer de l implementer pour éviter de saturer le bus
+//    public Handler<Either<String, JsonArray>> addServivesClasses(final HttpServerRequest request, EventBus eb,
+//                                                                 String idEtablissement, final boolean isPresence,
+//                                                                 final boolean isEdt, final boolean isTeacherEdt,
+//                                                                 final boolean noCompetence,
+//                                                                 Map<String, JsonArray> info,
+//                                                                 Boolean classOnly, UserInfos user,
+//                                                                 Handler<Either<String, JsonArray>> finalHandler){
+//        return    event -> {
+//            JsonObject action = new JsonObject()
+//                    .put("idStructure", idEtablissement)
+//                    .put("aIdEnseignant", new JsonArray().add(user.getUserId()));
+//            servicesService.getServices(idEtablissement,
+//                    new JsonObject().put("id_enseignant",  new JsonArray().add(user.getUserId())), new Handler<Either<String, JsonArray>>() {
+//                        @Override
+//                        public void handle(Either<String, JsonArray> event) {
+//                            if(event.isRight()){
+//                                Set<String> toAdd = new HashSet<>();
+//                                event.right().getValue().stream().forEach(service -> {
+//                                    JsonObject serviceObj = (JsonObject) service;
+//                                    String idGroupe = serviceObj.getString("id_groupe");
+//
+//                                    if (!info.containsKey(idGroupe)) {
+//                                        info.put(idGroupe, new JsonArray());
+//                                    }
+//                                    if (serviceObj.getBoolean("evaluable")) {
+//                                        toAdd.add(idGroupe);
+//                                    }
+//                                    info.get(idGroupe).add(serviceObj);
+//                                });
+//
+//                                Iterator iter = event.right().getValue().iterator();
+//                                log.info(iter);
+//
+//                                while (iter.hasNext()) {
+//                                    JsonObject classe = (JsonObject) iter.next();
+//                                    log.info(classe);
+//                                    if (toAdd.contains(classe.getJsonObject("m").getJsonObject("data").getString("id"))) {
+//                                        toAdd.remove(classe.getJsonObject("m").getJsonObject("data").getString("id"));
+//                                    }
+//                                }
+//
+//                                getClassesInfo(new JsonArray(new ArrayList(toAdd)), classes -> {
+//                                    if (classes.isRight() && classes.right().getValue().size() > 0) {
+//                                        JsonArray mappedClasses = new JsonArray(
+//                                                (List) classes.right().getValue().getList().stream().map(classe -> {
+//                                                            JsonObject classeObj = (JsonObject) classe;
+//                                                            JsonObject finalObject = new JsonObject();
+//                                                            JsonArray labels = classeObj.getJsonArray("labels");
+//                                                            classeObj.remove("labels");
+//                                                            JsonObject metadata = new JsonObject().put("labels", labels);
+//                                                            JsonObject m = new JsonObject().put("data", classeObj)
+//                                                                    .put("metadata", metadata);
+//                                                            return finalObject.put("m", m);
+//                                                        }
+//                                                ).collect(Collectors.toList()));
+//                                        event.right().getValue().addAll(mappedClasses);
+//                                        finalHandler.handle(event.right());
+//                                    } else if (classes.isRight()) {
+//                                        finalHandler.handle(event.right());
+//                                    } else {
+//                                        finalHandler.handle(classes.left());
+//                                    }
+//                                });
+//                            }else{
+//                                finalHandler.handle(new Either.Left<>("Error when getting services "));
+//                            }
+//                        }
+//                    }
+//
+//            );
+//
+//        };
+//    }
     public Handler<Either<String, JsonArray>> addServivesClasses(final HttpServerRequest request, EventBus eb,
-                                                                          String idEtablissement, final boolean isPresence,
-                                                                          final boolean isEdt, final boolean isTeacherEdt,
-                                                                          final boolean noCompetence,
-                                                                          Map<String, JsonArray> info,
-                                                                          Boolean classOnly, UserInfos user,
-                                                                          Handler<Either<String, JsonArray>> finalHandler){
+                                                                 String idEtablissement, final boolean isPresence,
+                                                                 final boolean isEdt, final boolean isTeacherEdt,
+                                                                 final boolean noCompetence,
+                                                                 Map<String, JsonArray> info,
+                                                                 Boolean classOnly, UserInfos user,
+                                                                 Handler<Either<String, JsonArray>> finalHandler){
         return    event -> {
-            JsonObject action = new JsonObject()
-                    .put("action", "service.getServices")
-                    .put("idStructure", idEtablissement)
-                    .put("aIdEnseignant", new JsonArray().add(user.getUserId()));
-            eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
-                if ("ok".equals(message.body().getString("status"))) {
 
+            JsonObject oService = new JsonObject();
+            oService.put("id_enseignant", user.getUserId());
+
+            servicesService.getServicesSQL(idEtablissement, oService, new Handler<Either<String, JsonArray>>() {
+                @Override
+                public void handle(Either<String, JsonArray> resultEvent) {
                     Set<String> toAdd = new HashSet<>();
 
-                    message.body().getJsonArray("results").stream().forEach(service -> {
+                    resultEvent.right().getValue().stream().forEach(service -> {
                         JsonObject serviceObj = (JsonObject) service;
                         String idGroupe = serviceObj.getString("id_groupe");
 
@@ -580,7 +656,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                         }
                         info.get(idGroupe).add(serviceObj);
                     });
-
                     Iterator iter = event.right().getValue().iterator();
                     while (iter.hasNext()) {
                         JsonObject classe = (JsonObject) iter.next();
@@ -588,31 +663,34 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                             toAdd.remove(classe.getJsonObject("m").getJsonObject("data").getString("id"));
                         }
                     }
-
-                    getClassesInfo(new JsonArray(new ArrayList(toAdd)), classes -> {
-                        if (classes.isRight() && classes.right().getValue().size() > 0) {
-                            JsonArray mappedClasses = new JsonArray(
-                                    (List) classes.right().getValue().getList().stream().map(classe -> {
-                                                JsonObject classeObj = (JsonObject) classe;
-                                                JsonObject finalObject = new JsonObject();
-                                                JsonArray labels = classeObj.getJsonArray("labels");
-                                                classeObj.remove("labels");
-                                                JsonObject metadata = new JsonObject().put("labels", labels);
-                                                JsonObject m = new JsonObject().put("data", classeObj)
-                                                        .put("metadata", metadata);
-                                                return finalObject.put("m", m);
-                                            }
-                                    ).collect(Collectors.toList()));
-                            event.right().getValue().addAll(mappedClasses);
-                            finalHandler.handle(event.right());
-                        } else if (classes.isRight()) {
-                            finalHandler.handle(event.right());
-                        } else {
-                            finalHandler.handle(classes.left());
-                        }
-                    });
+                    getClassesInfo(new JsonArray(new ArrayList(toAdd)), getClassHandler(event, finalHandler));
                 }
-            }));
+            });
+        };
+    }
+
+    private Handler<Either<String, JsonArray>> getClassHandler(Either<String, JsonArray> event, Handler<Either<String, JsonArray>> finalHandler) {
+        return classes -> {
+            if (classes.isRight() && classes.right().getValue().size() > 0) {
+                JsonArray mappedClasses = new JsonArray(
+                        (List) classes.right().getValue().getList().stream().map(classe -> {
+                                    JsonObject classeObj = (JsonObject) classe;
+                                    JsonObject finalObject = new JsonObject();
+                                    JsonArray labels = classeObj.getJsonArray("labels");
+                                    classeObj.remove("labels");
+                                    JsonObject metadata = new JsonObject().put("labels", labels);
+                                    JsonObject m = new JsonObject().put("data", classeObj)
+                                            .put("metadata", metadata);
+                                    return finalObject.put("m", m);
+                                }
+                        ).collect(Collectors.toList()));
+                event.right().getValue().addAll(mappedClasses);
+                finalHandler.handle(event.right());
+            } else if (classes.isRight()) {
+                finalHandler.handle(event.right());
+            } else {
+                finalHandler.handle(classes.left());
+            }
         };
     }
 

@@ -25,7 +25,11 @@ declare var model: any;
 declare var _: any;
 
 Behaviours.register('viescolaire', {
-    rights : {},
+    rights : {
+        workflow: {
+            paramServices: "fr.openent.viescolaire.controller.ServicesController|createService"
+        }
+    },
     dependencies : {},
     resource : {},
     utils : {},

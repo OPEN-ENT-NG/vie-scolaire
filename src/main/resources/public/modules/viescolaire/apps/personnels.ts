@@ -25,11 +25,13 @@ import {periodeAnneeController} from '../controllers/vsco_periodeAnnee_ctrl';
 import {periodeSearch} from '../filtres/periodeSearch';
 import {Toasts, Toast} from '../../utils/directives/toasts';
 import {timeSlotsController} from "../controllers/vsco_time_slots_ctrl";
-
+import {evalAcuTeacherController} from "../controllers/vsco_service_ctrl";
+import * as services from '../services'
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);
 ng.controllers.push(periodeAnneeController);
 ng.controllers.push(timeSlotsController);
+ng.controllers.push(evalAcuTeacherController);
 
 ng.filters.push(periodeSearch);
 
@@ -37,6 +39,11 @@ ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);
 ng.directives.push(Toasts);
 ng.directives.push(Toast);
+
+for (let service in services) {
+    ng.services.push(services[service]);
+}
+
 
 routes.define(function($routeProvider) {
     $routeProvider

@@ -230,4 +230,21 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));
     }
 
+    @Override
+    public void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler) {
+        String neo4jQuery="MATCH (c:FunctionalGroup) WHERE c.id IN {ids}"+
+                "RETURN c.id as id,\"FunctionalGroup\" as type  " +
+                "UNION " +
+                "MATCH(c:Class)   WHERE c.id IN {ids}"+
+                "RETURN c.id as id,\"Class\" as type  " +
+                "UNION " +
+                "Match(c:ManualGroup) WHERE c.id IN {ids}"+
+                "RETURN c.id as id,\"ManualGroup\" as type" ;
+
+
+        JsonObject params = new JsonObject()
+                .put("ids", groupsIds);
+        neo4j.execute(neo4jQuery, params, Neo4jResult.validResultHandler(handler));
+    }
+
 }

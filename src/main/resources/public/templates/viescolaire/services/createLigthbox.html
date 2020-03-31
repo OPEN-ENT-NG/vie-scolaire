@@ -1,0 +1,78 @@
+<lightbox show="lightboxes.create" on-close="lightboxes.create = false">
+    <h3>
+        <i18n>evaluation.service.lightboxes.create</i18n>
+    </h3>
+
+    <div class="lightboxCreate">
+        <div class="row">
+            <h4>
+                <i18n>evaluation.service.columns.matiere</i18n>
+            </h4>
+            <label class="select">
+                <select ng-model="service.id_matiere"
+                        ng-options="matiere.id as (matiere.name + ' (' + matiere.externalId + ')') for matiere in columns.matiere.data | orderBy:'name'">
+                    <option class="header-opt" disabled value="">
+                        [[lang.translate('evaluation.service.columns.matiere')]]
+                    </option>
+                </select>
+            </label>
+        </div>
+
+        <div class="row">
+            <h4>
+                <i18n>viescolaire.competences.classe.groupe</i18n>
+            </h4>
+
+            <label class="select">
+                <select ng-model="service.id_groupe"
+                        ng-change="pushData(service.id_groupe,classesSelected)"
+                        ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in columns.classe.data | orderBy:['type_groupe_libelle','name']">
+                    <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.class.groupe')]]
+                    </option>
+                </select>
+            </label>
+
+            <div class="row">
+                <label ng-repeat="classe in classesSelected" class="chip multiselect all"
+                       ng-click="deleteClasse(classe)">
+                    <span><i18n>[[classe.name]]</i18n></span>
+                    <input type="checkbox" ng-model="classe.selected"/>
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <h4>
+                <i18n>evaluation.service.columns.teacher</i18n>
+            </h4>
+
+            <label class="select">
+                <select ng-model="service.id_enseignant"
+                        ng-options="enseignant.id as enseignant.displayName for enseignant in columns.enseignant.data | orderBy: 'displayName'">
+                    <option class="header-opt" disabled value="">
+                        [[lang.translate('evaluation.service.columns.teacher')]]
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="row">
+            <h4>
+                <i18n>evaluation.service.columns.evaluable</i18n>
+            </h4>
+
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-model="::service.evaluable"/>
+                <span></span>
+            </label>
+        </div>
+    </div>
+
+    <button class="marginFive magnet-right"
+            ng-disabled="checkIfExistsAndValid(service)"
+            ng-click="createService(service)">
+        <i18n>viescolaire.utils.save</i18n>
+    </button>
+    <button ng-click="lightboxes.create = false" class="right-magnet cancel">
+        <i18n>viescolaire.utils.cancel</i18n>
+    </button>
+</lightbox>

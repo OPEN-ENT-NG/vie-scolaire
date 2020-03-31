@@ -48,8 +48,9 @@ public class EventBusController extends ControllerHelper {
     private UtilsService utilsService;
     private CommonCoursService commonCoursService;
     private TimeSlotService timeSlotService;
+    private ServicesService servicesService;
     private ConfigController configController;
-
+    private MultiTeachingService multiTeachingService;
     public EventBusController(EventBus _eb, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
@@ -63,6 +64,8 @@ public class EventBusController extends ControllerHelper {
         commonCoursService = new DefaultCommonCoursService(_eb);
         timeSlotService = new DefaultTimeSlotService();
         configController = new ConfigController(_config);
+        servicesService = new DefaultServicesService();
+        multiTeachingService = new DefaultMultiTeachingService();
     }
 
     @BusAddress("viescolaire")
@@ -122,6 +125,24 @@ public class EventBusController extends ControllerHelper {
             break;
             case "config": {
                 configBusService(method, message);
+            }
+            case "service":{
+                serviceBusService(method,message);
+            }
+            case "multiTeaching":{
+                multiTeachingBusService (method,message);
+            }
+        }
+    }
+
+    private void multiTeachingBusService(String method, Message<JsonObject> message) {
+        JsonObject body = message.body();
+        switch (method) {
+            case "getIdMutliTeachers":{
+                String structureId = body.getString("structureId");
+                String subjectId = body.getString("subjectId");
+                String userId = body.getString("userId");
+                multiTeachingService.getSubTeachersandCoTeachers(userId, structureId,subjectId, getJsonArrayBusResultHandler(message));
             }
         }
     }
@@ -228,6 +249,14 @@ public class EventBusController extends ControllerHelper {
                 groupeService.search(structureId, query, fields, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getGroupsTypes":{
+                JsonArray groupsIds ;
+                if(message.body().containsKey("groupsIds")) {
+                    groupsIds = message.body().getJsonArray("groupsIds");
+                    groupeService.getTypesOfGroup(groupsIds,getJsonArrayBusResultHandler(message));
+                }
+                break;
+            }
             default: {
                 message.reply(getErrorReply("Method not found"));
             }
@@ -391,6 +420,38 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
+
+    private void serviceBusService(String method, Message<JsonObject> message) {
+        switch (method) {
+            case "getServices": {
+                String idStructure = message.body().getString("idStructure");
+                JsonArray aIdEnseignant = message.body().getJsonArray("aIdEnseignant");
+                JsonArray aIdMatiere = message.body().getJsonArray("aIdMatiere");
+                JsonArray aIdGroupe = message.body().getJsonArray("aIdGroupe");
+
+                JsonObject oService = new JsonObject();
+
+                if(aIdGroupe != null) {
+                    oService.put("id_groupe", aIdGroupe);
+                }
+
+                if(aIdEnseignant != null) {
+                    oService.put("id_enseignant", aIdEnseignant);
+                }
+
+                if(aIdMatiere != null) {
+                    oService.put("id_matiere", aIdMatiere);
+                }
+
+                servicesService.getServicesSQL(idStructure, oService, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            default: {
+                message.reply(getErrorReply("Method not found"));
+            }
+        }
+    }
+
     private void eleveBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "getUsers": {
@@ -506,6 +567,7 @@ public class EventBusController extends ControllerHelper {
             }
         }
     }
+
 
     private void periodeBusService(String method, final Message<JsonObject> message) {
         switch (method) {

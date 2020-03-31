@@ -521,6 +521,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         };
 
         $scope.openCreateLightbox = () => {
+            console.log("im in")
             $scope.service = new Service(
                 {
                     id_etablissement: $scope.idStructure,

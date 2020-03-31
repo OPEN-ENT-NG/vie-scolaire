@@ -27,6 +27,7 @@ export class NiveauCompetence extends Model {
     couleur: string;
     id_etablissement: string;
     libelle: string;
+    default_lib: string;
     ordre: string;
     lettre: string;
     id_niveau: number;
@@ -52,6 +53,7 @@ export class NiveauCompetence extends Model {
         return {
             lettre : this.lettre,
             couleur: this.couleur,
+            libelle: this.libelle,
             id: this.id,
             id_niveau: this.id_niveau,
             id_etablissement: this.id_etablissement };

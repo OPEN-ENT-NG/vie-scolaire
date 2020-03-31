@@ -158,6 +158,9 @@ export class Structure extends DefaultStructure {
                             if (niveauCompetence.lettre === null) {
                                 niveauCompetence.lettre = " ";
                             }
+                            if(niveauCompetence.libelle === null) {
+                                niveauCompetence.libelle = niveauCompetence.default_lib;
+                            }
                             niveauCompetence.id_etablissement = this.composer.id;
                         });
 

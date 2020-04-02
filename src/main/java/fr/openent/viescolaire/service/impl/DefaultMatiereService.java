@@ -90,9 +90,9 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     public void listMatieres(String structureId , JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe,Handler<Either<String, JsonArray>> result) {
 
         String query = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) ";
-        String returnValue = " WITH r.classes + r.groups as libelleClasses, s, u, sub " +
-                "MATCH (s)--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
-                "RETURN u.id as idEnseignant, s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, libelleClasses, COLLECT(c.id) as idClasses";
+        String withValue = " WITH r.classes + r.groups as libelleClasses, s, u, sub " +
+                "MATCH (s)--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) ";
+        String returnValue = " RETURN u.id as idEnseignant, s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, libelleClasses, COLLECT(c.id) as idClasses";
         String condition = "WHERE s.id = {structureId}";
         JsonObject params = new JsonObject().put("structureId", structureId);
 
@@ -107,13 +107,13 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         }
 
         if(aIdGroupe != null && aIdGroupe.size() != 0) {
-            condition += " AND c.id IN {groupeIdList}";
+            withValue += " AND c.id IN {groupeIdList}";
             params.put("groupeIdList", aIdGroupe);
         }
 
         params.put("structureId", structureId);
 
-        neo4j.execute(query + condition + returnValue, params, Neo4jResult.validResultHandler(result));
+        neo4j.execute(query + condition + withValue + returnValue, params, Neo4jResult.validResultHandler(result));
     }
 
     @Override

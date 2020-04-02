@@ -19,6 +19,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
+import fr.openent.viescolaire.utils.ServicesHelper;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.controller.ControllerHelper;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 public class EventBusController extends ControllerHelper {
 
@@ -444,6 +446,31 @@ public class EventBusController extends ControllerHelper {
                 }
 
                 servicesService.getServicesSQL(idStructure, oService, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getDefaultServices": {
+                if (message.body().getValue("idEtablissement") == null) {
+                    message.reply(getErrorReply("Error : idEtablissement should be provided."));
+                } else {
+                    String structureId = message.body().getString("idEtablissement");
+
+                    JsonArray idsEnseignant = message.body().getJsonArray("idsEnseignant", null);
+                    JsonArray idsMatiere = message.body().getJsonArray("idsMatiere", null);
+                    JsonArray idsGroupe = message.body().getJsonArray("idsGroupe", null);
+
+                    JsonObject oService = new JsonObject();
+
+                    if (idsGroupe != null) {
+                        oService.put("id_groupe", idsGroupe);
+                    }
+                    if (idsMatiere != null) {
+                        oService.put("id_matiere", idsMatiere);
+                    }
+                    if (idsEnseignant != null) {
+                        oService.put("id_enseignant", idsEnseignant);
+                    }
+                    servicesService.getAllServices(structureId,oService,getJsonArrayBusResultHandler(message));
+                }
             }
             break;
             default: {

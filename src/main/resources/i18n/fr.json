@@ -747,5 +747,7 @@
   "viescolaire.conference.opinions": "Avis du conseil de classe",
   "viescolaire.conference.opinions.class.create": "Créer un avis conseil",
   "viescolaire.conference.opinions.orientation.create": "Créer un avis orientation",
-  "viescolaire.conference.opinions.service.delete.error":"Erreur lors de la suppression d'un avis"
+  "viescolaire.conference.opinions.service.delete.error":"Erreur lors de la suppression d'un avis",
+
+  "viescolaire.conference.elements": "Éléments du programme"
 }

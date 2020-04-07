@@ -82,6 +82,12 @@
                                     <span><i18n>viescolaire.conference.opinions</i18n></span>
                                 </a>
                             </li>
+                            <li workflow="">
+                                <a href="" ng-class="{'selected': currParam === 11}"
+                                   ng-click="currParam = 11;">
+                                    <span><i18n>viescolaire.conference.elements</i18n></span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -297,6 +303,20 @@
                     <article>
                         <sniplet
                                 template="opinionConference"
+                                application="competences"
+                                source="source"
+                        ></sniplet>
+                    </article>
+                </div>
+            </div>
+            <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
+                 workflow="">
+                <div class="hash-magnet twelve cell" id="11"
+                     ng-init="source.idStructure = structure.id; source.cycles = structure.cycles;"
+                     ng-if="currParam === 11">
+                    <article>
+                        <sniplet
+                                template="programElements"
                                 application="competences"
                                 source="source"
                         ></sniplet>

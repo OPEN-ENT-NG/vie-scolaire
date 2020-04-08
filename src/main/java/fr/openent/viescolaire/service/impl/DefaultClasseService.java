@@ -260,26 +260,21 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                     .put("userId",user.getUserId());
         }
 
+        String returnLastGroup = "WITH r.groups as libelleClasses, s, u, sub MATCH (s)--(c) " +
+                "WHERE (c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
+                "RETURN c AS m;";
+
         if(classOnly == null){
             query = queryClass + param1 + " UNION " + queryGroup + param2;
             query = query + " UNION " +  queryGroupManuel;
-            query = query + " UNION " + queryLastGroup + param3;
-            query += "WITH r.classes + r.groups";
-            query += " as libelleClasses, s, u, sub MATCH (s)--(c) " +
-                    "WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
-                    "RETURN c AS m;";
+            query = query + " UNION " + queryLastGroup + param3 + returnLastGroup;
 
         } else if (classOnly){
             query = queryClass + param1;
-            query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class) AND EXISTS(c.externalId) return c as m";
-
+            //query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class) AND EXISTS(c.externalId) return c as m";
         } else {
             query = queryGroup + param2;
-            query = query + " UNION " + queryLastGroup + param3;
-            query += "WITH r.groups"; // A TRANSFORMER EN FUTURE
-            query = query + " as libelleClasses, s, u, sub MATCH (s)--(c) " +
-                    "WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
-                    "RETURN c AS m;";
+            query = query + " UNION " + queryLastGroup + param3 + returnLastGroup; // A TRANSFORMER EN FUTURE
         }
 
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));

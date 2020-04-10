@@ -104,6 +104,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         async function initServices () {
             await $scope.runMessageLoader();
             getAndsetServices();
+            console.log("plpo")
             $scope.classesSelected = [];
         }
 
@@ -172,6 +173,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 addTeacher:false,
             };
             await $scope.runMessageLoader();
+            $scope.classesSelected = [];
 
             Promise.all([groupServices.getClasses($scope.idStructure),
                 subjectService.getMatieres($scope.idStructure),
@@ -673,7 +675,6 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 await initServices();
 
         };
-
 
         await $scope.init();
         utils.safeApply($scope);

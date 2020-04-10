@@ -113,7 +113,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 let isInSearched = true;
                 if($scope.searchToFilter.length !=0){
                     $scope.searchToFilter.forEach(search =>{
-                        if( !(service.nom_groupe.toUpperCase().includes(search.toUpperCase())
+                        if( !(service.groups_name.toUpperCase().includes(search.toUpperCase())
                             || service.nom_enseignant.toUpperCase().includes(search.toUpperCase())
                             || service.topicName.toUpperCase().includes(search.toUpperCase()))){
                             isInSearched = false;

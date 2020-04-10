@@ -9,7 +9,7 @@ export const groupService: GroupService = {
      async  getClasses  (idStructure) {
         try {
             return http.get(`/viescolaire/classes?idEtablissement=${
-                idStructure}&forAdmin=true&classOnly=true`);
+                idStructure}&forAdmin=true`);
         } catch (e) {
             notify.error('evaluations.service.error.classe');
         }

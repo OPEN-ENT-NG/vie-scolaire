@@ -143,6 +143,7 @@ public class ServiceModel extends Model implements Cloneable{
                 .put("evaluable",this.isEvaluable())
                 .put("coefficient",this.getCoefficient())
                 .put("typeGroupe",this.getTypeGroup())
+                .put("isManual",this.isManual())
                 .put("coTeachers", ModelHelper.convetToJsonArray(this.coTeachersService));
     }
 

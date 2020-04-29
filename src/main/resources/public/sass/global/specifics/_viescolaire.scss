@@ -514,5 +514,15 @@ body.viescolaire {
     width: 10em;
   }
 
+  // Changement de css pour les lightboxs utilisant les multi-combo
+
+  .line-heigth-23{
+    line-height: 23px;
+  }
+
+  lightbox.visible-overflow>section.lightbox>div.content {
+    overflow: visible;
+    max-height: fit-content;
+  }
 
 }

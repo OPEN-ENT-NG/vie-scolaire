@@ -1,9 +1,9 @@
-<lightbox show="lightboxes.create" on-close="lightboxes.create = false">
+<lightbox show="lightboxes.create" on-close="lightboxes.create = false" class="visible-overflow">
     <h3>
         <i18n>evaluation.service.lightboxes.create</i18n>
     </h3>
 
-    <div class="lightboxCreate">
+    <div class="lightboxCreateCSS">
         <div class="row">
             <h4>
                 <i18n>evaluation.service.columns.matiere</i18n>
@@ -22,23 +22,21 @@
             <h4>
                 <i18n>viescolaire.competences.classe.groupe</i18n>
             </h4>
-
-            <label class="select">
-                <select ng-model="service.id_groupe"
-                        ng-change="pushData(service.id_groupe,classesSelected)"
-                        ng-options="classe as classe.name group by classe.type_groupe_libelle for classe in columns.classe.data | orderBy:['type_groupe_libelle','name']">
-                    <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.class.groupe')]]
-                    </option>
-                </select>
-            </label>
-
-            <div class="row">
-                <label ng-repeat="classe in classesSelected" class="chip multiselect all"
-                       ng-click="deleteClasse(classe)">
-                    <span><i18n>[[classe.name]]</i18n></span>
-                    <input type="checkbox" ng-model="classe.selected"/>
-                </label>
+            <div class="select-blocks line-heigth-23">
+                <div ng-repeat="classe in classesSelected"
+                     ng-click="deleteClasse(classe)">
+                    [[classe.name]]
+                </div>
             </div>
+            <multi-combo
+                    class="twelve selectedMultiBox"
+                    title="[[lang.translate('viescolaire.competences.classe.groupe')]]"
+                    combo-model="columns.classe.data"
+                    search-on="name"
+                    order-by="['type_groupe_libelle','name']"
+                    filtered-model="classesSelected"
+                    labels="comboLabels"
+            ></multi-combo>
         </div>
         <div class="row">
             <h4>

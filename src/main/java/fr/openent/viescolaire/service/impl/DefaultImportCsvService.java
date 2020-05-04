@@ -121,17 +121,27 @@ public class DefaultImportCsvService implements ImportCsvService {
                                     for (String o : values) {
                                         String [] lines = o.split(regex);
                                         String displayName = lines[1];
-                                        Long abs = Long.valueOf(lines[2]);
+                                        long abs = Long.parseLong(lines[2]);
+                                        if(abs<0)
+                                            abs= 0L;
                                         Long abs_hour =  (withHour)?Long.valueOf(lines[3]) : null;
-
+                                        if(abs_hour != null && abs_hour<0)
+                                            abs_hour= 0L;
                                         Long notjustifiedAbs =(withHour)?Long.valueOf(lines[4]): Long.valueOf(lines[3]);
+                                        if(notjustifiedAbs<0)
+                                            notjustifiedAbs= 0L;
                                         Long notjustifiedAbsHour =(withHour)? Long.valueOf(lines[5]) : null;
-
+                                        if(notjustifiedAbsHour != null && notjustifiedAbsHour<0)
+                                            notjustifiedAbsHour= 0L;
                                         Long justifiedAbs = (withHour)? Long.valueOf(lines[6]): Long.valueOf(lines[4]);
+                                        if(justifiedAbs<0)
+                                            justifiedAbs= 0L;
                                         Long justifiedAbsHour =(withHour)? Long.valueOf(lines [7]): null;
-
+                                        if(justifiedAbsHour != null && justifiedAbsHour<0)
+                                            justifiedAbsHour= 0L;
                                         Long retard = (withHour)? Long.valueOf(lines[10]): Long.valueOf(lines[6]);
-
+                                        if(retard<0)
+                                            retard= 0L;
                                         // Recherche l'identifiant de l'élève
                                         JsonObject student = findStudent(students, displayName, isUTF8);
                                         String idEleve = null;

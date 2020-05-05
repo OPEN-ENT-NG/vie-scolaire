@@ -335,7 +335,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put("is_periodic",false);
         occurence.put(COURSE_TABLE.startDate, df.format(start.getTime()));
         occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));
-        if(course.getString("subjectId").equals(Course.exceptionnalSubject)){
+        if(course.getString("subjectId", "").equals(Course.exceptionnalSubject)){
             occurence.put(COURSE_TABLE.exceptionnal, course.getString(COURSE_TABLE.exceptionnal));
         }
         return occurence;

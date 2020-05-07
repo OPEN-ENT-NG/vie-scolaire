@@ -156,44 +156,50 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         List<Future> futures = new ArrayList<>();
 
         Future<JsonArray>  getSubjectANdTeachersFuture = Future.future();
-        Future<JsonArray> getClassesFromStructureForFuture = Future.future();
         futures.add(getSubjectANdTeachersFuture);
+        getSubjectANdTeachersForServices(structureId,getHandlerJsonArray(getSubjectANdTeachersFuture));
+
+        Future<JsonArray> getClassesFromStructureForFuture = Future.future();
         futures.add(getClassesFromStructureForFuture);
         getClassesFromStructureForServices(structureId,getHandlerJsonArray(getClassesFromStructureForFuture));
-        getSubjectANdTeachersForServices(structureId,getHandlerJsonArray(getSubjectANdTeachersFuture));
+
         CompositeFuture.all(futures).setHandler(event -> {
             if (event.succeeded()) {
-                JsonArray classResult = (JsonArray) event.result().list().get(0);
-                JsonArray subjectANdTeachersResult = (JsonArray) event.result().list().get(1);
-                result.handle(new Either.Right(createServicesFromNeo(classResult,subjectANdTeachersResult))); ;
+                JsonArray subjectANdTeachersResult = (JsonArray) event.result().list().get(0);
+                JsonArray classResult = (JsonArray) event.result().list().get(1);
+                result.handle(new Either.Right(createServicesFromNeo(subjectANdTeachersResult, classResult))); ;
             }else{
                 result.handle(new Either.Left<>("Error when gettings subjects and classes"));
             }
         });
     }
 
-    private JsonArray createServicesFromNeo(JsonArray classResult, JsonArray subjectANdTeachersResult) {
+    private JsonArray createServicesFromNeo(JsonArray subjectANdTeachersResult, JsonArray classResult) {
         HashMap<String,String> courseMap = new HashMap<>();
-        for(int j = 0 ;j< classResult.size() ; j++) {
-            JsonObject resultClass = classResult.getJsonObject(j);
-            String id,externalId;
-            id = resultClass.getString("id");
-            externalId = resultClass.getString("externalId");
-            courseMap.put(externalId,id);
-        }
         for(int i =0 ; i< subjectANdTeachersResult.size(); i++){
             JsonObject subjectResult = subjectANdTeachersResult.getJsonObject(i);
-            JsonArray libelleClasses = subjectResult.getJsonArray("libelleClasses");
-            for(Object externalId : libelleClasses){
-                if(courseMap.containsKey(externalId))
-                    if(subjectResult.containsKey("idClasses")){
-                        subjectResult.put("idClasses",subjectResult.getJsonArray("idClasses").add(courseMap.get(externalId)));
-                    }else{
-                        subjectResult.put("idClasses",new JsonArray().add(courseMap.get(externalId)));
-                    }
+            if(subjectResult.getValue("id") != null && subjectResult.getValue("externailId") != null) {
+                String id, externalId;
+                id = subjectResult.getString("id");
+                externalId = subjectResult.getString("externalId");
+                courseMap.put(externalId, id);
             }
         }
-        return subjectANdTeachersResult;
+        for(int j = 0 ;j< classResult.size() ; j++) {
+            JsonObject resultClass = classResult.getJsonObject(j);
+            if(resultClass.getValue("libelleClasses") != null) {
+                JsonArray libelleClasses = resultClass.getJsonArray("libelleClasses");
+                for (Object externalId : libelleClasses) {
+                    if (courseMap.containsKey(externalId))
+                        if (resultClass.containsKey("idClasses")) {
+                            resultClass.put("idClasses", resultClass.getJsonArray("idClasses").add(courseMap.get(externalId)));
+                        } else {
+                            resultClass.put("idClasses", new JsonArray().add(courseMap.get(externalId)));
+                        }
+                }
+            }
+        }
+        return classResult;
     }
 
     private Handler<Either<String, JsonArray>> getHandlerJsonArray(Future<JsonArray> serviceFuture) {

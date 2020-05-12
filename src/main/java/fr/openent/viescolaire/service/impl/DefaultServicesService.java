@@ -178,7 +178,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         HashMap<String,String> courseMap = new HashMap<>();
         for(int i =0 ; i< subjectANdTeachersResult.size(); i++){
             JsonObject subjectResult = subjectANdTeachersResult.getJsonObject(i);
-            if(subjectResult.getValue("id") != null && subjectResult.getValue("externailId") != null) {
+            if(subjectResult.getValue("id") != null && subjectResult.getValue("externalId") != null) {
                 String id, externalId;
                 id = subjectResult.getString("id");
                 externalId = subjectResult.getString("externalId");

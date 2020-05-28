@@ -31,6 +31,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.user.UserInfos;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static fr.openent.Viescolaire.FORADMIN;
@@ -173,7 +174,15 @@ public class EventBusController extends ControllerHelper {
                             if ("error".equals(status)) {
                                 message.reply(getErrorReply(directoryMessage.cause().getMessage()));
                             } else {
-                                message.reply(directoryMessage.result().body());
+                                JsonObject timeslot = ((JsonObject) directoryMessage.result().body()).getJsonObject("result");
+                                JsonArray slots  = timeslot.getJsonArray("slots");
+                                List<JsonObject> sortedSlots = ((List<JsonObject>)slots.getList());
+                                sortedSlots.sort((Comparator) (o, t1) -> ((JsonObject) o).getString("startHour").compareTo(((JsonObject) t1).getString("startHour")));
+                                timeslot.put("slots", new JsonArray(sortedSlots));
+                                JsonObject result = new JsonObject()
+                                        .put("status", "ok")
+                                        .put("result", timeslot);
+                                message.reply(result);
                             }
                         });
                     }

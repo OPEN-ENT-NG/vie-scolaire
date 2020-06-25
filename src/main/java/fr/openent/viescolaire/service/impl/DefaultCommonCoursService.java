@@ -80,6 +80,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .put("deleted", new JsonObject().put("$exists", false));
 
         JsonArray $and = new JsonArray();
+        query.put("$or", theoreticalFilter());
         String startDate = end + END_DATE_PATTERN;
         String endDate =  begin + START_DATE_PATTERN;
         JsonObject startFilter = new JsonObject().put("$lte", startDate);
@@ -104,6 +105,13 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put("$and", $and);
         JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
         MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
+    }
+
+    private JsonArray theoreticalFilter() {
+        JsonArray filter = new JsonArray();
+        JsonObject falseValue = new JsonObject().put("theoretical", false);
+        JsonObject existsValue = new JsonObject().put("theoretical", new JsonObject().put("$exists", false));
+        return filter.add(existsValue).add(falseValue);
     }
 
     private JsonArray getGroupsFilterTable(List<String>  groups , List<String> teacherId) {

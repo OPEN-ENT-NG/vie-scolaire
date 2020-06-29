@@ -78,25 +78,28 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getEleveClasse(String idClasse, Long idPeriode,Handler<Either<String, JsonArray>> handler){
 
-        StringBuilder query = new StringBuilder();
+        //Requête Neo4j optimisé
 
-        query.append("MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) " +
-                " OPTIONAL MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) "+
-                " OPTIONAL MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) "+
+        String RETURNING = "RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
+                "u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
+                "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
+                "ORDER BY lastName, firstName ";
 
-                " OPTIONAL MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup) " +
-                " WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) " +
+        String query = "MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) " +
+                " OPTIONAL MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " +
+                " OPTIONAL MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " +
+                RETURNING +
+                " UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), (c:Class {id :{idClasse}}) " +
+                " WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING OR c.externalId IN u.classes) " +
+                RETURNING;
 
-                " RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
-                " u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
-                " CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
-                " ORDER BY lastName, firstName ");
 
         String [] sortedField = new  String[2];
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
-        neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
+
+        neo4j.execute(query, new JsonObject().put(mParameterIdClasse, idClasse),
                 utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
                         null, sortedField, idPeriode, handler));
 

@@ -21,7 +21,8 @@
         }
         ,
         "update-classes" : {
-           "timeout-transaction" : 1000
+           "timeout-transaction" : 1000,
+           "enable-date" : "2020-09-21"
         },
         "services": {
             "competences": false,

@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.UserService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.RepositoryEvents;
@@ -27,6 +28,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 
 /**
  * Created by ledunoiss on 29/03/2017.
@@ -35,9 +40,11 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     private static final Logger log = LoggerFactory.getLogger(VieScolaireRepositoryEvents.class);
     private final UserService userService;
+    private final JsonObject config;
 
-    public VieScolaireRepositoryEvents(EventBus eb) {
+    public VieScolaireRepositoryEvents(EventBus eb, JsonObject config) {
         userService = new DefaultUserService(eb);
+        this.config = config;
     }
 
     @Override
@@ -66,30 +73,34 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
     }
 
     public void usersClassesUpdated(JsonArray users) {
-        log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated START");
-        if(users != null) {
-            log.info("users : " + users.size());
-        }
-        userService.parseUsersData(users, new Handler<Either<String, JsonArray>>() {
-            @Override
-            public void handle(Either<String, JsonArray> event) {
-                if (event.isRight()) {
 
-                    JsonArray result = event.right().getValue();
-                    if(result != null) {
-                        log.info("resultusers : " + result.size());
-                    }
-                    userService.createPersonnesSupp(result, new Handler<Either<String, JsonObject>>() {
-                        @Override
-                        public void handle(Either<String, JsonObject> event) {
-                            log.info("createPersonnesSupp OUT END");
-                            if (event.isLeft()) {
-                                log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
-                            }
-                            else {
+        LocalDate enableDate = LocalDate.parse(Viescolaire.UPDATE_CLASSES_CONFIG.getString("enable-date"), DateTimeFormatter.ISO_LOCAL_DATE);
+
+        LocalDate now = LocalDate.now();
+        if (enableDate.isBefore(now)) {
+            log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated START");
+            if (users != null) {
+                log.info("users : " + users.size());
+            }
+            userService.parseUsersData(users, new Handler<Either<String, JsonArray>>() {
+                @Override
+                public void handle (Either<String, JsonArray> event) {
+                    if (event.isRight()) {
+
+                        JsonArray result = event.right().getValue();
+                        if (result != null) {
+                            log.info("resultusers : " + result.size());
+                        }
+                        userService.createPersonnesSupp(result, new Handler<Either<String, JsonObject>>() {
+                            @Override
+                            public void handle (Either<String, JsonObject> event) {
+                                log.info("createPersonnesSupp OUT END");
+                                if (event.isLeft()) {
+                                    log.error("[VieScolaireRepositoryEvents] : An error occured when managing deleted users");
+                                } else {
                                     userService.insertAnnotationsNewClasses(result, new Handler<Either<String, JsonObject>>() {
                                         @Override
-                                        public void handle(Either<String, JsonObject> event) {
+                                        public void handle (Either<String, JsonObject> event) {
                                             if (event.isLeft()) {
                                                 log.error("[VieScolaireRepositoryEvents] : An error occured when inserting annotations in new classes");
                                                 log.error(event.left().getValue());
@@ -99,14 +110,20 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
                                             }
                                         }
                                     });
+                                }
                             }
-                        }
-                    });
-                } else {
-                    log.error("[VieScolaireRepositoryEvents] : An error occured when retrieving users data");
+                        });
+                    } else {
+                        log.error("[VieScolaireRepositoryEvents] : An error occured when retrieving users data");
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            log.info("[VieScolaireRepositoryEvents] : usersClassesUpdated is disable." +
+                    "\nThe end of disability will be at " + enableDate +
+                    ".\nThe date of the end of disability can be set in the conf of the module");
+        }
+
     }
 
     public void transition(JsonObject structure) {

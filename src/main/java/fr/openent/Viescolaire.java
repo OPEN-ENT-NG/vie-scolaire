@@ -91,7 +91,9 @@ public class Viescolaire extends BaseServer {
 
 		LSUN_CONFIG = config.getJsonObject("lsun");
 		UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
-
+		if(UPDATE_CLASSES_CONFIG.getString("enable-date") == null){
+			throw new RuntimeException("no date in update-classes");
+		}
         /*
 			DISPLAY CONTROLLER
 		 */
@@ -118,7 +120,7 @@ public class Viescolaire extends BaseServer {
 
 		addController(new EventBusController(eb,config));
 
-		setRepositoryEvents(new VieScolaireRepositoryEvents(eb));
+		setRepositoryEvents(new VieScolaireRepositoryEvents(eb,config));
 	}
 
 }

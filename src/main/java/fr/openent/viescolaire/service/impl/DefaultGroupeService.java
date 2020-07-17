@@ -22,6 +22,7 @@ import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.Utils;
+import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.Message;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
@@ -244,7 +245,13 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
         JsonObject params = new JsonObject()
                 .put("ids", groupsIds);
-        neo4j.execute(neo4jQuery, params, Neo4jResult.validResultHandler(handler));
+        try {
+            neo4j.execute(neo4jQuery, params, Neo4jResult.validResultHandler(handler));
+
+        }
+        catch( VertxException e) {
+            getTypesOfGroup(groupsIds,  handler);
+        }
     }
 
 }

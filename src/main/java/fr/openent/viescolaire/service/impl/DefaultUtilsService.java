@@ -49,7 +49,10 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
 public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
-    private static final String[] COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow"};
+    private static final String[] COLORS = {"light-orange", "solid-orange", "spiro-blue", "honey-orange", "garden-blue",
+                                            "sky-blue", "sand-yellow", "keppel-blue", "marine-black", "fuchsia", "indigo",
+                                            "peach-orange", "light-grey", "light-blue", "light-purple", "magenta",
+                                            "dark-blue", "pink", "pine-green", "solid-purple"};
     private static final String[] COURSE_COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow","solid-green","solid-blue","magenta",
             "light-pink","light-orange","solid-red","light-red","light-green","solid-orange"};
 

@@ -216,9 +216,10 @@ public class EventBusController extends ControllerHelper {
                 List<String> groupName = body.getJsonArray("group").getList();
                 String beginDate = body.getString("begin");
                 String endDate = body.getString("end");
+                boolean union = Boolean.parseBoolean(body.getString("union"));
                 if (beginDate!=null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, getJsonArrayBusResultHandler(message));
+                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, union, getJsonArrayBusResultHandler(message));
                 }
             }
         }

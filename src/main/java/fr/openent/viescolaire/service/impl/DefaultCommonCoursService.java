@@ -73,7 +73,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
 
     @Override
-    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  groups, String begin, String end, Handler<Either<String,JsonArray>> handler){
+    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  groups, String begin, String end, boolean union, Handler<Either<String,JsonArray>> handler){
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
         query.put("structureId", structureId)
@@ -87,19 +87,43 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject endFilter = new JsonObject().put("$gte", endDate);
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
-        if (!teacherId.isEmpty()) {
-            JsonObject $in = new JsonObject()
-                    .put("$in", new JsonArray(teacherId));
-            $and.add(new JsonObject().put("teacherIds", $in));
+
+
+
+        //If we want an union of teachers and groups results
+        if(union) {
+            if(!groups.isEmpty() || !teacherId.isEmpty()) {
+                JsonArray $or = new JsonArray();
+                if (!groups.isEmpty()) {
+                    JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
+                    $or.add(new JsonObject().put("groups", filter))
+                            .add(new JsonObject().put("classes", filter));
+                }
+                if (!teacherId.isEmpty()) {
+                    JsonObject $in = new JsonObject().put("$in", new JsonArray(teacherId));
+                    $or.add(new JsonObject().put("teacherIds", $in));
+                }
+                $and.add(new JsonObject().put("$or", $or));
+            }
         }
 
-        if (!groups.isEmpty()) {
-            JsonArray $or = new JsonArray();
-            JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
-            $or.add(new JsonObject().put("groups", filter))
-                    .add(new JsonObject().put("classes", filter));
 
-            $and.add(new JsonObject().put("$or", $or));
+        //If we want to intersect results
+        else {
+            if (!teacherId.isEmpty()) {
+                JsonObject $in = new JsonObject()
+                        .put("$in", new JsonArray(teacherId));
+                $and.add(new JsonObject().put("teacherIds", $in));
+            }
+
+            if (!groups.isEmpty()) {
+                JsonArray $or = new JsonArray();
+                JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
+                $or.add(new JsonObject().put("groups", filter))
+                        .add(new JsonObject().put("classes", filter));
+
+                $and.add(new JsonObject().put("$or", $or));
+            }
         }
 
         query.put("$and", $and);
@@ -136,10 +160,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return groupOperand ;
     }
     @Override
-    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, final Handler<Either<String,JsonArray>> handler){
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, boolean union, final Handler<Either<String,JsonArray>> handler){
 
         Future<JsonArray> coursesFuture = Future.future();
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, response -> {
+        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, union, response -> {
                     if (response.isRight()) {
                         coursesFuture.complete(response.right().getValue());
                     } else {

@@ -49,12 +49,16 @@ import static org.entcore.common.sql.SqlResult.validResultHandler;
 public class DefaultUtilsService implements UtilsService{
 
     private final Neo4j neo4j = Neo4j.getInstance();
-    private static final String[] COLORS = {"light-orange", "solid-orange", "spiro-blue", "honey-orange", "garden-blue",
-                                            "sky-blue", "sand-yellow", "keppel-blue", "marine-black", "fuchsia", "indigo",
-                                            "peach-orange", "light-grey", "light-blue", "light-purple", "magenta",
-                                            "dark-blue", "pink", "pine-green", "solid-purple"};
-    private static final String[] COURSE_COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey","orange","purple", "green", "yellow","solid-green","solid-blue","magenta",
-            "light-pink","light-orange","solid-red","light-red","light-green","solid-orange"};
+    private static final String[] COLORS = {"light-orange", "solid-orange", "spiro-blue", "solid-purple", "garden-blue",
+            "sky-blue", "keppel-blue", "marine-black", "fuchsia", "indigo",
+            "peach-orange", "light-purple", "magenta", "dark-blue", "pink", "honey-orange",
+            "light-orange-lighter", "solid-orange-lighter", "spiro-blue-lighter", "garden-blue-lighter",
+            "sky-blue-lighter", "keppel-blue-lighter", "marine-black-lighter", "fuchsia-lighter", "indigo-lighter",
+            "peach-orange-lighter", "magenta-lighter",
+            "dark-blue-lighter", "pink-lighter", "solid-purple-lighter"};
+    private static final String[] COURSE_COLORS = {"cyan", "green", "orange", "pink", "yellow", "purple", "grey", "orange",
+            "purple", "green", "yellow", "solid-green", "solid-blue", "magenta",
+            "light-pink", "light-orange", "solid-red", "light-red", "light-green", "solid-orange"};
 
     private EleveService eleveService = new DefaultEleveService();
     protected static final Logger log = LoggerFactory.getLogger(DefaultUtilsService.class);
@@ -77,14 +81,8 @@ public class DefaultUtilsService implements UtilsService{
     }
 
     public String getColor(String classes) {
-        byte[] bytes = classes.getBytes();
-        int number = 0;
-        for (int i = 0; i < bytes.length ; i++){
-            number += (int) bytes[i];
-        }
-        number = (int) Math.abs(Math.floor(Math.sin( (double) number) * 10 ) ) ;
-        return COLORS[number] ;
-//        return "solid-green";
+        int number = Math.abs(((classes.hashCode()*31)%100)%(COLORS.length - 1));
+        return COLORS[number];
     }
 
     @Override

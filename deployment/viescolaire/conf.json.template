@@ -6,7 +6,7 @@
         "sql" : true,
         "app-name" : "Viescolaire",
     	"app-address" : "/viescolaire",
-    	"app-icon" : "Viescolaire-large",
+    	"app-icon" : "${host}/viescolaire/public/img/uni-parametres.svg",
     	"db-schema" : "viesco",
         "host": "${host}",
         "ssl" : $ssl,

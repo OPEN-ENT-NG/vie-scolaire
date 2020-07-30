@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.helper.SubjectHelper;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.VertxException;
@@ -73,6 +74,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
+
     @Override
     public void listMatieresEtab(String idStructure, Boolean onlyId, Handler<Either<String, JsonArray>> handler){
         String returndata;
@@ -80,13 +82,22 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             returndata = "RETURN collect(sub.id) as res ";
         }
         else {
-            returndata = "RETURN s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.source as source, " +
-                    "sub.label as name, sub.externalId as external_id_subject ORDER BY name ";
+            returndata = "RETURN " +
+                    "s.id as idEtablissement, " +
+                    "sub.id as id," +
+                    "sub.code as externalId, " +
+                    "sub.source as source, " +
+                    "sub.label as name, " +
+                    "sub.rank as rank, " +
+                    "sub.externalId as external_id_subject " +
+                    "ORDER BY name ";
         }
         String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
                 returndata;
         JsonObject values = new JsonObject().put("idStructure", idStructure);
-        neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query, values, Neo4jResult.validResultHandler(responseNeo4j -> {
+            SubjectHelper.addRankForSubject(responseNeo4j, handler);
+        }));
     }
 
     @Override
@@ -248,10 +259,17 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         JsonObject params = new JsonObject();
 
         query.append("MATCH (f:Subject) WHERE f.id IN {idMatieres} ")
-                .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
+                .append("RETURN f.id as id, ")
+                .append("f.code as externalId, ")
+                .append("f.label as name, ")
+                .append("f as data, ")
+                .append("f.rank as rank ")
+                .append("ORDER BY name ");
         params.put("idMatieres", idMatieres);
         try {
-            neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+            neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(responseNeo4j -> {
+            SubjectHelper.addRankForSubject(responseNeo4j, result);
+        }));
 
         } catch (VertxException e){
             String error = e.getMessage();

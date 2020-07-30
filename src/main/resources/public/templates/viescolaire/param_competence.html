@@ -88,6 +88,14 @@
                                     <span><i18n>viescolaire.conference.elements</i18n></span>
                                 </a>
                             </li>
+                            <li workflow="competences.paramCompetences">
+                                <a href="" ng-class="{'selected': currParam === 12}"
+                                   ng-click="currParam = 12;">
+                                    <span>
+                                        <i18n>evaluation.orderShowSubject.title</i18n>
+                                    </span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -320,6 +328,19 @@
                                 application="competences"
                                 source="source"
                         ></sniplet>
+                    </article>
+                </div>
+            </div>
+            <div class="twelve cell twelve-mobile" ng-init="isMode = false;"
+                 workflow="competences.paramCompetences">
+                <div class="hash-magnet twelve cell" id="12"
+                     ng-if="currParam === 12">
+                    <article ng-init="source.id = structure.id">
+                        <sniplet
+                                application="competences"
+                                source="source"
+                                template="orderShowSubject">
+                        </sniplet>
                     </article>
                 </div>
             </div>

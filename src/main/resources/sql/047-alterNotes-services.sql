@@ -20,7 +20,7 @@ CREATE TABLE notes.services
   id_matiere        character varying(36) NOT NULL,
   id_groupe         character varying(36) NOT NULL,
   modalite          character varying NOT NULL DEFAULT 'S',
-  evaluable         boolean NOT NULL DEFAULT TRUE,
+  evaluable         boolean NOT NULL DEFAULT FALSE,
   ordre             character varying,
   CONSTRAINT pk_services PRIMARY KEY (id_enseignant, id_matiere, id_groupe),
   CONSTRAINT fk_modalite FOREIGN KEY (modalite)

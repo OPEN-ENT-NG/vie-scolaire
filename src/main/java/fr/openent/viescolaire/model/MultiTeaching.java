@@ -16,6 +16,7 @@ import java.util.Map;
 public class MultiTeaching extends Model implements Cloneable{
 
     private BigInteger id;
+    private String structureId;
     private String mainTeacherId ;
     private String secondTeacherId;
     private String subjectId;
@@ -24,6 +25,7 @@ public class MultiTeaching extends Model implements Cloneable{
     private String endDate;
     private String enteredEndDate;
     private boolean isCoteaching;
+    private boolean isVisible;
     private Map<BigInteger,String> idsAndidsGroups;
 
     private static Logger log =  LoggerFactory.getLogger(ServicesHelper.class);
@@ -33,13 +35,14 @@ public class MultiTeaching extends Model implements Cloneable{
     }
 
     public MultiTeaching (JsonObject o) throws ParseException {
-
         this.id = BigInteger.valueOf(o.getInteger("id"));
+        this.structureId = o.getString("structure_id");
         this.mainTeacherId = o.getString("main_teacher_id");
         this.secondTeacherId = o.getString("second_teacher_id");
         this.subjectId = o.getString("subject_id");
         this.classOrGroupId = o.getString("class_or_group_id");
         this.isCoteaching = o.getBoolean("is_coteaching");
+        this.isVisible = o.getBoolean("is_visible");
         this.idsAndidsGroups =  new HashMap<BigInteger,String>();
         this.idsAndidsGroups.put(this.id,this.classOrGroupId);
         if(!o.getBoolean("is_coteaching")){
@@ -142,6 +145,14 @@ public class MultiTeaching extends Model implements Cloneable{
         isCoteaching = coteaching;
     }
 
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(boolean visible) {
+        isVisible = visible;
+    }
+
     public Map<BigInteger, String> getIdsAndidsGroups () {
         return idsAndidsGroups;
     }
@@ -162,9 +173,8 @@ public class MultiTeaching extends Model implements Cloneable{
 
     @Override
     public JsonObject toJsonObject() {
-
         JsonObject objectMultiTeaching = new JsonObject()
-                .put("id", this.id)
+                .put("structure_id", this.structureId)
                 .put("main_teacher_id",this.mainTeacherId)
                 .put("second_teacher_id", this.secondTeacherId)
                 .put("group_id", this.classOrGroupId)
@@ -176,10 +186,9 @@ public class MultiTeaching extends Model implements Cloneable{
                     .put("end_date", this.endDate)
                     .put("entered_end_date", this.enteredEndDate);
         }
-        objectMultiTeaching.put("is_coteaching", this.isCoteaching);
+        objectMultiTeaching.put("isCoteaching", this.isCoteaching);
+        objectMultiTeaching.put("is_visible", this.isVisible);
 
         return objectMultiTeaching;
     }
-
-
 }

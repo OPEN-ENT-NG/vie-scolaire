@@ -84,7 +84,8 @@ public interface MatiereService extends CrudService {
      * @param handler answer
      */
 
-    void subjectsListWithUnderSubjects( JsonArray idsSubject, Handler<Either<String,JsonArray>> handler);
+    void subjectsListWithUnderSubjects(JsonArray idsSubject, String idStructure,
+                                       Handler<Either<String,JsonArray>> handler);
 
 
 }

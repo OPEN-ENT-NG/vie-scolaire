@@ -1,99 +1,118 @@
 import http from 'axios';
-import {Teacher} from "../common/Teacher";
-import {ServiceClasse} from "./ServiceClasse";
-import {Subject} from "../common/Subject";
-import {moment, toasts} from "entcore";
+import {_, moment, toasts} from "entcore";
 
 export class MultiTeaching {
 
-    idStructure: string;
-    isCoteaching: boolean;
-    subject: Subject;
-    mainTeacher: Teacher;
-    coTeachers: any[];
-    newCoTeachers: Teacher[];
-    classesCoteaching: ServiceClasse[];
+    structure_id: string;
+    main_teacher_id: string;
+    second_teacher_id: string;
+    subject_id: string;
+    idsAndIdsGroups: any[];
+    displayName: string;
     start_date: Date;
     end_date: Date;
     entered_end_date: Date;
+    isCoteaching: boolean;
+    is_visible: boolean;
 
-    constructor (idStructure, teacher, subject, isCoteaching, coTeachers?, groups?) {
-        this.idStructure = idStructure;
-        this.subject = new Subject(subject) ;
-        this.mainTeacher = new Teacher(teacher);
-        this.coTeachers = [];
-        this.newCoTeachers = [];
-        this.classesCoteaching = [];
-        this.isCoteaching = isCoteaching;
-        if(isCoteaching !== undefined){
-            this.isCoteaching = isCoteaching;
-            if(!isCoteaching){
-                this.start_date = new Date();
-                this.end_date = moment(new Date()).add(1,'day');
-                this.entered_end_date = this.end_date ;
-            }
-        }
-        if(coTeachers){
-            this.coTeachers = coTeachers;
-            if(coTeachers.length > 0){
-                if(!this.isCoteaching){
-                    this.start_date = new Date(_.first(coTeachers).start_date);
-                    this.end_date = new Date(_.first(coTeachers).end_date);
-                    this.entered_end_date = new Date(_.first(coTeachers).entered_end_date);
-                }
-            }
-        }
-    }
+   constructor(o){
+       this.structure_id = o.structure_id;
+       this.main_teacher_id = o.main_teacher_id;
+       this.subject_id = o.subject_id;
+       this.isCoteaching = o.isCoteaching;
+       this.is_visible = o.is_visible;
+       if(o.idsAndIdsGroups &&  o.second_teacher_id && o.displayName) {
+           this.idsAndIdsGroups = o.idsAndIdsGroups;
+           this.second_teacher_id = o.second_teacher_id;
+           this.displayName = o.displayName;
+       }
+       if(!o.is_coteaching){
+           if(o.start_date !=null){
+               this.start_date = new Date (o.start_date);
+               this.end_date = new Date (o.end_date);
+               this.entered_end_date = new Date(o.entered_end_date);
+           }else{
+               this.start_date = new Date();
+               this.end_date = moment(new Date()).add(1,'day');
+               this.entered_end_date = this.end_date ;
+           }
+       }
+   }
 
-
-    toJson(){
+    toJson(newCoTeachers, idsClassesCoteaching, idsAndIdsGroupsOldTeacher?){
         if(this.isCoteaching){
             return{
-                main_teacher_id: this.mainTeacher.id,
-                second_teacher_ids: _.map(this.newCoTeachers, (teacher) => {return teacher.id;}),
-                subject_id: this.subject.id,
-                class_or_group_ids: _.map(this.classesCoteaching, (classe) => {return classe.id;}),
-                structure_id: this.idStructure,
-                co_teaching: this.isCoteaching
+                structure_id: this.structure_id,
+                main_teacher_id: this.main_teacher_id,
+                second_teacher_ids: _.pluck(newCoTeachers, "id"),
+                subject_id: this.subject_id,
+                class_or_group_ids: idsClassesCoteaching,
+                co_teaching: this.isCoteaching,
+                is_visible: this.is_visible
             }
-        }else{
-            return{
-                main_teacher_id: this.mainTeacher.id,
-                second_teacher_ids: [_.first(this.newCoTeachers).id],
-                subject_id: this.subject.id,
-                class_or_group_ids: _.map(this.classesCoteaching, (classe) => {return classe.id;}),
+        } else {
+            let substituteTeacher = {
+                structure_id: this.structure_id,
+                main_teacher_id: this.main_teacher_id,
+                second_teacher_ids: [_.first(newCoTeachers).id],
+                subject_id: this.subject_id,
+                class_or_group_ids: idsClassesCoteaching,
                 start_date: moment(this.start_date).format("YYYY-MM-DD"),
                 end_date: moment(this.end_date).format("YYYY-MM-DD"),
                 entered_end_date: moment(this.entered_end_date).format("YYYY-MM-DD"),
-                structure_id: this.idStructure,
-                co_teaching: this.isCoteaching
+                co_teaching: this.isCoteaching,
+                is_visible: this.is_visible
+            };
+            if(idsAndIdsGroupsOldTeacher){
+                _.extend(substituteTeacher,{"ids_multiTeachingToUpdate": _.pluck(_.filter(idsAndIdsGroupsOldTeacher, (object)=> {
+                    return _.contains(_.intersection(_.pluck(idsAndIdsGroupsOldTeacher,"idGroup"),idsClassesCoteaching), object.idGroup)
+                }), "id") });
+                _.extend(substituteTeacher,{"ids_multiTeachingToDelete": _.pluck(_.filter(idsAndIdsGroupsOldTeacher, (object) => {
+                        return _.contains( _.difference(_.pluck(idsAndIdsGroupsOldTeacher,"idGroup"),idsClassesCoteaching),  object.idGroup)
+                    }),"id")});
+
             }
+            return substituteTeacher;
         }
     }
 
-    async addCoTeaching(){
+    async addCoTeaching(newCoTeachers, classesCoteaching){
         try{
+            let idsClassesCoteaching =  _.pluck(classesCoteaching, "id");
+            let {status}= await http.post('viescolaire/multiteaching/create',
+                this.toJson(newCoTeachers, idsClassesCoteaching));
 
-            let {status,data}= await http.post('viescolaire/multiteaching/create', this.toJson());
-
-            if( status === 200){
+            if(status === 200){
                 toasts.confirm('evaluation.coteaching.create');
-            }else{
+            } else {
                 toasts.warning('evaluation.coteaching.create.error');
             }
 
-        } catch ( e ) {
+        } catch (e) {
             toasts.warning('evaluation.coteaching.create.error');
             console.log(e);
         }
-
     }
 
-    async deleteCoTeaching(multiTeachingIds){
+    async updateSubstituteTeacher(newCoTeachers, classesCoteaching, oldSubstituteTeacher){
+       try{
+           let idsClassesCoteaching = _.pluck(classesCoteaching, "id");
+           let idsAndIdsGroupsOldTeacher = oldSubstituteTeacher.idsAndIdsGroups;
+           let {status} = await http.put('viescolaire/multiteaching/update',
+               this.toJson(newCoTeachers, idsClassesCoteaching, idsAndIdsGroupsOldTeacher));
+           if(status != 200){
+               toasts.warning('evaluation.coteaching.create.error');
+           }
+       } catch (e) {
+           console.log(e);
+           toasts.warning('evaluation.coteaching.create.error');
+       }
+    }
+
+   async deleteCoTeaching(){
         try{
-
-            return http.put('viescolaire/multiteaching/delete', {ids : multiTeachingIds });
-
+            let multiTeachingIds = _.pluck(this.idsAndIdsGroups, "id");
+            return  http.put('viescolaire/multiteaching/delete', {ids : multiTeachingIds });
 
         }catch (e) {
             toasts.warning('evaluation.coteaching.delete.error');

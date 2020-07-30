@@ -1,0 +1,1 @@
+ALTER TABLE viesco.services ALTER COLUMN evaluable SET DEFAULT FALSE;

@@ -27,6 +27,7 @@ import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -65,7 +66,8 @@ public class SousMatiereController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    sousMatiereService.listSousMatieres(request.params().get("id"), handler);
+                    sousMatiereService.listSousMatieres(request.params().get("id"),
+                            request.params().get("idStructure"), handler);
                 }else{
                     unauthorized(request);
                 }
@@ -85,10 +87,9 @@ public class SousMatiereController extends ControllerHelper {
                         @Override
                         public void handle(JsonObject event) {
                             Handler<Either<String, JsonObject>> handler = defaultResponseHandler(request);
-                            if(event.containsKey("libelle")){
-                                sousMatiereService.create(handler,event);
-
-                            }else{
+                            if(event.containsKey("libelle") && event.containsKey("id_structure")){
+                                sousMatiereService.create(handler, event);
+                            } else {
                                 badRequest(request);
                             }
                         }
@@ -115,8 +116,7 @@ public class SousMatiereController extends ControllerHelper {
                             if(event.containsKey("libelle")){
                                 final int id = Integer.parseInt(request.getParam("id"));
                                 sousMatiereService.update(handler,id,event);
-
-                            }else{
+                            } else {
                                 badRequest(request);
                             }
                         }
@@ -137,7 +137,25 @@ public class SousMatiereController extends ControllerHelper {
             public void handle(UserInfos user) {
                 if(user != null){
                     Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    sousMatiereService.listTypeSousMatieres(handler);
+                    String idStructure = request.params().get("idStructure");
+                    sousMatiereService.listTypeSousMatieres(idStructure, new Handler<Either<String, JsonArray>>() {
+                        @Override
+                        public void handle(Either<String, JsonArray> event) {
+                            if(event.isRight()){
+                                JsonArray subTopics = event.right().getValue();
+                                if(subTopics.size() > 0){
+                                    Renders.renderJson(request, subTopics);
+                                }
+                                else {
+                                    sousMatiereService.duplicateDefaultSousMatieres(idStructure, event1 ->
+                                            sousMatiereService.listTypeSousMatieres(idStructure, handler));
+                                }
+                            }
+                            else {
+                                request.response().setStatusCode(204).end();
+                            }
+                        }
+                    });
                 }else{
                     unauthorized(request);
                 }
@@ -148,7 +166,7 @@ public class SousMatiereController extends ControllerHelper {
     @Post("types/sousmatieres/relations")
     @ApiDoc("Modifie les relations sous matières-matières")
     @SecuredAction(value = "",type = ActionType.AUTHENTICATED)
-    public  void  updateSousMatieresRelation(final HttpServerRequest request){
+    public void updateSousMatieresRelation(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(UserInfos user) {
@@ -162,7 +180,7 @@ public class SousMatiereController extends ControllerHelper {
                                 JsonArray subTopics =  event.getJsonArray("subTopics");
                                 if (topics.size() > 0 ) {
                                     sousMatiereService.updateMatiereRelation(topics,subTopics,handler);
-                                }else {
+                                } else {
                                     request.response().setStatusCode(204).end();
                                 }
                             }else{

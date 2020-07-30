@@ -237,12 +237,12 @@ public class DefaultUtilsService implements UtilsService{
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT DISTINCT id_titulaire ")
-                .append("FROM "+ Viescolaire.EVAL_SCHEMA +".rel_professeurs_remplacants ")
-                .append("WHERE id_remplacant = ? ")
-                .append("AND id_etablissement = ? ")
-                .append("AND date_debut <= current_date ")
-                .append("AND current_date <= date_fin ");
+        query.append("SELECT DISTINCT main_teacher_id ")
+                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".multi_teaching ")
+                .append("WHERE second_teacher_id = ? ")
+                .append("AND structure_id = ? ")
+                .append("AND ( (start_date <= current_date AND current_date <= entered_end_date AND NOT is_coteaching) OR ")
+                .append("is_coteaching )");
 
         values.add(psIdRemplacant);
         values.add(psIdEtablissement);

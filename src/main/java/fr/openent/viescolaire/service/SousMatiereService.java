@@ -34,20 +34,22 @@ public interface SousMatiereService extends CrudService {
      * @param id identifiant de la matière
      * @param handler handler portant la résultat de la requête
      */
-    public void listSousMatieres(String id, Handler<Either<String, JsonArray>> handler);
+    public void listSousMatieres(String id, String idStructure, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupère les sous matières en fonction d'un tableau d'id de matière
      * @param ids tableau d'identifiants de matières
      * @param handler handler portant le résultat de la requête
      */
-    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler);
+    public void getSousMatiereById(String[] ids, String idStructure, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Recupère les id des types de sous matières et leur libellé
      * @param handler handler portant le résultat de la requête
      */
-    public void listTypeSousMatieres(Handler<Either<String, JsonArray>> handler);
+    public void listTypeSousMatieres(String idStructure, Handler<Either<String, JsonArray>> handler);
+
+    public void duplicateDefaultSousMatieres(String idStructure, Handler<Either<String, JsonArray>> handler);
 
     public void create(Handler<Either<String, JsonObject>> handler, JsonObject event);
 

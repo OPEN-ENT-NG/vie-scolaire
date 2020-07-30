@@ -19,9 +19,9 @@
                 <button class="right-magnet" ng-click="openCreateLightbox()">
                     <i18n>evaluation.service.lightboxes.create</i18n>
                 </button>
-<!--                <button class="cancel right-magnet">-->
-<!--                    <i18n>param.service.order.display.button</i18n>-->
-<!--                </button>-->
+                <!--                <button class="cancel right-magnet">-->
+                <!--                    <i18n>param.service.order.display.button</i18n>-->
+                <!--                </button>-->
             </div>
             <div class=" row horizontal-spacing">
                 <div class="select-blocks">
@@ -70,8 +70,7 @@
                          <span ng-show="sortBy === 'remplacement'" ng-class="{'filter-up' : !sortByAsc,'filter-down' :sortByAsc}"></span> </h4>
                     </span>
                     <span    class="[[columns.actions.size]] cell-indent cell service-tab-header-center">
-                    <h4
-                    >[[lang.translate(columns.actions.name)]]
+                    <h4>[[lang.translate(columns.actions.name)]]
                         </h4>
                     </span>
                 </div>
@@ -84,45 +83,46 @@
                         <div class="[[columns.matiere.size]] cellTab ellipsis cellTab-left"  tooltip="[[service.topicName]]">
                             <span>[[service.topicName]]</span></div>
                         <div class="[[columns.classe.size]]  cellTab ellipsis cellTab-left" tooltip=" [[service.groups_name]]">
-                            [[service.groups_name]]
+                            [[service.groups_name ? service.groups_name : service.nom_groupe]]
                         </div>
                         <div class="[[columns.enseignant.size]] cellTab ellipsis cellTab-center">
-                            <i class="eye-open-orange"></i>
-                            <span ng-show="service.substituteTeacher.coTeachers.length > 0" tooltip="[[getI18n('evaluation.service.columns.remplacement')]] [[getI18n('viescolaire.utils.from.date')]]
-                            [[ service.substituteTeacher.coTeachers[0].startDate]] [[getI18n('viescolaire.utils.to.date')]] [[servicesubstituteTeacher.coTeachers[0].endDate]]<br>
-                            [[getI18n('viescolaire.utils.datefinsaisie')]] [[service.substituteTeacher.coTeachers[0].entered_end_date]]">
-                            [[service.nom_enseignant]]
-                            </span>
-                            <span ng-show="service.substituteTeacher.coTeachers.length === 0">
+                            <span>
                                 [[service.nom_enseignant]]
                             </span>
-<!--                            <div ng-if ="service.multiTeaching.coTeachers != undefined && service.coTeachers.length > 0"-->
-<!--                                  ng-repeat="coTeacher in service.multiTeaching.coTeachers">-->
-<!--                                <i class="eye-open-orange"></i>-->
-<!--                                [[coTeacher.displayName]]-->
-<!--                                <i class="cancel" ng-click="deleteCoTeacher(service.multiTeaching, $index)" ></i>-->
-<!--                            </div>-->
+                            <div class ='padding-top' ng-if="service.coTeachers.length > 0"
+                                 ng-repeat="coTeacher in service.coTeachers">
+                                [[coTeacher.displayName]]
+                                <i class="cancel" ng-click="deleteCoTeacher(coTeacher)" ></i>
+                            </div>
                         </div>
-                        <div class="[[columns.remplacement.size]] cellTab ellipsis cellTab-center">
-<!--                            <span ng-show="service.substituteTeacher.coTeachers.length > 0">-->
-<!--                                <i class="eye-open-orange"></i>-->
-<!--                                [[service.substituteTeacher.coTeachers[0].displayName]]-->
-<!--                                <i class="pencil" ng-click="openAddTeacherLightbox(service, false, true);$event.stopPropagation()" ></i>-->
-<!--                            </span>-->
-                            <div ng-show="service.substituteTeacher.coTeachers.length === 0" class="svg-image">
-<!--                              <input type="image" class="image-center" src="/viescolaire/public/img/scss/plus-circle.svg"-->
-<!--                                     ng-click="openAddTeacherLightbox(service, false); $event.stopPropagation()" alt="plop">-->
+                        <div class="[[columns.remplacement.size]] cellTab cellTab-center">
+                            <div ng-if="service.substituteTeachers.length > 0"
+                                 ng-repeat="substituteTeacher in service.substituteTeachers">
+                                <span tooltip="[[getI18n('evaluation.service.columns.remplacement')]]
+                                    [[getI18n('viescolaire.utils.from.date')]]
+                                    [[substituteTeacher.start_date | date:'dd/MM/yyyy']]
+                                    [[getI18n('viescolaire.utils.to.date')]]
+                                    [[substituteTeacher.end_date | date:'dd/MM/yyyy']]<br>
+                                    [[getI18n('viescolaire.utils.datefinsaisie')]]
+                                    [[substituteTeacher.entered_end_date | date:'dd/MM/yyyy']]">
+                                [[substituteTeacher.displayName]] </span>
+                                <i class="pencil" ng-click="openAddTeacherLightbox(service, false, substituteTeacher);$event.stopPropagation()"></i>
+                            </div>
+
+                            <div class="svg-image">
+                                <input type="image" class="image-center" src="/viescolaire/public/img/scss/plus-circle.svg"
+                                       ng-click="openAddTeacherLightbox(service, false); $event.stopPropagation()" alt="plop">
                             </div>
                         </div>
 
                         <div class="[[columns.actions.size]] cellTab ellipsis cellTab-center">
                             <div>
-                                <div class=" svg-image">
+                                <div class="svg-image">
                                     <input type="image" src="/viescolaire/public/img/scss/plus-box-multiple.svg"
                                            ng-click="openSubEducationLightBoxCreation(service.id_matiere);$event.stopPropagation()" alt="plop">
-<!--                                    <input type="image" src="/viescolaire/public/img/scss/account-multiple-plus.svg"-->
-<!--                                           ng-click="openAddTeacherLightbox(service, true); $event.stopPropagation()" alt="plop">-->
-                                  <span ng-if="service.isManual"> <i class="trash-orange"  ng-click="deleteService(service);$event.stopPropagation();"></i></span>
+                                    <input type="image" src="/viescolaire/public/img/scss/account-multiple-plus.svg"
+                                           ng-click="openAddTeacherLightbox(service, true); $event.stopPropagation()" alt="plop">
+                                    <span ng-if="service.isManual"> <i class="trash-orange"  ng-click="deleteService(service);$event.stopPropagation();"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +137,7 @@
 
 
         <div ng-include="'/viescolaire/public/templates/viescolaire/services/createLigthbox.html'"></div>
-<!--        <div ng-include="'/viescolaire/public/templates/viescolaire/services/addTeacherLigthbox.html'"></div>-->
+        <div ng-include="'/viescolaire/public/templates/viescolaire/services/addTeacherLigthbox.html'"></div>
 
         <lightbox show="lightboxes.switchEval" on-close="lightboxes.switchEval = false">
             <h3>

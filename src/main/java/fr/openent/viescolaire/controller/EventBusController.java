@@ -40,6 +40,7 @@ import static org.entcore.common.http.response.DefaultResponseHandler.arrayRespo
 
 public class EventBusController extends ControllerHelper {
 
+    private MultiTeachingService  mutliTeachingService;
     private GroupeService groupeService;
     private ClasseService classeService;
     private UserService userService;
@@ -53,7 +54,7 @@ public class EventBusController extends ControllerHelper {
     private TimeSlotService timeSlotService;
     private ServicesService servicesService;
     private ConfigController configController;
-    private MultiTeachingService multiTeachingService;
+
     public EventBusController(EventBus _eb, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
@@ -68,7 +69,8 @@ public class EventBusController extends ControllerHelper {
         timeSlotService = new DefaultTimeSlotService();
         configController = new ConfigController(_config);
         servicesService = new DefaultServicesService();
-        multiTeachingService = new DefaultMultiTeachingService();
+        mutliTeachingService = new DefaultMultiTeachingService();
+
     }
 
     @BusAddress("viescolaire")
@@ -133,19 +135,67 @@ public class EventBusController extends ControllerHelper {
                 serviceBusService(method,message);
             }
             case "multiTeaching":{
-                multiTeachingBusService (method,message);
+                mutliTeachingService(method,message);
             }
         }
     }
 
-    private void multiTeachingBusService(String method, Message<JsonObject> message) {
+    /*
+    	String rename = "";
+			if (c.getString("name") != null) {
+				rename = "WITH c " +
+						 "MATCH c<-[:DEPENDS]-(cpg:ProfileGroup)-[:DEPENDS]->" +
+						 "(spg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile) " +
+						 "SET cpg.name = c.name+'-'+p.name ";
+			}
+			String query =
+					"MATCH (c:`Class` { id : {classId}}) " +
+					"SET " + Neo4jUtils.nodeSetPropertiesFromJson("c", c) +
+					rename +
+					"RETURN DISTINCT c.id as id ";
+			JsonObject params = c.put("classId", classId);
+			neo4j.execute(query, params, new Handler<Message<JsonObject>>() {
+				@Override
+				public void handle(Message<JsonObject> m) {
+					message.reply(m.body());
+				}
+     */
+    private void mutliTeachingService(String method, Message<JsonObject> message) {
         JsonObject body = message.body();
-        switch (method) {
-            case "getIdMutliTeachers":{
-                String structureId = body.getString("structureId");
-                String subjectId = body.getString("subjectId");
-                String userId = body.getString("userId");
-                multiTeachingService.getSubTeachersandCoTeachers(userId, structureId,subjectId, getJsonArrayBusResultHandler(message));
+        String structureId = body.getString("structureId");
+        switch (method){
+            case "getIdMultiTeachers" : {
+                String teacherId =  body.getString("userId");
+                String subjectId =  body.getString("subjectId");
+                String groupId =  body.getString("groupId");
+                mutliTeachingService.getSubTeachersandCoTeachers(teacherId, structureId, subjectId,
+                        groupId, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+                        if(event.isRight()){
+                            message.reply(new JsonObject()
+                                    .put("status", "ok")
+                                    .put("result", event.right().getValue()));
+                        }
+                    }
+                });
+                break;
+            }
+            case "getMultiTeachersByClass" : {
+                String groupId =  body.getString("groupId");
+                String periodId =  body.getString("periodId");
+                mutliTeachingService.getMultiTeachersByClass(structureId, groupId, periodId, true,
+                        new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                if(event.isRight()){
+                                    message.reply(new JsonObject()
+                                            .put("status", "ok")
+                                            .put("result", event.right().getValue()));
+                                }
+                            }
+                        });
+                break;
             }
         }
     }
@@ -479,7 +529,7 @@ public class EventBusController extends ControllerHelper {
                     if (idsEnseignant != null) {
                         oService.put("id_enseignant", idsEnseignant);
                     }
-                    servicesService.getAllServices(structureId,oService,getJsonArrayBusResultHandler(message));
+                    servicesService.getAllServicesNoFilter(structureId, oService, getJsonArrayBusResultHandler(message));
                 }
             }
             break;

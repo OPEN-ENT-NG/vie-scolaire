@@ -1,0 +1,1 @@
+ALTER TABLE viesco.type_sousmatiere ADD COLUMN id_structure character varying(36) NOT NULL DEFAULT 'DEFAULT';

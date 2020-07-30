@@ -1,8 +1,8 @@
 <lightbox show="lightboxes.addTeacher" class="_param_services"on-close="lightboxes.addTeacher = false">
-    <h3 ng-show="!coTeaching.isCoteaching">
+    <h3 ng-show="!multiTeaching.isCoteaching">
         <i18n>evaluation.service.columns.remplacement</i18n>
     </h3>
-    <h3 ng-show="coTeaching.isCoteaching">
+    <h3 ng-show="multiTeaching.isCoteaching">
         <i18n>evaluation.service.columns.coenseignement</i18n>
     </h3>
 
@@ -14,7 +14,7 @@
                     <span class="bold"><i18n>evaluation.service.columns.matiere</i18n></span>
                 </td>
                 <td class="eight">
-                    <span>[[coTeaching.subject.name]]</span>
+                    <span>[[multiTeaching.subject.name]]</span>
                 </td>
             </tr>
             <tr class="twelve" style="border: none">
@@ -22,21 +22,21 @@
                     <span class="bold"><i18n>evaluations.remplacement.titulaire</i18n></span>
                 </td>
                 <td class="eight">
-                    <span>[[coTeaching.mainTeacher.displayName]]</span>
+                    <span>[[multiTeaching.mainTeacher.displayName]]</span>
                 </td>
             </tr>
             <tr class="twelve" style="border: none">
                 <td class="four">
-                    <span class="bold" ng-hide="coTeaching.isCoteaching">
+                    <span class="bold" ng-hide="multiTeaching.isCoteaching">
                         <i18n>evaluations.remplacement.remplacant</i18n>
                     </span>
-                    <span class="bold" ng-show="coTeaching.isCoteaching">
+                    <span class="bold" ng-show="multiTeaching.isCoteaching">
                         <i18n>evaluation.service.coenseignants</i18n>
                     </span>
                 </td>
                 <td class="eight">
                     <label class="select">
-                        <select ng-model="coTeaching.selectedTeacher"
+                        <select ng-model="multiTeaching.selectedTeacher"
                                 ng-change="addCoTeachers()"
                                 ng-options="enseignant as enseignant.displayName for enseignant in teachersLihtboxTeacher | orderBy: 'displayName'">
                             <option class="header-opt" disabled value="">[[lang.translate('evaluation.service.columns.teacher')]]
@@ -44,8 +44,8 @@
                         </select>
                     </label>
 
-                    <div class="row" ng-show="coTeaching.isCoteaching">
-                        <label ng-repeat="teacher in coTeaching.newCoTeachers" class="chip multiselect all"
+                    <div class="row" ng-show="multiTeaching.isCoteaching">
+                        <label ng-repeat="teacher in multiTeaching.newCoTeachers" class="chip multiselect all"
                                ng-click="deleteSelection(teacher, 'newCoTeachers')">
                             <span>[[teacher.displayName]]</span>
                             <input type="checkbox" ng-model="teacher.selected"/>
@@ -59,8 +59,8 @@
                 </td>
                 <td class="eight">
                     <label class="select">
-                        <select ng-model="coTeaching.selectedClass"
-                                ng-change="pushData(coTeaching.selectedClass, coTeaching.classesCoteaching)"
+                        <select ng-model="multiTeaching.selectedClass"
+                                ng-change="pushData(multiTeaching.selectedClass, multiTeaching.classesCoteaching)"
                                 ng-options="class as class.name group by class.type_groupe_libelle for class
                                                     in classesLightboxAddTeacher">
                             <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.class.groupe')]]
@@ -69,17 +69,20 @@
                     </label>
 
                     <div class="row">
-                        <label ng-repeat="classe in coTeaching.classesCoteaching" class="chip multiselect all"
+                        <label ng-repeat="classe in multiTeaching.classesCoteaching" class="chip multiselect all"
                                ng-click="deleteSelection(classe, 'classesCoteaching')">
                             <span>[[classe.name]]</span>
                             <input type="checkbox" ng-model="classe.selected"/>
                         </label>
                     </div>
+                    <div class="row">
+                        <span style="color:red">[[warningClassesNonEvaluables]]</span>
+                    </div>
                 </td>
             </tr>
             </tbody>
         </table>
-        <div ng-hide="coTeaching.isCoteaching">
+        <div ng-hide="multiTeaching.isCoteaching">
             <hr class="remplacement-separator">
             <table class="row">
                 <tbody class="twelve">
@@ -89,14 +92,14 @@
                             <i18n>viescolaire.utils.from.date</i18n></span>
                         <i class="calendar-o"></i>
                         <date-picker class="centered-text two"
-                                     ng-change="checkErrorAddcoteaching()"
-                                     ng-model="coTeaching.start_date">
+                                     ng-change="checkErrorAddCoTeaching()"
+                                     ng-model="multiTeaching.start_date">
                         </date-picker>
                         <span class="bold"><i18n>viescolaire.utils.to.date</i18n></span>
                         <i class="calendar-o"></i>
                         <date-picker class="centered-text two"
-                                     ng-model="coTeaching.end_date"
-                                     ng-change = "checkErrorAddcoteaching()">
+                                     ng-model="multiTeaching.end_date"
+                                     ng-change = "checkErrorAddCoTeaching()">
                         </date-picker>
                     </td>
                 </tr>
@@ -105,8 +108,8 @@
                         <span class="bold"><i18n>viescolaire.utils.datefinsaisie</i18n></span>
                         <i class="calendar-o"></i>
                         <date-picker class="centered-text two"
-                                     ng-model="coTeaching.entered_end_date"
-                                     ng-change = "checkErrorAddcoteaching()">
+                                     ng-model="multiTeaching.entered_end_date"
+                                     ng-change = "checkErrorAddCoTeaching()">
                         </date-picker>
                     </td>
                 </tr>
@@ -131,12 +134,13 @@
     </div>
     <button class="marginFive magnet-right"
             ng-disabled="checkIfValid()"
-            ng-click="addCoTeaching(isUpdate)">
+            ng-click="addCoTeaching(multiTeaching.newCoTeachers, multiTeaching.classesCoteaching)">
         <i18n>viescolaire.utils.save</i18n>
     </button>
 
-    <button ng-if ="isUpadte" class="magnet-right"
-            ng-click="deleteCoTeacher()">
+    <button ng-if ="isUpdate" class="marginFive magnet-right"
+            ng-disabled = "disabledDeleteButton()"
+            ng-click="deleteCoTeacher(multiTeaching.oldSubstituteTeacher)">
         <i18n>viescolaire.utils.delete</i18n>
     </button>
 

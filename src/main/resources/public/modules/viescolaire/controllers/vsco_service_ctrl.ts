@@ -1,9 +1,8 @@
-import {notify, idiom as lang, angular, ng, _, toasts, moment} from 'entcore';
+import {notify, idiom as lang, ng, _, toasts, moment} from 'entcore';
 import * as utils from '../../utils/services';
 import {TypeSubTopic, Service, Services, TypeSubTopics, ServiceClasse, MultiTeaching} from "../models/services";
 import {safeApply} from "../../utils/services";
 import {SubjectService,GroupService,UserService} from "../services";
-import http from "axios";
 import {Teacher} from "../models/common/Teacher";
 
 export let evalAcuTeacherController = ng.controller('ServiceController',[
@@ -13,24 +12,27 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         $scope.sortByAsc = true;
         $scope.filter = "classes=true&groups=true&manualGroups=true";
         $scope.servicesTemp = new Services([]);
-        function getGroupsName(service, groups, groups_name: string) {
-            service.id_groups.forEach(
-                id => {
-                    let group = _.findWhere($scope.columns.classe.data, {id: id});
-                    groups.push(group);
-                }
-            );
-            groups.sort((group1, group2) => {
-                if (group1.name > group2.name) {
-                    return 1;
-                }
-                if (group1.name < group2.name) {
-                    return -1;
-                }
-                return 0;
-            });
-            groups_name = groups.join(",");
-            return groups_name;
+        function getGroupsName(service, groups) {
+            if(service.id_groups && service.id_groups.length > 0){
+                service.id_groups.forEach(
+                    id => {
+                        let group = _.findWhere($scope.columns.classe.data, {id: id});
+                        if(group && !groups.includes(group))
+                            groups.push(group);
+                    }
+                );
+                groups.sort((group1, group2) => {
+                    if (group1.name > group2.name) {
+                        return 1;
+                    }
+                    if (group1.name < group2.name) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                return groups.join(", ");
+            }
+            return null;
         }
 
         function setServices(data) {
@@ -39,8 +41,8 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 let groupe = _.findWhere($scope.columns.classe.data, {id: service.id_groupe});
                 let groups = [];
                 let subTopics = [];
-                let allCoTeachers = service.coTeachers;
-
+                let coTeachers = service.coTeachers;
+                let substituteTeachers = service.substituteTeachers;
                 let matiere = _.findWhere($scope.columns.matiere.data, {id: service.id_matiere});
                 if (matiere && matiere.sous_matieres && matiere.sous_matieres.length > 0)
                     matiere.sous_matieres.forEach(sm => {
@@ -50,44 +52,51 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                             }
                         });
                     });
+                let groups_name = getGroupsName(service, groups);
 
+                let coTeachers_name = "";
+                let substituteTeachers_name = "";
 
-                    let groups_name = "";
-                    groups_name = getGroupsName(service, groups, groups_name);
+                if(coTeachers){
+                    _.each(coTeachers , (coTeacher) => {
+                        coTeacher.displayName = (_.findWhere($scope.columns.enseignant.data,
+                            {id: coTeacher.second_teacher_id}) != undefined)? _.findWhere($scope.columns.enseignant.data,
+                            {id: coTeacher.second_teacher_id}).displayName : "";
+                        coTeachers_name += coTeacher.displayName + " ";
+                    });
+                }
+                if(substituteTeachers){
+                    _.each(substituteTeachers , (substituteTeacher) => {
+                        substituteTeacher.displayName = (_.findWhere($scope.columns.enseignant.data,
+                            {id: substituteTeacher.second_teacher_id}) != undefined)? _.findWhere($scope.columns.enseignant.data,
+                            {id: substituteTeacher.second_teacher_id}).displayName : "";
+                        substituteTeachers_name += substituteTeacher.displayName + " ";
+                    });
+                }
 
-                    if(allCoTeachers){
-                        _.each(allCoTeachers , (coTeacher)=> {
-                            coTeacher.displayName = (_.findWhere($scope.columns.enseignant.data,
-                                {id: coTeacher.second_teacher_id}) != undefined)? _.findWhere($scope.columns.enseignant.data,
-                                {id: coTeacher.second_teacher_id}).displayName : "";
-
-                        });
-                    }
-                    let coTeachers = _.reject(allCoTeachers, coTeacher => {return !coTeacher.is_coteaching});
-                    let secondTeacher = _.reject(allCoTeachers, coTeacher => {return coTeacher.is_coteaching});
-                    let missingParams = {
-                        id_etablissement: $scope.idStructure,
-                        nom_enseignant: enseignant ? enseignant.displayName : null,
-                        topicName: matiere ? matiere.name  + " (" + matiere.externalId + ")"  : null,
-                        nom_groupe: groupe ? groupe.name : null,
-                        groups: groups ? groups : null,
-                        groups_name: groups_name ? groups_name : null,
-                        subTopics: subTopics ? subTopics : [],
-                        multiTeaching: new MultiTeaching($scope.idStructure, enseignant,  matiere,
-                            true, coTeachers),
-                        substituteTeacher: new MultiTeaching($scope.idStructure,enseignant, matiere,
-                            false, secondTeacher)
-                    };
-                    return new Service(_.defaults(service, missingParams));
-                }), service => service.hasNullProperty());
+                service = _.omit(service,'coTeachers','substituteTeacher');
+                let missingParams = {
+                    id_etablissement: $scope.idStructure,
+                    nom_enseignant: enseignant ? enseignant.displayName : null,
+                    topicName: matiere ? matiere.name  + " (" + matiere.externalId + ")"  : null,
+                    nom_groupe: groupe ? groupe.name : null,
+                    groups: groups ? groups : null,
+                    groups_name: groups_name ? groups_name : null,
+                    coTeachers_name : coTeachers_name,
+                    substituteTeachers_name : substituteTeachers_name,
+                    subTopics: subTopics ? subTopics : [],
+                    coTeachers: (_.isEmpty(coTeachers))? [] : _.map(coTeachers, (coTeacher) => { return new MultiTeaching(coTeacher) }) ,
+                    substituteTeacher:  (_.isEmpty(substituteTeachers))? [] : _.map(substituteTeachers, (substituteTeacher) => { return new MultiTeaching(substituteTeacher) })
+                };
+                return new Service(_.defaults(service, missingParams));
+            }), service => service.hasNullProperty());
         }
 
         async function getAndsetServices() {
             if(!$scope.displayMessageLoader)
                 await $scope.runArrayLoader();
 
-            $scope.servicesTemp.getServices($scope.structure.id,$scope.filter).then(async ({data}) => {
-
+            $scope.servicesTemp.getServices($scope.structure.id, $scope.filter).then(async ({data}) => {
                 setServices(data);
 
                 await $scope.stopArrayLoader();
@@ -97,14 +106,12 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 console.error(error);
                 await $scope.stopArrayLoader();
                 await $scope.stopMessageLoader();
-
             });
         }
 
         async function initServices () {
-            await $scope.runMessageLoader();
+            await $scope.runArrayLoader();
             getAndsetServices();
-            console.log("plpo")
             $scope.classesSelected = [];
         }
 
@@ -113,9 +120,13 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 let isInSearched = true;
                 if($scope.searchToFilter.length !=0){
                     $scope.searchToFilter.forEach(search =>{
-                        if( !(service.groups_name.toUpperCase().includes(search.toUpperCase())
+                        if(!((service.groups_name != null && service.groups_name.toUpperCase().includes(search.toUpperCase()))
+                            || (service.nom_groupe != null && service.nom_groupe.toUpperCase().includes(search.toUpperCase()))
                             || service.nom_enseignant.toUpperCase().includes(search.toUpperCase())
-                            || service.topicName.toUpperCase().includes(search.toUpperCase()))){
+                            || service.topicName.toUpperCase().includes(search.toUpperCase())
+                            || service.coTeachers_name.toUpperCase().includes(search.toUpperCase())
+                            || service.substituteTeachers_name.toUpperCase().includes(search.toUpperCase())
+                        )){
                             isInSearched = false;
                         }
                     });
@@ -179,7 +190,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 subjectService.getMatieres($scope.idStructure),
                 userServices.getTeachers($scope.idStructure),
                 $scope.servicesTemp.getServices($scope.structure.id,$scope.filter),
-                $scope.subTopics.get()
+                $scope.subTopics.get($scope.idStructure)
             ])
                 .then(async function([aClasses, aMatieres, aTeachers,aServices]) {
                     $scope.columns.classe.data = _.map(aClasses.data,
@@ -290,6 +301,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             let subTopic = new TypeSubTopic();
             if ($scope.newSubTopic) {
                 subTopic.libelle = $scope.newSubTopic;
+                subTopic.id_structure = $scope.structure.id;
                 let isSaved = await subTopic.save();
                 if (isSaved === false) {
                     $scope.lightboxes.subEducationCreate = false;
@@ -505,6 +517,25 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             }
         };
 
+        $scope.createService = async (service) => {
+            try {
+                await service.createService($scope.classesSelected, $scope.lightboxes.create);
+            } catch (e) {
+                notify.error("evaluation.service.create.err")
+            }
+            $scope.lightboxes.create = false;
+            await initServices();
+        };
+
+        $scope.changeSort = (nameSort) => {
+            if($scope.sortBy === nameSort)
+                $scope.sortByAsc = !$scope.sortByAsc;
+            else
+                $scope.sortByAsc = true;
+            $scope.sortBy = nameSort;
+
+        };
+
         $scope.setMatiere = (matiere) => {
             $scope.matiereSelected = matiere;
         };
@@ -523,7 +554,6 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         };
 
         $scope.openCreateLightbox = () => {
-            console.log("im in")
             $scope.service = new Service(
                 {
                     id_etablissement: $scope.idStructure,
@@ -539,145 +569,191 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             $scope.lightboxes.create = true;
         };
 
-
-        $scope.openAddTeacherLightbox = (service, isCoteaching, isUpdate ?) => {
+//MultiTeaching
+        $scope.openAddTeacherLightbox = (service, isCoteaching, substituteTeacherUpdated ?) => {
             $scope.lightboxes.addTeacher = true;
+
             let teachers = $scope.columns.enseignant.data;
-            $scope.teachersLihtboxTeacher = _.reject(teachers, teacher => {return teacher.id == service.id_enseignant});
-            if(isCoteaching){
-                $scope.coTeaching = service.multiTeaching;
-                if($scope.coTeaching.coTeachers.length > 0 ){
-                    $scope.teachersLihtboxTeacher =
-                        _.reject($scope.teachersLihtboxTeacher,
-                                teacher => {return _.findWhere($scope.coTeaching.coTeachers, {second_teacher_id : teacher.id}) != undefined});
-                }
+            let mainTeacher = _.findWhere($scope.columns.enseignant.data, {id : service.id_enseignant});
+            let subject = _.findWhere($scope.columns.matiere.data, {id : service.id_matiere});
+            let multiTeaching = {
+                structure_id : service.id_etablissement,
+                main_teacher_id : mainTeacher.id,
+                subject_id : subject.id,
+                isCoteaching : isCoteaching
+            }
+            $scope.multiTeaching = new MultiTeaching(multiTeaching);
+            $scope.multiTeaching.mainTeacher = mainTeacher;
+            $scope.multiTeaching.subject = subject;
+            $scope.multiTeaching.newCoTeachers = [];
+            $scope.multiTeaching.competencesParams = service.competencesParams;
 
-            }else{
-                $scope.coTeaching = service.substituteTeacher;
+            $scope.teachersLihtboxTeacher = _.reject(teachers, teacher => {return teacher.id == service.id_enseignant})
+            if(service.coTeachers.length > 0){
+                $scope.teachersLihtboxTeacher = _.reject(teachers, teacher =>
+                {return _.findWhere(service.coTeachers, {second_teacher_id : teacher.id}) != undefined});
+            }
+            /*if(service.substituteTeachers.length > 0){
+                $scope.teachersLihtboxTeacher = _.reject(teachers, teacher =>
+                {return _.findWhere(service.substituteTeachers, {second_teacher_id : teacher.id}) != undefined});
+            }*/
 
-                if(isUpdate){
-                    $scope.isUpate = isUpdate;
-                    $scope.coTeaching.selectedTeacher = _.findWhere(teachers,
-                        {id : $scope.coTeaching.coTeachers[0].second_teacher_id});
-                    $scope.coTeaching.classesCoteaching =  service.groups;
-                }
-
+            $scope.multiTeaching.classesCoteaching = [];
+            $scope.classesLightboxAddTeacher = service.groups;
+            $scope.isUpdate = substituteTeacherUpdated != undefined;
+            if(substituteTeacherUpdated){
+                $scope.multiTeaching.oldSubstituteTeacher = substituteTeacherUpdated;
+                $scope.multiTeaching.selectedTeacher = _.findWhere(teachers,
+                    {id : $scope.multiTeaching.oldSubstituteTeacher.second_teacher_id});
+                $scope.multiTeaching.newCoTeachers.push($scope.multiTeaching.selectedTeacher);
+                $scope.multiTeaching.classesCoteaching = service.groups;
+                $scope.multiTeaching.start_date = new Date(substituteTeacherUpdated.start_date);
+                $scope.multiTeaching.end_date = new Date(substituteTeacherUpdated.end_date);
+                $scope.multiTeaching.entered_end_date = new Date(substituteTeacherUpdated.entered_end_date);
             }
 
-            $scope.classesLightboxAddTeacher = service.groups;
+            $scope.warningClassesNonEvaluables = "";
             $scope.errorAddCoteaching = {
                 errorStartDate:false,
             }
         };
 
-
-        $scope.createService= async (service) => {
-            try {
-                await service.createService($scope.classesSelected, $scope.lightboxes.create);
-            } catch (e) {
-                notify.error("evaluation.service.create.err")
-            }
-            $scope.lightboxes.create = false;
-            await initServices();
-        };
-
-        $scope.changeSort = (nameSort) => {
-            if($scope.sortBy === nameSort)
-                $scope.sortByAsc = !$scope.sortByAsc;
-            else
-                $scope.sortByAsc = true;
-            $scope.sortBy = nameSort;
-
-        };
-        $scope.checkErrorAddcoteaching = () => {
-
-            let coTeaching = $scope.coTeaching
+        $scope.checkErrorAddCoTeaching = () => {
+            let coTeaching = $scope.multiTeaching;
             if(moment(coTeaching.start_date).diff(coTeaching.end_date) === 0){
                 coTeaching.end_date = moment(coTeaching.end_date).add(1,'day');
             }
-            if( moment(coTeaching.entered_end_date).isBefore(coTeaching.end_date)){
+            if(moment(coTeaching.entered_end_date).isBefore(coTeaching.end_date)){
                 coTeaching.entered_end_date = coTeaching.end_date;
             }
-
-            $scope.errorAddCoteaching.errorStartDate =
-                moment(coTeaching.start_date).isAfter(coTeaching.end_date) ;
-
+            $scope.errorAddCoteaching.errorStartDate = moment(coTeaching.start_date).isAfter(coTeaching.end_date);
         };
 
         $scope.checkIfValid = () => {
+            let multiTeaching = $scope.multiTeaching;
 
-            let coTeaching = $scope.coTeaching;
-            let conditionsWithoutDates = (
-                coTeaching &&
-                coTeaching.newCoTeachers &&
-                coTeaching.newCoTeachers.length > 0 &&
-                coTeaching.classesCoteaching &&
-                coTeaching.classesCoteaching.length > 0 &&
-                coTeaching.mainTeacher &&
-                coTeaching.subject) ? true : false;
+            let conditionsWithoutDates = !!(
+                multiTeaching &&
+                multiTeaching.newCoTeachers &&
+                multiTeaching.newCoTeachers.length > 0 &&
+                multiTeaching.classesCoteaching &&
+                multiTeaching.classesCoteaching.length > 0 &&
+                multiTeaching.mainTeacher &&
+                multiTeaching.subject &&
+                $scope.checkClassesEvaluables()
+            );
 
             let condtionsDate = (
                 !_.some($scope.errorAddCoteaching) &&
-                coTeaching != undefined &&
-                coTeaching.end_date != undefined &&
-                coTeaching.start_date != undefined ) ? true : false;
+                multiTeaching != undefined &&
+                multiTeaching.end_date != undefined &&
+                multiTeaching.start_date != undefined);
 
-            if (coTeaching != undefined && coTeaching.isCoteaching != undefined && coTeaching.isCoteaching){
-                return !conditionsWithoutDates
+            if (multiTeaching != undefined && multiTeaching.isCoteaching != undefined && multiTeaching.isCoteaching){
+                return !conditionsWithoutDates;
             }else{
-                return !(conditionsWithoutDates && condtionsDate)
-            }
-
-        };
-
-        $scope.deleteSelection= (object, array) => {
-
-            for (let i = 0; i < $scope.coTeaching[array].length; i++) {
-                if ($scope.coTeaching[array][i] == object) {
-                    $scope.coTeaching[array] = _.without($scope.coTeaching[array],
-                        $scope.coTeaching[array][i]);
+                if($scope.isUpdate){
+                    return !($scope.disabledDeleteButton() && conditionsWithoutDates && condtionsDate);
+                }else{
+                    return !(conditionsWithoutDates && condtionsDate);
                 }
             }
-            if($scope.coTeaching[array].length === 0){
-                if(object instanceof ServiceClasse) $scope.coTeaching.selectedClass = undefined;
-                if(object instanceof Teacher) $scope.coTeaching.selectedTeacher = undefined;
+        };
 
+        $scope.disabledDeleteButton = ()=> {
+            //newCoteacher est vide ou le newCoTeacher = coTeacher
+            let multiTeaching = $scope.multiTeaching;
+
+            if(multiTeaching){
+                let compareTeacher = !!(_.isEmpty(multiTeaching.newCoTeachers) || (multiTeaching.oldSubstituteTeacher != undefined &&
+                    multiTeaching.oldSubstituteTeacher.second_teacher_id === multiTeaching.newCoTeachers[0].id));
+
+                let idsClasseCoteachers = (multiTeaching.oldSubstituteTeacher && multiTeaching.oldSubstituteTeacher.idsAndIdsGroups) ?
+                    _.pluck(multiTeaching.oldSubstituteTeacher.idsAndIdsGroups,"idGroup") : [];
+                let idsClassSeleted = (multiTeaching.classesCoteaching)?_.pluck(multiTeaching.classesCoteaching,"id") : [];
+                let compareClasses = !!(_.isEmpty(_.difference(idsClasseCoteachers, idsClassSeleted)));
+
+                let compareDates = (multiTeaching.start_date.getTime() === new Date(multiTeaching.oldSubstituteTeacher.start_date).getTime()
+                    && multiTeaching.end_date.getTime() === new Date(multiTeaching.oldSubstituteTeacher.end_date).getTime()
+                    && multiTeaching.entered_end_date.getTime() === new Date(multiTeaching.oldSubstituteTeacher.entered_end_date).getTime());
+
+                return !(compareTeacher && compareClasses && compareDates);
+            } else {
+                return true;
+            }
+        };
+
+
+        $scope.deleteSelection = (object, array) => {
+            for (let i = 0; i < $scope.multiTeaching[array].length; i++) {
+                if ($scope.multiTeaching[array][i] == object) {
+                    $scope.multiTeaching[array] = _.without($scope.multiTeaching[array],
+                        $scope.multiTeaching[array][i]);
+                }
+            }
+            if($scope.multiTeaching[array].length === 0){
+                if(object instanceof ServiceClasse) $scope.multiTeaching.selectedClass = undefined;
+                if(object instanceof Teacher) $scope.multiTeaching.selectedTeacher = undefined;
             }
         };
 
         $scope.addCoTeachers = () => {
-            if($scope.coTeaching.isCoteaching){
-                utils.pushData($scope.coTeaching.selectedTeacher,$scope.coTeaching.newCoTeachers);
+            if($scope.multiTeaching.isCoteaching){
+                utils.pushData($scope.multiTeaching.selectedTeacher,$scope.multiTeaching.newCoTeachers);
             }else{
-                if($scope.coTeaching.newCoTeachers.length === 0){
-                    $scope.coTeaching.newCoTeachers.push($scope.coTeaching.selectedTeacher);
+                if($scope.multiTeaching.newCoTeachers.length === 0){
+                    $scope.multiTeaching.newCoTeachers.push($scope.multiTeaching.selectedTeacher);
                 }else{
-                    $scope.coTeaching.newCoTeachers.splice(_.first($scope.coTeaching.newCoTeachers), 1, $scope.coTeaching.selectedTeacher);
+                    $scope.multiTeaching.newCoTeachers.splice(_.first($scope.multiTeaching.newCoTeachers), 1, $scope.multiTeaching.selectedTeacher);
                 }
             }
-
         }
 
-        $scope.addCoTeaching = async () => {
-            try{
-                await $scope.coTeaching.addCoTeaching();
-            }catch (e){
-                notify.error("evaluation.coteaching.create.error");
+        $scope.addCoTeaching = async (newCoTeachers, classesCoteaching) => {
+            if($scope.isUpdate){
+                $scope.isUpdate = false;
+                console.log(newCoTeachers);
+                console.log(classesCoteaching);
+                console.log($scope.multiTeaching.oldSubstituteTeacher);
+                await $scope.multiTeaching.updateSubstituteTeacher(newCoTeachers, classesCoteaching,
+                    $scope.multiTeaching.oldSubstituteTeacher);
+            }else{
+                await $scope.multiTeaching.addCoTeaching(newCoTeachers, classesCoteaching);
             }
+
+            delete $scope.multiTeaching;
             $scope.lightboxes.addTeacher = false;
             await initServices();
         };
 
-        $scope.deleteCoTeacher = async(multiTeaching, index) => {
-
-                let ids = _.pluck(multiTeaching.coTeachers[index].idsAndIdsGroups, "id");
-                await multiTeaching.deleteCoTeaching(ids);
-                await initServices();
-
+        $scope.deleteCoTeacher = async(oldSubstituteTeacherOrCoteacher) => {
+            if(!oldSubstituteTeacherOrCoteacher.isCoteaching){
+                $scope.lightboxes.addTeacher = false;
+                $scope.isUpdate = false;
+            }
+            await new MultiTeaching(oldSubstituteTeacherOrCoteacher).deleteCoTeaching();
+            delete $scope.multiTeaching;
+            await initServices();
         };
+
+        $scope.checkClassesEvaluables = () => {
+            if($scope.multiTeaching != undefined) {
+                let classesNonEvaluables = _.filter($scope.multiTeaching.classesCoteaching, (classe) => {
+                    let competenceParam = _.findWhere($scope.multiTeaching.competencesParams, {id_groupe: classe.id});
+                    return !competenceParam.evaluable;
+                });
+                if (classesNonEvaluables.length > 0) {
+                    $scope.warningClassesNonEvaluables = lang.translate("viescolaire.service.warning.classesNonEvaluables")
+                        + classesNonEvaluables.map(c => c.name).join(", ");
+                } else {
+                    $scope.warningClassesNonEvaluables = "";
+                }
+                return !($scope.warningClassesNonEvaluables.length > 0);
+            }
+            return true;
+        }
 
         await $scope.init();
         utils.safeApply($scope);
-
     }
 ]);

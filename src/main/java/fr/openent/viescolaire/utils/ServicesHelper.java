@@ -22,6 +22,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import java.text.ParseException;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -38,7 +39,7 @@ public class ServicesHelper {
     private static GroupeService groupeService = new DefaultGroupeService();
 
     public static void setParamsServices(JsonArray neoServices, JsonArray SQLServices,
-                                          List<MultiTeaching> coTeachers, List<ServiceModel> result) {
+                                         List<MultiTeaching> coTeachersList, List<ServiceModel> result) {
         for (Object o : neoServices) {
             JsonObject oDBService = normalizeMatiere((JsonObject) o);
             ServiceModel service = new ServiceModel();
@@ -58,9 +59,14 @@ public class ServicesHelper {
                 service.setModalite(overwrittenService.getString("modalite"));
                 service.setEvaluable(overwrittenService.getBoolean("evaluable"));
                 service.setCoefficient(overwrittenService.getLong(COEFFICIENT));
+                service.setVisible(overwrittenService.getBoolean("is_visible"));
             }
-            service.addCoteachers(coTeachers);
+
+            List<ServiceModel> newServices = service.addCoteachers(coTeachersList);
             result.add(service);
+            if(!newServices.isEmpty()){
+                result.addAll(newServices);
+            }
         }
 
         for (Object o : SQLServices) {
@@ -72,18 +78,16 @@ public class ServicesHelper {
             manualService.setModalite(oParamService.getString("modalite"));
             manualService.setEvaluable(oParamService.getBoolean("evaluable"));
             manualService.setCoefficient(oParamService.getLong(COEFFICIENT));
-            manualService.setManual(true);
-            manualService.addCoteachers(coTeachers);
-            result.add(manualService);
-        }
-    }
+            manualService.setVisible(oParamService.getBoolean("is_visible"));
 
-    public static void initAllServicesNoFilter(JsonArray servicesNeo,JsonArray servicesPostgres, Handler<Either<String, JsonArray>> requestHandler) {
-                List<ServiceModel> result = new ArrayList<>();
-                setParamsServices(servicesNeo, servicesPostgres,null, result);
-                JsonArray groupsIdsForNeo = getIdNeo(result);
-                groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result,true,
-                        true,true,true,true,false));
+            manualService.setManual(true);
+
+            List<ServiceModel> newServices = manualService.addCoteachers(coTeachersList);
+            result.add(manualService);
+            if(!newServices.isEmpty()){
+                result.addAll(newServices);
+            }
+        }
     }
 
     private static JsonArray getIdNeo(List<ServiceModel> result) {
@@ -96,36 +100,31 @@ public class ServicesHelper {
         return groupsIdsForNeo;
     }
 
-
     public static void handleMultiTeaching(JsonArray neoServices, Handler<Either<String, JsonArray>> requestHandler,
                                            boolean manualGroups, boolean groups, boolean classes,
-                                           boolean notEvaluable, boolean evaluable, JsonArray SQLservices,
-                                           List<ServiceModel> result, List<MultiTeaching> coTeachers,
-                                           JsonArray multiTeachingJsonArray) {
-
-        JsonArray multiTeachings =multiTeachingJsonArray;
+                                           boolean notEvaluable, boolean evaluable, boolean compressed,
+                                           JsonArray SQLservices, List<ServiceModel> result,
+                                           List<MultiTeaching> coTeachers, JsonArray multiTeachingJsonArray) {
+        JsonArray multiTeachings = multiTeachingJsonArray;
         if(!multiTeachings.isEmpty()){
-            for( int i=0; i < multiTeachings.size() ; i++){
-
+            for(int i=0; i < multiTeachings.size() ; i++){
                 try {
                     coTeachers.add(new MultiTeaching(multiTeachings.getJsonObject(i)));
-
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        setParamsServices(neoServices, SQLservices, coTeachers,result);
+        setParamsServices(neoServices, SQLservices, coTeachers, result);
         JsonArray groupsIdsForNeo = getIdNeo(result);
-        groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result,manualGroups,
-                groups,classes,notEvaluable,evaluable,true));
-
-
+        groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result, manualGroups,
+                groups, classes, notEvaluable, evaluable, compressed));
     }
+
     private static Handler<Either<String, JsonArray>> getNeoReplyHandler(Handler<Either<String, JsonArray>> requestHandler, List<ServiceModel> result ,
                                                                          boolean manualGroups, boolean groups, boolean classes,
-                                                                         boolean notEvaluable, boolean evaluable,boolean compressed) {
+                                                                         boolean notEvaluable, boolean evaluable, boolean compressed) {
         return new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
@@ -200,71 +199,131 @@ public class ServicesHelper {
     private static JsonArray getCompressedService(List<ServiceModel> resultList) {
         JsonArray compressedServices = new JsonArray();
         sortServices(resultList);
-        String id_topic ="",id_teacher = "";
+        String id_topic = "", id_teacher = "";
         List<MultiTeaching> coTeachers = new ArrayList<>();
+        List<MultiTeaching> substituteTeachers = new ArrayList<>();
+        Boolean isVisible = true;
         JsonObject compressedService = new JsonObject();
 
         for(int i = 0; i < resultList.size(); i++) {
             ServiceModel resultService = resultList.get(i);
             if(id_topic.equals(resultService.getIdTopic())){
-                if(id_teacher.equals(resultService.getIdTeacher()) ){
-                   List<String> idsSecondTeacherL1 = coTeachers.stream().map(MultiTeaching::getSecondTeacherId)
-                           .sorted().collect(Collectors.toList());
-                   List<String> idsSecondTeacherL2 = resultService.getCoteachersService().stream()
-                           .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
-                   if(idsSecondTeacherL1.equals(idsSecondTeacherL2)){
-                       compressedService.getJsonArray("id_groups").add(resultService.getIdGroup());
-                       addIdMtultiTeaching(compressedService,resultService);
-                       addCompetencesParams(compressedService, resultService);
-                   }else{
-                       compressedServices.add(compressedService);
-                       coTeachers = resultService.getCoteachersService();
-                       compressedService = resultService.toJsonObject();
-                       compressedService.put("id_groups",new JsonArray().add(resultService.getIdGroup()));
-                       setCompetencesParams(compressedService, resultService);
-                   }
+                if(id_teacher.equals(resultService.getIdTeacher())){
+                    if(isVisible.equals(resultService.isVisible())) {
+                        List<String> idsSecondTeacherL1 = coTeachers.stream().map(MultiTeaching::getSecondTeacherId)
+                                .sorted().collect(Collectors.toList());
+                        List<String> idsSecondTeacherL2 = resultService.getCoteachers().stream()
+                                .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
+                        List<Boolean> isVisibleSecondTeacherL1 = coTeachers.stream().map(MultiTeaching::isVisible)
+                                .sorted().collect(Collectors.toList());
+                        List<Boolean> isVisibleSecondTeacherL2 = resultService.getCoteachers().stream()
+                                .map(MultiTeaching::isVisible).sorted().collect(Collectors.toList());
+                        if (idsSecondTeacherL1.equals(idsSecondTeacherL2) &&
+                                isVisibleSecondTeacherL1.equals(isVisibleSecondTeacherL2)) {
+                            boolean conditionToCompresse = substituteTeachers.size() == resultService.getSubstituteTeachers().size();
+                            for(int k = 0; k < substituteTeachers.size() && conditionToCompresse; k++){
+                                for(int l = 0; l < resultService.getSubstituteTeachers().size() && conditionToCompresse; l++){
+                                    MultiTeaching substituteTeacher = substituteTeachers.get(k);
+                                    MultiTeaching substituteTeacherService = resultService.getSubstituteTeachers().get(l);
+                                    conditionToCompresse = substituteTeacher != null &&
+                                            substituteTeacherService != null &&
+                                            substituteTeacher.getSecondTeacherId().equals(substituteTeacherService.getSecondTeacherId()) &&
+                                            substituteTeacher.getStartDate().equals(substituteTeacherService.getStartDate()) &&
+                                            substituteTeacher.getEndDate().equals(substituteTeacherService.getEndDate()) &&
+                                            substituteTeacher.getEnteredEndDate().equals(substituteTeacherService.getEnteredEndDate()) &&
+                                            substituteTeacher.isVisible() == substituteTeacherService.isVisible() ||
+                                            substituteTeacher == null && substituteTeacherService == null;
+                                }
+                            }
 
-                }else {
+                            if (conditionToCompresse) {
+                                compressedService.getJsonArray("id_groups").add(resultService.getIdGroup());
+                                addIdMtultiTeaching(compressedService, resultService);
+                                addCompetencesParams(compressedService, resultService);
+                            } else {
+                                compressedServices.add(compressedService);
+                                substituteTeachers = resultService.getSubstituteTeachers();
+
+                                compressedService = resultService.toJsonObject();
+                                compressedService.put("id_groups", new JsonArray().add(resultService.getIdGroup()));
+                                setCompetencesParams(compressedService, resultService);
+                            }
+
+                        } else {
+                            compressedServices.add(compressedService);
+                            coTeachers = resultService.getCoteachers();
+                            substituteTeachers = resultService.getSubstituteTeachers();
+
+                            compressedService = resultService.toJsonObject();
+                            compressedService.put("id_groups", new JsonArray().add(resultService.getIdGroup()));
+                            setCompetencesParams(compressedService, resultService);
+                        }
+                    } else {
+                        isVisible = resultService.isVisible();
+                        id_teacher = resultService.getIdTeacher();
+                        coTeachers = resultService.getCoteachers();
+                        substituteTeachers = resultService.getSubstituteTeachers();
+                        compressedServices.add(compressedService);
+
+                        compressedService = resultService.toJsonObject();
+                        compressedService.put("id_groups", new JsonArray().add(resultService.getIdGroup()));
+                        setCompetencesParams(compressedService, resultService);
+                    }
+                } else {
                     id_teacher = resultService.getIdTeacher();
-                    coTeachers = resultService.getCoteachersService();
+                    coTeachers = resultService.getCoteachers();
+                    substituteTeachers = resultService.getSubstituteTeachers();
                     compressedServices.add(compressedService);
+
                     compressedService = resultService.toJsonObject();
-                    compressedService.put("id_groups",new JsonArray().add(resultService.getIdGroup()));
+                    compressedService.put("id_groups", new JsonArray().add(resultService.getIdGroup()));
                     setCompetencesParams(compressedService, resultService);
                 }
-            }else {
-                if( i != 0 ){
+            } else {
+                if(i != 0){
                     compressedServices.add(compressedService);
                 }
                 id_topic = resultService.getIdTopic();
                 id_teacher = resultService.getIdTeacher();
-                coTeachers = resultService.getCoteachersService();
+                coTeachers = resultService.getCoteachers();
+                substituteTeachers = resultService.getSubstituteTeachers();
 
                 compressedService = resultService.toJsonObject();
-                compressedService.put("id_groups",new JsonArray().add(resultService.getIdGroup()));
+                compressedService.put("id_groups", new JsonArray().add(resultService.getIdGroup()));
                 setCompetencesParams(compressedService, resultService);
             }
         }
         compressedServices.add(compressedService);
-        return  compressedServices;
+        return compressedServices;
     }
 
     private static void addIdMtultiTeaching(JsonObject compressedService, ServiceModel resultService){
-
         JsonArray coTeachers = compressedService.getJsonArray("coTeachers");
-        List<MultiTeaching> coteachersService = resultService.getCoteachersService();
+        List<MultiTeaching> coteachersService = resultService.getCoteachers();
 
-        for(MultiTeaching coTeacherOflist : coteachersService){
-            for(int i= 0; i < coTeachers.size(); i++){
+        for(MultiTeaching coTeacherOfList : coteachersService){
+            for(int i = 0; i < coTeachers.size(); i++){
                 JsonObject coteacher = coTeachers.getJsonObject(i);
-                if(coTeacherOflist.getSecondTeacherId().equals(coteacher.getString("second_teacher_id"))){
+                if(coTeacherOfList.getSecondTeacherId().equals(coteacher.getString("second_teacher_id"))){
                     coteacher.getJsonArray("idsAndIdsGroups").add(new JsonObject()
-                    .put("id",coTeacherOflist.getId()).put("idGroup", coTeacherOflist.getClassOrGroupId() ));
+                            .put("id",coTeacherOfList.getId()).put("idGroup", coTeacherOfList.getClassOrGroupId() ));
                 }
             }
         }
 
+        JsonArray substituteTeachers = compressedService.getJsonArray("substituteTeachers");
+        List<MultiTeaching> substituteTeachersService = resultService.getSubstituteTeachers();
+        for(MultiTeaching substituteTeacherOfList : substituteTeachersService) {
+            for(int i = 0; i < substituteTeachers.size(); i++) {
+                JsonObject substituteTeacher = substituteTeachers.getJsonObject(i);
+                if(substituteTeacherOfList.getSecondTeacherId().equals(substituteTeacher.getString("second_teacher_id"))){
+                    substituteTeacher.getJsonArray("idsAndIdsGroups").add(new JsonObject()
+                            .put("id", substituteTeacherOfList.getId()).put("idGroup", substituteTeacherOfList.getClassOrGroupId()));
+                }
+            }
+        }
     }
+
     private static void addCompetencesParams(JsonObject compressedService, ServiceModel resultService) {
         compressedService.getJsonArray("competencesParams")
                 .add(new JsonObject()
@@ -272,7 +331,6 @@ public class ServicesHelper {
                         .put("modalite", resultService.getModalite())
                         .put(COEFFICIENT, resultService.getCoefficient())
                         .put(EVALUABLE_STR, resultService.isEvaluable()));
-
     }
 
     private static JsonObject setCompetencesParams(JsonObject compressedService, ServiceModel resultService) {
@@ -288,32 +346,64 @@ public class ServicesHelper {
         Collections.sort(resultList, Comparator.comparing(ServiceModel::getIdTopic)
                 .thenComparing(ServiceModel::getIdTeacher)
                 .thenComparing(new Comparator<ServiceModel>() {
-
                     @Override
                     public int compare (ServiceModel s1, ServiceModel s2) {
                         int compare = 0;
-                        if (s1.getCoteachersService().size() < s2.getCoteachersService().size()) compare = 1;
-                        if (s1.getCoteachersService().size() == s2.getCoteachersService().size()) compare = 0;
-                        if (s1.getCoteachersService().size() > s2.getCoteachersService().size()) compare = -1;
+                        if (s1.getCoteachers().size() < s2.getCoteachers().size()) compare = 1;
+                        if (s1.getCoteachers().size() == s2.getCoteachers().size()) compare = 0;
+                        if (s1.getCoteachers().size() > s2.getCoteachers().size()) compare = -1;
                         return compare;
                     }
-                    })
+                })
                 .thenComparing(new Comparator<ServiceModel>() {
                     @Override
                     public int compare (ServiceModel s1, ServiceModel s2) {
-                          int compare;
-                        List<String> idsSecondTeacherL1 = s1.getCoteachersService().stream()
+                        int compareCoTeachers = 0;
+
+                        List<String> idsSecondTeacherL1 = s1.getCoteachers().stream()
                                 .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
-                        List<String> idsSecondTeacherL2 = s2.getCoteachersService().stream()
+                        List<String> idsSecondTeacherL2 = s2.getCoteachers().stream()
                                 .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
-                        if (idsSecondTeacherL1.equals(idsSecondTeacherL2)){
-                            compare = 0;
-                        }else{
-                            compare = -1;
+
+                        for(String item1: idsSecondTeacherL1){
+                            for(String item2 : idsSecondTeacherL2){
+                                compareCoTeachers = item1.compareTo(item2);
+                            }
                         }
+
+                        return compareCoTeachers;
+                    }
+                })
+                .thenComparing(new Comparator<ServiceModel>() {
+                    @Override
+                    public int compare (ServiceModel s1, ServiceModel s2) {
+                        int compare = 0;
+                        if (s1.getSubstituteTeachers().size() < s2.getSubstituteTeachers().size()) compare = 1;
+                        if (s1.getSubstituteTeachers().size() == s2.getSubstituteTeachers().size()) compare = 0;
+                        if (s1.getSubstituteTeachers().size() > s2.getSubstituteTeachers().size()) compare = -1;
                         return compare;
                     }
-                }));
+                })
+                .thenComparing(new Comparator<ServiceModel>() {
+                    @Override
+                    public int compare (ServiceModel s1, ServiceModel s2) {
+                        int compareSubTeachers = 0;
+
+                        List<String> idsSecondTeacherL1 = s1.getSubstituteTeachers().stream()
+                                .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
+                        List<String> idsSecondTeacherL2 = s2.getSubstituteTeachers().stream()
+                                .map(MultiTeaching::getSecondTeacherId).sorted().collect(Collectors.toList());
+
+                        for(String item1: idsSecondTeacherL1){
+                            for(String item2 : idsSecondTeacherL2){
+                                compareSubTeachers = item1.compareTo(item2);
+                            }
+                        }
+
+                        return compareSubTeachers;
+                    }
+                })
+        );
     }
 
     private static JsonObject normalizeMatiere(JsonObject matiere) {
@@ -351,5 +441,4 @@ public class ServicesHelper {
         }
         return oService;
     }
-
 }

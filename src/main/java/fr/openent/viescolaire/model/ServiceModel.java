@@ -3,6 +3,7 @@ package fr.openent.viescolaire.model;
 import fr.openent.viescolaire.helper.ModelHelper;
 import io.vertx.core.json.JsonObject;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +17,9 @@ public class ServiceModel extends Model implements Cloneable{
     private long coefficient;
     private boolean isManual;
     private String typeGroup;
-    private List<MultiTeaching> coTeachersService;
+    private boolean isVisible;
+    private List<MultiTeaching> substituteTeachers;
+    private List<MultiTeaching> coTeachers;
 
     public ServiceModel() {
         super();
@@ -24,7 +27,9 @@ public class ServiceModel extends Model implements Cloneable{
         this.modalite = "S";
         this.coefficient = 1 ;
         this.isManual = false;
-        this.coTeachersService = new ArrayList<>();
+        this.coTeachers = new ArrayList<>();
+        this.substituteTeachers = new ArrayList<>();
+        this.isVisible = true;
     }
 
     @Override
@@ -100,57 +105,85 @@ public class ServiceModel extends Model implements Cloneable{
         this.typeGroup = typeGroup;
     }
 
-    public List<MultiTeaching> getCoteachersService () {
-        return coTeachersService;
+    public boolean isVisible() {
+        return isVisible;
     }
 
-    public void setCoteachersService (List<MultiTeaching> coteachersService) {
-
-        this.coTeachersService = (coteachersService == null) ? new ArrayList<>() : coteachersService;
+    public void setVisible(boolean visible) {
+        isVisible = visible;
     }
 
-    public void addCoteachers (List<MultiTeaching> multiTeachings ){
+    public List<MultiTeaching> getCoteachers () {
+        return coTeachers;
+    }
 
-        if(multiTeachings!= null && !multiTeachings.isEmpty()){
+    public void setCoteachersService (List<MultiTeaching> coteachers) {
+        this.coTeachers = (coteachers == null) ? new ArrayList<>() : coteachers;
+    }
+
+    public void setSubstituteTeachers(List<MultiTeaching> substituteTeachers) throws ParseException {
+        this.substituteTeachers = (substituteTeachers == null) ? new ArrayList<>() : substituteTeachers;
+    }
+
+    public List<MultiTeaching> getSubstituteTeachers(){
+        return substituteTeachers;
+    }
+
+    public List<ServiceModel> addCoteachers (List<MultiTeaching> multiTeachings) {
+        List<ServiceModel> newServices = new ArrayList<>();
+        if (multiTeachings != null && !multiTeachings.isEmpty()) {
             List<MultiTeaching> coteachersToAddService = multiTeachings.stream().filter(multiteaching ->
-                        multiteaching.getClassOrGroupId().equals(this.idGroup) &&
-                                multiteaching.getMainTeacherId().equals(this.idTeacher) &&
-                                multiteaching.getSubjectId().equals(this.idTopic)
+                    multiteaching.getClassOrGroupId().equals(this.idGroup) &&
+                            multiteaching.getMainTeacherId().equals(this.idTeacher) &&
+                            multiteaching.getSubjectId().equals(this.idTopic) &&
+                            multiteaching.isCoteaching()
+            ).collect(Collectors.toList());
+            List<MultiTeaching> substituteTeacherToAddService =  multiTeachings.stream().filter(multiteaching ->
+                    multiteaching.getClassOrGroupId().equals(this.idGroup) &&
+                            multiteaching.getMainTeacherId().equals(this.idTeacher) &&
+                            multiteaching.getSubjectId().equals(this.idTopic) &&
+                            !multiteaching.isCoteaching()
+            ).collect(Collectors.toList());
 
-                ).collect(Collectors.toList());
-
-            if(!coteachersToAddService.isEmpty()){
-                this.coTeachersService = coteachersToAddService;
-            }else{
-                this.setCoteachersService(coteachersToAddService);
+            if (!coteachersToAddService.isEmpty()) {
+                this.coTeachers = coteachersToAddService;
             }
-        }else{
-            this.setCoteachersService(multiTeachings);
+
+            if(!substituteTeacherToAddService.isEmpty()) {
+                this.substituteTeachers = substituteTeacherToAddService;
+                /*for(int i=0; i < substituteTeacherToAddService.size(); i++){
+                    if(i == 0) {
+                        this.substituteTeacher = substituteTeacherToAddService.get(i);
+                    } else {
+                        ServiceModel newService = this.clone();
+                        newService.substituteTeacher = substituteTeacherToAddService.get(i);
+                        newServices.add(newService);
+                    }
+                }*/
+            }
         }
+        return newServices;
     }
-
-
-
-
 
     @Override
     public JsonObject toJsonObject() {
         return new JsonObject()
-                .put("id_groupe",this.getIdGroup())
-                .put("id_enseignant",this.getIdTeacher())
-                .put("id_matiere",this.getIdTopic())
-                .put("modalite",this.getModalite())
-                .put("evaluable",this.isEvaluable())
-                .put("coefficient",this.getCoefficient())
-                .put("typeGroupe",this.getTypeGroup())
-                .put("isManual",this.isManual())
-                .put("coTeachers", ModelHelper.convetToJsonArray(this.coTeachersService));
+                .put("id_groupe", this.getIdGroup())
+                .put("id_enseignant", this.getIdTeacher())
+                .put("id_matiere", this.getIdTopic())
+                .put("modalite", this.getModalite())
+                .put("evaluable", this.isEvaluable())
+                .put("coefficient", this.getCoefficient())
+                .put("typeGroupe", this.getTypeGroup())
+                .put("is_visible", this.isVisible())
+                .put("coTeachers", ModelHelper.convetToJsonArray(this.coTeachers))
+                .put("substituteTeachers", ModelHelper.convetToJsonArray(this.substituteTeachers));
     }
 
-    public int compareTo( ServiceModel serviceModelB) {
+    public int compareTo(ServiceModel serviceModelB) {
         if (this.getIdTeacher().compareTo(serviceModelB.getIdTeacher()) == 0) {
             return this.getIdTopic().compareTo(serviceModelB.getIdTopic());
-        }else{
+        } else {
             return this.getIdTeacher().compareTo(serviceModelB.getIdTeacher());
         }
     }

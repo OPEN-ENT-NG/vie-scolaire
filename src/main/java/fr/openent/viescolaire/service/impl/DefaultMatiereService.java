@@ -125,9 +125,14 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             if (eventRemplacants.isRight()) {
 
                 JsonArray aIdEnseignant = eventRemplacants.right().getValue();
-                aIdEnseignant.add(idEnseignant);
+                JsonArray listIdsEnseignant = new JsonArray();
+                for(Object idEnseignantO : aIdEnseignant){
+                    listIdsEnseignant.add(((JsonObject)idEnseignantO).getString("main_teacher_id"));
+                }
+                if(idEnseignant != null)
+                    listIdsEnseignant.add(idEnseignant);
 
-                listMatieres(structureId, aIdEnseignant, null, null, checkOverwrite(structureId, aIdEnseignant, event -> {
+                listMatieres(structureId, listIdsEnseignant, null, null, checkOverwrite(structureId, aIdEnseignant, event -> {
                     if (event.isRight()) {
                         final JsonArray resultats = event.right().getValue();
                         if (resultats.size() > 0) {
@@ -140,7 +145,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                             if(onlyId) {
                                 handler.handle(new Either.Right<>(new JsonArray(ids)));
                             } else {
-                                addSousMatiere(ids, resultats,handler);
+                                addSousMatiere(ids, structureId, resultats, handler);
                             }
                         } else {
                             listMatieresEtabWithSousMatiere(structureId,onlyId,handler);
@@ -157,46 +162,41 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         });
     }
 
-    private void addSousMatiere(List<String> ids, JsonArray resultats, Handler<Either<String, JsonArray>> handler){
-
-        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]),
-                event_ssmatiere -> {
-                    if (event_ssmatiere.isRight()) {
-                        JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
-                        JsonArray res = event_ssmatiere.right().getValue();
-                        if(res == null) {
-                            System.out.println(" res null");
+    private void addSousMatiere(List<String> ids, String idStructure, JsonArray resultats, Handler<Either<String, JsonArray>> handler){
+        sousMatiereService.getSousMatiereById(ids.toArray(new String[0]), idStructure, event_ssmatiere -> {
+            if (event_ssmatiere.isRight()) {
+                JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
+                JsonArray res = event_ssmatiere.right().getValue();
+                if(res == null) {
+                    System.out.println(" res null");
+                }
+                if(resultats == null) {
+                    System.out.println(" resultats null");
+                }
+                for (int i = 0; i < resultats.size(); i++) {
+                    JsonObject matiere = resultats.getJsonObject(i);
+                    String id = matiere.getString("id");
+                    JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
+                    for (int j = 0; j < res.size(); j++) {
+                        JsonObject ssm = res.getJsonObject(j);
+                        if (ssm.getString("id_matiere").equals(id)) {
+                            ssms.add(ssm);
                         }
-                        if(resultats == null) {
-                            System.out.println(" resultats null");
-                        }
-                        for (int i = 0; i < resultats.size(); i++) {
-                            JsonObject matiere = resultats.getJsonObject(i);
-                            String id = matiere.getString("id");
-                            JsonArray ssms = new fr.wseduc.webutils.collections.JsonArray();
-                            for (int j = 0; j < res.size(); j++) {
-                                JsonObject ssm = res.getJsonObject(j);
-                                if (ssm.getString("id_matiere").equals(id)) {
-                                    ssms.add(ssm);
-                                }
-                            }
-                            matiere.put("sous_matieres", ssms);
-                            finalresponse.add(matiere);
-                        }
-                        handler.handle(new Either.Right<>(finalresponse));
-                    } else {
-                        handler.handle(event_ssmatiere.left());
                     }
-                });
+                    matiere.put("sous_matieres", ssms);
+                    finalresponse.add(matiere);
+                }
+                handler.handle(new Either.Right<>(finalresponse));
+            } else {
+                handler.handle(event_ssmatiere.left());
+            }
+        });
     }
 
-    public void listMatieresEtabWithSousMatiere(String structureId,
-                                                Boolean onlyId,
-                                                Handler<Either<String, JsonArray>> handler ){
-
+    public void listMatieresEtabWithSousMatiere(String structureId, Boolean onlyId,
+                                                Handler<Either<String, JsonArray>> handler){
         listMatieresEtab(structureId, onlyId, event2 -> {
             if (event2.isRight()) {
-
                 if(onlyId) {
                     handler.handle(event2.right());
                 } else {
@@ -207,7 +207,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                         for (Object res : matieresEtab) {
                             ids.add(((JsonObject) res).getString("id"));
                         }
-                        addSousMatiere(ids,matieresEtab,handler);
+                        addSousMatiere(ids, structureId, matieresEtab, handler);
                     }else{
                         handler.handle(new Either.Left("no subject"));
                     }
@@ -283,14 +283,15 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     @Override
-    public void subjectsListWithUnderSubjects (JsonArray idsSubject, Handler<Either<String, JsonArray>> handler) {
+    public void subjectsListWithUnderSubjects (JsonArray idsSubject, String idStructure,
+                                               Handler<Either<String, JsonArray>> handler) {
         getMatieres(idsSubject, subjectsResponse -> {
             if(subjectsResponse.isRight()){
                 JsonArray subjects = subjectsResponse.right().getValue();
                 if(subjects.isEmpty()){
-                   handler.handle(new Either.Left<>(" no subject "));
+                    handler.handle(new Either.Left<>(" no subject "));
                 }else {
-                    addSousMatiere(idsSubject.getList(), subjects, handler);
+                    addSousMatiere(idsSubject.getList(), idStructure, subjects, handler);
                 }
             }else{
                 handler.handle(new Either.Left<>(subjectsResponse.left().getValue()));
@@ -303,9 +304,11 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         return matieres -> {
             if(matieres.isRight() && matieres.right().getValue().size() > 0) {
                 Set<Service> aMatieres = new HashSet<>();
+                JsonObject listIdEnseignant = new JsonObject();
+                if(!aIdEnseignant.isEmpty())
+                    listIdEnseignant.put("id_enseignant", aIdEnseignant);
                 aMatieres.addAll(matieres.right().getValue().stream().map(serv -> new Service((JsonObject) serv)).collect(Collectors.toList()));
-                servicesService.getServicesSQL(idStructure,
-                        new JsonObject().put("id_enseignant", aIdEnseignant), new Handler<Either<String, JsonArray>>() {
+                servicesService.getServicesSQL(idStructure, listIdEnseignant, new Handler<Either<String, JsonArray>>() {
                             @Override
                             public void handle(Either<String, JsonArray> event) {
                                 JsonArray results = event.right().getValue();
@@ -447,7 +450,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                     .put(ID_ETABLISSEMENT_KEY, this.idEtablissement)
                     .put("libelleClasses", new JsonArray(new ArrayList(this.libelleClasses)))
                     .put(NAME, this.name);
-            }
+        }
     }
 
 }

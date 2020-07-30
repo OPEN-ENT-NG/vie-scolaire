@@ -21,6 +21,7 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.security.WorkflowActions;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
@@ -33,6 +34,8 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -55,6 +58,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     private static final String mParameterIdClasse = "idClasse";
     private ServicesService servicesService;
+    private MultiTeachingService multiTeachingService;
 
     private UtilsService utilsService;
 
@@ -62,6 +66,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
         utilsService = new DefaultUtilsService();
         servicesService = new DefaultServicesService();
+        multiTeachingService = new DefaultMultiTeachingService();
+
     }
 
     @Override
@@ -234,11 +240,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
         String queryGroupManuel = "MATCH (s:Structure)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User{profiles: ['Student']})" +
-        " WHERE " + paramGroupManuel +
-        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN m " +
-        " UNION MATCH (s:Structure{id:{idStructure}})<-[:BELONGS]-(:Class)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User {profiles: ['Student']})" +
-        " WHERE " + paramGroupManuel +
-        " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN distinct(m) ";
+                " WHERE " + paramGroupManuel +
+                " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN m " +
+                " UNION MATCH (s:Structure{id:{idStructure}})<-[:BELONGS]-(:Class)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User {profiles: ['Student']})" +
+                " WHERE " + paramGroupManuel +
+                " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN distinct(m) ";
         String param1;
         String param2;
         String param3;
@@ -710,4 +716,56 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         };
     }
 
+    private void getNeoInfo(JsonArray classes, String userId, String idStructure, Handler<Either<String, JsonArray>> handler){
+
+        String query = "MATCH (c:Class) " +
+                "WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) " +
+                "AND c.id IN {ids} " +
+                "RETURN  c.id as id, c.name as name, true as remplacement, 0 as type_groupe";
+
+        query += " UNION ALL ";
+
+        query += "MATCH (c:FunctionalGroup) " +
+                "WHERE NOT (:User {id:{userId}})-[:IN]->(c:FunctionalGroup) " +
+                "AND c.id IN {ids} " +
+                "RETURN  c.id as id, c.name as name, true as remplacement, 1 as type_groupe";
+
+        JsonObject params = new JsonObject()
+                .put("ids", classes)
+                .put("userId", userId);
+
+        Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
+    }
+    @Override
+    public void getGroupsMutliTeaching(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
+        multiTeachingService.getIdGroupsMutliTeaching(userId, idStructure, new Handler<Either<String, JsonArray>>() {
+                    @Override
+                    public void handle(Either<String, JsonArray> event) {
+
+                        if (event.isRight()) {
+                            ArrayList<String> groupsId = (ArrayList<String>) event.right().getValue()
+                                    .stream()
+                                    .map((oEvent) -> ((JsonObject) oEvent).getString("group_id"))
+                                    .collect(Collectors.toList());
+
+                            final JsonArray classeIds = new JsonArray(groupsId);
+                            getNeoInfo(classeIds, userId, idStructure, new Handler<Either<String, JsonArray>>() {
+                                @Override
+                                public void handle(Either<String, JsonArray> event) {
+                                    if (event.isRight()) {
+                                        JsonArray values = event.right().getValue();
+                                        handler.handle(new Either.Right<>(values));
+                                    } else {
+                                        handler.handle(new Either.Left<>("Error when getting remplacments classes from neo"));
+                                    }
+                                }
+                            });
+                        }
+                        else{
+                            handler.handle(new Either.Left<>("Error when getting groups id classes from sql"));
+                        }
+                    }
+                }
+        );
+    }
 }

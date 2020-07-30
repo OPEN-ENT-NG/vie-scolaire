@@ -9,7 +9,7 @@ CREATE TABLE viesco.multi_teaching
   start_date timestamp without time zone,
   end_date timestamp without time zone,
   entered_end_date timestamp without time zone,
-  is_coteaching boolean NOT NULL DEFAULT FALSE,
+  is_coteaching boolean DEFAULT FALSE,
   CONSTRAINT multi_teaching_pkey PRIMARY KEY (id)
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE viesco.services
   id_matiere        character varying(36) NOT NULL,
   id_groupe         character varying(36) NOT NULL,
   modalite          character varying NOT NULL DEFAULT 'S',
-  evaluable         boolean NOT NULL DEFAULT TRUE,
+  evaluable         boolean NOT NULL DEFAULT FALSE,
   ordre             character varying,
   coefficient       INTEGER DEFAULT (1),
   CONSTRAINT pk_services PRIMARY KEY (id_enseignant, id_matiere, id_groupe),

@@ -43,77 +43,83 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     }
 
     @Override
-    public void listSousMatieres(String id, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+    public void listSousMatieres(String id, String idStructure, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(id).add(idStructure);
 
-        query.append("SELECT sousmatiere.id ,type_sousmatiere.libelle ")
-                .append("FROM "+ Viescolaire.VSCO_SCHEMA +".sousmatiere, "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ")
-                .append("WHERE sousmatiere.id_type_sousmatiere = type_sousmatiere.id ")
-                .append("AND sousmatiere.id_matiere = ? ");
+        String query = "SELECT sousmatiere.id ,type_sousmatiere.libelle " +
+                "FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere, " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere " +
+                "WHERE sousmatiere.id_type_sousmatiere = type_sousmatiere.id " +
+                "AND sousmatiere.id_matiere = ? AND id_structure = ?";
 
-        values.add(id);
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+        Sql.getInstance().prepared(query, values, validResultHandler(handler));
     }
 
     @Override
-    public void getSousMatiereById(String[] ids, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
-        query.append("SELECT sousmatiere.*,type_sousmatiere.libelle FROM "+ Viescolaire.VSCO_SCHEMA +
-                ".sousmatiere INNER JOIN "+ Viescolaire.VSCO_SCHEMA +
-                ".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
-                " WHERE sousmatiere.id_matiere IN ")
-                .append(Sql.listPrepared(ids))
-                .append(";");
-        for (int i = 0; i < ids.length; i++) {
-            params.add(ids[i]);
+    public void getSousMatiereById(String[] ids, String idStructure, Handler<Either<String, JsonArray>> handler) {
+        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(idStructure);
+        for (String id : ids) {
+            params.add(id);
         }
-        Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
+
+        String query = "SELECT sousmatiere.*, type_sousmatiere.libelle FROM " + Viescolaire.VSCO_SCHEMA +
+                ".sousmatiere INNER JOIN " + Viescolaire.VSCO_SCHEMA +
+                ".type_sousmatiere on sousmatiere.id_type_sousmatiere = type_sousmatiere.id" +
+                " WHERE id_structure = ? AND sousmatiere.id_matiere IN " + Sql.listPrepared(ids);
+
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
 
-    public void listTypeSousMatieres(Handler<Either<String, JsonArray>> handler) {
-        String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA +".type_sousmatiere ORDER BY id ";
-        Sql.getInstance().raw(query, validResultHandler(handler));
+    public void listTypeSousMatieres(String idStructure, Handler<Either<String, JsonArray>> handler) {
+        JsonArray params = new JsonArray().add(idStructure);
+
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere " +
+                "WHERE id_structure = ? ORDER BY id ";
+
+        Sql.getInstance().prepared(query, params, validResultHandler(handler));
+    }
+
+    public void duplicateDefaultSousMatieres(String idStructure, Handler<Either<String, JsonArray>> handler) {
+        JsonArray params = new JsonArray().add(idStructure);
+
+        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere (id, libelle, id_structure) " +
+                "SELECT nextval('" + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere_id_seq'), libelle, ? " +
+                "FROM " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere WHERE id_structure = 'DEFAULT' ORDER BY id";
+
+        Sql.getInstance().prepared(query, params, validResultHandler(handler));
     }
 
     @Override
     public void create(Handler<Either<String, JsonObject>> handler, JsonObject event) {
-        StringBuilder query = new StringBuilder();
-        JsonArray params = new JsonArray().add(event.getString("libelle"));
-        query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere (id,libelle) " +
-                "VALUES (nextval('" + Viescolaire.VSCO_SCHEMA + " .type_sousmatiere_id_seq'),?) RETURNING id " );
-        Sql.getInstance().prepared(query.toString(),params,SqlResult.validUniqueResultHandler(handler));
+        JsonArray params = new JsonArray().add(event.getString("libelle"))
+                .add(event.getString("id_structure"));
+
+        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere (id, libelle, id_structure) " +
+                "VALUES (nextval('" + Viescolaire.VSCO_SCHEMA + " .type_sousmatiere_id_seq'), ?, ?) RETURNING id";
+
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
     }
 
     @Override
     public void update(Handler<Either<String, JsonObject>> handler, int id, JsonObject event) {
-        StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray().add(event.getString("libelle")).add(id);
-        query.append("UPDATE " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere"+
-                " SET libelle = ? " +
-                "WHERE id = ?" +
-                " RETURNING id " );
-        Sql.getInstance().prepared(query.toString(),params,SqlResult.validUniqueResultHandler(handler));
 
+        String query = "UPDATE " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere " +
+                "SET libelle = ? " +
+                "WHERE id = ? " +
+                "RETURNING id ";
+
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
     }
 
-
     private JsonObject updateEvaluationQuery(String id_topic, Integer id_sub_topic) {
-        String query=
-
-                "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
-                        " SET id_sousmatiere = ?"+
-                        " WHERE  id_matiere = ? " +
-                        " AND ( " +
-                        " id_sousmatiere IS NULL  " +
-                        " OR id_sousmatiere NOT  IN( " +
-                        "   SELECT id_type_sousmatiere " +
-                        "  FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
-                        " INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ? " +
-                        " ) " +
-                        ") " ;
+        String query = "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs SET id_sousmatiere = ? " +
+                "WHERE id_matiere = ? AND ( " +
+                "id_sousmatiere IS NULL " +
+                "OR id_sousmatiere NOT IN( " +
+                "SELECT id_type_sousmatiere " +
+                "FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
+                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
+                "ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ?))";
 
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                 .add(id_sub_topic).add(id_topic).add(id_topic);
@@ -125,18 +131,12 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
     }
 
     private JsonObject resetEvaluationQuery(String id_topic) {
-        String query=
-
-                "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
-                        " SET id_sousmatiere = null"+
-                        " WHERE  id_matiere = ? " +
-                        " AND  " +
-                        "  id_sousmatiere NOT  IN( " +
-                        "   SELECT id_type_sousmatiere " +
-                        "  FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
-                        " INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ? " +
-                        "  " +
-                        ") " ;
+        String query = "UPDATE " + Viescolaire.EVAL_SCHEMA + ".devoirs SET id_sousmatiere = null " +
+                "WHERE  id_matiere = ? AND id_sousmatiere NOT IN( " +
+                "SELECT id_type_sousmatiere " +
+                "FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
+                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
+                "ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ?)";
 
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                 .add(id_topic).add(id_topic);
@@ -147,7 +147,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
                 .put("action", "prepared");
     }
     private JsonObject insertQuery(String id_topic, Integer id_sub_topic){
-        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".sousmatiere (id_matiere,id_type_sousmatiere) " +
+        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".sousmatiere (id_matiere, id_type_sousmatiere) " +
                 " VALUES (? , ? )";
 
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
@@ -161,26 +161,22 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
 
     @Override
     public void updateMatiereRelation(JsonArray topics, JsonArray subTopics, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
         JsonArray params = new JsonArray();
-        query.append("DELETE FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere "+
-                " WHERE id_matiere IN ")
-                .append(Sql.listPrepared(topics.getList()));
         for (int i = 0 ; i < topics.size();i++){
             params.add(topics.getValue(i));
         }
 
+        JsonArray statements = new JsonArray();
 
+        String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere " +
+                "WHERE id_matiere IN " + Sql.listPrepared(topics.getList());
 
-        JsonArray statements=new JsonArray();
-
-
-
-        Sql.getInstance().prepared(query.toString(), params, createStatements(topics, subTopics, handler, statements));
-
+        Sql.getInstance().prepared(query, params, createStatements(topics, subTopics, handler, statements));
     }
 
-    private Handler<Message<JsonObject>> createStatements(JsonArray topics, JsonArray subTopics, Handler<Either<String, JsonArray>> handler, JsonArray statements) {
+    private Handler<Message<JsonObject>> createStatements(JsonArray topics, JsonArray subTopics,
+                                                          Handler<Either<String, JsonArray>> handler,
+                                                          JsonArray statements) {
         return new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> event) {
@@ -223,6 +219,4 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
             handler.handle(either);
         });
     }
-
-
 }

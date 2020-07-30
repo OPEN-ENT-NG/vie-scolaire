@@ -9,8 +9,8 @@
     "main_teacher_id": {
       "type": "string"
     },
-    "second_teacher_id": {
-      "type": "string"
+    "second_teacher_ids": {
+      "type": "array"
     },
     "subject_id": {
       "type": "string"
@@ -29,13 +29,21 @@
     },
     "co_teaching": {
       "type": "boolean"
+    },
+    "ids_multiTeachingToUpdate": {
+      "type": "array"
+    },
+    "ids_multiTeachingToDelete": {
+      "type": "array"
     }
   },
   "required": [
     "structure_id",
     "main_teacher_id",
-    "second_teacher_id",
+    "second_teacher_ids",
     "subject_id",
-    "class_or_group_ids"
+    "class_or_group_ids",
+    "ids_multiTeachingToUpdate",
+    "ids_multiTeachingToDelete"
   ]
 }

@@ -18,13 +18,17 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
 import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.security.AccessAuthorized;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
+import fr.wseduc.rs.Post;
+import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
@@ -39,8 +43,11 @@ import io.vertx.core.json.JsonObject;
 
 import java.util.*;
 
+import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static java.util.Objects.isNull;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
+import static org.entcore.common.neo4j.Neo4jResult.validUniqueResultHandler;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -120,6 +127,35 @@ public class ClasseController extends BaseController {
         }
 
         return value;
+    }
+
+    @Get("/classes/secondary")
+    @ApiDoc("Récupère la liste des classes qui font ou ont fait l'objet de remplacement")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getRemplacementClasses (final HttpServerRequest request) {
+        if (request.params().contains("idStructure")) {
+            UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+                @Override
+                public void handle(final UserInfos user) {
+                    classeService.getGroupsMutliTeaching(user.getUserId(),request.params().get("idStructure"),arrayResponseHandler(request));
+                }
+            });
+        } else {
+            badRequest(request);
+        }
+    }
+    @Put("/class/:idClass/:idUser")
+    @SecuredAction(value = "",type =  ActionType.AUTHENTICATED)
+    public void setClasses(final  HttpServerRequest request){
+        String classId = request.params().get("idClass");
+        String userId = request.params().get("idUser");
+        JsonObject action = new JsonObject()
+                .put("action", "manual-add-user")
+                .put("classId", classId)
+                .put("userId", userId);
+//        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
+        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
+
     }
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'établissement")

@@ -352,8 +352,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             boolean hasManualGroupsIds = user.containsKey("manualGroupsIds") && user.getJsonArray("manualGroupsIds").size() > 0;
 
             // on ne supprime l'eleve qui s'il avait des anciennes classes
-            if (!(u instanceof JsonObject) || !validProfile((JsonObject) u) ||
-                    (!hasClassIds && !hasFunctionalGroupsIds && !hasManualGroupsIds)) {
+            if (!validProfile((JsonObject) u) || (!hasClassIds && !hasFunctionalGroupsIds && !hasManualGroupsIds)) {
                 oNbUsers.decrementAndGet();
                 // execute transaction when statements of all user are build
                 if(oNbUsers.intValue() == 0) {
@@ -401,6 +400,14 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                     .add(user.getString("birthDate"));
 
                             statements.prepared(uQuery, uParams);
+                        }
+
+                        if(user.getString("type").equals("Teacher")){
+                            String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.SERVICES_TABLE +
+                                    " WHERE id_enseignant=?";
+                            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                                    .add(user.getString("id"));
+                            statements.prepared(query, uParams);
                         }
 
                         if (hasClassIds) {

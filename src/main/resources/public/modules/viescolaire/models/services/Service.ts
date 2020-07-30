@@ -4,6 +4,7 @@ import {Mix, Selectable,Selection} from "entcore-toolkit";
 import http from "axios";
 import {toasts} from "entcore";
 import {Utils} from "../../utils/Utils";
+import {MultiTeaching} from "./MultiTeaching";
 
 export class Service implements Selectable{
     id_etablissement: string;
@@ -22,21 +23,28 @@ export class Service implements Selectable{
     selected:boolean;
     groups: any;
     groups_name:string;
+    coTeachers_name : string;
+    substituteTeachers_name : string;
     id_groups: any;
-    groupsWithoutCoTeacher: any;
     subTopics: any;
-    coTeachers; any;
-
+    coTeachers: MultiTeaching[];
+    substituteTeachers: MultiTeaching[];
+    is_visible: boolean;
 
 
     constructor(service) {
         _.extend(this, service);
+
         this.previous_modalite = this.modalite;
         this.previous_evaluable = this.evaluable;
         this.coefficient = (Utils.isNull(this.coefficient)? 1 : this.coefficient);
         this.groups = service.groups;
         this.groups_name = service.groups_name;
         this.subTopics = service.subTopics;
+        this.substituteTeachers = service.substituteTeachers;
+        this.coTeachers = service.coTeachers;
+        this.coTeachers_name = service.coTeachers_name;
+        this.substituteTeachers_name = service.substituteTeachers_name;
     }
 
     hasNullProperty(){
@@ -45,7 +53,7 @@ export class Service implements Selectable{
 
     async createService(classesSelected, creation){
         try {
-            let {status} = await http.post('/viescolaire/service', this.toJson(classesSelected,creation));
+            let {status} = await http.post('/viescolaire/service', this.toJson(classesSelected, creation));
             if(status === 200)
             {
                 if(classesSelected.length >1)
@@ -60,7 +68,6 @@ export class Service implements Selectable{
         }
     }
     updateServiceModalite( classesSelected){
-
         let request = () => {
             try {
                 return http.put('/viescolaire/service', this.toJson());
@@ -88,8 +95,8 @@ export class Service implements Selectable{
             toasts.warning('evaluation.service.error.update');
         }
     }
-    updateServiceEvaluable() {
 
+    updateServiceEvaluable() {
         let request = () => {
             try {
                 return http.put('/viescolaire/service', this.toJson());
@@ -152,7 +159,7 @@ export class Service implements Selectable{
         }
     }
 
-    public toJson(classesSelected?,creation?) {
+    public toJson(classesSelected?, creation?) {
         if(classesSelected && classesSelected.length == 0 || !creation)
             return {
                 id_etablissement: this.id_etablissement,
@@ -161,17 +168,19 @@ export class Service implements Selectable{
                 id_groupes: [this.id_groupe],
                 modalite: this.modalite,
                 evaluable: this.evaluable,
-                coefficient: this.coefficient
+                coefficient: this.coefficient,
+                is_visible: this.is_visible
             };
         else
             return {
                 id_etablissement: this.id_etablissement,
                 id_enseignant: this.id_enseignant,
                 id_matiere: this.id_matiere,
-                id_groupes: _.map(classesSelected,(classe) => {return classe.id;}),
+                id_groupes: _.map(classesSelected, (classe) => {return classe.id;}),
                 modalite: this.modalite,
                 evaluable: this.evaluable,
-                coefficient: this.coefficient
+                coefficient: this.coefficient,
+                is_visible: this.is_visible
             };
     }
 

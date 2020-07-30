@@ -1,0 +1,1 @@
+ALTER TABLE viesco.multi_teaching ALTER COLUMN is_coteaching DROP NOT NULL;

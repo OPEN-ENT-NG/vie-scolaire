@@ -154,7 +154,8 @@ public class MatiereController extends ControllerHelper {
             public void handle(final UserInfos user) {
                 final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                 final JsonArray idMatieres = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idMatiere"));
-                matiereService.subjectsListWithUnderSubjects(idMatieres,handler);
+                String idStructure = request.params().get("idStructure");
+                matiereService.subjectsListWithUnderSubjects(idMatieres, idStructure, handler);
             }
         });
     }

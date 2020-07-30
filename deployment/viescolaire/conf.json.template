@@ -18,8 +18,7 @@
         "entcore.port" : 8009,
         "exports" : {
            "template-path" : "./public/templates/pdf/"
-        }
-        ,
+        },
         "update-classes" : {
            "timeout-transaction" : 1000,
            "enable-date" : "2020-09-21"

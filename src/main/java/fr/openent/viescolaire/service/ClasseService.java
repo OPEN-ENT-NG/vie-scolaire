@@ -156,4 +156,5 @@ public interface ClasseService extends CrudService {
                                                           UserInfos user ,
                                                           Handler<Either<String, JsonArray>> handler );
 
+    void getGroupsMutliTeaching(String userId, String idEtablissement, Handler<Either<String, JsonArray>> arrayResponseHandler);
 }

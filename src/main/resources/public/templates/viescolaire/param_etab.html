@@ -45,7 +45,7 @@
                                 <i18n>viescolaire.time.slots</i18n>
                             </a>
                         </li>
-                        <li>
+                        <li workflow="viescolaire.paramServices">
                             <a href=""  ng-class="{'selected': currParam === 5}"
                                ng-click="currParam = 5;">
                                 <i18n>evaluation.service.title</i18n>
@@ -76,7 +76,7 @@
     <div ng-if="currParam === 3"
          ng-include="'/viescolaire/public/templates/viescolaire/param_time_slots.html'">
     </div>
-
+    <!-- Paramétrage Services -->
     <div ng-if="currParam === 5"
          ng-include="'/viescolaire/public/templates/viescolaire/param_services.html'">
     </div>

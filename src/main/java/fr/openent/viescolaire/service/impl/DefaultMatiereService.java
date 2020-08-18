@@ -20,7 +20,10 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -40,7 +43,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
     private final Neo4j neo4j = Neo4j.getInstance();
     private ServicesService servicesService;
-
+    protected static final Logger log = LoggerFactory.getLogger(DefaultMatiereService.class);
 
     private UtilsService utilsService;
     private SousMatiereService sousMatiereService;
@@ -247,7 +250,16 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         query.append("MATCH (f:Subject) WHERE f.id IN {idMatieres} ")
                 .append("RETURN f.id as id, f.code as externalId, f.label as name, f as data ");
         params.put("idMatieres", idMatieres);
-        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+        try {
+            neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+
+        } catch (VertxException e){
+            String error = e.getMessage();
+            log.error("getMatieres " + e.getMessage());
+            if(error.contains("Connection was closed")) {
+                getMatieres(idMatieres, result);
+            }
+        }
     }
 
     @Override
@@ -257,7 +269,17 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         query.append("  MATCH (n:Subject {id: {idMatiere}}) RETURN n ");
         params.put("idMatiere", idMatiere);
-        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(result));
+        try {
+            neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(result));
+        } catch (VertxException e){
+            String error = e.getMessage();
+            log.error("getMatiere " + e.getMessage());
+            if(error.contains("Connection was closed")) {
+               getMatiere(idMatiere, result);
+
+            }
+        }
+
     }
 
     @Override

@@ -24,6 +24,7 @@ import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
@@ -317,9 +318,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(RETURNING);
 
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+        try{
+            neo4j.execute(query.toString(), params, utilsService.getEleveWithClasseName(idClasses, null,
+                    idPeriode,handler));
+        } catch (VertxException e){
+            String error = e.getMessage();
+            log.error("getElevesClasses " + e.getMessage());
+            if(error.contains("Connection was closed")) {
+                getElevesClasses(idClasses, idPeriode, handler);
+            }
+        }
 
-        neo4j.execute(query.toString(), params, utilsService.getEleveWithClasseName(idClasses, null,
-                idPeriode,handler));
     }
 
     @Override
@@ -361,13 +370,22 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     @Override
     public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler) {
-        JsonObject params = new JsonObject();
-        String query = "MATCH (c:Class {id: {idClasse}}) RETURN c "+
-                "UNION MATCH (c:FunctionnalGroup {id: {idClasse}}) RETURN c "+
-                "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
 
-        params.put("idClasse", idClasse);
-        neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
+            JsonObject params = new JsonObject();
+            String query = "MATCH (c:Class {id: {idClasse}}) RETURN c " +
+                    "UNION MATCH (c:FunctionnalGroup {id: {idClasse}}) RETURN c " +
+                    "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
+
+            params.put("idClasse", idClasse);
+        try {
+            neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
+        } catch (VertxException e){
+            String error = e.getMessage();
+            log.error("getClasseInfo " + e.getMessage());
+            if(error.contains("Connection was closed")) {
+                getClasseInfo(idClasse, handler);
+            }
+        }
     }
 
     @Override

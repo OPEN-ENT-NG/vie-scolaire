@@ -42,7 +42,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 
@@ -611,7 +611,17 @@ public class DefaultUtilsService implements UtilsService{
         StringBuilder query = new StringBuilder();
         query.append("MATCH (s:Structure {id: {idStructure}}) return s ");
         JsonObject params = new JsonObject().put("idStructure", idStructure);
-        neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+        try{
+            neo4j.execute(query.toString(), params, Neo4jResult.validUniqueResultHandler(handler));
+        } catch (VertxException e) {
+            String error = e.getMessage();
+            log.error("getStructure " + e.getMessage());
+            if(error.contains("Connection was closed")){
+                getStructure(idStructure, handler);
+            }
+
+        }
+
     }
 
     @Override

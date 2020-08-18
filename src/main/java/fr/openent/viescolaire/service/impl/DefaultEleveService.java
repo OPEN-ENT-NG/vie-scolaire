@@ -22,8 +22,11 @@ import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.Utils;
+import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -53,7 +56,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     }
 
     private final Neo4j neo4j = Neo4j.getInstance();
-
+    protected static final Logger log = LoggerFactory.getLogger(DefaultEleveService.class);
     @Override
     public void getEleveClasse(String pSIdClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder returning = new StringBuilder()
@@ -197,10 +200,17 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         params.put("idStructure", idEtablissement)
                 .put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
 
-
         // Rajout des élèves supprimés au résultat
-        neo4j.execute(query.toString(), params, new DefaultUtilsService().getEleveWithClasseName(null,
-                idEleves,null,handler));
+        try {
+            neo4j.execute(query.toString(), params, new DefaultUtilsService().getEleveWithClasseName(null,
+                    idEleves, null, handler));
+        } catch (VertxException e){
+            String error = e.getMessage();
+            log.error("getInfoEleve " + e.getMessage());
+            if(error.contains("Connection was closed")) {
+                getInfoEleve(idEleves, idEtablissement, handler);
+            }
+        }
     }
 
     @Override

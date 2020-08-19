@@ -466,7 +466,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         };
 
         $scope.deleteService = async (service) => {
-            await  $scope.checkDevoirsService(service, async () => {
+            await $scope.checkDevoirsService(service, async () => {
                 await service.deleteService();
                 toasts.confirm('evaluation.service.delete');
                 await initServices();
@@ -563,7 +563,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                     topicName: "",
                     nom_enseignant: "",
                     nom_groupe: "",
-                    isManual: true,
+                    is_manual: true,
                     evaluable: false
                 });
             $scope.lightboxes.create = true;

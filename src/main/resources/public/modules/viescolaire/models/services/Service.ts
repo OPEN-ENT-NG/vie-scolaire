@@ -18,7 +18,7 @@ export class Service implements Selectable{
     previous_modalite: string;
     evaluable: boolean;
     previous_evaluable: boolean;
-    isManual: boolean;
+    is_manual: boolean;
     coefficient: number;
     selected:boolean;
     groups: any;

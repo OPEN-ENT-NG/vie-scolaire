@@ -94,10 +94,10 @@ public class ServicesController extends ControllerHelper {
     @ApiDoc("Supprime un service")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteService(final HttpServerRequest request) {
-        if (!request.params().contains("id_groupe") || !request.params().contains("id_enseignant")
+        if (!request.params().contains("id_groups") || !request.params().contains("id_enseignant")
                 || !request.params().contains("id_matiere")) {
-            log.error("Error : id_groupe, id_enseignant and id_matiere should be given");
-            badRequest(request, "id_groupe or id_enseignant or id_matiere is null");
+            log.error("Error : id_groups, id_enseignant and id_matiere should be given");
+            badRequest(request, "id_groups or id_enseignant or id_matiere is null");
             return;
         } else {
             servicesConfigurationService.deleteService(ServicesHelper.getParams(request), defaultResponseHandler(request));

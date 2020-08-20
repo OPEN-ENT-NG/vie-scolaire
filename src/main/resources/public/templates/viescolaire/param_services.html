@@ -122,7 +122,7 @@
                                            ng-click="openSubEducationLightBoxCreation(service.id_matiere);$event.stopPropagation()" alt="plop">
                                     <input type="image" src="/viescolaire/public/img/scss/account-multiple-plus.svg"
                                            ng-click="openAddTeacherLightbox(service, true); $event.stopPropagation()" alt="plop">
-                                    <span ng-if="service.is_manual"> <i class="trash-orange"  ng-click="deleteService(service);$event.stopPropagation();"></i></span>
+                                    <span ng-if="service.is_manual"> <i class="trash-orange"  ng-click="tryDeleteService(service);$event.stopPropagation();"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -138,6 +138,22 @@
 
         <div ng-include="'/viescolaire/public/templates/viescolaire/services/createLigthbox.html'"></div>
         <div ng-include="'/viescolaire/public/templates/viescolaire/services/addTeacherLigthbox.html'"></div>
+
+        <lightbox show="lightboxes.deleteService" on-close="lightboxes.deleteService = false">
+            <h3>
+                <i18n>evaluation.service.lightboxes.deletion</i18n>
+            </h3>
+
+            <span>[[service.topicName]]</span>
+            <div class="right-magnet">
+                <button ng-click="deleteService()">
+                    <i18n>item.delete</i18n>
+                </button>
+                <button data-ng-click="lightboxes.deleteService = false" class="cancel">
+                    <span><i18n>evaluations.perso.cancel</i18n></span>
+                </button>
+            </div>
+        </lightbox>
 
         <lightbox show="lightboxes.switchEval" on-close="lightboxes.switchEval = false">
             <h3>

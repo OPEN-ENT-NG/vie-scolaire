@@ -433,6 +433,9 @@ public class ServicesHelper {
         if (request.params().contains("id_groupe")) {
             oService.put("id_groupe", request.getParam("id_groupe"));
         }
+        if (request.params().contains("id_groups")) {
+            oService.put("id_groups", Arrays.asList(request.getParam("id_groups").split(",")));
+        }
         if (request.params().contains("id_matiere")) {
             oService.put("id_matiere", request.getParam("id_matiere"));
         }

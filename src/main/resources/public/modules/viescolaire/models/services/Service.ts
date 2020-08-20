@@ -119,8 +119,8 @@ export class Service implements Selectable{
     deleteService(){
         try {
             return http.delete("/viescolaire/service"+
-                `?id_matiere=${this.id_matiere}`+
-                `&id_groupe=${this.id_groupe}`+
+                `?id_matiere=${this.id_matiere}` +
+                `&id_groups=${this.id_groups}` +
                 `&id_enseignant=${this.id_enseignant}`);
         } catch (e) {
             toasts.warning('evaluation.service.error.delete');
@@ -130,8 +130,8 @@ export class Service implements Selectable{
     getDevoirsService(){
         try {
             return http.get("/competences/devoirs/service"+
-                `?id_matiere=${this.id_matiere}`+
-                `&id_groupe=${this.id_groupe}`+
+                `?id_matiere=${this.id_matiere}` +
+                `&id_groups=${this.id_groups}` +
                 `&id_enseignant=${this.id_enseignant}`);
         } catch (e) {
             toasts.warning("evaluations.service.devoir.error");

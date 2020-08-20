@@ -182,6 +182,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 subEducationCreate:false,
                 switchEvaluation:false,
                 addTeacher:false,
+                deleteService: false,
             };
             await $scope.runMessageLoader();
             $scope.classesSelected = [];
@@ -465,13 +466,20 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             return service !== undefined;
         };
 
-        $scope.deleteService = async (service) => {
-            await $scope.checkDevoirsService(service, async () => {
-                await service.deleteService();
+        $scope.tryDeleteService = (service) => {
+            $scope.service = service;
+            $scope.lightboxes.deleteService = true;
+        }
+
+        $scope.deleteService = async () => {
+            await $scope.checkDevoirsService($scope.service, async () => {
+                await $scope.service.deleteService();
+                $scope.lightboxes.deleteService = false;
                 toasts.confirm('evaluation.service.delete');
                 await initServices();
             });
         };
+
         $scope.doUpdateOrDelete = (updateOrDelete, devoirs, service) =>{
             let id_devoirs = _.pluck(devoirs, "id");
             switch (updateOrDelete){

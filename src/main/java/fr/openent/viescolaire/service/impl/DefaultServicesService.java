@@ -212,11 +212,13 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
 
     public void deleteService(JsonObject oService, Handler<Either<String, JsonObject>> handler) {
-        String query = "DELETE FROM " + this.resourceTable + " WHERE id_matiere=? AND id_groupe=? AND id_enseignant=?";
-        JsonArray values = new JsonArray();
-        values.add(oService.getString("id_matiere"))
-                .add(oService.getString("id_groupe"))
-                .add(oService.getString("id_enseignant"));
+        JsonArray classOrGroupIds = oService.getJsonArray("id_groups");
+
+        String query = "DELETE FROM " + this.resourceTable + " WHERE id_matiere=? AND id_enseignant=? " +
+                "AND id_groupe IN " + Sql.listPrepared(classOrGroupIds.getList());
+
+        JsonArray values = new JsonArray().add(oService.getString("id_matiere"))
+                .add(oService.getString("id_enseignant")).addAll(classOrGroupIds);
 
         Sql.getInstance().prepared(query, values, validUniqueResultHandler(handler));
     }
@@ -286,7 +288,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
     @Override
     public void getAllServicesNoFilter(String structureId, JsonObject oService,
-                               Handler<Either<String, JsonArray>> arrayResponseHandler) {
+                                       Handler<Either<String, JsonArray>> arrayResponseHandler) {
         getAllServices(structureId, true,true,true,true,
                 true, false, oService, arrayResponseHandler);
     }

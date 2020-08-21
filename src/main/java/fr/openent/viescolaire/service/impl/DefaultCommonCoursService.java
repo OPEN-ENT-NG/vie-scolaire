@@ -17,8 +17,6 @@
 
 package fr.openent.viescolaire.service.impl;
 
-import fr.openent.Viescolaire;
-import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.CompositeFuture;
@@ -35,7 +33,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
-import org.entcore.common.sql.Sql;
 
 
 import java.text.DateFormat;
@@ -43,8 +40,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
-
-import java.util.concurrent.TimeUnit;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
 
@@ -135,30 +130,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return filter.add(existsValue).add(falseValue);
     }
 
-    private JsonArray getGroupsFilterTable(List<String>  groups , List<String> teacherId) {
-        JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
-        if (teacherId != null && !teacherId.isEmpty() ){
-            for(String teacher : teacherId){
-                groupOperand.add(new JsonObject().put(COURSE_TABLE.teacherIds, teacher));
-            }
-        }
-        for(String group : groups){
-            groupOperand.add(new JsonObject().put(COURSE_TABLE.classes, group))
-                    .add(new JsonObject().put(COURSE_TABLE.groups, group));
-        }
-
-        return groupOperand ;
-    }
-    private JsonArray getTeachersFilterTable(List<String>  teachers) {
-        JsonArray groupOperand = new fr.wseduc.webutils.collections.JsonArray();
-        for(String teacher : teachers){
-            groupOperand.add(new JsonObject().put(COURSE_TABLE.teacherIds, teacher));
-        }
-        return groupOperand ;
-    }
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, boolean union, final Handler<Either<String,JsonArray>> handler){
-
         Future<JsonArray> coursesFuture = Future.future();
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, union, response -> {
                     if (response.isRight()) {
@@ -176,41 +149,23 @@ public class DefaultCommonCoursService implements CommonCoursService {
             } else {
                 classeFuture.fail("can't get courses from mongo");
             }
-
-        }) ;
-        //Exlusion part
-        Future<JsonArray> exclusionsFuture = Future.future();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date queryStartDate = new Date();
-        Date queryEndDate = new Date();
-        try {
-            queryStartDate = formatter.parse(begin + " 00:00:00");
-            queryEndDate = formatter.parse(end + " 23:59:59");
-        } catch (ParseException e) {
-            exclusionsFuture.fail("can't parse init date to exclusions query");
-        }
-        final Date queryStart = queryStartDate, queryEnd = queryEndDate;
-        String query = "SELECT to_char(start_date, 'YYYY-MM-DD HH24:MI:SS') as start_date, to_char(end_date, 'YYYY-MM-DD HH24:MI:SS') as end_date" +
-                " FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
-                " WHERE id_structure = ? AND code = 'EXCLUSION'";
-
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
-        Sql.getInstance().prepared(query, params, (res) -> {
-            if (!res.isSend()) {
-                exclusionsFuture.fail("can't get exclusions days from mongo");
-            } else {
-                exclusionsFuture.complete(res.body().getJsonArray("results"));
-            }
         });
 
-        CompositeFuture.all(coursesFuture,classeFuture, exclusionsFuture).setHandler(event -> {
+        CompositeFuture.all(coursesFuture,classeFuture).setHandler(event -> {
             if (event.succeeded()) {
-                getOccurencesWithCourses(queryStart,classeFuture.result(),group,teacherId, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler);
+                JsonArray results = new JsonArray();
+                for(Object o : coursesFuture.result()) {
+                    JsonObject course = (JsonObject) o;
+                    boolean onlyOneClass = isOneClass(classeFuture.result(),teacherId,group);
+                    Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
+                    Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
+                    results.add(formatOccurence(course,onlyOneClass, startMoment, endMoment));
+                }
+                handler.handle(new Either.Right<>(results));
             } else {
                 handler.handle(new Either.Left<>(event.cause().getMessage()));
             }
         });
-
     }
 
     private void checkGroupFromClass(List<String> group,String structureId,  Handler<Either<String, JsonArray>> handler) {
@@ -233,71 +188,13 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
     }
-    private void getOccurencesWithCourses(Date queryStartDate,JsonArray arrayGroups, List<String>  group, List<String> teacherId, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
-        JsonArray result = new JsonArray();
-        List<Future<Boolean>> periodFutures = new ArrayList<>();
-
-        boolean onlyOneClass = isOneClass(arrayGroups,teacherId,group);
-        for(Object o : arrayCourses) {
-            JsonObject course = (JsonObject) o;
-
-            // Pour chaque course je vérifie si c'est le bon format de date.
-            if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate))){
-                course.put("startCourse",course.getString(COURSE_TABLE.startDate))
-                        .put("endCourse",course.getString(COURSE_TABLE.endDate));
-
-                Calendar startMoment = getCalendarDate( course.getString(COURSE_TABLE.startDate), handler);
-                startMoment.set(Calendar.DAY_OF_WEEK,getDayOfWeek(course, handler));
-                Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
-                course.put(COURSE_TABLE.startDate, startMoment.getTime().toInstant().toString());
-                double numberWeek = Math.floor( daysBetween(startMoment, endMoment) / (double) 7 );
-                if (numberWeek > 0) {
-                    String endDateCombine = course.getString(COURSE_TABLE.startDate)
-                            .replaceAll("T.*$", 'T' + course.getString(COURSE_TABLE.endDate).replaceAll("^.*T", ""));
-                    endMoment = getCalendarDate(endDateCombine, handler);
-                    int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
-                    for (int j = 0; j < numberWeek + 1; j++) {
-                        Future<Boolean> periodFuture = Future.future();
-                        periodFutures.add(periodFuture);
-                        JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, true).toString());
-                        if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
-                            result.add(c);
-                        }
-                        startMoment.add(Calendar.DATE, cadence);
-                        endMoment.add(Calendar.DATE, cadence);
-                        periodFuture.complete(true);
-                    }
-                } else {
-                    Future<Boolean> periodFuture = Future.future();
-                    periodFutures.add(periodFuture);
-                    JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, false).toString());
-                    if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
-                            &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
-                        result.add(c);
-                    }
-                    periodFuture.complete(true);
-                }
-            }else {
-                LOG.error("Error bad data format Date ");
-                handler.handle(new Either.Left<>("Error bad data format Date "));
-            }
-        }
-
-        FutureHelper.all(periodFutures).setHandler(periodResult -> {
-            if (periodResult.failed()) {
-                handler.handle(new Either.Left<>(periodResult.cause().toString()));
-                return;
-            }
-            handler.handle(new Either.Right<>(result));
-        });
-    }
 
     /**
      * Check if only one class and is group is called
-     * @param arrayGroups
-     * @param teacherId
-     * @param groups
-     * @return
+     * @param arrayGroups   groups
+     * @param teacherId     list of teacherId
+     * @param groups        list of group
+     * @return boolean
      */
     private boolean isOneClass(JsonArray arrayGroups,List<String> teacherId, List<String> groups) {
         if (!teacherId.isEmpty() || arrayGroups.size() > 1){
@@ -319,43 +216,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
         return count == 0;
     }
 
-    private static boolean periodOverlapPeriod(Date aStart, Date aEnd, Date bStart, Date bEnd){
-        return aStart.before(bEnd) && bStart.before(aEnd);
-    }
-    private static boolean courseDoesntOverlapExclusionPeriods(JsonArray exclusions, JsonObject c){
-        boolean canAdd = true;
-        for(int i=0; i < exclusions.size(); i++){
-            SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date startExclusion = getDate(exclusions.getJsonArray(i).getString(0), DATE_FORMATTER) ;
-            Date endExclusion = getDate( exclusions.getJsonArray(i).getString(1), DATE_FORMATTER) ;
-            Date startOccurrence = getDate( c.getString(COURSE_TABLE.startDate) , DATE_FORMATTER) ;
-            Date endOccurrence =  getDate(c.getString(COURSE_TABLE.endDate) , DATE_FORMATTER) ;
-            if ( !( ( startOccurrence.before(startExclusion) && endOccurrence.before(startExclusion))
-                    || ( startOccurrence.after(endExclusion) && endOccurrence.after(endExclusion)) )) {
-                canAdd = false;
-                break;
-            }
-        }
-        return canAdd;
-    }
-
-    private static Integer getDayOfWeek (JsonObject course, Handler<Either<String,JsonArray>> handler){
-        Integer dayOfWeek = null;
-        try{
-            dayOfWeek = Integer.parseInt(String.valueOf(course.getValue(COURSE_TABLE.dayOfWeek)));
-        } catch (ClassCastException e) {
-            LOG.error("Error formatting dayOfWeek ");
-            handler.handle(new Either.Left<>("Error formatting dayOfWeek"));
-        }
-        dayOfWeek = dayOfWeek + 1 ;
-        return dayOfWeek;
-    }
-    private static JsonObject formatOccurence(JsonObject course, boolean onlyOneGroup, Calendar start , Calendar end, boolean isRecurent) {
+    private static JsonObject formatOccurence(JsonObject course, boolean onlyOneGroup, Calendar start , Calendar end) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.format(start.getTime());
 
         JsonObject occurence = new JsonObject(course.toString());
-        occurence.put("is_recurrent", isRecurent);
 
         String color = "";
         if(!onlyOneGroup) {
@@ -379,14 +244,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         }
         return occurence;
     }
-    private static long daysBetween(Calendar startDate, Calendar endDate) {
-        long end = endDate.getTimeInMillis();
-        long start = startDate.getTimeInMillis();
-        return TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
-    }
-    private boolean goodFormatDate(String date){
-        return date.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*");
-    }
+
     public static Date getDate(String dateString, SimpleDateFormat dateFormat){
         Date date= new Date();
         try{

@@ -19,7 +19,6 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
-import fr.openent.viescolaire.utils.ServicesHelper;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.controller.ControllerHelper;
@@ -36,7 +35,6 @@ import java.util.List;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 public class EventBusController extends ControllerHelper {
 

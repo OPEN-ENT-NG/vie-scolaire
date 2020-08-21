@@ -18,12 +18,12 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
@@ -42,10 +42,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -199,7 +196,6 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
         Sql.getInstance().prepared(query, params, (res) -> {
-            JsonArray exclusions;
             if (!res.isSend()) {
                 exclusionsFuture.fail("can't get exclusions days from mongo");
             } else {
@@ -209,8 +205,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         CompositeFuture.all(coursesFuture,classeFuture, exclusionsFuture).setHandler(event -> {
             if (event.succeeded()) {
-                handler.handle(new Either.Right<>(getOccurencesWithCourses(queryStart,classeFuture.result(),group,teacherId, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler)));
-
+                getOccurencesWithCourses(queryStart,classeFuture.result(),group,teacherId, queryEnd, coursesFuture.result(), exclusionsFuture.result(), handler);
             } else {
                 handler.handle(new Either.Left<>(event.cause().getMessage()));
             }
@@ -238,13 +233,13 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query,KEYS, validResultHandler(handler));
     }
-    private JsonArray getOccurencesWithCourses(Date queryStartDate,JsonArray arrayGroups, List<String>  group, List<String> teacherId, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
+    private void getOccurencesWithCourses(Date queryStartDate,JsonArray arrayGroups, List<String>  group, List<String> teacherId, Date queryEndDate, JsonArray arrayCourses,JsonArray exclusions, Handler<Either<String,JsonArray>> handler) {
         JsonArray result = new JsonArray();
+        List<Future<Boolean>> periodFutures = new ArrayList<>();
 
         boolean onlyOneClass = isOneClass(arrayGroups,teacherId,group);
-        for(int i=0; i < arrayCourses.size() ; i++) {
-            JsonObject course =  arrayCourses.getJsonObject(i);
-
+        for(Object o : arrayCourses) {
+            JsonObject course = (JsonObject) o;
 
             // Pour chaque course je vérifie si c'est le bon format de date.
             if(goodFormatDate(course.getString(COURSE_TABLE.startDate)) && goodFormatDate(course.getString(COURSE_TABLE.endDate))){
@@ -257,32 +252,44 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 course.put(COURSE_TABLE.startDate, startMoment.getTime().toInstant().toString());
                 double numberWeek = Math.floor( daysBetween(startMoment, endMoment) / (double) 7 );
                 if (numberWeek > 0) {
-
                     String endDateCombine = course.getString(COURSE_TABLE.startDate)
                             .replaceAll("T.*$", 'T' + course.getString(COURSE_TABLE.endDate).replaceAll("^.*T", ""));
                     endMoment = getCalendarDate(endDateCombine, handler);
                     int cadence = course.containsKey(COURSE_TABLE.everyTwoWeek) && course.getBoolean(COURSE_TABLE.everyTwoWeek)  ? 14 : 7 ;
                     for (int j = 0; j < numberWeek + 1; j++) {
+                        Future<Boolean> periodFuture = Future.future();
+                        periodFutures.add(periodFuture);
                         JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, true).toString());
                         if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())&&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                             result.add(c);
                         }
                         startMoment.add(Calendar.DATE, cadence);
                         endMoment.add(Calendar.DATE, cadence);
+                        periodFuture.complete(true);
                     }
                 } else {
+                    Future<Boolean> periodFuture = Future.future();
+                    periodFutures.add(periodFuture);
                     JsonObject c = new JsonObject(formatOccurence(course,onlyOneClass, startMoment, endMoment, false).toString());
                     if (periodOverlapPeriod(queryStartDate, queryEndDate, startMoment.getTime(), endMoment.getTime())
                             &&(courseDoesntOverlapExclusionPeriods(exclusions, c))) {
                         result.add(c);
                     }
+                    periodFuture.complete(true);
                 }
             }else {
                 LOG.error("Error bad data format Date ");
                 handler.handle(new Either.Left<>("Error bad data format Date "));
             }
         }
-        return result;
+
+        FutureHelper.all(periodFutures).setHandler(periodResult -> {
+            if (periodResult.failed()) {
+                handler.handle(new Either.Left<>(periodResult.cause().toString()));
+                return;
+            }
+            handler.handle(new Either.Right<>(result));
+        });
     }
 
     /**

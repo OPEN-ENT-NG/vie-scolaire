@@ -54,7 +54,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
             .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
             .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1).put(COURSE_TABLE.exceptionnal,1).put(COURSE_TABLE.author,1).put(COURSE_TABLE.lastUser,1)
-            .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1).put(COURSE_TABLE.idStartSlot, 1).put(COURSE_TABLE.idEndSlot, 1);
+            .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1).put(COURSE_TABLE.idStartSlot, 1).put(COURSE_TABLE.idEndSlot, 1).put(COURSE_TABLE.classesExternalIds, 1)
+            .put(COURSE_TABLE.groupsExternalIds, 1).put(COURSE_TABLE.reccurrence, 1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -239,6 +240,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put("is_periodic",false);
         occurence.put(COURSE_TABLE.startDate, df.format(start.getTime()));
         occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));
+        occurence.put(COURSE_TABLE.startCourse, df.format(start.getTime()));
+        occurence.put(COURSE_TABLE.endCourse, df.format(end.getTime()));
         if(course.getString("subjectId", "").equals(Course.exceptionnalSubject)){
             occurence.put(COURSE_TABLE.exceptionnal, course.getString(COURSE_TABLE.exceptionnal));
         }
@@ -277,6 +280,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 class Course {
     public static String exceptionnalSubject = "exceptionnal Subject";
     protected final String startDate = "startDate";
+    protected final String startCourse = "startCourse";
     protected final String _id = "_id";
     protected final String structureId = "structureId";
     protected final String subjectId = "subjectId";
@@ -288,6 +292,7 @@ class Course {
     protected final String groups = "groups";
     protected final String dayOfWeek = "dayOfWeek";
     protected final String endDate = "endDate";
+    protected final String endCourse = "endCourse";
     protected final String everyTwoWeek = "everyTwoWeek";
     protected final String manual = "manual";
     protected final String exceptionnal = "exceptionnal";
@@ -297,4 +302,7 @@ class Course {
     protected final String lastUser = "lastUser";
     protected final String idStartSlot = "idStartSlot";
     protected final String idEndSlot = "idEndSlot";
+    final String classesExternalIds = "classesExternalIds";
+    final String groupsExternalIds = "groupsExternalIds";
+    final String reccurrence = "reccurrence";
 }

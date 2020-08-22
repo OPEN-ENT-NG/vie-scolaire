@@ -55,7 +55,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
             .put(COURSE_TABLE.classes, 1).put(COURSE_TABLE.groups, 1).put(COURSE_TABLE.dayOfWeek, 1).put(COURSE_TABLE.startDate, 1).put(COURSE_TABLE.endDate, 1)
             .put(COURSE_TABLE.everyTwoWeek,1).put(COURSE_TABLE.manual,1).put(COURSE_TABLE.exceptionnal,1).put(COURSE_TABLE.author,1).put(COURSE_TABLE.lastUser,1)
             .put(COURSE_TABLE.created,1).put(COURSE_TABLE.updated,1).put(COURSE_TABLE.idStartSlot, 1).put(COURSE_TABLE.idEndSlot, 1).put(COURSE_TABLE.classesExternalIds, 1)
-            .put(COURSE_TABLE.groupsExternalIds, 1).put(COURSE_TABLE.reccurrence, 1);
+            .put(COURSE_TABLE.groupsExternalIds, 1).put(COURSE_TABLE.recurrence, 1);
     private static final String START_DATE_PATTERN = "T00:00Z";
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -304,5 +304,5 @@ class Course {
     protected final String idEndSlot = "idEndSlot";
     final String classesExternalIds = "classesExternalIds";
     final String groupsExternalIds = "groupsExternalIds";
-    final String reccurrence = "reccurrence";
+    final String recurrence = "recurrence";
 }

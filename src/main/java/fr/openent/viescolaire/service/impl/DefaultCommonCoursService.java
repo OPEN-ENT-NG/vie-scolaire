@@ -234,9 +234,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
         }
 
         if(color.isEmpty() && course.containsKey("subjectId")) {
-            color = utilsService.getSubjectColor(course.getString("subjectId"));
+            color = utilsService.getColor(course.getString("subjectId"));
         } else if (color.isEmpty() && course.containsKey("timetableSubjectId")) {
-            color = utilsService.getSubjectColor(course.getString("timetableSubjectId"));
+            color = utilsService.getColor(course.getString("timetableSubjectId"));
         }
 
         occurence.put("color", color);

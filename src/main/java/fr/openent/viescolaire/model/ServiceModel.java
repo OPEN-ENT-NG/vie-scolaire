@@ -23,7 +23,7 @@ public class ServiceModel extends Model implements Cloneable{
 
     public ServiceModel() {
         super();
-        this.evaluable = true;
+        this.evaluable = false;
         this.modalite = "S";
         this.coefficient = 1 ;
         this.isManual = false;

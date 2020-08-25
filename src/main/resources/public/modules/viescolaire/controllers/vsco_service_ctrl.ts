@@ -32,6 +32,13 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 });
                 return groups.join(", ");
             }
+            else {
+                let group = _.findWhere($scope.columns.classe.data, {id: service.id_groupe});
+                if(group && !groups.includes(group)){
+                    groups.push(group);
+                    return group.name;
+                }
+            }
             return null;
         }
 

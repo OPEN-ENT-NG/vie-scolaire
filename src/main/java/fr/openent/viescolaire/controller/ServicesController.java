@@ -1,6 +1,8 @@
 package fr.openent.viescolaire.controller;
 
 
+import fr.openent.viescolaire.security.AccessAuthorized;
+import fr.openent.viescolaire.security.ParamServicesRight;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.impl.DefaultServicesService;
@@ -11,6 +13,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
@@ -28,6 +31,7 @@ public class ServicesController extends ControllerHelper {
 
     @Get("/services")
     @ApiDoc("Récupère les services")
+    @ResourceFilter(ParamServicesRight.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getDefaultServices(final HttpServerRequest request) {
         if (!request.params().contains("idEtablissement")) {
@@ -70,6 +74,7 @@ public class ServicesController extends ControllerHelper {
 
     @Post("/service")
     @ApiDoc("Crée un nouveau service")
+    @ResourceFilter(ParamServicesRight.class)
     @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.WORKFLOW)
     public void createService(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "eval_service", oService -> servicesConfigurationService.createService(oService, defaultResponseHandler(request)));
@@ -77,7 +82,8 @@ public class ServicesController extends ControllerHelper {
 
     @Put("/service")
     @ApiDoc("Met à jour un service")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ResourceFilter(ParamServicesRight.class)
+    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
     public void updateService(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "eval_service", oService ->
                 servicesConfigurationService.createService(oService, defaultResponseHandler(request)));
@@ -85,14 +91,16 @@ public class ServicesController extends ControllerHelper {
 
     @Put("/services")
     @ApiDoc("Met un jours plusieurs services")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ResourceFilter(ParamServicesRight.class)
+    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
     public void updateServices(final HttpServerRequest request){
         RequestUtils.bodyToJson(request,oServices -> servicesConfigurationService.updateServices(oServices,defaultResponseHandler(request)));
     }
 
     @Delete("/service")
     @ApiDoc("Supprime un service")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ResourceFilter(ParamServicesRight.class)
+    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
     public void deleteService(final HttpServerRequest request) {
         if (!request.params().contains("id_groups") || !request.params().contains("id_enseignant")
                 || !request.params().contains("id_matiere")) {

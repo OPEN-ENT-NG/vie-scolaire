@@ -84,7 +84,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
             }
 
             query += "INSERT INTO " + this.resourceTable + " (" + columns + ") "
-                    + "VALUES (" + params + ") ON CONFLICT ON CONSTRAINT pk_services DO UPDATE SET";
+                    + "VALUES (" + params + ") ON CONFLICT (id_enseignant, id_matiere, id_groupe) DO UPDATE SET";
 
             if (oService.containsKey("modalite")) {
                 query += " modalite=?";

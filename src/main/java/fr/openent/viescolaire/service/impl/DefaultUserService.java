@@ -388,7 +388,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                             "display_name, user_type, " +
                                             "first_name, last_name, delete_date, birth_date) " +
                                             "VALUES (?, ?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
-                                            "ON CONFLICT ON CONSTRAINT personnes_supp_pk DO NOTHING; ";
+                                            "ON CONFLICT (id) DO NOTHING; ";
                             JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
                                     .add(idPersonneSupp)
                                     .add(user.getString("id"))
@@ -491,7 +491,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                         " AND EXISTS (SELECT 1" +
                         "FROM " + Viescolaire.EVAL_SCHEMA + ".annotations " +
                         "WHERE libelle_court = 'NN' AND id_etablissement = ?) " + // Vérifie que l'établissement est bien actif
-                        " ) ON CONFLICT ON CONSTRAINT annotations_unique DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
+                        " ) ON CONFLICT (id_eleve, id_devoir) DO NOTHING " ); // Vérifie que l'élève n'a pas d'annotation sur le devoir
 
                 params.add(structureIds.getValue(0));
                 params.add(idUser);

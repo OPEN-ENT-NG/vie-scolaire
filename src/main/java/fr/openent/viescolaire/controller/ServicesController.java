@@ -32,7 +32,7 @@ public class ServicesController extends ControllerHelper {
     @Get("/services")
     @ApiDoc("Récupère les services")
     @ResourceFilter(ParamServicesRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void getDefaultServices(final HttpServerRequest request) {
         if (!request.params().contains("idEtablissement")) {
             log.error("Error : idEtablissement should be provided.");
@@ -74,7 +74,6 @@ public class ServicesController extends ControllerHelper {
 
     @Post("/service")
     @ApiDoc("Crée un nouveau service")
-    @ResourceFilter(ParamServicesRight.class)
     @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.WORKFLOW)
     public void createService(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "eval_service", oService -> servicesConfigurationService.createService(oService, defaultResponseHandler(request)));
@@ -83,7 +82,7 @@ public class ServicesController extends ControllerHelper {
     @Put("/service")
     @ApiDoc("Met à jour un service")
     @ResourceFilter(ParamServicesRight.class)
-    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void updateService(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "eval_service", oService ->
                 servicesConfigurationService.createService(oService, defaultResponseHandler(request)));
@@ -92,7 +91,7 @@ public class ServicesController extends ControllerHelper {
     @Put("/services")
     @ApiDoc("Met un jours plusieurs services")
     @ResourceFilter(ParamServicesRight.class)
-    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void updateServices(final HttpServerRequest request){
         RequestUtils.bodyToJson(request,oServices -> servicesConfigurationService.updateServices(oServices,defaultResponseHandler(request)));
     }
@@ -100,7 +99,7 @@ public class ServicesController extends ControllerHelper {
     @Delete("/service")
     @ApiDoc("Supprime un service")
     @ResourceFilter(ParamServicesRight.class)
-    @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.AUTHENTICATED)
+    @SecuredAction(value ="", type = ActionType.RESOURCE)
     public void deleteService(final HttpServerRequest request) {
         if (!request.params().contains("id_groups") || !request.params().contains("id_enseignant")
                 || !request.params().contains("id_matiere")) {

@@ -766,7 +766,12 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 return !($scope.warningClassesNonEvaluables.length > 0);
             }
             return true;
-        }
+        };
+
+        $scope.filterValidDateSubstituteTeacher = (substituteTeacher) => {
+            return moment(new Date()).isBetween(moment(substituteTeacher.start_date),
+                moment(substituteTeacher.entered_end_date), 'days', '[]');
+        };
 
         await $scope.init();
         utils.safeApply($scope);

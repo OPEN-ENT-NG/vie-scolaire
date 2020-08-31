@@ -60,7 +60,8 @@
                 <td class="eight">
                     <label class="select">
                         <select ng-model="multiTeaching.selectedClass"
-                                ng-change="pushData(multiTeaching.selectedClass, multiTeaching.classesCoteaching)"
+                                ng-change="pushData(multiTeaching.selectedClass, multiTeaching.classesCoteaching);
+                                checkClassesEvaluables()"
                                 ng-options="class as class.name group by class.type_groupe_libelle for class
                                                     in classesLightboxAddTeacher">
                             <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.class.groupe')]]
@@ -99,7 +100,7 @@
                         <i class="calendar-o"></i>
                         <date-picker class="centered-text two"
                                      ng-model="multiTeaching.end_date"
-                                     ng-change = "checkErrorAddCoTeaching()">
+                                     ng-change="checkErrorAddCoTeaching()">
                         </date-picker>
                     </td>
                 </tr>
@@ -109,7 +110,7 @@
                         <i class="calendar-o"></i>
                         <date-picker class="centered-text two"
                                      ng-model="multiTeaching.entered_end_date"
-                                     ng-change = "checkErrorAddCoTeaching()">
+                                     ng-change="checkErrorAddCoTeaching()">
                         </date-picker>
                     </td>
                 </tr>
@@ -139,7 +140,7 @@
     </button>
 
     <button ng-if ="isUpdate" class="marginFive magnet-right"
-            ng-disabled = "disabledDeleteButton()"
+            ng-disabled="disabledDeleteButton()"
             ng-click="deleteCoTeacher(multiTeaching.oldSubstituteTeacher)">
         <i18n>viescolaire.utils.delete</i18n>
     </button>

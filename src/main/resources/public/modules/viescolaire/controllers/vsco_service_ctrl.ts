@@ -602,6 +602,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             $scope.multiTeaching.subject = subject;
             $scope.multiTeaching.newCoTeachers = [];
             $scope.multiTeaching.competencesParams = service.competencesParams;
+            $scope.multiTeaching.evaluable = service.evaluable;
 
             $scope.teachersLihtboxTeacher = _.reject(teachers, teacher => {return teacher.id == service.id_enseignant})
             if(service.coTeachers.length > 0){
@@ -655,7 +656,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 multiTeaching.classesCoteaching.length > 0 &&
                 multiTeaching.mainTeacher &&
                 multiTeaching.subject &&
-                $scope.checkClassesEvaluables()
+                $scope.warningClassesNonEvaluables.length === 0
             );
 
             let condtionsDate = (
@@ -710,6 +711,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 if(object instanceof ServiceClasse) $scope.multiTeaching.selectedClass = undefined;
                 if(object instanceof Teacher) $scope.multiTeaching.selectedTeacher = undefined;
             }
+            $scope.checkClassesEvaluables();
         };
 
         $scope.addCoTeachers = () => {
@@ -754,8 +756,8 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         $scope.checkClassesEvaluables = () => {
             if($scope.multiTeaching != undefined) {
                 let classesNonEvaluables = _.filter($scope.multiTeaching.classesCoteaching, (classe) => {
-                    let competenceParam = _.findWhere($scope.multiTeaching.competencesParams, {id_groupe: classe.id});
-                    return !competenceParam.evaluable;
+                    let competencesParams = _.findWhere($scope.multiTeaching.competencesParams, {id_groupe: classe.id});
+                    return competencesParams ? !competencesParams.evaluable : !$scope.multiTeaching.evaluable;
                 });
                 if (classesNonEvaluables.length > 0) {
                     $scope.warningClassesNonEvaluables = lang.translate("viescolaire.service.warning.classesNonEvaluables")
@@ -763,9 +765,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 } else {
                     $scope.warningClassesNonEvaluables = "";
                 }
-                return !($scope.warningClassesNonEvaluables.length > 0);
             }
-            return true;
         };
 
         $scope.filterValidDateSubstituteTeacher = (substituteTeacher) => {

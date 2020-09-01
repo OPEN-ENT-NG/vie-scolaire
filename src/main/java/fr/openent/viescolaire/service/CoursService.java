@@ -77,4 +77,6 @@ public interface CoursService extends CrudService{
 
     public void createCours(String userId, String idEtablissement, String idMatiere, String dateDebut, String dateFin
             , List<String> listIdClasse, List<String> listIdPersonnel, Handler<Either<String, JsonObject>> handler);
+
+    void purge(String structure, Handler<Either<String, JsonObject>> handler);
 }

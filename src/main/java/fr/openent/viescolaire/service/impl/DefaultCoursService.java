@@ -17,9 +17,12 @@
 
 package fr.openent.viescolaire.service.impl;
 
+import com.mongodb.Mongo;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.CoursService;
+import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
@@ -346,5 +349,13 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                 }
             }
         }));
+    }
+
+    @Override
+    public void purge(String structure, Handler<Either<String, JsonObject>> handler) {
+        JsonObject matcher = new JsonObject()
+                .put("structureId", structure);
+
+        MongoDb.getInstance().delete("courses", matcher, MongoDbResult.validResultHandler(handler));
     }
 }

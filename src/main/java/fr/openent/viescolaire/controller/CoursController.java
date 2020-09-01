@@ -34,6 +34,8 @@ import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.http.response.DefaultResponseHandler;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.http.filter.SuperAdminFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -258,5 +260,17 @@ public class CoursController extends ControllerHelper{
         });
     }
 
+    @Get("/structures/:id/courses/purge")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SuperAdminFilter.class)
+    public void purgeCourses(HttpServerRequest request) {
+        String structure = request.getParam("id");
+        if (structure.trim().isEmpty()) {
+            badRequest(request);
+            return;
+        }
+
+        coursService.purge(structure, defaultResponseHandler(request));
+    }
 
 }

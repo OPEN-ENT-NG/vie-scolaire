@@ -142,12 +142,11 @@ public class ServicesHelper {
                             }
                         }
                     }
-                    List<Integer> posToDelete = new ArrayList<>();
-                    filterResults(resultList, posToDelete, manualGroups, groups, classes, evaluable, notEvaluable);
+                    filterResults(resultList, manualGroups, groups, classes, evaluable, notEvaluable);
                     if(compressed)
                         requestHandler.handle(new Either.Right<>(getCompressedService(resultList)));
                     else
-                        requestHandler.handle(new Either.Right<>(ModelHelper.convetToJsonArray(result)));
+                        requestHandler.handle(new Either.Right<>(ModelHelper.convetToJsonArray(resultList)));
                 }else{
                     log.info(event.left().getValue());
                 }
@@ -155,16 +154,17 @@ public class ServicesHelper {
         };
     }
 
-    private static void filterResults(List<ServiceModel> resultList, List<Integer> posToDelete, boolean manualGroups, boolean groups, boolean classes, boolean evaluable, boolean notEvaluable) {
+    private static void filterResults(List<ServiceModel> resultList, boolean manualGroups, boolean groups,
+                                      boolean classes, boolean evaluable, boolean notEvaluable) {
+        List<Integer> posToDelete = new ArrayList<>();
         for(int i = resultList.size() -1 ; i >= 0; i--){
-            boolean needToDelete = true;
+            boolean needToDelete;
             boolean isGoodTypeOfGroup = false;
             boolean hasGoodEvaluableFilter = false;
             ServiceModel resultElement = resultList.get(i);
             if(manualGroups == groups  && groups == classes){
                 isGoodTypeOfGroup  = true;
-
-            }else {
+            } else {
                 if (manualGroups && resultElement.getTypeGroup().equals(TYPE_GROUP_MANUAL_GROUP)) {
                     isGoodTypeOfGroup = true;
                 }
@@ -175,6 +175,7 @@ public class ServicesHelper {
                     isGoodTypeOfGroup = true;
                 }
             }
+
             if(evaluable != notEvaluable) {
                 if (notEvaluable && !resultElement.isEvaluable()) {
                     hasGoodEvaluableFilter = true;
@@ -182,7 +183,7 @@ public class ServicesHelper {
                 if (evaluable && resultElement.isEvaluable()) {
                     hasGoodEvaluableFilter = true;
                 }
-            }else {
+            } else {
                 hasGoodEvaluableFilter = true;
             }
 
@@ -191,8 +192,8 @@ public class ServicesHelper {
                 posToDelete.add(i);
         }
 
-        for (Integer integer : posToDelete) {
-            resultList.remove((int) integer);
+        for (Integer pos : posToDelete) {
+            resultList.remove((int) pos);
         }
     }
 

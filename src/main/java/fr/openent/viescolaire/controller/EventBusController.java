@@ -315,7 +315,7 @@ public class EventBusController extends ControllerHelper {
                 JsonArray groupsIds ;
                 if(message.body().containsKey("groupsIds")) {
                     groupsIds = message.body().getJsonArray("groupsIds");
-                    groupeService.getTypesOfGroup(groupsIds,getJsonArrayBusResultHandler(message));
+                    groupeService.getTypesOfGroup(groupsIds, getJsonArrayBusResultHandler(message));
                 }
                 break;
             }

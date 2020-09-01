@@ -42,7 +42,8 @@ public class ServicesController extends ControllerHelper {
                     classes = false,
                     groups = false,
                     manualGroups = false,
-                    hasFilter = false;
+                    hasFilter = false,
+                    compressed = false;
 
             if(request.params().contains("classes")
                     && request.params().contains("groups")
@@ -50,18 +51,19 @@ public class ServicesController extends ControllerHelper {
                 classes = Boolean.parseBoolean(request.params().get("classes"));
                 groups = Boolean.parseBoolean(request.params().get("groups"));
                 manualGroups = Boolean.parseBoolean(request.params().get("manualGroups"));
-                hasFilter = classes || groups || manualGroups;
+                compressed = hasFilter = classes || groups || manualGroups;
             }
 
             if(request.params().contains("evaluable") && request.params().contains("notEvaluable")){
                 evaluable = Boolean.parseBoolean(request.params().get("evaluable"));
                 notEvaluable = Boolean.parseBoolean(request.params().get("notEvaluable"));
+                hasFilter = hasFilter || evaluable || notEvaluable;
             }
 
             String structureId = request.getParam("idEtablissement");
             if(hasFilter) {
                 servicesConfigurationService.getAllServices(structureId, evaluable, notEvaluable, classes, groups,
-                        manualGroups, true, ServicesHelper.getParams(request), arrayResponseHandler(request));
+                        manualGroups, compressed, ServicesHelper.getParams(request), arrayResponseHandler(request));
             } else {
                 servicesConfigurationService.getAllServicesNoFilter(structureId, ServicesHelper.getParams(request),
                         arrayResponseHandler(request));

@@ -56,7 +56,6 @@ public class ServicesController extends ControllerHelper {
             if(request.params().contains("evaluable") && request.params().contains("notEvaluable")){
                 evaluable = Boolean.parseBoolean(request.params().get("evaluable"));
                 notEvaluable = Boolean.parseBoolean(request.params().get("notEvaluable"));
-                hasFilter = hasFilter || evaluable || notEvaluable;
             }
 
             String structureId = request.getParam("idEtablissement");

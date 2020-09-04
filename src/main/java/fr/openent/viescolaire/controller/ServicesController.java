@@ -31,8 +31,7 @@ public class ServicesController extends ControllerHelper {
 
     @Get("/services")
     @ApiDoc("Récupère les services")
-    @ResourceFilter(ParamServicesRight.class)
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getDefaultServices(final HttpServerRequest request) {
         if (!request.params().contains("idEtablissement")) {
             log.error("Error : idEtablissement should be provided.");

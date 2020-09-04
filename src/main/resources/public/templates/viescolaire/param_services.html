@@ -23,10 +23,15 @@
                 <!--                    <i18n>param.service.order.display.button</i18n>-->
                 <!--                </button>-->
             </div>
-            <div class=" row horizontal-spacing">
+            <div class="row horizontal-spacing">
                 <div class="select-blocks">
                     <div ng-repeat="search in searchToFilter track by $index"
                          ng-click="dropSearchFilter(search)"
+                         class="labels-in-line">
+                        [[search]]
+                    </div>
+                    <div ng-repeat="search in searchForClasse track by $index"
+                         ng-click="dropSearchClass(search)"
                          class="labels-in-line">
                         [[search]]
                     </div>
@@ -78,7 +83,7 @@
                 <div  class="loaderArray loaderCenter" ng-show="displayArrayLoader" >
                 </div>
                 <div ng-show="!displayArrayLoader" class="service-list-container"
-                     ng-repeat="service in (filteredItems = ( services | orderBy:sortBy:!sortByAsc  | filter:filterSearch())) track by $index ">
+                     ng-repeat="service in (filteredItems = (services | orderBy:sortBy:!sortByAsc | filter:filterSearch())) track by $index ">
                     <div class="row serviceList" ng-click="deploySubtopics(service)" ng-class="{'active':service.deploy}">
                         <div class="[[columns.matiere.size]] cellTab ellipsis cellTab-left"  tooltip="[[service.topicName]]">
                             <span>[[service.topicName]]</span></div>

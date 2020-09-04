@@ -187,7 +187,7 @@ export class Service implements Selectable{
 }
 
 export class Services extends Selection<Service>{
-    public getServices = (idStructure , filter?) =>{
+    public getServices = (idStructure, filter?) => {
         try {
             if(filter)
                 return http.get(`/viescolaire/services?idEtablissement=${idStructure}&${filter}`);

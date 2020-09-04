@@ -1,9 +1,10 @@
-import {notify, idiom as lang, ng, _, toasts, moment} from 'entcore';
+import {notify, idiom as lang, ng, _, toasts, moment, workspace} from 'entcore';
 import * as utils from '../../utils/services';
 import {TypeSubTopic, Service, Services, TypeSubTopics, ServiceClasse, MultiTeaching} from "../models/services";
 import {safeApply} from "../../utils/services";
 import {SubjectService,GroupService,UserService} from "../services";
 import {Teacher} from "../models/common/Teacher";
+import service = workspace.v2.service;
 
 export let evalAcuTeacherController = ng.controller('ServiceController',[
     '$scope','SubjectService','UserService','GroupService',
@@ -14,8 +15,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
         $scope.servicesTemp = new Services([]);
         function getGroupsName(service, groups) {
             if(service.id_groups && service.id_groups.length > 0){
-                service.id_groups.forEach(
-                    id => {
+                service.id_groups.forEach(id => {
                         let group = _.findWhere($scope.columns.classe.data, {id: id});
                         if(group && !groups.includes(group))
                             groups.push(group);
@@ -99,7 +99,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             }), service => service.hasNullProperty());
         }
 
-        async function getAndsetServices() {
+        async function getAndSetServices() {
             if(!$scope.displayMessageLoader)
                 await $scope.runArrayLoader();
 
@@ -118,30 +118,45 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
 
         async function initServices () {
             await $scope.runArrayLoader();
-            getAndsetServices();
+            getAndSetServices();
             $scope.classesSelected = [];
         }
 
         $scope.filterSearch = () => {
             return (service) => {
+                let isInClassSearched = false;
                 let isInSearched = true;
-                if($scope.searchToFilter.length !=0){
-                    $scope.searchToFilter.forEach(search =>{
-                        if(!((service.groups_name != null && service.groups_name.toUpperCase().includes(search.toUpperCase()))
-                            || (service.nom_groupe != null && service.nom_groupe.toUpperCase().includes(search.toUpperCase()))
-                            || service.nom_enseignant.toUpperCase().includes(search.toUpperCase())
+                if($scope.searchToFilter.length > 0) {
+                    for(let search of $scope.searchToFilter) {
+                        isInSearched = (service.nom_enseignant.toUpperCase().includes(search.toUpperCase())
                             || service.topicName.toUpperCase().includes(search.toUpperCase())
                             || service.coTeachers_name.toUpperCase().includes(search.toUpperCase())
-                            || service.substituteTeachers_name.toUpperCase().includes(search.toUpperCase())
-                        )){
-                            isInSearched = false;
-                        }
-                    });
-                }else{
-                    isInSearched = true;
-
+                            || service.substituteTeachers_name.toUpperCase().includes(search.toUpperCase()));
+                        if(!isInSearched)
+                            break;
+                    }
                 }
-                return isInSearched;
+                if($scope.searchForClasse.length > 0) {
+                    let classesSearched = [];
+                    for(let search of $scope.searchForClasse) {
+                        service.groups.forEach(group => {
+                            if(group.name.toUpperCase().includes(search.toUpperCase())
+                                && !_.contains(classesSearched, group)){
+                                classesSearched.push(group);
+                                isInClassSearched = true;
+                            }
+                        });
+                    }
+                    if(classesSearched.length > 0) {
+                        service.id_groups = classesSearched.map(classe => classe.id);
+                        service.groups = [];
+                        service.groups_name = getGroupsName(service, service.groups);
+                    }
+                }
+                else {
+                    isInClassSearched = true;
+                }
+                return isInClassSearched && isInSearched;
             }
         };
 
@@ -149,23 +164,45 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             if(service.subTopics.length != 0)
                 service.deploy = !service.deploy
         };
-        $scope.saveSearch = async (event) =>{
-            if (event && (event.which === 13 || event.keyCode === 13 )) {
-                if (!_.contains($scope.searchToFilter, event.target.value)
-                    && event.target.value.length > 0
-                    && event.target.value.trim()){
-                    $scope.searchToFilter.push(event.target.value);
+
+        $scope.saveSearch = async (event) => {
+            if (event && (event.which === 13 || event.keyCode === 13) && event.target.value.length > 0) {
+                let value = event.target.value.trim().toUpperCase();
+                let searchAdded = false;
+                $scope.services.forEach(service => {
+                    if(!searchAdded) {
+                        if(service.groups_name != null && service.groups_name.toUpperCase().includes(value) ||
+                            service.nom_groupe != null && service.nom_groupe.toUpperCase().includes(value)){
+                            if(!_.contains($scope.searchForClasse, value)){
+                                $scope.searchForClasse.push(value);
+                                searchAdded = true;
+                            }
+                        }
+                    }
+                });
+                if (!searchAdded && !_.contains($scope.searchToFilter, value)){
+                    $scope.searchToFilter.push(value);
                 }
+                await initServices();
                 event.target.value = '';
             }
         };
-        $scope.dropSearchFilter = (search) =>{
+
+        $scope.dropSearchFilter = async (search) => {
             $scope.searchToFilter = _.without($scope.searchToFilter, search);
+            await initServices();
         };
+
+        $scope.dropSearchClass = async (search) => {
+            $scope.searchForClasse = _.without($scope.searchForClasse, search);
+            await initServices();
+        };
+
         $scope.init = async () =>{
             $scope.idStructure = $scope.structure.id;
             $scope.services = [];
             $scope.searchToFilter = [];
+            $scope.searchForClasse = [];
             $scope.matiereSelected = "";
             $scope.typeGroupes= {
                 classes: {isSelected: true, filterName:"classes", name: "evaluation.service.filter.classes", type: 0},
@@ -197,7 +234,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             Promise.all([groupServices.getClasses($scope.idStructure),
                 subjectService.getMatieres($scope.idStructure),
                 userServices.getTeachers($scope.idStructure),
-                $scope.servicesTemp.getServices($scope.structure.id,$scope.filter),
+                $scope.servicesTemp.getServices($scope.structure.id, $scope.filter),
                 $scope.subTopics.get($scope.idStructure)
             ])
                 .then(async function([aClasses, aMatieres, aTeachers,aServices]) {
@@ -232,29 +269,23 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             $scope.displayArrayLoader = false;
             await utils.safeApply($scope);
         };
-        $scope.updateFilterEvaluable = (selectedHeader) =>{
-            _.each($scope.headers, header => header.isSelected = false);
-            selectedHeader.isSelected = true;
-        };
-
 
         $scope.updateFilter = (selectedHeader)  =>{
             selectedHeader.isSelected = !selectedHeader.isSelected;
             let filtersArray = _.values($scope.typeGroupes);
-            if(filtersArray.length != 0 ){
-                $scope.filter= "";
+            if(filtersArray.length != 0){
+                $scope.filter = "";
                 filtersArray.forEach(filter =>{
-                    $scope.filter  += filter.filterName + "=" + filter.isSelected + "&";
-                })
-                $scope.filter.substring(0,$scope.filter.length-1);
+                    $scope.filter += filter.filterName + "=" + filter.isSelected + "&";
+                });
+                $scope.filter = $scope.filter.substring(0, $scope.filter.length - 1);
             }
-            getAndsetServices();
+            getAndSetServices();
         };
-
 
         $scope.checkIfExistsAndValid =  (service) =>{
             let exist = false;
-            if($scope.classesSelected && $scope.classesSelected.length>0 && service.id_matiere != undefined &&
+            if($scope.classesSelected && $scope.classesSelected.length > 0 && service.id_matiere != undefined &&
                 service.id_matiere != "" && service.id_enseignant != "") {
                 $scope.classesSelected.forEach(classe => {
                     if (_.findWhere($scope.services, {
@@ -264,7 +295,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                         exist = true;
                 });
                 return exist;
-            }else{
+            } else {
                 return true;
             }
         };

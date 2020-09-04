@@ -101,11 +101,10 @@ public class ServicesHelper {
     }
 
     public static void handleMultiTeaching(JsonArray neoServices, Handler<Either<String, JsonArray>> requestHandler,
-                                           boolean manualGroups, boolean groups, boolean classes,
-                                           boolean notEvaluable, boolean evaluable, boolean compressed,
-                                           JsonArray SQLservices, List<ServiceModel> result,
-                                           List<MultiTeaching> coTeachers, JsonArray multiTeachingJsonArray) {
-        JsonArray multiTeachings = multiTeachingJsonArray;
+                                           boolean manualGroups, boolean groups, boolean classes, boolean notEvaluable,
+                                           boolean evaluable, boolean compressed, JsonArray SQLservices,
+                                           List<ServiceModel> result, List<MultiTeaching> coTeachers,
+                                           JsonArray multiTeachings) {
         if(!multiTeachings.isEmpty()){
             for(int i=0; i < multiTeachings.size() ; i++){
                 try {
@@ -118,11 +117,11 @@ public class ServicesHelper {
 
         setParamsServices(neoServices, SQLservices, coTeachers, result);
         JsonArray groupsIdsForNeo = getIdNeo(result);
-        groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result, manualGroups,
-                groups, classes, notEvaluable, evaluable, compressed));
+        groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result, manualGroups, groups,
+                classes, notEvaluable, evaluable, compressed));
     }
 
-    private static Handler<Either<String, JsonArray>> getNeoReplyHandler(Handler<Either<String, JsonArray>> requestHandler, List<ServiceModel> result ,
+    private static Handler<Either<String, JsonArray>> getNeoReplyHandler(Handler<Either<String, JsonArray>> requestHandler, List<ServiceModel> result,
                                                                          boolean manualGroups, boolean groups, boolean classes,
                                                                          boolean notEvaluable, boolean evaluable, boolean compressed) {
         return new Handler<Either<String, JsonArray>>() {

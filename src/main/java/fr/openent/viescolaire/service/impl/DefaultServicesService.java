@@ -289,7 +289,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     @Override
     public void getAllServicesNoFilter(String structureId, JsonObject oService,
                                        Handler<Either<String, JsonArray>> arrayResponseHandler) {
-        getAllServices(structureId, true,true,true,true,
-                true, false, oService, arrayResponseHandler);
+        getAllServices(structureId,true,true,true,true,true,
+                false, oService, arrayResponseHandler);
     }
 }

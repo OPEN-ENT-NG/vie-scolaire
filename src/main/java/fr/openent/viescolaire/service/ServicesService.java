@@ -18,8 +18,8 @@ public interface ServicesService extends CrudService {
 
     void updateServices(JsonObject oServices, Handler<Either<String, JsonObject>> defaultResponseHandler);
 
-    void getAllServices(String structureId, Boolean evaluable, Boolean notEvaluable, Boolean classes, Boolean groups,
-                        Boolean manualGroups, Boolean compressed, JsonObject oService,
+    void getAllServices(String structureId, Boolean evaluable, Boolean notEvaluable,
+                        Boolean classes, Boolean groups, Boolean manualGroups, Boolean compressed, JsonObject oService,
                         Handler<Either<String, JsonArray>> arrayResponseHandler);
 
     void getAllServicesNoFilter(String structureId, JsonObject oService,

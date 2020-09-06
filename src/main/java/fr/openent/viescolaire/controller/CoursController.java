@@ -54,14 +54,14 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
 /**
  * Created by ledunoiss on 10/02/2016.
  */
-public class CoursController extends ControllerHelper{
+public class CoursController extends ControllerHelper {
 
     private final CoursService coursService;
     private final ClasseService classeService;
     private final CommonCoursService commonCoursService;
     protected static final Logger log = LoggerFactory.getLogger(CoursController.class);
 
-    public CoursController(){
+    public CoursController() {
         pathPrefix = Viescolaire.VSCO_PATHPREFIX;
         coursService = new DefaultCoursService();
         classeService = new DefaultClasseService();
@@ -72,11 +72,11 @@ public class CoursController extends ControllerHelper{
     // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
     @Get("/:idClasse/cours/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
-    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
-    public void getClasseCours(final HttpServerRequest request){
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getClasseCours(final HttpServerRequest request) {
         String idClasse = request.params().get("idClasse");
-        String dateDebut= request.params().get("dateDebut")+" 00:00:00";
-        String dateFin= request.params().get("dateFin")+" 23:59:59";
+        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
+        String dateFin = request.params().get("dateFin") + " 23:59:59";
 
         List<String> listIdClasse = new ArrayList<>();
         listIdClasse.add(idClasse);
@@ -95,15 +95,19 @@ public class CoursController extends ControllerHelper{
         final List<String> groupName = request.params().getAll("group");
         final String beginDate = request.params().get("begin");
         final String endDate = request.params().get("end");
+        final String startTime = request.params().get("startTime");
+        final String endTime = request.params().get("endTime");
         final boolean union = Boolean.parseBoolean(request.params().get("union"));
-        if (beginDate!=null && endDate != null &&
+        if (beginDate != null && endDate != null &&
                 beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                commonCoursService
-                        .getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, union, arrayResponseHandler(request));
+            commonCoursService
+                    .getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate,
+                            startTime, endTime, union, arrayResponseHandler(request));
         } else {
             badRequest(request, "timetable.invalid.dates");
         }
     }
+
     @Get("/common/course/:idCourse")
     @ApiDoc("Get course by id.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
@@ -115,10 +119,10 @@ public class CoursController extends ControllerHelper{
 
     @Get("/cours/classes/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les cours d'une liste de classe dans une période donnée.")
-    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
-    public void getClasseCoursListClasses(final HttpServerRequest request){
-        String dateDebut= request.params().get("dateDebut")+" 00:00:00";
-        String dateFin= request.params().get("dateFin")+" 23:59:59";
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getClasseCoursListClasses(final HttpServerRequest request) {
+        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
+        String dateFin = request.params().get("dateFin") + " 23:59:59";
 
         List<String> listIdClasse = request.params().getAll("classeId");
 
@@ -130,25 +134,26 @@ public class CoursController extends ControllerHelper{
 
     @Get("/:idClasse/cours/:dateDebut/:dateFin/time/:timeDb/:timeFn")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
-    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
-    public void getClasseCoursByTime(final HttpServerRequest request){
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getClasseCoursByTime(final HttpServerRequest request) {
         String idClasse = request.params().get("idClasse");
-        String dateDebut= request.params().get("dateDebut")+' '+request.params().get("timeDb");
-        String dateFin= request.params().get("dateFin")+' '+request.params().get("timeFn");
+        String dateDebut = request.params().get("dateDebut") + ' ' + request.params().get("timeDb");
+        String dateFin = request.params().get("dateFin") + ' ' + request.params().get("timeFn");
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        coursService.getClasseCoursBytime(dateDebut,dateFin, idClasse, handler);
+        coursService.getClasseCoursBytime(dateDebut, dateFin, idClasse, handler);
     }
+
     // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
     @Get("/enseignant/:userId/:structureId/cours/:dateDebut/:dateFin")
     @ApiDoc("Récupère tous les cours d'un utilisateur dans une période donnée.")
-    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
-    public void getCoursByUserId(final HttpServerRequest request){
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCoursByUserId(final HttpServerRequest request) {
         String userId = request.params().get("userId");
         String structureId = request.params().get("structureId");
-        String dateDebut= request.params().get("dateDebut")+" 00:00:00";
-        String dateFin= request.params().get("dateFin")+" 00:00:00";
+        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
+        String dateFin = request.params().get("dateFin") + " 00:00:00";
 
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
@@ -158,8 +163,8 @@ public class CoursController extends ControllerHelper{
     //
     @Get("/cours/:etabId/:eleveId/:dateDebut/:dateFin/time/:timeDb/:timeFn")
     @ApiDoc("Récupère tous les cours d'un eleve dans une période donnée.")
-    @SecuredAction(value="", type= ActionType.AUTHENTICATED)
-    public void getCoursByStudentId(final HttpServerRequest request){
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getCoursByStudentId(final HttpServerRequest request) {
         String eleveId = request.params().get("eleveId");
         String etabId = request.params().get("etabId");
 
@@ -167,13 +172,13 @@ public class CoursController extends ControllerHelper{
         classeService.getClasseEleve(etabId, eleveId, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
-                String dateDebut= request.params().get("dateDebut")+' '+request.params().get("timeDb") ;
-                String dateFin= request.params().get("dateFin")+' '+request.params().get("timeFn");
-                if(event.isRight()){
+                String dateDebut = request.params().get("dateDebut") + ' ' + request.params().get("timeDb");
+                String dateFin = request.params().get("dateFin") + ' ' + request.params().get("timeFn");
+                if (event.isRight()) {
                     //get key
                     JsonObject obj = event.right().getValue().getJsonObject(0);
                     int size = obj.getJsonArray("Classes").size();
-                    if(size > 0) {
+                    if (size > 0) {
                         Object[] Ids = new Object[size];
                         String[] IdsStr = new String[size];
                         try {
@@ -182,17 +187,17 @@ public class CoursController extends ControllerHelper{
                             log.error("Cannot cast evenementId to Number on delete evenement : " + e);
                         }
                         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        for(int i = 0; i < Ids.length; i++) {
+                        for (int i = 0; i < Ids.length; i++) {
                             IdsStr[i] = Ids[i].toString();
                         }
 
                         List<String> listIdClasse = Arrays.asList(IdsStr);
 
-                        coursService.getClasseCours(dateDebut, dateFin, listIdClasse,  handler);
-                    }else{
+                        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
+                    } else {
                         log.error("This Student has no Classes or Groups");
                     }
-                }else{
+                } else {
                     leftToResponse(request, event.left());
                 }
             }
@@ -208,7 +213,7 @@ public class CoursController extends ControllerHelper{
             public void handle(final UserInfos user) {
                 if (user != null) {
                     List<Long> idCours = new ArrayList<>();
-                    for(String s : request.params().getAll("idCours")) {
+                    for (String s : request.params().getAll("idCours")) {
                         idCours.add(Long.valueOf(s));
                     }
                     coursService.getCoursById(idCours, new Handler<Either<String, JsonArray>>() {
@@ -234,7 +239,7 @@ public class CoursController extends ControllerHelper{
     @Post("/cours")
     @ApiDoc("Créé un cours.")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void createCours(final HttpServerRequest request){
+    public void createCours(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
             public void handle(final UserInfos user) {

@@ -25,9 +25,11 @@ import io.vertx.core.json.JsonObject;
 import java.util.List;
 
 public interface CommonCoursService {
-    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  group, String begin, String end, boolean union, Handler<Either<String,JsonArray>> handler);
+    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String>  group, String begin, String end,
+                                    String startTime, String endTime, boolean union, Handler<Either<String,JsonArray>> handler);
 
-    void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end, boolean union, Handler<Either<String,JsonArray>> handler);
+    void getCoursesOccurences(String structureId, List<String> teacherId, List<String>  group, String begin, String end,
+                              String startTime, String endTime, boolean union, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler );
 

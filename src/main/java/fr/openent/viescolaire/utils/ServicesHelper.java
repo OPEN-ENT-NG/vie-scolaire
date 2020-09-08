@@ -145,7 +145,7 @@ public class ServicesHelper {
                     if(compressed)
                         requestHandler.handle(new Either.Right<>(getCompressedService(resultList)));
                     else
-                        requestHandler.handle(new Either.Right<>(ModelHelper.convetToJsonArray(resultList)));
+                        requestHandler.handle(new Either.Right<>(ModelHelper.convertToJsonArray(resultList)));
                 }else{
                     log.info(event.left().getValue());
                 }

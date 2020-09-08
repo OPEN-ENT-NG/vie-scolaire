@@ -177,8 +177,8 @@ public class ServiceModel extends Model implements Cloneable{
                 .put("typeGroupe", this.getTypeGroup())
                 .put("is_visible", this.isVisible())
                 .put("is_manual", this.isManual())
-                .put("coTeachers", ModelHelper.convetToJsonArray(this.coTeachers))
-                .put("substituteTeachers", ModelHelper.convetToJsonArray(this.substituteTeachers));
+                .put("coTeachers", ModelHelper.convertToJsonArray(this.coTeachers))
+                .put("substituteTeachers", ModelHelper.convertToJsonArray(this.substituteTeachers));
     }
 
     public int compareTo(ServiceModel serviceModelB) {

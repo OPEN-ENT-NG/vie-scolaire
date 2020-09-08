@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelHelper {
-    public static JsonArray convetToJsonArray (List<? extends Model> modelInterfaceList) {
+    public static JsonArray convertToJsonArray (List<? extends Model> modelInterfaceList) {
         JsonArray jsonArrayModel = new JsonArray();
         if (!modelInterfaceList.isEmpty()) {
             for (Model modelInstance : modelInterfaceList) {

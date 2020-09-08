@@ -617,7 +617,7 @@
   "evaluations.service.error.modalite": "Erreur lors de la récupération des modalités.",
   "evaluations.service.error.teacher": "Erreur lors de la récupération des enseignants.",
   "evaluations.service.error.remplacement": "Erreur lors de la récupération des remplacements.",
-  "evaluations.service.devoir.error": "Le service sélectionné est utilisé par [nbDevoir] devoirs. Que souhaitez-vous faire ?",
+  "evaluations.service.devoir.error": "Le service sélectionné est utilisé par [nbDevoir] devoir(s). Que souhaitez-vous faire ?",
   "evaluations.service.devoir.delete": "Supprimer l'ensemble des devoirs liés au service",
   "evaluations.service.devoir.delete.error": "Erreur lors de la suppression des devoirs liés au service",
   "evaluations.service.devoir.update": "Mettre à jour la matière de l'ensemble des devoirs liés au service",

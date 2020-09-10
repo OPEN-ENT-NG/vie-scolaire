@@ -85,7 +85,7 @@ public class DefaultMementoService implements MementoService {
     private void retrieveStudentAndItsFunctionalGroups(String id, Future<JsonObject> future) {
         String query = "MATCH(u:User {id:{id}})" +
                 "OPTIONAL MATCH (u)-[:IN]-(g:FunctionalGroup) " +
-                "RETURN u.id as id, u.lastName + ' ' + u.firstName AS name, u.birthDate as birth_date, u.accommodation as accommodation, collect(g.name) as groups";
+                "RETURN u.id as id, u.lastName + ' ' + u.firstName AS name, u.birthDate as birth_date, u.accommodation as accommodation, u.transport as transport, collect(g.name) as groups";
         JsonObject params = new JsonObject().put("id", id);
         Neo4j.getInstance().execute(query, params, Neo4jResult.validUniqueResultHandler(res -> {
             if (res.isLeft()) future.fail(res.left().getValue());

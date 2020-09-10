@@ -48,6 +48,10 @@ body {
   color: $black !important;
   font-size: $memento-font-size;
 
+  .accommodation-field {
+    text-transform: lowercase;
+  }
+
   .header {
     display: flex;
     align-items: center;
@@ -197,6 +201,11 @@ body {
 
     &.accommodation::after {
       content: "\F4A3";
+    }
+
+    &.bus::after {
+      content: "\F0034";
+      font-size: 22px;
     }
 
     &.email::after {

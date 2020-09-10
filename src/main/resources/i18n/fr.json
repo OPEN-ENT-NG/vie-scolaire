@@ -749,6 +749,7 @@
   "viescolaire.memento.student.comment.placeholder": "Entrer du texte ici",
   "viescolaire.memento.student.comment.error": "Une erreur est survenue lors de l'enregistrement du commentaire",
   "viescolaire.memento.student.serch.placeholder": "Chercher un autre élève",
+  "viescolaire.memento.transport": "transport scolaire",
  "param.service.order.display.button": "Ordre d'affichage des services",
   "viescolaire.conference.opinions": "Avis du conseil de classe",
   "viescolaire.conference.opinions.class.create": "Créer un avis conseil",

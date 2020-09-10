@@ -15,9 +15,13 @@
                     <div class="groups"><i class="school"></i>
                         <span data-ng-repeat="class in vm.student.classes">[[class]]</span>
                         <span data-ng-repeat="group in vm.student.groups">[[group]]</span></div>
-                    <div class="vertical-spacing-twice">
+                    <div class="vertical-spacing-twice accommodation-field">
                         <i class="accommodation"></i>
                         [[vm.student.accommodation]]
+                    </div>
+                    <div ng-if="vm.student.transport">
+                        <i class="bus"></i>
+                        <i18n>viescolaire.memento.transport</i18n>
                     </div>
                 </div>
             </div>

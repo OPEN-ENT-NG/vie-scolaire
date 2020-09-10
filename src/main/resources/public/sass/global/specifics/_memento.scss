@@ -195,6 +195,10 @@ body {
       content: "\F474"
     }
 
+    &.accommodation::after {
+      content: "\F4A3";
+    }
+
     &.email::after {
       content: "\F1EE";
     }

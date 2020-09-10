@@ -38,7 +38,7 @@ import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
 
 public class EventBusController extends ControllerHelper {
 
-    private MultiTeachingService  mutliTeachingService;
+    private MultiTeachingService mutliTeachingService;
     private GroupeService groupeService;
     private ClasseService classeService;
     private UserService userService;
@@ -129,11 +129,11 @@ public class EventBusController extends ControllerHelper {
             case "config": {
                 configBusService(method, message);
             }
-            case "service":{
-                serviceBusService(method,message);
+            case "service": {
+                serviceBusService(method, message);
             }
-            case "multiTeaching":{
-                mutliTeachingService(method,message);
+            case "multiTeaching": {
+                mutliTeachingService(method, message);
             }
         }
     }
@@ -161,32 +161,32 @@ public class EventBusController extends ControllerHelper {
     private void mutliTeachingService(String method, Message<JsonObject> message) {
         JsonObject body = message.body();
         String structureId = body.getString("structureId");
-        switch (method){
-            case "getIdMultiTeachers" : {
-                String teacherId =  body.getString("userId");
-                String subjectId =  body.getString("subjectId");
-                String groupId =  body.getString("groupId");
+        switch (method) {
+            case "getIdMultiTeachers": {
+                String teacherId = body.getString("userId");
+                String subjectId = body.getString("subjectId");
+                String groupId = body.getString("groupId");
                 mutliTeachingService.getSubTeachersandCoTeachers(teacherId, structureId, subjectId,
                         groupId, new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-                        if(event.isRight()){
-                            message.reply(new JsonObject()
-                                    .put("status", "ok")
-                                    .put("result", event.right().getValue()));
-                        }
-                    }
-                });
+                            @Override
+                            public void handle(Either<String, JsonArray> event) {
+                                if (event.isRight()) {
+                                    message.reply(new JsonObject()
+                                            .put("status", "ok")
+                                            .put("result", event.right().getValue()));
+                                }
+                            }
+                        });
                 break;
             }
-            case "getMultiTeachersByClass" : {
-                String groupId =  body.getString("groupId");
-                String periodId =  body.getString("periodId");
+            case "getMultiTeachersByClass": {
+                String groupId = body.getString("groupId");
+                String periodId = body.getString("periodId");
                 mutliTeachingService.getMultiTeachersByClass(structureId, groupId, periodId, true,
                         new Handler<Either<String, JsonArray>>() {
                             @Override
                             public void handle(Either<String, JsonArray> event) {
-                                if(event.isRight()){
+                                if (event.isRight()) {
                                     message.reply(new JsonObject()
                                             .put("status", "ok")
                                             .put("result", event.right().getValue()));
@@ -216,15 +216,15 @@ public class EventBusController extends ControllerHelper {
                         String slotProfile = event.right().getValue().getJsonObject(0).getString("id");
                         JsonObject action = new JsonObject()
                                 .put("action", "list-slots")
-                                .put("slotProfileId", slotProfile );
+                                .put("slotProfileId", slotProfile);
                         eb.send("directory", action, directoryMessage -> {
                             String status = ((JsonObject) directoryMessage.result().body()).getString("status");
                             if ("error".equals(status)) {
                                 message.reply(getErrorReply(directoryMessage.cause().getMessage()));
                             } else {
                                 JsonObject timeslot = ((JsonObject) directoryMessage.result().body()).getJsonObject("result");
-                                JsonArray slots  = timeslot.getJsonArray("slots");
-                                List<JsonObject> sortedSlots = ((List<JsonObject>)slots.getList());
+                                JsonArray slots = timeslot.getJsonArray("slots");
+                                List<JsonObject> sortedSlots = ((List<JsonObject>) slots.getList());
                                 sortedSlots.sort((Comparator) (o, t1) -> ((JsonObject) o).getString("startHour").compareTo(((JsonObject) t1).getString("startHour")));
                                 timeslot.put("slots", new JsonArray(sortedSlots));
                                 JsonObject result = new JsonObject()
@@ -267,9 +267,14 @@ public class EventBusController extends ControllerHelper {
                 String startTime = body.getString("startTime");
                 String endTime = body.getString("endTime");
                 boolean union = Boolean.parseBoolean(body.getString("union"));
-                if (beginDate!=null && endDate != null &&
+                String limit = body.getString("limit");
+                String offset = body.getString("offset");
+                boolean descendingDate = Boolean.parseBoolean(body.getString("descendingDate"));
+
+                if (beginDate != null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime, endTime, union, getJsonArrayBusResultHandler(message));
+                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime, endTime, union,
+                            limit, offset, descendingDate, getJsonArrayBusResultHandler(message));
                 }
             }
         }
@@ -311,9 +316,9 @@ public class EventBusController extends ControllerHelper {
                 groupeService.search(structureId, query, fields, getJsonArrayBusResultHandler(message));
             }
             break;
-            case "getGroupsTypes":{
-                JsonArray groupsIds ;
-                if(message.body().containsKey("groupsIds")) {
+            case "getGroupsTypes": {
+                JsonArray groupsIds;
+                if (message.body().containsKey("groupsIds")) {
                     groupsIds = message.body().getJsonArray("groupsIds");
                     groupeService.getTypesOfGroup(groupsIds, getJsonArrayBusResultHandler(message));
                 }
@@ -371,7 +376,7 @@ public class EventBusController extends ControllerHelper {
             break;
             case "listClasses": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
-                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                Boolean forAdmin = message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idEtablissement, true, null,
                         null, forAdmin,
                         getJsonArrayBusResultHandler(message), false);
@@ -379,7 +384,7 @@ public class EventBusController extends ControllerHelper {
             break;
             case "listAllGroupes": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
-                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                Boolean forAdmin = message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idEtablissement, null, null,
                         null, forAdmin, getJsonArrayBusResultHandler(message), false);
             }
@@ -387,7 +392,7 @@ public class EventBusController extends ControllerHelper {
             case "listAllGroupesByIds": {
                 String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
-                Boolean forAdmin =  message.body().getBoolean(FORADMIN);
+                Boolean forAdmin = message.body().getBoolean(FORADMIN);
                 classeService.listClasses(idStructure, null, null, idClassesAndGroups,
                         forAdmin, getJsonArrayBusResultHandler(message), false);
             }
@@ -464,16 +469,16 @@ public class EventBusController extends ControllerHelper {
                 userService.search(structureId, query, fields, profile, getJsonArrayBusResultHandler(message));
             }
             break;
-            case "getAllElevesWithTheirRelatives":{
+            case "getAllElevesWithTheirRelatives": {
                 String idStructure = message.body().getString((ID_STRUCTURE_KEY));
                 List<String> idsClass = message.body().getJsonArray("idsClass").getList();
                 List<String> idsDletedElevePostgres = message.body().getJsonArray("idsDeletedStudent").getList();
                 userService.getAllElevesWithTheirRelatives(idStructure, idsClass, idsDletedElevePostgres, getJsonArrayBusResultHandler(message));
             }
             break;
-            case "getDeletedTeachers" : {
+            case "getDeletedTeachers": {
                 List<String> idsTeacher = message.body().getJsonArray("idsTeacher").getList();
-                userService.getDeletedTeachers(idsTeacher,getJsonArrayBusResultHandler(message));
+                userService.getDeletedTeachers(idsTeacher, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {
@@ -493,15 +498,15 @@ public class EventBusController extends ControllerHelper {
 
                 JsonObject oService = new JsonObject();
 
-                if(aIdGroupe != null) {
+                if (aIdGroupe != null) {
                     oService.put("id_groupe", aIdGroupe);
                 }
 
-                if(aIdEnseignant != null) {
+                if (aIdEnseignant != null) {
                     oService.put("id_enseignant", aIdEnseignant);
                 }
 
-                if(aIdMatiere != null) {
+                if (aIdMatiere != null) {
                     oService.put("id_matiere", aIdMatiere);
                 }
 
@@ -583,7 +588,7 @@ public class EventBusController extends ControllerHelper {
             case "getDeletedStudentByPeriodeByClass": {
                 String idClass = message.body().getString("idClass");
                 String beginningPeriode = message.body().getString("beginningPeriode");
-                eleveService.getDeletedStudentByPeriodeByClass(idClass,beginningPeriode, getJsonArrayBusResultHandler(message));
+                eleveService.getDeletedStudentByPeriodeByClass(idClass, beginningPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
             default: {

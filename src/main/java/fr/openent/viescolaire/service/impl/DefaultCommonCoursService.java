@@ -49,6 +49,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final Course COURSE_TABLE = new Course();
     private static final String COURSES = "courses";
     public final static String EDT_SCHEMA = "edt";
+
     private final EventBus eb;
     private static final JsonObject KEYS = new JsonObject().put(COURSE_TABLE._id, 1).put(COURSE_TABLE.structureId, 1).put(COURSE_TABLE.subjectId, 1)
             .put(COURSE_TABLE.roomLabels, 1).put(COURSE_TABLE.equipmentLabels, 1).put(COURSE_TABLE.teacherIds, 1).put(COURSE_TABLE.personnelIds, 1)
@@ -67,7 +68,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     @Override
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groups, String begin, String end,
-                                           String startTime, String endTime, boolean union, Handler<Either<String, JsonArray>> handler) {
+                                           String startTime, String endTime, boolean union, String limitString, String offsetString,
+                                           boolean descendingDate, Handler<Either<String, JsonArray>> handler) {
+
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
         query.put("structureId", structureId)
@@ -120,8 +123,15 @@ public class DefaultCommonCoursService implements CommonCoursService {
         }
 
         query.put("$and", $and);
-        JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, 1);
-        MongoDb.getInstance().find(COURSES, query, sort, KEYS, validResultsHandler(handler));
+
+        // sort ascending/descending
+        JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, descendingDate ? -1 : 1);
+
+        // filter with pagination area
+        int limit, offset;
+        offset = offsetString != null && !offsetString.equals("") ? Integer.parseInt(offsetString) : 0;
+        limit = limitString != null && !limitString.equals("") ? Integer.parseInt(limitString) : -1;
+        MongoDb.getInstance().find(COURSES, query, sort, KEYS, offset, limit, limit, validResultsHandler(handler));
     }
 
     private JsonArray theoreticalFilter() {
@@ -134,8 +144,15 @@ public class DefaultCommonCoursService implements CommonCoursService {
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, final Handler<Either<String, JsonArray>> handler) {
+        this.getCoursesOccurences(structureId, teacherId, group, begin, end, startTime, endTime, union, null, null, false, handler);
+    }
+
+    @Override
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
+                                     boolean union, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, response -> {
+        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset, descendingDate,
+                response -> {
                     if (response.isRight()) {
                         coursesFuture.complete(response.right().getValue());
                     } else {

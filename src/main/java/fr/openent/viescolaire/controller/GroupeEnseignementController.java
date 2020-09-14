@@ -136,17 +136,23 @@ public class GroupeEnseignementController extends ControllerHelper {
 
         groupeService.getNameOfGroupeClasse(idGroupe, handler);
     }
-/**
- * get the groups from a class
- */
+
+    /**
+     * get the groups from a class
+     */
     @Get("/group/from/class")
     @ApiDoc("get the groups of a class")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getGroupsFromClass(final HttpServerRequest request){
 
         List<String> classesId = request.params().getAll("classes");
+        String student = request.params().get("student");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        classeService.getGroupeFromClasse(classesId.toArray(new String[0]),handler);
+        if (student != null) {
+            classeService.getGroupFromClass(classesId.toArray(new String[0]), student, handler);
+        } else {
+            classeService.getGroupeFromClasse(classesId.toArray(new String[0]), handler);
+        }
     }
 }

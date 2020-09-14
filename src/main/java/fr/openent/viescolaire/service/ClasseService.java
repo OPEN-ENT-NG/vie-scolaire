@@ -140,7 +140,21 @@ public interface ClasseService extends CrudService {
      */
     void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler);
 
+
+    /**
+     * Fetch all groups from a list of classes
+     * @param strings   list of classes
+     * @param handler   data handler
+     */
     void getGroupeFromClasse(String[] strings, Handler<Either<String, JsonArray>> handler);
+
+    /**
+     * Fetch all groups from a list of classes based on its student
+     * @param classes   list of classes
+     * @param studentId student identifier
+     * @param handler   data handler
+     */
+    void getGroupFromClass(String[] classes, String studentId, Handler<Either<String, JsonArray>> handler);
 
     Handler<Either<String, JsonArray>> addCycleClasses(final HttpServerRequest request, EventBus eb,
                                                        String idEtablissement, final boolean isPresence,

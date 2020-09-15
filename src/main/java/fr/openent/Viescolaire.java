@@ -117,6 +117,7 @@ public class Viescolaire extends BaseServer {
 		addController(new TimeSlotController(new DefaultTimeSlotService()));
 		addController(new MementoController(eb));
 		addController(new ConfigController(config));
+		addController(new StructureController());
 
 		addController(new EventBusController(eb,config));
 

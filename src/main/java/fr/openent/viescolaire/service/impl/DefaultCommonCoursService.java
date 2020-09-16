@@ -330,16 +330,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
             return groups.size() == 1;
         }
 
-        int count = arrayGroups.size();
-        JsonObject result = arrayGroups.getJsonObject(0);
-        List<String> groupsFromNeo = result.getJsonArray("name_groups").getList();
-        String classe = result.getString("name_classe");
-        if (groups.contains(classe)) count--;
-        for (String group : groupsFromNeo) {
-            if (groups.contains(group)) count--;
-        }
-
-        return count == 0;
+        return true;
     }
 
     private static JsonObject formatOccurence(JsonObject course, boolean onlyOneGroup, Calendar start, Calendar end) {

@@ -31,6 +31,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 
@@ -78,10 +79,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         JsonArray $and = new JsonArray();
         query.put("$or", theoreticalFilter());
-        String startDate = end + (endTime == null ? END_DATE_PATTERN : "T" + endTime + "Z");
-        String endDate = begin + (startTime == null ? START_DATE_PATTERN : "T" + startTime + "Z");
-        JsonObject startFilter = new JsonObject().put("$lte", startDate);
-        JsonObject endFilter = new JsonObject().put("$gte", endDate);
+        String endDate = end + (endTime == null ? END_DATE_PATTERN : "T" + endTime + "Z");
+        String startDate = begin + (startTime == null ? START_DATE_PATTERN : "T" + startTime + "Z");
+        JsonObject startFilter = new JsonObject().put("$gte", startDate);
+        JsonObject endFilter = new JsonObject().put("$lte", endDate);
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
 
@@ -127,11 +128,58 @@ public class DefaultCommonCoursService implements CommonCoursService {
         // sort ascending/descending
         JsonObject sort = new JsonObject().put(COURSE_TABLE.startDate, descendingDate ? -1 : 1);
 
+        JsonArray pipeline = new JsonArray()
+                .add(match(query))
+                .add(sort(sort));
+
         // filter with pagination area
         int limit, offset;
         offset = offsetString != null && !offsetString.equals("") ? Integer.parseInt(offsetString) : 0;
         limit = limitString != null && !limitString.equals("") ? Integer.parseInt(limitString) : -1;
-        MongoDb.getInstance().find(COURSES, query, sort, KEYS, offset, limit, 100, validResultsHandler(handler));
+
+        if (offsetString != null) {
+            pipeline.add(skip(offset));
+        }
+
+        if (limitString != null) {
+            pipeline.add(limit(limit));
+        }
+
+        JsonObject command = new JsonObject()
+                .put("aggregate", COURSES)
+                .put("allowDiskUse", true)
+                .put("cursor", new JsonObject())
+                .put("pipeline", pipeline);
+
+        MongoDb.getInstance().command(command.toString(), MongoDbResult.validResultHandler(either -> {
+            if (either.isLeft()) {
+                LOG.error("Failed to execute pipeline command search for courses", either.left().getValue());
+                handler.handle(new Either.Left<>(either.left().getValue()));
+            } else {
+                JsonArray result = either.right().getValue().getJsonObject("cursor", new JsonObject()).getJsonArray("firstBatch", new JsonArray());
+                handler.handle(new Either.Right<>(result));
+            }
+        }));
+    }
+
+    private JsonObject match(JsonObject filter) {
+        return new JsonObject()
+                .put("$match", filter);
+    }
+
+    private JsonObject sort(JsonObject filter)  {
+        return new JsonObject()
+                .put("$sort", filter);
+    }
+
+    private JsonObject skip(Integer number) {
+        return new JsonObject()
+                .put("$skip", number);
+    }
+
+    private JsonObject limit(Integer number) {
+        return new JsonObject()
+                .put("$limit", number);
     }
 
     private JsonArray theoreticalFilter() {

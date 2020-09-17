@@ -131,7 +131,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         int limit, offset;
         offset = offsetString != null && !offsetString.equals("") ? Integer.parseInt(offsetString) : 0;
         limit = limitString != null && !limitString.equals("") ? Integer.parseInt(limitString) : -1;
-        MongoDb.getInstance().find(COURSES, query, sort, KEYS, offset, limit, limit, validResultsHandler(handler));
+        MongoDb.getInstance().find(COURSES, query, sort, KEYS, offset, limit, 100, validResultsHandler(handler));
     }
 
     private JsonArray theoreticalFilter() {

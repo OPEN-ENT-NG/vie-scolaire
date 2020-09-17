@@ -145,6 +145,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
             pipeline.add(limit(limit));
         }
 
+        pipeline.add(finalProject());
+
         JsonObject command = new JsonObject()
                 .put("aggregate", COURSES)
                 .put("allowDiskUse", true)
@@ -160,6 +162,50 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 handler.handle(new Either.Right<>(result));
             }
         }));
+    }
+
+    private JsonObject finalProject() {
+        JsonObject project = new JsonObject()
+                .put("_id", 1)
+                .put("structureId", 1)
+                .put("subjectId", 1)
+                .put("teacherIds", 1)
+                .put("classes", 1)
+                .put("groups", 1)
+                .put("roomLabels", 1)
+                .put("dayOfWeek", 1)
+                .put("manual", 1)
+                .put("updated", 1)
+                .put("lastUser", 1)
+                .put("startDate", dateToString("startDate"))
+                .put("endDate", dateToString("endDate"));
+
+        return new JsonObject()
+                .put("$project", project);
+    }
+
+    private JsonObject dateToString(String field) {
+        JsonObject type = new JsonObject()
+                .put("$type", String.format("$%s", field));
+
+        JsonArray ifArray = new JsonArray()
+                .add(type)
+                .add("string");
+
+        JsonObject dateToString = new JsonObject()
+                .put("format", "%Y-%m-%dT%H:%M:%S")
+                .put("date", String.format("$%s", field));
+
+        JsonObject elseObject = new JsonObject()
+                .put("$dateToString", dateToString);
+
+        JsonObject cond = new JsonObject()
+                .put("if", ifArray)
+                .put("then", String.format("$%s", field))
+                .put("else", elseObject);
+
+        return new JsonObject()
+                .put("$cond", cond);
     }
 
     private JsonObject match(JsonObject filter) {

@@ -95,7 +95,8 @@ public class DefaultMementoService implements MementoService {
 
     private void getRelatives(String studentId, Future<JsonArray> future) {
         String query = "MATCH(:User {id:{id}})-[:RELATED]->(u:User) " +
-                "RETURN u.id as id, u.lastName + ' ' + u.firstName AS name, u.title AS title, u.mobile AS mobile, " +
+                "RETURN u.id as id, u.lastName + ' ' + u.firstName AS name, u.title AS title, " +
+                "CASE WHEN u.mobilePhone is null THEN u.mobile ELSE u.mobilePhone[0] END AS mobile, " +
                 "u.homePhone AS phone, u.address + ' ' + u.zipCode + ' ' + u.city AS address, u.email as email, NOT(HAS(u.activationCode)) as activated";
         JsonObject params = new JsonObject().put("id", studentId);
 

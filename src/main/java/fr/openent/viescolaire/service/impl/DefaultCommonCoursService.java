@@ -150,7 +150,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonObject command = new JsonObject()
                 .put("aggregate", COURSES)
                 .put("allowDiskUse", true)
-                .put("cursor", new JsonObject())
+                .put("cursor", new JsonObject().put("batchSize", 2147483647))
                 .put("pipeline", pipeline);
 
         MongoDb.getInstance().command(command.toString(), MongoDbResult.validResultHandler(either -> {

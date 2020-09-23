@@ -24,7 +24,7 @@
   "homepage": "https://entgit.gdapublic.fr/ENTSOL/VieScolaire",
   "devDependencies": {
     "@types/core-js": "^0.9.45",
-    "@types/node": "^7.0.64",
+    "@types/node": "7.10.9",
     "bower": "^1.8.4",
     "colors": "^1.2.5",
     "core-js": "^2.5.6",

@@ -39,7 +39,7 @@ public class ServicesHelper {
     private static GroupeService groupeService = new DefaultGroupeService();
 
     public static void setParamsServices(JsonArray neoServices, JsonArray SQLServices,
-                                         List<MultiTeaching> coTeachersList, List<ServiceModel> result) {
+                                         List<MultiTeaching> coTeachersList, List<ServiceModel> result, Boolean compressed) {
         for (Object o : neoServices) {
             JsonObject oDBService = normalizeMatiere((JsonObject) o);
             ServiceModel service = new ServiceModel();
@@ -79,6 +79,7 @@ public class ServicesHelper {
             manualService.setEvaluable(oParamService.getBoolean("evaluable"));
             manualService.setCoefficient(oParamService.getLong(COEFFICIENT));
             manualService.setVisible(oParamService.getBoolean("is_visible"));
+            manualService.setId_groups(compressed);
 
             manualService.setManual(true);
 
@@ -115,7 +116,7 @@ public class ServicesHelper {
             }
         }
 
-        setParamsServices(neoServices, SQLservices, coTeachers, result);
+        setParamsServices(neoServices, SQLservices, coTeachers, result, compressed);
         JsonArray groupsIdsForNeo = getIdNeo(result);
         groupeService.getTypesOfGroup(groupsIdsForNeo, getNeoReplyHandler(requestHandler, result, manualGroups, groups,
                 classes, notEvaluable, evaluable, compressed));

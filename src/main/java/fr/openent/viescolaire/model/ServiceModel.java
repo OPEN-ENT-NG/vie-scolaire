@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.model;
 
 import fr.openent.viescolaire.helper.ModelHelper;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.text.ParseException;
@@ -20,6 +21,7 @@ public class ServiceModel extends Model implements Cloneable{
     private boolean isVisible;
     private List<MultiTeaching> substituteTeachers;
     private List<MultiTeaching> coTeachers;
+    private JsonArray id_groups;
 
     public ServiceModel() {
         super();
@@ -125,6 +127,14 @@ public class ServiceModel extends Model implements Cloneable{
         this.substituteTeachers = (substituteTeachers == null) ? new ArrayList<>() : substituteTeachers;
     }
 
+    public JsonArray getId_groups () {
+        return id_groups;
+    }
+
+    public void setId_groups (Boolean compressed) {
+       this.id_groups = (compressed) ? null : new JsonArray().add(this.idGroup);
+    }
+
     public List<MultiTeaching> getSubstituteTeachers(){
         return substituteTeachers;
     }
@@ -167,7 +177,7 @@ public class ServiceModel extends Model implements Cloneable{
 
     @Override
     public JsonObject toJsonObject() {
-        return new JsonObject()
+        JsonObject oService = new JsonObject()
                 .put("id_groupe", this.getIdGroup())
                 .put("id_enseignant", this.getIdTeacher())
                 .put("id_matiere", this.getIdTopic())
@@ -179,6 +189,8 @@ public class ServiceModel extends Model implements Cloneable{
                 .put("is_manual", this.isManual())
                 .put("coTeachers", ModelHelper.convertToJsonArray(this.coTeachers))
                 .put("substituteTeachers", ModelHelper.convertToJsonArray(this.substituteTeachers));
+        if(this.id_groups != null) oService.put("id_groups", this.getId_groups());
+        return oService;
     }
 
     public int compareTo(ServiceModel serviceModelB) {

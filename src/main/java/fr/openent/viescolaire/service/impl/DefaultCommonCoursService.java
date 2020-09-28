@@ -17,7 +17,9 @@
 
 package fr.openent.viescolaire.service.impl;
 
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.service.CommonCoursService;
+import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.UtilsService;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -41,6 +43,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
 
@@ -48,6 +52,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(fr.openent.viescolaire.service.impl.DefaultPeriodeService.class);
     private static UtilsService utilsService = new fr.openent.viescolaire.service.impl.DefaultUtilsService();
     private static final Course COURSE_TABLE = new Course();
+    private final MatiereService matiereService;
+
     private static final String COURSES = "courses";
     public final static String EDT_SCHEMA = "edt";
 
@@ -65,6 +71,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     public DefaultCommonCoursService(EventBus eb) {
         this.eb = eb;
+        matiereService = new DefaultMatiereService(eb);
     }
 
     @Override
@@ -257,16 +264,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset, descendingDate,
-                response -> {
-                    if (response.isRight()) {
-                        coursesFuture.complete(response.right().getValue());
-                    } else {
-                        coursesFuture.fail("can't get courses from mongo");
-                    }
-                }
-        );
         Future<JsonArray> classeFuture = Future.future();
+
+        getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset,
+                descendingDate, coursesFuture);
 
         checkGroupFromClass(group, structureId, response -> {
             if (response.isRight()) {
@@ -291,6 +292,64 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 handler.handle(new Either.Left<>(event.cause().getMessage()));
             }
         });
+    }
+
+    private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin,
+                                           String end, String startTime, String endTime, boolean union, String limit,
+                                           String offset, boolean descendingDate, Future<JsonArray> coursesFuture) {
+        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset,
+                descendingDate,
+                response -> {
+                    if (response.isLeft()) {
+                        coursesFuture.complete(response.right().getValue());
+                        LOG.error("[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
+                                "failed to list courses from mongoDb");
+                        coursesFuture.fail(response.left().getValue());
+                    } else {
+                        JsonArray courses = response.right().getValue();
+                        JsonArray subjectIds = getSubjectAndTimetableSubjectIds(courses);
+
+                        matiereService.getSubjectsAndTimetableSubjects(subjectIds, subjectsAsync -> {
+                            if (subjectsAsync.isLeft()) {
+                                String message = "[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
+                                        "Failed to retrieve subjects and/or timetableSubject";
+                                LOG.error(message);
+                                coursesFuture.fail(subjectsAsync.left().getValue());
+                            } else {
+                                setSubjectToCourse(courses, subjectsAsync.right().getValue());
+                                coursesFuture.complete(response.right().getValue());
+                            }
+                        });
+                    }
+                }
+        );
+    }
+
+    private JsonArray getSubjectAndTimetableSubjectIds(JsonArray courses) {
+        JsonArray subjectIds = new JsonArray();
+        for (int i = 0; i < courses.size(); i++) {
+            JsonObject course = courses.getJsonObject(i);
+            if (course.containsKey("subjectId") && !subjectIds.contains(course.getString("subjectId"))) {
+                subjectIds.add(course.getString("subjectId"));
+            }
+            if (course.containsKey("timetableSubjectId") && !subjectIds.contains(course.getString("timetableSubjectId"))) {
+                subjectIds.add(course.getString("timetableSubjectId"));
+            }
+        }
+        return subjectIds;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setSubjectToCourse(JsonArray courses, JsonArray subjectsResult) {
+        Map<String, JsonObject> subjectsMap = ((List<JsonObject>) subjectsResult.getList())
+                .stream()
+                .collect(Collectors.toMap(subject -> subject.getString("id"), Function.identity()));
+
+        ((List<JsonObject>) courses.getList()).forEach(course ->
+                course.put("subject", subjectsMap.getOrDefault
+                        (course.getString("subjectId",
+                        course.getString("timetableSubjectId")), new JsonObject()))
+        );
     }
 
     private void checkGroupFromClass(List<String> group, String structureId, Handler<Either<String, JsonArray>> handler) {

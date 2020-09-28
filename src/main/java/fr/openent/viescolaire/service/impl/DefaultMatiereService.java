@@ -229,11 +229,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             }
         });
     }
-
-
-
-
-
+    
     @Override
     public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();
@@ -251,6 +247,18 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         }
         query.append("RETURN n");
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
+    }
+
+    @Override
+    public void getSubjectsAndTimetableSubjects(JsonArray subjectId, Handler<Either<String, JsonArray>> result) {
+        String query = "MATCH (s:TimetableSubject) WHERE s.id IN {subjectId} RETURN s.id as id, s.code as code, " +
+                "s.externalId as externalId, s.label as name ORDER BY name UNION MATCH (s:Subject) where s.id IN {subjectId} " +
+                "RETURN s.id as id, s.code as code, s.externalId as externalId, s.label as name ORDER BY name";
+
+        JsonObject params = new JsonObject().put("subjectId", subjectId);
+
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(responseNeo4j -> 
+                SubjectHelper.addRankForSubject(responseNeo4j, result)));
     }
 
     @Override

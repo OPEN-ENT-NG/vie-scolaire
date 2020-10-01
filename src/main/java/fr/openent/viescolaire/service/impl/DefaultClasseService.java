@@ -86,27 +86,29 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEleveClasse(String idClasse, Long idPeriode,Handler<Either<String, JsonArray>> handler){
 
         //Requête Neo4j optimisé
+        StringBuilder returning = new StringBuilder();
+        returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName,")
+                 .append( "u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
+                 .append( "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
+                 .append("ORDER BY lastName, firstName ");
 
-        String RETURNING = "RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName," +
-                "u.level as level, u.deleteDate as deleteDate, u.classes as classes, " +
-                "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate " +
-                "ORDER BY lastName, firstName ";
-
-        String query = "MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) " +
-                " OPTIONAL MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " +
-                " OPTIONAL MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " +
-                RETURNING +
-                " UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), (c:Class {id :{idClasse}}) " +
-                " WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING OR c.externalId IN u.classes) " +
-                RETURNING;
-
+        StringBuilder query = new StringBuilder()
+                .append("MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) ")
+                .append(returning)
+                .append("UNION MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " )
+                .append(returning)
+                .append("UNION MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
+                .append(returning)
+                .append("UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), (c:Class {id :{idClasse}}) ")
+                .append("WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING OR c.externalId IN u.classes) ")
+                .append(returning);
 
         String [] sortedField = new  String[2];
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
 
-        neo4j.execute(query, new JsonObject().put(mParameterIdClasse, idClasse),
+        neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
                 utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
                         null, sortedField, idPeriode, handler));
 
@@ -379,7 +381,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
             JsonObject params = new JsonObject();
             String query = "MATCH (c:Class {id: {idClasse}}) RETURN c " +
-                    "UNION MATCH (c:FunctionnalGroup {id: {idClasse}}) RETURN c " +
+                    "UNION MATCH (c:FunctionalGroup {id: {idClasse}}) RETURN c " +
                     "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
 
             params.put("idClasse", idClasse);

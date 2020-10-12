@@ -219,10 +219,9 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                             ids.add(((JsonObject) res).getString("id"));
                         }
                         addSousMatiere(ids, structureId, matieresEtab, handler);
-                    }else{
-                        handler.handle(new Either.Left("no subject"));
+                    } else {
+                        handler.handle(new Either.Right(matieresEtab));
                     }
-
                 }
             }else{
                 handler.handle(event2.left());

@@ -17,7 +17,6 @@
 
 package fr.openent.viescolaire.service.impl;
 
-import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.UtilsService;
@@ -193,6 +192,8 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .put("endCourse", 1)
                 .put("dayOfWeek", 1)
                 .put("color", 1)
+                .put("author", 1)
+                .put("exceptionnal", 1)
                 .put("manual", 1)
                 .put("updated", 1)
                 .put("lastUser", 1)
@@ -329,10 +330,14 @@ public class DefaultCommonCoursService implements CommonCoursService {
         JsonArray subjectIds = new JsonArray();
         for (int i = 0; i < courses.size(); i++) {
             JsonObject course = courses.getJsonObject(i);
-            if (course.containsKey("subjectId") && !subjectIds.contains(course.getString("subjectId"))) {
+            if (course.containsKey("subjectId")
+                    && !subjectIds.contains(course.getString("subjectId"))
+                    && course.getString("subjectId") != null) {
                 subjectIds.add(course.getString("subjectId"));
             }
-            if (course.containsKey("timetableSubjectId") && !subjectIds.contains(course.getString("timetableSubjectId"))) {
+            if (course.containsKey("timetableSubjectId")
+                    && !subjectIds.contains(course.getString("timetableSubjectId"))
+                    && course.getString("timetableSubjectId") != null) {
                 subjectIds.add(course.getString("timetableSubjectId"));
             }
         }
@@ -407,10 +412,12 @@ public class DefaultCommonCoursService implements CommonCoursService {
             }
         }
 
-        if (color.isEmpty() && course.containsKey("subjectId")) {
+        if (color.isEmpty() && course.containsKey("subjectId") && course.getString("subjectId") != null) {
             color = utilsService.getColor(course.getString("subjectId"));
-        } else if (color.isEmpty() && course.containsKey("timetableSubjectId")) {
+        } else if (color.isEmpty() && course.containsKey("timetableSubjectId") && course.getString("timetableSubjectId") != null) {
             color = utilsService.getColor(course.getString("timetableSubjectId"));
+        } else if (color.isEmpty() && course.containsKey("exceptionnal") && course.getString("exceptionnal") != null) {
+            color = utilsService.getColor(course.getString("exceptionnal"));
         }
 
         occurence.put("color", color);
@@ -420,7 +427,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
         occurence.put(COURSE_TABLE.endDate, df.format(end.getTime()));
         occurence.put(COURSE_TABLE.startCourse, df.format(start.getTime()));
         occurence.put(COURSE_TABLE.endCourse, df.format(end.getTime()));
-        if (course.getString("subjectId", "").equals(Course.exceptionnalSubject)) {
+        if (course.getString("subjectId") == null && course.containsKey(COURSE_TABLE.exceptionnal)) {
             occurence.put(COURSE_TABLE.exceptionnal, course.getString(COURSE_TABLE.exceptionnal));
         }
         return occurence;
@@ -456,7 +463,6 @@ public class DefaultCommonCoursService implements CommonCoursService {
 }
 
 class Course {
-    public static String exceptionnalSubject = "exceptionnal Subject";
     protected final String startDate = "startDate";
     protected final String startCourse = "startCourse";
     protected final String _id = "_id";

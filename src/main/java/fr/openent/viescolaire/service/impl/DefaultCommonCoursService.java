@@ -350,10 +350,17 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .stream()
                 .collect(Collectors.toMap(subject -> subject.getString("id"), Function.identity()));
 
-        ((List<JsonObject>) courses.getList()).forEach(course ->
-                course.put("subject", subjectsMap.getOrDefault
-                        (course.getString("subjectId",
-                        course.getString("timetableSubjectId")), new JsonObject()))
+        ((List<JsonObject>) courses.getList()).forEach(course -> {
+                    course.put("subject", subjectsMap.getOrDefault
+                            (course.getString("subjectId",
+                                    course.getString("timetableSubjectId")), new JsonObject()));
+
+                    //if subjectId exists but does not match any subject, use timetableSubjectId
+                    if (course.getJsonObject("subject").isEmpty()) {
+                        course.put("subject", subjectsMap.getOrDefault
+                                (course.getString("timetableSubjectId"), new JsonObject()));
+                    }
+                }
         );
     }
 

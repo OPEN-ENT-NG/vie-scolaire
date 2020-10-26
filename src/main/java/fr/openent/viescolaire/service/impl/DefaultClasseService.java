@@ -316,7 +316,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" (c:Group)")
                 .append(" WHERE HAS(u.deleteDate) ")
                 .append(" AND (c.id IN {idClasses} ")
-                .append(" AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING) ) ")
+                .append(" AND (c.externalId IN u.groups) ) ")
                 .append(RETURNING)
                 .append(" UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup),")
                 .append(" (c:Class)")

@@ -100,7 +100,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("UNION MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
                 .append(returning)
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), (c:Class {id :{idClasse}}) ")
-                .append("WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.id IN b.IN_OUTGOING OR c.externalId IN u.classes) ")
+                .append("WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.externalId IN u.classes) ")
                 .append(returning);
 
         String [] sortedField = new  String[2];

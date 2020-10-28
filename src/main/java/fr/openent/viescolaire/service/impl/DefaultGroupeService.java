@@ -171,7 +171,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 .append(" (fgroup:Group) ")
                 .append(" WHERE HAS(users.deleteDate) ")
                 .append(" AND fgroup.id = {groupeEnseignementId} ")
-                .append(" AND (fgroup.externalId IN users.groups  OR fgroup.id IN b.IN_OUTGOING) ")
+                .append(" AND (fgroup.externalId IN users.groups ) ")
                 .append(" AND " + PROFILFILTER)
                 .append(" OPTIONAL MATCH (c:Class) WHERE c.externalId IN users.classes ")
                 .append(RETURNING.toString());

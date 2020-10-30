@@ -565,6 +565,8 @@
   "evaluation.link.group.to": "Rattachement au ",
   "evaluation.link.group.classes": "Toutes les classes",
   "evaluation.link.success": "Rattachement effectué",
+  "evaluation.unlink.group.title": "Retirer un groupe ou une classe d'un cycle",
+  "evaluation.unlink.group.message": "Attention, vous allez retirer un cycle sur un groupe ou une classe qui contient des devoirs évalués. Les devoirs suivants ne seront pas conservés :",
   "evaluation.error.unautorize": "Désolé, vous n'avez pas le droit d'effectuer cette action",
   "evaluation.link.error.request": "Une erreur est survenue lors du rattachement.",
   "evaluation.link.message": "Attention une ou plusieurs classes vont changer de cycle. Les devoirs suivants ne seront pas conservés :",

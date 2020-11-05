@@ -98,11 +98,12 @@ public class CoursController extends ControllerHelper {
         final String startTime = request.params().get("startTime");
         final String endTime = request.params().get("endTime");
         final boolean union = Boolean.parseBoolean(request.params().get("union"));
+        final boolean crossDateFilter = Boolean.parseBoolean(request.params().get("crossDateFilter"));
         if (beginDate != null && endDate != null &&
                 beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
             commonCoursService
                     .getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate,
-                            startTime, endTime, union, arrayResponseHandler(request));
+                            startTime, endTime, union, crossDateFilter,arrayResponseHandler(request));
         } else {
             badRequest(request, "timetable.invalid.dates");
         }

@@ -43,24 +43,27 @@ public interface CommonCoursService {
      * @param handler           Function handler returning data
      */
     void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin, String end,
-                                    String startTime, String endTime, boolean union, String limit, String offset,
-                                    boolean descendingDate, Handler<Either<String,JsonArray>> handler);
+                                    String startTime, String endTime, boolean union, boolean crossDateFilter,
+                                    String limit, String offset, boolean descendingDate,
+                                    Handler<Either<String,JsonArray>> handler);
 
     /**
      * Get courses occurences
      *
-     * @param structureId   structure identifier
-     * @param teacherId     teacher identifier list
-     * @param group         Event type list
-     * @param begin         start date begin
-     * @param end           end date begin
-     * @param startTime     start time begin
-     * @param endTime       end time begin
-     * @param union         union filter way mode$or for OR and $and for and
-     * @param handler       Function handler returning data
+     * @param structureId       structure identifier
+     * @param teacherId         teacher identifier list
+     * @param group             Event type list
+     * @param begin             start date begin
+     * @param end               end date begin
+     * @param startTime         start time begin
+     * @param endTime           end time begin
+     * @param union             union filter way mode$or for OR and $and for and
+     * @param crossDateFilter   cross date filter (true : get courses beginning < start date and finishing end date)
+     * @param handler           Function handler returning data
      */
     void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end,
-                              String startTime, String endTime, boolean union, Handler<Either<String,JsonArray>> handler);
+                              String startTime, String endTime, boolean union, boolean crossDateFilter,
+                              Handler<Either<String,JsonArray>> handler);
 
     /**
      * Get courses occurences (pagination/limit/offset included)
@@ -79,7 +82,7 @@ public interface CommonCoursService {
      * @param handler           Function handler returning data
      */
     void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end,
-                              String startTime, String endTime, boolean union, String limit, String offset,
+                              String startTime, String endTime, boolean union, boolean crossDateFilter, String limit, String offset,
                               boolean descendingDate, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);

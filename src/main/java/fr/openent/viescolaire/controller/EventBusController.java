@@ -266,6 +266,7 @@ public class EventBusController extends ControllerHelper {
                 String endDate = body.getString("end");
                 String startTime = body.getString("startTime");
                 String endTime = body.getString("endTime");
+                boolean crossDateFilter = Boolean.parseBoolean(body.getString("crossDateFilter"));
                 boolean union = Boolean.parseBoolean(body.getString("union"));
                 String limit = body.getString("limit");
                 String offset = body.getString("offset");
@@ -273,8 +274,8 @@ public class EventBusController extends ControllerHelper {
 
                 if (beginDate != null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime, endTime, union,
-                            limit, offset, descendingDate, getJsonArrayBusResultHandler(message));
+                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime,
+                            endTime, union, crossDateFilter, limit, offset, descendingDate, getJsonArrayBusResultHandler(message));
                 }
             }
         }

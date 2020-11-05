@@ -75,8 +75,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     @Override
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groups, String begin, String end,
-                                           String startTime, String endTime, boolean union, String limitString, String offsetString,
-                                           boolean descendingDate, Handler<Either<String, JsonArray>> handler) {
+                                           String startTime, String endTime, boolean union, boolean crossDateFilter,
+                                           String limitString, String offsetString, boolean descendingDate,
+                                           Handler<Either<String, JsonArray>> handler) {
 
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
@@ -87,8 +88,18 @@ public class DefaultCommonCoursService implements CommonCoursService {
         query.put("$or", theoreticalFilter());
         String endDate = end + (endTime == null ? END_DATE_PATTERN : "T" + endTime + "Z");
         String startDate = begin + (startTime == null ? START_DATE_PATTERN : "T" + startTime + "Z");
-        JsonObject startFilter = new JsonObject().put("$gte", startDate);
-        JsonObject endFilter = new JsonObject().put("$lte", endDate);
+
+        JsonObject startFilter = new JsonObject();
+        JsonObject endFilter = new JsonObject();
+
+        if(!crossDateFilter){
+            startFilter.put("$gte", startDate);
+            endFilter.put("$lte", endDate);
+        } else {
+            startFilter.put("$lte", startDate);
+            endFilter.put("$gte", endDate);
+        }
+
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
 
@@ -257,18 +268,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
-                                     boolean union, final Handler<Either<String, JsonArray>> handler) {
-        this.getCoursesOccurences(structureId, teacherId, group, begin, end, startTime, endTime, union, null, null, false, handler);
+                                     boolean union, boolean crossDateFilter, final Handler<Either<String, JsonArray>> handler) {
+        this.getCoursesOccurences(structureId, teacherId, group, begin, end, startTime, endTime, union, crossDateFilter,
+                null, null, false, handler);
     }
 
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
-                                     boolean union, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
+                                     boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
         Future<JsonArray> classeFuture = Future.future();
 
-        getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset,
-                descendingDate, coursesFuture);
+        getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
+                crossDateFilter, limit, offset, descendingDate, coursesFuture);
 
         checkGroupFromClass(group, structureId, response -> {
             if (response.isRight()) {
@@ -296,10 +308,11 @@ public class DefaultCommonCoursService implements CommonCoursService {
     }
 
     private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin,
-                                           String end, String startTime, String endTime, boolean union, String limit,
-                                           String offset, boolean descendingDate, Future<JsonArray> coursesFuture) {
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union, limit, offset,
-                descendingDate,
+                                           String end, String startTime, String endTime, boolean union,
+                                           boolean crossDateFilter, String limit, String offset, boolean descendingDate,
+                                           Future<JsonArray> coursesFuture) {
+        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
+                crossDateFilter, limit, offset, descendingDate,
                 response -> {
                     if (response.isLeft()) {
                         coursesFuture.complete(response.right().getValue());

@@ -19,7 +19,9 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.MatiereService;
+import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.utils.DateHelper;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -67,10 +69,13 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private static final String END_DATE_PATTERN = "T23.59Z";
     private static final String START_END_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private final Neo4j neo4j = Neo4j.getInstance();
+    private final PeriodeAnneeService periodeAnneeService;
+
 
     public DefaultCommonCoursService(EventBus eb) {
         this.eb = eb;
         matiereService = new DefaultMatiereService(eb);
+        periodeAnneeService = new DefaultPeriodeAnneeService();
     }
 
     @Override
@@ -244,7 +249,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                 .put("$match", filter);
     }
 
-    private JsonObject sort(JsonObject filter)  {
+    private JsonObject sort(JsonObject filter) {
         return new JsonObject()
                 .put("$sort", filter);
     }
@@ -278,6 +283,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
                                      boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
         Future<JsonArray> classeFuture = Future.future();
+        Future<JsonArray> exclusionPeriodsFuture = Future.future();
 
         getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
                 crossDateFilter, limit, offset, descendingDate, coursesFuture);
@@ -286,15 +292,25 @@ public class DefaultCommonCoursService implements CommonCoursService {
             if (response.isRight()) {
                 classeFuture.complete(response.right().getValue());
             } else {
-                classeFuture.fail("can't get courses from mongo");
+                classeFuture.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get courses from mongo");
             }
         });
 
-        CompositeFuture.all(coursesFuture, classeFuture).setHandler(event -> {
+        periodeAnneeService.listExclusion(structureId, resExlusions -> {
+            if (resExlusions.isLeft()) {
+                exclusionPeriodsFuture.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get exclusion periods. "
+                        + resExlusions.left().getValue());
+                return;
+            }
+            exclusionPeriodsFuture.complete(resExlusions.right().getValue());
+        });
+
+        CompositeFuture.all(coursesFuture, classeFuture, exclusionPeriodsFuture).setHandler(event -> {
             if (event.succeeded()) {
                 JsonArray results = new JsonArray();
                 for (Object o : coursesFuture.result()) {
                     JsonObject course = (JsonObject) o;
+                    if (isCourseInsideExcludedPeriods(exclusionPeriodsFuture.result(), course)) continue;
                     boolean onlyOneClass = isOneClass(classeFuture.result(), teacherId, group);
                     Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
                     Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
@@ -337,6 +353,23 @@ public class DefaultCommonCoursService implements CommonCoursService {
                     }
                 }
         );
+    }
+
+    private static boolean isCourseInsideExcludedPeriods(JsonArray exclusions, JsonObject course) {
+        boolean isExcluded = false;
+        for (Object o : exclusions) {
+            JsonObject exclusion = (JsonObject) o;
+            SimpleDateFormat DATE_FORMATTER = DateHelper.DATE_FORMATTER;
+            Date startExclusion = getDate(exclusion.getString("start_date"), DATE_FORMATTER);
+            Date endExclusion = getDate(exclusion.getString("end_date"), DATE_FORMATTER);
+            Date startCourse = getDate(course.getString(COURSE_TABLE.startDate), DATE_FORMATTER);
+            Date endCourse = getDate(course.getString(COURSE_TABLE.endDate), DATE_FORMATTER);
+            if (startCourse.before(endExclusion) && startExclusion.before(endCourse)) {
+                isExcluded = true;
+                break;
+            }
+        }
+        return isExcluded;
     }
 
     private JsonArray getSubjectAndTimetableSubjectIds(JsonArray courses) {

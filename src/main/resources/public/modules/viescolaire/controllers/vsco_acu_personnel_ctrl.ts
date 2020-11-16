@@ -18,12 +18,11 @@
 /**
  * Created by ledunoiss on 13/09/2016.
  */
-import {Behaviours, model, ng, template} from 'entcore';
+import {Behaviours, model, moment, ng, template} from 'entcore';
 import { vieScolaire} from '../models/vsco_personnel_mdl';
 import * as utils from '../../utils/personnel';
 import {TimeSlots} from "../models/common/TimeSlots";
 
-let moment = require('moment');
 declare let _: any;
 
 export let adminVieScolaireController = ng.controller('VscoAdminController', [

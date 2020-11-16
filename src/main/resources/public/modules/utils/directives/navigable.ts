@@ -18,9 +18,7 @@
 /**
  * Created by ledunoiss on 21/09/2016.
  */
-import { ng } from 'entcore';
-
-export let $ = require('jquery');
+import {$, ng} from 'entcore';
 
 export let navigable = ng.directive('cNavigable', function(){
     return {

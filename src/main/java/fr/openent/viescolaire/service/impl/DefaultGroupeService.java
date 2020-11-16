@@ -216,7 +216,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 filter.append("OR ");
             }
 
-            filter.append("toLower(g.").append(field).append(") CONTAINS '").append(query.toLowerCase()).append("' ");
+            filter.append("toLower(g.").append(field).append(") CONTAINS {query} ");
         }
 
         String neo4jquery = "MATCH (g)-[:BELONGS|:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " +
@@ -226,7 +226,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 "ORDER BY g.name";
 
         JsonObject params = new JsonObject()
-                .put("structureId", structure_id);
+                .put("structureId", structure_id)
+                .put("query", query);
 
         neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));
     }

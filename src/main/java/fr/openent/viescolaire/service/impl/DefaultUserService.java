@@ -862,7 +862,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             if (i > 0) {
                 filter += "OR ";
             }
-            filter += "toLower(u." + field + ") CONTAINS '" + query.toLowerCase() + "' ";
+            filter += "toLower(u." + field + ") CONTAINS {query} ";
         }
 
         String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure) " +
@@ -873,6 +873,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
         JsonObject params = new JsonObject()
                 .put("structureId", structure_id)
+                .put("query", query)
                 .put("profiles", new JsonArray().add(profile));
 
 

@@ -592,6 +592,12 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getDeletedStudentByPeriodeByClass(idClass, beginningPeriode, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getAnnotations": {
+                String idEleve = message.body().getString("idEleve");
+                Long idPeriode = message.body().getLong("idPeriode");
+                eleveService.getAnnotations(idEleve, idPeriode, null, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

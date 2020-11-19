@@ -231,22 +231,24 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode,")
-                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib")
-                .append(", type.nom as _type_libelle ")
-                .append(" FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
-                .append(" inner JOIN notes.annotations on annotations.id = id_annotation ")
-                .append(" inner join notes.type on devoirs.id_type = type.id  ");
+        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, ")
+                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib, ")
+                .append("type.nom as _type_libelle, sum_notes, nbr_eleves ")
+                .append("FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
+                .append("INNER JOIN notes.annotations on annotations.id = id_annotation ")
+                .append("INNER JOIN notes.type on devoirs.id_type = type.id ")
+                .append("LEFT JOIN (SELECT devoirs.id, SUM(notes.valeur) as sum_notes, COUNT(notes.valeur) as nbr_eleves ")
+                .append("FROM notes.devoirs INNER JOIN notes.notes on devoirs.id = notes.id_devoir ")
+                .append("WHERE date_publication <= Now() ")
+                .append("GROUP BY devoirs.id) sum ON sum.id = devoirs.id ");
 
         if(idGroups != null) {
-            query.append(" inner JOIN notes.rel_devoirs_groupes on  devoirs.id = rel_devoirs_groupes.id_devoir ");
-            query.append(" AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append("INNER JOIN notes.rel_devoirs_groupes ON devoirs.id = rel_devoirs_groupes.id_devoir ");
+            query.append("AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
             for (int i = 0; i < idGroups.size(); i++) {
                 values.add(idGroups.getString(i));
             }
         }
-
-
 
         query.append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
         values.add(idEleve);
@@ -441,7 +443,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("           string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
                 .append("    FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp, viesco.rel_groupes_personne_supp ")
                 .append("    WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
-               // .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
+                // .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
                 .append((idClasse != null)? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
                 .append((idEleves != null)? " AND id_user IN " + Sql.listPrepared(idEleves): "")
                 .append("    AND user_type = 'Student' ")

@@ -26,8 +26,8 @@ public class DefaultMementoService implements MementoService {
             if (res.failed()) handler.handle(new Either.Left<>(res.cause().toString()));
             else {
                 JsonObject student = information.result();
-                student.put("classes", classes.result().getJsonArray("classes"));
-                student.put("class_id", classes.result().getString("id"));
+                student.put("classes", classes.result().getJsonArray("classes", new JsonArray()));
+                student.put("class_id", classes.result().getJsonArray("id", new JsonArray()));
                 student.put("relatives", relatives.result());
                 student.put("comment", comment.result());
                 handler.handle(new Either.Right<>(student));
@@ -67,7 +67,7 @@ public class DefaultMementoService implements MementoService {
      */
     private void retrieveStudentClasses(String id, Future<JsonObject> future) {
         String query = "MATCH (u:User {id:{id}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(g:Class)" +
-                "RETURN collect(g.name) AS classes, g.id as id";
+                "RETURN collect(g.name) AS classes, collect(g.id) as id";
         JsonObject params = new JsonObject().put("id", id);
         Neo4j.getInstance().execute(query, params, Neo4jResult.validUniqueResultHandler(res -> {
             if (res.isLeft()) future.fail(res.left().getValue());

@@ -15,8 +15,8 @@ import org.entcore.common.user.UserUtils;
 import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 
 public class MementoController extends ControllerHelper {
-    private MementoService mementoService;
-    private EventBus eb;
+    private final MementoService mementoService;
+    private final EventBus eb;
 
     public MementoController(EventBus eb) {
         super();

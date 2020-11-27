@@ -738,6 +738,13 @@ public class EventBusController extends ControllerHelper {
                 periodeAnneeService.listExclusion(idEtablissement, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getPeriodesClasses": {
+                String idEtablissement = message.body().getString("idEtablissement");
+                String[] idsClasse = convertJsonArrayToStringArray(message.body().getJsonArray("idsClasse"));
+                Long idPeriode = message.body().getLong("idPeriode");
+                periodeService.getPeriodesClasses(idEtablissement, idsClasse, idPeriode, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

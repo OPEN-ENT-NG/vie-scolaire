@@ -138,7 +138,7 @@ public class EleveController extends ControllerHelper {
         eleveService.getUsers(idUsers,handler);
     }
 
-    @Get("/annotations/eleve/:idEleve")
+    @Get("/annotations/eleve")
     @ApiDoc("Récupère les annotations sur les devoirs d'un élève.")
     @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
@@ -172,27 +172,34 @@ public class EleveController extends ControllerHelper {
                 }
             });
         } else {
-            eleveService.getAnnotations(idEleve,fIdePeriode, null, handler);
+            eleveService.getAnnotations(idEleve, fIdePeriode, null, handler);
         }
 
     }
 
-    @Get("/competences/eleve/:idEleve")
+    @Get("/competences/eleve")
     @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
     @ResourceFilter(AccessAuthorized.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCompetencesEleve(final HttpServerRequest request) {
         final String idEleve = request.params().get("idEleve");
         final String idClasse = request.params().get("idClasse");
+
         eleveService.getGroups(idEleve, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
                 final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+
                 Long idPeriode = null;
                 if (request.params().get("idPeriode") != null) {
                     idPeriode = testLongFormatParameter("idPeriode", request);
                 }
-                JsonArray idGroups = new fr.wseduc.webutils.collections.JsonArray().add(idClasse);
+
+                JsonArray idGroups = new JsonArray();
+                if(idClasse != null){
+                    idGroups.add(idClasse);
+                }
+
                 if (event.isRight()) {
                     JsonArray values = event.right().getValue();
                     if (values.size() > 0) {
@@ -215,7 +222,6 @@ public class EleveController extends ControllerHelper {
                     idCycle = null;
                 }
                 eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, handler);
-
             }
         });
     }

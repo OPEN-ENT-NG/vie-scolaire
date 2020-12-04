@@ -19,12 +19,12 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.EleveService;
-import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.Utils;
+import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
@@ -32,19 +32,12 @@ import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
-import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-
-import static org.entcore.common.sql.SqlResult.validResultHandler;
 
 /**
  * Created by ledunoiss on 10/02/2016.
@@ -259,16 +252,16 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
+
     @Override
     public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle,
                                Handler<Either<String, JsonArray>> handler) {
-
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
         String query = "SELECT res.id_devoir,id_competence, id_domaine, max(evaluation) as evaluation, owner, id_eleve, " +
-                " created, modified, id_matiere,id_sousmatiere, name, is_evaluated, id_periode, " +
+                "created, modified, id_matiere,id_sousmatiere, name, is_evaluated, id_periode, " +
                 "id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
-                "_type_libelle, owner_name  FROM ( " +
-                " SELECT cd.id_devoir,cd.id_competence, id_domaine, evaluation, cn.owner, id_eleve, " +
+                "_type_libelle, owner_name FROM ( " +
+                "SELECT cd.id_devoir,cd.id_competence, id_domaine, evaluation, cn.owner, id_eleve, " +
                 "devoirs.created, devoirs.modified, devoirs.id_matiere, devoirs.id_sousmatiere, name, devoirs.is_evaluated, " +
                 "id_periode, devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
                 "type.nom as _type_libelle, users.username as owner_name " +
@@ -279,16 +272,16 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 "INNER JOIN notes.devoirs on devoirs.id = cd.id_devoir " +
                 "INNER JOIN notes.type on devoirs.id_type = type.id " +
                 "INNER JOIN notes.rel_competences_domaines ON rel_competences_domaines.id_competence = cd.id_competence " +
-                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) " +
-                "LEFT JOIN notes.rel_devoirs_groupes on  cd.id_devoir = rel_devoirs_groupes.id_devoir ";
+                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".users ON (users.id = devoirs.owner) " +
+                "LEFT JOIN notes.rel_devoirs_groupes on  cd.id_devoir = rel_devoirs_groupes.id_devoir " +
+                "WHERE date_publication <= Now() AND id_eleve = ? ";
 
-
-        query +=" WHERE date_publication <= Now() AND id_eleve = ? ";
         values.add(idEleve);
 
         for (int i = 0; i < idGroups.size(); i++) {
             values.add(idGroups.getString(i));
         }
+
         if(idCycle == null) {
             // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
             query +="AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
@@ -307,20 +300,19 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             values.add(idPeriode);
         }
 
-        query +=" UNION " +
+        query += " UNION " +
                 "SELECT competences_devoirs.id_devoir, competences_devoirs.id_competence, id_domaine, "+
-                " -1 as evaluation, owner, ? as id_eleve, " +
-                "created, modified, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, " +
+                "-1 as evaluation, devoirs.owner, id_eleve, " +
+                "devoirs.created, devoirs.modified, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, " +
                 "devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
                 "type.nom as _type_libelle , users.username as owner_name " +
                 "FROM notes.competences_devoirs " +
+                "INNER JOIN notes.competences_notes ON competences_notes.id_devoir = competences_devoirs.id_devoir " +
                 "INNER JOIN notes.devoirs on devoirs.id = competences_devoirs.id_devoir " +
                 "INNER JOIN notes.type on devoirs.id_type = type.id " +
                 "INNER JOIN notes.rel_competences_domaines ON rel_competences_domaines.id_competence = competences_devoirs.id_competence " +
-                "INNER JOIN "+ Viescolaire.EVAL_SCHEMA +".users ON (users.id = devoirs.owner) " +
+                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".users ON (users.id = devoirs.owner) " +
                 "INNER JOIN notes.rel_devoirs_groupes on  competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ";
-
-        values.add(idEleve);
 
         for (int i = 0; i < idGroups.size(); i++) {
             values.add(idGroups.getString(i));
@@ -328,21 +320,22 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         if(idCycle == null) {
             // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
-
-            query += "WHERE date_publication <= Now() " +
+            query += "WHERE date_publication <= Now() AND id_eleve = ? " +
                     "AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
                     " AND devoirs.eval_lib_historise = false ";
+            values.add(idEleve);
         } else {
             // en vue cycle recuperation des devoirs de la classe (+groupes) actuelle de l'élève
             // + récupération des evaluations historisées
             query += "INNER JOIN notes.competences ON competences.id = competences_devoirs.id_competence " +
-                    "WHERE date_publication <= Now() " +
+                    "WHERE date_publication <= Now() AND id_eleve = ? " +
                     "AND ( (rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
-                    " AND devoirs.eval_lib_historise = false) OR  devoirs.eval_lib_historise = true) " +
+                    " AND devoirs.eval_lib_historise = false) OR devoirs.eval_lib_historise = true) " +
                     "AND competences.id_cycle = ? ";
+            values.add(idEleve);
             values.add(idCycle);
-
         }
+
 
         if(idPeriode != null){
             query += " AND id_periode = ? ";
@@ -355,6 +348,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
     }
+
     @Override
     public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

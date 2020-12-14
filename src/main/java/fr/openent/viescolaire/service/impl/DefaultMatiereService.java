@@ -80,8 +80,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         String returndata;
         if (onlyId) {
             returndata = "RETURN collect(sub.id) as res ";
-        }
-        else {
+        } else {
             returndata = "RETURN " +
                     "s.id as idEtablissement, " +
                     "sub.id as id," +
@@ -92,17 +91,18 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                     "sub.externalId as external_id_subject " +
                     "ORDER BY name ";
         }
-        String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " +
-                returndata;
+
+        String query = "MATCH (sub:Subject)-[sj:SUBJECT]->(s:Structure {id: {idStructure}}) " + returndata;
         JsonObject values = new JsonObject().put("idStructure", idStructure);
+
         neo4j.execute(query, values, Neo4jResult.validResultHandler(responseNeo4j -> {
             SubjectHelper.addRankForSubject(responseNeo4j, handler);
         }));
     }
 
     @Override
-    public void listMatieres(String structureId , JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe,Handler<Either<String, JsonArray>> result) {
-
+    public void listMatieres(String structureId , JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe,
+                             Handler<Either<String, JsonArray>> result) {
         String query = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) ";
         String withValue = " WITH r.classes + r.groups as libelleClasses, s, u, sub " +
                 "MATCH (s)--(c) WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) ";
@@ -134,7 +134,6 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     public void listAllMatieres(String structureId, String idEnseignant, Boolean onlyId, Handler<Either<String, JsonArray>> handler) {
         utilsService.getTitulaires(idEnseignant, structureId, eventRemplacants -> {
             if (eventRemplacants.isRight()) {
-
                 JsonArray aIdEnseignant = eventRemplacants.right().getValue();
                 JsonArray listIdsEnseignant = new JsonArray();
                 for(Object idEnseignantO : aIdEnseignant){
@@ -143,31 +142,30 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                 if(idEnseignant != null)
                     listIdsEnseignant.add(idEnseignant);
 
-                listMatieres(structureId, listIdsEnseignant, null, null, checkOverwrite(structureId, aIdEnseignant, event -> {
-                    if (event.isRight()) {
-                        final JsonArray resultats = event.right().getValue();
-                        if (resultats.size() > 0) {
+                listMatieres(structureId, listIdsEnseignant, null, null,
+                        checkOverwrite(structureId, aIdEnseignant, event -> {
+                            if (event.isRight()) {
+                                final JsonArray resultats = event.right().getValue();
+                                if (resultats.size() > 0) {
+                                    final List<String> ids = new ArrayList<>();
 
-                            final List<String> ids = new ArrayList<>();
-
-                            for (Object res : resultats) {
-                                ids.add(((JsonObject) res).getString("id"));
-                            }
-                            if(onlyId) {
-                                handler.handle(new Either.Right<>(new JsonArray(ids)));
+                                    for (Object res : resultats) {
+                                        ids.add(((JsonObject) res).getString("id"));
+                                    }
+                                    if(onlyId) {
+                                        handler.handle(new Either.Right<>(new JsonArray(ids)));
+                                    } else {
+                                        addSousMatiere(ids, structureId, resultats, handler);
+                                    }
+                                } else {
+                                    listMatieresEtabWithSousMatiere(structureId, onlyId, handler);
+                                }
                             } else {
-                                addSousMatiere(ids, structureId, resultats, handler);
+                                handler.handle(event.left());
                             }
-                        } else {
-                            listMatieresEtabWithSousMatiere(structureId,onlyId,handler);
-                        }
-                    } else {
-                        handler.handle(event.left());
-                    }
-                }));
+                        }));
 
             } else {
-                System.out.println("cc");
                 handler.handle(eventRemplacants.left());
             }
         });
@@ -228,7 +226,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             }
         });
     }
-    
+
     @Override
     public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();
@@ -256,7 +254,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
 
         JsonObject params = new JsonObject().put("subjectId", subjectId);
 
-        neo4j.execute(query, params, Neo4jResult.validResultHandler(responseNeo4j -> 
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(responseNeo4j ->
                 SubjectHelper.addRankForSubject(responseNeo4j, result)));
     }
 
@@ -275,8 +273,8 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         params.put("idMatieres", idMatieres);
         try {
             neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(responseNeo4j -> {
-            SubjectHelper.addRankForSubject(responseNeo4j, result);
-        }));
+                SubjectHelper.addRankForSubject(responseNeo4j, result);
+            }));
 
         } catch (VertxException e){
             String error = e.getMessage();
@@ -300,7 +298,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
             String error = e.getMessage();
             log.error("getMatiere " + e.getMessage());
             if(error.contains("Connection was closed")) {
-               getMatiere(idMatiere, result);
+                getMatiere(idMatiere, result);
 
             }
         }

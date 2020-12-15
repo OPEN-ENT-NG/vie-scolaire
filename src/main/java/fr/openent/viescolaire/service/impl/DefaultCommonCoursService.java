@@ -491,7 +491,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
         try {
             date = dateFormat.parse(dateString);
         } catch (ParseException e) {
-            LOG.error("error when casting date: ", e);
+            String message = "[Viescolaire@DefaultCommonCoursService::getDate] Error " +
+                    "formatting Date: '" + e.getMessage() + "', will continue proceeding";
+            LOG.error(message);
         }
         return date;
     }
@@ -505,8 +507,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
             }
             date = formatter.parse(stringDate);
         } catch (ParseException e) {
-            LOG.error("Error formatting Date ");
-            handler.handle(new Either.Left<>("Error formatting Date"));
+            String message = "[Viescolaire@DefaultCommonCoursService::getCalendarDate] Error " +
+                    "formatting Date: '" + e.getMessage() + "', will continue proceeding";
+            LOG.error(message);
         }
         Calendar startCalendar = Calendar.getInstance();
         startCalendar.setTime(date);

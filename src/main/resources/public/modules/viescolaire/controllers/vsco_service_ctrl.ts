@@ -66,22 +66,28 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
 
                 if(coTeachers){
                     _.each(coTeachers , (coTeacher) => {
-                        coTeacher.displayName = (_.findWhere($scope.columns.enseignant.data,
-                            {id: coTeacher.second_teacher_id}) != undefined)? _.findWhere($scope.columns.enseignant.data,
-                            {id: coTeacher.second_teacher_id}).displayName : "";
-                        coTeachers_name += coTeacher.displayName + " ";
+                        let coT = _.findWhere($scope.columns.enseignant.data, {id: coTeacher.second_teacher_id});
+                        if(coT != undefined){
+                            coTeacher.displayName = coT.displayName;
+                            coTeachers_name += coTeacher.displayName + " ";
+                        } else {
+                            coTeacher.displayName = "";
+                        }
                     });
                 }
                 if(substituteTeachers){
                     _.each(substituteTeachers , (substituteTeacher) => {
-                        substituteTeacher.displayName = (_.findWhere($scope.columns.enseignant.data,
-                            {id: substituteTeacher.second_teacher_id}) != undefined)? _.findWhere($scope.columns.enseignant.data,
-                            {id: substituteTeacher.second_teacher_id}).displayName : "";
-                        substituteTeachers_name += substituteTeacher.displayName + " ";
+                        let subT = _.findWhere($scope.columns.enseignant.data, {id: substituteTeacher.second_teacher_id});
+                        if(subT != undefined) {
+                            substituteTeacher.displayName = subT.displayName;
+                            substituteTeachers_name += substituteTeacher.displayName + " ";
+                        } else {
+                            substituteTeacher.displayName = "";
+                        }
                     });
                 }
 
-                service = _.omit(service,'coTeachers','substituteTeacher');
+                service = _.omit(service, 'coTeachers', 'substituteTeacher');
                 let missingParams = {
                     id_etablissement: $scope.idStructure,
                     nom_enseignant: enseignant ? enseignant.displayName : null,
@@ -92,8 +98,8 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                     coTeachers_name : coTeachers_name,
                     substituteTeachers_name : substituteTeachers_name,
                     subTopics: subTopics ? subTopics : [],
-                    coTeachers: (_.isEmpty(coTeachers))? [] : _.map(coTeachers, (coTeacher) => { return new MultiTeaching(coTeacher) }) ,
-                    substituteTeacher:  (_.isEmpty(substituteTeachers))? [] : _.map(substituteTeachers, (substituteTeacher) => { return new MultiTeaching(substituteTeacher) })
+                    coTeachers: (_.isEmpty(coTeachers)) ? [] : _.map(coTeachers, (coTeacher) => { return new MultiTeaching(coTeacher) }) ,
+                    substituteTeacher:  (_.isEmpty(substituteTeachers)) ? [] : _.map(substituteTeachers, (substituteTeacher) => { return new MultiTeaching(substituteTeacher) })
                 };
                 return new Service(_.defaults(service, missingParams));
             }), service => service.hasNullProperty());

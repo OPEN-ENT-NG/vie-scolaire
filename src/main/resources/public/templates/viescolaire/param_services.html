@@ -103,7 +103,8 @@
                         <div class="[[columns.remplacement.size]] cellTab cellTab-center">
                             <div ng-if="service.substituteTeachers.length > 0"
                                  ng-repeat="substituteTeacher in service.substituteTeachers">
-                                <span ng-class="{'greyColor' : !filterValidDateSubstituteTeacher(substituteTeacher)}"
+                                <span ng-if="substituteTeacher.displayName.length > 0"
+                                      ng-class="{'greyColor' : !filterValidDateSubstituteTeacher(substituteTeacher)}"
                                       tooltip="[[getI18n('evaluation.service.columns.remplacement')]]
                                     [[getI18n('viescolaire.utils.from.date')]]
                                     [[substituteTeacher.start_date | date:'dd/MM/yyyy']]

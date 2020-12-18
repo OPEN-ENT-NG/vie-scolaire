@@ -96,24 +96,28 @@
                             </span>
                             <div class ='padding-top' ng-if="service.coTeachers.length > 0"
                                  ng-repeat="coTeacher in service.coTeachers">
-                                [[coTeacher.displayName]]
-                                <i class="cancel" ng-click="deleteCoTeacher(coTeacher)" ></i>
+                                <div ng-if="coTeacher.displayName.length > 0">
+                                    [[coTeacher.displayName]]
+                                    <i class="cancel" ng-click="deleteCoTeacher(coTeacher)" ></i>
+                                </div>
                             </div>
                         </div>
                         <div class="[[columns.remplacement.size]] cellTab cellTab-center">
                             <div ng-if="service.substituteTeachers.length > 0"
                                  ng-repeat="substituteTeacher in service.substituteTeachers">
-                                <span ng-if="substituteTeacher.displayName.length > 0"
-                                      ng-class="{'greyColor' : !filterValidDateSubstituteTeacher(substituteTeacher)}"
-                                      tooltip="[[getI18n('evaluation.service.columns.remplacement')]]
+                                <div ng-if="substituteTeacher.displayName.length > 0">
+                                    <span ng-class="{'greyColor' : !filterValidDateSubstituteTeacher(substituteTeacher)}"
+                                          tooltip="[[getI18n('evaluation.service.columns.remplacement')]]
                                     [[getI18n('viescolaire.utils.from.date')]]
                                     [[substituteTeacher.start_date | date:'dd/MM/yyyy']]
                                     [[getI18n('viescolaire.utils.to.date')]]
                                     [[substituteTeacher.end_date | date:'dd/MM/yyyy']]<br>
                                     [[getI18n('viescolaire.utils.datefinsaisie')]]
                                     [[substituteTeacher.entered_end_date | date:'dd/MM/yyyy']]">
-                                [[substituteTeacher.displayName]] </span>
-                                <i class="pencil" ng-click="openAddTeacherLightbox(service, false, substituteTeacher);$event.stopPropagation()"></i>
+                                        [[substituteTeacher.displayName]]
+                                    </span>
+                                    <i class="pencil" ng-click="openAddTeacherLightbox(service, false, substituteTeacher);$event.stopPropagation()"></i>
+                                </div>
                             </div>
 
                             <div class="svg-image">

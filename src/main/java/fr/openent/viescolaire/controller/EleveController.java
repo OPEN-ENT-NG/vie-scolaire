@@ -26,6 +26,7 @@ import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
@@ -221,7 +222,12 @@ public class EleveController extends ControllerHelper {
                 } else {
                     idCycle = null;
                 }
-                eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, handler);
+                if(idGroups != null && !idGroups.isEmpty()) {
+                    eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, handler);
+                } else {
+                    Renders.renderJson(request, new JsonArray());
+                }
+
             }
         });
     }

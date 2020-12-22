@@ -311,10 +311,10 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         getMatieres(idsSubject, subjectsResponse -> {
             if(subjectsResponse.isRight()){
                 JsonArray subjects = subjectsResponse.right().getValue();
-                if(subjects.isEmpty()){
-                    handler.handle(new Either.Left<>(" no subject "));
-                }else {
+                if(!subjects.isEmpty()) {
                     addSousMatiere(idsSubject.getList(), idStructure, subjects, handler);
+                } else {
+                    handler.handle(new Either.Right<>(subjects));
                 }
             }else{
                 handler.handle(new Either.Left<>(subjectsResponse.left().getValue()));

@@ -223,7 +223,7 @@ public class EventBusController extends ControllerHelper {
                                 message.reply(getErrorReply(directoryMessage.cause().getMessage()));
                             } else {
                                 JsonObject timeslot = ((JsonObject) directoryMessage.result().body()).getJsonObject("result");
-                                JsonArray slots = timeslot.getJsonArray("slots");
+                                JsonArray slots = timeslot.getJsonArray("slots", new JsonArray());
                                 List<JsonObject> sortedSlots = ((List<JsonObject>) slots.getList());
                                 sortedSlots.sort((Comparator) (o, t1) -> ((JsonObject) o).getString("startHour").compareTo(((JsonObject) t1).getString("startHour")));
                                 timeslot.put("slots", new JsonArray(sortedSlots));

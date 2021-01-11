@@ -34,7 +34,7 @@ public interface GroupeService extends CrudService {
      * @param userId identifiant de l'utilisateur
      * @param handler handler portant le résultat de la requête
      */
-    public void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler);
+    void listGroupesEnseignementsByUserId(String userId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Récupère les classes des groupes passes en parametre
@@ -42,7 +42,7 @@ public interface GroupeService extends CrudService {
      * @param idGroupes Identifiant des groupes
      * @param handler  Handler portant le résultat de la requête
      */
-    public void getClasseGroupe(String[] idGroupes, Handler<Either<String, JsonArray>> handler);
+    void getClasseGroupe(String[] idGroupes, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Liste les élèves pour un groupe d'ensignement donné
@@ -50,7 +50,7 @@ public interface GroupeService extends CrudService {
      * @param idPeriode
      * @param handler
      */
-    public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile,
+    void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile,
                                                 Long idPeriode,
                                                 Handler<Either<String, JsonArray>> handler);
 
@@ -59,7 +59,7 @@ public interface GroupeService extends CrudService {
      * @param idGroupe id of classe or groupe
      * @param handler
      */
-    public void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler);
+    void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Search for group based on given name. Search for group in classes, functional groups and manual groups
@@ -70,5 +70,5 @@ public interface GroupeService extends CrudService {
      */
     void search(String structure_id, String query, List<String> fields, Handler<Either<String, JsonArray>> handler);
 
-    public void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler);
+    void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler);
 }

@@ -51,6 +51,12 @@
                                 <i18n>evaluation.service.title</i18n>
                             </a>
                         </li>
+                        <li workflow="viescolaire.paramTrombinoscope">
+                            <a href=""  ng-class="{'selected': currParam === 6}"
+                               ng-click="currParam = 6;">
+                                <i18n>viescolaire.trombinoscope</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -59,11 +65,11 @@
 
     <!-- Paramétrage année scolaire -->
     <div ng-if="currParam === 0"
-         ng-include="'/viescolaire/public/templates/viescolaire/param_annee_scolaire.html'">
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param_annee_scolaire.html'">
     </div>
     <!-- Paramétrage des périodes -->
     <div ng-if="currParam === 1"
-         ng-include="'/viescolaire/public/templates/viescolaire/param_periode.html'">
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param_periode.html'">
     </div>
     <!-- Paramétrage periode exclusion -->
     <div  ng-if="currParam === 2">
@@ -74,10 +80,14 @@
     </div>
     <!-- Plages horaires -->
     <div ng-if="currParam === 3"
-         ng-include="'/viescolaire/public/templates/viescolaire/param_time_slots.html'">
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param_time_slots.html'">
     </div>
     <!-- Paramétrage Services -->
     <div ng-if="currParam === 5"
-         ng-include="'/viescolaire/public/templates/viescolaire/param_services.html'">
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param_services.html'">
+    </div>
+    <!-- Paramétrage Trombinoscope -->
+    <div ng-if="currParam === 6"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/trombinoscope/param_trombinoscope.html'">
     </div>
 </div>

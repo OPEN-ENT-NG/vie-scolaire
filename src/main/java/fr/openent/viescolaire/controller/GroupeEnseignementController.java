@@ -155,4 +155,22 @@ public class GroupeEnseignementController extends ControllerHelper {
             classeService.getGroupeFromClasse(classesId.toArray(new String[0]), handler);
         }
     }
+
+    @Get("/group/search")
+    @ApiDoc("Search group from name")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void searchGroups(HttpServerRequest request) {
+        if (request.params().contains("q")
+                && !"".equals(request.params().get("q").trim())
+                && request.params().contains("field")
+                && request.params().contains("structureId")) {
+            String query = request.getParam("q");
+            List<String> fields = request.params().getAll("field");
+            String structure_id = request.getParam("structureId");
+
+            groupeService.search(structure_id, query, fields, arrayResponseHandler(request));
+        } else {
+            badRequest(request);
+        }
+    }
 }

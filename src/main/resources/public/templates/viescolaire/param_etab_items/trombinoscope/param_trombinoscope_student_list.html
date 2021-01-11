@@ -1,0 +1,81 @@
+<div ng-controller="TrombinoscopeStudentListController as vm">
+    <div class="ten cell trombinoscope-students">
+        <article class="twelve cell ">
+            <div class="title-back">
+                <i class="left-open" data-ng-click="vm.goToImport()"></i>
+                <h4 class="row">
+                    <i18n>viescolaire.trombinoscope.param.student.list.title</i18n>[[vm.structureName]]
+                </h4>
+            </div>
+
+
+            <!-- Search bars -->
+            <div class="cell twelve trombinoscope-students-search ">
+
+                <!-- Search students -->
+                <div class="search-students">
+                    <async-autocomplete
+                            data-ng-disabled="false"
+                            data-ng-model="vm.studentsSearch.student"
+                            data-ng-change="vm.selectStudent"
+                            data-on-search="vm.searchStudent"
+                            data-options="vm.studentsSearch.students"
+                            data-placeholder="viescolaire.trombinoscope.param.search.student"
+                            data-search="vm.studentsSearch.student">
+                    </async-autocomplete>
+                    <div class="cell twelve">
+                        <ul class="cell twelve search-input-ul"
+                            data-ng-show="vm.studentsSearch.selectedStudents.length > 0">
+                            <li ng-repeat="student in vm.studentsSearch.selectedStudents">
+                                [[student.toString()]]
+                                <i class="close" data-ng-click="vm.removeSelectedStudents(student)"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Search groups -->
+                <div class="search-groups">
+                    <async-autocomplete
+                            data-ng-disabled="false"
+                            data-ng-model="vm.groupsSearch.group"
+                            data-ng-change="vm.selectGroup"
+                            data-on-search="vm.searchGroup"
+                            data-options="vm.groupsSearch.groups"
+                            data-placeholder="viescolaire.trombinoscope.param.search.group"
+                            data-search="vm.groupsSearch.group">
+                    </async-autocomplete>
+                    <div class="cell twelve">
+                        <ul class="cell twelve search-input-ul"
+                            data-ng-show="vm.groupsSearch.selectedGroups.length > 0">
+                            <li ng-repeat="group in vm.groupsSearch.selectedGroups">
+                                [[group.toString()]]
+                                <i class="close" data-ng-click="vm.removeSelectedGroups(group)"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students List -->
+            <div class= "trombinoscope-students-list" ng-repeat="groupName in vm.getGroupNames() track by groupName">
+
+                <!-- Group name -->
+                <div class="group-name">
+                    [[groupName]]
+                </div>
+
+                <!-- Students in group -->
+                <div class="group-students">
+                    <div class="card group-students-item" ng-repeat="student in vm.getStudentsFromGroup(groupName)">
+                        <student-picture
+                                student="student"
+                                structure-id="structure.id">
+                        </student-picture>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <infinite-scroll scrolled="vm.onScroll()"></infinite-scroll>
+</div>

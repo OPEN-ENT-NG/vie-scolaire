@@ -32,6 +32,6 @@ CREATE OR REPLACE FUNCTION viesco.delete_trombinoscope_failure() RETURNS TRIGGER
     $BODY$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER delete_viesco_trombinoscope_failure AFTER INSERT ON viesco.trombinoscope
+CREATE TRIGGER delete_viesco_trombinoscope_failure AFTER INSERT OR UPDATE ON viesco.trombinoscope
     FOR EACH ROW EXECUTE PROCEDURE viesco.delete_trombinoscope_failure();
 

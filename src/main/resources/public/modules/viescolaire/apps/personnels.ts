@@ -15,30 +15,51 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-import { routes, ng } from 'entcore';
+import {routes, ng} from 'entcore';
 
-import { sticky } from '../../utils/directives/sticky';
-import { cSkillsBubble } from '../../utils/directives/cSkillsBubble';
+/* Directives */
+import {sticky} from '../../utils/directives/sticky';
+import {cSkillsBubble} from '../../utils/directives/cSkillsBubble';
+import {asyncAutocomplete} from '../../utils/directives/async-autocomplete';
+import {infiniteScroll} from '../../utils/directives/infinite-scroll';
+import {Toasts, Toast} from '../../utils/directives/toasts';
+import {failureItem} from '../../utils/directives/trombinoscope/failure-item';
+import {studentPicture} from '../../utils/directives/trombinoscope/student-picture';
+
+/* Controllers */
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
 import {adminVieScolaireController} from '../controllers/vsco_acu_personnel_ctrl';
 import {periodeAnneeController} from '../controllers/vsco_periodeAnnee_ctrl';
+import {timeSlotsController} from '../controllers/vsco_time_slots_ctrl';
+import {evalAcuTeacherController} from '../controllers/vsco_service_ctrl';
+import {trombinoscopeController} from '../controllers/trombinoscope/trombinoscope';
+import {trombinoscopeImportController} from '../controllers/trombinoscope/trombinoscope-import';
+import {trombinoscopeStudentListController} from '../controllers/trombinoscope/trombinoscope-student-list';
+
+/* Filters */
 import {periodeSearch} from '../filtres/periodeSearch';
-import {Toasts, Toast} from '../../utils/directives/toasts';
-import {timeSlotsController} from "../controllers/vsco_time_slots_ctrl";
-import {evalAcuTeacherController} from "../controllers/vsco_service_ctrl";
-import * as services from '../services'
+
+import * as services from '../services';
+
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);
 ng.controllers.push(periodeAnneeController);
 ng.controllers.push(timeSlotsController);
+ng.controllers.push(trombinoscopeController);
+ng.controllers.push(trombinoscopeImportController);
+ng.controllers.push(trombinoscopeStudentListController);
 ng.controllers.push(evalAcuTeacherController);
 
 ng.filters.push(periodeSearch);
 
 ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);
+ng.directives.push(asyncAutocomplete);
+ng.directives.push(infiniteScroll);
 ng.directives.push(Toasts);
 ng.directives.push(Toast);
+ng.directives.push(failureItem);
+ng.directives.push(studentPicture);
 
 for (let service in services) {
     ng.services.push(services[service]);

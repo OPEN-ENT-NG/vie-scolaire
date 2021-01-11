@@ -1,0 +1,117 @@
+<div class="ten cell trombinoscope" ng-controller="TrombinoscopeImportController as vm">
+    <article class="twelve cell ">
+        <div class="row">
+            <div class="cell twelve-mobile twelve">
+
+                <!-- Import setting -->
+                <div class="import-settings">
+                    <span class="four twelve-mobile import-settings-desc">
+                        <i18n>viescolaire.trombinoscope.param.use.avatar</i18n>
+                    </span>
+
+                    <!-- Setting checkbox -->
+                    <label class="checkbox">
+                        <input type="checkbox"
+                               ng-model="vm.activeENTSetting"
+                               data-ng-change="vm.setSetting(!vm.activeENTSetting)">
+                        <span></span>
+                    </label>
+
+                    <!-- Access trombinoscope button -->
+                    <button class="marginFive access-button"
+                            ng-click="vm.goToStudents()">
+                        <i18n>viescolaire.trombinoscope.access</i18n>
+                    </button>
+                </div>
+
+                <div ng-if="!vm.activeENTSetting">
+
+                    <!-- Import rules description -->
+                    <div class="cell twelve-mobile twelve">
+                        <h4>
+                            <i18n>viescolaire.trombinoscope.param.import.rules.title</i18n>
+                        </h4>
+                        <ul class="remove-margin-top">
+                            <li class="twelve">
+                                <span><i18n>viescolaire.trombinoscope.param.import.rule.1</i18n></span>
+                            </li>
+                            <li class="twelve">
+                                <span><i18n>viescolaire.trombinoscope.param.import.rule.2</i18n></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- File explorer -->
+                    <div class="cell file-import">
+
+                        <!-- File submit (do not remove files-input-change) -->
+                        <input type="file"
+                               files-input-change=""
+                               ng-model="zipFile" name="trombinoscope_file"
+                               accept=".zip" class="file-import-input"/>
+                        <button class="marginFive file-import-button" ng-click="vm.uploadFile(zipFile)">
+                            <i18n>viescolaire.trombinoscope.param.send.file</i18n>
+                        </button>
+                    </div>
+
+                    <!-- Report list -->
+                    <div ng-if="vm.reportsList && vm.reportsList.length > 0" class="cell twelve-mobile twelve">
+                        <h4>
+                            <i18n>viescolaire.trombinoscope.param.report.list</i18n>
+                        </h4>
+
+                        <div class="trombinoscope-reports">
+                            <span class="trombinoscope-reports-item"
+                                ng-repeat="report in vm.reportsList"
+                                data-ng-click="vm.displayReport(report.content)"
+                                ng-if="(!vm.displayAllReports && $index < 5)  || vm.displayAllReports">
+                                [[vm.getReportTitle(report)]]
+                            </span>
+
+                            <button class="report-button"
+                                    ng-if="vm.reportsList && vm.reportsList.length > 5 && !vm.displayAllReports"
+                                    ng-click="vm.displayAllReports = true">
+                                <i18n>viescolaire.trombinoscope.param.report.see.more</i18n>
+                            </button>
+                            <button class="report-button"
+                                    ng-if="vm.reportsList && vm.displayAllReports"
+                                    ng-click="vm.displayAllReports = false">
+                                <i18n>viescolaire.trombinoscope.param.report.see.less</i18n>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Failures list -->
+                    <div ng-if="vm.failureList && vm.failureList.length > 0"
+                         class="cell twelve-mobile twelve trombinoscope-failures">
+                        <!-- Failures Title -->
+                        <h4>
+                            <i18n>viescolaire.trombinoscope.param.photo.failure.list</i18n>
+                            ([[vm.failureList.length]])
+                        </h4>
+
+                        <!-- Clear failure history button -->
+                        <button class="trombinoscope-failures-clear"
+                                ng-click="vm.deleteFailuresHistory()">
+                            <i18n>viescolaire.trombinoscope.param.photo.failure.delete.button</i18n>
+                        </button>
+
+                        <div ng-repeat="failure in vm.failureList" class="trombinoscope-failures-item">
+                            <failure-item failure="failure"></failure-item>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- Import report pop-up -->
+    <lightbox show="vm.isReportDisplayed" on-close="vm.isReportDisplayed = false">
+        <span>
+            <pre>
+                [[vm.displayedReportText]]
+            </pre>
+        </span>
+    </lightbox>
+</div>

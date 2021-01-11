@@ -25,7 +25,7 @@ Behaviours.register('viescolaire', {
             importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences',
             periodYearManage: 'fr.openent.viescolaire.controller.PeriodeAnneeController|PeriodYearManage',
             timeSlotsManage: 'fr.openent.viescolaire.controller.TimeSlotController|getSlotProfilesByStructure',
-            paramServices: "fr.openent.viescolaire.controller.ServicesController|createService"
+            paramServices: 'fr.openent.viescolaire.controller.ServicesController|createService'
         },
         resource: {}
     },

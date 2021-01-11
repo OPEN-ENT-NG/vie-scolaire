@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.enums.TrombinoscopeError;
+import fr.openent.viescolaire.db.DBService;
 import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.helper.UserHelper;
 import fr.openent.viescolaire.model.Person.Person;
@@ -20,7 +21,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.entcore.common.sql.Sql;
+
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.storage.Storage;
 
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 
 import static fr.wseduc.webutils.http.Renders.getHost;
 
-public class DefaultTrombinoscopeService implements TrombinoscopeService {
+public class DefaultTrombinoscopeService extends DBService implements TrombinoscopeService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultTrombinoscopeService.class);
 
@@ -54,7 +55,7 @@ public class DefaultTrombinoscopeService implements TrombinoscopeService {
 
         JsonArray params = new JsonArray().add(structureId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeService::getSetting] Failed to get trombinoscope setting";
                 log.error(messageError, result.left().getValue());
@@ -75,7 +76,7 @@ public class DefaultTrombinoscopeService implements TrombinoscopeService {
 
         JsonArray params = new JsonArray().add(structureId).add(active).add(active);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeService::setSetting] Failed to toggle trombinoscope setting";
                 log.error(messageError, result.left().getValue());
@@ -95,7 +96,7 @@ public class DefaultTrombinoscopeService implements TrombinoscopeService {
                 .add(structureId)
                 .add(studentId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+       sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::getFailures] Failed to get trombinoscope "
                         + "of student " + studentId + " from structure " + structureId + ".";
@@ -415,15 +416,7 @@ public class DefaultTrombinoscopeService implements TrombinoscopeService {
                         handler.handle(Future.failedFuture(save.cause()));
                         return;
                     }
-
-                    removePictureFile(existingTrombinoscope, delete -> {
-                        if (delete.failed()) {
-                            String message = "[Viescolaire@DefaultTrombinoscopeService::create] Failed to delete old picture";
-                            log.error(message, delete.cause());
-                        }
-                    });
-
-                    handler.handle(Future.succeededFuture(save.result()));
+                    removePictureFile(existingTrombinoscope, handler);
                 });
             }
         });
@@ -451,7 +444,7 @@ public class DefaultTrombinoscopeService implements TrombinoscopeService {
                 .add(pictureId)
                 .add(pictureId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+       sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String message = "[Viescolaire@DefaultTrombinoscopeService::create] Failed to create trombinoscope: ";
                 log.error(message, result.left().getValue());

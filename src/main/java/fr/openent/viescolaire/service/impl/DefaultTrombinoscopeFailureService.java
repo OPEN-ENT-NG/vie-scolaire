@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.db.DBService;
 import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.helper.TrombinoscopeHelper;
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeFailure;
@@ -14,14 +15,13 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.storage.Storage;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DefaultTrombinoscopeFailureService implements TrombinoscopeFailureService {
+public class DefaultTrombinoscopeFailureService extends DBService implements TrombinoscopeFailureService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultTrombinoscopeFailureService.class);
 
@@ -36,7 +36,7 @@ public class DefaultTrombinoscopeFailureService implements TrombinoscopeFailureS
         JsonArray params = new JsonArray();
         String query = getBasicQuery(structureId, params);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::get] Failed to get failures from structure "
                         + structureId + ".";
@@ -56,7 +56,7 @@ public class DefaultTrombinoscopeFailureService implements TrombinoscopeFailureS
 
         params.add(failureId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::getFailures] Failed to get failures "
                         + failureId + " from structure " + structureId + ".";
@@ -88,7 +88,7 @@ public class DefaultTrombinoscopeFailureService implements TrombinoscopeFailureS
                 .add(path)
                 .add(pictureId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::create] Failed to create failure.";
                 log.error(messageError, result.left().getValue());
@@ -142,7 +142,7 @@ public class DefaultTrombinoscopeFailureService implements TrombinoscopeFailureS
         JsonArray params = new JsonArray()
                 .add(structureId);
 
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::getFailures] Failed to remove failures from structure "
                         + structureId + ".";

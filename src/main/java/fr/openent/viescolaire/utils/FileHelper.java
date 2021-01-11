@@ -90,7 +90,7 @@ public class FileHelper {
 
         storage.removeFiles(new JsonArray(fileIds), result -> {
             if (!"ok".equals(result.getString("status"))) {
-                String message = "[Viescolaire@FileHelper::removeFile] Failed to upload picture.";
+                String message = "[Viescolaire@FileHelper::removeFile] Failed to remove file.";
                 log.error(message, result.getString("message"));
                 handler.handle(Future.failedFuture(message));
                 return;

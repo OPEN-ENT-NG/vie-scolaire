@@ -18,11 +18,15 @@
 package fr.openent;
 
 import fr.openent.viescolaire.controller.*;
+import fr.openent.viescolaire.db.DB;
 import fr.openent.viescolaire.service.impl.DefaultTimeSlotService;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
+import fr.wseduc.mongodb.MongoDb;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.http.BaseServer;
+import org.entcore.common.neo4j.Neo4j;
+import org.entcore.common.sql.Sql;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
 
@@ -97,6 +101,9 @@ public class Viescolaire extends BaseServer {
 		if(UPDATE_CLASSES_CONFIG.getString("enable-date") == null){
 			throw new RuntimeException("no date in update-classes");
 		}
+
+		DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
+
         /*
 			DISPLAY CONTROLLER
 		 */

@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -41,4 +42,11 @@ public class StructureService {
             }
         }));
     }
+
+    public void retrieveStructureInfo(String id, Handler<Either<String, JsonObject>> handler) {
+        String query = "MATCH (s:Structure {id: {id}}) RETURN s.id as id, s.name as name, s.UAI as UAI";
+        JsonObject params = new JsonObject().put("id", id);
+        Neo4j.getInstance().execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
+    }
+
 }

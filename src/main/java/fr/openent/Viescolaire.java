@@ -81,6 +81,9 @@ public class Viescolaire extends BaseServer {
 	public static String FORADMIN = "forAdmin";
 	public final static String DIRECTORY_ADDRESS = "directory";
 
+	// rights
+	public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
+
 
 	@Override
 	public void start() throws Exception {
@@ -118,6 +121,7 @@ public class Viescolaire extends BaseServer {
 		addController(new MementoController(eb));
 		addController(new ConfigController(config));
 		addController(new StructureController());
+		addController(new TrombinoscopeController(vertx, storage));
 
 		addController(new EventBusController(eb,config));
 

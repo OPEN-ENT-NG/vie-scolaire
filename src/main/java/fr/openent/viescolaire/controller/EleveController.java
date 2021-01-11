@@ -34,6 +34,7 @@ import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -257,6 +258,30 @@ public class EleveController extends ControllerHelper {
         }
     }
 
+
+    @Get("/structures/:structureId/students")
+    @ApiDoc("Get list of students from a structure")
+    @ResourceFilter(AccessAuthorized.class)
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getStudentsFromStructure(final HttpServerRequest request) {
+        String structureId = request.getParam("structureId");
+
+        Integer page = request.params().contains("page") ? Integer.parseInt(request.getParam("page")) : null;
+        List<String> studentId = request.params().contains("studentId") ?
+                Arrays.asList(request.getParam("studentId").split("\\s*,\\s*")) : null;
+
+        List<String> groupName = request.params().contains("groupName") ?
+                Arrays.asList(request.getParam("groupName").split("\\s*,\\s*")) : null;
+
+
+        Boolean crossFilter = Boolean.valueOf(request.getParam("crossFilter"));
+
+        if (request.params().contains("structureId")) {
+            eleveService.getStudentsFromStructure(structureId,page,studentId,groupName, crossFilter, arrayResponseHandler(request));
+        } else {
+            badRequest(request);
+        }
+    }
 
 
     Long testLongFormatParameter(String name,final HttpServerRequest request) {

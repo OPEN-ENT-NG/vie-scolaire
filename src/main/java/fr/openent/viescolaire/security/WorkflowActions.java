@@ -17,8 +17,11 @@
 
 package fr.openent.viescolaire.security;
 
+import fr.openent.Viescolaire;
+
 public enum WorkflowActions {
-    ADMIN_RIGHT ("Viescolaire.view");
+    ADMIN_RIGHT ("Viescolaire.view"),
+    MANAGE_TROMBINOSCOPE(Viescolaire.MANAGE_TROMBINOSCOPE);
 
     private final String actionName;
 

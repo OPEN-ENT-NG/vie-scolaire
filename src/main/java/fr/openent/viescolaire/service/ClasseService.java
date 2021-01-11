@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.service.CrudService;
@@ -26,6 +27,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.List;
 import java.util.Map;
 
 /**

@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.security.WorkflowActions;
 import fr.openent.viescolaire.service.ClasseService;
@@ -25,6 +26,8 @@ import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -34,12 +37,11 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
-import org.entcore.common.sql.Sql;
-import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.utils.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -189,7 +191,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                         handler));
 
     }
-
 
     public void listClasses(String idStructure, Boolean classOnly, UserInfos user,
                             JsonArray idClassesAndGroups,

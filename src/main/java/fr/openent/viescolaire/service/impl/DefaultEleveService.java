@@ -38,6 +38,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ledunoiss on 10/02/2016.
@@ -50,6 +51,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
     private final Neo4j neo4j = Neo4j.getInstance();
     protected static final Logger log = LoggerFactory.getLogger(DefaultEleveService.class);
+
+    public static final Integer PAGE_SIZE = 20;
+
+
     @Override
     public void getEleveClasse(String pSIdClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder returning = new StringBuilder()
@@ -551,6 +556,49 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(idClass).add(beginningPeriode);
 
         Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
+    }
+
+    @Override
+    public void getStudentsFromStructure(String structureId, Integer page, List<String> studentId, List<String> groupNames,
+                                         Boolean crossFilter, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH (s:Structure {id: {structureId}})" +
+                "<-[:BELONGS]-(c:Class)<-[:DEPENDS]-(:ProfileGroup)" +
+                "<-[:IN]-(u:User {profiles:['Student']}) ";
+
+        if (groupNames != null && groupNames.size() > 0) {
+            query += "WHERE c.name IN {audienceNames} ";
+        }
+
+        if (studentId != null && studentId.size() > 0) {
+            if (groupNames == null || groupNames.size() == 0) {
+                query += "WHERE u.id IN {studentId} ";
+            } else {
+                query += (crossFilter != null && crossFilter) ? "AND" : "OR";
+                query += " u.id IN {studentId} ";
+            }
+        }
+
+        query += "RETURN u.id as id, u.displayName as displayName, u.firstName as firstName, u.lastName as lastName, " +
+                "c.id as audienceId, c.name as audienceName " +
+                "ORDER BY audienceName ASC, displayName ASC ";
+
+
+        if (page != null) {
+            query += "SKIP " + (page * PAGE_SIZE) + " LIMIT " + PAGE_SIZE;
+        }
+
+        JsonObject params = new JsonObject()
+                .put("structureId", structureId);
+
+        if (groupNames != null && groupNames.size() > 0) {
+            params.put("audienceNames", groupNames);
+        }
+
+        if (studentId != null && studentId.size() > 0) {
+            params.put("studentId", studentId);
+        }
+
+        Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 
 }

@@ -175,4 +175,17 @@ public interface EleveService extends CrudService {
      * @param handler response
      */
     void getDeletedStudentByPeriodeByClass(String idClass, String beginningPeriode, Handler<Either<String,JsonArray>> handler);
+
+
+    /**
+     * Get list of students from a structure
+     *
+     * @param structureId       structure identifier
+     * @param page              page number
+     * @param studentId         student identifier list
+     * @param groupNames        group name list
+     */
+    void getStudentsFromStructure(String structureId, Integer page, List<String> studentId, List<String> groupNames,
+                                  Boolean crossFilter, Handler<Either<String, JsonArray>> handler);
+
 }

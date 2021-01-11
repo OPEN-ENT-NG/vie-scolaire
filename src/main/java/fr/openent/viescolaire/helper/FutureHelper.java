@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.helper;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -41,7 +42,26 @@ public class FutureHelper {
         };
     }
 
+    public static Handler<AsyncResult<JsonObject>> futureJsonObject(Future<JsonObject> future) {
+        return event -> {
+            if (event.failed()) {
+                LOGGER.error(event.cause().getMessage());
+                future.fail(event.cause().getMessage());
+                return;
+            }
+            future.complete(event.result());
+        };
+    }
+
     public static <T> CompositeFuture all(List<Future<T>> futures) {
         return CompositeFutureImpl.all(futures.toArray(new Future[futures.size()]));
+    }
+
+    public static <T> CompositeFuture join(List<Future<T>> futures) {
+        return CompositeFutureImpl.join(futures.toArray(new Future[futures.size()]));
+    }
+
+    public static <T> CompositeFuture any(List<Future<T>> futures) {
+        return CompositeFutureImpl.any(futures.toArray(new Future[0]));
     }
 }

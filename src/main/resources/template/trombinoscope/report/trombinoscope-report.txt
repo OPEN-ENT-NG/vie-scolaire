@@ -1,0 +1,40 @@
+Rapport d'éxecution de l'import trombinoscope pour l'établissement UAI {{UAI}} du {{#datetime}}{{date}}{{/datetime}}
+
+Début: {{#datetime}}{{startTime}}{{/datetime}}
+Fin: {{#datetime}}{{endTime}}{{/datetime}}
+Durée: {{runTime}}
+
+
+======================================================== RAPPORT FICHIER ========================================================
+
+{{#correctFile}}
+Aucun problème pendant la récupération du fichier
+{{/correctFile}}
+
+{{^correctFile}}
+Nous avons rencontré une erreur lors de l'ouverture du fichier :
+
+{{recordFile}}
+
+{{/correctFile}}
+{{#reports}}
+{{#-first}}
+======================================================== ERREURS ========================================================
+{{/-first}}
+
+chemin du dossier:                  {{path}}
+erreur:                             {{message}}
+{{#audiencesConcerned}}
+{{#-first}}
+Classe(s)/Groupe(s) concerné(s):
+{{/-first}}
+    {{.}}
+{{/audiencesConcerned}}
+{{#studentsConcerned}}
+{{#-first}}
+Elève(s) concerné(s):
+{{/-first}}
+    {{.}}
+{{/studentsConcerned}}
+
+{{/reports}}

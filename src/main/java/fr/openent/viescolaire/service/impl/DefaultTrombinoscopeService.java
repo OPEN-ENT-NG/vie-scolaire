@@ -199,7 +199,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
             processImportTrombinoscopeFutures.add(processImportTrombinoscope(structureId, audienceStudentMap, path, report, request, handler, audienceName));
         }
 
-        FutureHelper.any(processImportTrombinoscopeFutures).setHandler(event -> {
+        FutureHelper.join(processImportTrombinoscopeFutures).setHandler(event -> {
             if (event.failed()) {
                 log.error("[Viescolaire@DefaultTrombinoscopeService::startImportTrombinoscope]" +
                         " Some audience folder import trombinoscope failed during their processes", event.cause());
@@ -226,6 +226,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                 if (pictureNamesResult.failed()) {
                     String message = getTranslated(TrombinoscopeError.RETRIEVE_LINKED_STUDENT_AUDIENCE_FAILURE.key(), request);
                     report.addReport(new ReportException(message, FileHelper.getAbsolutePath(path), Collections.singletonList(audienceName), null));
+                    future.handle(Future.failedFuture(pictureNamesResult.cause()));
                     return;
                 }
                 List<String> pictureNames = pictureNamesResult.result();
@@ -245,7 +246,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                                 FutureHelper.futureJsonObject(pictureFuture));
                     }
                 }
-                FutureHelper.any(picturesFuture).setHandler(ar -> {
+                FutureHelper.join(picturesFuture).setHandler(ar -> {
                     if (ar.failed()) {
                         future.handle(Future.failedFuture(ar.cause()));
                     } else {

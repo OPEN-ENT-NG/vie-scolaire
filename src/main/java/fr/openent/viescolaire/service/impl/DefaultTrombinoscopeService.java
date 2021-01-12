@@ -96,7 +96,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                 .add(structureId)
                 .add(studentId);
 
-       sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String messageError = "[Viescolaire@DefaultTrombinoscopeFailureService::getFailures] Failed to get trombinoscope "
                         + "of student " + studentId + " from structure " + structureId + ".";
@@ -445,7 +445,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                 .add(pictureId)
                 .add(pictureId);
 
-       sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
             if (result.isLeft()) {
                 String message = "[Viescolaire@DefaultTrombinoscopeService::create] Failed to create trombinoscope: ";
                 log.error(message, result.left().getValue());

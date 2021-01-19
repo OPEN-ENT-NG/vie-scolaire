@@ -361,7 +361,7 @@ export let viescolaireController = ng.controller('ViescolaireController', [
                     template.open('main', '../templates/viescolaire/vsco_acu_personnel');
                     template.open('lightboxContainerCreateMotif',
                         '../../../presences/public/template/lightbox/display_creation_motif');
-                    template.open('lightboxPeriode', '../templates/viescolaire/lightbox_param_periode');
+                    template.open('lightboxPeriode', '../templates/viescolaire/param_etab_items/lightbox_param_periode');
                     utils.safeApply($scope);
                 };
                 await loadAndCheckModulesAccess();

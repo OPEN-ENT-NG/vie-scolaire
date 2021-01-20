@@ -301,6 +301,40 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
         Sql.getInstance().prepared(query, values, validResultHandler(handler));
     }
 
+    /**
+     * @param structureId struture id
+     * @param groupIds    classes or/and groups ids
+     * @param periodId    periode
+     * @param onlyVisible visible
+     * @param handler     response visible multiteachers on periode on classIds and on etablissement
+     */
+    @Override
+    public void getMultiTeachers (String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
+                                  Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray().add(structureId);
+        for (int i= 0; i < groupIds.size(); i++) {
+            values.add(groupIds.getString(i));
+        }
+        values.add(onlyVisible);
+
+        StringBuffer query = new StringBuffer();
+        query.append("SELECT * FROM " + VSCO_SCHEMA + "." + multiTeaching_table )
+                .append(" JOIN " + VSCO_SCHEMA + "." + VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe ")
+                .append("WHERE structure_id = ? AND class_or_group_id IN "+ Sql.listPrepared(groupIds))
+                .append("AND is_visible = ? ");
+
+        if(periodId != null){
+            query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND ")
+                    .append("((timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
+                    .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn))))");
+
+            values.add(periodId);
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+
     @Override
     public void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -361,21 +395,6 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
                 .append("AND (mtt.start_date <= current_date OR mtt.start_date IS NULL) ")
                 .append("AND (current_date <= mtt.entered_end_date OR mtt.entered_end_date IS NULL) ")
                 .append("AND mtt.is_coteaching IS NOT NULL ");
-
-
-
-
-//   query.append("SELECT DISTINCT  mtt.second_teacher_id  as teacher_id ")
-//                .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + multiTeaching_table + " mt ")
-//                .append("INNER JOIN " + Viescolaire.VSCO_SCHEMA + "." + multiTeaching_table + " mtt ")
-//                .append("ON  mtt.main_teacher_id = mt.main_teacher_id AND mt.subject_id = mtt.subject_id ")
-//                .append("WHERE mtt.second_teacher_id != ? ")
-//                .append("AND mt.second_teacher_id = ? ")
-//                .append("AND  mtt.structure_id = ? ")
-//                .append("AND  mtt.subject_id = ? ")
-//                .append("AND  mtt.class_or_group_id = ? ")
-//                .append("AND  mtt.start_date <= current_date ")
-//                .append("AND current_date <=  mt.end_date ");
 
         values.add(userId);
         values.add(idStructure);

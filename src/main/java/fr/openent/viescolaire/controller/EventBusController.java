@@ -29,7 +29,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.user.UserInfos;
-
 import java.util.Comparator;
 import java.util.List;
 
@@ -132,32 +131,14 @@ public class EventBusController extends ControllerHelper {
             case "service": {
                 serviceBusService(method, message);
             }
+            break;
             case "multiTeaching": {
                 mutliTeachingService(method, message);
             }
         }
     }
 
-    /*
-    	String rename = "";
-			if (c.getString("name") != null) {
-				rename = "WITH c " +
-						 "MATCH c<-[:DEPENDS]-(cpg:ProfileGroup)-[:DEPENDS]->" +
-						 "(spg:ProfileGroup)-[:HAS_PROFILE]->(p:Profile) " +
-						 "SET cpg.name = c.name+'-'+p.name ";
-			}
-			String query =
-					"MATCH (c:`Class` { id : {classId}}) " +
-					"SET " + Neo4jUtils.nodeSetPropertiesFromJson("c", c) +
-					rename +
-					"RETURN DISTINCT c.id as id ";
-			JsonObject params = c.put("classId", classId);
-			neo4j.execute(query, params, new Handler<Message<JsonObject>>() {
-				@Override
-				public void handle(Message<JsonObject> m) {
-					message.reply(m.body());
-				}
-     */
+
     private void mutliTeachingService(String method, Message<JsonObject> message) {
         JsonObject body = message.body();
         String structureId = body.getString("structureId");
@@ -167,33 +148,25 @@ public class EventBusController extends ControllerHelper {
                 String subjectId = body.getString("subjectId");
                 String groupId = body.getString("groupId");
                 mutliTeachingService.getSubTeachersandCoTeachers(teacherId, structureId, subjectId,
-                        groupId, new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event) {
-                                if (event.isRight()) {
-                                    message.reply(new JsonObject()
-                                            .put("status", "ok")
-                                            .put("result", event.right().getValue()));
-                                }
-                            }
-                        });
-                break;
+                        groupId, getJsonArrayBusResultHandler(message));
             }
+            break;
             case "getMultiTeachersByClass": {
                 String groupId = body.getString("groupId");
                 String periodId = body.getString("periodId");
                 mutliTeachingService.getMultiTeachersByClass(structureId, groupId, periodId, true,
-                        new Handler<Either<String, JsonArray>>() {
-                            @Override
-                            public void handle(Either<String, JsonArray> event) {
-                                if (event.isRight()) {
-                                    message.reply(new JsonObject()
-                                            .put("status", "ok")
-                                            .put("result", event.right().getValue()));
-                                }
-                            }
-                        });
-                break;
+                        getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getMultiteachers": {
+                JsonArray groupIds = body.getJsonArray("groupIds");
+                String periodId = body.getString("periodId");
+                mutliTeachingService.getMultiTeachers(structureId,groupIds,periodId,true,
+                        getJsonArrayBusResultHandler(message));
+            }
+            break;
+            default: {
+                message.reply(getErrorReply("Method not found"));
             }
         }
     }
@@ -323,8 +296,8 @@ public class EventBusController extends ControllerHelper {
                     groupsIds = message.body().getJsonArray("groupsIds");
                     groupeService.getTypesOfGroup(groupsIds, getJsonArrayBusResultHandler(message));
                 }
-                break;
             }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }
@@ -444,7 +417,8 @@ public class EventBusController extends ControllerHelper {
                 String structureId = message.body().getString("structureId");
                 String classId = message.body().getString("classId");
                 JsonArray types = message.body().getJsonArray("types");
-                userService.list(structureId, classId, null, types, null, null, null, getJsonArrayBusResultHandler(message));
+                userService.list(structureId, classId, null, types, null, null, null,
+                        getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {
@@ -496,6 +470,7 @@ public class EventBusController extends ControllerHelper {
                 JsonArray aIdEnseignant = message.body().getJsonArray("aIdEnseignant");
                 JsonArray aIdMatiere = message.body().getJsonArray("aIdMatiere");
                 JsonArray aIdGroupe = message.body().getJsonArray("aIdGroupe");
+                Boolean bEvaluable = message.body().getBoolean("evaluable");
 
                 JsonObject oService = new JsonObject();
 
@@ -511,6 +486,8 @@ public class EventBusController extends ControllerHelper {
                     oService.put("id_matiere", aIdMatiere);
                 }
 
+                oService.put("evaluable", bEvaluable );
+
                 servicesService.getServicesSQL(idStructure, oService, getJsonArrayBusResultHandler(message));
             }
             break;
@@ -523,6 +500,21 @@ public class EventBusController extends ControllerHelper {
                     JsonArray idsEnseignant = message.body().getJsonArray("idsEnseignant", null);
                     JsonArray idsMatiere = message.body().getJsonArray("idsMatiere", null);
                     JsonArray idsGroupe = message.body().getJsonArray("idsGroupe", null);
+                    JsonObject filters = message.body().getJsonObject("filters", null);
+                    Boolean evaluable = true; // select evaluable services
+                    Boolean noEvaluable = true; // select no evaluable services
+                    Boolean classes = true; // select services with type class
+                    Boolean groups = true; // select services with type group
+                    Boolean manualGroups = true; //select services with type manual
+                    Boolean compressed = false; // select service subject-teacher-[all class or/and groups]
+                    if( filters != null){
+                        if (filters.containsKey("evaluable") ) evaluable = filters.getBoolean("evaluable");
+                        if (filters.containsKey("noEvaluable")) noEvaluable = filters.getBoolean("noEvaluable");
+                        if (filters.containsKey("classes")) classes = filters.getBoolean("classes");
+                        if (filters.containsKey("groups")) groups = filters.getBoolean("groups");
+                        if (filters.containsKey("manualGroups")) manualGroups = filters.getBoolean("manualGroups");
+                        if (filters.containsKey("compressed")) compressed = filters.getBoolean("compressed");
+                    }
 
                     JsonObject oService = new JsonObject();
 
@@ -535,7 +527,8 @@ public class EventBusController extends ControllerHelper {
                     if (idsEnseignant != null) {
                         oService.put("id_enseignant", idsEnseignant);
                     }
-                    servicesService.getAllServicesNoFilter(structureId, oService, getJsonArrayBusResultHandler(message));
+                    servicesService.getAllServices(structureId, evaluable, noEvaluable, classes, groups, manualGroups,
+                            compressed, oService,  getJsonArrayBusResultHandler(message));
                 }
             }
             break;

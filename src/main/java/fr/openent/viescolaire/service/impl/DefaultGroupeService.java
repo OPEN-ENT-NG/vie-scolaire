@@ -113,14 +113,14 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append(" MATCH (n:FunctionalGroup)-[:IN]-(u:User{profiles:['Student']}) ")
-                .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
-                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+        query.append(" MATCH(s:Structure)<-[:DEPENDS]-(n:FunctionalGroup)<-[:IN]-(u:User{profiles:['Student']}) ")
+                .append(" WHERE n.id IN {idGroupe} WITH s, n, u ")
+                .append(" MATCH (c:Class)-[:BELONGS]->(s) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
                 .append(" COLLECT(DISTINCT c.id) AS id_classes ")
                 .append(" UNION ")
-                .append(" MATCH (n:ManualGroup)-[:IN]-(u:User{profiles:['Student']}) ")
-                .append(" WHERE n.id IN {idGroupe} WITH  n, u ")
-                .append(" MATCH (c:Class) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
+                .append(" MATCH (s:Structure)<-[:DEPENDS]-(n:ManualGroup)<-[:IN]-(u:User{profiles:['Student']}) ")
+                .append(" WHERE n.id IN {idGroupe} WITH  s, n, u ")
+                .append(" MATCH (c:Class)-[:BELONGS]->(s) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
                 .append(" COLLECT(DISTINCT c.id) AS id_classes ")
         ;
         params.put("idGroupe", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idGroupe)))

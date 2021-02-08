@@ -231,17 +231,17 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, ")
                 .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib, ")
-                .append("type.nom as _type_libelle, sum_notes, nbr_eleves ")
+                .append("type.nom as _type_libelle, sum_notes, nbr_eleves, id_groupe ")
                 .append("FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
                 .append("INNER JOIN notes.annotations on annotations.id = id_annotation ")
                 .append("INNER JOIN notes.type on devoirs.id_type = type.id ")
+                .append("INNER JOIN notes.rel_devoirs_groupes ON devoirs.id = rel_devoirs_groupes.id_devoir ")
                 .append("LEFT JOIN (SELECT devoirs.id, SUM(notes.valeur) as sum_notes, COUNT(notes.valeur) as nbr_eleves ")
                 .append("FROM notes.devoirs INNER JOIN notes.notes on devoirs.id = notes.id_devoir ")
                 .append("WHERE date_publication <= Now() ")
                 .append("GROUP BY devoirs.id) sum ON sum.id = devoirs.id ");
 
         if(idGroups != null) {
-            query.append("INNER JOIN notes.rel_devoirs_groupes ON devoirs.id = rel_devoirs_groupes.id_devoir ");
             query.append("AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
             for (int i = 0; i < idGroups.size(); i++) {
                 values.add(idGroups.getString(i));

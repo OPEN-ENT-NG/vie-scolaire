@@ -48,9 +48,6 @@ public interface MultiTeachingService {
      * @param handler response
      */
     void getMultiTeaching(String structureId, Handler<Either<String,JsonArray>> handler);
-    
-    void getMultiTeachersByClass(String structureId, String classId, String periodId, Boolean onlyVisible,
-                                 Handler<Either<String,JsonArray>> handler);
 
     /**
      *

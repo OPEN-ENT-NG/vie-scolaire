@@ -282,25 +282,6 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
         Sql.getInstance().prepared(query, values, validResultHandler(handler));
     }
 
-    @Override
-    public void getMultiTeachersByClass(String structureId, String classId, String periodId, Boolean onlyVisible,
-                                        Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray().add(structureId).add(classId).add(onlyVisible);
-
-        String query = "SELECT * FROM " + VSCO_SCHEMA + "." + multiTeaching_table + " " +
-                "JOIN " + VSCO_SCHEMA + "." + VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe " +
-                "WHERE structure_id = ? AND class_or_group_id = ? AND is_visible = ? ";
-
-        if(periodId != null){
-            query += "AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND " +
-                    "((timestamp_dt <= start_date AND start_date <= timestamp_fn) OR " +
-                    "(timestamp_dt <= end_date AND end_date <= timestamp_fn))))";
-            values.add(periodId);
-        }
-
-        Sql.getInstance().prepared(query, values, validResultHandler(handler));
-    }
-
     /**
      * @param structureId struture id
      * @param groupIds    classes or/and groups ids
@@ -309,8 +290,8 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
      * @param handler     response visible multiteachers on periode on classIds and on etablissement
      */
     @Override
-    public void getMultiTeachers (String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
-                                  Handler<Either<String, JsonArray>> handler) {
+    public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
+                                 Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray().add(structureId);
         for (int i= 0; i < groupIds.size(); i++) {
             values.add(groupIds.getString(i));
@@ -324,16 +305,17 @@ public class DefaultMultiTeachingService extends SqlCrudService implements Multi
                 .append("AND is_visible = ? ");
 
         if(periodId != null){
-            query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND ")
-                    .append("((timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
-                    .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn))))");
+            query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
+                    .append("(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
+                    .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")
+                    .append("(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR ")
+                    .append("(start_date <= timestamp_fn AND timestamp_fn <= end_date) )))");
 
             values.add(periodId);
         }
 
         Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
     }
-
 
     @Override
     public void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {

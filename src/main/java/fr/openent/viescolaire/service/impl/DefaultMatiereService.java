@@ -143,7 +143,7 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
                     listIdsEnseignant.add(idEnseignant);
 
                 listMatieres(structureId, listIdsEnseignant, null, null,
-                        checkOverwrite(structureId, aIdEnseignant, event -> {
+                        checkOverwrite(structureId, listIdsEnseignant, event -> {
                             if (event.isRight()) {
                                 final JsonArray resultats = event.right().getValue();
                                 if (resultats.size() > 0) {

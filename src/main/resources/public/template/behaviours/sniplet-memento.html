@@ -82,12 +82,25 @@
             </div>
             <div class="relatives">
                 <div class="relative" data-ng-repeat="relative in vm.student.relatives">
-                    <div class="data" data-ng-class="{disabled: !relative.activated}">
-                        <h4>[[relative.title]] [[relative.name]]</h4>
-                        <div><i class="email"></i> [[relative.email]]</div>
-                        <div><i class="mobile"></i> [[relative.mobile || "-"]]</div>
-                        <div><i class="phone"></i> [[relative.phone || "-"]]</div>
-                        <div><i class="address"></i> [[relative.address]]</div>
+                    <div class="data">
+                        <div class="contact-info" data-ng-class="{disabled: !relative.activated}">
+                            <h4>[[relative.title]] [[relative.name]]</h4>
+                            <div><i class="email"></i> [[relative.email]]</div>
+                            <div><i class="mobile"></i> [[relative.mobile || "-"]]</div>
+                            <div><i class="phone"></i> [[relative.phone || "-"]]</div>
+                            <div><i class="address"></i> [[relative.address]]</div>
+                        </div>
+                        <div class="contact-priority">
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       ng-model="relative.primary"
+                                       data-ng-change="vm.updateRelativePriorities()">
+                                <span></span>
+                            </label>
+                            <div>
+                                <i18n>viescolaire.memento.primary.contact</i18n>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

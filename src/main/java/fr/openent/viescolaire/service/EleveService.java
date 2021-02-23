@@ -188,4 +188,12 @@ public interface EleveService extends CrudService {
     void getStudentsFromStructure(String structureId, Integer page, List<String> studentId, List<String> groupNames,
                                   Boolean crossFilter, Handler<Either<String, JsonArray>> handler);
 
+
+    /**
+     * Get list of primary relatives for given students
+     * @param studentIds        students identifiers
+     * @param handler           Function handler returning data
+     */
+    void getPrimaryRelatives(JsonArray studentIds, Handler<Either<String, JsonArray>> handler);
+
 }

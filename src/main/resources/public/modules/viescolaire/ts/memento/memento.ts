@@ -1,15 +1,29 @@
-import http from 'axios';
-import {Behaviours, idiom, moment, toasts} from 'entcore';
+import http, {AxiosError, AxiosResponse} from 'axios';
+import {Behaviours, idiom, toasts} from 'entcore';
+import {mementoService} from '../../services';
+import {DateUtils} from '../../utils/dateUtils';
 
 declare let window: any;
 
-interface IStudentSearchObject {
-    id: string,
-    displayName: string,
-    lastName: string,
-    firstName: string,
-    idClasse: Array<string>
+export interface IStudentSearchObject {
+    id: string;
+    displayName: string;
+    lastName: string;
+    firstName: string;
+    idClasse: Array<string>;
 }
+
+export type MementoRelative = {
+    id: string;
+    name: string;
+    title: string;
+    externalId: string;
+    phone: string;
+    email: string;
+    address: string;
+    activated: boolean;
+    primary: boolean;
+};
 
 interface IMementoViewModel {
     show: boolean;
@@ -21,26 +35,28 @@ interface IMementoViewModel {
         birth_date: string
         groups: Array<String>
         classes: Array<String>
-        relatives: Array<String>,
+        relatives: Array<MementoRelative>,
         class_id: string
-    }
+    };
     config: {
         competences: boolean
         presences: boolean
     };
-    that: any,
+    that: any;
     $apply: any;
     $eval: any;
     search: {
         value: string
         list: Array<IStudentSearchObject>
-    }
+    };
 
     setApplier(obj: any): void;
 
     saveComment(comment: string): Promise<void>;
 
     formatBirthDate(date: string): string;
+
+    updateRelativePriorities(): Promise<void>;
 
     loadMemento(studentId: string): void;
 
@@ -73,7 +89,6 @@ const vm: IMementoViewModel = {
         document.getElementsByTagName('html')[0].style['overflowY'] = 'hidden';
         vm.show = true;
         vm.studentId = studentId;
-        // vm.$apply();
         http.get(`/viescolaire/memento/students/${studentId}`).then(({data}) => {
             vm.student = data;
             vm.$apply();
@@ -81,19 +96,45 @@ const vm: IMementoViewModel = {
             vm.that.$broadcast('memento:init', {student: vm.student.id, group: vm.student.class_id});
         }).catch(err => {
             throw err;
-        })
+        });
     },
     async saveComment(comment: string): Promise<void> {
-        try {
-            await http.post(`/viescolaire/memento/students/${vm.studentId}/comments`, {comment});
-        } catch (err) {
-            toasts.warning('viescolaire.memento.student.comment.error');
-            throw err;
-        }
+        mementoService.saveComment(vm.studentId, comment)
+            .then((response: AxiosResponse) => {
+                if (response.status !== 200 && response.status !== 201) {
+                    toasts.warning('viescolaire.memento.student.comment.error');
+                }
+            })
+            .catch((_: AxiosError) => {
+                toasts.warning('viescolaire.memento.student.comment.error');
+            });
     },
+
     formatBirthDate(date: string): string {
-        return moment(date).format('DD/MM/YYYY');
+        return DateUtils.getDisplayDate(date);
     },
+
+    async updateRelativePriorities(): Promise<void> {
+        let primaryRelatives: Array<string> = [];
+        if (vm.student.relatives) {
+            vm.student.relatives.forEach((relative: MementoRelative) => {
+                if (relative.primary === true) {
+                    primaryRelatives.push(relative.id);
+                }
+            });
+        }
+
+        mementoService.updateRelativePriorities(vm.studentId, primaryRelatives)
+            .then((response: AxiosResponse) => {
+                if (response.status !== 200 && response.status !== 201) {
+                    toasts.warning('viescolaire.memento.primary.contact.error');
+                }
+            })
+            .catch((_: AxiosError) => {
+                toasts.warning('viescolaire.memento.primary.contact.error');
+            });
+    },
+
     closeMemento(): void {
         document.getElementsByTagName('html')[0].style['overflowY'] = 'inherit';
         vm.that.$broadcast('memento:close');
@@ -120,7 +161,7 @@ const vm: IMementoViewModel = {
     },
     async loadConfig(): Promise<void> {
         try {
-            const {data} = await http.get('/viescolaire/config');
+            const {data}: AxiosResponse = await http.get('/viescolaire/config');
             vm.config = data;
         } catch (err) {
             toasts.warning('viescolaire.memento.config.err');
@@ -129,11 +170,11 @@ const vm: IMementoViewModel = {
     },
     async searchForStudent(): Promise<void> {
         try {
-            const {data} = await http.get(`/viescolaire/user/search?q=${vm.search.value}&field=lastName&field=firstName&field=displayName&profile=Student&structureId=${window.structure.id}`);
+            const {data}: AxiosResponse = await http.get(`/viescolaire/user/search?q=${vm.search.value}&field=lastName&field=firstName&field=displayName&profile=Student&structureId=${window.structure.id}`);
             const toString = function () {
                 return `${this.lastName} ${this.firstName}`;
             };
-            data.forEach(student => student.toString = toString);
+            data.forEach((student) => student.toString = toString);
             vm.search.list = data;
             vm.$apply();
         } catch (err) {
@@ -151,7 +192,7 @@ const vm: IMementoViewModel = {
         vm.focusedSection = target;
         vm.$apply();
         let element = document.getElementById(target);
-        element.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+        element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'});
     }
 };
 

@@ -166,12 +166,14 @@ body {
         border-right: none;
       }
 
-      .data.disabled {
-        opacity: 0.60;
-      }
+      .data {
+        .contact-info.disabled {
+          opacity: 0.60;
+        }
 
-      .data > div {
-        margin: 10px 0 auto 0;;
+        .contact-info > div {
+          margin: 10px 0 auto 0;;
+        }
       }
 
       h4 {
@@ -179,7 +181,10 @@ body {
         font-weight: bold;
       }
 
-
+      .contact-priority {
+        display: flex;
+        margin-top: 48px;
+      }
     }
   }
 

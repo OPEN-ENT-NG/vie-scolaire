@@ -4,11 +4,13 @@ import fr.openent.viescolaire.service.MementoService;
 import fr.openent.viescolaire.service.impl.DefaultMementoService;
 import fr.wseduc.rs.Get;
 import fr.wseduc.rs.Post;
+import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.user.UserUtils;
 
@@ -24,13 +26,6 @@ public class MementoController extends ControllerHelper {
         mementoService = new DefaultMementoService();
     }
 
-//    @Get("/public/template/behaviours/sniplet-memento.html")
-//    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-//    public void memento(HttpServerRequest request) {
-//        JsonObject options = new JsonObject().put("name", "Simon");
-//        renderView(request, options, "../public/template/behaviours/sniplet-memento.html", null);
-//    }
-
     @Get("/memento/students/:id")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getStudentInfo(HttpServerRequest request) {
@@ -42,5 +37,15 @@ public class MementoController extends ControllerHelper {
     public void postComment(HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "memento_comment", body -> UserUtils.getUserInfos(eb, request,
                 user -> mementoService.postComment(request.getParam("id"), user.getUserId(), body.getString("comment"), defaultResponseHandler(request))));
+    }
+
+    @Put("/memento/students/:id/relatives/priority")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void updateRelativePriorities(HttpServerRequest request) {
+        RequestUtils.bodyToJson(request, body -> {
+            String studentId = request.getParam("id");
+            JsonArray relativeIds = body.getJsonArray("relativeIds");
+            mementoService.updateRelativePriorities(studentId, relativeIds, defaultResponseHandler(request));
+        });
     }
 }

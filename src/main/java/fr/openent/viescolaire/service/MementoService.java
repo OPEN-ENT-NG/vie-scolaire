@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public interface MementoService {
@@ -25,4 +26,13 @@ public interface MementoService {
      * @param handler Function handler returning data
      */
     void postComment(String student, String user, String comment, Handler<Either<String, JsonObject>> handler);
+
+
+    /**
+     * Update primary relatives for given student.
+     * @param studentId     student identifier
+     * @param relativeIds   primary relative identifier list
+     * @param handler       Function handler returning data
+     */
+    void updateRelativePriorities(String studentId, JsonArray relativeIds, Handler<Either<String, JsonObject>> handler);
 }

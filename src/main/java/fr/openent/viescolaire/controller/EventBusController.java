@@ -591,6 +591,11 @@ public class EventBusController extends ControllerHelper {
                 eleveService.getAnnotations(idEleve, idPeriode, null, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getPrimaryRelatives": {
+                JsonArray studentIds = message.body().getJsonArray("studentIds");
+                eleveService.getPrimaryRelatives(studentIds, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

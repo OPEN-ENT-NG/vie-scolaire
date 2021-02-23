@@ -18,6 +18,8 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.helper.RelativeHelper;
+import fr.openent.viescolaire.model.Person.Relative;
 import fr.openent.viescolaire.service.EleveService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
@@ -601,4 +603,60 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 
+
+    @Override
+    public void getPrimaryRelatives(JsonArray studentIds, Handler<Either<String, JsonArray>> handler) {
+        String query = "MATCH(u:User)-[:RELATED]->(v:User) WHERE u.id IN {studentIds} " +
+                "RETURN u.id AS studentId, u.relative AS relativesCodes, u.primaryRelatives AS primaryRelatives, " +
+                "collect({id: v.id, externalId: v.externalId}) AS relatives";
+
+        JsonObject params = new JsonObject().put("studentIds", studentIds);
+
+        Neo4j.getInstance().execute(query, params, res -> {
+            Either<String, JsonArray> resHandler = Neo4jResult.validResult(res);
+            if (resHandler.isLeft()) {
+                handler.handle(new Either.Left<>("[VieScolaire@DefaultEleveService::getPrimaryRelatives] Error fetching primary relatives"));
+                return;
+            }
+            JsonArray response = new JsonArray();
+
+            JsonArray students = resHandler.right().getValue();
+            if (students != null) {
+                for (int i = 0; i < students.size(); i++) {
+                    JsonObject student = students.getJsonObject(i);
+                    JsonArray primaryRelatives = student.getJsonArray("primaryRelatives", new JsonArray());
+
+
+                    // If primary relatives previously set from memento, fetch info
+                    if (primaryRelatives.size() > 0) {
+                        response.add(new JsonObject()
+                                .put("id", student.getValue("studentId"))
+                                .put("primaryRelatives", primaryRelatives));
+                    } else {
+                        // Parse AAF codes
+                        List<Relative> relatives = RelativeHelper.toRelativeList(student.getJsonArray("relatives", new JsonArray()));
+                        JsonArray relativesCodes = student.getJsonArray("relativesCodes", new JsonArray());
+
+                        JsonArray listRelatives = new JsonArray();
+
+                        for (Relative relative: relatives) {
+                            for (int j = 0; j < relativesCodes.size(); j++) {
+                                String[] codes = relativesCodes.getString(j).split("\\$");
+                                String externalId = codes[0];
+                                String isPrimary = codes[4];
+                                if (externalId.equals(relative.getExternalId()) && (isPrimary.equals("1"))) {
+                                    listRelatives.add(relative.getId());
+                                }
+                            }
+                        }
+                        response.add(new JsonObject()
+                                .put("id", student.getValue("studentId"))
+                                .put("primaryRelatives", listRelatives));
+                    }
+                }
+
+                handler.handle(new Either.Right<>(response));
+            }
+        });
+    }
 }

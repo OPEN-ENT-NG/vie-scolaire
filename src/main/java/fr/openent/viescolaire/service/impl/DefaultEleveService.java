@@ -684,7 +684,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             for (int j = 0; j < relativesCodes.size(); j++) {
                 String[] codes = relativesCodes.getString(j).split("\\$");
                 String externalId = codes[0];
-                String isPrimary = (relativesCodes.size() > 4) ? codes[4] : "0";
+                String isPrimary = (codes.length > 4) ? codes[4] : "0";
                 if (externalId.equals(relative.getExternalId()) && (isPrimary.equals("1"))) {
                     listRelatives.add(relative.getId());
                 }

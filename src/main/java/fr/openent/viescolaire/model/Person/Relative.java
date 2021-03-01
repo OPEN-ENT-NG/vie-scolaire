@@ -1,14 +1,17 @@
 package fr.openent.viescolaire.model.Person;
 
+import fr.openent.viescolaire.helper.RelativeHelper;
 import io.vertx.core.json.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Relative extends Person implements Cloneable {
 
     private String externalId;
     private String name;
     private String title;
-    private String mobile;
-    private String phone;
+    private List<String> mobile;
+    private List<String> phone;
     private String address;
     private String email;
     private Boolean activated;
@@ -20,8 +23,22 @@ public class Relative extends Person implements Cloneable {
         this.externalId = relative.getString("externalId", null);
         this.name = relative.getString("name", null);
         this.title = relative.getString("title", null);
-        this.mobile = relative.getString("mobile", null);
-        this.phone = relative.getString("phone", null);
+
+        // Phone numbers retrieved are sometimes typed String. If not typed JsonArray, the string is added to a new array.
+        try {
+            this.mobile = RelativeHelper.toPhoneList(relative.getJsonArray("mobile", null));
+        } catch (ClassCastException e) {
+            this.mobile = new ArrayList<>();
+            this.mobile.add(relative.getString("mobile", ""));
+        }
+
+        try {
+            this.phone = RelativeHelper.toPhoneList(relative.getJsonArray("phone", null));
+        } catch (ClassCastException e) {
+            this.phone = new ArrayList<>();
+            this.phone.add(relative.getString("phone", ""));
+        }
+
         this.address = relative.getString("address", null);
         this.email = relative.getString("email", null);
         this.activated = relative.getBoolean("activated", null);
@@ -38,8 +55,8 @@ public class Relative extends Person implements Cloneable {
                 .put("id", this.id)
                 .put("name", this.name)
                 .put("title", this.title)
-                .put("mobile", this.mobile)
-                .put("phone", this.phone)
+                .put("mobile", this.getMobile())
+                .put("phone", this.getPhone())
                 .put("address", this.address)
                 .put("email", this.email)
                 .put("activated", this.activated)
@@ -71,18 +88,18 @@ public class Relative extends Person implements Cloneable {
     }
 
     public String getMobile() {
-        return mobile;
+        return mobile.get(0);
     }
 
-    public void setMobile(String mobile) {
+    public void setMobile(List<String> mobile) {
         this.mobile = mobile;
     }
 
     public String getPhone() {
-        return phone;
+        return phone.get(0);
     }
 
-    public void setPhone(String phone) {
+    public void setPhone(List<String> phone) {
         this.phone = phone;
     }
 

@@ -8,6 +8,10 @@ import java.util.List;
 
 public class RelativeHelper {
 
+    private RelativeHelper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Convert JsonArray into relative list
      *
@@ -39,4 +43,16 @@ public class RelativeHelper {
         return relativeArray;
     }
 
+    public static List<String> toPhoneList(JsonArray phone) {
+        if (phone == null)
+            return new ArrayList<>();
+
+        List<String> phoneList = new ArrayList<>();
+
+        for (int i = 0; i < phone.size(); i++) {
+            phoneList.add(phone.getString(i));
+        }
+
+        return phoneList;
+    }
 }

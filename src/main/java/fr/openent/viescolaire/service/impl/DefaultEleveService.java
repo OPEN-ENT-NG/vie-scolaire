@@ -654,26 +654,42 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                         List<Relative> relatives = RelativeHelper.toRelativeList(student.getJsonArray("relatives", new JsonArray()));
                         JsonArray relativesCodes = student.getJsonArray("relativesCodes", new JsonArray());
 
-                        JsonArray listRelatives = new JsonArray();
-
-                        for (Relative relative: relatives) {
-                            for (int j = 0; j < relativesCodes.size(); j++) {
-                                String[] codes = relativesCodes.getString(j).split("\\$");
-                                String externalId = codes[0];
-                                String isPrimary = codes[4];
-                                if (externalId.equals(relative.getExternalId()) && (isPrimary.equals("1"))) {
-                                    listRelatives.add(relative.getId());
-                                }
-                            }
-                        }
                         response.add(new JsonObject()
                                 .put("id", student.getValue("studentId"))
-                                .put("primaryRelatives", listRelatives));
+                                .put("primaryRelatives", parseAAFRelativeCodes(relatives, relativesCodes)));
                     }
                 }
 
                 handler.handle(new Either.Right<>(response));
             }
         });
+    }
+
+    /**
+     * Parse AAF codes and return list of primary relative identifiers.
+     *
+     * @param relatives         relative list
+     * @param relativesCodes    AAF codes for relatives
+     *                          ex : [6518799$20$1$1$1$1, 9527953$10$0$1$0$0]
+     *                                               ^                   ^
+     *                          The first element of each codes is the relative externalId.
+     *                          priority codes. The fifth is the relative priority code (1 if primary contact, 0 if not)
+     *
+     * @return list of primary relative ids
+     */
+    private JsonArray parseAAFRelativeCodes(List<Relative> relatives, JsonArray relativesCodes) {
+        JsonArray listRelatives = new JsonArray();
+
+        for (Relative relative: relatives) {
+            for (int j = 0; j < relativesCodes.size(); j++) {
+                String[] codes = relativesCodes.getString(j).split("\\$");
+                String externalId = codes[0];
+                String isPrimary = (relativesCodes.size() > 4) ? codes[4] : "0";
+                if (externalId.equals(relative.getExternalId()) && (isPrimary.equals("1"))) {
+                    listRelatives.add(relative.getId());
+                }
+            }
+        }
+        return listRelatives;
     }
 }

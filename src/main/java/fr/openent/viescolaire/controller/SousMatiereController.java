@@ -145,13 +145,11 @@ public class SousMatiereController extends ControllerHelper {
                                 JsonArray subTopics = event.right().getValue();
                                 if(subTopics.size() > 0){
                                     Renders.renderJson(request, subTopics);
-                                }
-                                else {
+                                } else {
                                     sousMatiereService.duplicateDefaultSousMatieres(idStructure, event1 ->
                                             sousMatiereService.listTypeSousMatieres(idStructure, handler));
                                 }
-                            }
-                            else {
+                            } else {
                                 request.response().setStatusCode(204).end();
                             }
                         }

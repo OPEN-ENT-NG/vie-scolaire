@@ -588,7 +588,17 @@ public class EventBusController extends ControllerHelper {
             case "getAnnotations": {
                 String idEleve = message.body().getString("idEleve");
                 Long idPeriode = message.body().getLong("idPeriode");
-                eleveService.getAnnotations(idEleve, idPeriode, null, getJsonArrayBusResultHandler(message));
+                String idMatiere = message.body().containsKey("idMatiere") ? message.body().getString("idMatiere") : null;
+                eleveService.getAnnotations(idEleve, idPeriode, null, idMatiere, getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getCompetences": {
+                String idEleve = message.body().getString("idEleve");
+                Long idPeriode = message.body().getLong("idPeriode");
+                String idMatiere = message.body().containsKey("idMatiere") ? message.body().getString("idMatiere") : null;
+                JsonArray idGroups = message.body().getJsonArray("idGroups");
+                eleveService.getCompetences(idEleve, idPeriode, idGroups, null, idMatiere,
+                        getJsonArrayBusResultHandler(message));
             }
             break;
             case "getPrimaryRelatives": {

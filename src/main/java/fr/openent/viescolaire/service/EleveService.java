@@ -105,7 +105,7 @@ public interface EleveService extends CrudService {
      * @param idGroups groupes et classes
      * @param result
      */
-    void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle,
+    void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle, String idMatiere,
                         Handler<Either<String, JsonArray>> result);
 
     /**
@@ -115,7 +115,8 @@ public interface EleveService extends CrudService {
      * @param idGroups groupes et classes
      * @param result
      */
-    void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, Handler<Either<String, JsonArray>> result);
+    void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, String idMatiere,
+                        Handler<Either<String, JsonArray>> result);
 
     /**
      * @param idClasse

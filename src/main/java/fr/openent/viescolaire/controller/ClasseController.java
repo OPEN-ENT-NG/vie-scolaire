@@ -71,14 +71,12 @@ public class ClasseController extends BaseController {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
             @Override
             public void handle(UserInfos user){
-
                 if(user != null){
                     if (request.params().isEmpty()){
                         badRequest(request);
                     } else {
-                        if (("Personnel".equals(user.getType())
-                                && !user.getFunctions().isEmpty()
-                        ) || "Teacher".equals(user.getType())) {
+                        if (("Personnel".equals(user.getType()) && !user.getFunctions().isEmpty())
+                                || "Teacher".equals(user.getType())) {
                             final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                             String idClasse = request.params().get("idClasse");
                             classeService.getEleveClasse(idClasse,null, handler);
@@ -161,19 +159,16 @@ public class ClasseController extends BaseController {
     @ApiDoc("Retourne les classes de l'établissement")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getClasses(final HttpServerRequest request) {
-
         UserUtils.getUserInfos(eb, request, user -> {
-
             if (!(user != null && !request.params().isEmpty() && request.params().contains("idEtablissement"))) {
                 badRequest(request, "getClasses : Paramètre manquant iEtablissement ou Utilisateur null.");
-            }
-            else {
+            } else {
                 String idEtablissement = request.params().get("idEtablissement");
                 final boolean isPresence = getBoolean(request, "isPresence");
                 final boolean isEdt = getBoolean(request,"isEdt");
                 final boolean isTeacherEdt = getBoolean(request,"isTeacherEdt");
                 JsonObject services =  config.getJsonObject("services");
-                final boolean noCompetence = isNull(services)? true : !services.getBoolean("competences");
+                final boolean noCompetence = isNull(services) ? true : !services.getBoolean("competences");
                 Map<String, JsonArray> info = new HashMap<>();
                 Boolean classOnly = null;
                 if(request.params().get("classOnly") != null) {
@@ -187,19 +182,14 @@ public class ClasseController extends BaseController {
                 // Handler qui va contenir la réponse de l'API
                 Handler<Either<String, JsonArray>> classeHandler;
 
-
                 if (isPresence || isEdt || noCompetence) {
                     classeHandler = finalHandler;
-                }
-
-                // Si !(isPresence || isEdt || noCompetence)
-                // On aurant en plus les services paramétrés pour chaque classe
-                else {
+                } else {  // On aurant en plus les services paramétrés pour chaque classe
                     classeHandler = classeService.addServivesClasses(request, eb, idEtablissement, isPresence, isEdt,
                             isTeacherEdt, noCompetence, info, classOnly, user, finalHandler );
                 }
                 String forAdminStr = request.params().get("forAdmin");
-                Boolean forAdmin = (forAdminStr == null)?false:Boolean.valueOf(forAdminStr);
+                Boolean forAdmin = (forAdminStr == null) ?false:Boolean.valueOf(forAdminStr);
                 classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
                         classeHandler, isTeacherEdt);
             }

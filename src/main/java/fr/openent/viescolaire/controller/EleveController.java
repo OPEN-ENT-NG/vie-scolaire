@@ -154,7 +154,6 @@ public class EleveController extends ControllerHelper {
         }
         final Long fIdePeriode = idPeriode;
 
-
         if(idClasse != null) {
             eleveService.getGroups(idEleve, new Handler<Either<String, JsonArray>>() {
                 @Override
@@ -170,13 +169,12 @@ public class EleveController extends ControllerHelper {
                         }
                     }
 
-                    eleveService.getAnnotations(idEleve, fIdePeriode, idGroups, handler);
+                    eleveService.getAnnotations(idEleve, fIdePeriode, idGroups, null, handler);
                 }
             });
         } else {
-            eleveService.getAnnotations(idEleve, fIdePeriode, null, handler);
+            eleveService.getAnnotations(idEleve, fIdePeriode, null, null, handler);
         }
-
     }
 
     @Get("/competences/eleve")
@@ -211,7 +209,8 @@ public class EleveController extends ControllerHelper {
                         }
                     }
                 }
-                Long idCycle;
+
+                Long idCycle = null;
                 if (request.params().contains("idCycle")) {
                     try {
                         idCycle = Long.parseLong(request.params().get("idCycle"));
@@ -220,15 +219,13 @@ public class EleveController extends ControllerHelper {
                         badRequest(request, e.getMessage());
                         return;
                     }
-                } else {
-                    idCycle = null;
                 }
+
                 if(idGroups != null && !idGroups.isEmpty()) {
-                    eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, handler);
+                    eleveService.getCompetences(idEleve, idPeriode, idGroups, idCycle, null, handler);
                 } else {
                     Renders.renderJson(request, new JsonArray());
                 }
-
             }
         });
     }
@@ -257,7 +254,6 @@ public class EleveController extends ControllerHelper {
             badRequest(request, "Invalid parameter");
         }
     }
-
 
     @Get("/structures/:structureId/students")
     @ApiDoc("Get list of students from a structure")

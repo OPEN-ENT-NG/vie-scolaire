@@ -71,7 +71,6 @@ public class ServicesController extends ControllerHelper {
         }
     }
 
-
     @Post("/service")
     @ApiDoc("Crée un nouveau service")
     @SecuredAction(value = WorkflowActionUtils.PARAM_SERVICES_RIGHT, type = ActionType.WORKFLOW)

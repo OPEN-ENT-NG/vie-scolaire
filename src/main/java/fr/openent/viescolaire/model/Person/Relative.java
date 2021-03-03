@@ -88,7 +88,7 @@ public class Relative extends Person implements Cloneable {
     }
 
     public String getMobile() {
-        return mobile.get(0);
+        return (!mobile.isEmpty()) ? mobile.get(0) : "";
     }
 
     public void setMobile(List<String> mobile) {
@@ -96,7 +96,7 @@ public class Relative extends Person implements Cloneable {
     }
 
     public String getPhone() {
-        return phone.get(0);
+        return (!phone.isEmpty()) ? phone.get(0) : "";
     }
 
     public void setPhone(List<String> phone) {

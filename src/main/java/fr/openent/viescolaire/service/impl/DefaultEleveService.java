@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by ledunoiss on 10/02/2016.
@@ -682,8 +683,13 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         for (Relative relative: relatives) {
             for (int j = 0; j < relativesCodes.size(); j++) {
-                String[] codes = relativesCodes.getString(j).split("\\$");
-                String externalId = codes[0];
+                String[] codes;
+                try {
+                    codes = relativesCodes.getString(j).split("\\$");
+                } catch (PatternSyntaxException e) {
+                    codes = new String[0];
+                }
+                String externalId = (codes.length > 4) ? codes[0] : relative.getExternalId();
                 String isPrimary = (codes.length > 4) ? codes[4] : "0";
                 if (externalId.equals(relative.getExternalId()) && (isPrimary.equals("1"))) {
                     listRelatives.add(relative.getId());

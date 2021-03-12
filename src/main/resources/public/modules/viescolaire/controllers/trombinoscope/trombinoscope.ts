@@ -8,8 +8,7 @@ interface IViewModel {
 }
 
 export const trombinoscopeController = ng.controller('TrombinoscopeController',
-    ['$scope', '$route', '$location',
-        async function ($scope, $route, $location) {
+    ['$scope', '$route', '$location', function ($scope, $route, $location) {
 
             const vm: IViewModel = this;
             vm.showImportPage = true;

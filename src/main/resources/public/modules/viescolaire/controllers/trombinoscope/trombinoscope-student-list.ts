@@ -48,7 +48,7 @@ interface IViewModel {
 
 export const trombinoscopeStudentListController = ng.controller('TrombinoscopeStudentListController',
     ['$scope', '$route', '$location', 'SearchService', 'UserService',
-        async function ($scope, $route, $location, searchService: ISearchService, userService: UserService) {
+        function ($scope, $route, $location, searchService: ISearchService, userService: UserService) {
 
             const vm: IViewModel = this;
             vm.studentsSearch = undefined;

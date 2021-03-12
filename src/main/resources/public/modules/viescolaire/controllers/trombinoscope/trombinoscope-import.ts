@@ -39,7 +39,7 @@ interface IViewModel {
 
 export const trombinoscopeImportController = ng.controller('TrombinoscopeImportController',
     ['$scope', '$route', '$location', 'TrombinoscopeService',
-        async function ($scope, $route, $location, trombinoscopeService: ITrombinoscopeService) {
+        function ($scope, $route, $location, trombinoscopeService: ITrombinoscopeService) {
 
             const vm: IViewModel = this;
 

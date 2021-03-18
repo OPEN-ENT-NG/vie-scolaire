@@ -59,6 +59,16 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     @Override
     public void deleteUsers(JsonArray jsonArray) {
+		if(jsonArray == null)
+			return;
+		for(int i = jsonArray.size(); i-- > 0;)
+		{
+			if(jsonArray.hasNull(i))
+                jsonArray.remove(i);
+		}
+		if(jsonArray.size() == 0)
+            return;
+
         userService.createPersonnesSupp(jsonArray, new Handler<Either<String, JsonObject>>() {
             @Override
             public void handle(Either<String, JsonObject> event) {

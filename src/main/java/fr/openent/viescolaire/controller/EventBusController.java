@@ -21,6 +21,7 @@ import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.bus.BusResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import io.vertx.core.Handler;
@@ -29,6 +30,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.user.UserInfos;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -161,7 +163,7 @@ public class EventBusController extends ControllerHelper {
             case "getMultiteachers": {
                 JsonArray groupIds = body.getJsonArray("groupIds");
                 String periodId = body.getString("periodId");
-                mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId,true,
+                mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true,
                         getJsonArrayBusResultHandler(message));
             }
             break;
@@ -486,7 +488,7 @@ public class EventBusController extends ControllerHelper {
                     oService.put("id_matiere", aIdMatiere);
                 }
 
-                oService.put("evaluable", bEvaluable );
+                oService.put("evaluable", bEvaluable);
 
                 servicesService.getServicesSQL(idStructure, oService, getJsonArrayBusResultHandler(message));
             }
@@ -507,8 +509,8 @@ public class EventBusController extends ControllerHelper {
                     Boolean groups = true; // select services with type group
                     Boolean manualGroups = true; //select services with type manual
                     Boolean compressed = false; // select service subject-teacher-[all class or/and groups]
-                    if( filters != null){
-                        if (filters.containsKey("evaluable") ) evaluable = filters.getBoolean("evaluable");
+                    if (filters != null) {
+                        if (filters.containsKey("evaluable")) evaluable = filters.getBoolean("evaluable");
                         if (filters.containsKey("noEvaluable")) noEvaluable = filters.getBoolean("noEvaluable");
                         if (filters.containsKey("classes")) classes = filters.getBoolean("classes");
                         if (filters.containsKey("groups")) groups = filters.getBoolean("groups");
@@ -528,7 +530,7 @@ public class EventBusController extends ControllerHelper {
                         oService.put("id_enseignant", idsEnseignant);
                     }
                     servicesService.getAllServices(structureId, evaluable, noEvaluable, classes, groups, manualGroups,
-                            compressed, oService,  getJsonArrayBusResultHandler(message));
+                            compressed, oService, getJsonArrayBusResultHandler(message));
                 }
             }
             break;
@@ -746,6 +748,10 @@ public class EventBusController extends ControllerHelper {
                 periodeAnneeService.listExclusion(idEtablissement, getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getSchoolYearPeriod":
+                String structureId = message.body().getString("structureId");
+                periodeAnneeService.getPeriodeAnnee(structureId, BusResponseHandler.busResponseHandler(message));
+                break;
             case "getPeriodesClasses": {
                 String idEtablissement = message.body().getString("idEtablissement");
                 String[] idsClasse = convertJsonArrayToStringArray(message.body().getJsonArray("idsClasse"));

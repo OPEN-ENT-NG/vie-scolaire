@@ -65,6 +65,8 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 		{
 			if(jsonArray.hasNull(i))
                 jsonArray.remove(i);
+            else if (jsonArray.getJsonObject(i) != null && jsonArray.getJsonObject(i).getString("id") == null)
+                jsonArray.remove(i);
 		}
 		if(jsonArray.size() == 0)
             return;

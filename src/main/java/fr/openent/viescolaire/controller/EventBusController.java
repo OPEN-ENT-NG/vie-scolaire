@@ -246,11 +246,13 @@ public class EventBusController extends ControllerHelper {
                 String limit = body.getString("limit");
                 String offset = body.getString("offset");
                 boolean descendingDate = Boolean.parseBoolean(body.getString("descendingDate"));
+                boolean disableWithoutTeacher = Boolean.parseBoolean(body.getString("disableWithoutTeacher"));
 
                 if (beginDate != null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
                     commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime,
-                            endTime, union, crossDateFilter, limit, offset, descendingDate, getJsonArrayBusResultHandler(message));
+                            endTime, union, crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
+                            getJsonArrayBusResultHandler(message));
                 }
             }
         }

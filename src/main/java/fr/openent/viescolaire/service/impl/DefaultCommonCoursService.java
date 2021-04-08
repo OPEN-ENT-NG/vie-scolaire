@@ -82,7 +82,7 @@ public class DefaultCommonCoursService implements CommonCoursService {
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groups, String begin, String end,
                                            String startTime, String endTime, boolean union, boolean crossDateFilter,
                                            String limitString, String offsetString, boolean descendingDate,
-                                           Handler<Either<String, JsonArray>> handler) {
+                                           boolean disableWithoutTeacher, Handler<Either<String, JsonArray>> handler) {
 
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
@@ -107,6 +107,10 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
+
+        if (disableWithoutTeacher) {
+            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));
+        }
 
 
         //If we want an union of teachers and groups results
@@ -275,18 +279,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, final Handler<Either<String, JsonArray>> handler) {
         this.getCoursesOccurences(structureId, teacherId, group, begin, end, startTime, endTime, union, crossDateFilter,
-                null, null, false, handler);
+                null, null, false, false, handler);
     }
 
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
-                                     boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate, final Handler<Either<String, JsonArray>> handler) {
+                                     boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate,
+                                     boolean disableWithoutTeacher, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
         Future<JsonArray> classeFuture = Future.future();
         Future<JsonArray> exclusionPeriodsFuture = Future.future();
 
         getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate, coursesFuture);
+                crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher, coursesFuture);
 
         checkGroupFromClass(group, structureId, response -> {
             if (response.isRight()) {
@@ -326,9 +331,9 @@ public class DefaultCommonCoursService implements CommonCoursService {
     private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin,
                                            String end, String startTime, String endTime, boolean union,
                                            boolean crossDateFilter, String limit, String offset, boolean descendingDate,
-                                           Future<JsonArray> coursesFuture) {
+                                           boolean disableWithoutTeacher, Future<JsonArray> coursesFuture) {
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate,
+                crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
                 response -> {
                     if (response.isLeft()) {
                         coursesFuture.complete(response.right().getValue());

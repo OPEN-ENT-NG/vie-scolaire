@@ -87,4 +87,6 @@ public interface CommonCoursService {
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);
 
+    void getCoursesByIds(List<String> courseIds, Handler<Either<String,JsonArray>> handler);
+
 }

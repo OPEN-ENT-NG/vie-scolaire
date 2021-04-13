@@ -230,6 +230,7 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void courseBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "getCoursesOccurences": {
@@ -254,7 +255,12 @@ public class EventBusController extends ControllerHelper {
                             endTime, union, crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
                             getJsonArrayBusResultHandler(message));
                 }
+                break;
             }
+            case "getCoursesByIds":
+                JsonObject body = message.body();
+                commonCoursService.getCoursesByIds(body.getJsonArray("courseIds").getList(), BusResponseHandler.busArrayHandler(message));
+                break;
         }
     }
 

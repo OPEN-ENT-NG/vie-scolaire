@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.service.impl;
 
+import fr.openent.viescolaire.db.DBService;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 
 import static org.entcore.common.mongodb.MongoDbResult.*;
 
-public class DefaultCommonCoursService implements CommonCoursService {
+public class DefaultCommonCoursService extends DBService implements CommonCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(fr.openent.viescolaire.service.impl.DefaultPeriodeService.class);
     private static UtilsService utilsService = new fr.openent.viescolaire.service.impl.DefaultUtilsService();
     private static final Course COURSE_TABLE = new Course();
@@ -342,22 +343,33 @@ public class DefaultCommonCoursService implements CommonCoursService {
                         coursesFuture.fail(response.left().getValue());
                     } else {
                         JsonArray courses = response.right().getValue();
-                        JsonArray subjectIds = getSubjectAndTimetableSubjectIds(courses);
 
-                        matiereService.getSubjectsAndTimetableSubjects(subjectIds, subjectsAsync -> {
-                            if (subjectsAsync.isLeft()) {
-                                String message = "[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
-                                        "Failed to retrieve subjects and/or timetableSubject";
-                                LOG.error(message);
-                                coursesFuture.fail(subjectsAsync.left().getValue());
+                        setCoursesSubjects(response.right().getValue(), res -> {
+                            if (res.isLeft()) {
+                                coursesFuture.fail(res.left().getValue());
                             } else {
-                                setSubjectToCourse(courses, subjectsAsync.right().getValue());
-                                coursesFuture.complete(response.right().getValue());
+                                coursesFuture.complete(courses);
                             }
                         });
                     }
                 }
         );
+    }
+
+    private void setCoursesSubjects(JsonArray courses, Handler<Either<String, JsonArray>> handler) {
+        JsonArray subjectIds = getSubjectAndTimetableSubjectIds(courses);
+
+        matiereService.getSubjectsAndTimetableSubjects(subjectIds, subjectsAsync -> {
+            if (subjectsAsync.isLeft()) {
+                String message = "[Viescolaire@DefaultCommonCoursService::setCoursesSubjects] " +
+                        "Failed to retrieve subjects and/or timetableSubject";
+                LOG.error(message);
+                handler.handle(new Either.Left<>(subjectsAsync.left().getValue()));
+            } else {
+                setSubjectToCourse(courses, subjectsAsync.right().getValue());
+                handler.handle(new Either.Right<>(courses));
+            }
+        });
     }
 
     private static boolean isCourseInsideExcludedPeriods(JsonArray exclusions, JsonObject course) {
@@ -379,17 +391,19 @@ public class DefaultCommonCoursService implements CommonCoursService {
 
     private JsonArray getSubjectAndTimetableSubjectIds(JsonArray courses) {
         JsonArray subjectIds = new JsonArray();
-        for (int i = 0; i < courses.size(); i++) {
-            JsonObject course = courses.getJsonObject(i);
-            if (course.containsKey("subjectId")
-                    && !subjectIds.contains(course.getString("subjectId"))
-                    && course.getString("subjectId") != null) {
-                subjectIds.add(course.getString("subjectId"));
-            }
-            if (course.containsKey("timetableSubjectId")
-                    && !subjectIds.contains(course.getString("timetableSubjectId"))
-                    && course.getString("timetableSubjectId") != null) {
-                subjectIds.add(course.getString("timetableSubjectId"));
+        if (courses != null) {
+            for (int i = 0; i < courses.size(); i++) {
+                JsonObject course = courses.getJsonObject(i);
+                if (course.containsKey("subjectId")
+                        && !subjectIds.contains(course.getString("subjectId"))
+                        && course.getString("subjectId") != null) {
+                    subjectIds.add(course.getString("subjectId"));
+                }
+                if (course.containsKey("timetableSubjectId")
+                        && !subjectIds.contains(course.getString("timetableSubjectId"))
+                        && course.getString("timetableSubjectId") != null) {
+                    subjectIds.add(course.getString("timetableSubjectId"));
+                }
             }
         }
         return subjectIds;
@@ -434,6 +448,28 @@ public class DefaultCommonCoursService implements CommonCoursService {
         final JsonObject query = new JsonObject();
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query, KEYS, validResultHandler(handler));
+    }
+
+    public void getCoursesByIds(List<String> courseIds, Handler<Either<String, JsonArray>> handler) {
+        final JsonObject query = new JsonObject();
+        query.put(COURSE_TABLE._id, new JsonObject().put("$in", new JsonArray(courseIds)));
+        mongoDb.find(COURSES, query, new JsonObject(), KEYS, res -> {
+            Either<String, JsonObject> either = MongoDbResult.validResult(res);
+            if (either.isLeft()) {
+                String message = "[Viescolaire@DefaultCommonCoursService::getCoursesByIds] " +
+                        "Error fetching courses by ids";
+                handler.handle(new Either.Left<>(message));
+            } else {
+                JsonArray courses = res.body().getJsonArray("results");
+                setCoursesSubjects(courses, subjectRes -> {
+                    if (subjectRes.isLeft()) {
+                        handler.handle(new Either.Left<>(subjectRes.left().getValue()));
+                    } else {
+                        handler.handle(new Either.Right<>(courses));
+                    }
+                });
+            }
+        });
     }
 
     /**

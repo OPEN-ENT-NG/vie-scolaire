@@ -337,7 +337,6 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                 crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
                 response -> {
                     if (response.isLeft()) {
-                        coursesFuture.complete(response.right().getValue());
                         LOG.error("[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
                                 "failed to list courses from mongoDb");
                         coursesFuture.fail(response.left().getValue());

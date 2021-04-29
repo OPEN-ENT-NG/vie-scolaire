@@ -54,7 +54,7 @@ public interface ClasseService extends CrudService {
      * @param idClasse
      * @param handler
      */
-    void getEleveClasse( String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler);
+    void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler);
 
     /**²
      * Récupère toutes les classes d'une Liste de classe donné en fonction de son id Neo4j.

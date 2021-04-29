@@ -23,6 +23,7 @@ import java.util.List;
 
 public final class WorkflowActionUtils {
 
+    static public final String ADMIN_RIGHT = "Viescolaire.view";
     static public final String PERIOD_YEAR_MANAGE = "period.year.manage";
     static public final String PERIOD_YEAR_READ = "period.year.read";
     static public final String TIME_SLOTS_MANAGE = "time.slot.manage";

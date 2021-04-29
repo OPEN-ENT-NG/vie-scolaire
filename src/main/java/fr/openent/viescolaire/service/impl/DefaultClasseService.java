@@ -85,14 +85,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     //TODO Revoir avec getEleveClasses
     @Override
-    public void getEleveClasse(String idClasse, Long idPeriode,Handler<Either<String, JsonArray>> handler){
-
+    public void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler){
         //Requête Neo4j optimisé
         StringBuilder returning = new StringBuilder();
         returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName,")
-                 .append( "u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
-                 .append( "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
-                 .append("ORDER BY lastName, firstName ");
+                .append( "u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
+                .append( "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
+                .append("ORDER BY lastName, firstName ");
 
         StringBuilder query = new StringBuilder()
                 .append("MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) ")
@@ -109,11 +108,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
-
         neo4j.execute(query.toString(), new JsonObject().put(mParameterIdClasse, idClasse),
                 utilsService.addStoredDeletedStudent(new JsonArray().add(idClasse), null,
                         null, sortedField, idPeriode, handler));
-
     }
 
     @Override
@@ -192,10 +189,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
     }
 
-    public void listClasses(String idStructure, Boolean classOnly, UserInfos user,
-                            JsonArray idClassesAndGroups,
-                            Boolean forAdmin,
-                            Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
+    public void listClasses(String idStructure, Boolean classOnly, UserInfos user, JsonArray idClassesAndGroups,
+                            Boolean forAdmin, Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
 
         // TODO ajouter filtre sur classes/groupes
         // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
@@ -204,7 +199,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         if(user != null) {
             hasAdminRight = "Personnel".equals(user.getType()) || isTeacherEdt;
             if(forAdmin != null && forAdmin){
-                hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActions.ADMIN_RIGHT.toString());
+                hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT);
             }
         }
 
@@ -380,12 +375,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getClasseInfo(String idClasse, Handler<Either<String, JsonObject>> handler) {
 
-            JsonObject params = new JsonObject();
-            String query = "MATCH (c:Class {id: {idClasse}}) RETURN c " +
-                    "UNION MATCH (c:FunctionalGroup {id: {idClasse}}) RETURN c " +
-                    "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
+        JsonObject params = new JsonObject();
+        String query = "MATCH (c:Class {id: {idClasse}}) RETURN c " +
+                "UNION MATCH (c:FunctionalGroup {id: {idClasse}}) RETURN c " +
+                "UNION MATCH (c:ManualGroup {id: {idClasse}}) RETURN c";
 
-            params.put("idClasse", idClasse);
+        params.put("idClasse", idClasse);
         try {
             neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
         } catch (VertxException e){
@@ -511,7 +506,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getGroupFromClass(String[] idClasses, String studentId, Handler<Either<String, JsonArray>> handler) {
         String query = "MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) " +
-               "WHERE c.id IN {idClasses} WITH u, c MATCH (u {id: {studentId}})-[:IN]-(g) WHERE g:FunctionalGroup OR g:ManualGroup " +
+                "WHERE c.id IN {idClasses} WITH u, c MATCH (u {id: {studentId}})-[:IN]-(g) WHERE g:FunctionalGroup OR g:ManualGroup " +
                 "RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups , COLLECT(DISTINCT g.id) as id_groups";
         JsonObject params = new JsonObject()
                 .put("idClasses", new JsonArray(Arrays.asList(idClasses)))
@@ -523,24 +518,21 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                               String idEtablissement, final boolean isPresence,
                                                               final boolean isEdt, final boolean isTeacherEdt,
                                                               final boolean noCompetence,
-                                                              Map<String, JsonArray> info, Boolean classOnly ){
-        return  event -> {
-            if (event.isLeft())  {
+                                                              Map<String, JsonArray> info, Boolean classOnly){
+        return event -> {
+            if (event.isLeft()) {
                 badRequest(request);
-            }
-            else {
+            } else {
                 JsonArray recipient = event.right().getValue();
-                JsonObject classe;
                 final JsonArray classes = new fr.wseduc.webutils.collections.JsonArray();
                 List<String> idGroupes = new ArrayList<>();
                 for (int i = 0; i < recipient.size(); i++) {
-                    classe = recipient.getJsonObject(i);
-                    classe = classe.getJsonObject("m");
+                    JsonObject classe = recipient.getJsonObject(i).getJsonObject("m");
                     JsonObject object = classe.getJsonObject("metadata");
                     classe = classe.getJsonObject("data");
-                    if (object.getJsonArray("labels").contains("Class"))
+                    if (object.getJsonArray("labels").contains("Class")) {
                         classe.put("type_groupe", Viescolaire.CLASSE_TYPE);
-                    else if (object.getJsonArray("labels").contains("FunctionalGroup")) {
+                    } else if (object.getJsonArray("labels").contains("FunctionalGroup")) {
                         classe.put("type_groupe", Viescolaire.GROUPE_TYPE);
                     } else if (object.getJsonArray("labels").contains("ManualGroup")) {
                         classe.put("type_groupe", Viescolaire.GROUPE_MANUEL_TYPE);
@@ -554,36 +546,32 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
                 if (idGroupes.isEmpty()) {
                     renderJson(request, new fr.wseduc.webutils.collections.JsonArray(idGroupes));
-                }
-                else {
-
+                } else {
                     if (isPresence || isEdt || noCompetence) {
                         renderJson(request, classes);
                     } else {
                         JsonObject action = new JsonObject()
                                 .put("action", "utils.getCycle")
                                 .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
-                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action,
-                                handlerToAsyncHandler( message -> {
-                                    if ("ok".equals(message.body().getString("status"))) {
-                                        JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
-                                        JsonObject cycles = utilsService.mapListNumber(message.body()
-                                                .getJsonArray("results"), "id_groupe", "id_cycle");
-                                        JsonObject cycleLibelle = utilsService.mapListString(message.body()
-                                                .getJsonArray("results"), "id_groupe", "libelle");
-                                        for (int i = 0; i < classes.size(); i++) {
-                                            JsonObject object = classes.getJsonObject(i);
-                                            object.put("id_cycle", cycles.getLong(object.getString("id")));
-                                            object.put("libelle_cycle",
-                                                    cycleLibelle.getString(object.getString("id")));
-                                            object.put("services", info.get(object.getString("id")));
-                                            returnedList.add(object);
-                                        }
-                                        renderJson(request, returnedList);
-                                    } else {
-                                        badRequest(request);
-                                    }
-                                }));
+                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
+                            if ("ok".equals(message.body().getString("status"))) {
+                                JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
+                                JsonObject cycles = utilsService.mapListNumber(message.body()
+                                        .getJsonArray("results"), "id_groupe", "id_cycle");
+                                JsonObject cycleLibelle = utilsService.mapListString(message.body()
+                                        .getJsonArray("results"), "id_groupe", "libelle");
+                                for (int i = 0; i < classes.size(); i++) {
+                                    JsonObject object = classes.getJsonObject(i);
+                                    object.put("id_cycle", cycles.getLong(object.getString("id")));
+                                    object.put("libelle_cycle", cycleLibelle.getString(object.getString("id")));
+                                    object.put("services", info.get(object.getString("id")));
+                                    returnedList.add(object);
+                                }
+                                renderJson(request, returnedList);
+                            } else {
+                                badRequest(request);
+                            }
+                        }));
                     }
                 }
             }
@@ -666,12 +654,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public Handler<Either<String, JsonArray>> addServivesClasses(final HttpServerRequest request, EventBus eb,
                                                                  String idEtablissement, final boolean isPresence,
                                                                  final boolean isEdt, final boolean isTeacherEdt,
-                                                                 final boolean noCompetence,
-                                                                 Map<String, JsonArray> info,
+                                                                 final boolean noCompetence, Map<String, JsonArray> info,
                                                                  Boolean classOnly, UserInfos user,
                                                                  Handler<Either<String, JsonArray>> finalHandler){
-        return    event -> {
-
+        return event -> {
             JsonObject oService = new JsonObject();
             oService.put("id_enseignant", user.getUserId());
 

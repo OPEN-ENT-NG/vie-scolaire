@@ -1,7 +1,6 @@
 package fr.openent.viescolaire.controller;
 
 
-import fr.openent.viescolaire.security.AccessAuthorized;
 import fr.openent.viescolaire.security.ParamServicesRight;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.ServicesService;

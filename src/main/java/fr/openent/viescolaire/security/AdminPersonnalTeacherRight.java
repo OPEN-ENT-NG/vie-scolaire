@@ -17,19 +17,17 @@
 
 package fr.openent.viescolaire.security;
 
-import fr.openent.Viescolaire;
+import fr.wseduc.webutils.http.Binding;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import org.entcore.common.http.filter.ResourcesProvider;
+import org.entcore.common.user.UserInfos;
 
-public enum WorkflowActions {
-    MANAGE_TROMBINOSCOPE(Viescolaire.MANAGE_TROMBINOSCOPE);
-
-    private final String actionName;
-
-    WorkflowActions(String actionName) {
-        this.actionName = actionName;
-    }
+public class AdminPersonnalTeacherRight implements ResourcesProvider {
 
     @Override
-    public String toString () {
-        return this.actionName;
+    public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
+        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT) ||
+                "Personnel".equals(user.getType()) || "Teacher".equals(user.getType()));
     }
 }

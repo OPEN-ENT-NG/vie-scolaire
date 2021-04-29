@@ -18,16 +18,14 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.service.MultiTeachingService;
+import fr.openent.viescolaire.security.AdminPersonnalTeacherRight;
 import fr.openent.viescolaire.service.UtilsService;
-import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
 import fr.openent.viescolaire.service.impl.DefaultUtilsService;
-import fr.openent.viescolaire.security.AccessAuthorized;
+import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
-import fr.wseduc.rs.Post;
 import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -64,34 +62,21 @@ public class ClasseController extends BaseController {
     }
 
     @Get("/classes/:idClasse/users")
-    @ApiDoc("Recupere tous les élèves d'une Classe.")
-    @ResourceFilter(AccessAuthorized.class)
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ApiDoc("Recupere tous les élèves d'une classe.")
+    @ResourceFilter(AdminPersonnalTeacherRight.class)
+    @SecuredAction(value = "", type=ActionType.RESOURCE)
     public void getEleveClasse(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
-            @Override
-            public void handle(UserInfos user){
-                if(user != null){
-                    if (request.params().isEmpty()){
-                        badRequest(request);
-                    } else {
-                        if (("Personnel".equals(user.getType()) && !user.getFunctions().isEmpty())
-                                || "Teacher".equals(user.getType())) {
-                            final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                            String idClasse = request.params().get("idClasse");
-                            classeService.getEleveClasse(idClasse,null, handler);
-                        }
-                    }
-                }else{
-                    unauthorized(request);
-                }
-            }
-        });
+        if (request.params().isEmpty()){
+            badRequest(request);
+        } else {
+            String idClasse = request.params().get("idClasse");
+            classeService.getEleveClasse(idClasse,null, arrayResponseHandler(request));
+        }
     }
 
     @Get("/classe/eleves")
     @ApiDoc("Recupere tous les élèves d'une liste de classes.")
-    @ResourceFilter(AccessAuthorized.class)
+    @ResourceFilter(AdminRight.class)
     @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
     public void getElevesClasse(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -167,7 +152,7 @@ public class ClasseController extends BaseController {
                 final boolean isPresence = getBoolean(request, "isPresence");
                 final boolean isEdt = getBoolean(request,"isEdt");
                 final boolean isTeacherEdt = getBoolean(request,"isTeacherEdt");
-                JsonObject services =  config.getJsonObject("services");
+                JsonObject services = config.getJsonObject("services");
                 final boolean noCompetence = isNull(services) ? true : !services.getBoolean("competences");
                 Map<String, JsonArray> info = new HashMap<>();
                 Boolean classOnly = null;
@@ -177,7 +162,7 @@ public class ClasseController extends BaseController {
 
                 // On rajoute les info des cycles de chaque classe si !(isPresence || isEdt || noCompetence)
                 Handler<Either<String, JsonArray>> finalHandler = classeService.addCycleClasses(request, eb,
-                        idEtablissement, isPresence, isEdt, isTeacherEdt, noCompetence, info, classOnly );
+                        idEtablissement, isPresence, isEdt, isTeacherEdt, noCompetence, info, classOnly);
 
                 // Handler qui va contenir la réponse de l'API
                 Handler<Either<String, JsonArray>> classeHandler;
@@ -186,10 +171,10 @@ public class ClasseController extends BaseController {
                     classeHandler = finalHandler;
                 } else {  // On aurant en plus les services paramétrés pour chaque classe
                     classeHandler = classeService.addServivesClasses(request, eb, idEtablissement, isPresence, isEdt,
-                            isTeacherEdt, noCompetence, info, classOnly, user, finalHandler );
+                            isTeacherEdt, noCompetence, info, classOnly, user, finalHandler);
                 }
                 String forAdminStr = request.params().get("forAdmin");
-                Boolean forAdmin = (forAdminStr == null) ?false:Boolean.valueOf(forAdminStr);
+                Boolean forAdmin = (forAdminStr == null) ? false : Boolean.valueOf(forAdminStr);
                 classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
                         classeHandler, isTeacherEdt);
             }

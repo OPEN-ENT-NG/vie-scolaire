@@ -125,7 +125,6 @@ public class PeriodeController extends ControllerHelper {
                     RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject resource) {
-
                             final String idEtablissement = resource.getString("idEtablissement");
                             final String[] idClasses = (String[]) resource.getJsonArray("idClasses").getList().toArray(new String[0]);
                             final JsonObject[] periodes = utilsService.convertTo(resource.getJsonArray("periodes").getList().toArray());

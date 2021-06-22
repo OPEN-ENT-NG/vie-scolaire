@@ -273,7 +273,6 @@ export let viescolaireController = ng.controller('ViescolaireController', [
         };
 
         $scope.savePeriode = async (periodes) => {
-
             if(!$scope.lightboxPeriode.error.errorFn && !$scope.lightboxPeriode.error.errorFnS) {
                 try {
                     await $scope.structure.savePeriodes(_.pluck($scope.getSelectedClasse(), 'id'), periodes);
@@ -299,13 +298,32 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             let now = moment();
             let res;
             _.each(classe.periodes.all, (periode) => {
-                if (moment(periode.timestamp_dt).isSameOrBefore(now, 'day' ) && moment(periode.timestamp_fn).isSameOrAfter(now,'day')) {
+                if(now.isBetween(moment(periode.timestamp_dt), moment(periode.timestamp_fn), 'days', '[]')) {
                     res = periode;
                 }
             });
-            if (res === undefined ) {
+
+            if (res === undefined) {
+                let min_nb_day_diff = 999;
+                _.each(classe.periodes.all, (periode) => {
+                    let nb_day_diff_from_start = Math.abs(moment.duration(moment(periode.timestamp_dt).diff(now)).asDays());
+                    if(nb_day_diff_from_start < min_nb_day_diff) {
+                        min_nb_day_diff = nb_day_diff_from_start;
+                        res = periode;
+                    }
+
+                    let nb_day_diff_from_end = Math.abs(moment.duration(moment(periode.timestamp_fn).diff(now)).asDays());
+                    if(nb_day_diff_from_end < min_nb_day_diff) {
+                        min_nb_day_diff = nb_day_diff_from_end;
+                        res = periode;
+                    }
+                });
+            }
+
+            if (res === undefined) {
                 res = _.first(classe.periodes.all);
             }
+
             return res;
         };
 

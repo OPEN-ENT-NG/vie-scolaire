@@ -21,6 +21,7 @@ import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
+import org.apache.commons.lang3.BooleanUtils;
 import org.entcore.common.bus.BusResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.request.JsonHttpServerRequest;
@@ -247,12 +248,12 @@ public class EventBusController extends ControllerHelper {
                 String limit = body.getString("limit");
                 String offset = body.getString("offset");
                 boolean descendingDate = Boolean.parseBoolean(body.getString("descendingDate"));
-                boolean disableWithoutTeacher = Boolean.parseBoolean(body.getString("disableWithoutTeacher"));
+                Boolean searchTeacher = BooleanUtils.toBooleanObject(body.getString("searchTeacher")); // use this method to keep null status
 
                 if (beginDate != null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
                     commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime,
-                            endTime, union, crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
+                            endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
                             getJsonArrayBusResultHandler(message));
                 }
                 break;

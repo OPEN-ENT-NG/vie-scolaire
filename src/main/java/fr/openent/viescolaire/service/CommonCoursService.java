@@ -44,7 +44,7 @@ public interface CommonCoursService {
      */
     void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin, String end,
                                     String startTime, String endTime, boolean union, boolean crossDateFilter,
-                                    String limit, String offset, boolean descendingDate, boolean disableWithoutTeacher,
+                                    String limit, String offset, boolean descendingDate, Boolean searchTeacher,
                                     Handler<Either<String,JsonArray>> handler);
 
     /**
@@ -83,7 +83,7 @@ public interface CommonCoursService {
      */
     void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end,
                               String startTime, String endTime, boolean union, boolean crossDateFilter, String limit, String offset,
-                              boolean descendingDate, boolean disableWithoutTeacher, Handler<Either<String,JsonArray>> handler);
+                              boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);
 

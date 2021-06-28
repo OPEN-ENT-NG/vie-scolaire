@@ -83,7 +83,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groups, String begin, String end,
                                            String startTime, String endTime, boolean union, boolean crossDateFilter,
                                            String limitString, String offsetString, boolean descendingDate,
-                                           boolean disableWithoutTeacher, Handler<Either<String, JsonArray>> handler) {
+                                           Boolean searchTeacher, Handler<Either<String, JsonArray>> handler) {
 
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
@@ -98,7 +98,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         JsonObject startFilter = new JsonObject();
         JsonObject endFilter = new JsonObject();
 
-        if(!crossDateFilter){
+        if (!crossDateFilter) {
             startFilter.put("$gte", startDate);
             endFilter.put("$lte", endDate);
         } else {
@@ -109,9 +109,12 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
 
-        if (disableWithoutTeacher) {
+        if (Boolean.TRUE.equals(searchTeacher))
             $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));
-        }
+
+        if (Boolean.FALSE.equals(searchTeacher))
+            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)));
+
 
 
         //If we want an union of teachers and groups results
@@ -280,19 +283,19 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, final Handler<Either<String, JsonArray>> handler) {
         this.getCoursesOccurences(structureId, teacherId, group, begin, end, startTime, endTime, union, crossDateFilter,
-                null, null, false, false, handler);
+                null, null, false, null, handler);
     }
 
     @Override
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate,
-                                     boolean disableWithoutTeacher, final Handler<Either<String, JsonArray>> handler) {
+                                     Boolean searchTeacher, final Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
         Future<JsonArray> classeFuture = Future.future();
         Future<JsonArray> exclusionPeriodsFuture = Future.future();
 
         getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher, coursesFuture);
+                crossDateFilter, limit, offset, descendingDate, searchTeacher, coursesFuture);
 
         checkGroupFromClass(group, structureId, response -> {
             if (response.isRight()) {
@@ -332,9 +335,9 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin,
                                            String end, String startTime, String endTime, boolean union,
                                            boolean crossDateFilter, String limit, String offset, boolean descendingDate,
-                                           boolean disableWithoutTeacher, Future<JsonArray> coursesFuture) {
+                                           Boolean searchTeacher, Future<JsonArray> coursesFuture) {
         listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate, disableWithoutTeacher,
+                crossDateFilter, limit, offset, descendingDate, searchTeacher,
                 response -> {
                     if (response.isLeft()) {
                         LOG.error("[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +

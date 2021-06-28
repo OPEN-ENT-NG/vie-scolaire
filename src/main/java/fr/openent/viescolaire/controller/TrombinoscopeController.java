@@ -19,6 +19,7 @@ import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.I18n;
+import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServerRequest;
@@ -32,6 +33,7 @@ import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.storage.Storage;
 
 import java.io.File;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -47,6 +49,10 @@ public class TrombinoscopeController extends ControllerHelper {
     private final TrombinoscopeFailureService failureService;
     private final TrombinoscopeService trombinoscopeService;
     private final TrombinoscopeReportService reportService;
+    private final Map<String, String> skins;
+    private static final String ASSET_THEME = "/assets/themes/";
+    private static final String IMG_ILLUSTRATION = "img/illustrations";
+    private static final String NO_AVATAR = "no-avatar.svg";
 
     public TrombinoscopeController(Vertx vertx, Storage storage) {
         this.vertx = vertx;
@@ -54,6 +60,7 @@ public class TrombinoscopeController extends ControllerHelper {
         this.failureService = new DefaultTrombinoscopeFailureService(storage);
         this.trombinoscopeService = new DefaultTrombinoscopeService(vertx.fileSystem(), storage, failureService);
         this.reportService = new DefaultTrombinoscopeReportService();
+        this.skins = vertx.sharedData().getLocalMap("skins");
     }
 
     @SecuredAction(value = Viescolaire.MANAGE_TROMBINOSCOPE)
@@ -96,6 +103,9 @@ public class TrombinoscopeController extends ControllerHelper {
     public void getTrombinoscopePicture(HttpServerRequest request) {
         String structureId = request.getParam("structureId");
         String studentId = request.getParam("studentId");
+
+        String skin = this.skins.get(Renders.getHost(request));
+
         trombinoscopeService.getSetting(structureId, isActive -> {
             if (isActive.result().equals(true)) {
                 trombinoscopeService.get(structureId, studentId, resultFile -> {
@@ -106,9 +116,17 @@ public class TrombinoscopeController extends ControllerHelper {
                     JsonObject result = resultFile.result();
 
                     if (result.getString("picture_id") != null) {
-                        storage.sendFile(result.getString("picture_id"), null, request, true, new JsonObject());
+                        FileHelper.exist(storage, result.getString("picture_id"), existAsync -> {
+                            // send default picture no avatar if no file found
+                            if (!Boolean.TRUE.equals(existAsync.result())) {
+                                redirect(request, ASSET_THEME + skin + "/" + IMG_ILLUSTRATION + "/" + NO_AVATAR);
+                            } else {
+                                storage.sendFile(result.getString("picture_id"), null, request, true, new JsonObject());
+                            }
+                        });
                     } else {
-                        notFound(request);
+                        // send default picture no avatar if no picture_id or field found on the JsonObject
+                        redirect(request, ASSET_THEME + skin + "/" + IMG_ILLUSTRATION + "/" + NO_AVATAR);
                     }
                 });
             } else {

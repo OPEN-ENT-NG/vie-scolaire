@@ -27,3 +27,7 @@ tslint.json
 /nbproject/private/
 /src/main/resources/public/font
 /src/main/resources/public/js/behaviours.js
+/coverage/
+/gradle/wrapper/gradle-wrapper.jar
+/gradle/wrapper/gradle-wrapper.properties
+/gradlew

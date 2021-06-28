@@ -47,7 +47,7 @@ publish () {
   docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle publish
 }
 
-testAngular () {
+testNode () {
   rm -rf coverage
   rm -rf */build
   case `uname -s` in
@@ -59,8 +59,8 @@ testAngular () {
   esac
 }
 
-testJava () {
-  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test
+testGradle() {
+  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test --no-build-cache --rerun-tasks
 }
 
 for param in "$@"
@@ -81,14 +81,14 @@ do
     publish)
       publish
       ;;
-     test)
-      testAngular ; testJava
+    test)
+      testNode ; testGradle
       ;;
-    testAngular)
-      testAngular
+    testNode)
+      testNode
       ;;
-    testJava)
-      testJava
+    testGradle)
+      testGradle
       ;;
     *)
       echo "Invalid argument : $param"

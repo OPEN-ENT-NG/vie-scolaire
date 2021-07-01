@@ -37,6 +37,16 @@ describe('TrombinoscopeService', () => {
         });
     });
 
+    it('should return data when API deleteTrombinoscope request is correctly called', done => {
+        let mock = new MockAdapter(axios);
+        const data = {response: true};
+        mock.onDelete(`/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`).reply(200, data);
+        trombinoscopeService.deleteTrombinoscope(structure, studentId).then((response: AxiosResponse) => {
+            expect(response.data).toEqual(data);
+            done();
+        });
+    });
+
     it('should return data when API getFailures request is correctly called', () => {
         let mock = new MockAdapter(axios);
         const data = [{

@@ -2,6 +2,7 @@ package fr.openent.viescolaire.service;
 
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeReport;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -55,4 +56,13 @@ public interface TrombinoscopeService {
      * @param handler       Function handler returning data
      */
     void create(String structureId, String studentId, String pictureId, Handler<AsyncResult<JsonObject>> handler);
+
+    /**
+     * delete picture from a studentId
+     *
+     * @param structureId   Structure Identifier {@link String}
+     * @param studentId     Student identifier {@link String}
+     * @return Future       {@link Future} of {@link JsonObject} completed or failure
+     */
+    Future<JsonObject> deletePicture(String structureId, String studentId);
 }

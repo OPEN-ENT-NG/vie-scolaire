@@ -1,11 +1,12 @@
-import {ng, template} from 'entcore';
+import {moment, ng, template, toasts} from 'entcore';
 import {StudentsSearch} from '../../utils/autocomplete';
-import {ISearchService, UserService} from '../../services';
+import {ISearchService, ITrombinoscopeService, UserService} from '../../services';
 import {safeApply} from '../../../utils/functions/safeApply';
 import {GroupsSearch} from '../../utils/autocomplete';
 import {IUser} from '../../models/common/User';
 import {IGroup} from '../../models/common/Group';
 import {INFINITE_SCROLL_EVENTER} from '../../core/enum/infinite-scroll-eventer';
+import {AxiosError} from "axios";
 
 interface IFilter {
     students: Array<string>;
@@ -20,6 +21,7 @@ interface IViewModel {
     groupsSearch: GroupsSearch;
     studentList: IUser[];
     filter: IFilter;
+    removePictureLightbox: {student: IUser, isOpen: boolean};
 
     getStudents(): Promise<void>;
 
@@ -28,6 +30,10 @@ interface IViewModel {
     getStudentsFromGroup(groupName: string): IUser[];
 
     getGroupNames(): string[];
+
+    toggleRemovePictureLightbox(state: boolean, student?: IUser): void;
+
+    removePicture();
 
     searchStudent(student: string): Promise<void>;
 
@@ -47,8 +53,9 @@ interface IViewModel {
 }
 
 export const trombinoscopeStudentListController = ng.controller('TrombinoscopeStudentListController',
-    ['$scope', '$route', '$location', 'SearchService', 'UserService',
-        function ($scope, $route, $location, searchService: ISearchService, userService: UserService) {
+    ['$scope', '$route', '$location', 'SearchService', 'UserService', 'TrombinoscopeService',
+        function ($scope, $route, $location, searchService: ISearchService, userService: UserService,
+                  trombinoscopeService: ITrombinoscopeService) {
 
             const vm: IViewModel = this;
             vm.studentsSearch = undefined;
@@ -59,6 +66,7 @@ export const trombinoscopeStudentListController = ng.controller('TrombinoscopeSt
               groups: [],
               page: 0
             };
+            vm.removePictureLightbox = {student: null, isOpen: false};
 
             const initData = async (): Promise<void> => {
 
@@ -96,6 +104,36 @@ export const trombinoscopeStudentListController = ng.controller('TrombinoscopeSt
 
             vm.getGroupNames = (): string[] => {
                 return _.union(vm.studentList.map((student: IUser) => student.audienceName));
+            };
+
+            vm.toggleRemovePictureLightbox = (state: boolean, student?: IUser): void => {
+                // true will open the lightbox and store its student
+                if (state) {
+                    vm.removePictureLightbox.isOpen = state;
+                    vm.removePictureLightbox.student = student;
+                } else {
+                    // false will close the lightbox and destroy student info
+                    vm.removePictureLightbox.isOpen = state;
+                    vm.removePictureLightbox.student = null;
+                }
+                safeApply($scope);
+            };
+
+            vm.removePicture = (): void => {
+                const studentQuery = (structure: string, student: string): string =>
+                    `/viescolaire/structures/${structure}/students/${student}/picture`;
+
+                trombinoscopeService.deleteTrombinoscope($scope.structure.id, vm.removePictureLightbox.student.id).then(() => {
+                    const timestamp: string = `?timestamp=${moment().unix()}`; // weird tricks to refresh the ng-src img manually front
+                    (<HTMLImageElement>document.getElementById('img-' + vm.removePictureLightbox.student.id)).src =
+                        studentQuery($scope.structure.id, vm.removePictureLightbox.student.id) + timestamp;
+                    vm.toggleRemovePictureLightbox(false);
+                    safeApply($scope);
+                }).catch((err: AxiosError) => {
+                    toasts.warning('viescolaire.trombinoscope.param.photo.delete.error');
+                    vm.toggleRemovePictureLightbox(false);
+                    throw err;
+                });
             };
 
             /**

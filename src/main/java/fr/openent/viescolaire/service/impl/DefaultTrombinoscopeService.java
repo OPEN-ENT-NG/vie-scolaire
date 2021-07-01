@@ -455,4 +455,89 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
             handler.handle(Future.succeededFuture(result.right().getValue()));
         }));
     }
+
+    /**
+     * delete picture from a studentId
+     *
+     * @param structureId   Structure Identifier {@link String}
+     * @param studentId     Student identifier {@link String}
+     * @return Future       {@link Future} of {@link JsonObject} completed or failure
+     */
+    @Override
+    public Future<JsonObject> deletePicture(String structureId, String studentId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        get(structureId, studentId, existsEither -> {
+            if (existsEither.failed()) {
+                promise.fail(existsEither.cause());
+            } else {
+                JsonObject existingTrombinoscope = existsEither.result();
+                proceedOnDeleteTrombinosope(structureId, studentId, existingTrombinoscope, promise);
+            }
+        });
+
+        return promise.future();
+    }
+
+    /**
+     * delete picture from a studentId
+     *
+     * @param structureId               Structure Identifier {@link String}
+     * @param studentId                 Student identifier {@link String}
+     * @param existingTrombinoscope     existingTrombinoscope Object {@link JsonObject}
+     * @param promise                   promise to handle {@link Promise<JsonObject>}
+     */
+    private void proceedOnDeleteTrombinosope(String structureId, String studentId, JsonObject existingTrombinoscope,
+                                             Promise<JsonObject> promise) {
+        if (existingTrombinoscope.getString("picture_id") != null) {
+            FileHelper.exist(storage, existingTrombinoscope.getString("picture_id"), existAsync -> {
+                // if no exist, directly delete the student's trombinoscope
+                if (Boolean.FALSE.equals(existAsync.result())) {
+                    deleteTrombinoscope(structureId, studentId).onSuccess(promise::complete).onFailure(promise::fail);
+                } else {
+                    // if exists, delete file from storage and then delete the student's trombinoscope
+                    removePictureFile(existingTrombinoscope, removeAsync -> {
+                        if (removeAsync.failed()) {
+                            promise.fail(removeAsync.cause());
+                        } else {
+                            deleteTrombinoscope(structureId, studentId).onSuccess(promise::complete).onFailure(promise::fail);                                }
+                    });
+                }
+            });
+        } else {
+            // delete the student's trombinoscope since no picture id is found
+            deleteTrombinoscope(structureId, studentId).onSuccess(promise::complete).onFailure(promise::fail);
+        }
+    }
+
+    /**
+     * delete trombinoscope by its student info
+     *
+     * @param structureId   Trombinoscope's structure Identifier {@link String}
+     * @param studentId     Trombinoscope's student identifier {@link String}
+     *
+     * @return Future       {@link Future} of {@link JsonObject} completed or failure
+     */
+    private Future<JsonObject> deleteTrombinoscope(String structureId, String studentId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + ".trombinoscope " +
+                " WHERE structure_id = ? AND student_id = ? ";
+
+        JsonArray params = new JsonArray()
+                .add(structureId)
+                .add(studentId);
+
+        sql.prepared(query, params, SqlResult.validUniqueResultHandler(result -> {
+            if (result.isLeft()) {
+                String message = "[Viescolaire@DefaultTrombinoscopeService::deleteTrombinoscope] Failed to delete trombinoscope: ";
+                log.error(message, result.left().getValue());
+                promise.fail(result.left().getValue());
+                return;
+            }
+            promise.complete(result.right().getValue());
+        }));
+
+        return promise.future();
+    }
 }

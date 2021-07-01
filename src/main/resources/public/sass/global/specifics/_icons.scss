@@ -140,4 +140,16 @@ body.vsco--global {
     color: #4bafd5;
     padding: 0 5px;
   }
+
+  // material icon
+  i {
+    &.mdi-close::before {
+      font-family: 'material-icons';
+      content: "\F156";
+    }
+    &.mdi-delete-forever::before {
+      font-family: 'material-icons';
+      content: "\F5E8";
+    }
+  }
 }

@@ -2,6 +2,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Actions;
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.core.enums.TrombinoscopeError;
 import fr.openent.viescolaire.model.Structure;
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeFailure;
@@ -118,7 +119,7 @@ public class TrombinoscopeController extends ControllerHelper {
                     if (result.getString("picture_id") != null) {
                         FileHelper.exist(storage, result.getString("picture_id"), existAsync -> {
                             // send default picture no avatar if no file found
-                            if (!Boolean.TRUE.equals(existAsync.result())) {
+                            if (Boolean.FALSE.equals(existAsync.result())) {
                                 redirect(request, ASSET_THEME + skin + "/" + IMG_ILLUSTRATION + "/" + NO_AVATAR);
                             } else {
                                 storage.sendFile(result.getString("picture_id"), null, request, true, new JsonObject());
@@ -391,6 +392,20 @@ public class TrombinoscopeController extends ControllerHelper {
                 renderJson(request, result.result());
             });
         });
+    }
+
+    @Delete("/structures/:structureId/students/:studentId/trombinoscope")
+    @ResourceFilter(ManageTrombinoscope.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace(value = Actions.VIESCOLAIRE_IMPORT_UPDATE, body = false)
+    @ApiDoc("update trombinoscope")
+    public void deletePicture(final HttpServerRequest request) {
+        String structureId = request.getParam(Field.STRUCTUREID);
+        String studentId = request.getParam(Field.STUDENTID);
+
+        trombinoscopeService.deletePicture(structureId, studentId)
+                .onSuccess(res -> renderJson(request, res))
+                .onFailure(unused -> renderError(request));
     }
 
     /* FAILURE */

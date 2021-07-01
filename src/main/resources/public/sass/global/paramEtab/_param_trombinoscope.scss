@@ -53,7 +53,7 @@
     }
   }
 
-  lightbox {
+  .lightbox-report {
     .content {
       width: 1030px !important;
       height: 750px;
@@ -119,8 +119,8 @@
         box-shadow: 0 3px 6px rgba(0,0,0,0.2);
         display: flex;
         justify-content: center;
+        position: relative;
       }
     }
   }
-
 }

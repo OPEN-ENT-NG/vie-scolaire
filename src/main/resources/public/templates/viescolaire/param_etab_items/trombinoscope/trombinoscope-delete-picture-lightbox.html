@@ -1,0 +1,37 @@
+<lightbox class="sniplet presences sniplet-presence-form"
+          show="vm.removePictureLightbox.isOpen"
+          on-close="vm.toggleRemovePictureLightbox(false)">
+
+    <!-- Header -->
+    <section class="sniplet-form-lightbox-head head">
+        <h3>
+            <i18n>unsetImage</i18n>
+        </h3>
+    </section>
+
+    <!-- Body -->
+    <section class="sniplet-form-lightbox-body body lightbox-form">
+
+        <!-- description to delete -->
+        <span><i18n>viescolaire.trombinoscope.student.picture.delete.warning</i18n></span>
+
+    </section>
+
+    <!-- Footer -->
+    <section class="sniplet-form-lightbox-footer">
+        <!-- Button/submit -->
+        <div class="sniplet-form-lightbox-footer-button row">
+
+            <!-- Submit mode -->
+            <button class="right-magnet" data-ng-click="vm.removePicture()">
+                <i18n>item.delete</i18n>
+            </button>
+
+            <!-- Cancel mode  -->
+            <button class="right-magnet cancel" data-ng-click="vm.toggleRemovePictureLightbox(false)">
+                <i18n>evaluations.devoir.annuler</i18n>
+            </button>
+        </div>
+    </section>
+
+</lightbox>

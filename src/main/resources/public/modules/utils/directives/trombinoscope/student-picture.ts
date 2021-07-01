@@ -1,7 +1,8 @@
 import {Directive, moment, ng} from 'entcore';
 import {trombinoscopeService} from '../../../viescolaire/services';
 import {IUser} from '../../../viescolaire/models/common/User';
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
+import {safeApply} from "../../functions/safeApply";
 
 interface IViewModel {
 
@@ -13,7 +14,11 @@ interface IViewModel {
 
     getStudentPictureQuery(): string;
 
+    updateInputDOM(): void;
+
     uploadStudentPicture(file: FileList): void;
+
+    toggleRemovePictureLightbox(): void;
 
     changeFile(): void;
 }
@@ -24,8 +29,7 @@ export const studentPicture: Directive = ng.directive('studentPicture', () => {
         restrict: 'E',
         transclude: true,
         scope: {
-            student: '=',
-            structureId: '='
+            onClick: '&'
         },
         template: `
             <div class="student-picture">
@@ -33,6 +37,12 @@ export const studentPicture: Directive = ng.directive('studentPicture', () => {
                  <!-- Student picture content -->
                  <div class="student-picture-content">
                  
+                     <!-- background color to fill its icon -->
+                     <div class="student-picture-content-background"></div>
+                     <!-- remove current picture -->
+                     <i class="mdi-delete-forever student-picture-content-remove" ng-click="vm.toggleRemovePictureLightbox()"></i>
+
+                     
                      <!-- Picture picture-->
                      <img id="img-[[vm.student.id]]"
                          ng-if="vm.getStudentPictureQuery()"
@@ -56,11 +66,15 @@ export const studentPicture: Directive = ng.directive('studentPicture', () => {
                         type="file"
                         ng-model="vm.student_pic"
                         accept="image/*"
+                        ng-click="vm.updateInputDOM()"
                         files-input-change="vm.uploadStudentPicture(vm.student_pic)" />
             </div>
             `,
         controllerAs: 'vm',
-        bindToController: true,
+        bindToController: {
+            student: '=',
+            structureId: '=',
+        },
         replace: true,
 
         controller: async ($scope) => {
@@ -78,15 +92,28 @@ export const studentPicture: Directive = ng.directive('studentPicture', () => {
                 document.getElementById('fileInput-' + vm.student.id).click();
             };
 
+            vm.updateInputDOM = (): void => {
+                safeApply($scope);
+            };
+
             vm.uploadStudentPicture = async (file: FileList): Promise<void> => {
                 const studentPicture: File = file[0];
                 trombinoscopeService.updateTrombinoscope(vm.structureId, vm.student.id, studentPicture).then((res: AxiosResponse) => {
                     if (res.status === 200 || res.status === 201) {
-                        const timestamp: string = `?timestamp=${moment().unix()}`; // weird tricks to refresh the ng-src img manually front
-                        (<HTMLImageElement>document.getElementById('img-' + vm.student.id)).src = vm.getStudentPictureQuery() + timestamp;
-                        $scope.$apply();
+                        updatePictureDOM();
+                        safeApply($scope);
                     }
+                }).catch((_: AxiosError) => {
+                    updatePictureDOM();
+                    safeApply($scope);
                 });
+            };
+
+            vm.toggleRemovePictureLightbox = (): void => $scope.$parent.$eval($scope.onClick);
+
+            const updatePictureDOM = (): void => {
+                const timestamp: string = `?timestamp=${moment().unix()}`; // weird tricks to refresh the ng-src img manually front
+                (<HTMLImageElement>document.getElementById('img-' + vm.student.id)).src = vm.getStudentPictureQuery() + timestamp;
             };
         }
     };

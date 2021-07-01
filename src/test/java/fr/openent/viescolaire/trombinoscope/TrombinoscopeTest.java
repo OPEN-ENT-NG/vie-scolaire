@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.trombinoscope;
 
+import fr.openent.Viescolaire;
 import fr.openent.viescolaire.db.DB;
 import fr.openent.viescolaire.service.TrombinoscopeService;
 import fr.openent.viescolaire.service.impl.DefaultTrombinoscopeFailureService;
@@ -124,6 +125,26 @@ public class TrombinoscopeTest {
         try {
             Whitebox.invokeMethod(trombinoscopeService, "saveTrombinoscope",
                     structureId, studentId, pictureId, Future.future());
+        } catch (Exception e) {
+            ctx.assertFalse(e.getMessage().isEmpty());
+        }
+    }
+
+    @Test
+    public void testDeleteTrombinoscope(TestContext ctx) {
+        String CORRECT_QUERY = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + ".trombinoscope " +
+        " WHERE structure_id = ? AND student_id = ? ";
+
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            String query = invocation.getArgument(0);
+            JsonArray params = invocation.getArgument(1);
+            ctx.assertEquals(CORRECT_QUERY, query);
+            ctx.assertEquals(params, new JsonArray(Arrays.asList(structureId, studentId)));
+            return null;
+        }).when(sql).prepared(Mockito.anyString(), Mockito.any(JsonArray.class), Mockito.any(Handler.class));
+
+        try {
+            Whitebox.invokeMethod(trombinoscopeService, "deleteTrombinoscope", structureId, studentId);
         } catch (Exception e) {
             ctx.assertFalse(e.getMessage().isEmpty());
         }

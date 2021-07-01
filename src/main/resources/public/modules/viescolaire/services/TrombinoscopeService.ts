@@ -7,6 +7,8 @@ export interface ITrombinoscopeService {
 
     updateTrombinoscope(structureId: string, studentId: string, file: File): Promise<AxiosResponse>;
 
+    deleteTrombinoscope(structureId: string, studentId: string): Promise<AxiosResponse>;
+
     getFailures(structureId: string): Promise<Array<IFailure>>;
 
     linkTrombinoscope(structureId: string, studentId: string, pictureId: string): Promise<AxiosResponse>;
@@ -48,6 +50,16 @@ export const trombinoscopeService: ITrombinoscopeService = {
         formData.append('file', file);
 
         return http.put(`/viescolaire/structures/${structureId}/students/${studentId}/trombinoscope`, formData, headers);
+    },
+
+    /**
+     * delete student picture (its trombinoscope).
+     *
+     * @param structureId   structure identifier
+     * @param studentId     student identifier
+     */
+    deleteTrombinoscope: async (structureId: string, studentId: string) => {
+        return http.delete(`/viescolaire/structures/${structureId}/students/${studentId}/trombinoscope`);
     },
 
     /**

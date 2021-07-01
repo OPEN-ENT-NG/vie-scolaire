@@ -68,14 +68,19 @@
                 <!-- Students in group -->
                 <div class="group-students">
                     <div class="card group-students-item" ng-repeat="student in vm.getStudentsFromGroup(groupName)">
-                        <student-picture
-                                student="student"
-                                structure-id="structure.id">
+                        <student-picture student="student"
+                                         structure-id="structure.id"
+                                         on-click="vm.toggleRemovePictureLightbox(true, student)">
                         </student-picture>
                     </div>
                 </div>
             </div>
         </article>
     </div>
+
+    <!-- lightbox to open confirmation for deleting picture -->
+    <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/trombinoscope/trombinoscope-delete-picture-lightbox.html'"></div>
+
+    <!-- persist infinite scroll -->
     <infinite-scroll scrolled="vm.onScroll()"></infinite-scroll>
 </div>

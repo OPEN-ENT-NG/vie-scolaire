@@ -88,23 +88,23 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler){
         //Requête Neo4j optimisé
         StringBuilder returning = new StringBuilder();
-        returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName,")
-                .append( "u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
-                .append( "CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
+        returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName, ")
+                .append("u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
+                .append("CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
                 .append("ORDER BY lastName, firstName ");
 
         StringBuilder query = new StringBuilder()
                 .append("MATCH (c:Class{id:{idClasse}})<-[:DEPENDS]-(:ProfileGroup)<-[:IN]-(u:User {profiles:['Student']}) ")
                 .append(returning)
-                .append("UNION MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) " )
+                .append("UNION MATCH (c:FunctionalGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
                 .append(returning)
                 .append("UNION MATCH (c:ManualGroup {id :{idClasse}})-[:IN]-(u:User {profiles: ['Student']}) ")
                 .append(returning)
                 .append("UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), (c:Class {id :{idClasse}}) ")
-                .append("WHERE HAS(u.deleteDate)  AND (c.externalId IN u.groups OR c.externalId IN u.classes) ")
+                .append("WHERE HAS(u.deleteDate) AND (c.externalId IN u.groups OR c.externalId IN u.classes) ")
                 .append(returning);
 
-        String [] sortedField = new  String[2];
+        String[] sortedField = new String[2];
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
@@ -446,7 +446,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                 String[] idEleves = new String[1];
                                 idEleves[0] = idEleve;
                                 new DefaultEleveService().getStoredDeletedStudent(null, null,
-                                        idEleves, rNeo,
+                                        idEleves,
                                         new Handler<Either<String, JsonArray>>() {
                                             public void handle(Either<String, JsonArray> event) {
                                                 if (event.isRight()) {

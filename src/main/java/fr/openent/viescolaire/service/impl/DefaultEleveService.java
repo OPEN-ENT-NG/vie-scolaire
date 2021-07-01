@@ -153,14 +153,11 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     }
     @Override
     public void getInfoEleve(String[] idEleves, String idEtablissement, Handler<Either<String, JsonArray>> handler) {
-
-
         // Format de Retour des données
         StringBuilder returning = new StringBuilder()
                 .append(" RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, ")
                 .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
                 .append(" u.birthDate as birthDate, u.level as level, c.externalId as externalId, ");
-
 
         // Condition de récupération des noeuds
         StringBuilder condition = new StringBuilder()
@@ -176,7 +173,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonObject params = new JsonObject();
 
         // Récupération d'élèves non supprimés
-        query.append(" MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->")
+        query.append("MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->")
                 .append("(s:Structure {id:{idStructure}}), (c:Class)-[b:BELONGS]->(s)  ")
                 .append(condition)
                 .append(" with u, c, s")
@@ -415,9 +412,8 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     }
 
     @Override
-    public void getStoredDeletedStudent(JsonArray idClasse,String idStructure, String[] idEleves, JsonArray rNeo,
+    public void getStoredDeletedStudent(JsonArray idClasse, String idStructure, String[] idEleves,
                                         Handler<Either<String, JsonArray>> handler){
-
         StringBuilder query = new StringBuilder();
         JsonArray values  = new fr.wseduc.webutils.collections.JsonArray();
 
@@ -432,7 +428,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             //values.add(idEleve);
         }*/
         if (idClasse != null){
-            for(int i=0; i< idClasse.size(); i++) {
+            for(int i=0; i < idClasse.size(); i++) {
                 values.add(idClasse.getValue(i));
             }
         }
@@ -446,42 +442,34 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         }
 
         // Requête finale
-        query.append("SELECT DISTINCT \"idEleve\" AS id,\"idEleve\",\"idGroupes\", ")
-                .append(" display_name AS \"displayName\", ")
-                .append(" delete_date AS \"deleteDate\", ")
-                .append(" first_name AS \"firstName\", ")
-                .append(" last_name AS \"lastName\", ")
-                .append(" id_structure AS \"idEtablissement\", ")
-                .append(" id_groupe AS \"idClasse\", ")
-                .append(" birth_date AS \"birthDate\" ")
+        query.append("SELECT DISTINCT idEleve AS id, idEleve, idGroupes, display_name AS displayName, ")
+                .append(" delete_date AS deleteDate, first_name AS firstName, last_name AS lastName, ")
+                .append(" id_structure AS idEtablissement, id_groupe AS idClasse, birth_date AS birthDate ")
                 .append(" FROM ")
-                .append(" ( SELECT * FROM ")
+                .append(" (SELECT * FROM ")
 
                 // Selection
-                .append("   (SELECT personnes_supp.id_user AS \"idEleve\", MAX(delete_date) AS \"deleteDate\", ")
-                .append("           string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
-                .append("    FROM " + Viescolaire.VSCO_SCHEMA + ".personnes_supp, viesco.rel_groupes_personne_supp ")
-                .append("    WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
+                .append(" (SELECT personnes_supp.id_user AS idEleve, MAX(delete_date) AS deleteDate, ")
+                .append(" string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS idGroupes ")
+                .append(" FROM ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp, viesco.rel_groupes_personne_supp ")
+                .append(" WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
                 // .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
-                .append((idClasse != null && idClasse.size() > 0)? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
-                .append((idEleves != null && idEleves.length > 0)? " AND id_user IN " + Sql.listPrepared(idEleves): "")
-                .append("    AND user_type = 'Student' ")
-                .append("    GROUP BY personnes_supp.id_user) AS res ")
+                .append((idClasse != null && idClasse.size() > 0) ? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
+                .append((idEleves != null && idEleves.length > 0) ? " AND id_user IN " + Sql.listPrepared(idEleves): "")
+                .append(" AND user_type = 'Student' ")
+                .append(" GROUP BY personnes_supp.id_user) AS res ")
 
-
-                .append("  INNER JOIN " + Viescolaire.VSCO_SCHEMA + ".personnes_supp ")
-                .append("   ON \"deleteDate\" = personnes_supp.delete_date ")
-                .append("   AND \"idEleve\" = personnes_supp.id_user)  AS res1 ")
+                .append(" INNER JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp ")
+                .append(" ON deleteDate = personnes_supp.delete_date ")
+                .append(" AND idEleve = personnes_supp.id_user)  AS res1 ")
 
                 .append(" LEFT JOIN viesco.rel_groupes_personne_supp ON res1.id = rel_groupes_personne_supp.id ")
-                .append("                                             AND type_groupe = 0 ")
+                .append(" AND type_groupe = 0 ")
 
                 .append(" INNER JOIN viesco.rel_structures_personne_supp ON res1.id = rel_structures_personne_supp.id")
-                .append((idStructure != null)?" AND id_structure = ? " : "");
-
+                .append((idStructure != null) ? " AND id_structure = ? " : "");
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
-
     }
 
     public void isEvaluableOnPeriode(String idEleve, Long idPeriode, String idEtablissement,

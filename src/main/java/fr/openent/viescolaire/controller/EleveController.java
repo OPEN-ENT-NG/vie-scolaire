@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.AccessChildrenParentFilter;
 import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.impl.DefaultEleveService;
@@ -142,8 +143,8 @@ public class EleveController extends ControllerHelper {
 
     @Get("/annotations/eleve")
     @ApiDoc("Récupère les annotations sur les devoirs d'un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessChildrenParentFilter.class)
     public void getAnnotationStudent(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         String idEleve = request.params().get("idEleve");
@@ -179,8 +180,8 @@ public class EleveController extends ControllerHelper {
 
     @Get("/competences/eleve")
     @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessChildrenParentFilter.class)
     public void getCompetencesEleve(final HttpServerRequest request) {
         final String idEleve = request.params().get("idEleve");
         final String idClasse = request.params().get("idClasse");
@@ -242,15 +243,15 @@ public class EleveController extends ControllerHelper {
 
     @Get("appreciation/devoir/:idDevoir/eleve/:idEleve")
     @ApiDoc("Récupère l'appréciation d'un devoir pour un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessChildrenParentFilter.class)
     public void getAppreciationDevoirEleve(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         String idEleve = request.params().get("idEleve");
         if (request.params().get("idDevoir") != null) {
             Long idDevoir = testLongFormatParameter("idDevoir", request);
-            eleveService.getAppreciationDevoir(idDevoir, idEleve,handler);
-        }else {
+            eleveService.getAppreciationDevoir(idDevoir, idEleve, handler);
+        } else {
             badRequest(request, "Invalid parameter");
         }
     }

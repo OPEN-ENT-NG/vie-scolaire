@@ -273,7 +273,7 @@ public class DefaultUtilsService implements UtilsService{
                             List<Object> eleveNeoInPostgres = deletedStudentsPostgres.stream()
                                     .filter(eleveDeleted -> idsNeo.contains(((JsonObject) eleveDeleted).getString("id")))
                                     .collect(Collectors.toList());
-                            log.info("eleveNeoInPostgres");
+                            log.info("[addStoredDeletedStudent] eleveNeoInPostgres " + idClasse);
                             for(Object student : eleveNeoInPostgres) {
                                 JsonObject studentJsonObject = (JsonObject) student;
                                 log.info(studentJsonObject);
@@ -281,14 +281,14 @@ public class DefaultUtilsService implements UtilsService{
                             eleveNeoInPostgres.forEach(deletedStudentsPostgres::remove);
 
                             log.info("-------------------");
-                            log.info("deletedStudentsPostgres");
+                            log.info("[addStoredDeletedStudent] deletedStudentsPostgres " + idClasse);
                             for(Object student : deletedStudentsPostgres) {
                                 JsonObject studentJsonObject = (JsonObject) student;
                                 log.info(studentJsonObject);
                             }
                         }
                         log.info("-------------------");
-                        log.info("deletedStudentsNeo");
+                        log.info("[addStoredDeletedStudent] deletedStudentsNeo " + idClasse);
                         for(Object student : deletedStudentsNeo) {
                             JsonObject studentJsonObject = (JsonObject) student;
                             log.info(studentJsonObject);

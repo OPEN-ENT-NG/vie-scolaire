@@ -136,30 +136,25 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Long idPeriode, Boolean isTeacher,
                                 Handler<Either<String, JsonArray>> handler){
-
-        StringBuilder query = new StringBuilder();
-        JsonObject params =  new JsonObject();
+        JsonObject params = new JsonObject();
 
         // Rajout de filtre pour les enseignants
-        String filter;
+        String filter = " ";
         if(isTeacher) {
             filter = " AND c.id IN {idClasse} ";
             params.put(mParameterIdClasse, idClasse);
         }
-        else {
-            filter = " ";
-        }
 
         // Format de retour des données
         StringBuilder returning = new StringBuilder()
-                .append(" RETURN u.id as id, u.displayName as ")
-                .append(" displayName, u.firstName as firstName, u.lastName as lastName, ")
-                .append(" c.id as idClasse, u.deleteDate as deleteDate ")
+                .append(" RETURN u.id as id, u.displayName as displayName, u.firstName as firstName, ")
+                .append(" u.lastName as lastName, c.id as idClasse, u.deleteDate as deleteDate ")
                 .append(" ORDER BY displayName ");
 
         // Requête Néo
-        query.append(" MATCH (u:User {profiles: ['Student']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})<-[b:BELONGS]-(c:Class) ")
-                .append(" WHERE  c.externalId IN u.classes AND s.externalId IN u.structures ")
+        StringBuilder query = new StringBuilder()
+                .append(" MATCH (u:User {profiles: ['Student']})-[ADMINISTRATIVE_ATTACHMENT]->(s:Structure {id:{idEtablissement}})<-[b:BELONGS]-(c:Class) ")
+                .append(" WHERE c.externalId IN u.classes AND s.externalId IN u.structures ")
                 .append(filter)
                 .append(returning)
 
@@ -174,19 +169,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(filter)
                 .append(returning);
 
-
         params.put("idEtablissement", idEtablissement);
 
         // Rajout des élèves supprimés et absent de l'annuaire
-        String [] sortedField = new  String[1];
-        sortedField[0]= "displayName";
-        neo4j.execute(query.toString(),params,
-                utilsService.addStoredDeletedStudent(isTeacher? idClasse : null,
-                        !isTeacher? idEtablissement :null,
-                        null,
-                        sortedField, idPeriode,
-                        handler));
-
+        String [] sortedField = new String[1];
+        sortedField[0] = "displayName";
+        neo4j.execute(query.toString(), params, utilsService.addStoredDeletedStudent(isTeacher ? idClasse : null,
+                !isTeacher ? idEtablissement : null, null, sortedField, idPeriode, handler));
     }
 
     public void listClasses(String idStructure, Boolean classOnly, UserInfos user, JsonArray idClassesAndGroups,

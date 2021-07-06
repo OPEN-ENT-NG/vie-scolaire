@@ -223,7 +223,6 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(result));
     }
 
-
     @Override
     public void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, String idMatiere,
                                Handler<Either<String, JsonArray>> handler) {
@@ -231,9 +230,10 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, ")
-                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient,devoirs.libelle as lib, ")
+                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient, devoirs.libelle as lib, ")
                 .append("type.nom as _type_libelle, sum_notes, nbr_eleves, id_groupe ")
-                .append("FROM notes.rel_annotations_devoirs inner JOIN notes.devoirs on devoirs.id = id_devoir ")
+                .append("FROM notes.rel_annotations_devoirs ")
+                .append("INNER JOIN notes.devoirs on devoirs.id = id_devoir ")
                 .append("INNER JOIN notes.annotations on annotations.id = id_annotation ")
                 .append("INNER JOIN notes.type on devoirs.id_type = type.id ")
                 .append("INNER JOIN notes.rel_devoirs_groupes ON devoirs.id = rel_devoirs_groupes.id_devoir ")
@@ -243,7 +243,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append("GROUP BY devoirs.id) sum ON sum.id = devoirs.id ");
 
         if(idGroups != null) {
-            query.append("AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()));
+            query.append("AND rel_devoirs_groupes.id_groupe IN ").append(Sql.listPrepared(idGroups.getList()));
             for (int i = 0; i < idGroups.size(); i++) {
                 values.add(idGroups.getString(i));
             }
@@ -415,7 +415,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getStoredDeletedStudent(JsonArray idClasse, String idStructure, String[] idEleves,
                                         Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
-        JsonArray values  = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         // Si les élèves sont dans le résultat Neo, on ne les récupère pas dans postgres
         /*JsonArray idsNeo = new JsonArray();
@@ -441,32 +441,32 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             values.add(idStructure);
         }
 
-        // Requête finale
-        query.append("SELECT DISTINCT idEleve AS id, idEleve, idGroupes, display_name AS displayName, ")
-                .append(" delete_date AS deleteDate, first_name AS firstName, last_name AS lastName, ")
-                .append(" id_structure AS idEtablissement, id_groupe AS idClasse, birth_date AS birthDate ")
-                .append(" FROM ")
-                .append(" (SELECT * FROM ")
-
-                // Selection
-                .append(" (SELECT personnes_supp.id_user AS idEleve, MAX(delete_date) AS deleteDate, ")
-                .append(" string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS idGroupes ")
-                .append(" FROM ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp, viesco.rel_groupes_personne_supp ")
-                .append(" WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
+        // Requête finale. IMPORTANT : Les guillemets permettent de respecter la case des alias
+        query.append("SELECT DISTINCT \"idEleve\" AS id,\"idEleve\",\"idGroupes\", ")
+                .append("display_name AS \"displayName\", ")
+                .append("delete_date AS \"deleteDate\", ")
+                .append("first_name AS \"firstName\", ")
+                .append("last_name AS \"lastName\", ")
+                .append("id_structure AS \"idEtablissement\", ")
+                .append("id_groupe AS \"idClasse\", ")
+                .append("birth_date AS \"birthDate\" ")
+                .append("FROM ")
+                .append("(SELECT * FROM ")
+                .append("(SELECT personnes_supp.id_user AS \"idEleve\", MAX(delete_date) AS \"deleteDate\", ")
+                .append("string_agg(DISTINCT rel_groupes_personne_supp.id_groupe, ',') AS \"idGroupes\" ")
+                .append("FROM ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp, viesco.rel_groupes_personne_supp ")
+                .append("WHERE personnes_supp.id = rel_groupes_personne_supp.id ")
                 // .append((idsNeo.size() >0)? " AND id_user NOT IN " + Sql.listPrepared(idsNeo.getList()) : "")
                 .append((idClasse != null && idClasse.size() > 0) ? " AND id_groupe IN " + Sql.listPrepared(idClasse.getList().toArray()): "")
                 .append((idEleves != null && idEleves.length > 0) ? " AND id_user IN " + Sql.listPrepared(idEleves): "")
-                .append(" AND user_type = 'Student' ")
-                .append(" GROUP BY personnes_supp.id_user) AS res ")
-
-                .append(" INNER JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp ")
-                .append(" ON deleteDate = personnes_supp.delete_date ")
-                .append(" AND idEleve = personnes_supp.id_user)  AS res1 ")
-
-                .append(" LEFT JOIN viesco.rel_groupes_personne_supp ON res1.id = rel_groupes_personne_supp.id ")
-                .append(" AND type_groupe = 0 ")
-
-                .append(" INNER JOIN viesco.rel_structures_personne_supp ON res1.id = rel_structures_personne_supp.id")
+                .append("AND user_type = 'Student' ")
+                .append("GROUP BY personnes_supp.id_user) AS res ")
+                .append("INNER JOIN ").append(Viescolaire.VSCO_SCHEMA).append(".personnes_supp ")
+                .append("ON \"deleteDate\" = personnes_supp.delete_date ")
+                .append("AND \"idEleve\" = personnes_supp.id_user) AS res1 ")
+                .append("LEFT JOIN viesco.rel_groupes_personne_supp ON res1.id = rel_groupes_personne_supp.id ")
+                .append("AND type_groupe = 0 ")
+                .append("INNER JOIN viesco.rel_structures_personne_supp ON res1.id = rel_structures_personne_supp.id ")
                 .append((idStructure != null) ? " AND id_structure = ? " : "");
 
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));

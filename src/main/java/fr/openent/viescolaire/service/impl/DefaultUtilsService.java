@@ -184,6 +184,7 @@ public class DefaultUtilsService implements UtilsService{
         }
         return recipient;
     }
+
     @Override
     public JsonArray sortArray(JsonArray jsonArr, String[] sortedField) {
         JsonArray sortedJsonArray = new JsonArray();

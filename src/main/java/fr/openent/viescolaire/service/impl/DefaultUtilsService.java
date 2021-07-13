@@ -274,21 +274,10 @@ public class DefaultUtilsService implements UtilsService{
                             List<Object> eleveNeoInPostgres = deletedStudentsPostgres.stream()
                                     .filter(eleveDeleted -> idsNeo.contains(((JsonObject) eleveDeleted).getString("id")))
                                     .collect(Collectors.toList());
-                            log.info("[addStoredDeletedStudent] eleveNeoInPostgres " + idClasse);
-                            for(Object student : eleveNeoInPostgres) {
-                                JsonObject studentJsonObject = (JsonObject) student;
-                                log.info(studentJsonObject);
-                            }
+
                             eleveNeoInPostgres.forEach(deletedStudentsPostgres::remove);
-
-                            for(Object student : deletedStudentsPostgres) {
-                                JsonObject studentJsonObject = (JsonObject) student;
-                            }
                         }
 
-                        for(Object student : deletedStudentsNeo) {
-                            JsonObject studentJsonObject = (JsonObject) student;
-                        }
                         JsonArray result = deletedStudentsPostgres != null ? saUnion(deletedStudentsNeo, deletedStudentsPostgres) : deletedStudentsNeo;
                         if(null == idPeriode) {
                             handler.handle(new Either.Right<>(sortArray(result, sortedField)));

@@ -151,6 +151,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
+
     @Override
     public void getInfoEleve(String[] idEleves, String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         // Format de Retour des données
@@ -161,7 +162,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         // Condition de récupération des noeuds
         StringBuilder condition = new StringBuilder()
-                .append(" WHERE  ")
+                .append(" WHERE ")
                 .append(" u.id IN {idEleves}")
                 .append(" AND c.externalId IN u.classes ")
                 .append(" AND s.externalId IN u.structures");
@@ -193,7 +194,6 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" [] as idGroupes, ")
                 .append(" [] as idManualGroupes ")
                 .append(order);
-
 
         params.put("idStructure", idEtablissement)
                 .put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));

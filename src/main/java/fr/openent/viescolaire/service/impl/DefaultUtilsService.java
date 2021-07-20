@@ -281,18 +281,13 @@ public class DefaultUtilsService implements UtilsService{
                             }
                             eleveNeoInPostgres.forEach(deletedStudentsPostgres::remove);
 
-                            log.info("-------------------");
-                            log.info("[addStoredDeletedStudent] deletedStudentsPostgres " + idClasse);
                             for(Object student : deletedStudentsPostgres) {
                                 JsonObject studentJsonObject = (JsonObject) student;
-                                log.info(studentJsonObject);
                             }
                         }
-                        log.info("-------------------");
-                        log.info("[addStoredDeletedStudent] deletedStudentsNeo " + idClasse);
+
                         for(Object student : deletedStudentsNeo) {
                             JsonObject studentJsonObject = (JsonObject) student;
-                            log.info(studentJsonObject);
                         }
                         JsonArray result = deletedStudentsPostgres != null ? saUnion(deletedStudentsNeo, deletedStudentsPostgres) : deletedStudentsNeo;
                         if(null == idPeriode) {
@@ -370,8 +365,6 @@ public class DefaultUtilsService implements UtilsService{
                 }
             }
         }
-        log.info("eleveAvailable");
-        log.info(eleveAvailable);
         handler.handle(new Either.Right<>(sortArray(eleveAvailable, sortedField)));
     }
 

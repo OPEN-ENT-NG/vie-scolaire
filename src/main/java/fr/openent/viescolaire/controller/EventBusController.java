@@ -648,6 +648,11 @@ public class EventBusController extends ControllerHelper {
     private void matiereBusService(String method, final Message<JsonObject> message) {
         switch (method) {
             case "getSubjectsAndTimetableSubjects": {
+                String structureId = message.body().getString("structureId");
+                if (structureId != null) {
+                    matiereService.getSubjectsAndTimetableSubjects(structureId, getJsonArrayBusResultHandler(message));
+                    return;
+                }
                 JsonArray idMatieres = message.body().getJsonArray("idMatieres");
                 matiereService.getSubjectsAndTimetableSubjects(idMatieres, getJsonArrayBusResultHandler(message));
             }

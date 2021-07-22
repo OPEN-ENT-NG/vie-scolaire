@@ -259,6 +259,19 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     @Override
+    public void getSubjectsAndTimetableSubjects(String structureId, Handler<Either<String, JsonArray>> result) {
+        String query = "MATCH (:Structure {id: {structureId}})<-[:SUBJECT]-(s:TimetableSubject) " +
+                "RETURN s.id as id, s.code as code, s.externalId as externalId, s.label as name ORDER BY name UNION " +
+                "MATCH (:Structure {id: {structureId}})<-[:SUBJECT]-(s:Subject) " +
+                "RETURN s.id as id, s.code as code, s.externalId as externalId, s.label as name ORDER BY name";
+
+        JsonObject params = new JsonObject().put("structureId", structureId);
+
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(responseNeo4j ->
+                SubjectHelper.addRankForSubject(responseNeo4j, result)));
+    }
+
+    @Override
     public void getMatieres(JsonArray idMatieres, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();

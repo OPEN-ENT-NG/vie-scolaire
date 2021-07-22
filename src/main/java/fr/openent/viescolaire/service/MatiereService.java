@@ -72,6 +72,14 @@ public interface MatiereService extends CrudService {
      */
     void getSubjectsAndTimetableSubjects(JsonArray subjectIds, Handler<Either<String, JsonArray>> result);
 
+    /**
+     * Fetch all Subjects and TimetableSubjects
+     *
+     * @param structureId structure identifier
+     * @param result     handling data result
+     */
+    void getSubjectsAndTimetableSubjects(String structureId, Handler<Either<String, JsonArray>> result);
+
 
     /**
      * Récupère les matieres en fonction d'une liste de matières données

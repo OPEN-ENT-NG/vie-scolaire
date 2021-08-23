@@ -28,10 +28,10 @@ public interface CommonCoursService {
 
     /**
      * fetch courses in mongoDB
-     *
+     *  @param group             Event type list
      * @param structureId       structure identifier
      * @param teacherId         teacher identifier list
-     * @param group             Event type list
+     * @param groupIds
      * @param begin             start date begin
      * @param end               end date begin
      * @param startTime         start time begin
@@ -42,7 +42,7 @@ public interface CommonCoursService {
      * @param descendingDate    for descending we set TRUE (-1) date else we keep (FALSE) ascending (default is 1)
      * @param handler           Function handler returning data
      */
-    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groupIds,
                                     List<String> groupExternalIds, List<String> groupNames, String begin, String end,
                                     String startTime, String endTime, boolean union, boolean crossDateFilter,
                                     String limit, String offset, boolean descendingDate, Boolean searchTeacher,
@@ -86,7 +86,7 @@ public interface CommonCoursService {
                               String startTime, String endTime, boolean union, boolean crossDateFilter, String limit, String offset,
                               boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);
 
-    void getCoursesOccurences(String structureId, List<String> teacherId, List<Long> groupIds, List<String> groupExternalIds,
+    void getCoursesOccurences(String structureId, List<String> teacherId, List<String> groupIds, List<String> groupExternalIds,
                               List<String> group, String begin, String end, String startTime, String endTime,
                               boolean union, boolean crossDateFilter, String limit, String offset,
                               boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);

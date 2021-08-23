@@ -80,7 +80,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     }
 
     @Override
-    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groupIds,
                                            List<String> groupExternalIds, List<String> groupNames,
                                            String begin, String end, String startTime, String endTime,
                                            boolean union, boolean crossDateFilter, String limitString,
@@ -292,7 +292,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     }
 
     @Override
-    public void getCoursesOccurences(String structureId, List<String> teacherId, List<Long> groupIds, List<String> groupExternalIds,
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> groupIds, List<String> groupExternalIds,
                                      List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, String limit, String offset,
                                      boolean descendingDate, Boolean searchTeacher, Handler<Either<String, JsonArray>> handler) {
@@ -338,7 +338,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         });
     }
 
-    private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+    private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groupIds,
                                            List<String> groupExternalIds, List<String> groupNames, String begin,
                                            String end, String startTime, String endTime, boolean union,
                                            boolean crossDateFilter, String limit, String offset,
@@ -438,7 +438,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         );
     }
 
-    private void checkGroupFromClass(List<Long> groupIds, List<String> groupExternalIds, List<String> group, String structureId,
+    private void checkGroupFromClass(List<String> groupIds, List<String> groupExternalIds, List<String> group, String structureId,
                                      Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();

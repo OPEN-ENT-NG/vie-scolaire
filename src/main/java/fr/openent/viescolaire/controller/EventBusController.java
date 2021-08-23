@@ -238,7 +238,7 @@ public class EventBusController extends ControllerHelper {
                 JsonObject body = message.body();
                 String structureId = body.getString("structureId");
                 List<String> teacherId = body.getJsonArray("teacherId", new JsonArray()).getList();
-                List<Long> groupIds = body.getJsonArray("groupIds", new JsonArray()).getList();
+                List<String> groupIds = body.getJsonArray("groupIds", new JsonArray()).getList();
                 List<String> groupExternalIds = body.getJsonArray("groupExternalIds", new JsonArray()).getList();
                 List<String> groupName = body.getJsonArray("group", new JsonArray()).getList();
                 String beginDate = body.getString("begin");

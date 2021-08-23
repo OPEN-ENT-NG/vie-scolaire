@@ -237,8 +237,10 @@ public class EventBusController extends ControllerHelper {
             case "getCoursesOccurences": {
                 JsonObject body = message.body();
                 String structureId = body.getString("structureId");
-                List<String> teacherId = body.getJsonArray("teacherId").getList();
-                List<String> groupName = body.getJsonArray("group").getList();
+                List<String> teacherId = body.getJsonArray("teacherId", new JsonArray()).getList();
+                List<Long> groupIds = body.getJsonArray("groupIds", new JsonArray()).getList();
+                List<String> groupExternalIds = body.getJsonArray("groupExternalIds", new JsonArray()).getList();
+                List<String> groupName = body.getJsonArray("group", new JsonArray()).getList();
                 String beginDate = body.getString("begin");
                 String endDate = body.getString("end");
                 String startTime = body.getString("startTime");
@@ -252,8 +254,8 @@ public class EventBusController extends ControllerHelper {
 
                 if (beginDate != null && endDate != null &&
                         beginDate.matches("\\d{4}-\\d{2}-\\d{2}") && endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupName, beginDate, endDate, startTime,
-                            endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
+                    commonCoursService.getCoursesOccurences(structureId, teacherId, groupIds, groupExternalIds,
+                            groupName, beginDate, endDate, startTime, endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
                             getJsonArrayBusResultHandler(message));
                 }
                 break;

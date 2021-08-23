@@ -80,10 +80,12 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     }
 
     @Override
-    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groups, String begin, String end,
-                                           String startTime, String endTime, boolean union, boolean crossDateFilter,
-                                           String limitString, String offsetString, boolean descendingDate,
-                                           Boolean searchTeacher, Handler<Either<String, JsonArray>> handler) {
+    public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+                                           List<String> groupExternalIds, List<String> groupNames,
+                                           String begin, String end, String startTime, String endTime,
+                                           boolean union, boolean crossDateFilter, String limitString,
+                                           String offsetString, boolean descendingDate, Boolean searchTeacher,
+                                           Handler<Either<String, JsonArray>> handler) {
 
         if (Utils.validationParamsNull(handler, structureId, begin, end)) return;
         final JsonObject query = new JsonObject();
@@ -116,42 +118,37 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
             $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)));
 
 
+        JsonObject filterGroupIds = (groupIds != null && !groupIds.isEmpty()) ?
+                new JsonObject().put("$in", new JsonArray(groupIds)) :
+                new JsonObject();
+        JsonObject filterGroupExternalIds = (groupExternalIds != null && !groupExternalIds.isEmpty()) ?
+                new JsonObject().put("$in", new JsonArray(groupExternalIds)) :
+                new JsonObject();
+        JsonObject filterGroupNames = (groupNames != null && !groupNames.isEmpty()) ?
+                new JsonObject().put("$in", new JsonArray(groupNames)) :
+                new JsonObject();
 
-        //If we want an union of teachers and groups results
-        if (union) {
-            if (!groups.isEmpty() || !teacherId.isEmpty()) {
-                JsonArray $or = new JsonArray();
-                if (!groups.isEmpty()) {
-                    JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
-                    $or.add(new JsonObject().put("groups", filter))
-                            .add(new JsonObject().put("classes", filter));
-                }
-                if (!teacherId.isEmpty()) {
-                    JsonObject $in = new JsonObject().put("$in", new JsonArray(teacherId));
-                    $or.add(new JsonObject().put("teacherIds", $in));
-                }
-                $and.add(new JsonObject().put("$or", $or));
-            }
+        JsonArray $or = new JsonArray();
+        if (!filterGroupIds.isEmpty()) {
+            $or.add(new JsonObject().put("groupsIds", filterGroupIds))
+                    .add(new JsonObject().put("classesIds", filterGroupIds));
+        }
+        if (!filterGroupExternalIds.isEmpty()) {
+            $or.add(new JsonObject().put("groupsExternalIds", filterGroupExternalIds))
+                    .add(new JsonObject().put("classesExternalIds", filterGroupExternalIds));
+        }
+        if (!groupNames.isEmpty()) {
+            $or.add(new JsonObject().put("groups", filterGroupNames))
+                    .add(new JsonObject().put("classes", filterGroupNames));
         }
 
-
-        //If we want to intersect results
-        else {
-            if (!teacherId.isEmpty()) {
-                JsonObject $in = new JsonObject()
-                        .put("$in", new JsonArray(teacherId));
-                $and.add(new JsonObject().put("teacherIds", $in));
-            }
-
-            if (!groups.isEmpty()) {
-                JsonArray $or = new JsonArray();
-                JsonObject filter = new JsonObject().put("$in", new JsonArray(groups));
-                $or.add(new JsonObject().put("groups", filter))
-                        .add(new JsonObject().put("classes", filter));
-
-                $and.add(new JsonObject().put("$or", $or));
-            }
+        if (!teacherId.isEmpty()) {
+            JsonObject $in = new JsonObject().put("$in", new JsonArray(teacherId));
+            if (union) $or.add(new JsonObject().put("teacherIds", $in)); //If we want an union of teachers and groups results
+            else $and.add(new JsonObject().put("teacherIds", $in)); //If we want to intersect results
         }
+
+        if (!$or.isEmpty()) $and.add(new JsonObject().put("$or", $or));
 
         query.put("$and", $and);
 
@@ -290,14 +287,23 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     public void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, String limit, String offset, boolean descendingDate,
                                      Boolean searchTeacher, final Handler<Either<String, JsonArray>> handler) {
+        this.getCoursesOccurences(structureId, teacherId, null, null, group, begin, end,
+                startTime, endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher, handler);
+    }
+
+    @Override
+    public void getCoursesOccurences(String structureId, List<String> teacherId, List<Long> groupIds, List<String> groupExternalIds,
+                                     List<String> group, String begin, String end, String startTime, String endTime,
+                                     boolean union, boolean crossDateFilter, String limit, String offset,
+                                     boolean descendingDate, Boolean searchTeacher, Handler<Either<String, JsonArray>> handler) {
         Future<JsonArray> coursesFuture = Future.future();
         Future<JsonArray> classeFuture = Future.future();
         Future<JsonArray> exclusionPeriodsFuture = Future.future();
 
-        getCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
+        getCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, group, begin, end, startTime, endTime, union,
                 crossDateFilter, limit, offset, descendingDate, searchTeacher, coursesFuture);
 
-        checkGroupFromClass(group, structureId, response -> {
+        checkGroupFromClass(groupIds, groupExternalIds, group, structureId, response -> {
             if (response.isRight()) {
                 classeFuture.complete(response.right().getValue());
             } else {
@@ -332,12 +338,13 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         });
     }
 
-    private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin,
+    private void getCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+                                           List<String> groupExternalIds, List<String> groupNames, String begin,
                                            String end, String startTime, String endTime, boolean union,
-                                           boolean crossDateFilter, String limit, String offset, boolean descendingDate,
-                                           Boolean searchTeacher, Future<JsonArray> coursesFuture) {
-        listCoursesBetweenTwoDates(structureId, teacherId, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate, searchTeacher,
+                                           boolean crossDateFilter, String limit, String offset,
+                                           boolean descendingDate, Boolean searchTeacher, Future<JsonArray> coursesFuture) {
+        listCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, groupNames, begin, end,
+                startTime, endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
                 response -> {
                     if (response.isLeft()) {
                         LOG.error("[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
@@ -431,17 +438,23 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         );
     }
 
-    private void checkGroupFromClass(List<String> group, String structureId, Handler<Either<String, JsonArray>> handler) {
+    private void checkGroupFromClass(List<Long> groupIds, List<String> groupExternalIds, List<String> group, String structureId,
+                                     Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
         query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class)--(s:Structure) ")
-                .append("WHERE s.id = {idStructure} and c.name IN {labelClasses} ")
+                .append("WHERE s.id = {idStructure} ")
+                .append("AND (c.name IN {labelClasses} OR c.externalId IN {classesExternalIds} ")
+                .append("OR c.id IN {classesIds}) ")
                 .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
                 .append("RETURN  c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups");
         params.put("idStructure", structureId);
-        params.put("labelClasses", new fr.wseduc.webutils.collections.JsonArray(group));
 
+        params.put("classesIds", (groupIds != null && !groupIds.isEmpty()) ? new JsonArray(groupIds) : new JsonArray());
+        params.put("classesExternalIds", (groupExternalIds != null && !groupExternalIds.isEmpty()) ?
+                new JsonArray(groupExternalIds) : new JsonArray());
+        params.put("labelClasses", (group != null && !group.isEmpty()) ? new JsonArray(group) : new JsonArray());
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
 
     }
@@ -475,7 +488,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
     }
 
     /**
-     * Check if only one class and is group is called
+     * Check if only one class and his group is called
      *
      * @param arrayGroups groups
      * @param teacherId   list of teacherId

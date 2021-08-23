@@ -42,7 +42,8 @@ public interface CommonCoursService {
      * @param descendingDate    for descending we set TRUE (-1) date else we keep (FALSE) ascending (default is 1)
      * @param handler           Function handler returning data
      */
-    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> group, String begin, String end,
+    void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<Long> groupIds,
+                                    List<String> groupExternalIds, List<String> groupNames, String begin, String end,
                                     String startTime, String endTime, boolean union, boolean crossDateFilter,
                                     String limit, String offset, boolean descendingDate, Boolean searchTeacher,
                                     Handler<Either<String,JsonArray>> handler);
@@ -83,6 +84,11 @@ public interface CommonCoursService {
      */
     void getCoursesOccurences(String structureId, List<String> teacherId, List<String> group, String begin, String end,
                               String startTime, String endTime, boolean union, boolean crossDateFilter, String limit, String offset,
+                              boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);
+
+    void getCoursesOccurences(String structureId, List<String> teacherId, List<Long> groupIds, List<String> groupExternalIds,
+                              List<String> group, String begin, String end, String startTime, String endTime,
+                              boolean union, boolean crossDateFilter, String limit, String offset,
                               boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);

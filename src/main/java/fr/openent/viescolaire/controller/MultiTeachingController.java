@@ -8,9 +8,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,20 +17,17 @@ import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 
 import static java.util.Objects.isNull;
-import java.util.List;
-
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 
 public class MultiTeachingController extends ControllerHelper {
 
     /**
      * Déclaration des services
      */
-    private MultiTeachingService multiTeachingService;
+    private final MultiTeachingService multiTeachingService;
 
     public MultiTeachingController() {
-        this.multiTeachingService = new DefaultMultiTeachingService();
+        this.multiTeachingService = new DefaultMultiTeachingService(eb);
     }
 
     /**
@@ -54,17 +49,9 @@ public class MultiTeachingController extends ControllerHelper {
             String enteredDndDate = params.containsKey("entered_end_date") ? params.getString("entered_end_date") : null;
             Boolean coTeaching = params.getBoolean("co_teaching", false);
 
-            if (structureId.isEmpty() || mainTeacherId.isEmpty() || !(secondTeacherIds.size() > 0) || subjectId.isEmpty()
-                    || !(classOrGroupIds.size() > 0)) {
+            multiTeachingService.createMultiTeaching(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds,
+                        startDate, endDate, enteredDndDate, coTeaching, arrayResponseHandler(request), hasCompetence());
 
-                JsonObject error = (new JsonObject()).put("error", "Invalid parameters");
-                Renders.renderJson(request, error, 400);
-            } else {
-
-                multiTeachingService.createMultiTeaching(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds,
-                        startDate, endDate, enteredDndDate, coTeaching, arrayResponseHandler(request),eb, hasCompetence());
-
-            }
         });
     }
 
@@ -100,70 +87,61 @@ public class MultiTeachingController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "multiteaching_update", params -> {
-            String structure_id = params.getString("structure_id");
-            String mainTeacher_id = params.getString("main_teacher_id");
-            String secondTeacher_id = params.getJsonArray("second_teacher_ids").getString(0);
-            String subject_id = params.getString("subject_id");
-            JsonArray classOrGroup_ids = params.getJsonArray("class_or_group_ids");
+            String secondTeacherId = params.getJsonArray("second_teacher_ids").getString(0);
             String startDate = params.containsKey("start_date") ? params.getString("start_date") : null;
             String endDate = params.containsKey("end_date") ? params.getString("end_date") : null;
             String enteredDndDate = params.containsKey("entered_end_date") ? params.getString("entered_end_date") : null;
-            Boolean isCoTeaching = params.getBoolean("co_teaching", false);
             Boolean isVisible = params.getBoolean("is_visible", true);
             JsonArray multiTeachingIdsToUpdate = params.getJsonArray("ids_multiTeachingToUpdate");
             JsonArray multiTeachingIdsToDelete = params.getJsonArray("ids_multiTeachingToDelete");
 
-            if (structure_id.isEmpty() || mainTeacher_id.isEmpty() || secondTeacher_id == null  || subject_id.isEmpty()
-                    || !(classOrGroup_ids !=null && classOrGroup_ids.size() > 0)) {
+            Promise<JsonObject> promiseToDelete = Promise.promise();
 
-                JsonObject error = (new JsonObject()).put("error", "Invalid parameters");
-                Renders.renderJson(request, error, 400);
-            } else {
-                Future<JsonObject> futureToDelete = Future.future();
-                if(!multiTeachingIdsToDelete.isEmpty()){
-                    multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(),eb, deleteResponse -> {
-                        if(deleteResponse.isRight()){
-                            futureToDelete.complete(deleteResponse.right().getValue());
-                        }else{
-                            futureToDelete.fail(deleteResponse.left().getValue());
-                        }
-                    });
-                }else{
-                    futureToDelete.complete(new JsonObject());
-                }
-
-                Future<JsonArray> futureToUpdate = Future.future();
-                Handler<Either<String,JsonArray>> getHandlerToUpdate = updateResponse -> {
-                    if(updateResponse.isRight()){
-                        futureToUpdate.complete(updateResponse.right().getValue());
-                    }else{
-                        futureToUpdate.fail(updateResponse.left().getValue());
-                    }
-                };
-                multiTeachingService.updateMultiteaching(multiTeachingIdsToUpdate, secondTeacher_id,
-                        startDate, endDate, enteredDndDate, isVisible, eb, hasCompetence(), getHandlerToUpdate);
-
-
-                CompositeFuture.all(futureToDelete, futureToUpdate).setHandler(futuresResponse -> {
-                    if(futuresResponse.failed()){
-                        badRequest(request,futuresResponse.cause().getMessage());
-                        log.error("[Vie-scolaire@MultiTeachingController] failed to update multiteaching", futuresResponse.cause().getMessage());
-                    }else{
-                        JsonObject response = new JsonObject();
-                        response.put("delete", futureToDelete.result())
-                                .put("update", futureToUpdate.result());
-                        Renders.renderJson(request, response);
+            if (!multiTeachingIdsToDelete.isEmpty()) {
+                multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(), deleteResponse -> {
+                    if (deleteResponse.isRight()) {
+                        promiseToDelete.complete(deleteResponse.right().getValue());
+                    } else {
+                        promiseToDelete.fail(deleteResponse.left().getValue());
                     }
                 });
-
+            } else {
+                promiseToDelete.complete(new JsonObject());
             }
+
+            Promise<JsonArray> promiseToUpdate = Promise.promise();
+            Handler<Either<String, JsonArray>> getHandlerToUpdate = updateResponse -> {
+                if (updateResponse.isRight()) {
+                    promiseToUpdate.complete(updateResponse.right().getValue());
+                } else {
+                    promiseToUpdate.fail(updateResponse.left().getValue());
+                }
+            };
+            multiTeachingService.updateMultiteaching(multiTeachingIdsToUpdate, secondTeacherId,
+                    startDate, endDate, enteredDndDate, isVisible, hasCompetence(), getHandlerToUpdate);
+
+
+            CompositeFuture.all(promiseToDelete.future(), promiseToUpdate.future())
+                    .onFailure(fail -> {
+                        badRequest(request, fail.getMessage());
+                        log.error(String.format("[Vie-scolaire@%s::updateTeacher] " +
+                                        "failed to update multiteaching : %s", this.getClass().getSimpleName(),
+                                fail.getMessage()));
+                    })
+                    .onSuccess(ar -> {
+                        JsonObject response = new JsonObject();
+                        response.put("delete", promiseToDelete.future().result())
+                                .put("update", promiseToUpdate.future().result());
+                        Renders.renderJson(request, response);
+                    });
+
         });
     }
 
 
     private boolean hasCompetence() {
         JsonObject services = config.getJsonObject("services");
-        return isNull(services) ? true : services.getBoolean("competences");
+        return isNull(services) || services.getBoolean("competences");
     }
 
 
@@ -199,7 +177,7 @@ public class MultiTeachingController extends ControllerHelper {
 //            }
 //        });
         multiTeachingService.createMultiTeaching("","",new JsonArray(),"",
-                new JsonArray(),"","","",false,  arrayResponseHandler(request),eb,  hasCompetence());
+                new JsonArray(),"","","",false,  arrayResponseHandler(request),  hasCompetence());
     }
 
     @Put("/multiteaching/delete")
@@ -207,19 +185,21 @@ public class MultiTeachingController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteTeacher(final HttpServerRequest request) {
 
-        RequestUtils.bodyToJson(request, entries ->{
-            if(entries.containsKey("ids") && entries.getJsonArray("ids").size() > 0){
+        RequestUtils.bodyToJson(request, entries -> {
+            if (entries.containsKey("ids") && entries.getJsonArray("ids").size() > 0) {
                 JsonArray multiTeachingIds = entries.getJsonArray("ids");
-                multiTeachingService.deleteMultiTeaching(multiTeachingIds,  hasCompetence(), eb, either -> {
+                multiTeachingService.deleteMultiTeaching(multiTeachingIds, hasCompetence(), either -> {
                     if (either.isLeft()) {
-                        log.error("[Vie-scolaire@MultiTeachingController] failed to delete multiteaching",  either.left().getValue());
+                        log.error(String.format("[Vie-scolaire@%s::deleteTeacher] " +
+                                "failed to delete multiteaching : %s", this.getClass().getSimpleName(),
+                                either.left().getValue()));
                         renderError(request);
                     } else {
                         renderJson(request, either.right().getValue());
                     }
                 });
 
-            }else{
+            } else {
                 badRequest(request);
             }
         });

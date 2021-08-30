@@ -108,11 +108,7 @@ public class ServicesHelper {
                                            JsonArray multiTeachings) {
         if(!multiTeachings.isEmpty()){
             for(int i=0; i < multiTeachings.size() ; i++){
-                try {
-                    coTeachers.add(new MultiTeaching(multiTeachings.getJsonObject(i)));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                coTeachers.add(new MultiTeaching(multiTeachings.getJsonObject(i)));
             }
         }
 

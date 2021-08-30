@@ -18,17 +18,14 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -139,6 +136,19 @@ public interface UtilsService {
      * @param handler handler comportant le resultat
      */
     void getIdGroupByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler);
+
+
+    /**
+     * Fetch group and class external ids from id
+     * @param classGroupIds     class and group ids
+     */
+    Future<JsonArray> getClassGroupExternalIdsFromIds(List<String> classGroupIds, Promise<JsonArray> future);
+
+    /**
+     * Fetch manual group name from ids
+     * @param names   list of manual group names
+     */
+    Future<JsonArray> getManualGroupNameById(List<String> names, Promise<JsonArray> future);
 
     /**
      * Récupère les informations d'un établissement

@@ -22,17 +22,13 @@ import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.utils.FormateFutureEvent;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.VertxException;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.Json;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.sql.Sql;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -549,6 +545,55 @@ public class DefaultUtilsService implements UtilsService{
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 
+
+
+    @Override
+    public Future<JsonArray> getClassGroupExternalIdsFromIds(List<String> classGroupIds, Promise<JsonArray> promise){
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (g: Group) WHERE g.id IN {ids} RETURN g.externalId AS externalId " +
+                "UNION " +
+                "MATCH (c: Class) WHERE c.id IN {ids} RETURN c.externalId AS externalId");
+
+        JsonObject values = new JsonObject();
+        values.put("ids", new JsonArray(classGroupIds));
+
+        neo4j.execute(query.toString(), values, res -> {
+            if (!res.body().getString("status").equals("ok")) {
+                String message = String.format("[Viescolaire@%s::getClassGroupExternalIdsFromIds] " +
+                                "Error fetching classes/groups external ids : %s",
+                        this.getClass().getSimpleName(), res.body().getString("status"));
+                log.error(message);
+                promise.fail(message);
+            } else {
+                promise.complete(res.body().getJsonArray("result"));
+            }
+        });
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonArray> getManualGroupNameById(List<String> groupIds, Promise<JsonArray> promise){
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH (g:ManualGroup) " +
+                "WHERE g.id IN {ids} " +
+                "RETURN g.name as name");
+
+        JsonObject values = new JsonObject();
+        values.put("ids", new JsonArray(groupIds));
+        neo4j.execute(query.toString(), values, res -> {
+            if (!res.body().getString("status").equals("ok")) {
+                String message = String.format("[Viescolaire@%s::getManualGroupNameById] " +
+                                "Error fetching manual group names : %s",
+                        this.getClass().getSimpleName(), res.body().getString("status"));
+                log.error(message);
+                promise.fail(message);
+            } else {
+                promise.complete(res.body().getJsonArray("result"));
+            }
+        });
+        return promise.future();
+    }
+
     @Override
     public void getStructure(String idStructure, Handler<Either<String, JsonObject>> handler){
         StringBuilder query = new StringBuilder();
@@ -573,14 +618,6 @@ public class DefaultUtilsService implements UtilsService{
         query.append("MATCH (s:Structure) return s.id ");
         neo4j.execute(query.toString(), new JsonObject(), Neo4jResult.validResultHandler(handler));
     }
-
-//    @Override
-//    public void getIdStructuresByExternalId(List<String> externalIdStructures, Handler<Either<String, JsonArray>> handler){
-//        StringBuilder query = new StringBuilder();
-//        query.append("MATCH (s:Structure) WHERE s.externalId IN {id} RETURN s.id as structureIds");
-//        Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",new fr.wseduc.webutils.collections.JsonArray(externalIdStructures)), Neo4jResult.validResultHandler(handler));
-//
-//    }
 
     public JsonObject findWhere(JsonArray collection, JsonObject oCriteria) {
 

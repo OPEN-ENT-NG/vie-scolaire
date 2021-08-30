@@ -62,6 +62,14 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         servicesService = new DefaultServicesService();
     }
 
+    public DefaultMatiereService() {
+        super(VSCO_SCHEMA, Viescolaire.VSCO_MATIERE_TABLE);
+        utilsService = new DefaultUtilsService();
+        sousMatiereService = new DefaultSousMatiereService();
+        classeService = new DefaultClasseService();
+        servicesService = new DefaultServicesService();
+    }
+
     @Override
     public void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

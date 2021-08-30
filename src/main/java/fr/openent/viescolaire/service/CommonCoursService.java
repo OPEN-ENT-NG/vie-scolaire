@@ -28,10 +28,10 @@ public interface CommonCoursService {
 
     /**
      * fetch courses in mongoDB
-     *  @param group             Event type list
      * @param structureId       structure identifier
      * @param teacherId         teacher identifier list
-     * @param groupIds
+     * @param groupNames        group name list
+     * @param subjectIds        subject identifiers
      * @param begin             start date begin
      * @param end               end date begin
      * @param startTime         start time begin
@@ -43,8 +43,8 @@ public interface CommonCoursService {
      * @param handler           Function handler returning data
      */
     void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groupIds,
-                                    List<String> groupExternalIds, List<String> groupNames, String begin, String end,
-                                    String startTime, String endTime, boolean union, boolean crossDateFilter,
+                                    List<String> groupExternalIds, List<String> groupNames, List<String> subjectIds,
+                                    String begin, String end, String startTime, String endTime, boolean union, boolean crossDateFilter,
                                     String limit, String offset, boolean descendingDate, Boolean searchTeacher,
                                     Handler<Either<String,JsonArray>> handler);
 
@@ -94,5 +94,21 @@ public interface CommonCoursService {
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);
 
     void getCoursesByIds(List<String> courseIds, Handler<Either<String,JsonArray>> handler);
+
+    /**
+     * Add teachers ids for courses from list
+     * @param courseIds         course identifier list
+     * @param teacherIds        teacher identifier list
+     * @param handler           Function handler returning data
+     */
+    void addCoursesTeachers(List<String> courseIds, List<String> teacherIds, Handler<Either<String,JsonObject>> handler);
+
+    /**
+     * Remove teachers ids from courses from list
+     * @param courseIds         course identifier list
+     * @param teacherId         teacher identifier
+     * @param handler           Function handler returning data
+     */
+    void removeCoursesTeachers(List<String> courseIds, String teacherId, Handler<Either<String,JsonObject>> handler);
 
 }

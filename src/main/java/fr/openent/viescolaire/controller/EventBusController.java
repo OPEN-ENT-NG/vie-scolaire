@@ -69,7 +69,7 @@ public class EventBusController extends ControllerHelper {
         timeSlotService = new DefaultTimeSlotService();
         configController = new ConfigController(_config);
         servicesService = new DefaultServicesService();
-        mutliTeachingService = new DefaultMultiTeachingService();
+        mutliTeachingService = new DefaultMultiTeachingService(_eb);
 
     }
 

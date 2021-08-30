@@ -1,0 +1,3 @@
+CREATE INDEX multi_teaching_structure_id_idx on viesco.multi_teaching(structure_id);
+CREATE Index multi_teaching_main_teacher_id_idx on viesco.multi_teaching(main_teacher_id);
+CREATE Index multi_teaching_second_teacher_id_idx on viesco.multi_teaching(second_teacher_id);

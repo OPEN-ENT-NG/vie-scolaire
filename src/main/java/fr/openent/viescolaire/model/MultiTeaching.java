@@ -34,7 +34,7 @@ public class MultiTeaching extends Model implements Cloneable{
 
     }
 
-    public MultiTeaching (JsonObject o) throws ParseException {
+    public MultiTeaching(JsonObject o) {
         this.id = BigInteger.valueOf(o.getInteger("id"));
         this.structureId = o.getString("structure_id");
         this.mainTeacherId = o.getString("main_teacher_id");
@@ -43,21 +43,21 @@ public class MultiTeaching extends Model implements Cloneable{
         this.classOrGroupId = o.getString("class_or_group_id");
         this.isCoteaching = o.getBoolean("is_coteaching");
         this.isVisible = o.getBoolean("is_visible");
-        this.idsAndidsGroups =  new HashMap<BigInteger,String>();
-        this.idsAndidsGroups.put(this.id,this.classOrGroupId);
-        if(!o.getBoolean("is_coteaching")){
-            try{
-              this.startDate = o.getString("start_date");
-              this.endDate = o.getString("end_date");
-              this.enteredEndDate = o.getString("entered_end_date");
+        this.idsAndidsGroups = new HashMap<>();
+        this.idsAndidsGroups.put(this.id, this.classOrGroupId);
+        if (o.getBoolean("is_coteaching").equals(Boolean.FALSE)) {
+            try {
+                this.startDate = o.getString("start_date");
+                this.endDate = o.getString("end_date");
+                this.enteredEndDate = o.getString("entered_end_date");
 
-            }catch (DateTimeException e){
-            this.startDate = LocalDate.now().toString();
-            this.endDate = LocalDate.now().toString();
-            this.enteredEndDate = LocalDate.now().toString();
-            log.error("error when casting date in MultiTeaching dates : startDate " + o.getString("start_date") +
-                    " endDate " + o.getString("end_date") + "enteredEndDate " + o.getString("entered_end_date")
-                    + " error Exception " + e);
+            } catch (DateTimeException e) {
+                this.startDate = LocalDate.now().toString();
+                this.endDate = LocalDate.now().toString();
+                this.enteredEndDate = LocalDate.now().toString();
+                log.error("error when casting date in MultiTeaching dates : startDate " + o.getString("start_date") +
+                        " endDate " + o.getString("end_date") + "enteredEndDate " + o.getString("entered_end_date")
+                        + " error Exception " + e);
             }
 
         }
@@ -95,6 +95,14 @@ public class MultiTeaching extends Model implements Cloneable{
 
     public void setSecondTeacherId (String secondTeacherId) {
         this.secondTeacherId = secondTeacherId;
+    }
+
+    public String getStructureId () {
+        return structureId;
+    }
+
+    public void setStructureId (String structureId) {
+        this.structureId = structureId;
     }
 
     public String getSubjectId () {

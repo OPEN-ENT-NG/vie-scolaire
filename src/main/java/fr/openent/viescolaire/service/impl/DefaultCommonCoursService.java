@@ -79,9 +79,15 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         periodeAnneeService = new DefaultPeriodeAnneeService();
     }
 
+    public DefaultCommonCoursService() {
+        this.eb = null;
+        matiereService = new DefaultMatiereService();
+        periodeAnneeService = new DefaultPeriodeAnneeService();
+    }
+
     @Override
     public void listCoursesBetweenTwoDates(String structureId, List<String> teacherId, List<String> groupIds,
-                                           List<String> groupExternalIds, List<String> groupNames,
+                                           List<String> groupExternalIds, List<String> groupNames, List<String> subjectIds,
                                            String begin, String end, String startTime, String endTime,
                                            boolean union, boolean crossDateFilter, String limitString,
                                            String offsetString, boolean descendingDate, Boolean searchTeacher,
@@ -137,9 +143,13 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
             $or.add(new JsonObject().put("groupsExternalIds", filterGroupExternalIds))
                     .add(new JsonObject().put("classesExternalIds", filterGroupExternalIds));
         }
-        if (!groupNames.isEmpty()) {
+        if (groupNames != null && !groupNames.isEmpty()) {
             $or.add(new JsonObject().put("groups", filterGroupNames))
                     .add(new JsonObject().put("classes", filterGroupNames));
+        }
+        if (subjectIds != null && !subjectIds.isEmpty()) {
+            JsonObject $in = new JsonObject().put("$in", new JsonArray(subjectIds));
+            $and.add(new JsonObject().put("subjectId", $in));
         }
 
         if (!teacherId.isEmpty()) {
@@ -180,9 +190,11 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                 .put("cursor", new JsonObject().put("batchSize", 2147483647))
                 .put("pipeline", pipeline);
 
-        MongoDb.getInstance().command(command.toString(), MongoDbResult.validResultHandler(either -> {
+        mongoDb.command(command.toString(), MongoDbResult.validResultHandler(either -> {
             if (either.isLeft()) {
-                LOG.error("Failed to execute pipeline command search for courses", either.left().getValue());
+                String message = String.format("[Viescolaire@%s::listCoursesBetweenTwoDates] " +
+                        "Failed to execute pipeline command search for courses", this.getClass().getSimpleName());
+                LOG.error(message, either.left().getValue());
                 handler.handle(new Either.Left<>(either.left().getValue()));
             } else {
                 JsonArray result = either.right().getValue().getJsonObject("cursor", new JsonObject()).getJsonArray("firstBatch", new JsonArray());
@@ -343,7 +355,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                                            String end, String startTime, String endTime, boolean union,
                                            boolean crossDateFilter, String limit, String offset,
                                            boolean descendingDate, Boolean searchTeacher, Future<JsonArray> coursesFuture) {
-        listCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, groupNames, begin, end,
+        listCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, groupNames, null, begin, end,
                 startTime, endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
                 response -> {
                     if (response.isLeft()) {
@@ -463,6 +475,30 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         final JsonObject query = new JsonObject();
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query, KEYS, validResultHandler(handler));
+    }
+
+    @Override
+    public void addCoursesTeachers(List<String> courseIds, List<String> teacherIds, Handler<Either<String, JsonObject>> handler) {
+
+        JsonObject selectIds = new JsonObject()
+                .put("_id", new JsonObject().put("$in", new JsonArray(courseIds)));
+
+        JsonObject updatedCourse = new JsonObject()
+                .put("$addToSet", new JsonObject().put("teacherIds", new JsonObject().put("$each", teacherIds)));
+
+        mongoDb.update(COURSES, selectIds, updatedCourse, false, true, validResultHandler(handler));
+    }
+
+    @Override
+    public void removeCoursesTeachers(List<String> courseIds, String teacherId, Handler<Either<String, JsonObject>> handler) {
+
+        JsonObject selectIds = new JsonObject()
+                .put("_id", new JsonObject().put("$in", new JsonArray(courseIds)));
+
+        JsonObject updatedCourse = new JsonObject()
+                .put("$pull", new JsonObject().put("teacherIds", teacherId));
+
+        mongoDb.update(COURSES, selectIds, updatedCourse, false, true, validResultHandler(handler));
     }
 
     public void getCoursesByIds(List<String> courseIds, Handler<Either<String, JsonArray>> handler) {

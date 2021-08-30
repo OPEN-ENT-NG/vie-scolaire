@@ -1,6 +1,5 @@
 package fr.openent.viescolaire.utils;
 
-import fr.openent.viescolaire.service.impl.DefaultCoursService;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -13,17 +12,23 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class DateHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCoursService.class);
-    public  final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
-    public  static final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    public  final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
-    public  static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
+    public final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    public final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+    public static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     public static final String MONGO_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
+    public static final String HOUR_MINUTES_SECONDS = "HH:mm:ss";
+    public static final String HOUR_MINUTES = "HH:mm";
 
     public  final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
     private static final String  START_DATE = "startDate";
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
+
+
     Calendar firstOccurrenceDate(JsonObject course){
         Calendar start = getCalendar(course.getString(START_DATE), DATE_FORMATTER);
         start.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
@@ -51,6 +56,23 @@ public class DateHelper {
         long start = startDate.getTimeInMillis();
         return (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
     }
+
+    public boolean isBefore(String a, String b) {
+        return isBefore(a, b, DATE_FORMATTER);
+    }
+
+    public boolean isBefore(String a, String b, SimpleDateFormat dateFormat) {
+        Date dateA = getDate(a, dateFormat);
+        Date dateB = getDate(b, dateFormat);
+        return dateA.before(dateB);
+    }
+
+    public boolean isBeforeOrEquals(String a, String b, SimpleDateFormat dateFormat) {
+        Date dateA = getDate(a, dateFormat);
+        Date dateB = getDate(b, dateFormat);
+        return dateA.before(dateB) || dateA.equals(dateB);
+    }
+
     public Date getDate(String dateString,SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
@@ -112,6 +134,11 @@ public class DateHelper {
 
         calendar.add(calendarValue, value);
         return sdf.format(calendar.getTime());
+    }
+
+    public static String getDateString(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(date);
     }
 
 

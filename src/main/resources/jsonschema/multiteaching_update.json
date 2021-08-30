@@ -16,7 +16,8 @@
       "type": "string"
     },
     "class_or_group_ids": {
-      "type": "array"
+      "type": "array",
+      "minItems" : 1
     },
     "start_date": {
       "type": "string"

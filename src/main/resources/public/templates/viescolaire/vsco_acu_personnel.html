@@ -72,16 +72,14 @@
     <div ng-if="findParam('filter') === null">
         <div ng-include="'/viescolaire/public/templates/viescolaire/param_etab.html'"></div>
     </div>
-    <div ng-if="findParam('filter') === lang.translate('viescolaire.notes.title')">
+    <div ng-if="canAccessCompetences && findParam('filter') === lang.translate('viescolaire.notes.title')">
         <article class="twelve">
             <span class="three"><i18n>activated.module</i18n></span>
 
             <div class="cell one">
                 <label class="checkbox">
                     <input type="checkbox"
-                           ng-change="structure.activate('notes', structure.isActived.evaluation, structure.id);
-                                              structure.isActived.evaluation = !structure.isActived.evaluation;"
-                           ng-click="structure.isActived.evaluation = !structure.isActived.evaluation;"
+                           ng-change="structure.activate('notes', structure.isActived.evaluation, structure.id);"
                            ng-model="structure.isActived.evaluation">
                     <span></span>
                 </label>
@@ -95,9 +93,7 @@
             <div class="cell one">
                 <label class="checkbox">
                     <input id="structure.isActived.presence" type="checkbox"
-                           ng-change ="structure.activate('presences', structure.isActived.presence, structure.id );
-                                                   structure.isActived.presence = !structure.isActived.presence;"
-                           ng-click="structure.isActived.presence = !structure.isActived.presence;"
+                           ng-change ="structure.activate('presences', structure.isActived.presence, structure.id );"
                            ng-model="structure.isActived.presence">
                     <span></span>
                 </label>

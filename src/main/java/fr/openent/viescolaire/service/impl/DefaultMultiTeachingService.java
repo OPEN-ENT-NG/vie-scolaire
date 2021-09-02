@@ -47,7 +47,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void createMultiTeaching (String structureId, String mainTeacherId, JsonArray secondTeacherIds,
                                      String subjectId, JsonArray classOrGroupIds, String startDate, String endDate,
-                                     String enteredEndDate, Boolean coTeaching,
+                                     String enteredEndDate, Boolean coTeaching, EventBus eb,
                                      Handler<Either<String, JsonArray>> handler, boolean hasCompetences) {
 
 
@@ -104,11 +104,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     .put("classId", classId)
                     .put("userIds", secondTeacherIds);
 
-
-            if (eb != null) {
-                eb.request("entcore.feeder", classAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
-            }
-
+            eb.request("entcore.feeder", classAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
 
             for (int j = 0; j < secondTeacherIds.size(); j++) {
                 //manual-add-user-group
@@ -117,9 +113,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                         .put("groupId", classId)
                         .put("userId", secondTeacherIds.getString(j));
 
-                if (eb != null) {
-                    eb.request("entcore.feeder", groupAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
-                }
+                eb.request("entcore.feeder", groupAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
+
             }
         }
 
@@ -130,7 +125,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         multiTeaching.setStartDate(startDate);
         multiTeaching.setEndDate(endDate);
 
-        handleCreationSqlResponse(multiTeaching, secondTeacherIds, classOrGroupIds, handler, hasCompetences, query, values);
+        handleCreationSqlResponse(multiTeaching, secondTeacherIds, classOrGroupIds, handler, hasCompetences, eb, query, values);
     }
 
     /**
@@ -140,12 +135,13 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
      * @param classOrGroupIds       list of class/group identifiers
      * @param handler               Function handler returning data
      * @param hasCompetences        is Competences module installed
+     * @param eb                    Event bus
      * @param query                 creation query string
      * @param values                creation query parameters
      */
     private void handleCreationSqlResponse(MultiTeaching multiTeaching, JsonArray secondTeacherIds, JsonArray classOrGroupIds,
                                            Handler<Either<String, JsonArray>> handler,
-                                           boolean hasCompetences, String query, JsonArray values) {
+                                           boolean hasCompetences, EventBus eb, String query, JsonArray values) {
 
         sql.prepared(query, values, res -> {
 
@@ -167,7 +163,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     secondTeacherIds.clear().add(multiTeaching.getMainTeacherId());
                     for (Object teacher : res.body().getJsonArray("results")) {
                         JsonArray teacherArray = (JsonArray) teacher;
-                        secondTeacherIds.add(teacherArray.getString(2));
+                        secondTeacherIds.add(teacherArray.getString(0));
                     }
                     for (int i = 0; i < secondTeacherIds.size(); i++) {
 
@@ -189,7 +185,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                         }
                     }
 
-                    if (eb != null) { sendIdsToShare(idsToSend, handler, eb);}
+                    sendIdsToShare(idsToSend, handler, eb);
 
                 } else {
                     handler.handle(new Either.Right<>(res.body().getJsonArray("results")));
@@ -427,7 +423,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences, Handler<Either<String, JsonObject>> handler) {
+    public void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences, EventBus eb,
+                                    Handler<Either<String, JsonObject>> handler) {
 
         removeSubstitutesFromCourseList(multiTeachingIds)
                 .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
@@ -503,7 +500,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void updateMultiteaching (JsonArray idsMultiTeachingToUpdate, String secondTeacher, String startDate,
                                      String endDate, String enteredEndDate, Boolean isVisible, boolean hasCompetences,
-                                     Handler<Either<String, JsonArray>> handler) {
+                                     EventBus eb, Handler<Either<String, JsonArray>> handler) {
 
         removeSubstitutesFromCourseList(idsMultiTeachingToUpdate)
                 .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))

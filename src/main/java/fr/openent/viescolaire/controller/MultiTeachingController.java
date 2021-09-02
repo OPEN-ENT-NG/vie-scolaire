@@ -50,7 +50,7 @@ public class MultiTeachingController extends ControllerHelper {
             Boolean coTeaching = params.getBoolean("co_teaching", false);
 
             multiTeachingService.createMultiTeaching(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds,
-                        startDate, endDate, enteredDndDate, coTeaching, arrayResponseHandler(request), hasCompetence());
+                        startDate, endDate, enteredDndDate, coTeaching, eb, arrayResponseHandler(request), hasCompetence());
 
         });
     }
@@ -98,7 +98,7 @@ public class MultiTeachingController extends ControllerHelper {
             Promise<JsonObject> promiseToDelete = Promise.promise();
 
             if (!multiTeachingIdsToDelete.isEmpty()) {
-                multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(), deleteResponse -> {
+                multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(), eb, deleteResponse -> {
                     if (deleteResponse.isRight()) {
                         promiseToDelete.complete(deleteResponse.right().getValue());
                     } else {
@@ -118,7 +118,7 @@ public class MultiTeachingController extends ControllerHelper {
                 }
             };
             multiTeachingService.updateMultiteaching(multiTeachingIdsToUpdate, secondTeacherId,
-                    startDate, endDate, enteredDndDate, isVisible, hasCompetence(), getHandlerToUpdate);
+                    startDate, endDate, enteredDndDate, isVisible, hasCompetence(), eb, getHandlerToUpdate);
 
 
             CompositeFuture.all(promiseToDelete.future(), promiseToUpdate.future())
@@ -177,7 +177,7 @@ public class MultiTeachingController extends ControllerHelper {
 //            }
 //        });
         multiTeachingService.createMultiTeaching("","",new JsonArray(),"",
-                new JsonArray(),"","","",false,  arrayResponseHandler(request),  hasCompetence());
+                new JsonArray(),"","","",false, eb, arrayResponseHandler(request),  hasCompetence());
     }
 
     @Put("/multiteaching/delete")
@@ -188,7 +188,7 @@ public class MultiTeachingController extends ControllerHelper {
         RequestUtils.bodyToJson(request, entries -> {
             if (entries.containsKey("ids") && entries.getJsonArray("ids").size() > 0) {
                 JsonArray multiTeachingIds = entries.getJsonArray("ids");
-                multiTeachingService.deleteMultiTeaching(multiTeachingIds, hasCompetence(), either -> {
+                multiTeachingService.deleteMultiTeaching(multiTeachingIds, hasCompetence(), eb, either -> {
                     if (either.isLeft()) {
                         log.error(String.format("[Vie-scolaire@%s::deleteTeacher] " +
                                 "failed to delete multiteaching : %s", this.getClass().getSimpleName(),

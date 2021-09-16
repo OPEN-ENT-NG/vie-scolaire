@@ -748,7 +748,6 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 if(object instanceof ServiceClasse) $scope.multiTeaching.selectedClass = undefined;
                 if(object instanceof Teacher) $scope.multiTeaching.selectedTeacher = undefined;
             }
-            $scope.checkClassesEvaluables();
         };
 
         $scope.addCoTeachers = () => {
@@ -788,21 +787,6 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             await new MultiTeaching(oldSubstituteTeacherOrCoteacher).deleteCoTeaching();
             delete $scope.multiTeaching;
             await initServices();
-        };
-
-        $scope.checkClassesEvaluables = () => {
-            if($scope.multiTeaching != undefined) {
-                let classesNonEvaluables = _.filter($scope.multiTeaching.classesCoteaching, (classe) => {
-                    let competencesParams = _.findWhere($scope.multiTeaching.competencesParams, {id_groupe: classe.id});
-                    return competencesParams ? !competencesParams.evaluable : !$scope.multiTeaching.evaluable;
-                });
-                if (classesNonEvaluables.length > 0) {
-                    $scope.warningClassesNonEvaluables = lang.translate("viescolaire.service.warning.classesNonEvaluables")
-                        + classesNonEvaluables.map(c => c.name).join(", ");
-                } else {
-                    $scope.warningClassesNonEvaluables = "";
-                }
-            }
         };
 
         $scope.filterValidDateSubstituteTeacher = (substituteTeacher) => {

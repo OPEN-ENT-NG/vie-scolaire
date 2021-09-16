@@ -60,8 +60,7 @@
                 <td class="eight">
                     <label class="select">
                         <select ng-model="multiTeaching.selectedClass"
-                                ng-change="pushData(multiTeaching.selectedClass, multiTeaching.classesCoteaching);
-                                checkClassesEvaluables()"
+                                ng-change="pushData(multiTeaching.selectedClass, multiTeaching.classesCoteaching)"
                                 ng-options="class as class.name group by class.type_groupe_libelle for class
                                                     in classesLightboxAddTeacher">
                             <option class="header-opt" disabled value="">[[lang.translate('viescolaire.utils.class.groupe')]]

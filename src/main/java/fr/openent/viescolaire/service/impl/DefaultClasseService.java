@@ -39,6 +39,10 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import org.entcore.common.utils.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,6 +94,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         //Requête Neo4j optimisé
         StringBuilder returning = new StringBuilder();
         returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName, ")
+                .append("(u.lastName + ' ' + u.firstName) as displayName, c.id as groupId, c.name as groupName, ")
                 .append("u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
                 .append("CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
                 .append("ORDER BY lastName, firstName ");

@@ -30,6 +30,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.*;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -159,25 +160,19 @@ public class GroupeEnseignementController extends ControllerHelper {
 
     @Get("/group/search")
     @ApiDoc("Search group from name")
-    @SecuredAction(Viescolaire.SEARCH)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SearchRight.class)
     public void searchGroups(HttpServerRequest request) {
         if (request.params().contains("q")
                 && !"".equals(request.params().get("q").trim())
                 && request.params().contains("field")
                 && request.params().contains("structureId")) {
 
-            UserUtils.getUserInfos(eb, request, user ->
-                    new SearchRight().authorize(request, null, user, isAuthorized ->  {
-                        if (isAuthorized.equals(Boolean.TRUE)) {
-                            String query = request.getParam("q");
-                            List<String> fields = request.params().getAll("field");
-                            String structureId = request.getParam("structureId");
+            String query = request.getParam("q");
+            List<String> fields = request.params().getAll("field");
+            String structureId = request.getParam("structureId");
 
-                            groupeService.search(structureId, query, fields, arrayResponseHandler(request));
-                        } else {
-                            unauthorized(request);
-                        }
-                    }));
+            groupeService.search(structureId, query, fields, arrayResponseHandler(request));
         } else {
             badRequest(request);
         }

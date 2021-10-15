@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
 import fr.openent.viescolaire.service.ClasseService;
@@ -158,17 +159,25 @@ public class GroupeEnseignementController extends ControllerHelper {
 
     @Get("/group/search")
     @ApiDoc("Search group from name")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(Viescolaire.SEARCH)
     public void searchGroups(HttpServerRequest request) {
         if (request.params().contains("q")
                 && !"".equals(request.params().get("q").trim())
                 && request.params().contains("field")
                 && request.params().contains("structureId")) {
-            String query = request.getParam("q");
-            List<String> fields = request.params().getAll("field");
-            String structure_id = request.getParam("structureId");
 
-            groupeService.search(structure_id, query, fields, arrayResponseHandler(request));
+            UserUtils.getUserInfos(eb, request, user ->
+                    new SearchRight().authorize(request, null, user, isAuthorized ->  {
+                        if (isAuthorized.equals(Boolean.TRUE)) {
+                            String query = request.getParam("q");
+                            List<String> fields = request.params().getAll("field");
+                            String structureId = request.getParam("structureId");
+
+                            groupeService.search(structureId, query, fields, arrayResponseHandler(request));
+                        } else {
+                            unauthorized(request);
+                        }
+                    }));
         } else {
             badRequest(request);
         }

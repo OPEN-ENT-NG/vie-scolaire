@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
 import fr.openent.viescolaire.service.ClasseService;
@@ -29,6 +30,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.*;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -158,17 +160,19 @@ public class GroupeEnseignementController extends ControllerHelper {
 
     @Get("/group/search")
     @ApiDoc("Search group from name")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SearchRight.class)
     public void searchGroups(HttpServerRequest request) {
         if (request.params().contains("q")
                 && !"".equals(request.params().get("q").trim())
                 && request.params().contains("field")
                 && request.params().contains("structureId")) {
+
             String query = request.getParam("q");
             List<String> fields = request.params().getAll("field");
-            String structure_id = request.getParam("structureId");
+            String structureId = request.getParam("structureId");
 
-            groupeService.search(structure_id, query, fields, arrayResponseHandler(request));
+            groupeService.search(structureId, query, fields, arrayResponseHandler(request));
         } else {
             badRequest(request);
         }

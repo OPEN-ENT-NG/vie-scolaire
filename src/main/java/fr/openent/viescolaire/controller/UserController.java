@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
 import fr.wseduc.rs.ApiDoc;
@@ -209,17 +210,25 @@ public class UserController extends ControllerHelper {
 
     @Get("/user/search")
     @ApiDoc("Search student through displayName, firstName and lastName")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(Viescolaire.SEARCH)
     public void search(HttpServerRequest request) {
         if (request.params().contains("q") && !"".equals(request.params().get("q").trim())
                 && request.params().contains("field")
                 && request.params().contains("profile")
                 && request.params().contains("structureId")) {
-            String query = request.getParam("q");
-            List<String> fields = request.params().getAll("field");
-            String profile = request.getParam("profile");
-            String structure_id = request.getParam("structureId");
-            userService.search(structure_id, query, fields, profile, arrayResponseHandler(request));
+
+            UserUtils.getUserInfos(eb, request, user ->
+                    new SearchRight().authorize(request, null, user, isAuthorized -> {
+                        if (isAuthorized.equals(Boolean.TRUE)) {
+                            String query = request.getParam("q");
+                            List<String> fields = request.params().getAll("field");
+                            String profile = request.getParam("profile");
+                            String structureId = request.getParam("structureId");
+                            userService.search(structureId, query, fields, profile, arrayResponseHandler(request));
+                        } else {
+                            unauthorized(request);
+                        }
+                    }));
         } else {
             badRequest(request);
         }

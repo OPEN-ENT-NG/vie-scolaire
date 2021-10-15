@@ -88,7 +88,7 @@ public class Viescolaire extends BaseServer {
 
 	// rights
 	public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
-
+	public static final String SEARCH = "viescolaire.search";
 
 	@Override
 	public void start() throws Exception {

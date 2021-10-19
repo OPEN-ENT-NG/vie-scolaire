@@ -493,13 +493,36 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     @Override
-    public void getGroupFromClass(String[] idClasses, String studentId, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (u:User {profiles:['Student']})-[:IN]-(:ProfileGroup)-[:DEPENDS]-(c:Class) " +
-                "WHERE c.id IN {idClasses} WITH u, c MATCH (u {id: {studentId}})-[:IN]-(g) WHERE g:FunctionalGroup OR g:ManualGroup " +
-                "RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups , COLLECT(DISTINCT g.id) as id_groups";
-        JsonObject params = new JsonObject()
-                .put("idClasses", new JsonArray(Arrays.asList(idClasses)))
-                .put("studentId", studentId);
+    public void getGroupFromStudents(String[] studentIds, Handler<Either<String, JsonArray>> handler) {
+        String where = " WHERE u.id IN {studentIds} ";
+
+        StringBuilder profileGroupMatch = new StringBuilder("")
+                .append(" MATCH (u:User {profiles:['Student']})-[:IN]-(g:ProfileGroup)-[:DEPENDS]-(c:Class)--(s:Structure) ")
+                .append(where)
+                .append(" RETURN s.id as id_structure, c.id as id_classe, c.name as name_classe, ")
+                .append(" COLLECT(DISTINCT g.name) AS name_groups,  COLLECT(DISTINCT g.id) as id_groups ");
+
+        StringBuilder returnQuery = new StringBuilder("")
+                .append(" RETURN s.id as id_structure, null as id_classe, null as name_classe, ")
+                .append(" COLLECT(DISTINCT g.name) AS name_groups,  COLLECT(DISTINCT g.id) as id_groups ");
+
+        StringBuilder functionalGroupMatch = new StringBuilder("")
+                .append(" UNION MATCH (u:User {profiles:['Student']})-[:IN]-(g:FunctionalGroup)--(s:Structure) ")
+                .append(where)
+                .append(returnQuery);
+
+        StringBuilder manualGroupMatch = new StringBuilder("")
+                .append(" UNION MATCH (u:User {profiles:['Student']})-[:IN]-(g:ManualGroup)--(s:Structure) ")
+                .append(where)
+                .append(returnQuery);
+
+        String query = new StringBuilder("")
+                .append(profileGroupMatch)
+                .append(functionalGroupMatch)
+                .append(manualGroupMatch)
+                .toString();
+
+        JsonObject params = new JsonObject().put("studentIds", new JsonArray(Arrays.asList(studentIds)));
         neo4j.execute(query, params, Neo4jResult.validResultHandler(handler));
     }
 

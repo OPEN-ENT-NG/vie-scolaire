@@ -148,11 +148,11 @@ public class GroupeEnseignementController extends ControllerHelper {
     public void getGroupsFromClass(final HttpServerRequest request){
 
         List<String> classesId = request.params().getAll("classes");
-        String student = request.params().get("student");
+        List<String> studentIds = request.params().getAll("student");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
-        if (student != null) {
-            classeService.getGroupFromClass(classesId.toArray(new String[0]), student, handler);
+        if (studentIds != null && !studentIds.isEmpty()) {
+            classeService.getGroupFromStudents(studentIds.toArray(new String[0]), handler);
         } else {
             classeService.getGroupeFromClasse(classesId.toArray(new String[0]), handler);
         }

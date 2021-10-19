@@ -152,11 +152,10 @@ public interface ClasseService extends CrudService {
 
     /**
      * Fetch all groups from a list of classes based on its student
-     * @param classes   list of classes
-     * @param studentId student identifier
+     * @param studentIds student identifiers
      * @param handler   data handler
      */
-    void getGroupFromClass(String[] classes, String studentId, Handler<Either<String, JsonArray>> handler);
+    void getGroupFromStudents(String[] studentIds, Handler<Either<String, JsonArray>> handler);
 
     Handler<Either<String, JsonArray>> addCycleClasses(final HttpServerRequest request, EventBus eb,
                                                        String idEtablissement, final boolean isPresence,

@@ -229,28 +229,60 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("SELECT rel_annotations_devoirs.id_devoir, annotations.*, id_eleve, owner, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, ")
-                .append("id_type, diviseur, date_publication, date, apprec_visible, coefficient, devoirs.libelle as lib, ")
-                .append("type.nom as _type_libelle, sum_notes, nbr_eleves, id_groupe ")
-                .append("FROM notes.rel_annotations_devoirs ")
-                .append("INNER JOIN notes.devoirs on devoirs.id = id_devoir ")
-                .append("INNER JOIN notes.annotations on annotations.id = id_annotation ")
-                .append("INNER JOIN notes.type on devoirs.id_type = type.id ")
-                .append("INNER JOIN notes.rel_devoirs_groupes ON devoirs.id = rel_devoirs_groupes.id_devoir ")
-                .append("LEFT JOIN (SELECT devoirs.id, SUM(notes.valeur) as sum_notes, COUNT(notes.valeur) as nbr_eleves ")
-                .append("FROM notes.devoirs INNER JOIN notes.notes on devoirs.id = notes.id_devoir ")
-                .append("WHERE date_publication <= Now() ")
-                .append("GROUP BY devoirs.id) sum ON sum.id = devoirs.id ");
+        query.append("WITH values  " +
+                "     AS (SELECT devoirs.id          AS id_devoir, " +
+                "                Sum(notes.valeur)   AS sum_notes, " +
+                "                Count(notes.valeur) AS nbr_eleves " +
+                "         FROM   notes.devoirs " +
+                "                INNER JOIN notes.notes " +
+                "                        ON devoirs.id = notes.id_devoir " +
+                "                INNER JOIN notes.rel_annotations_devoirs " +
+                "                        ON devoirs.id = rel_annotations_devoirs.id_devoir " +
+                "         WHERE  date_publication <= Now() " +
+                "                AND rel_annotations_devoirs.id_eleve = ?" +
+                "         GROUP  BY devoirs.id) " +
+                "SELECT rel_annotations_devoirs.id_devoir, " +
+                "       annotations.*, " +
+                "       rel_annotations_devoirs.id_eleve, " +
+                "       owner, " +
+                "       id_matiere, " +
+                "       id_sousmatiere, " +
+                "       NAME, " +
+                "       is_evaluated, " +
+                "       id_periode, " +
+                "       id_type, " +
+                "       diviseur, " +
+                "       date_publication, " +
+                "       date, " +
+                "       apprec_visible, " +
+                "       coefficient, " +
+                "       devoirs.libelle AS lib, " +
+                "       type.nom        AS _type_libelle, " +
+                "       sum_notes, " +
+                "       nbr_eleves, " +
+                "       id_groupe " +
+                "FROM   notes.rel_annotations_devoirs " +
+                "       INNER JOIN notes.devoirs " +
+                "               ON devoirs.id = id_devoir " +
+                "       LEFT JOIN values " +
+                "              ON devoirs.id = values.id_devoir " +
+                "       INNER JOIN notes.annotations " +
+                "               ON annotations.id = id_annotation " +
+                "       INNER JOIN notes.type " +
+                "               ON devoirs.id_type = type.id " +
+                "       INNER JOIN notes.rel_devoirs_groupes " +
+                "               ON devoirs.id = rel_devoirs_groupes.id_devoir " +
+                "WHERE  date_publication <= Now() " +
+                "       AND id_eleve = ?  ");
 
+        values.add(idEleve);
+        values.add(idEleve);
         if(idGroups != null) {
             query.append("AND rel_devoirs_groupes.id_groupe IN ").append(Sql.listPrepared(idGroups.getList()));
             for (int i = 0; i < idGroups.size(); i++) {
                 values.add(idGroups.getString(i));
             }
         }
-
-        query.append(" WHERE date_publication <= NOW() AND id_eleve = ? ");
-        values.add(idEleve);
 
         if(idPeriode != null){
             query.append(" AND id_periode = ? ");
@@ -262,6 +294,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             values.add(idMatiere);
         }
 
+        query.append(";");
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 

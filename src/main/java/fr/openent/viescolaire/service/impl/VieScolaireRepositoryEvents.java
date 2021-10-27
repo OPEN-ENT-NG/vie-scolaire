@@ -48,7 +48,7 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
     }
 
     @Override
-    public void exportResources(String s, String s1, JsonArray jsonArray, String s2, String s3, String s4, Handler<Boolean> handler) {
+    public void exportResources(boolean exportDocuments, boolean exportSharedResources, String exportId, String userId, JsonArray groups, String exportPath, String locale, String host, Handler<Boolean> handler) {
         log.info("[VieScolaireRepositoryEvents] : export resources event is not implemented");
     }
 

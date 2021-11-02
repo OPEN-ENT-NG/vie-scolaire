@@ -78,9 +78,8 @@ public interface ClasseService extends CrudService {
      * @param handler           handler portant le resultat de la requete
      * @param isEdt
      */
-    void listClasses(String idEtablissement, Boolean classOnly, UserInfos user,
-                     JsonArray idClassesAndGroups, Boolean forAdmin,
-                     Handler<Either<String, JsonArray>> handler, boolean isEdt);
+    void listClasses(String idEtablissement, Boolean classOnly, UserInfos user, JsonArray idClassesAndGroups,
+                     boolean forAdmin, Handler<Either<String, JsonArray>> handler, boolean isEdt);
 
     /**
      * Recupere le nom, prenom et id de tous les eleves de toutes les classes dont l'id est passé en paramètre.

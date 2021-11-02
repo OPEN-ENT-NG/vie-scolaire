@@ -179,23 +179,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     public void listClasses(String idStructure, Boolean classOnly, UserInfos user, JsonArray idClassesAndGroups,
-                            Boolean forAdmin, Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
-
+                            boolean forAdmin, Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
         // TODO ajouter filtre sur classes/groupes
-        // params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
-        Boolean hasAdminRight = false;
-        if(user != null) {
-            hasAdminRight = "Personnel".equals(user.getType()) || isTeacherEdt;
-            if(forAdmin != null && forAdmin){
-                hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT);
-            }
+        if(user != null && !forAdmin) {
+            forAdmin = "Personnel".equals(user.getType()) || isTeacherEdt;
         }
-
-        String query;
-
-        JsonObject params = new JsonObject();
-        // Dans le cas du chef d'établissement, on récupère toutes les classes
 
         String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
         String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
@@ -204,26 +193,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
         String paramUser = "u.id = {userId} ";
-        String paramGroupManuel = "";
-        if(null == user || hasAdminRight){
+
+        String paramGroupManuel;
+        if(null == user || forAdmin){
             paramGroupManuel =  paramEtab;
 
             if(null == user && idClassesAndGroups != null) {
                 paramGroupManuel += " m.id IN {idClassesAndGroups}";
             }
-
         } else {
             paramGroupManuel =  paramGroup + " AND " + paramEtab;
         }
-
-
-        /*String queryGroupManuel = " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(s:Structure)" +
-                " WHERE " + paramGroupManuel +
-                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN m " +
-                " UNION " +
-                " MATCH (u:User{profiles :['Student']})-[i:IN]->(m:ManualGroup)-[r:DEPENDS]->(c:Class)-[BELONGS]->(s:Structure)" +
-                " WHERE " + paramGroupManuel +
-                " WITH m as m2 MATCH (u:User{profiles :['Teacher']})-[i:IN]->m2 with m2 as m RETURN distinct(m) ";*/
 
         // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
         String queryGroupManuel = "MATCH (s:Structure)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User{profiles: ['Student']})" +
@@ -232,11 +212,16 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 " UNION MATCH (s:Structure{id:{idStructure}})<-[:BELONGS]-(:Class)<-[:DEPENDS]-(m:ManualGroup)<-[:IN]-(:User {profiles: ['Student']})" +
                 " WHERE " + paramGroupManuel +
                 " AND m<-[:IN]-(:User {profiles: ['Teacher']}) RETURN distinct(m) ";
+
+        String returnLastGroup = "WITH r.groups as libelleClasses, s, u, sub MATCH (s)--(c) " +
+                "WHERE (c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
+                "RETURN c AS m;";
+
         String param1;
         String param2;
         String param3;
-
-        if (null == user || hasAdminRight) {
+        JsonObject params = new JsonObject();
+        if (null == user || forAdmin) {
             param1 = "WHERE " + paramEtab + "RETURN m ";
             param2 = param1;
             param3 = paramEtab;
@@ -245,8 +230,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             if(null == user && idClassesAndGroups != null) {
                 params.put("idClassesAndGroups", idClassesAndGroups);
             }
-
-
         } else {
             param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
             param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";
@@ -257,15 +240,11 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                     .put("userId",user.getUserId());
         }
 
-        String returnLastGroup = "WITH r.groups as libelleClasses, s, u, sub MATCH (s)--(c) " +
-                "WHERE (c:FunctionalGroup OR c:ManualGroup) AND ALL(x IN c.externalId WHERE x in libelleClasses) " +
-                "RETURN c AS m;";
-
+        String query;
         if(classOnly == null){
             query = queryClass + param1 + " UNION " + queryGroup + param2;
             query = query + " UNION " +  queryGroupManuel;
             query = query + " UNION " + queryLastGroup + param3 + returnLastGroup;
-
         } else if (classOnly){
             query = queryClass + param1;
             //query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class) AND EXISTS(c.externalId) return c as m";

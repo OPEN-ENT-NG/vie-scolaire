@@ -152,29 +152,34 @@ public class ClasseController extends BaseController {
                 final boolean isPresence = getBoolean(request, "isPresence");
                 final boolean isEdt = getBoolean(request,"isEdt");
                 final boolean isTeacherEdt = getBoolean(request,"isTeacherEdt");
-                JsonObject services = config.getJsonObject("services");
-                final boolean noCompetence = isNull(services) ? true : !services.getBoolean("competences");
-                Map<String, JsonArray> info = new HashMap<>();
+
                 Boolean classOnly = null;
                 if(request.params().get("classOnly") != null) {
                     classOnly = Boolean.parseBoolean(request.params().get("classOnly"));
                 }
+
+                boolean forAdmin = false;
+                if(request.params().get("forAdmin") != null) {
+                    forAdmin = Boolean.parseBoolean(request.params().get("forAdmin"));
+                }
+
+                JsonObject services = config.getJsonObject("services");
+                final boolean noCompetence = isNull(services) || !services.getBoolean("competences");
+
+                Map<String, JsonArray> info = new HashMap<>();
 
                 // On rajoute les info des cycles de chaque classe si !(isPresence || isEdt || noCompetence)
                 Handler<Either<String, JsonArray>> finalHandler = classeService.addCycleClasses(request, eb,
                         idEtablissement, isPresence, isEdt, isTeacherEdt, noCompetence, info, classOnly);
 
                 // Handler qui va contenir la réponse de l'API
-                Handler<Either<String, JsonArray>> classeHandler;
+                Handler<Either<String, JsonArray>> classeHandler = finalHandler;
 
-                if (isPresence || isEdt || noCompetence) {
-                    classeHandler = finalHandler;
-                } else {  // On aurant en plus les services paramétrés pour chaque classe
+                if (!(isPresence || isEdt || noCompetence)) { // On aurant en plus les services paramétrés pour chaque classe
                     classeHandler = classeService.addServivesClasses(request, eb, idEtablissement, isPresence, isEdt,
                             isTeacherEdt, noCompetence, info, classOnly, user, finalHandler);
                 }
-                String forAdminStr = request.params().get("forAdmin");
-                Boolean forAdmin = (forAdminStr == null) ? false : Boolean.valueOf(forAdminStr);
+
                 classeService.listClasses(idEtablissement, classOnly, user, null, forAdmin,
                         classeHandler, isTeacherEdt);
             }

@@ -677,24 +677,28 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
-        query.append("INSERT INTO viesco.periode ")
-                .append("(id_etablissement, id_classe, timestamp_dt, timestamp_fn, date_fin_saisie, id_type, date_conseil_classe, publication_bulletin) ")
-                .append("VALUES ");
-
         for (int i = 0; i < periodes.length; i++) {
             JsonObject periode = periodes[i];
             for(String idClasse : idClasses) {
-                query.append("( ?, ?, to_timestamp(?, 'YYYY-MM-DD'), ");
+                query.append("INSERT INTO viesco.periode (id_etablissement, id_classe, id_type, timestamp_dt,")
+                        .append(" timestamp_fn, date_fin_saisie, date_conseil_classe, publication_bulletin)")
+                        .append(" VALUES (?, ?, ?, to_timestamp(?, 'YYYY-MM-DD'), to_timestamp(?, 'YYYY-MM-DD'),")
+                        .append(" to_timestamp(?, 'YYYY-MM-DD'), to_timestamp(? ,'YYYY-MM-DD'), ?)")
+                        .append(" ON CONFLICT (id_etablissement, id_classe, id_type) DO UPDATE SET")
+                        .append(" timestamp_dt = to_timestamp(?, 'YYYY-MM-DD'), timestamp_fn = to_timestamp(?, 'YYYY-MM-DD'),")
+                        .append(" date_fin_saisie = to_timestamp(?, 'YYYY-MM-DD'), date_conseil_classe = to_timestamp(?, 'YYYY-MM-DD'),")
+                        .append(" publication_bulletin = ?;");
 
-                query.append("to_timestamp(?, 'YYYY-MM-DD'), to_timestamp(?, 'YYYY-MM-DD'), ?, to_timestamp(? ,'YYYY-MM-DD'), ?),");
-                values.add(idEtablissement).add(idClasse).add(periode.getString("timestamp_dt"))
-                        .add(periode.getString("timestamp_fn")).add(periode.getString("date_fin_saisie"))
-                        .add(periode.getInteger("id_type")).add(periode.getString("date_conseil_classe"))
+                values.add(idEtablissement).add(idClasse).add(periode.getInteger("id_type"))
+                        .add(periode.getString("timestamp_dt")).add(periode.getString("timestamp_fn"))
+                        .add(periode.getString("date_fin_saisie")).add(periode.getString("date_conseil_classe"))
+                        .add(periode.getBoolean("publication_bulletin"))
+                        .add(periode.getString("timestamp_dt")).add(periode.getString("timestamp_fn"))
+                        .add(periode.getString("date_fin_saisie")).add(periode.getString("date_conseil_classe"))
                         .add(periode.getBoolean("publication_bulletin"));
             }
         }
 
-        query.deleteCharAt(query.length() - 1);
         return new JsonObject()
                 .put("statement", query.toString())
                 .put("values", values)

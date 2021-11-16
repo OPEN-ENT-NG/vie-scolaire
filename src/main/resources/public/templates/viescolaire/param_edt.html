@@ -33,6 +33,12 @@
                                 <i18n>edt.admin.import.edt</i18n>
                             </a>
                         </li>
+                        <li>
+                            <a href="" ng-class="{'selected': currParam === 2}"
+                               ng-click="currParam = 2;">
+                                <i18n>edt.admin.course.tags</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -50,6 +56,14 @@
     <div ng-if="currParam === 1" ng-init="source.idStructure = structure.id;">
         <sniplet
                 template="import_sts"
+                application="edt"
+                source="source"
+                class="ng-scope"
+        ></sniplet>
+    </div>
+    <div ng-if="currParam === 2" ng-init="source.idStructure = structure.id;">
+        <sniplet
+                template="course_tags"
                 application="edt"
                 source="source"
                 class="ng-scope"

@@ -211,6 +211,7 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                 .put("timetableSubjectId", 1)
                 .put("created", 1)
                 .put("teacherIds", 1)
+                .put("tagIds", 1)
                 .put("classes", 1)
                 .put("classesExternalIds", 1)
                 .put("groups", 1)

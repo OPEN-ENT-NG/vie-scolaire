@@ -717,6 +717,7 @@
   "edt.year.start.end.date": "Début et fin de l'année scolaire",
   "edt.public.holiday": "Jours fériés",
   "edt.admin.import.edt": "Import emploi du temps",
+  "edt.admin.course.tags": "Labels de cours",
 
   "incident.partner.title": "Partenaires à prévenir en cas d'incidents",
   "incident.partner.form.input": "Saisissez ici un partenaire à contacter lors d'un incident que vous pourrez utiliser dans l'application Présences",

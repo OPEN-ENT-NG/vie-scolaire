@@ -26,7 +26,7 @@
             <input type="radio"
                    ng-model="lightboxPeriode.typePeriode"
                    ng-change="buildPeriodes(lightboxPeriode.typePeriode);"
-                   value="[[typePeriode]]">
+                   ng-value="[[typePeriode]]">
             <span>[[ getI18n("viescolaire.periode." + typePeriode) ]]</span>
         </label>
     </p>

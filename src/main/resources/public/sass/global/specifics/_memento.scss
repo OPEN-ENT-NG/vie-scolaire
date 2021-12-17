@@ -1,6 +1,8 @@
 $memento-bg-color: #f7f6f6;
 $memento-avatar-height: 170px;
 $memento-font-size: 17px;
+$memento-scrollbar-color: #4bafd5;
+$memento-scrollbar-color-hover: #1898c9;
 
 @mixin memento-menu-color($color) {
   .memento {
@@ -47,6 +49,24 @@ body {
   overflow-y: auto;
   color: $black !important;
   font-size: $memento-font-size;
+
+  ::-webkit-scrollbar {
+    width: 5px;
+
+    &-track {
+      box-shadow: inset 0 0 5px $vsco-grey;
+      border-radius: 10px;
+    }
+
+    &-thumb {
+      background: $memento-scrollbar-color;
+      border-radius: 10px;
+
+      &:hover {
+        background: $memento-scrollbar-color-hover;
+      }
+    }
+  }
 
   .accommodation-field {
     text-transform: lowercase;

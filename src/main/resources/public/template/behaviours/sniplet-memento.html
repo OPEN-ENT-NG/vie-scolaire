@@ -37,10 +37,10 @@
                         <i class="absences"></i>
                         <i18n>viescolaire.memento.absences</i18n>
                     </li>
-                    <!--                    <li data-ng-if="vm.config.competences">-->
-                    <!--                        <i class="marks"></i>-->
-                    <!--                        <i18n>viescolaire.memento.notes</i18n>-->
-                    <!--                    </li>-->
+                        <li data-ng-if="vm.config.competences">
+                            <i class="marks"></i>
+                            <i18n>viescolaire.memento.notes</i18n>
+                        </li>
                     <li data-ng-if="vm.config.presences" data-ng-click="vm.scrollToSection('incidents-section')"
                         ng-class="{focused: vm.focusedSection === 'incidents-section'}">
                         <i class="sanctions"></i>
@@ -105,8 +105,19 @@
                 </div>
             </div>
         </div>
-        <div data-ng-if="vm.config.presences" id="absences-section">
-            <sniplet application="presences" template="memento/absences"></sniplet>
+        <div class="content-sniplet display-flex">
+            <!-- Presences sniplet showing absences -->
+            <div class="content-sniplet-absences flex-one right-spacing">
+                <div data-ng-if="vm.config.presences" id="absences-section">
+                    <sniplet application="presences" template="memento/absences"></sniplet>
+                </div>
+            </div>
+            <!-- Competences sniplet showing notes -->
+            <div class="content-sniplet-comptences flex-one left-spacing">
+                <div data-ng-if="vm.config.competences" id="notes-section">
+                    <sniplet application="competences" template="notes-memento-widget"></sniplet>
+                </div>
+            </div>
         </div>
         <div data-ng-if="vm.config.presences" id="incidents-section">
             <sniplet application="incidents" template="memento/incidents"></sniplet>

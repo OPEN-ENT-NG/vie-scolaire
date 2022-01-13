@@ -84,6 +84,7 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
         });
     }
 
+    @Override
     public void usersClassesUpdated(JsonArray users) {
 
         LocalDate enableDate = LocalDate.parse(Viescolaire.UPDATE_CLASSES_CONFIG.getString("enable-date"), DateTimeFormatter.ISO_LOCAL_DATE);

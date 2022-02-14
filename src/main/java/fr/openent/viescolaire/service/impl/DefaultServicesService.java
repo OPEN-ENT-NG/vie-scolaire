@@ -292,4 +292,11 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         getAllServices(structureId,true,true,true,true,true,
                 false, oService, arrayResponseHandler);
     }
+
+    @Override
+    public void getAllEvaluableServicesNoFilter(String structureId, JsonObject oService,
+                                       Handler<Either<String, JsonArray>> arrayResponseHandler) {
+        getAllServices(structureId,true,false,true,true,true,
+                false, oService, arrayResponseHandler);
+    }
 }

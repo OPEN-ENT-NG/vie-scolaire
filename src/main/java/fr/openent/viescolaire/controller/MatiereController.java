@@ -115,6 +115,28 @@ public class MatiereController extends ControllerHelper {
             }
         });
     }
+
+    /**
+     * Retourne les matières d'un établissement donné qui ont un service evaluable.
+     * @param request
+     */
+    @Get("/matieres/services-filter")
+    @ApiDoc("Retourne les matières d'un établissement donné qui ont un service evaluable.")
+    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    public void matieresFilteredByServices(final HttpServerRequest request){
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>(){
+            @Override
+            public void handle(final UserInfos user){
+                if(user != null && null != request.params().get("idEtablissement")){
+                    matiereService.matieresFilteredByServices(request.params().get("idEtablissement"),
+                            false, arrayResponseHandler(request));
+                }else{
+                    badRequest(request);
+                }
+            }
+        });
+    }
+
     /**
      * Retourne les suivies par un élève donné
      * Ou les matiére de l'établissement, si (Chef ETab).

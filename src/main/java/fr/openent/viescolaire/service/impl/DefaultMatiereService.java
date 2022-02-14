@@ -235,6 +235,64 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         });
     }
 
+    private static Handler<Either<String, JsonArray>> getServicesAndFilterMatieres(Handler<Either<String, JsonArray>> handler, JsonArray matieresEtab) {
+        return new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> eventServices) {
+                if (eventServices.isRight()) {
+                    JsonArray servicesEtab = eventServices.right().getValue();
+
+                    if(servicesEtab.size() > 0){
+                        JsonArray finalresponse = new fr.wseduc.webutils.collections.JsonArray();
+                        for (int i = 0; i < matieresEtab.size(); i++) {
+                            JsonObject matiere = matieresEtab.getJsonObject(i);
+                            for (int j = 0; j < servicesEtab.size(); j++) {
+                                JsonObject service = servicesEtab.getJsonObject(j);
+                                if (matiere.getString("id").equals(service.getString("id_matiere"))) {
+                                    finalresponse.add(matiere);
+                                    break;
+                                }
+                            }
+                        }
+                        handler.handle(new Either.Right<>(finalresponse));
+                    } else {
+                        handler.handle(new Either.Right<>(matieresEtab));
+                    }
+                }else{
+                    handler.handle(eventServices.left());
+                }
+            }
+        };
+    }
+
+    public void matieresFilteredByServices(String structureId, Boolean onlyId,
+                                                Handler<Either<String, JsonArray>> handler){
+        listMatieresEtab(structureId, onlyId, event2 -> {
+            if (event2.isRight()) {
+                if(onlyId) {
+                    handler.handle(event2.right());
+                } else {
+                    JsonArray matieresEtab = event2.right().getValue();
+                    if(matieresEtab.size() > 0){
+                        final List<String> ids = new ArrayList<>();
+
+                        for (Object res : matieresEtab) {
+                            ids.add(((JsonObject) res).getString("id"));
+                        }
+                        addSousMatiere(ids, structureId, matieresEtab, event -> {
+                            JsonObject truc = new JsonObject();
+                            servicesService.getAllEvaluableServicesNoFilter(structureId, truc, getServicesAndFilterMatieres(handler, matieresEtab));
+                        });
+                    } else {
+                        handler.handle(new Either.Right(matieresEtab));
+                    }
+                }
+            }else{
+                handler.handle(event2.left());
+            }
+        });
+    }
+
     @Override
     public void getEnseignantsMatieres(ArrayList<String> classesFieldOfStudy, Handler<Either<String, JsonArray>> result) {
         StringBuilder query = new StringBuilder();

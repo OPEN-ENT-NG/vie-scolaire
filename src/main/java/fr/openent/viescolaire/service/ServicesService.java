@@ -25,4 +25,6 @@ public interface ServicesService extends CrudService {
     void getAllServicesNoFilter(String structureId, JsonObject oService,
                                 Handler<Either<String, JsonArray>> arrayResponseHandler);
 
+    void getAllEvaluableServicesNoFilter(String structureId, JsonObject oService,
+                                Handler<Either<String, JsonArray>> arrayResponseHandler);
 }

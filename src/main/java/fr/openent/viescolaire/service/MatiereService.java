@@ -104,5 +104,12 @@ public interface MatiereService extends CrudService {
     void subjectsListWithUnderSubjects(JsonArray idsSubject, String idStructure,
                                        Handler<Either<String,JsonArray>> handler);
 
-
+    /**
+     * Recupère les matières de l'établissement liées à un service évaluable (avec ses sous matières)
+     * @param structureId id de structure
+     * @param onlyId
+     * @param handler
+     */
+    void matieresFilteredByServices(String structureId, Boolean onlyId,
+                                         Handler<Either<String, JsonArray>> handler );
 }

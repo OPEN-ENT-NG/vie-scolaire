@@ -25,6 +25,7 @@ import {infiniteScroll} from '../../utils/directives/infinite-scroll';
 import {Toasts, Toast} from '../../utils/directives/toasts';
 import {failureItem} from '../../utils/directives/trombinoscope/failure-item';
 import {studentPicture} from '../../utils/directives/trombinoscope/student-picture';
+import {timeslotAudience} from '../directives/timeslotAudience/timeslot-audience';
 
 /* Controllers */
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
@@ -37,8 +38,8 @@ import {trombinoscopeImportController} from '../controllers/trombinoscope/trombi
 import {trombinoscopeStudentListController} from '../controllers/trombinoscope/trombinoscope-student-list';
 
 /* Filters */
-import {periodeSearch} from '../filtres/periodeSearch';
 
+import {periodeSearch} from '../filtres/periodeSearch';
 import * as services from '../services';
 
 ng.controllers.push(viescolaireController);
@@ -60,6 +61,7 @@ ng.directives.push(Toasts);
 ng.directives.push(Toast);
 ng.directives.push(failureItem);
 ng.directives.push(studentPicture);
+ng.directives.push(timeslotAudience);
 
 for (let service in services) {
     ng.services.push(services[service]);

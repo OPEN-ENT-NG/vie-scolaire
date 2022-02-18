@@ -24,7 +24,7 @@ import { Model, Collection } from 'entcore';
 export abstract class DefaultClasse extends Model {
     // Fields
     selected: boolean;
-    id: number;
+    id: string;
     name: string;
     type_groupe: number;
     type_groupe_libelle: string;

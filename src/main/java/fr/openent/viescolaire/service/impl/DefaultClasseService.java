@@ -18,30 +18,27 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.FutureHelper;
-import fr.openent.viescolaire.security.WorkflowActionUtils;
-import fr.openent.viescolaire.security.WorkflowActions;
-import fr.openent.viescolaire.service.ClasseService;
-import fr.openent.viescolaire.service.MultiTeachingService;
-import fr.openent.viescolaire.service.ServicesService;
-import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
+import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
-import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import org.entcore.common.utils.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,13 +52,11 @@ import static fr.wseduc.webutils.http.Renders.renderJson;
  */
 public class DefaultClasseService extends SqlCrudService implements ClasseService {
 
-    private final Neo4j neo4j = Neo4j.getInstance();
     protected static final Logger log = LoggerFactory.getLogger(DefaultClasseService.class);
-
     private static final String mParameterIdClasse = "idClasse";
+    private final Neo4j neo4j = Neo4j.getInstance();
     private ServicesService servicesService;
     private MultiTeachingService multiTeachingService;
-
     private UtilsService utilsService;
 
     public DefaultClasseService() {
@@ -69,7 +64,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         utilsService = new DefaultUtilsService();
         servicesService = new DefaultServicesService();
         multiTeachingService = new DefaultMultiTeachingService();
+    }
 
+    public DefaultClasseService(ServiceFactory serviceFactory) {
+        super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_CLASSE_TABLE);
+        utilsService = new DefaultUtilsService();
+        servicesService = new DefaultServicesService();
+        multiTeachingService = new DefaultMultiTeachingService();
     }
 
     @Override
@@ -80,12 +81,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE s.id = {idEtablissement} RETURN c.id as idClasse ORDER BY c.name");
         params.put("idEtablissement", idEtablissement);
 
-        neo4j.execute(query.toString(),params, Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
 
     //TODO Revoir avec getEleveClasses
     @Override
-    public void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler){
+    public void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         //Requête Neo4j optimisé
         StringBuilder returning = new StringBuilder();
         returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName, ")
@@ -135,12 +136,12 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     // deprecated ?
     @Override
     public void getEleveClasses(String idEtablissement, JsonArray idClasse, Long idPeriode, Boolean isTeacher,
-                                Handler<Either<String, JsonArray>> handler){
+                                Handler<Either<String, JsonArray>> handler) {
         JsonObject params = new JsonObject();
 
         // Rajout de filtre pour les enseignants
         String filter = " ";
-        if(isTeacher) {
+        if (isTeacher) {
             filter = " AND c.id IN {idClasse} ";
             params.put(mParameterIdClasse, idClasse);
         }
@@ -172,7 +173,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         params.put("idEtablissement", idEtablissement);
 
         // Rajout des élèves supprimés et absent de l'annuaire
-        String [] sortedField = new String[1];
+        String[] sortedField = new String[1];
         sortedField[0] = "displayName";
         neo4j.execute(query.toString(), params, utilsService.addStoredDeletedStudent(isTeacher ? idClasse : null,
                 !isTeacher ? idEtablissement : null, null, sortedField, idPeriode, handler));
@@ -182,7 +183,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                             boolean forAdmin, Handler<Either<String, JsonArray>> handler, boolean isTeacherEdt) {
         // TODO ajouter filtre sur classes/groupes
 
-        if(user != null && !forAdmin) {
+        if (user != null && !forAdmin) {
             forAdmin = "Personnel".equals(user.getType()) || isTeacherEdt;
         }
 
@@ -195,14 +196,14 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String paramUser = "u.id = {userId} ";
 
         String paramGroupManuel;
-        if(null == user || forAdmin){
-            paramGroupManuel =  paramEtab;
+        if (null == user || forAdmin) {
+            paramGroupManuel = paramEtab;
 
-            if(null == user && idClassesAndGroups != null) {
+            if (null == user && idClassesAndGroups != null) {
                 paramGroupManuel += " m.id IN {idClassesAndGroups}";
             }
         } else {
-            paramGroupManuel =  paramGroup + " AND " + paramEtab;
+            paramGroupManuel = paramGroup + " AND " + paramEtab;
         }
 
         // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
@@ -227,7 +228,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             param3 = paramEtab;
             params.put("idStructure", idStructure);
 
-            if(null == user && idClassesAndGroups != null) {
+            if (null == user && idClassesAndGroups != null) {
                 params.put("idClassesAndGroups", idClassesAndGroups);
             }
         } else {
@@ -237,15 +238,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
                     .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
                     .put("idStructure", idStructure)
-                    .put("userId",user.getUserId());
+                    .put("userId", user.getUserId());
         }
 
         String query;
-        if(classOnly == null){
+        if (classOnly == null) {
             query = queryClass + param1 + " UNION " + queryGroup + param2;
-            query = query + " UNION " +  queryGroupManuel;
+            query = query + " UNION " + queryGroupManuel;
             query = query + " UNION " + queryLastGroup + param3 + returnLastGroup;
-        } else if (classOnly){
+        } else if (classOnly) {
             query = queryClass + param1;
             //query += " UNION MATCH (s:Structure{id:{idStructure}})--(c) WHERE (c:Class) AND EXISTS(c.externalId) return c as m";
         } else {
@@ -290,13 +291,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(RETURNING);
 
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
-        try{
+        try {
             neo4j.execute(query.toString(), params, utilsService.getEleveWithClasseName(idClasses, null,
-                    idPeriode,handler));
-        } catch (VertxException e){
+                    idPeriode, handler));
+        } catch (VertxException e) {
             String error = e.getMessage();
             log.error("getElevesClasses " + e.getMessage());
-            if(error.contains("Connection was closed")) {
+            if (error.contains("Connection was closed")) {
                 getElevesClasses(idClasses, idPeriode, handler);
             }
         }
@@ -319,6 +320,15 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public Future<JsonArray> getEtabClasses(String idClasses) {
+        Promise<JsonArray> promise = Promise.promise();
+
+        this.getEtabClasses(new String[]{idClasses}, FutureHelper.handlerJsonArray(promise));
+
+        return promise.future();
     }
 
     @Override
@@ -351,13 +361,22 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         params.put("idClasse", idClasse);
         try {
             neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(handler));
-        } catch (VertxException e){
+        } catch (VertxException e) {
             String error = e.getMessage();
             log.error("getClasseInfo " + e.getMessage());
-            if(error.contains("Connection was closed")) {
+            if (error.contains("Connection was closed")) {
                 getClasseInfo(idClasse, handler);
             }
         }
+    }
+
+    @Override
+    public Future<JsonObject> getClasseInfo(String idClasse) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        this.getClasseInfo(idClasse, FutureHelper.handlerJsonObject(promise));
+
+        return promise.future();
     }
 
     @Override
@@ -386,8 +405,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
+
     /**
      * get idClasse by idEleve
+     *
      * @param idEleve
      * @param handler id_classe
      */
@@ -399,7 +420,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("WHERE c.externalId IN u.classes return c");
 
 
-        neo4j.execute(query.toString(),new JsonObject().put("id_eleve", idEleve),
+        neo4j.execute(query.toString(), new JsonObject().put("id_eleve", idEleve),
                 new Handler<Message<JsonObject>>() {
                     public void handle(Message<JsonObject> event) {
                         if ("ok".equals(((JsonObject) event.body()).getString("status"))) {
@@ -444,9 +465,10 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 });
 
     }
+
     @Override
     public void getHeadTeachers(String idClasse, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder().append(" MATCH (c:Class {id:{idClasse}}) " )
+        StringBuilder query = new StringBuilder().append(" MATCH (c:Class {id:{idClasse}}) ")
                 .append(" OPTIONAL MATCH (u:User {profiles: ['Teacher']})-[:IN]-(:ProfileGroup)-[:DEPENDS]")
                 .append("-(c:Class {id :{idClasse}}) ")
                 .append(" WHERE (c.externalId IN u.headTeacher OR  c.externalId IN u.headTeacherManual) ")
@@ -509,7 +531,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                               String idEtablissement, final boolean isPresence,
                                                               final boolean isEdt, final boolean isTeacherEdt,
                                                               final boolean noCompetence,
-                                                              Map<String, JsonArray> info, Boolean classOnly){
+                                                              Map<String, JsonArray> info, Boolean classOnly) {
         return event -> {
             if (event.isLeft()) {
                 badRequest(request);
@@ -568,6 +590,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             }
         };
     }
+
     //TODO essayer de l implementer pour éviter de saturer le bus
 //    public Handler<Either<String, JsonArray>> addServivesClasses(final HttpServerRequest request, EventBus eb,
 //                                                                 String idEtablissement, final boolean isPresence,
@@ -647,7 +670,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                                  final boolean isEdt, final boolean isTeacherEdt,
                                                                  final boolean noCompetence, Map<String, JsonArray> info,
                                                                  Boolean classOnly, UserInfos user,
-                                                                 Handler<Either<String, JsonArray>> finalHandler){
+                                                                 Handler<Either<String, JsonArray>> finalHandler) {
         return event -> {
             JsonObject oService = new JsonObject();
             oService.put("id_enseignant", user.getUserId());
@@ -707,7 +730,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         };
     }
 
-    private void getNeoInfo(JsonArray classes, String userId, String idStructure, Handler<Either<String, JsonArray>> handler){
+    private void getNeoInfo(JsonArray classes, String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
 
         String query = "MATCH (c:Class) " +
                 "WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) " +
@@ -727,6 +750,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
     }
+
     @Override
     public void getGroupsMutliTeaching(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
         multiTeachingService.getIdGroupsMutliTeaching(userId, idStructure, new Handler<Either<String, JsonArray>>() {
@@ -751,12 +775,72 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                     }
                                 }
                             });
-                        }
-                        else{
+                        } else {
                             handler.handle(new Either.Left<>("Error when getting groups id classes from sql"));
                         }
                     }
                 }
         );
+    }
+
+    @Override
+    public Future<String> getClasseIdFromAudience(String audiences) {
+        Promise<String> promise = Promise.promise();
+
+        this.getClassesFromAudiences(Collections.singletonList(audiences))
+                .onSuccess(result -> {
+                    if (result.isEmpty()) {
+                        promise.complete("");
+                    }
+                    promise.complete(result.getJsonObject(0).getString(Field.ID_CLASSES, ""));
+                })
+                .onFailure(promise::fail);
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonArray> getClassesFromAudiences(List<String> audiences) {
+        Promise<JsonArray> promise = Promise.promise();
+        JsonObject params = new JsonObject();
+
+        String query = " MATCH(s:Structure)<-[:DEPENDS]-(n:FunctionalGroup)<-[:IN]-(u:User{profiles:['Student']}) " +
+                " WHERE n.id IN {idsAudience} WITH s, n, u " +
+                " MATCH (c:Class)-[:BELONGS]->(s) WHERE c.externalId IN u.classes RETURN n.id as id_audience, " +
+                " c.id AS id_classes " +
+                " UNION " +
+                " MATCH (s:Structure)<-[:DEPENDS]-(n:ManualGroup)<-[:IN]-(u:User{profiles:['Student']}) " +
+                " WHERE n.id IN {idsAudience} WITH  s, n, u " +
+                " MATCH (c:Class)-[:BELONGS]->(s) WHERE c.externalId IN u.classes RETURN n.id as id_audience, " +
+                " c.id AS id_classes " +
+                " UNION " +
+                " MATCH (c:Class) " +
+                " WHERE c.id IN {idsAudience} " +
+                " RETURN c.id AS id_audience, c.id AS id_classes ";
+        params.put("idsAudience", audiences)
+                .put("idsAudience", audiences)
+                .put("idsAudience", audiences);
+
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(FutureHelper.handlerJsonArray(promise)));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonArray> getClassIdFromTimeslot(String timeslotId) {
+        Promise<JsonArray> promise = Promise.promise();
+        String query = "SELECT " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS + ".id_class" +
+                " FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " WHERE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS + ".id_time_slot = ?";
+        JsonArray params = new JsonArray().add(timeslotId);
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(res -> {
+            if (res.isLeft()) {
+                promise.fail(res.left().getValue());
+            } else {
+                JsonArray result = new JsonArray();
+                ((List<JsonObject>) res.right().getValue().getList()).forEach(jsonObject -> result.add(jsonObject.getString("id_class")));
+                promise.complete(result);
+            }
+        }));
+        return promise.future();
     }
 }

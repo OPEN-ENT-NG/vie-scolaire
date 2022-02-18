@@ -13,4 +13,8 @@ public class Actions {
     public static final String VIESCOLAIRE_IMPORT_UPDATE = "VIESCOLAIRE_IMPORT_UPDATE";
     // A user enable/disable the possibility to use trombinoscope features
     public static final String VIESCOLAIRE_SETTINGS_MANAGE = "VIESCOLAIRE_SETTINGS_MANAGE";
+
+    public static final String VIESCOLAIRE_TIMESLOT_CLASS_ASSOCIATION_DELETE = "VIESCOLAIRE_TIMESLOT_CLASS_ASSOCIATION_DELETE";
+
+    public static final String VIESCOLAIRE_TIMESLOT_CLASS_ASSOCIATION_DELETE_MULTIPLE = "VIESCOLAIRE_TIMESLOT_CLASS_ASSOCIATION_DELETE";
 }

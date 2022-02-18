@@ -1,12 +1,16 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.helper.FutureHelper;
+import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.TimeSlotService;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -15,10 +19,22 @@ import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DefaultTimeSlotService implements TimeSlotService {
 
     private String COLLECTION = "slotprofile";
     private Logger LOGGER = LoggerFactory.getLogger(TimeSlotService.class);
+    private ServiceFactory serviceFactory;
+
+    public DefaultTimeSlotService(ServiceFactory serviceFactory) {
+        this.serviceFactory = serviceFactory;
+    }
+
+    public DefaultTimeSlotService() {
+    }
 
     @Override
     public void getSlotProfiles(String id_structure, Handler<Either<String, JsonArray>> handler) {
@@ -29,6 +45,55 @@ public class DefaultTimeSlotService implements TimeSlotService {
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
 
+    @Override
+    public Future<JsonObject> getSlotProfiles(String structureId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        this.getSlotProfiles(structureId, slotProfiles -> {
+            if (slotProfiles.isLeft()) {
+                promise.fail(slotProfiles.left().getValue());
+            } else {
+                JsonArray res = slotProfiles.right().getValue();
+                promise.complete(res.isEmpty() ? new JsonObject() : res.getJsonObject(0));
+            }
+        });
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<String> getSlotProfilesFromClasse(String idClass) {
+        Promise<String> promise = Promise.promise();
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " WHERE id_class = ?";
+        JsonArray params = new JsonArray().add(idClass);
+
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(event -> {
+            if (event.isLeft()) {
+                promise.fail(event.left().getValue());
+            } else {
+                promise.complete(event.right().getValue().getString(Field.ID_TIME_SLOT, ""));
+            }
+        }));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonArray> getSlotProfilesFromClasses(List<String> idsClass) {
+        idsClass = idsClass == null ? new ArrayList<>() : idsClass;
+        Promise<JsonArray> promise = Promise.promise();
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " WHERE id_class IN (" +
+                idsClass.stream().map(el -> "?").collect(Collectors.joining(", ")) + ")";
+        JsonArray params = new JsonArray(idsClass);
+
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(FutureHelper.handlerJsonArray(promise)));
+
+        return promise.future();
+    }
+
+    @Override
     public void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
                 " WHERE id_structure = ?";
@@ -67,7 +132,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
 
     private JsonObject setTimeSlotDefault(JsonObject timeSlot) {
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
-        "(id_structure, id) " +  "VALUES (?, ?)" + "ON CONFLICT (id_structure) DO UPDATE SET id = ? RETURNING *;";
+                "(id_structure, id) " + "VALUES (?, ?)" + "ON CONFLICT (id_structure) DO UPDATE SET id = ? RETURNING *;";
 
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
                 .add(timeSlot.getString("id_structure"))
@@ -99,7 +164,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
         StringBuilder query = new StringBuilder("INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SLOTS +
                 "(id, structure_id, name, start_hour, end_hour) " + "VALUES ");
         for (int i = 0; i < slots.size(); i++) {
-           query.append(addSlot(slots.getJsonObject(i))).append((i == (slots.size() - 1) ? "" : ","));
+            query.append(addSlot(slots.getJsonObject(i))).append((i == (slots.size() - 1) ? "" : ","));
         }
         return new JsonObject()
                 .put("action", "raw")
@@ -107,7 +172,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     private String addSlot(JsonObject slot) {
-        return  "('" + slot.getString("id") + "','" +
+        return "('" + slot.getString("id") + "','" +
                 slot.getString("structureId") + "','" +
                 slot.getString("name") + "','" +
                 slot.getString("startHour") + "','" +
@@ -135,6 +200,107 @@ public class DefaultTimeSlotService implements TimeSlotService {
         getTimeSlot(id, profileFuture);
     }
 
+    @Override
+    public Future<JsonObject> getDefaultTimeSlot(String slotId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        this.getDefaultTimeSlot(slotId, FutureHelper.handlerJsonObject(promise));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> getTimeSlot(String audienceId, String structureId) {
+        Promise<JsonObject> promise = Promise.promise();
+        serviceFactory.classeService().getClasseIdFromAudience(audienceId)
+                .compose(classId -> this.getTimeSlotFromClass(classId, structureId))
+                .onSuccess(promise::complete)
+                .onFailure(promise::fail);
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> setTimeSlotFromAudience(String audienceId, String slotProfileId) {
+        Promise<JsonObject> promise = Promise.promise();
+        String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " VALUES(?, ?) " +
+                " ON CONFLICT ON CONSTRAINT comments_pkey" +
+                " DO UPDATE SET id_time_slot = ? WHERE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS + ".id_class = ?";
+        JsonArray params = new JsonArray().add(audienceId).add(slotProfileId).add(slotProfileId).add(audienceId);
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(FutureHelper.handlerJsonObject(promise)));
+        return promise.future();
+    }
+
+    @Override
+    public Future<String> getStructureFromTimeSlot(String timeslotId) {
+        Promise<String> promise = Promise.promise();
+        this.getTimeSlot(timeslotId, timeSlot -> {
+            if (timeSlot.isLeft()) {
+                promise.fail(timeSlot.left().getValue());
+            } else {
+                promise.complete(timeSlot.right().getValue().getString("schoolId", ""));
+            }
+        });
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> deleteTimeSlotFromClass(String classId) {
+        Promise<JsonObject> promise = Promise.promise();
+        String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " WHERE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS + ".id_class = ?";
+        JsonArray params = new JsonArray().add(classId);
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(FutureHelper.handlerJsonObject(promise)));
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> deleteTimeSlotFromTimeslot(String timeslotId) {
+        Promise<JsonObject> promise = Promise.promise();
+        String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
+                " WHERE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS + ".id_time_slot = ?";
+        JsonArray params = new JsonArray().add(timeslotId);
+        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(FutureHelper.handlerJsonObject(promise)));
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> getTimeSlotFromClass(String classId, String structureId) {
+        return this.getSlotProfilesFromClasse(classId)
+                .compose(slotProfileId -> {
+                    if (!slotProfileId.isEmpty()) {
+                        return this.getDefaultTimeSlot(slotProfileId);
+                    } else {
+                        return this.getTimeSlotFromStructure(structureId);
+                    }
+                })
+                .compose(jsonObject -> {
+                    if (jsonObject.isEmpty()) {
+                        return this.getTimeSlotFromStructure(structureId);
+                    }
+                    Promise<JsonObject> promiseJsonObject = Promise.promise();
+                    promiseJsonObject.complete(jsonObject);
+                    return promiseJsonObject.future();
+                });
+    }
+
+    @Override
+    public Future<JsonObject> getTimeSlotFromStructure(String structureId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        this.getSlotProfiles(structureId).compose(slot -> this.getDefaultTimeSlot(slot.getString(Field.ID, "")))
+                .onSuccess(promise::complete)
+                .onFailure(promise::fail);
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> getTimeSlotFromClass(String classId) {
+        return serviceFactory.timeSlotService().getSlotProfilesFromClasse(classId)
+                .compose(serviceFactory.timeSlotService()::getDefaultTimeSlot);
+    }
+
     private void getTimeSlot(String slotId, Future<JsonObject> future) {
         MongoDb.getInstance().findOne(COLLECTION, new JsonObject().put("_id", slotId), message -> {
             Either<String, JsonObject> either = MongoDbResult.validResult(message);
@@ -145,6 +311,19 @@ public class DefaultTimeSlotService implements TimeSlotService {
                 future.complete(either.right().getValue());
             }
         });
+    }
+
+    @Override
+    public Future<JsonArray> getMultipleTimeSlot(List<String> slotIds) {
+        Promise<JsonArray> promise = Promise.promise();
+        JsonArray ids = new JsonArray(slotIds);
+        JsonObject in = new JsonObject().put("$in", ids);
+        JsonObject filterId = new JsonObject().put("_id", in);
+        MongoDb.getInstance().find(COLLECTION, filterId, event -> {
+            promise.complete(event.body().getJsonArray("results", new JsonArray()));
+        });
+
+        return promise.future();
     }
 
     private void getTimeSlot(String slotId, Handler<Either<String, JsonObject>> handler) {

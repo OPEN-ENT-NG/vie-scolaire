@@ -1,5 +1,9 @@
 {
 	"viescolaire.title": "Viescolaire",
 	"viescolaire.trombinoscope": "Trombinoscope",
-	"edt.admin.course.tags": "Course tags"
+	"edt.admin.course.tags": "Course tags",
+	"viescolaire.add.association": "Add an association",
+	"viescolaire.association.description": "Association timetables and classes (Only for calculating weekly statistics)",
+	"viescolaire.association.error": "An error has occurred.",
+	"viescolaire.select.classes": "Select one or more classes"
 }

@@ -17,23 +17,23 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.BooleanUtils;
 import org.entcore.common.bus.BusResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.request.JsonHttpServerRequest;
-import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.user.UserInfos;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
@@ -220,6 +220,70 @@ public class EventBusController extends ControllerHelper {
             case "getSlotProfileSettings": {
                 timeSlotService.getSlotProfileSetting(structureId, getJsonObjectBusResultHandler(message));
             }
+            break;
+            case "getAudienceTimeslot": {
+                JsonArray arrayRes = new JsonArray();
+                JsonArray jsonAudienceId = body.getJsonArray(Field.AUDIENCEIDS, new JsonArray());
+                List<String> audienceIds = (List<String>) jsonAudienceId.getList();
+                List<String> timeslotsId = new ArrayList<>();
+                Map<String, String> audiencesIdToClassId = new HashMap<>();
+                Map<String, String> classIdToTimeslotId = new HashMap<>();
+                Map<String, JsonObject> timeslotIdToTimeSlot = new HashMap<>();
+                Map<String, String> params = new HashMap<>();
+
+                //récupération des classes des audiences
+                classeService.getClassesFromAudiences(audienceIds)
+                        .compose(classes -> {
+                            List<String> classeIds = new ArrayList<>();
+                            ((List<JsonObject>) classes.getList())
+                                    .forEach(classe -> {
+                                        classeIds.add(classe.getString(Field.ID_CLASSES));
+                                        audiencesIdToClassId.put(classe.getString(Field.ID_AUDIENCE), classe.getString(Field.ID_CLASSES));
+                                    });
+                            //récupération des assotiation classTimeslot
+                            return timeSlotService.getSlotProfilesFromClasses(classeIds);
+                        })
+                        .compose(arrayTimeslotsId -> {
+                            ((List<JsonObject>) arrayTimeslotsId.getList())
+                                    .forEach(jsonObject -> {
+                                        timeslotsId.add(jsonObject.getString(Field.ID_TIME_SLOT));
+                                        classIdToTimeslotId.put(jsonObject.getString(Field.ID_CLASS), jsonObject.getString(Field.ID_TIME_SLOT));
+                                    });
+                            //récupération du timeslotId de la structure
+                            return timeSlotService.getSlotProfiles(structureId);
+                        })
+                        .compose(structureTimeslot -> {
+                            String structureTimeslotId = structureTimeslot.getString(Field.ID, "");
+                            params.put(Field.TIMESLOTSTRUCTUREID, structureTimeslotId);
+                            timeslotsId.add(structureTimeslotId);
+
+                            //récupération des timeslot a partir de leur id
+                            return timeSlotService.getMultipleTimeSlot(timeslotsId);
+                        })
+                        .onSuccess(arrayTimeSlot -> {
+                            List<JsonObject> timeslots = new ArrayList<>();
+                            ((List<JsonObject>) arrayTimeSlot.getList())
+                                    .forEach(timeslot -> {
+                                        timeslots.add(timeslot);
+                                        timeslotIdToTimeSlot.put(timeslot.getString(Field._ID), timeslot);
+                                    });
+
+                            audienceIds.forEach(audienceId -> {
+                                String classId = audiencesIdToClassId.getOrDefault(audienceId, "");
+                                String timeslotId = classIdToTimeslotId.getOrDefault(classId, "");
+                                JsonObject timeslot = timeslotIdToTimeSlot.getOrDefault(timeslotId, new JsonObject());
+                                //si l'audience n'a pas de classe, ou que la classe n'est pas associer a un timeslot,
+                                //ou que le timeslot n'existe plus, alors on retourne celui de la structure
+                                if (classId.isEmpty() || timeslotId.isEmpty() || timeslot.isEmpty()) {
+                                    arrayRes.add(timeslotIdToTimeSlot.get(params.get(Field.TIMESLOTSTRUCTUREID)).put(Field.AUDIENCEID, audienceId));
+                                } else {
+                                    arrayRes.add(timeslot.put(Field.AUDIENCEID, audienceId));
+                                }
+                            });
+                            getJsonArrayBusResultHandler(message).handle(new Either.Right<>(arrayRes));
+                        })
+                        .onFailure(err -> getJsonObjectBusResultHandler(message).handle(new Either.Left<>(err.getMessage())));
+            }
         }
     }
 
@@ -364,20 +428,20 @@ public class EventBusController extends ControllerHelper {
             case "listClasses": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
                 boolean forAdmin = false;
-                if(message.body().getBoolean(FORADMIN) != null) {
+                if (message.body().getBoolean(FORADMIN) != null) {
                     forAdmin = message.body().getBoolean(FORADMIN);
                 }
-                classeService.listClasses(idEtablissement, true, null,null, forAdmin,
+                classeService.listClasses(idEtablissement, true, null, null, forAdmin,
                         getJsonArrayBusResultHandler(message), false);
             }
             break;
             case "listAllGroupes": {
                 String idEtablissement = message.body().getString(ID_STRUCTURE_KEY);
                 boolean forAdmin = false;
-                if(message.body().getBoolean(FORADMIN) != null) {
+                if (message.body().getBoolean(FORADMIN) != null) {
                     forAdmin = message.body().getBoolean(FORADMIN);
                 }
-                classeService.listClasses(idEtablissement, null, null,null, forAdmin,
+                classeService.listClasses(idEtablissement, null, null, null, forAdmin,
                         getJsonArrayBusResultHandler(message), false);
             }
             break;
@@ -385,7 +449,7 @@ public class EventBusController extends ControllerHelper {
                 String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 JsonArray idClassesAndGroups = message.body().getJsonArray("idClassesAndGroups");
                 boolean forAdmin = false;
-                if(message.body().getBoolean(FORADMIN) != null) {
+                if (message.body().getBoolean(FORADMIN) != null) {
                     forAdmin = message.body().getBoolean(FORADMIN);
                 }
                 classeService.listClasses(idStructure, null, null, idClassesAndGroups, forAdmin,

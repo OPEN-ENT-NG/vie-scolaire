@@ -19,7 +19,7 @@ package fr.openent;
 
 import fr.openent.viescolaire.controller.*;
 import fr.openent.viescolaire.db.DB;
-import fr.openent.viescolaire.service.impl.DefaultTimeSlotService;
+import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
 import fr.wseduc.mongodb.MongoDb;
 import io.vertx.core.eventbus.EventBus;
@@ -32,108 +32,105 @@ import org.entcore.common.storage.StorageFactory;
 
 public class Viescolaire extends BaseServer {
 
-	/**
-	 * Déclaration des schémas
-	 */
-	public final static String VSCO_SCHEMA = "viesco";
-	public final static String EVAL_SCHEMA = "notes";
-	public final static String ABSC_SCHEMA = "presences";
-	public final static String MEMENTO_SCHEMA = "memento";
+    /**
+     * Déclaration des schémas
+     */
+    public final static String VSCO_SCHEMA = "viesco";
+    public final static String EVAL_SCHEMA = "notes";
+    public final static String ABSC_SCHEMA = "presences";
+    public final static String MEMENTO_SCHEMA = "memento";
 
-	/**
-	 * Déclaration des tables
-	 */
-	public static final String VSCO_COURS_TABLE = "cours";
-	public static final String VSCO_ELEVE_TABLE = "eleve";
-	public static final String VSCO_CLASSE_TABLE = "classe";
-	public static final String VSCO_PERIODE_TABLE = "periode";
-	public static final String VSCO_MATIERE_TABLE = "matiere";
-	public static final String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
-	public static final String VSCO_SETTING_PERIOD = "setting_period";
-	public static final String VSCO_MATIERE_LIBELLE_TABLE = "subject_libelle";
-	public static final String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
-	public static final String VSCO_MULTI_TEACHING_TABLE = "multi_teaching";
-	public static final String VSCO_TIME_SLOTS = "time_slots";
-	public static final String VSCO_SLOTS = "slots";
-	public static final String SERVICES_TABLE = "services";
+    /**
+     * Déclaration des tables
+     */
+    public static final String VSCO_COURS_TABLE = "cours";
+    public static final String VSCO_ELEVE_TABLE = "eleve";
+    public static final String VSCO_CLASSE_TABLE = "classe";
+    public static final String VSCO_PERIODE_TABLE = "periode";
+    public static final String VSCO_MATIERE_TABLE = "matiere";
+    public static final String VSCO_SOUSMATIERE_TABLE = "sousmatiere";
+    public static final String VSCO_SETTING_PERIOD = "setting_period";
+    public static final String VSCO_MATIERE_LIBELLE_TABLE = "subject_libelle";
+    public static final String VSCO_MODEL_MATIERE_LIBELLE_TABLE = "model_subject_libelle";
+    public static final String VSCO_MULTI_TEACHING_TABLE = "multi_teaching";
+    public static final String VSCO_TIME_SLOTS = "time_slots";
+    public static final String VSCO_REL_TIME_SLOT_CLASS = "rel_time_slot_class";
+    public static final String VSCO_SLOTS = "slots";
+    public static final String SERVICES_TABLE = "services";
 
-	/**
-	 * Déclaration des router préfixs
-	 */
-	public final static String VSCO_PATHPREFIX = "/viescolaire";
+    /**
+     * Déclaration des router préfixs
+     */
+    public final static String VSCO_PATHPREFIX = "/viescolaire";
 
-	public static final Integer CLASSE_TYPE = 0;
-	public static final Integer GROUPE_TYPE = 1;
-	public static final Integer GROUPE_MANUEL_TYPE = 2;
-
-
-	public static final String COMPETENCES_BUS_ADDRESS = "competences";
-	public static final String VIESCO_BUS_ADDRESS = "viescolaire";
+    public static final Integer CLASSE_TYPE = 0;
+    public static final Integer GROUPE_TYPE = 1;
+    public static final Integer GROUPE_MANUEL_TYPE = 2;
 
 
-	public static JsonObject LSUN_CONFIG;
-	public static JsonObject UPDATE_CLASSES_CONFIG;
-	public static Long IMPORT_MAX_SIZE_OCTETS = 3000000L;
+    public static final String COMPETENCES_BUS_ADDRESS = "competences";
+    public static final String VIESCO_BUS_ADDRESS = "viescolaire";
+    public final static String DIRECTORY_ADDRESS = "directory";
+    // rights
+    public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
+    public static final String SEARCH = "viescolaire.search";
+    public static JsonObject LSUN_CONFIG;
+    public static JsonObject UPDATE_CLASSES_CONFIG;
+    public static Long IMPORT_MAX_SIZE_OCTETS = 3000000L;
+    public static Long TIME_OUT_HANDLER = 600 * 1000L;
+    // usual keys
+    public static String ID_KEY = "id";
+    public static String ID_STRUCTURE_KEY = "idStructure";
+    public static String ID_ETABLISSEMENT_KEY = "idEtablissement";
+    public static String EXTERNAL_ID_KEY = "externalId";
+    public static String NAME = "name";
+    public static String FORADMIN = "forAdmin";
 
-	public static Long TIME_OUT_HANDLER = 600 * 1000L;
-
-	// usual keys
-	public static String ID_KEY = "id";
-	public static String ID_STRUCTURE_KEY = "idStructure";
-	public static String ID_ETABLISSEMENT_KEY = "idEtablissement";
-	public static String EXTERNAL_ID_KEY = "externalId";
-	public static String NAME = "name";
-	public static String FORADMIN = "forAdmin";
-	public final static String DIRECTORY_ADDRESS = "directory";
-
-	// rights
-	public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
-	public static final String SEARCH = "viescolaire.search";
-
-	@Override
-	public void start() throws Exception {
-		super.start();
+    @Override
+    public void start() throws Exception {
+        super.start();
 
         final EventBus eb = getEventBus(vertx);
         final Storage storage = new StorageFactory(vertx).getStorage();
+        final ServiceFactory serviceFactory = new ServiceFactory();
 
-		LSUN_CONFIG = config.getJsonObject("lsun");
-		UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
-		if(UPDATE_CLASSES_CONFIG.getString("enable-date") == null){
-			throw new RuntimeException("no date in update-classes");
-		}
+        LSUN_CONFIG = config.getJsonObject("lsun");
+        UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
+        if (UPDATE_CLASSES_CONFIG.getString("enable-date") == null) {
+            throw new RuntimeException("no date in update-classes");
+        }
 
-		DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
+        DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
 
         /*
 			DISPLAY CONTROLLER
 		 */
-		addController(new DisplayController());
+        addController(new DisplayController());
 
 		/*
 			CONTROLEURS VIE SCOLAIRE
 		 */
-		addController(new CoursController());
-		addController(new EleveController());
-		addController(new ClasseController());
-		addController(new PeriodeController());
-		addController(new MatiereController(eb));
-		addController(new MultiTeachingController());
-		addController(new GroupeEnseignementController());
-		addController(new SousMatiereController());
-		addController(new UserController());
-		addController(new ImportCsvController(storage));
-		addController(new PeriodeAnneeController());
-		addController(new ServicesController());
-		addController(new TimeSlotController(new DefaultTimeSlotService()));
-		addController(new MementoController(eb));
-		addController(new ConfigController(config));
-		addController(new StructureController());
-		addController(new TrombinoscopeController(vertx, storage));
+        addController(new CoursController());
+        addController(new EleveController());
+        addController(new ClasseController());
+        addController(new PeriodeController());
+        addController(new MatiereController(eb));
+        addController(new MultiTeachingController());
+        addController(new GroupeEnseignementController());
+        addController(new SousMatiereController());
+        addController(new UserController());
+        addController(new ImportCsvController(storage));
+        addController(new PeriodeAnneeController());
+        addController(new ServicesController());
+        addController(new TimeSlotController(serviceFactory));
+        addController(new MementoController(eb));
+        addController(new ConfigController(config));
+        addController(new StructureController());
+        addController(new TrombinoscopeController(vertx, storage));
 
-		addController(new EventBusController(eb,config));
+        addController(new EventBusController(eb, config));
 
-		setRepositoryEvents(new VieScolaireRepositoryEvents(eb,config));
-	}
+        setRepositoryEvents(new VieScolaireRepositoryEvents(eb, config));
+    }
 
 }

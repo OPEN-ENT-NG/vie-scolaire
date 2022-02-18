@@ -2,8 +2,14 @@ package fr.openent.viescolaire.helper;
 
 import fr.openent.viescolaire.model.Person.Student;
 import fr.openent.viescolaire.model.Person.User;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,5 +60,11 @@ public class UserHelper {
             userArray.add(user.toJSON());
         }
         return userArray;
+    }
+
+    public static Future<UserInfos> getUserInfos(EventBus eb, HttpServerRequest request) {
+        Promise<UserInfos> promise = Promise.promise();
+        UserUtils.getUserInfos(eb, request, promise::complete);
+        return promise.future();
     }
 }

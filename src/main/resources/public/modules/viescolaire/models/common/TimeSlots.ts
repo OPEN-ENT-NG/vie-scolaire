@@ -2,6 +2,10 @@ import {notify} from 'entcore';
 import http, {AxiosResponse} from 'axios';
 import {Mix} from "toolkit";
 import {Utils} from "../../utils/Utils";
+import {Classe} from "../personnel/Classe";
+import {DefaultClasse} from "./DefaultClasse";
+import {Structure} from "../personnel/Structure";
+import {timeslotClasseService} from "../../services/TimeslotClasseService";
 
 export interface Slot {
     id: string;
@@ -10,15 +14,24 @@ export interface Slot {
     endHour: string;
 }
 
+export interface TimeslotClass {
+    timeSlot: TimeSlot;
+    classes: Classe[];
+    savedClasses: Classe[];
+    errorClasses: Classe[];
+}
+
 export class TimeSlot {
     _id: string;
     name: string;
     schoolId: string;
     endOfHalfDay: string;
     slots: Slot[];
+    classes: string[]
 
     constructor(id_structure?: string) {
         if (id_structure) this.schoolId = id_structure;
+        this.classes = []
     }
 
     toJson() {
@@ -37,6 +50,14 @@ export class TimeSlot {
         let bodyRequest = {time: this.endOfHalfDay, structureId: this.schoolId};
         let response = await http.put(`/viescolaire/time-slots?id=${this._id}`, bodyRequest);
         return Utils.setToastMessage(response, 'viescolaire.save.end.of.half.day','viescolaire.error.sauvegarde');
+    }
+
+    async syncClasseAssociation() {
+        try {
+            this.classes = await timeslotClasseService.getAllClassFromTimeslot(this._id);
+        } catch (e) {
+            notify.error('viescolaire.error.sync.time.slots');
+        }
     }
 }
 

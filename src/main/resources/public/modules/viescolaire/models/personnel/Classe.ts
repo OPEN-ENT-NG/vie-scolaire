@@ -32,4 +32,9 @@ export class Classe extends DefaultClasse {
         }
         this.collection(Periode);
     }
+
+    toString = () => {
+        return this.name;
+    }
+
 }

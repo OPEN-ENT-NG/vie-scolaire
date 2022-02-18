@@ -1,0 +1,46 @@
+<div class="times-slot-class">
+    <div class="bold vertical-spacing">
+        <i18n>viescolaire.association.description</i18n>
+    </div>
+    <div class="flex-row align-center">
+        <button class="no-margin" ng-click="vm.addTimeSlotInProgress = !vm.addTimeSlotInProgress" ng-disabled="vm.addTimeSlotInProgress">
+            <span class="no-style"><i18n>viescolaire.association.add</i18n></span>
+        </button>
+        <select ng-if="vm.addTimeSlotInProgress"
+                class="horizontal-margin"
+                ng-model="vm.timeSlot"
+                ng-options="item.name for item in vm.selectableTimeSlot"
+                ng-change="vm.selectTimeslot()">
+            <option value="" disabled selected>
+                [[vm.lang.translate('viescolaire.time.slots.structure')]]
+            </option>
+        </select>
+    </div>
+
+    <div class="times-slot-class-list">
+        <div class="vertical-spacing-six flex-row align-center times-slot-class-list-element" ng-repeat="timeslotClasse in vm.listTimeSlotsClasse">
+            <div class="two flex-row align-center">
+                <p>[[timeslotClasse.timeSlot.name]]</p>
+                <i class="margin-md trash" ng-click="vm.deleteAllAudienceFromTimeslot(timeslotClasse)"></i>
+            </div>
+            <div class="two flex-row">
+                <multi-combo title="[[vm.lang.translate('viescolaire.select.classes')]]"
+                             combo-model="vm.getAllClasse()"
+                             filtered-model="timeslotClasse.classes"
+                             search-on="name"
+                             order-by="name"
+                             selection-event="vm.classeSelect(timeslotClasse)"
+                             deselection-event="vm.classeUnselect(timeslotClasse)"
+                             search-placeholder="[[vm.lang.translate('viescolaire.utils.search')]]"
+                >
+                </multi-combo>
+            </div>
+            <div class="bold f-wrap eight flex-row align-center times-slot-class-list-element-classes">
+                <div class="two flex-row align-center" ng-repeat="classe in timeslotClasse.classes">
+                    <p class="flex-one vertical-spacing-twice" ng-class="{'times-slot-class-list-element-classes-error':vm.isClasseIsOnError(classe, timeslotClasse)}">[[classe.name]]</p>
+                    <i class="mdi-close" ng-click="vm.deleteClassTimeslot(classe, timeslotClasse)"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

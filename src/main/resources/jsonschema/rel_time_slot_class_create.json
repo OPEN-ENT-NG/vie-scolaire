@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "class_id": {
+      "type": "string"
+    },
+    "timeslot_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "class_id",
+    "timeslot_id"
+  ]
+}

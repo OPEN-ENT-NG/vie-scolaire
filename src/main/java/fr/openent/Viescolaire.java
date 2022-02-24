@@ -85,8 +85,9 @@ public class Viescolaire extends BaseServer {
     public static String EXTERNAL_ID_KEY = "externalId";
     public static String NAME = "name";
     public static String FORADMIN = "forAdmin";
+	public static final String SEARCH_RESTRICTED = "viescolaire.search.restricted";
 
-    @Override
+	@Override
     public void start() throws Exception {
         super.start();
 

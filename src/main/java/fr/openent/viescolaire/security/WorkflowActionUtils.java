@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.security;
 
+import fr.openent.*;
 import org.entcore.common.user.UserInfos;
 
 import java.util.List;
@@ -30,6 +31,8 @@ public final class WorkflowActionUtils {
     public static final String TIME_SLOTS_READ = "time.slot.read";
     public static final String PARAM_SERVICES_RIGHT = "viescolaire.paramServices";
     public static final String VIESCO_SEARCH = "viescolaire.search";
+    public static final String VIESCO_SEARCH_RESTRICTED = Viescolaire.SEARCH_RESTRICTED;
+
 
     private WorkflowActionUtils() {
         throw new IllegalAccessError("Utility class");

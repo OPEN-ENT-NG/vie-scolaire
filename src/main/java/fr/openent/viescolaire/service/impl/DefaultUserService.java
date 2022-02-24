@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
@@ -853,7 +854,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     }
 
     @Override
-    public void search(String structure_id, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler) {
+    public void search(String structureId, String userId, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler) {
 
         String filter = "";
 
@@ -865,16 +866,22 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             filter += "toLower(u." + field + ") CONTAINS {query} ";
         }
 
-        String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure) " +
-                "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
-                "AND (" + filter + ")" +
-                "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName, u.firstName as firstName, u.classes as idClasse " +
-                "ORDER BY displayName;";
+        String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class)-[:BELONGS]->(s:Structure {id:{structureId}})";
+
+        if (userId != null) {
+            neo4jquery += ", (t:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c)";
+        }
+
+        neo4jquery += " WHERE u.profiles = {profiles} AND (" + filter + ")" +
+                    "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName, " +
+                    "u.firstName as firstName, u.classes as idClasse " +
+                    "ORDER BY displayName;";
 
         JsonObject params = new JsonObject()
-                .put("structureId", structure_id)
-                .put("query", query)
-                .put("profiles", new JsonArray().add(profile));
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.USERID, userId)
+                .put(Field.QUERY, query)
+                .put(Field.PROFILES, new JsonArray().add(profile));
 
 
         neo4j.execute(neo4jquery, params, Neo4jResult.validResultHandler(handler));

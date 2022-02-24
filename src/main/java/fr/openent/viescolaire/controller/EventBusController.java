@@ -345,6 +345,7 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void groupeBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "listUsersByGroupeEnseignementId": {
@@ -361,10 +362,11 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "search": {
-                String query = message.body().getString("q");
-                List<String> fields = message.body().getJsonArray("fields").getList();
-                String structureId = message.body().getString("structureId");
-                groupeService.search(structureId, query, fields, getJsonArrayBusResultHandler(message));
+                String query = message.body().getString(Field.Q);
+                List<String> fields = message.body().getJsonArray(Field.FIELDS).getList();
+                String structureId = message.body().getString(Field.STRUCTUREID);
+                String userId = message.body().getString(Field.USERID);
+                groupeService.search(structureId, userId, query, fields, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getGroupsTypes": {
@@ -472,6 +474,7 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void userBusService(String method, Message<JsonObject> message) {
         switch (method) {
             case "getActivesStructure": {
@@ -522,11 +525,12 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "search": {
-                String query = message.body().getString("q");
-                List<String> fields = message.body().getJsonArray("fields").getList();
-                String profile = message.body().getString("profile");
-                String structureId = message.body().getString("structureId");
-                userService.search(structureId, query, fields, profile, getJsonArrayBusResultHandler(message));
+                String query = message.body().getString(Field.Q);
+                List<String> fields = message.body().getJsonArray(Field.FIELDS).getList();
+                String profile = message.body().getString(Field.PROFILE);
+                String structureId = message.body().getString(Field.STRUCTUREID);
+                String userId = message.body().getString(Field.USERID);
+                userService.search(structureId, userId, query, fields, profile, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getAllElevesWithTheirRelatives": {

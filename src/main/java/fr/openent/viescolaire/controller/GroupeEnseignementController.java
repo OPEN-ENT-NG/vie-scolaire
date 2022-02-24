@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
@@ -163,18 +164,22 @@ public class GroupeEnseignementController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(SearchRight.class)
     public void searchGroups(HttpServerRequest request) {
-        if (request.params().contains("q")
-                && !"".equals(request.params().get("q").trim())
-                && request.params().contains("field")
-                && request.params().contains("structureId")) {
+        UserUtils.getUserInfos(eb, request, user -> {
+            String userId = (WorkflowActionUtils.hasRight(user, WorkflowActionUtils.VIESCO_SEARCH_RESTRICTED)
+            && Field.TEACHER.equals(user.getType())) ? user.getUserId() : null;
+            if (request.params().contains(Field.Q)
+                    && !"".equals(request.params().get(Field.Q).trim())
+                    && request.params().contains(Field.FIELD)
+                    && request.params().contains(Field.STRUCTUREID)) {
 
-            String query = request.getParam("q");
-            List<String> fields = request.params().getAll("field");
-            String structureId = request.getParam("structureId");
+                String query = request.getParam(Field.Q);
+                List<String> fields = request.params().getAll(Field.FIELD);
+                String structureId = request.getParam(Field.STRUCTUREID);
 
-            groupeService.search(structureId, query, fields, arrayResponseHandler(request));
-        } else {
-            badRequest(request);
-        }
+                groupeService.search(structureId, userId, query, fields, arrayResponseHandler(request));
+            } else {
+                badRequest(request);
+            }
+        });
     }
 }

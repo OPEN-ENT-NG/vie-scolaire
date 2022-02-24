@@ -166,12 +166,13 @@ public interface UserService {
 
     /**
      * @param structure_id  structure identifier
+     * @param userId        user identifier
      * @param query         query searching
-     * @param fields         neo4j fields
+     * @param fields        neo4j fields
      * @param profile       user type
      * @param handler
      */
-    void search(String structure_id, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler);
+    void search(String structure_id, String userId, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler);
 
     /**
      * get lastName and first name of deleted teachers

@@ -14,6 +14,7 @@ public class SearchRight implements ResourcesProvider {
         String structureId = httpServerRequest.params().get("structureId");
         List<String> structures = user.getStructures();
         handler.handle(structures.contains(structureId)
-                && WorkflowActionUtils.hasRight(user, WorkflowActionUtils.VIESCO_SEARCH));
+                && (WorkflowActionUtils.hasRight(user, WorkflowActionUtils.VIESCO_SEARCH)
+                    || WorkflowActionUtils.hasRight(user, WorkflowActionUtils.VIESCO_SEARCH_RESTRICTED)));
     }
 }

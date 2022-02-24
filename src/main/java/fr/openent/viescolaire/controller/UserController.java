@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.impl.DefaultUserService;
@@ -212,19 +213,21 @@ public class UserController extends ControllerHelper {
     @ApiDoc("Search student through displayName, firstName and lastName")
     @SecuredAction(Viescolaire.SEARCH)
     public void search(HttpServerRequest request) {
-        if (request.params().contains("q") && !"".equals(request.params().get("q").trim())
-                && request.params().contains("field")
-                && request.params().contains("profile")
-                && request.params().contains("structureId")) {
+        if (request.params().contains(Field.Q) && !"".equals(request.params().get(Field.Q).trim())
+                && request.params().contains(Field.FIELD)
+                && request.params().contains(Field.PROFILE)
+                && request.params().contains(Field.STRUCTUREID)) {
 
             UserUtils.getUserInfos(eb, request, user ->
                     new SearchRight().authorize(request, null, user, isAuthorized -> {
                         if (isAuthorized.equals(Boolean.TRUE)) {
-                            String query = request.getParam("q");
-                            List<String> fields = request.params().getAll("field");
-                            String profile = request.getParam("profile");
-                            String structureId = request.getParam("structureId");
-                            userService.search(structureId, query, fields, profile, arrayResponseHandler(request));
+                            String query = request.getParam(Field.Q);
+                            List<String> fields = request.params().getAll(Field.FIELD);
+                            String profile = request.getParam(Field.PROFILE);
+                            String structureId = request.getParam(Field.STRUCTUREID);
+                            String userId = (WorkflowActionUtils.hasRight(user, WorkflowActionUtils.VIESCO_SEARCH_RESTRICTED)
+                                    && Field.TEACHER.equals(user.getType())) ? user.getUserId() : null;
+                            userService.search(structureId, userId, query, fields, profile, arrayResponseHandler(request));
                         } else {
                             unauthorized(request);
                         }

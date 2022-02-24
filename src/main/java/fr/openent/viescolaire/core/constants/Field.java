@@ -14,6 +14,7 @@ public class Field {
     public static final String STUDENTID = "studentId";
     public static final String STUDENT_ID = "student_id";
     public static final String STUDENT = "student";
+    public static final String USERID = "userId";
 
     public static final String AUDIENCEID = "audienceId";
     public static final String AUDIENCEIDS = "audienceIds";
@@ -42,11 +43,21 @@ public class Field {
     public static final String USER_NOT_IN_TIMESLOT_STRUCTURE = "User must be in timeslot structure";
     public static final String USER_TIMESLOT_CLASS_NOT_SAME_STRUCTURE = "Class, timeslot and user must be in the same structure";
 
+
+    // User profiles
+    public static final String PROFILE = "profile";
+    public static final String PROFILES = "profiles";
+    public static final String TEACHER = "Teacher";
+
     public static final String METADATA = "metadata";
     public static final String LABELS = "labels";
     public static final String ISRESPONSE = "isResponse";
     public static final String _ID = "_id";
     public static final String TIME = "time";
+    public static final String FIELD = "field";
+    public static final String FIELDS = "fields";
+    public static final String Q = "q";
+    public static final String QUERY = "query";
 
     private Field() {
         throw new IllegalStateException("Utility class");

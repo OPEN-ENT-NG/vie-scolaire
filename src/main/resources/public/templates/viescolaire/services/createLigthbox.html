@@ -10,7 +10,7 @@
             </h4>
             <label class="select">
                 <select ng-model="service.id_matiere"
-                        ng-options="matiere.id as (matiere.name + ' (' + matiere.externalId + ')') for matiere in columns.matiere.data | orderBy:'name'">
+                        ng-options="matiere.id as (matiere.name + ' (' + matiere.externalId + ' - ' + matiere.source + ')') for matiere in columns.matiere.data | orderBy:'name'">
                     <option class="header-opt" disabled value="">
                         [[lang.translate('evaluation.service.columns.matiere')]]
                     </option>

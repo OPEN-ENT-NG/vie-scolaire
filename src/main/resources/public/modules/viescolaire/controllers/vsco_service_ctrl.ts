@@ -91,7 +91,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                 let missingParams = {
                     id_etablissement: $scope.idStructure,
                     nom_enseignant: enseignant ? enseignant.displayName : null,
-                    topicName: matiere ? matiere.name  + " (" + matiere.externalId + ")"  : null,
+                    topicName: matiere ? matiere.name  + " (" + matiere.externalId + " - " + matiere.source + ")"  : null,
                     nom_groupe: groupe ? groupe.name : null,
                     groups: groups ? groups : null,
                     groups_name: groups_name ? groups_name : null,

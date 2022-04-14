@@ -53,6 +53,9 @@ class Controller implements ng.IController, IViewModel {
         this.listTimeSlotsClasse = [];
         this.addTimeSlotInProgress = false;
         this.$scope.$watchCollection(() => this.structureTimeslot.all, async () => {
+            this.selectableTimeSlot = [];
+            this.listTimeSlotsClasse = [];
+            this.addTimeSlotInProgress = false;
             this.syncData();
         });
     }

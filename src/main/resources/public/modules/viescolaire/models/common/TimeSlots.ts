@@ -31,7 +31,7 @@ export class TimeSlot {
 
     constructor(id_structure?: string) {
         if (id_structure) this.schoolId = id_structure;
-        this.classes = []
+        this.classes = [];
     }
 
     toJson() {

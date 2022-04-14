@@ -81,11 +81,12 @@ public class DefaultTimeSlotService implements TimeSlotService {
 
     @Override
     public Future<JsonArray> getSlotProfilesFromClasses(List<String> idsClass) {
-        idsClass = idsClass == null ? new ArrayList<>() : idsClass;
+        if (idsClass == null || idsClass.isEmpty()) {
+            return Future.succeededFuture(new JsonArray());
+        }
         Promise<JsonArray> promise = Promise.promise();
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_REL_TIME_SLOT_CLASS +
-                " WHERE id_class IN (" +
-                idsClass.stream().map(el -> "?").collect(Collectors.joining(", ")) + ")";
+                " WHERE id_class IN " + Sql.listPrepared(idsClass);
         JsonArray params = new JsonArray(idsClass);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(FutureHelper.handlerJsonArray(promise)));

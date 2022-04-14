@@ -34,6 +34,7 @@ import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.user.UserInfos;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
@@ -222,7 +223,6 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getAudienceTimeslot": {
-                JsonArray arrayRes = new JsonArray();
                 JsonArray jsonAudienceId = body.getJsonArray(Field.AUDIENCEIDS, new JsonArray());
                 List<String> audienceIds = (List<String>) jsonAudienceId.getList();
                 List<String> timeslotsId = new ArrayList<>();
@@ -268,19 +268,20 @@ public class EventBusController extends ControllerHelper {
                                         timeslotIdToTimeSlot.put(timeslot.getString(Field._ID), timeslot);
                                     });
 
-                            audienceIds.forEach(audienceId -> {
-                                String classId = audiencesIdToClassId.getOrDefault(audienceId, "");
-                                String timeslotId = classIdToTimeslotId.getOrDefault(classId, "");
-                                JsonObject timeslot = timeslotIdToTimeSlot.getOrDefault(timeslotId, new JsonObject());
-                                //si l'audience n'a pas de classe, ou que la classe n'est pas associer a un timeslot,
-                                //ou que le timeslot n'existe plus, alors on retourne celui de la structure
-                                if (classId.isEmpty() || timeslotId.isEmpty() || timeslot.isEmpty()) {
-                                    arrayRes.add(timeslotIdToTimeSlot.get(params.get(Field.TIMESLOTSTRUCTUREID)).put(Field.AUDIENCEID, audienceId));
-                                } else {
-                                    arrayRes.add(timeslot.put(Field.AUDIENCEID, audienceId));
-                                }
-                            });
-                            getJsonArrayBusResultHandler(message).handle(new Either.Right<>(arrayRes));
+                            getJsonArrayBusResultHandler(message).handle(new Either.Right<>(new JsonArray(
+                                    audienceIds.stream().map(audienceId -> {
+                                        String classId = audiencesIdToClassId.getOrDefault(audienceId, "");
+                                        String timeslotId = classIdToTimeslotId.getOrDefault(classId, "");
+                                        JsonObject timeslotAudience = timeslotIdToTimeSlot.getOrDefault(timeslotId, new JsonObject());
+                                        //if the audience has no class, or the class is not associated with a timeslot,
+                                        //or the timeslot no longer exists, then we return that of the structure
+                                        JsonObject timeslot;
+                                        if (classId.isEmpty() || timeslotId.isEmpty() || timeslotAudience.isEmpty()) {
+                                            return timeslotIdToTimeSlot.get(params.get(Field.TIMESLOTSTRUCTUREID)).copy().put(Field.AUDIENCEID, audienceId);
+                                        }
+                                        return timeslotAudience.copy().put(Field.AUDIENCEID, audienceId);
+                                    }).collect(Collectors.toList())
+                            )));
                         })
                         .onFailure(err -> getJsonObjectBusResultHandler(message).handle(new Either.Left<>(err.getMessage())));
             }

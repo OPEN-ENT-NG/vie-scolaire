@@ -19,9 +19,7 @@ import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DefaultTimeSlotService implements TimeSlotService {
 
@@ -162,22 +160,25 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     private JsonObject insertSlot(JsonArray slots) {
+        JsonArray params = new JsonArray();
         StringBuilder query = new StringBuilder("INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SLOTS +
                 "(id, structure_id, name, start_hour, end_hour) " + "VALUES ");
         for (int i = 0; i < slots.size(); i++) {
-            query.append(addSlot(slots.getJsonObject(i))).append((i == (slots.size() - 1) ? "" : ","));
+            query.append(addSlot(slots.getJsonObject(i), params)).append((i == (slots.size() - 1) ? "" : ","));
         }
         return new JsonObject()
-                .put("action", "raw")
-                .put("command", query.toString());
+                .put("action", "prepared")
+                .put("statement", query)
+                .put("values", params);
     }
 
-    private String addSlot(JsonObject slot) {
-        return "('" + slot.getString("id") + "','" +
-                slot.getString("structureId") + "','" +
-                slot.getString("name") + "','" +
-                slot.getString("startHour") + "','" +
-                slot.getString("endHour") + "')";
+    private String addSlot(JsonObject slot, JsonArray params) {
+        params.add(slot.getString("id"))
+                .add(slot.getString("structureId"))
+                .add(slot.getString("name"))
+                .add(slot.getString("startHour"))
+                .add(slot.getString("endHour"));
+        return "(?, ?, ?, ?, ?)";
     }
 
     @Override

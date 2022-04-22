@@ -118,12 +118,14 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         if (!oService.isEmpty()) {
             for (Map.Entry<String, Object> entry : oService.getMap().entrySet()) {
                 if (entry.getValue() instanceof JsonArray) {
-                    sqlQuery += " AND " + entry.getKey() + " IN " + Sql.listPrepared(((JsonArray) entry.getValue()).getList());
+                    sqlQuery += " AND ? IN " + Sql.listPrepared(((JsonArray) entry.getValue()).getList());
+                    sqlValues.add(entry.getKey());
                     for (Object o : ((JsonArray) entry.getValue()).getList()) {
                         sqlValues.add(o);
                     }
                 } else {
-                    sqlQuery += " AND " + entry.getKey() + " = ?";
+                    sqlQuery += " AND ? = ?";
+                    sqlValues.add(entry.getKey());
                     sqlValues.add(entry.getValue());
                 }
             }

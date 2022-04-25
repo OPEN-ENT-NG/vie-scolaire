@@ -49,6 +49,10 @@ public class Field {
     public static final String PROFILES = "profiles";
     public static final String TEACHER = "Teacher";
 
+    public static final String FIRSTNAME = "firstName";
+    public static final String LASTNAME = "lastName";
+    public static final String DISPLAYNAME = "displayName";
+
     public static final String METADATA = "metadata";
     public static final String LABELS = "labels";
     public static final String ISRESPONSE = "isResponse";

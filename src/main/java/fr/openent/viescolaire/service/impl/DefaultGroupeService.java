@@ -18,18 +18,19 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.core.constants.*;
-import fr.openent.viescolaire.service.*;
+import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.service.GroupeService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.utils.StringUtils;
-import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
     private final Neo4j neo4j = Neo4j.getInstance();
     private UtilsService utilsService;
-    public DefaultGroupeService () {
+
+    public DefaultGroupeService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.VSCO_MATIERE_TABLE);
         utilsService = new DefaultUtilsService();
     }
@@ -128,22 +130,22 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     }
 
     @Override
-    public void listUsersByGroupeEnseignementId(String groupeEnseignementId,String profile,
+    public void listUsersByGroupeEnseignementId(String groupeEnseignementId, String profile,
                                                 Long idPeriode,
                                                 Handler<Either<String, JsonArray>> handler) {
 
 
         JsonObject values = new JsonObject();
-        String PROFILFILTER = " true" ;
+        String PROFILFILTER = " true";
 
         // Format de retour des données
-        StringBuilder RETURNING = new StringBuilder().append( " RETURN DISTINCT users.lastName as lastName, ")
+        StringBuilder RETURNING = new StringBuilder().append(" RETURN DISTINCT users.lastName as lastName, ")
                 .append(" users.firstName as firstName, users.id as id, users.deleteDate as deleteDate, ")
                 .append(" users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
                 .append(" users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER")
                 .append(" BY lastName, firstName ");
 
-        if(!StringUtils.isEmpty(profile)){
+        if (!StringUtils.isEmpty(profile)) {
             PROFILFILTER = " users.profiles =[{profile}] ";
             values.put("profile", profile);
         }
@@ -183,12 +185,12 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         values.put("groupeEnseignementId", groupeEnseignementId);
 
         // Rajout des élèves supprimés de l'annuaire qui sont stockés dans la base viescolaire
-        String [] sortedField = new  String[2];
+        String[] sortedField = new String[2];
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
         neo4j.execute(query.toString(), values,
                 utilsService.addStoredDeletedStudent(new JsonArray().add(groupeEnseignementId),
-                        null,null, sortedField, idPeriode, handler));
+                        null, null, sortedField, idPeriode, handler));
     }
 
     @Override
@@ -206,6 +208,10 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
     @Override
     public void search(String structureId, String userId, String query, List<String> fields, Handler<Either<String, JsonArray>> handler) {
+        JsonObject params = new JsonObject()
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.USERID, userId)
+                .put(Field.QUERY, query);
 
         String neo4jquery = "MATCH (g)-[:BELONGS|:DEPENDS]->(s:Structure {id:{structureId}}) WHERE " +
                 getQueryFilter(fields) +
@@ -221,40 +227,61 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 "WITH u, c MATCH (u)--(g)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE (g:FunctionalGroup) AND " +
                 getQueryFilter(fields) + "RETURN DISTINCT g.id as id, g.name as name ORDER BY g.name";
 
-        JsonObject params = new JsonObject()
-                .put(Field.STRUCTUREID, structureId)
-                .put(Field.USERID, userId)
-                .put(Field.QUERY, query);
 
         neo4j.execute((userId != null) ? queryFromUserId : neo4jquery, params, Neo4jResult.validResultHandler(handler));
     }
 
-
-    private StringBuilder getQueryFilter(List<String> fields) {
-        StringBuilder filter = new StringBuilder();
-        for (int i = 0; i < fields.size(); i++) {
-            String field = fields.get(i);
-            if (i > 0) {
-                filter.append("OR ");
-            }
-
-            filter.append("toLower(g.").append(field).append(") CONTAINS {query} ");
+    private String getClassFieldName(String field) {
+        String fieldName;
+        switch(field) {
+            case Field.DISPLAYNAMESEARCHFIELD:
+                fieldName = "displayNameSearchField";
+                break;
+            case Field.STRUCTURENAME:
+                fieldName = "structureName";
+                break;
+            case Field.NOTEMPTYGROUP:
+                fieldName = "notEmptyGroup";
+                break;
+            case Field.NBUSERS:
+                fieldName = "nbUsers";
+                break;
+            case Field.USERS:
+                fieldName = "users";
+                break;
+            case Field.EXTERNALID:
+                fieldName = "externalId";
+                break;
+            case Field.SOURCE:
+                fieldName = "source";
+                break;
+            case Field.ID:
+                fieldName = "id";
+                break;
+            default:
+                fieldName = "name";
         }
+        return fieldName;
+    }
 
-        return filter;
+    private String getQueryFilter(List<String> fields) {
+        final StringBuilder filter = new StringBuilder();
+        fields.forEach(field -> filter.append("OR toLower(g.").append(getClassFieldName(field)).append(") CONTAINS {query} "));
+
+        return filter.toString().replaceFirst("OR ", "");
     }
 
 
     @Override
     public void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler) {
-        String neo4jQuery="MATCH (c:FunctionalGroup) WHERE c.id IN {ids}"+
+        String neo4jQuery = "MATCH (c:FunctionalGroup) WHERE c.id IN {ids}" +
                 "RETURN c.id as id,\"FunctionalGroup\" as type  " +
                 "UNION " +
-                "MATCH(c:Class)   WHERE c.id IN {ids}"+
+                "MATCH(c:Class)   WHERE c.id IN {ids}" +
                 "RETURN c.id as id,\"Class\" as type  " +
                 "UNION " +
-                "Match(c:ManualGroup) WHERE c.id IN {ids}"+
-                "RETURN c.id as id,\"ManualGroup\" as type" ;
+                "Match(c:ManualGroup) WHERE c.id IN {ids}" +
+                "RETURN c.id as id,\"ManualGroup\" as type";
 
 
         JsonObject params = new JsonObject()
@@ -262,8 +289,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         try {
             neo4j.execute(neo4jQuery, params, Neo4jResult.validResultHandler(handler));
 
-        }
-        catch( VertxException e) {
+        } catch (VertxException e) {
             getTypesOfGroup(groupsIds, handler);
         }
     }

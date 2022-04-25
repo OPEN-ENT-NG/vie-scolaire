@@ -59,6 +59,15 @@ public class Field {
     public static final String Q = "q";
     public static final String QUERY = "query";
 
+    //Class field
+    public static final String SOURCE = "source";
+    public static final String EXTERNALID = "externalId";
+    public static final String USERS = "users";
+    public static final String NBUSERS = "nbUsers";
+    public static final String NOTEMPTYGROUP = "notEmptyGroup";
+    public static final String STRUCTURENAME = "structureName";
+    public static final String DISPLAYNAMESEARCHFIELD = "displayNameSearchField";
+
     private Field() {
         throw new IllegalStateException("Utility class");
     }

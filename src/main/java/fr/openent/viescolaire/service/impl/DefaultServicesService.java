@@ -2,8 +2,8 @@ package fr.openent.viescolaire.service.impl;
 
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.helper.ModelHelper;
-import fr.openent.viescolaire.model.Model;
+import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.core.enums.ServicesFieldEnum;
 import fr.openent.viescolaire.model.MultiTeaching;
 import fr.openent.viescolaire.model.ServiceModel;
 import fr.openent.viescolaire.service.MultiTeachingService;
@@ -14,9 +14,6 @@ import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -26,22 +23,18 @@ import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 
-import javax.security.auth.Subject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.entcore.common.sql.SqlResult.validResultHandler;
 import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
 public class DefaultServicesService extends SqlCrudService implements ServicesService {
 
-    private UtilsService utilsService;
     public final static String COEFFICIENT = "coefficient";
-    private static Logger log =  LoggerFactory.getLogger(DefaultServicesService.class);
-    private final Neo4j neo4j = Neo4j.getInstance();
+    private static Logger log = LoggerFactory.getLogger(DefaultServicesService.class);
     private static MultiTeachingService multiTeachingService;
+    private final Neo4j neo4j = Neo4j.getInstance();
+    private UtilsService utilsService;
 
     public DefaultServicesService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.SERVICES_TABLE);
@@ -49,13 +42,13 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         this.utilsService = new DefaultUtilsService();
     }
 
-    public void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler){
+    public void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler) {
         String query = "";
         String columns = "id_matiere, id_groupe, id_enseignant, coefficient";
         String params = "?,?,?,?";
         JsonArray values = new JsonArray();
 
-        for(Object id_groupe : oService.getJsonArray("id_groupes")) {
+        for (Object id_groupe : oService.getJsonArray("id_groupes")) {
 
             values.add(oService.getString("id_matiere"));
             values.add(id_groupe);
@@ -117,16 +110,17 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
         if (!oService.isEmpty()) {
             for (Map.Entry<String, Object> entry : oService.getMap().entrySet()) {
-                if (entry.getValue() instanceof JsonArray) {
-                    sqlQuery += " AND ? IN " + Sql.listPrepared(((JsonArray) entry.getValue()).getList());
-                    sqlValues.add(entry.getKey());
-                    for (Object o : ((JsonArray) entry.getValue()).getList()) {
-                        sqlValues.add(o);
+                String servicesField = ServicesFieldEnum.getServicesField(entry.getKey());
+                if (servicesField != null) {
+                    if (entry.getValue() instanceof JsonArray) {
+                        sqlQuery += " AND " + servicesField + " IN " + Sql.listPrepared(((JsonArray) entry.getValue()).getList());
+                        for (Object o : ((JsonArray) entry.getValue()).getList()) {
+                            sqlValues.add(o);
+                        }
+                    } else {
+                        sqlQuery += " AND " + servicesField + " = ?";
+                        sqlValues.add(entry.getValue());
                     }
-                } else {
-                    sqlQuery += " AND ? = ?";
-                    sqlValues.add(entry.getKey());
-                    sqlValues.add(entry.getValue());
                 }
             }
         }
@@ -134,60 +128,60 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         Sql.getInstance().prepared(sqlQuery, sqlValues, validResultHandler(handler));
     }
 
-    public void getClassesFromStructureForServices(String structureId, Handler<Either<String, JsonArray>> result){
-        String query = "MATCH (s:Structure{id:{structureId}})<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) "+
+    public void getClassesFromStructureForServices(String structureId, Handler<Either<String, JsonArray>> result) {
+        String query = "MATCH (s:Structure{id:{structureId}})<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) " +
                 "RETURN u.id as idEnseignant, s.id as idEtablissement, sub.id as id, sub.code as externalId, sub.label as name, r.classes + r.groups as libelleClasses";
         JsonObject params = new JsonObject().put("structureId", structureId);
 
         neo4j.execute(query, params, Neo4jResult.validResultHandler(result));
     }
 
-    public void getSubjectANdTeachersForServices(String structureId, Handler<Either<String,JsonArray>> result){
-        String query = "MATCH (s:Structure{id:{structureId}})--(c) "+
+    public void getSubjectANdTeachersForServices(String structureId, Handler<Either<String, JsonArray>> result) {
+        String query = "MATCH (s:Structure{id:{structureId}})--(c) " +
                 " WHERE (c:Class OR c:FunctionalGroup OR c:ManualGroup) and EXISTS(c.externalId) " +
                 " RETURN c.id as id,c.externalId  as externalId";
         JsonObject params = new JsonObject().put("structureId", structureId);
 
-        neo4j.execute(query ,params , Neo4jResult.validResultHandler(result));
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(result));
     }
 
     @Override
-    public void getServicesNeo(String structureId, Handler<Either<String, JsonArray>> result){
+    public void getServicesNeo(String structureId, Handler<Either<String, JsonArray>> result) {
         List<Future> futures = new ArrayList<>();
 
-        Future<JsonArray>  getSubjectANdTeachersFuture = Future.future();
+        Future<JsonArray> getSubjectANdTeachersFuture = Future.future();
         futures.add(getSubjectANdTeachersFuture);
-        getSubjectANdTeachersForServices(structureId,getHandlerJsonArray(getSubjectANdTeachersFuture));
+        getSubjectANdTeachersForServices(structureId, getHandlerJsonArray(getSubjectANdTeachersFuture));
 
         Future<JsonArray> getClassesFromStructureForFuture = Future.future();
         futures.add(getClassesFromStructureForFuture);
-        getClassesFromStructureForServices(structureId,getHandlerJsonArray(getClassesFromStructureForFuture));
+        getClassesFromStructureForServices(structureId, getHandlerJsonArray(getClassesFromStructureForFuture));
 
         CompositeFuture.all(futures).setHandler(event -> {
             if (event.succeeded()) {
                 JsonArray subjectANdTeachersResult = (JsonArray) event.result().list().get(0);
                 JsonArray classResult = (JsonArray) event.result().list().get(1);
-                result.handle(new Either.Right(createServicesFromNeo(subjectANdTeachersResult, classResult))); ;
-            }else{
+                result.handle(new Either.Right(createServicesFromNeo(subjectANdTeachersResult, classResult)));
+            } else {
                 result.handle(new Either.Left<>("Error when gettings subjects and classes"));
             }
         });
     }
 
     private JsonArray createServicesFromNeo(JsonArray subjectANdTeachersResult, JsonArray classResult) {
-        HashMap<String,String> courseMap = new HashMap<>();
-        for(int i =0 ; i< subjectANdTeachersResult.size(); i++){
+        HashMap<String, String> courseMap = new HashMap<>();
+        for (int i = 0; i < subjectANdTeachersResult.size(); i++) {
             JsonObject subjectResult = subjectANdTeachersResult.getJsonObject(i);
-            if(subjectResult.getValue("id") != null && subjectResult.getValue("externalId") != null) {
+            if (subjectResult.getValue("id") != null && subjectResult.getValue("externalId") != null) {
                 String id, externalId;
                 id = subjectResult.getString("id");
                 externalId = subjectResult.getString("externalId");
                 courseMap.put(externalId, id);
             }
         }
-        for(int j = 0 ;j< classResult.size() ; j++) {
+        for (int j = 0; j < classResult.size(); j++) {
             JsonObject resultClass = classResult.getJsonObject(j);
-            if(resultClass.getValue("libelleClasses") != null) {
+            if (resultClass.getValue("libelleClasses") != null) {
                 JsonArray libelleClasses = resultClass.getJsonArray("libelleClasses");
                 for (Object externalId : libelleClasses) {
                     if (courseMap.containsKey(externalId))
@@ -241,14 +235,14 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
         CompositeFuture.all(futures).setHandler(event -> {
             if (event.succeeded()) {
-                defaultResponseHandler.handle(new Either.Right<>(new JsonObject().put("services" , new JsonArray(event.result().list()))));
+                defaultResponseHandler.handle(new Either.Right<>(new JsonObject().put("services", new JsonArray(event.result().list()))));
             } else {
                 defaultResponseHandler.handle(new Either.Left<>("error when throwing futures"));
             }
         });
 
         JsonArray services = oServices.getJsonArray("services");
-        for(Object service : services){
+        for (Object service : services) {
             Future<JsonObject> serviceFuture = Future.future();
             futures.add(serviceFuture);
             createService((JsonObject) service, getHandler(serviceFuture));
@@ -277,8 +271,8 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
                 JsonArray getServicesNeoResult = (JsonArray) event.result().list().get(0);
                 JsonArray getServicesSQLResult = (JsonArray) event.result().list().get(1);
                 JsonArray multiTeachingServiceResult = (JsonArray) event.result().list().get(2);
-                List<ServiceModel> services = new ArrayList<>() ;
-                List<MultiTeaching> mutliTeachings = new ArrayList<>() ;
+                List<ServiceModel> services = new ArrayList<>();
+                List<MultiTeaching> mutliTeachings = new ArrayList<>();
                 ServicesHelper.handleMultiTeaching(utilsService.flatten(getServicesNeoResult, "idClasses"),
                         arrayResponseHandler, manualGroups, groups, classes, notEvaluable, evaluable, compressed,
                         getServicesSQLResult, services, mutliTeachings, multiTeachingServiceResult);
@@ -291,14 +285,14 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     @Override
     public void getAllServicesNoFilter(String structureId, JsonObject oService,
                                        Handler<Either<String, JsonArray>> arrayResponseHandler) {
-        getAllServices(structureId,true,true,true,true,true,
+        getAllServices(structureId, true, true, true, true, true,
                 false, oService, arrayResponseHandler);
     }
 
     @Override
     public void getAllEvaluableServicesNoFilter(String structureId, JsonObject oService,
-                                       Handler<Either<String, JsonArray>> arrayResponseHandler) {
-        getAllServices(structureId,true,false,true,true,true,
+                                                Handler<Either<String, JsonArray>> arrayResponseHandler) {
+        getAllServices(structureId, true, false, true, true, true,
                 false, oService, arrayResponseHandler);
     }
 }

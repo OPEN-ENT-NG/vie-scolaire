@@ -21,7 +21,7 @@ public class DefaultServicesServiceTest {
     @Before
     public void setUp() {
         vertx = Vertx.vertx();
-        Sql.getInstance().init(vertx.eventBus(), "fr.openent.diary");
+        Sql.getInstance().init(vertx.eventBus(), "fr.openent.viescolaire");
         this.defaultServicesService = new DefaultServicesService();
     }
 
@@ -29,10 +29,10 @@ public class DefaultServicesServiceTest {
     public void TestGetServicesSQL(TestContext ctx) {
         Async async = ctx.async();
 
-        String expectedQuery = "SELECT * FROM viesco.services WHERE id_etablissement = ? AND ? IN (?,?,?) AND ? = ?";
-        JsonArray expectedParams = new JsonArray(Arrays.asList("idEtablissement","id",21,22,23,"name","3eme"));
+        String expectedQuery = "SELECT * FROM viesco.services WHERE id_etablissement = ? AND id_enseignant IN (?,?,?) AND is_visible = ?";
+        JsonArray expectedParams = new JsonArray(Arrays.asList("idEtablissement",21,22,23,false));
 
-        vertx.eventBus().consumer("fr.openent.diary", message -> {
+        vertx.eventBus().consumer("fr.openent.viescolaire", message -> {
             JsonObject body = (JsonObject) message.body();
             ctx.assertEquals("prepared", body.getString("action"));
             ctx.assertEquals(expectedQuery, body.getString("statement"));
@@ -41,8 +41,9 @@ public class DefaultServicesServiceTest {
         });
 
         JsonObject oService = new JsonObject()
-                .put("id", new JsonArray(Arrays.asList(21,22,23)))
-                .put("name", "3eme");
+                .put("id_enseignant", new JsonArray(Arrays.asList(21,22,23)))
+                .put("is_visible", false)
+                .put("otherKey", "otherValue");
         defaultServicesService.getServicesSQL("idEtablissement", oService, null);
     }
 }

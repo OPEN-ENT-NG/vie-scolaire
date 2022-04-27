@@ -37,14 +37,14 @@ public class DefaultGroupeServiceTest {
     public void testSearch(TestContext ctx) {
         List<String> fields = Arrays.asList("name", "id", "student");
 
-        String expectedQuery = "MATCH (u:User {id:{userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(g: Class)-[:BELONGS]->(s:Structure" +
-                " {id:{structureId}}) WHERE toLower(g.{field0}) CONTAINS {query} OR toLower(g.{field1}) CONTAINS {query} OR" +
-                " toLower(g.{field2}) CONTAINS {query} RETURN g.id as id, g.name as name ORDER BY g.name UNION MATCH (u:User" +
+        String expectedQuery = "MATCH (u:User {id:{userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(g: Class)-[:BELONGS]->(s:Structure {id:{structureId}})" +
+                " WHERE toLower(g.name) CONTAINS {query} OR toLower(g.id) CONTAINS {query} OR toLower(g.name) CONTAINS {query}" +
+                " RETURN g.id as id, g.name as name ORDER BY g.name UNION MATCH (u:User" +
                 " {profiles:['Student']})--(:ProfileGroup)--(c:Class)--(:ProfileGroup)--(t:User {id:{userId}}) WITH u, c" +
-                " MATCH (u)--(g)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE (g:FunctionalGroup) AND toLower(g.{field0})" +
-                " CONTAINS {query} OR toLower(g.{field1}) CONTAINS {query} OR toLower(g.{field2}) CONTAINS {query} RETURN DISTINCT" +
+                " MATCH (u)--(g)-[:DEPENDS]->(s:Structure {id:{structureId}}) WHERE (g:FunctionalGroup) AND toLower(g.name)" +
+                " CONTAINS {query} OR toLower(g.id) CONTAINS {query} OR toLower(g.name) CONTAINS {query} RETURN DISTINCT" +
                 " g.id as id, g.name as name ORDER BY g.name";
-        String expectedResult = "{\"structureId\":\"structureId\",\"userId\":\"userId\",\"query\":\"query\",\"fields0\":\"name\",\"fields1\":\"id\",\"fields2\":\"student\"}";
+        String expectedResult = "{\"structureId\":\"structureId\",\"userId\":\"userId\",\"query\":\"query\"}";
         Mockito.doAnswer((Answer<Void>) invocation -> {
             String queryResult = invocation.getArgument(0);
             JsonObject paramsResult = invocation.getArgument(1);

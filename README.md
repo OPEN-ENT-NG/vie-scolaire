@@ -1,59 +1,8 @@
 # À propos de l'application Vie Scolaire  
-* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Région Hauts-de-France, Département de la Seine-et-Marne, Région Nouvelle Aquitaine, Mairie de Paris, CGI
+* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Copyright Région Hauts-de-France, Département de l'Essonne, Région Nouvelle Aquitaine
 * Développeur(s) : CGI
 * Financeur(s) : Région Hauts-de-France, Département de la Seine-et-Marne, Région Nouvelle Aquitaine, Mairie de Paris, CGI
-
 * Description : Application de vie scolaire
-
-# Documentation technique
-
-## Construction
-```
-gradle copyMod
-```
-
-## Déployer dans ent-core
-
-
-## Configuration
-
-Dans le fichier `/vie-scolaire/deployment/viescolaire/conf.json.template` :
-
-Configurer l'application de la manière suivante :
-```    
-{
-    "name": "fr.openent~viescolaire~0.4.0",
-    "config": {
-    "main" : "fr.openent.Viescolaire",
-    "port" : 8128,
-    "sql" : true,
-    "app-name" : "Viescolaire",
-    "app-address" : "/viescolaire",
-    "app-icon" : "Viescolaire-large",
-    "db-schema" : "viesco",
-    "host": "${host}",
-    "ssl" : $ssl,
-    "auto-redeploy": false,
-    "userbook-host": "${host}",
-    "integration-mode" : "HTTP",
-    "app-registry.port" : 8012,
-    "mode" : "${mode}",
-    "entcore.port" : 8009,
-    "exports" : {
-        "template-path" : "./public/templates/pdf/"
-    }
-}
-```
-
-Associer une route d'entrée à la configuration du module proxy intégré :
-```
-{
-    "location": "/viescolaire",
-    "proxy_pass": "http://localhost:8128"
-}
-```
-
-
 
 # Présentation du module
 
@@ -74,3 +23,36 @@ L'application Vie Scolaire implémente des fonctionnalités de gestion des devoi
 * Historique des évaluations de compétences.
 * Bilan de fin de cycle, export vers pdf.
 * Releve de notes
+
+## Construction
+```
+gradle copyMod
+```
+
+## Configuration
+
+<pre>
+{
+  "config": {
+    ...
+    "temporary-directory": "/tmp",
+    "exports" : {
+       "template-path" : "./public/templates/pdf/"
+    },
+    "update-classes" : {
+       "timeout-transaction" : 1000,
+       "enable-date" : "2021-09-20"
+    },
+    "services": {
+        "competences": false,
+        "presences": false,
+        "edt": false,
+        "diary": false,
+        "massmailing": false
+    }
+  }
+}
+
+</pre>
+
+Si vous souhaitez avoir accès depuis vie scolaire aux modules présents dans services, vous devez mettre à ***true*** les modules souhaités.

@@ -150,5 +150,14 @@ body.vsco--global {
       font-family: 'material-icons';
       content: "\F5E8";
     }
+    &.mdi-folder-plus::before{
+      font-family:  'material-icons';
+      content: "\FA94";
+      cursor: pointer;
+      color: #FF8500;
+      font-size: 18px;
+      padding-top: 1px;
+    }
+
   }
 }

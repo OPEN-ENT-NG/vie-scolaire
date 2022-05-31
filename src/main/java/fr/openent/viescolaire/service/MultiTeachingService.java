@@ -20,20 +20,18 @@ public interface MultiTeachingService {
      * @param endDate           Replacement end date
      * @param enteredEndDate    Share ressources end date
      * @param coTeaching        is a co teaching or replacement
-     * @param eb                Event bus
      * @param handler           Function handler returning data
      * @param hasCompetences    is Competences module installed
      */
     void createMultiTeaching(String structureId, String mainTeacherId, JsonArray secondTeacherIds, String subjectId, JsonArray classOrGroupIds, String startDate, String endDate,
-                             String enteredEndDate, Boolean coTeaching, EventBus eb, Handler<Either<String, JsonArray>> handler, boolean hasCompetences);
+                             String enteredEndDate, Boolean coTeaching, Handler<Either<String, JsonArray>> handler, boolean hasCompetences);
 
     /**
      *  Delete multi teachings and their related courses substitutes
      * @param multiTeachingIds  multi teaching identifier list
-     * @param eb                Event bus
      * @param handler           Function handler returning data
      */
-    void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences, EventBus eb,
+    void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences,
                              Handler<Either<String, JsonObject>> handler);
 
     /**
@@ -45,12 +43,11 @@ public interface MultiTeachingService {
      * @param enteredEndDate
      * @param isVisible
      * @param hasCompetences           is Competences module installed
-     * @param eb                       Event bus
      * @param handler                  Function handler returning data
      */
     void updateMultiteaching(JsonArray idsMultiTeachingToUpdate, String secondTeacher, String startDate,
                              String endDate, String enteredEndDate, Boolean isVisible, boolean hasCompetences,
-                             EventBus eb, Handler<Either<String,JsonArray>> handler);
+                             Handler<Either<String,JsonArray>> handler);
 
     void updateMultiTeachingVisibility(JsonArray groupsId, String structureId, String mainTeacherId,
                                        String secondTeacherId, String subjectId, Boolean isVisible,

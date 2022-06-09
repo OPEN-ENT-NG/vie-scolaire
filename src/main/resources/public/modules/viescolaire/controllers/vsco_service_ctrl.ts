@@ -294,9 +294,9 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
             if($scope.classesSelected && $scope.classesSelected.length > 0 && service.id_matiere != undefined &&
                 service.id_matiere != "" && service.id_enseignant != "") {
                 $scope.classesSelected.forEach(classe => {
-                    if (_.findWhere($scope.services, {
-                        id_matiere: service.id_matiere, id_enseignant: service.id_enseignant,
-                        id_groupe: classe
+                    if(_.some($scope.services, (s)=>{
+                        return s.id_matiere === service.id_matiere && s.id_enseignant === service.id_enseignant &&
+                            ( _.contains(s.id_groups, classe.id) || s.id_groupe === classe.id)
                     }))
                         exist = true;
                 });

@@ -10,6 +10,10 @@ export const periodeAnneeController = ng.controller('periodeAnneeController', [
         $scope.notifications = [];
         $scope.periodeAnnee = new PeriodeAnnee($scope.structure.id);
 
+        $scope.opened = {
+            lightboxUpdateSchoolYear: false
+        }
+
         $scope.periodeAnnee.sync().then((res) => {
             if ($scope.periodeAnnee.id) {
                 $scope.periodeAnnee.setIsExist(true);
@@ -34,9 +38,19 @@ export const periodeAnneeController = ng.controller('periodeAnneeController', [
             }
         };
 
+        $scope.confirmUpdateSchoolYear = () => {
+            $scope.opened.lightboxUpdateSchoolYear = true;
+            utils.safeApply($scope);
+        }
+
+        $scope.cancelUpdateSchoolYear = () => {
+            $scope.opened.lightboxUpdateSchoolYear = false;
+        }
+
         $scope.createPeriodeAnnee = async () => {
             $scope.periodeAnnee.setIsOpening(true);
             $scope.toastHttpCall(await $scope.periodeAnnee.save());
+            $scope.opened.lightboxUpdateSchoolYear = false;
         }
     }
 ]);

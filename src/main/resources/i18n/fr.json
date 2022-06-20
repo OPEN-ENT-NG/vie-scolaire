@@ -486,6 +486,7 @@
   "viescolaire.utils.no": "Non",
   "viescolaire.utils.students": "Élèves",
   "viescolaire.utils.name": "Nom",
+  "viescolaire.utils.confirm": "Confirmer",
   "viescolaire.param": "Paramétrages",
   "viescolaire.categorie": "Catégorie",
   "viescolaire.categorie.edit": "Modifier la catégorie",
@@ -810,5 +811,6 @@
   "viescolaire.conference.elements": "Éléments du programme",
   "viescolaire.service.warning.classesNonEvaluables" : "Vous ne pouvez pas sélectionner de services non-évaluables : ",
   "viescolaire.service.error.student": "Erreur lors de la récupération des élèves.",
-  "evaluation.orderShowSubject.title": "Organiser les matières"
+  "evaluation.orderShowSubject.title": "Organiser les matières",
+  "viescolaire.confirmation.updateSchoolYear": "Vous allez changer les dates de l'année scolaire.Des applications pourraient être impactées par ce changement. Voulez-vous continuer ?"
 }

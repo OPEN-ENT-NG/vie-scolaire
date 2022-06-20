@@ -31,7 +31,7 @@
             </button>
             <button ng-if="periodeAnnee.isExist"
                     class="right-magnet"
-                    ng-click="createPeriodeAnnee()"
+                    ng-click="confirmUpdateSchoolYear()"
                     ng-disabled="!isValidForm()">
                 <span class="no-style ng-scope"><i18n>item.modify</i18n></span>
             </button>
@@ -39,4 +39,23 @@
 
     </article>
 
+    <lightbox class="lightbox-update-school-year" show="opened.lightboxUpdateSchoolYear" on-close="opened.lightboxUpdateSchoolYear = false" >
+        <div class="twelve row content">
+            <h3>
+                <i18n>viescolaire.year.set</i18n>
+            </h3>
+
+            <p>
+                <i18n>viescolaire.confirmation.updateSchoolYear</i18n>
+            </p>
+            <div class="right-magnet button-margin">
+                <button class="marginFive" ng-click="createPeriodeAnnee()">
+                    <i18n>viescolaire.utils.confirm</i18n>
+                </button>
+                <button class="marginFive cancel" ng-click="cancelUpdateSchoolYear()">
+                    <i18n>viescolaire.utils.cancel</i18n>
+                </button>
+            </div>
+        </div>
+    </lightbox>
 </div>

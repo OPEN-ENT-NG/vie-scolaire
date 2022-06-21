@@ -1,13 +1,20 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.db.*;
-import fr.openent.viescolaire.helper.*;
-import fr.openent.viescolaire.model.*;
-import fr.openent.viescolaire.service.*;
-import fr.openent.viescolaire.utils.*;
+import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.db.DBService;
+import fr.openent.viescolaire.helper.FutureHelper;
+import fr.openent.viescolaire.helper.MultiTeachingHelper;
+import fr.openent.viescolaire.model.MultiTeaching;
+import fr.openent.viescolaire.service.CommonCoursService;
+import fr.openent.viescolaire.service.MultiTeachingService;
+import fr.openent.viescolaire.service.UtilsService;
+import fr.openent.viescolaire.utils.DateHelper;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.*;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -15,13 +22,16 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static fr.openent.Viescolaire.VSCO_SCHEMA;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
-import static org.entcore.common.neo4j.Neo4jResult.validUniqueResultHandler;
-import static org.entcore.common.sql.SqlResult.*;
+import static org.entcore.common.sql.SqlResult.validResultHandler;
+import static org.entcore.common.sql.SqlResult.validRowsResultHandler;
 
 public class DefaultMultiTeachingService extends DBService implements MultiTeachingService {
 
@@ -32,6 +42,12 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     protected static final Logger log = LoggerFactory.getLogger(DefaultMultiTeachingService.class);
 
+    /**
+     * Old constructor with event bus to null. Can throw {@link NullPointerException} when calling some methode
+     *
+     * @deprecated use {@link DefaultMultiTeachingService#DefaultMultiTeachingService(EventBus)} instead.
+     */
+    @Deprecated
     public DefaultMultiTeachingService() {
         this.utilsService = new DefaultUtilsService();
         this.commonCoursService = null;
@@ -45,13 +61,13 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void createMultiTeaching (String structureId, String mainTeacherId, JsonArray secondTeacherIds,
-                                     String subjectId, JsonArray classOrGroupIds, String startDate, String endDate,
-                                     String enteredEndDate, Boolean coTeaching, EventBus eb,
-                                     Handler<Either<String, JsonArray>> handler, boolean hasCompetences) {
+    public void createMultiTeaching(String structureId, String mainTeacherId, JsonArray secondTeacherIds,
+                                    String subjectId, JsonArray classOrGroupIds, String startDate, String endDate,
+                                    String enteredEndDate, Boolean coTeaching, Handler<Either<String, JsonArray>> handler,
+                                    boolean hasCompetences) {
 
 
-        String query ;
+        String query;
         query = "WITH insert AS ( INSERT INTO " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
                 " (structure_id, main_teacher_id,  second_teacher_id, subject_id, class_or_group_id, is_coteaching, " +
                 "start_date, end_date, entered_end_date)" +
@@ -104,7 +120,13 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     .put("classId", classId)
                     .put("userIds", secondTeacherIds);
 
-            eb.request("entcore.feeder", classAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
+            this.eb.request("entcore.feeder", classAction, event -> {
+                if (event.failed()) {
+                    String message = String.format("[Viescolaire@%s::handleCreationSqlResponse] Error when call entcore.feeder:%s %s",
+                            this.getClass().getSimpleName(), classAction.toString(), event.cause().getMessage());
+                    log.error(message);
+                }
+            });
 
             for (int j = 0; j < secondTeacherIds.size(); j++) {
                 //manual-add-user-group
@@ -113,8 +135,13 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                         .put("groupId", classId)
                         .put("userId", secondTeacherIds.getString(j));
 
-                eb.request("entcore.feeder", groupAction, handlerToAsyncHandler(validUniqueResultHandler(event -> {})));
-
+                this.eb.request("entcore.feeder", groupAction, event -> {
+                    if (event.failed()) {
+                        String message = String.format("[Viescolaire@%s::handleCreationSqlResponse] Error when call entcore.feeder:%s %s",
+                                this.getClass().getSimpleName(), groupAction.toString(), event.cause().getMessage());
+                        log.error(message);
+                    }
+                });
             }
         }
 
@@ -125,85 +152,97 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         multiTeaching.setStartDate(startDate);
         multiTeaching.setEndDate(endDate);
 
-        handleCreationSqlResponse(multiTeaching, secondTeacherIds, classOrGroupIds, handler, hasCompetences, eb, query, values);
+        handleCreationSqlResponse(multiTeaching, secondTeacherIds, classOrGroupIds, handler, hasCompetences, query, values);
     }
 
     /**
      * Handle multiTeaching creation (+ add substitutes to courses related to multiTeachings)
-     * @param multiTeaching         multiTeaching object
-     * @param secondTeacherIds      list of substitute teacher identifiers
-     * @param classOrGroupIds       list of class/group identifiers
-     * @param handler               Function handler returning data
-     * @param hasCompetences        is Competences module installed
-     * @param eb                    Event bus
-     * @param query                 creation query string
-     * @param values                creation query parameters
+     *
+     * @param multiTeaching    multiTeaching object
+     * @param secondTeacherIds list of substitute teacher identifiers
+     * @param classOrGroupIds  list of class/group identifiers
+     * @param handler          Function handler returning data
+     * @param hasCompetences   is Competences module installed
+     * @param query            creation query string
+     * @param values           creation query parameters
      */
     private void handleCreationSqlResponse(MultiTeaching multiTeaching, JsonArray secondTeacherIds, JsonArray classOrGroupIds,
                                            Handler<Either<String, JsonArray>> handler,
-                                           boolean hasCompetences, EventBus eb, String query, JsonArray values) {
+                                           boolean hasCompetences, String query, JsonArray values) {
 
         sql.prepared(query, values, res -> {
 
-            if (res.body().getString("status").equals("ok")) {
+            if (res.body().getString(Field.STATUS).equals(Field.OK)) {
+                List<Future> futureList = new ArrayList<>();
+
+                Future<JsonArray> futureResult = hasCompetences ?
+                        prepareSendIdsToShare(multiTeaching, classOrGroupIds, res.body().getJsonArray(Field.RESULTS)) :
+                        Future.succeededFuture(res.body().getJsonArray(Field.RESULTS));
+
+                futureList.add(futureResult);
 
                 if (multiTeaching.getStartDate() != null && multiTeaching.getEndDate() != null) {
-                    addCourseSubstitutes(multiTeaching, secondTeacherIds, classOrGroupIds)
-                            .onFailure(fail -> {
-                                String message = String.format("[Viescolaire@%s::handleCreationSqlResponse] " +
-                                                "Error updating course teachers : %s",
-                                        this.getClass().getSimpleName(), fail.getMessage());
-                                log.error(message);
-                                handler.handle(new Either.Left<>(message));
-                            });
+                    futureList.add(addCourseSubstitutes(multiTeaching, secondTeacherIds, classOrGroupIds));
                 }
 
-                if (hasCompetences) {
-                    JsonArray idsToSend = new JsonArray();
-                    secondTeacherIds.clear().add(multiTeaching.getMainTeacherId());
-                    for (Object teacher : res.body().getJsonArray("results")) {
-                        JsonArray teacherArray = (JsonArray) teacher;
-                        secondTeacherIds.add(teacherArray.getString(0));
-                    }
-                    for (int i = 0; i < secondTeacherIds.size(); i++) {
-
-                        String firstSecondId = secondTeacherIds.getString(i);
-                        for (int j = i; j < secondTeacherIds.size(); j++) {
-                            String secondSecondId = secondTeacherIds.getString(j);
-                            if (!secondSecondId.equals(firstSecondId))
-                                for (int k = 0; k < classOrGroupIds.size(); k++) {
-                                    JsonArray ids = new JsonArray();
-                                    String groupId = classOrGroupIds.getString(k);
-
-                                    ids.add(secondSecondId)
-                                            .add(firstSecondId)
-                                            .add(multiTeaching.getSubjectId())
-                                            .add(groupId)
-                                            .add(multiTeaching.getStructureId());
-                                    idsToSend.add(ids);
-                                }
-                        }
-                    }
-
-                    sendIdsToShare(idsToSend, handler, eb);
-
-                } else {
-                    handler.handle(new Either.Right<>(res.body().getJsonArray("results")));
-                }
+                CompositeFuture.all(futureList)
+                        .onSuccess(event -> handler.handle(new Either.Right<>(futureResult.result())))
+                        .onFailure(error -> {
+                            String message = String.format("[Viescolaire@%s::handleCreationSqlResponse] Error creating multiteaching : %s",
+                                    this.getClass().getSimpleName(), error.getMessage());
+                            log.error(message);
+                            handler.handle(new Either.Left<>(error.getMessage()));
+                        });
             } else {
-                handler.handle(new Either.Left<>(String.format("[Viescolaire@%s::handleCreationSqlResponse] Error " +
-                        "creating multiteaching : %s", this.getClass().getSimpleName(), res.body().getString("status"))));
+                String message = String.format("[Viescolaire@%s::handleCreationSqlResponse] Error creating multiteaching : %s",
+                        this.getClass().getSimpleName(), res.body().getString(Field.STATUS));
+                handler.handle(new Either.Left<>(message));
             }
         });
+    }
+
+    private Future<JsonArray> prepareSendIdsToShare(MultiTeaching multiTeaching, JsonArray classOrGroupIds, JsonArray otherTeacher) {
+        Promise<JsonArray> promise = Promise.promise();
+
+        JsonArray idsToSend = new JsonArray();
+        JsonArray teacherIds = new JsonArray();
+        teacherIds.add(multiTeaching.getMainTeacherId());
+        for (Object teacher : otherTeacher) {
+            JsonArray teacherArray = (JsonArray) teacher;
+            teacherIds.add(teacherArray.getString(0));
+        }
+        for (int i = 0; i < teacherIds.size(); i++) {
+            String firstSecondId = teacherIds.getString(i);
+            for (int j = i; j < teacherIds.size(); j++) {
+                String secondSecondId = teacherIds.getString(j);
+                if (!secondSecondId.equals(firstSecondId))
+                    for (int k = 0; k < classOrGroupIds.size(); k++) {
+                        JsonArray ids = new JsonArray();
+                        String groupId = classOrGroupIds.getString(k);
+
+                        ids.add(secondSecondId)
+                                .add(firstSecondId)
+                                .add(multiTeaching.getSubjectId())
+                                .add(groupId)
+                                .add(multiTeaching.getStructureId());
+                        idsToSend.add(ids);
+                    }
+            }
+        }
+
+        sendIdsToShare(idsToSend, FutureHelper.handlerJsonArray(promise));
+
+        return promise.future();
     }
 
 
     /**
      * Add substitute teachers to courses related to a multiTeaching
-     * @param multiTeaching         multiTeaching object
-     * @param secondTeacherIds      list of substitute teacher identifiers
-     * @param classOrGroupIds       list of class/group identifiers
-     * @return                      Future
+     *
+     * @param multiTeaching    multiTeaching object
+     * @param secondTeacherIds list of substitute teacher identifiers
+     * @param classOrGroupIds  list of class/group identifiers
+     * @return Future
      */
     private Future<JsonObject> addCourseSubstitutes(MultiTeaching multiTeaching, JsonArray secondTeacherIds,
                                                     JsonArray classOrGroupIds) {
@@ -211,9 +250,9 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         Promise<JsonObject> promise = Promise.promise();
         fetchGroupClassesInfos(classOrGroupIds, multiTeaching.getStartDate())
                 .compose(infos -> fetchCoursesIds(multiTeaching,
-                                    infos.getJsonArray("classGroupExternalIds"), infos.getJsonArray("manualGroupNames"),
-                                    infos.getString("startDate"), multiTeaching.getEndDate(),
-                                    infos.getString("startTime", null)))
+                        infos.getJsonArray(Field.CLASSGROUPEXTERNALIDS), infos.getJsonArray(Field.MANUALGROUPNAMES),
+                        infos.getString(Field.STARTDATE), multiTeaching.getEndDate(),
+                        infos.getString(Field.STARTTIME, null)))
                 .compose(courseIds -> addCourseTeachersFromIds(courseIds, multiTeaching.getMainTeacherId(), secondTeacherIds))
                 .onFailure(fail -> promise.fail(fail.getMessage()))
                 .onSuccess(promise::complete);
@@ -223,9 +262,10 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     /**
      * Remove substitute teachers from courses related to a multiTeaching
-     * @param multiTeaching         multiTeaching object
-     * @param classOrGroupIds       list of class/group identifiers
-     * @return                      Future
+     *
+     * @param multiTeaching   multiTeaching object
+     * @param classOrGroupIds list of class/group identifiers
+     * @return Future
      */
     private Future<Void> removeCourseSubstitutes(MultiTeaching multiTeaching, JsonArray classOrGroupIds) {
 
@@ -237,9 +277,9 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
         fetchGroupClassesInfos(classOrGroupIds, multiTeaching.getStartDate())
                 .compose(infos -> fetchCoursesIds(multiTeaching,
-                        infos.getJsonArray("classGroupExternalIds"),
-                        infos.getJsonArray("manualGroupNames"), infos.getString("startDate"),
-                        endDateString, infos.getString("startTime", null)))
+                        infos.getJsonArray(Field.CLASSGROUPEXTERNALIDS),
+                        infos.getJsonArray(Field.MANUALGROUPNAMES), infos.getString(Field.STARTDATE),
+                        endDateString, infos.getString(Field.STARTTIME, null)))
                 .compose(courseIds -> removeCourseTeachersFromIds(courseIds, multiTeaching.getSecondTeacherId()))
                 .onFailure(fail -> promise.fail(fail.getMessage()))
                 .onSuccess(ar -> promise.complete());
@@ -249,9 +289,10 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     /**
      * Fetch group/classes information from their ids (name, externalIds, dates)
-     * @param classOrGroupIds       list of class and group identifiers
-     * @param startDate             start date
-     * @return                      Future containing information about group/classes
+     *
+     * @param classOrGroupIds list of class and group identifiers
+     * @param startDate       start date
+     * @return Future containing information about group/classes
      */
     private Future<JsonObject> fetchGroupClassesInfos(JsonArray classOrGroupIds, String startDate) {
         Promise<JsonObject> promise = Promise.promise();
@@ -266,16 +307,16 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                 .onFailure(fail -> promise.fail(fail.getMessage()))
                 .onSuccess(res -> {
                     JsonObject responseArrays = new JsonObject();
-                    responseArrays.put("manualGroupNames", manualNamesFuture.future().result())
-                                    .put("classGroupExternalIds", externalIdsFuture.future().result());
+                    responseArrays.put(Field.MANUALGROUPNAMES, manualNamesFuture.future().result())
+                            .put(Field.CLASSGROUPEXTERNALIDS, externalIdsFuture.future().result());
 
 
                     String currentDate = DateHelper.getCurrentDate(DateHelper.YEAR_MONTH_DAY);
 
                     boolean isPastCourse = dateHelper.isBeforeOrEquals(startDate, currentDate, dateHelper.SIMPLE_DATE_FORMATTER);
 
-                    responseArrays.put("startDate", isPastCourse ? currentDate : startDate)
-                            .put("startTime", isPastCourse ? DateHelper.getCurrentDate(DateHelper.HOUR_MINUTES_SECONDS) : null);
+                    responseArrays.put(Field.STARTDATE, isPastCourse ? currentDate : startDate)
+                            .put(Field.STARTTIME, isPastCourse ? DateHelper.getCurrentDate(DateHelper.HOUR_MINUTES_SECONDS) : null);
 
                     promise.complete(responseArrays);
                 });
@@ -289,57 +330,59 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     /**
      * Fetch list of course identifiers related to multiTeaching
-     * @param multiTeaching             multi teaching object
-     * @param classGroupExternalIds     list of class and groups external ids
-     * @param manualGroupNames          list of manual group names
-     * @param startDate                 start date filter
-     * @param endDate                   end date filter
-     * @param startTime                 start time filter (ignored if null)
-     * @return                          Future containing list of course ids
+     *
+     * @param multiTeaching         multi teaching object
+     * @param classGroupExternalIds list of class and groups external ids
+     * @param manualGroupNames      list of manual group names
+     * @param startDate             start date filter
+     * @param endDate               end date filter
+     * @param startTime             start time filter (ignored if null)
+     * @return Future containing list of course ids
      */
     private Future<List<String>> fetchCoursesIds(MultiTeaching multiTeaching, JsonArray classGroupExternalIds,
                                                  JsonArray manualGroupNames, String startDate, String endDate, String startTime) {
         Promise<List<String>> promise = Promise.promise();
 
         List<String> manualGroupNamesList = manualGroupNames
-                .stream().map(name -> ((JsonObject) name).getString("name"))
+                .stream().map(name -> ((JsonObject) name).getString(Field.NAME))
                 .collect(Collectors.toList());
 
         List<String> classGroupExternalIdsList = classGroupExternalIds
-                .stream().map(id -> ((JsonObject) id).getString("externalId"))
+                .stream().map(id -> ((JsonObject) id).getString(Field.EXTERNALID))
                 .collect(Collectors.toList());
 
 
         List<String> teacherIdArray = new ArrayList<>(Collections.singletonList(multiTeaching.getMainTeacherId()));
         List<String> subjectIdArray = new ArrayList<>(Collections.singletonList(multiTeaching.getSubjectId()));
 
-       if (!(manualGroupNamesList.isEmpty() && classGroupExternalIdsList.isEmpty()) && commonCoursService != null) {
-          commonCoursService.listCoursesBetweenTwoDates(multiTeaching.getStructureId(), teacherIdArray, null,
-                   classGroupExternalIdsList, manualGroupNamesList, subjectIdArray, startDate,
-                   endDate, startTime, null, false, false, null,
-                   null, false, null, event -> {
+        if (!(manualGroupNamesList.isEmpty() && classGroupExternalIdsList.isEmpty()) && commonCoursService != null) {
+            commonCoursService.listCoursesBetweenTwoDates(multiTeaching.getStructureId(), teacherIdArray, null,
+                    classGroupExternalIdsList, manualGroupNamesList, subjectIdArray, startDate,
+                    endDate, startTime, null, false, false, null,
+                    null, false, null, event -> {
 
-                       if (event.isLeft()) {
-                           promise.fail(event.left().getValue());
-                       } else {
-                           List<String> courseIds = event.right().getValue().stream()
-                                   .map(c -> ((JsonObject) c).getString("_id")).collect(Collectors.toList());
+                        if (event.isLeft()) {
+                            promise.fail(event.left().getValue());
+                        } else {
+                            List<String> courseIds = event.right().getValue().stream()
+                                    .map(c -> ((JsonObject) c).getString(Field._ID)).collect(Collectors.toList());
 
-                           promise.complete(courseIds);
-                       }
-                   });
-       } else {
-           promise.fail(String.format("[Viescolaire@%s::fetchCoursesIds] Group name/externalId array is empty", this.getClass().getSimpleName()));
-       }
+                            promise.complete(courseIds);
+                        }
+                    });
+        } else {
+            promise.fail(String.format("[Viescolaire@%s::fetchCoursesIds] Group name/externalId array is empty", this.getClass().getSimpleName()));
+        }
         return promise.future();
     }
 
     /**
      * Add new substitutes teachers to courses in identifier list
-     * @param courseIds             course identifier list
-     * @param mainTeacherId         main teacher identifier
-     * @param secondTeacherIds      substitute teacher identifier list
-     * @return                      Future
+     *
+     * @param courseIds        course identifier list
+     * @param mainTeacherId    main teacher identifier
+     * @param secondTeacherIds substitute teacher identifier list
+     * @return Future
      */
     private Future<JsonObject> addCourseTeachersFromIds(List<String> courseIds, String mainTeacherId, JsonArray secondTeacherIds) {
 
@@ -372,9 +415,10 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     /**
      * Remove subtitute teachers on all courses from course identifier list
-     * @param courseIds   course identifier list
-     * @param teacherId   teacher identifier
-     * @return            Future
+     *
+     * @param courseIds course identifier list
+     * @param teacherId teacher identifier
+     * @return Future
      */
     private Future<JsonObject> removeCourseTeachersFromIds(List<String> courseIds, String teacherId) {
 
@@ -400,39 +444,45 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         return promise.future();
     }
 
-    private void sendIdsToShare(JsonArray idsToSend, Handler<Either<String, JsonArray>> requestHandler, EventBus eb) {
+    private void sendIdsToShare(JsonArray idsToSend, Handler<Either<String, JsonArray>> requestHandler) {
         JsonObject action = new JsonObject()
                 .put("action", "homeworks.setShare")
                 .put("ids", idsToSend);
-        eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(event -> {
-            if (event.body().getString("status").equals("ok")) {
-                requestHandler.handle(new Either.Right<>(new JsonArray().add(event.body().getJsonArray("results"))));
+        this.eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(event -> {
+            if (event.body().getString(Field.STATUS).equals(Field.OK)) {
+                requestHandler.handle(new Either.Right<>(new JsonArray().add(event.body().getJsonArray(Field.RESULTS))));
+            } else {
+                log.error(String.format("[Viescolaire@%s::removeCourseTeachersFromIds] Fail to send ids to share",
+                        this.getClass().getSimpleName()));
+                requestHandler.handle(new Either.Left<>(event.body().getString("message")));
             }
         }));
     }
 
-    private void sendIdsToDelete(JsonArray idsToSend, Handler<Either<String, JsonObject>> requestHandler, EventBus eb) {
+    private void sendIdsToDelete(JsonArray idsToSend, Handler<Either<String, JsonObject>> requestHandler) {
         JsonObject action = new JsonObject()
                 .put("action", "homeworks.removeShare")
                 .put("ids", idsToSend);
-        eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(event -> {
-            if (event.body().getString("status").equals("ok")) {
-                requestHandler.handle(new Either.Right<>(new JsonObject().put("results", event.body().getJsonArray("results"))));
+        this.eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(event -> {
+            if (event.body().getString(Field.STATUS).equals(Field.OK)) {
+                requestHandler.handle(new Either.Right<>(new JsonObject().put(Field.RESULTS, event.body().getJsonArray(Field.RESULTS))));
+            } else {
+                log.error(String.format("[Viescolaire@%s::removeCourseTeachersFromIds] Fail to send ids to delete",
+                        this.getClass().getSimpleName()));
+                requestHandler.handle(new Either.Left<>(event.body().getString("message")));
             }
         }));
     }
 
     @Override
-    public void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences, EventBus eb,
+    public void deleteMultiTeaching(JsonArray multiTeachingIds, boolean hasCompetences,
                                     Handler<Either<String, JsonObject>> handler) {
 
         removeSubstitutesFromCourseList(multiTeachingIds)
                 .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
                 .onSuccess(evt -> {
-                    String deleteQuery = "UPDATE " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
-                            " SET start_date=NULL, end_date=NULL, entered_end_date=NULL, is_coteaching=NULL " +
-                            "WHERE id IN " + Sql.listPrepared(multiTeachingIds.getList());
-                    JsonArray oldMultiTeachingIds = new JsonArray().addAll(multiTeachingIds);
+                    String deleteQuery = "DELETE FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
+                            " WHERE id IN " + Sql.listPrepared(multiTeachingIds.getList());
                     String selectQuery = "SELECT second_teacher_id, main_teacher_id,subject_id,class_or_group_id " +
                             "FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " WHERE id IN "
                             + Sql.listPrepared(multiTeachingIds.getList())
@@ -444,13 +494,14 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                             " AND mt.second_teacher_id != mtt.second_teacher_id AND  mt.class_or_group_id = mtt.class_or_group_id "
                             + "WHERE mt.id IN "
                             + Sql.listPrepared(multiTeachingIds.getList());
+                    JsonArray paramsSelectQuery = new JsonArray().addAll(multiTeachingIds).addAll(multiTeachingIds);
 
                     if (hasCompetences) {
-                        sql.prepared(selectQuery, multiTeachingIds.addAll(multiTeachingIds), event -> {
-                            if (event.body().getString("status").equals("ok") && event.body().getJsonArray("results").size() > 0) {
-                                JsonArray idsToSend = event.body().getJsonArray("results");
+                        sql.prepared(selectQuery, paramsSelectQuery, event -> {
+                            if (event.body().getString(Field.STATUS).equals(Field.OK) && event.body().getJsonArray(Field.RESULTS).size() > 0) {
+                                JsonArray idsToSend = event.body().getJsonArray(Field.RESULTS);
 
-                                sql.prepared(deleteQuery, oldMultiTeachingIds, deleteEvent -> sendIdsToDelete(idsToSend, handler, eb));
+                                sql.prepared(deleteQuery, multiTeachingIds, deleteEvent -> sendIdsToDelete(idsToSend, handler));
                             }
                         });
                     } else {
@@ -498,9 +549,9 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void updateMultiteaching (JsonArray idsMultiTeachingToUpdate, String secondTeacher, String startDate,
-                                     String endDate, String enteredEndDate, Boolean isVisible, boolean hasCompetences,
-                                     EventBus eb, Handler<Either<String, JsonArray>> handler) {
+    public void updateMultiteaching(JsonArray idsMultiTeachingToUpdate, String secondTeacher, String startDate,
+                                    String endDate, String enteredEndDate, Boolean isVisible, boolean hasCompetences,
+                                    Handler<Either<String, JsonArray>> handler) {
 
         removeSubstitutesFromCourseList(idsMultiTeachingToUpdate)
                 .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
@@ -536,9 +587,9 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
                                 if (hasCompetences) {
                                     sql.prepared(query, values, event -> {
-                                        if (event.body().getString("status").equals("ok")) {
-                                            JsonArray idsToSend = event.body().getJsonArray("results");
-                                            sendIdsToShare(idsToSend, handler, eb);
+                                        if (event.body().getString(Field.STATUS).equals(Field.OK)) {
+                                            JsonArray idsToSend = event.body().getJsonArray(Field.RESULTS);
+                                            sendIdsToShare(idsToSend, handler);
                                         }
                                     });
                                 } else {
@@ -558,7 +609,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                 "second_teacher_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupsId.getList());
         values.add(isVisible).add(structureId).add(subjectId).add(mainTeacherId).add(secondTeacherId);
 
-        for(Object o : groupsId){
+        for (Object o : groupsId) {
             values.add(o);
         }
 
@@ -567,8 +618,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
 
     @Override
-    public void getMultiTeaching (String structureId, Handler<Either<String, JsonArray>> handler) {
-        String query = "SELECT * FROM "+ VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
+    public void getMultiTeaching(String structureId, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
                 "WHERE structure_id = ? AND is_coteaching IS NOT NULL ;";
 
         JsonArray values = new JsonArray().add(structureId);
@@ -576,8 +627,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void getMultiTeachings (JsonArray ids, Handler<Either<String, JsonArray>> handler) {
-        String query = "SELECT * FROM "+ VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
+    public void getMultiTeachings(JsonArray ids, Handler<Either<String, JsonArray>> handler) {
+        String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
                 "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND is_coteaching IS NOT NULL ;";
 
         sql.prepared(query, ids, validResultHandler(handler));
@@ -587,7 +638,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
                                  Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray().add(structureId);
-        for (int i= 0; i < groupIds.size(); i++) {
+        for (int i = 0; i < groupIds.size(); i++) {
             values.add(groupIds.getString(i));
         }
         values.add(onlyVisible);
@@ -595,10 +646,10 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         StringBuffer query = new StringBuffer();
         query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
                 .append(" JOIN " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe ")
-                .append("WHERE structure_id = ? AND class_or_group_id IN "+ Sql.listPrepared(groupIds))
+                .append("WHERE structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
                 .append("AND is_visible = ? ");
 
-        if(periodId != null){
+        if (periodId != null) {
             query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
                     .append("(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
                     .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")

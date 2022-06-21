@@ -1,0 +1,1 @@
+DELETE FROM viesco.multi_teaching WHERE start_date IS NULL AND end_date IS NULL AND entered_end_date IS NULL AND is_coteaching IS NULL

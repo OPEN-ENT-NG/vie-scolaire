@@ -72,6 +72,32 @@ public class Field {
     public static final String STRUCTURENAME = "structureName";
     public static final String DISPLAYNAMESEARCHFIELD = "displayNameSearchField";
 
+
+    public static final String STATUS = "status";
+    public static final String OK = "ok";
+    public static final String RESULTS = "results";
+    public static final String CLASSGROUPEXTERNALIDS = "classGroupExternalIds";
+    public static final String MANUALGROUPNAMES = "manualGroupNames";
+    public static final String STARTDATE = "startDate";
+    public static final String STARTTIME = "startTime";
+    public static final String NAME = "name";
+    public static final String MAIN_TEACHER_ID = "main_teacher_id";
+    public static final String SECOND_TEACHER_IDS = "second_teacher_ids";
+    public static final String SUBJECT_ID = "subject_id";
+    public static final String CLASS_OR_GROUP_IDS = "class_or_group_ids";
+    public static final String START_DATE = "start_date";
+    public static final String END_DATE = "end_date";
+    public static final String ENTERED_END_DATE = "entered_end_date";
+    public static final String CO_TEACHING = "co_teaching";
+    public static final String IS_VISIBLE = "is_visible";
+    public static final String IDS_MULTITEACHINGTOUPDATE = "ids_multiTeachingToUpdate";
+    public static final String IDS_MULTITEACHINGTODELETE = "ids_multiTeachingToDelete";
+    public static final String DELETE = "delete";
+    public static final String UPDATE = "update";
+    public static final String SERVICES = "services";
+    public static final String COMPETENCES = "competences";
+    public static final String IDS = "ids";
+
     private Field() {
         throw new IllegalStateException("Utility class");
     }

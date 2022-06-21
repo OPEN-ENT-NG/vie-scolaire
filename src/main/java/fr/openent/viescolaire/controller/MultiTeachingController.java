@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
 import fr.wseduc.rs.*;
@@ -9,11 +10,11 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.*;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
-import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 
 import static java.util.Objects.isNull;
@@ -26,7 +27,7 @@ public class MultiTeachingController extends ControllerHelper {
      */
     private final MultiTeachingService multiTeachingService;
 
-    public MultiTeachingController() {
+    public MultiTeachingController(EventBus eb) {
         this.multiTeachingService = new DefaultMultiTeachingService(eb);
     }
 
@@ -39,18 +40,18 @@ public class MultiTeachingController extends ControllerHelper {
     public void addTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "multiteaching_create", params -> {
 
-            String structureId = params.getString("structure_id");
-            String mainTeacherId = params.getString("main_teacher_id");
-            JsonArray secondTeacherIds = params.getJsonArray("second_teacher_ids");
-            String subjectId = params.getString("subject_id");
-            JsonArray classOrGroupIds = params.getJsonArray("class_or_group_ids");
-            String startDate = params.containsKey("start_date") ? params.getString("start_date") : null;
-            String endDate = params.containsKey("end_date") ? params.getString("end_date") : null;
-            String enteredDndDate = params.containsKey("entered_end_date") ? params.getString("entered_end_date") : null;
-            Boolean coTeaching = params.getBoolean("co_teaching", false);
+            String structureId = params.getString(Field.STRUCTURE_ID);
+            String mainTeacherId = params.getString(Field.MAIN_TEACHER_ID);
+            JsonArray secondTeacherIds = params.getJsonArray(Field.SECOND_TEACHER_IDS);
+            String subjectId = params.getString(Field.SUBJECT_ID);
+            JsonArray classOrGroupIds = params.getJsonArray(Field.CLASS_OR_GROUP_IDS);
+            String startDate = params.containsKey(Field.START_DATE) ? params.getString(Field.START_DATE) : null;
+            String endDate = params.containsKey(Field.END_DATE) ? params.getString(Field.END_DATE) : null;
+            String enteredDndDate = params.containsKey(Field.ENTERED_END_DATE) ? params.getString(Field.ENTERED_END_DATE) : null;
+            Boolean coTeaching = params.getBoolean(Field.CO_TEACHING, false);
 
             multiTeachingService.createMultiTeaching(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds,
-                        startDate, endDate, enteredDndDate, coTeaching, eb, arrayResponseHandler(request), hasCompetence());
+                        startDate, endDate, enteredDndDate, coTeaching, arrayResponseHandler(request), hasCompetence());
 
         });
     }
@@ -60,23 +61,20 @@ public class MultiTeachingController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateVisibility(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,  params -> {
-            JsonArray groupsId = params.getJsonArray("class_or_group_ids");
-            String structureId = params.getString("structure_id");
-            String mainTeacherId = params.getString("main_teacher_id");
-            String secondTeacherId = params.getString("second_teacher_ids");
-            String subjectId = params.getString("subject_id");
-            Boolean isVisible = params.getBoolean("is_visible");
+            JsonArray groupsId = params.getJsonArray(Field.CLASS_OR_GROUP_IDS);
+            String structureId = params.getString(Field.STRUCTURE_ID);
+            String mainTeacherId = params.getString(Field.MAIN_TEACHER_ID);
+            String secondTeacherId = params.getString(Field.SECOND_TEACHER_IDS);
+            String subjectId = params.getString(Field.SUBJECT_ID);
+            Boolean isVisible = params.getBoolean(Field.IS_VISIBLE);
 
             multiTeachingService.updateMultiTeachingVisibility(groupsId, structureId, mainTeacherId,
-                    secondTeacherId, subjectId, isVisible, new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                renderJson(request, event.right().getValue());
-                            }
-                            else {
-                                log.info(event.left().getValue());
-                            }
+                    secondTeacherId, subjectId, isVisible, event -> {
+                        if(event.isRight()){
+                            renderJson(request, event.right().getValue());
+                        }
+                        else {
+                            log.info(event.left().getValue());
                         }
                     });
         });
@@ -87,18 +85,18 @@ public class MultiTeachingController extends ControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void updateTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "multiteaching_update", params -> {
-            String secondTeacherId = params.getJsonArray("second_teacher_ids").getString(0);
-            String startDate = params.containsKey("start_date") ? params.getString("start_date") : null;
-            String endDate = params.containsKey("end_date") ? params.getString("end_date") : null;
-            String enteredDndDate = params.containsKey("entered_end_date") ? params.getString("entered_end_date") : null;
-            Boolean isVisible = params.getBoolean("is_visible", true);
-            JsonArray multiTeachingIdsToUpdate = params.getJsonArray("ids_multiTeachingToUpdate");
-            JsonArray multiTeachingIdsToDelete = params.getJsonArray("ids_multiTeachingToDelete");
+            String secondTeacherId = params.getJsonArray(Field.SECOND_TEACHER_IDS).getString(0);
+            String startDate = params.containsKey(Field.START_DATE) ? params.getString(Field.START_DATE) : null;
+            String endDate = params.containsKey(Field.END_DATE) ? params.getString(Field.END_DATE) : null;
+            String enteredDndDate = params.containsKey(Field.ENTERED_END_DATE) ? params.getString(Field.ENTERED_END_DATE) : null;
+            Boolean isVisible = params.getBoolean(Field.IS_VISIBLE, true);
+            JsonArray multiTeachingIdsToUpdate = params.getJsonArray(Field.IDS_MULTITEACHINGTOUPDATE);
+            JsonArray multiTeachingIdsToDelete = params.getJsonArray(Field.IDS_MULTITEACHINGTODELETE);
 
             Promise<JsonObject> promiseToDelete = Promise.promise();
 
             if (!multiTeachingIdsToDelete.isEmpty()) {
-                multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(), eb, deleteResponse -> {
+                multiTeachingService.deleteMultiTeaching(multiTeachingIdsToDelete, hasCompetence(), deleteResponse -> {
                     if (deleteResponse.isRight()) {
                         promiseToDelete.complete(deleteResponse.right().getValue());
                     } else {
@@ -118,7 +116,7 @@ public class MultiTeachingController extends ControllerHelper {
                 }
             };
             multiTeachingService.updateMultiteaching(multiTeachingIdsToUpdate, secondTeacherId,
-                    startDate, endDate, enteredDndDate, isVisible, hasCompetence(), eb, getHandlerToUpdate);
+                    startDate, endDate, enteredDndDate, isVisible, hasCompetence(), getHandlerToUpdate);
 
 
             CompositeFuture.all(promiseToDelete.future(), promiseToUpdate.future())
@@ -130,8 +128,8 @@ public class MultiTeachingController extends ControllerHelper {
                     })
                     .onSuccess(ar -> {
                         JsonObject response = new JsonObject();
-                        response.put("delete", promiseToDelete.future().result())
-                                .put("update", promiseToUpdate.future().result());
+                        response.put(Field.DELETE, promiseToDelete.future().result())
+                                .put(Field.UPDATE, promiseToUpdate.future().result());
                         Renders.renderJson(request, response);
                     });
 
@@ -140,8 +138,8 @@ public class MultiTeachingController extends ControllerHelper {
 
 
     private boolean hasCompetence() {
-        JsonObject services = config.getJsonObject("services");
-        return isNull(services) || services.getBoolean("competences");
+        JsonObject services = config.getJsonObject(Field.SERVICES);
+        return isNull(services) || services.getBoolean(Field.COMPETENCES);
     }
 
 
@@ -149,46 +147,21 @@ public class MultiTeachingController extends ControllerHelper {
     @ApiDoc("Retourne tous les types de devoir par etablissement")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void viewTittulaires(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                multiTeachingService.getSubTeachers(user.getUserId(), request.getParam("idStructure"), new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-                        log.info(event.right().getValue());
-                    }
-                });
-            }
+        UserUtils.getUserInfos(eb, request, user -> {
+            multiTeachingService.getSubTeachers(user.getUserId(), request.getParam(Field.IDSTRUCTURE), event -> {
+                log.info(event.right().getValue());
+            });
         });
-    }
-    @Get("/coteachers/:idStructure")
-    @ApiDoc("Retourne tous les types de devoir par etablissement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void viewcoteachers(final HttpServerRequest request) {
-//        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-//            @Override
-//            public void handle(final UserInfos user) {
-//                multiTeachingService.getSubTeachersandCoTeachers(user.getUserId(), request.getParam("idStructure"), new Handler<Either<String, JsonArray>>() {
-//                    @Override
-//                    public void handle(Either<String, JsonArray> event) {
-//                        log.info(event.right().getValue());
-//                    }
-//                });
-//            }
-//        });
-        multiTeachingService.createMultiTeaching("","",new JsonArray(),"",
-                new JsonArray(),"","","",false, eb, arrayResponseHandler(request),  hasCompetence());
     }
 
     @Put("/multiteaching/delete")
     @ApiDoc("delete a co-teaching or substitute teacher in a service")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void deleteTeacher(final HttpServerRequest request) {
-
         RequestUtils.bodyToJson(request, entries -> {
-            if (entries.containsKey("ids") && entries.getJsonArray("ids").size() > 0) {
-                JsonArray multiTeachingIds = entries.getJsonArray("ids");
-                multiTeachingService.deleteMultiTeaching(multiTeachingIds, hasCompetence(), eb, either -> {
+            if (entries.containsKey(Field.IDS) && entries.getJsonArray(Field.IDS).size() > 0) {
+                JsonArray multiTeachingIds = entries.getJsonArray(Field.IDS);
+                multiTeachingService.deleteMultiTeaching(multiTeachingIds, hasCompetence(), either -> {
                     if (either.isLeft()) {
                         log.error(String.format("[Vie-scolaire@%s::deleteTeacher] " +
                                 "failed to delete multiteaching : %s", this.getClass().getSimpleName(),
@@ -204,21 +177,5 @@ public class MultiTeachingController extends ControllerHelper {
             }
         });
 
-    }
-
-    /**
-     * @param request
-     * @response jsonObject {id:String, name:String}
-     */
-    @Get("/multi-teaching/active-teacher/:idTeacher/teacher-id")
-    @ApiDoc("found teacher name with id for multiteaching")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void get(final HttpServerRequest request) {
-        String idTeacher = request.params().get("idTeacher");
-        if(idTeacher.equals("43512bf6-8f0d-4a78-ae3d-a32f8e48a1d8")){
-            request.response().setStatusCode(200).end(new JsonObject().put("id", "43512bf6-8f0d-4a78-ae3d-a32f8e48a1d8").put("name","julien").toString());
-        }
-        System.out.println(idTeacher);
-        badRequest(request);
     }
 }

@@ -273,12 +273,14 @@ public class EventBusController extends ControllerHelper {
                                         String classId = audiencesIdToClassId.getOrDefault(audienceId, "");
                                         String timeslotId = classIdToTimeslotId.getOrDefault(classId, "");
                                         JsonObject timeslotAudience = timeslotIdToTimeSlot.getOrDefault(timeslotId, new JsonObject());
-                                        //if the audience has no class, or the class is not associated with a timeslot,
-                                        //or the timeslot no longer exists, then we return that of the structure
-                                        JsonObject timeslot;
-                                        if (classId.isEmpty() || timeslotId.isEmpty() || timeslotAudience.isEmpty()) {
+                                        // if the audience has no class, or the class is not associated with a timeslot,
+                                        // or the timeslot no longer exists, then we return the timeslot of its structure instead of audience
+                                        if ((classId.isEmpty() || timeslotId.isEmpty() || timeslotAudience.isEmpty()) &&
+                                                timeslotIdToTimeSlot.containsKey(params.get(Field.TIMESLOTSTRUCTUREID))) {
                                             return timeslotIdToTimeSlot.get(params.get(Field.TIMESLOTSTRUCTUREID)).copy().put(Field.AUDIENCEID, audienceId);
                                         }
+
+                                        // we go in this case if this audience has its own timeslot
                                         return timeslotAudience.copy().put(Field.AUDIENCEID, audienceId);
                                     }).collect(Collectors.toList())
                             )));

@@ -321,9 +321,16 @@ public class DefaultTimeSlotService implements TimeSlotService {
         JsonArray ids = new JsonArray(slotIds);
         JsonObject in = new JsonObject().put("$in", ids);
         JsonObject filterId = new JsonObject().put("_id", in);
-        MongoDb.getInstance().find(COLLECTION, filterId, event -> {
-            promise.complete(event.body().getJsonArray("results", new JsonArray()));
-        });
+        MongoDb.getInstance().find(COLLECTION, filterId, MongoDbResult.validResultsHandler(event -> {
+            if (event.isLeft()) {
+                String message = String.format("[Viescolaire@%s::getMultipleTimeSlot] an error has occuring during finding time slot: %s",
+                        this.getClass().getSimpleName(), event.left().getValue());
+                LOGGER.error(message);
+                promise.fail(event.left().getValue());
+            } else {
+                promise.complete(event.right().getValue());
+            }
+        }));
 
         return promise.future();
     }

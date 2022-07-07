@@ -40,7 +40,8 @@ public class DisplayController extends ControllerHelper {
                 .put("ENABLE_PRESENCES", services.getBoolean("presences", false))
                 .put("ENABLE_DIARY", services.getBoolean("diary", false))
                 .put("ENABLE_EDT", services.getBoolean("edt", false))
-                .put("ENABLE_MASSMAILING", services.getBoolean("massmailing", false));
+                .put("ENABLE_MASSMAILING", services.getBoolean("massmailing", false))
+                .put("ENABLE_INCIDENTS", services.getBoolean("incidents", false));
         renderView(request, params, "viescolaire/vsco_personnel.html", null);
     }
 }

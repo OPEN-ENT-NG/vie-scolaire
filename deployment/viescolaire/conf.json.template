@@ -29,7 +29,8 @@
             "presences": false,
             "edt": false,
             "diary": false,
-            "massmailing": false
+            "massmailing": false,
+            "incidents": false
         }
       }
     }

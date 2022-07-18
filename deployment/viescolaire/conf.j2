@@ -32,7 +32,8 @@
             "presences": {% if presencesVersion is defined %}true{% else %}false{% endif %},
             "edt": {% if edtVersion is defined %}true{% else %}false{% endif %},
             "diary": {% if diaryVersion is defined %}true{% else %}false{% endif %},
-            "massmailing": {% if massmailingVersion is defined %}true{% else %}false{% endif %}
+            "massmailing": {% if massmailingVersion is defined %}true{% else %}false{% endif %},
+            "incidents": {% if incidentsVersion is defined %}true{% else %}false{% endif %}
         },
         "exports": {
             "template-path": "./public/templates/pdf/"

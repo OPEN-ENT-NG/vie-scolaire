@@ -26,6 +26,8 @@ import {Toasts, Toast} from '../../utils/directives/toasts';
 import {failureItem} from '../../utils/directives/trombinoscope/failure-item';
 import {studentPicture} from '../../utils/directives/trombinoscope/student-picture';
 import {timeslotAudience} from '../directives/timeslotAudience/timeslot-audience';
+import {groupingCreate} from "../directives/grouping/groupingCreate/grouping-create";
+import {groupingItem} from "../directives/grouping/groupingItem/grouping-item";
 
 /* Controllers */
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
@@ -41,9 +43,12 @@ import {trombinoscopeStudentListController} from '../controllers/trombinoscope/t
 
 import {periodeSearch} from '../filtres/periodeSearch';
 import * as services from '../services';
+import {groupingList} from "../directives/grouping/groupingList/grouping-list";
+import {groupingController} from "../controllers/vsco_grouping_ctrl";
 
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);
+ng.controllers.push(groupingController);
 ng.controllers.push(periodeAnneeController);
 ng.controllers.push(timeSlotsController);
 ng.controllers.push(trombinoscopeController);
@@ -57,6 +62,9 @@ ng.directives.push(sticky);
 ng.directives.push(cSkillsBubble);
 ng.directives.push(asyncAutocomplete);
 ng.directives.push(infiniteScroll);
+ng.directives.push(groupingCreate);
+ng.directives.push(groupingList);
+ng.directives.push(groupingItem);
 ng.directives.push(Toasts);
 ng.directives.push(Toast);
 ng.directives.push(failureItem);

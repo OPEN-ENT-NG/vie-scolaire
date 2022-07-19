@@ -1,0 +1,67 @@
+<div class="grouping-class-list">
+    <div class="vertical-spacing-six flex-row align-center grouping-class-list-element">
+        <div class="one flex-row align-center grouping-class-list-element-name">
+            <span>[[vm.groupingItem.name]]</span>
+            <i class="margin-md edit" data-ng-click="display.renameGrouping = true;"></i>
+            <i class="margin-md trash" data-ng-click="vm.deleteGroupingItem(vm.groupingItem)"></i>
+        </div>
+
+        <div class="four flex-row">
+            <multi-combo title="[[vm.lang.translate('viescolaire.select.classes')]]"
+                         combo-model="vm.getAllClass()"
+                         filtered-model="vm.groupingClassItem.classes"
+                         search-on="name"
+                         order-by="name"
+                         selection-event="vm.classeSelect(vm.groupingClassItem, vm.groupingItem)"
+                         deselection-event="vm.classeUnselect(vm.groupingClassItem, vm.groupingItem)"
+                         search-placeholder="[[vm.lang.translate('viescolaire.utils.search')]]"
+            >
+            </multi-combo>
+        </div>
+        <div class="bold f-wrap eight flex-row align-center grouping-class-list-element-classes">
+            <div class="two flex-row align-center" ng-repeat="classe in vm.groupingClassItem.classes">
+                <p class="flex-one vertical-spacing-twice">[[classe.name]]</p>
+                <i class="mdi-close" ng-click="vm.deleteClassItem(vm.groupingClassItem, vm.groupingItem, classe)"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="flex-row vertical-spacing-six">
+
+</div>
+
+<lightbox show="display.renameGrouping" on-close="display.renameGrouping = false;  groupingTitle='';"
+          class="ng-isolate-scope">
+
+    <div class="content">
+        <div class="twelve cell">
+            <h2 class="ng-scope">
+                <span> <i18n>viescolaire.grouping.rename</i18n></span>
+            </h2>
+            <div class="row ng-scope">
+                <label class="three cell">
+                    <span><i18n>viescolaire.grouping.title</i18n></span>
+                </label>
+                <input class="nine cell ng-pristine ng-untouched ng-valid ng-empty" type="text"
+                       ng-model="groupingTitle">
+            </div>
+            <div class="row ng-scope">
+                <button ng-click="vm.updateGroupingItem(vm.groupingItem, groupingTitle); display.renameGrouping = false; groupingTitle='';"
+                        ng-disabled="!groupingTitle"
+                        class="right-magnet" disabled="disabled">
+                    <span><i18n>viescolaire.grouping.buttonRename</i18n></span>
+                </button>
+                <button class="cancel right-magnet" ng-click="display.renameGrouping = false; groupingTitle='';">
+                    <span><i18n>viescolaire.grouping.buttonCancel</i18n></span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</lightbox>
+
+
+

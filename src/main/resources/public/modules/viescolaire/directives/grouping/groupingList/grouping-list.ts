@@ -7,9 +7,6 @@ import {Classe} from "../../../models/personnel/Classe";
 
 
 interface IViewModel {
-    $onInit(): any;
-
-    $onDestroy(): any;
 
     getGroupings(name): void;
 
@@ -41,8 +38,6 @@ interface IViewModel {
 }
 
 class Controller implements ng.IController, IViewModel {
-    $parent: any;
-    viewModel: IViewModel;
     groupings: Grouping[];
     groupingInfo: Grouping;
     structureList: Structure;
@@ -50,14 +45,6 @@ class Controller implements ng.IController, IViewModel {
 
     constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
         this.$scope['vm'] = this;
-    }
-
-    $onInit(): any {
-
-    }
-
-    $onDestroy(): any {
-
     }
 
     getGroupings(name): void {
@@ -69,7 +56,7 @@ class Controller implements ng.IController, IViewModel {
     }
 
     updateGroupingList(scope: IScope, grouping: Grouping, name: string): void {
-        scope.$parent.$eval((<any>scope.$parent).vm.onUpdateGrouping()(grouping, name));
+        scope.$parent.$eval(scope.$parent["vm"].onUpdateGrouping()(grouping, name));
     }
 
     onUpdateGrouping(): void {
@@ -77,7 +64,7 @@ class Controller implements ng.IController, IViewModel {
     }
 
     deleteGroupingList(scope: IScope, grouping: Grouping): void {
-        scope.$parent.$eval((<any>scope.$parent).vm.onDeleteGrouping()(grouping));
+        scope.$parent.$eval(scope.$parent["vm"].onDeleteGrouping()(grouping));
     }
 
     onDeleteGrouping(): void {
@@ -85,7 +72,7 @@ class Controller implements ng.IController, IViewModel {
     }
 
     addGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void {
-        scope.$parent.$eval((<any>scope.$parent).vm.onAddGroupingAudience()(grouping, classOrGroup));
+        scope.$parent.$eval(scope.$parent["vm"].onAddGroupingAudience()(grouping, classOrGroup));
     }
 
     onAddGroupingAudience(): void {
@@ -93,7 +80,7 @@ class Controller implements ng.IController, IViewModel {
     }
 
     deleteGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void {
-        scope.$parent.$eval((<any>scope.$parent).vm.onDeleteGroupingAudience()(grouping, classOrGroup));
+        scope.$parent.$eval(scope.$parent["vm"].onDeleteGroupingAudience()(grouping, classOrGroup));
     }
 
     onDeleteGroupingAudience(): void {

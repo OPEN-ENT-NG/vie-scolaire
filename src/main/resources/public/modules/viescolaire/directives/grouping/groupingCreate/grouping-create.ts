@@ -5,36 +5,26 @@ import {GroupingService} from "../../../services/GroupingService";
 
 
 interface IViewModel {
-    $onInit(): any;
 
-    $onDestroy(): any;
-
-    createGrouping(nom): void;
+    createGrouping(name: string): void;
 
     onCreateGrouping(): void;
 }
 
 
 class Controller implements ng.IController, IViewModel {
-    $parent: any;
     viewModel: IViewModel;
     groupingItem: Grouping;
-    onCreateGrouping: any;
+    onCreateGrouping: () => (name: string) => void;
+    groupingName: string = "";
 
 
     constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
     }
 
-    $onInit = async () => {
-
-    };
-
-    $onDestroy = async () => {
-
-    };
-
     createGrouping = (name: string): void => {
         this.onCreateGrouping()(name);
+        this.groupingName = "";
     }
 
 }
@@ -54,8 +44,6 @@ function directive() {
                         element: ng.IAugmentedJQuery,
                         attrs: ng.IAttributes,
                         vm: ng.IController) {
-            console.log("link data: ", vm);
-            console.log("link scope: ", scope);
         }
     }
 }

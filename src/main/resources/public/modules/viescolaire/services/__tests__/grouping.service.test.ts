@@ -1,11 +1,7 @@
 // tricks to fake "mock" entcore ng class in order to use service
-import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosResponse} from "axios";
 import MockAdapter from "axios-mock-adapter";
 import {groupingService} from "../GroupingService";
-import {TimeSlot} from "../../models/common/TimeSlots";
-import {timeslotClasseService} from "../TimeslotClasseService";
-import {Grouping} from "../../models/common/Grouping";
-
 
 describe('GroupingService', () => {
 
@@ -78,10 +74,10 @@ describe('GroupingService', () => {
     it('should returns data when getGroupingList request is correctly called', done => {
         const mock = new MockAdapter(axios);
         const data = [{
-            id:"id",
-            name:"name",
+            id: "id",
+            name: "name",
             strucutreId: "structureId",
-            class:[],
+            class: [],
             group: [],
         }]
         mock.onGet(`/viescolaire/grouping/list/`)

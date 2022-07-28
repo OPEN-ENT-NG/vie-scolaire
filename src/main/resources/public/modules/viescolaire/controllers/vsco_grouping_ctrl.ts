@@ -8,7 +8,7 @@ import {ILocationService, IScope, IWindowService} from "angular";
 
 interface IViewModel {
 
-    createGrouping(name: String): Promise<void>;
+    createGrouping(name: string): Promise<void>;
 
     updateGrouping(grouping: Grouping, name: string): Promise<void>;
 

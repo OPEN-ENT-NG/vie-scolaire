@@ -2,7 +2,7 @@
     <div class="vertical-spacing-six flex-row align-center grouping-class-list-element">
         <div class="one flex-row align-center grouping-class-list-element-name">
             <span>[[vm.groupingItem.name]]</span>
-            <i class="margin-md edit" data-ng-click="display.renameGrouping = true;"></i>
+            <i class="margin-md edit" data-ng-click="vm.displayRenameGrouping = true;"></i>
             <i class="margin-md trash" data-ng-click="vm.deleteGroupingItem(vm.groupingItem)"></i>
         </div>
 
@@ -32,7 +32,7 @@
 
 </div>
 
-<lightbox show="display.renameGrouping" on-close="display.renameGrouping = false;  groupingTitle='';"
+<lightbox show="vm.displayRenameGrouping" on-close="vm.resetEdit();"
           class="ng-isolate-scope">
 
     <div class="content">
@@ -45,15 +45,15 @@
                     <span><i18n>viescolaire.grouping.title</i18n></span>
                 </label>
                 <input class="nine cell ng-pristine ng-untouched ng-valid ng-empty" type="text"
-                       ng-model="groupingTitle">
+                       ng-model="vm.groupingTitle">
             </div>
             <div class="row ng-scope">
-                <button ng-click="vm.updateGroupingItem(vm.groupingItem, groupingTitle); display.renameGrouping = false; groupingTitle='';"
-                        ng-disabled="!groupingTitle"
-                        class="right-magnet" disabled="disabled">
+                <button ng-click="vm.updateGroupingItem(vm.groupingItem, vm.groupingTitle);"
+                        ng-disabled="!vm.groupingTitle"
+                        class="right-magnet">
                     <span><i18n>viescolaire.grouping.buttonRename</i18n></span>
                 </button>
-                <button class="cancel right-magnet" ng-click="display.renameGrouping = false; groupingTitle='';">
+                <button class="cancel right-magnet" ng-click="vm.resetEdit()">
                     <span><i18n>viescolaire.grouping.buttonCancel</i18n></span>
                 </button>
             </div>

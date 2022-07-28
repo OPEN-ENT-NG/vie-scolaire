@@ -7,9 +7,6 @@ import {Classe} from "../../../models/personnel/Classe";
 
 
 interface IViewModel {
-    $onInit(): any;
-
-    $onDestroy(): any;
 
     updateGroupingItem(grouping: Grouping, name: string): void;
 
@@ -21,7 +18,9 @@ interface IViewModel {
 
     getAllClass(): Classe[];
 
-    deleteClassItem(groupingClass: GroupingClass, grouping: Grouping, classet: Classe);
+    deleteClassItem(groupingClass: GroupingClass, grouping: Grouping, classeSelect: Classe): void;
+
+    resetEdit(): void;
 
     groupingItem: Grouping;
 
@@ -36,40 +35,36 @@ interface IViewModel {
 }
 
 class Controller implements ng.IController, IViewModel {
-    $parent: any;
-    viewModel: IViewModel;
     groupingItem: Grouping;
     structure: Structure;
-    onDeleteGroupingItem: any;
-    onUpdateGroupingItem: any;
-    onAddGroupingAudienceItem: any;
-    onDeleteGroupingAudienceItem: any;
+    onDeleteGroupingItem: () => (scope: IScope, grouping: Grouping) => void;
+    onUpdateGroupingItem: () => (scope: IScope, grouping: Grouping, name: string) => void;
+    onAddGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
+    onDeleteGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
     groupingClassItem: GroupingClass;
     groupingClass: GroupingClass[];
-    classe: Classe;
     lang: typeof idiom;
+    displayRenameGrouping: boolean = false;
+    groupingTitle: string = "";
 
     constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
         this.$scope['vm'] = this;
         this.lang = idiom;
     }
 
-    $onInit = async () => {
-        this.groupingClass.forEach(grouping => {
-            this.groupingClassItem = this.groupingClass.find(groupingClass => groupingClass.grouping.id == this.groupingItem.id);
-        })
-        this.groupingItem.class.forEach(classeItem => {
-            this.classe = this.structure.classes.find(classe => classe.id == classeItem.id);
-            this.groupingClassItem.classes.push(this.classe);
-        })
-    };
-
-    $onDestroy = async () => {
-
+    $onInit = async (): Promise<void> => {
+        this.groupingClassItem = this.groupingClass.find(groupingClass => groupingClass.grouping.id == this.groupingItem.id);
+        this.groupingClassItem.classes = this.structure.classes.filter((classe: Classe) => !!this.groupingItem.class.find(classeItem => classeItem.id === classe.id));
     };
 
     updateGroupingItem = (grouping: Grouping, name: string): void => {
         this.onUpdateGroupingItem()(this.$scope, grouping, name);
+        this.resetEdit()
+    }
+
+    resetEdit = (): void => {
+        this.displayRenameGrouping = false;
+        this.groupingTitle = "";
     }
 
     deleteGroupingItem = (grouping: Grouping): void => {
@@ -86,16 +81,16 @@ class Controller implements ng.IController, IViewModel {
     }
 
     getAllClass = (): Classe[] => {
-        return this.structure.classes.all;
+        return this.structure && this.structure.classes && this.structure.classes.all ? this.structure.classes.all : [];
     }
 
     classeSelect(groupingClass: GroupingClass, grouping: Grouping): void {
-        groupingClass.classes.forEach(classe => {
+        groupingClass.classes.forEach((classe: Classe) => {
             if (grouping.class.length == 0) {
                 this.addGroupingAudience(grouping, classe);
 
             } else {
-                let classeForAudience = grouping.class.find(classeSelect => classeSelect == classe);
+                let classeForAudience = grouping.class.find((classeSelect: Classe) => classeSelect == classe);
                 if (!classeForAudience) {
                     this.addGroupingAudience(grouping, classe);
                 }
@@ -104,8 +99,8 @@ class Controller implements ng.IController, IViewModel {
     }
 
     classeUnselect(groupingClass: GroupingClass, grouping: Grouping): void {
-        grouping.class.forEach(classe => {
-            let classeTab = groupingClass.classes.find(classet => classet == classe);
+        grouping.class.forEach((classe: Classe) => {
+            let classeTab = groupingClass.classes.find((classeFind: Classe) => classeFind == classe);
             if (!classeTab) {
                 this.deleteGroupingAudience(grouping, classe);
             }
@@ -113,7 +108,7 @@ class Controller implements ng.IController, IViewModel {
     }
 
     deleteClassItem(groupingClass: GroupingClass, grouping: Grouping, classeSelect: Classe) {
-        groupingClass.classes = groupingClass.classes.filter(classe => classe.id != classeSelect.id);
+        groupingClass.classes = groupingClass.classes.filter((classe: Classe) => classe.id != classeSelect.id);
         this.classeUnselect(groupingClass, grouping);
     }
 
@@ -141,8 +136,6 @@ function directive() {
                         element: ng.IAugmentedJQuery,
                         attrs: ng.IAttributes,
                         vm: ng.IController) {
-            console.log("link data: ", vm);
-            console.log("link scope: ", scope);
         }
     }
 }

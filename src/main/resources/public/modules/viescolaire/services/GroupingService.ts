@@ -1,6 +1,7 @@
 import http, {AxiosResponse} from "axios";
 import {Grouping, Groupings} from "../models/common/Grouping";
 import {Mix} from "entcore-toolkit";
+import {ng} from "entcore";
 
 export interface GroupingService {
 
@@ -22,27 +23,27 @@ export const groupingService: GroupingService = {
     createGrouping: async (structureId: string, name: string): Promise<AxiosResponse> => {
 
         return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return await http.post(`/viescolaire/grouping/structure/${structureId}`, name);
+        //return http.post(`/viescolaire/grouping/structure/${structureId}`, name);
     },
 
     updateGrouping: async (id: string, name: string): Promise<AxiosResponse> => {
         return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return await http.put(`/viescolaire/grouping/${id}`, name);
+        //return http.put(`/viescolaire/grouping/${id}`, name);
     },
 
     deleteGrouping: async (id: string): Promise<AxiosResponse> => {
         return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return await http.delete(`/viescolaire/grouping/${id}`);
+        //return http.delete(`/viescolaire/grouping/${id}`);
     },
 
     addGroupingAudience: async (id: string, classOrGroupId: string): Promise<AxiosResponse> => {
         return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return await http.post(`/viescolaire/grouping/${id}/add`, classOrGroupId);
+        //return http.post(`/viescolaire/grouping/${id}/add`, classOrGroupId);
     },
 
     deleteGroupingAudience: async (id: string, classOrGroupId: string): Promise<AxiosResponse> => {
         return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return await http.put(`/viescolaire/grouping/${id}/delete`, classOrGroupId);
+        //return http.put(`/viescolaire/grouping/${id}/delete`, classOrGroupId);
     },
 
     getGroupingList: async (): Promise<Grouping[]> => {
@@ -54,3 +55,5 @@ export const groupingService: GroupingService = {
         }
     },
 }
+
+export const GroupingService = ng.service('GroupingService', (): GroupingService => groupingService);

@@ -1,5 +1,5 @@
 import http, {AxiosResponse} from "axios";
-import {Grouping, Groupings} from "../models/common/Grouping";
+import {Grouping} from "../models/common/Grouping";
 import {Mix} from "entcore-toolkit";
 import {ng} from "entcore";
 

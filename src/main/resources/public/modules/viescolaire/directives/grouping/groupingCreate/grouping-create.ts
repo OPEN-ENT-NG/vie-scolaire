@@ -20,6 +20,7 @@ class Controller implements ng.IController, IViewModel {
 
 
     constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
+        this.$scope['vm'] = this;
     }
 
     createGrouping = (name: string): void => {

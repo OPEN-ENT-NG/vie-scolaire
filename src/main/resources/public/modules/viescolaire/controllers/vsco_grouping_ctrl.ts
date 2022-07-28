@@ -18,7 +18,7 @@ interface IViewModel {
 
     deleteGroupingAudience(grouping: Grouping, classOrGroupId: Classe): Promise<void>;
 
-    getAllGrouping(): Promise<void>;
+    setAllGrouping(): Promise<void>;
 
     getAllClass(): Classe[];
 
@@ -47,7 +47,7 @@ class Controller implements ng.IController, IViewModel {
 
     $onInit = (): void => {
         this.groupingClass = [];
-        this.getAllGrouping();
+        this.setAllGrouping();
     }
 
     //test for front, it will be delete later
@@ -129,7 +129,7 @@ class Controller implements ng.IController, IViewModel {
         }
     }
 
-    getAllGrouping = async (): Promise<void> => {
+    setAllGrouping = async (): Promise<void> => {
         try {
             let grouping: Grouping[] = this.getGrouping();//test for front will be change later
             this.groupings = new Groupings(grouping);

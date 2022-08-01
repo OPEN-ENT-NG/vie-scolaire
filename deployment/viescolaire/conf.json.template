@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~viescolaire~1.32-SNAPSHOT",
+      "name": "fr.openent~viescolaire~1.32.14",
       "config": {
         "main" : "fr.openent.Viescolaire",
         "port" : 8128,
@@ -22,7 +22,7 @@
         },
         "update-classes" : {
            "timeout-transaction" : 1000,
-           "enable-date" : "2021-09-20"
+           "enable-date" : "2022-09-26"
         },
         "services": {
             "competences": false,

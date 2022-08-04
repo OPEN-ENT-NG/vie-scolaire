@@ -20,6 +20,7 @@ public class GroupingController extends ControllerHelper {
     @ApiDoc("Determine structure trombinoscope if active or disable")
     public void getTrombinoscopeSetting(HttpServerRequest request) {
         String structureId = request.getParam("structureId");
+
         trombinoscopeService.getSetting(structureId, settingAsync -> {
             if (settingAsync.failed()) {
                 renderError(request, new JsonObject().put("error", settingAsync.cause().getMessage()));

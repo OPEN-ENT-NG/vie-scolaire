@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.service.impl.DefaultGroupingService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
 import fr.wseduc.security.ActionType;
@@ -12,7 +13,7 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.controller.ControllerHelper;
 
 public class GroupingController extends ControllerHelper {
-    private UserService userService;
+    private DefaultGroupingService groupingService = new DefaultGroupingService();
     protected static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Get("/structures/:structureId/trombinoscope/setting")
@@ -20,7 +21,7 @@ public class GroupingController extends ControllerHelper {
     @ApiDoc("Determine structure trombinoscope if active or disable")
     public void getTrombinoscopeSetting(HttpServerRequest request) {
         String structureId = request.getParam("structureId");
-
+        groupingService.createGrouping("test", "test");
         trombinoscopeService.getSetting(structureId, settingAsync -> {
             if (settingAsync.failed()) {
                 renderError(request, new JsonObject().put("error", settingAsync.cause().getMessage()));

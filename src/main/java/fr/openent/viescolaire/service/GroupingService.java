@@ -1,5 +1,8 @@
 package fr.openent.viescolaire.service;
 
+import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
+
 public interface GroupingService {
-    void createGrouping(String name, String structureId);
+    Future<JsonObject> createGrouping(String name, String structureId);
 }

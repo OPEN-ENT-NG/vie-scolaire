@@ -98,6 +98,11 @@ public class Field {
     public static final String COMPETENCES = "competences";
     public static final String IDS = "ids";
 
+    //Grouping field
+    public static final String GROUPING_ID = "grouping_id";
+    public static final String GROUP_ID = "group_id";
+    public static final String CLASS_ID = "group_id";
+
     private Field() {
         throw new IllegalStateException("Utility class");
     }

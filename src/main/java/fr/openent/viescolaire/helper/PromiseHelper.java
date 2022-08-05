@@ -16,10 +16,4 @@ public class PromiseHelper {
         log.error(message);
         promise.fail(err.getMessage());
     }
-
-    public static void reject(Logger log, String messageToFormat, String className, Either<String, ?> either, Promise<?> promise) {
-        String message = String.format(messageToFormat, className, either.left().getValue());
-        log.error(message);
-        promise.fail(either.left().getValue());
-    }
 }

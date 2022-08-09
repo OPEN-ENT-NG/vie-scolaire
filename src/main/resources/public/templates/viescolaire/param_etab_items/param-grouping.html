@@ -9,19 +9,15 @@
             </span>
         </div>
         <grouping-create on-create-grouping="vm.createGrouping">
-
         </grouping-create>
-
-        <grouping-list groupings="vm.groupings.all"
+        <!--grouping-list contains a list of groupings and contain for each grouping a component-->
+        <grouping-list groupings="vm.groupings"
                        grouping-class-list="vm.groupingClass"
                        on-delete-grouping="vm.deleteGrouping"
                        on-update-grouping="vm.updateGrouping"
                        structure-list="structure"
                        on-add-grouping-audience="vm.addGroupingAudience"
                        on-delete-grouping-audience="vm.deleteGroupingAudience">
-
         </grouping-list>
     </div>
-
-
 </article>

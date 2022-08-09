@@ -26,8 +26,8 @@ import {Toasts, Toast} from '../../utils/directives/toasts';
 import {failureItem} from '../../utils/directives/trombinoscope/failure-item';
 import {studentPicture} from '../../utils/directives/trombinoscope/student-picture';
 import {timeslotAudience} from '../directives/timeslotAudience/timeslot-audience';
-import {groupingCreate} from "../directives/grouping/groupingCreate/grouping-create";
-import {groupingItem} from "../directives/grouping/groupingItem/grouping-item";
+import {groupingCreate} from "../directives/grouping/grouping-create/grouping-create";
+import {groupingItem} from "../directives/grouping/grouping-item/grouping-item";
 
 /* Controllers */
 import {viescolaireController} from '../controllers/vsco_personnel_ctrl';
@@ -43,8 +43,8 @@ import {trombinoscopeStudentListController} from '../controllers/trombinoscope/t
 
 import {periodeSearch} from '../filtres/periodeSearch';
 import * as services from '../services';
-import {groupingList} from "../directives/grouping/groupingList/grouping-list";
-import {groupingController} from "../controllers/vsco_grouping_ctrl";
+import {groupingList} from "../directives/grouping/grouping-list/grouping-list";
+import {groupingController} from "../controllers/grouping.controller";
 
 ng.controllers.push(viescolaireController);
 ng.controllers.push(adminVieScolaireController);

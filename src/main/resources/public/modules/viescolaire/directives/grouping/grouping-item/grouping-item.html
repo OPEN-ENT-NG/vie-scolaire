@@ -1,12 +1,14 @@
-<div class="grouping-class-list">
-    <div class="vertical-spacing-six flex-row align-center grouping-class-list-element">
-        <div class="one flex-row align-center grouping-class-list-element-name">
+<div class="grouping-item-class-item">
+    <!-- display each grouping with name, and class selected from the list -->
+    <div class="vertical-spacing-six flex-row align-center grouping-item-class-list-element">
+        <div class="one flex-row align-center grouping-item-class-list-element-name">
             <span>[[vm.groupingItem.name]]</span>
             <i class="margin-md edit" data-ng-click="vm.displayRenameGrouping = true;"></i>
             <i class="margin-md trash" data-ng-click="vm.deleteGroupingItem(vm.groupingItem)"></i>
         </div>
 
         <div class="four flex-row">
+            <!-- display a list of class to select or unselect -->
             <multi-combo title="[[vm.lang.translate('viescolaire.select.classes')]]"
                          combo-model="vm.getAllClass()"
                          filtered-model="vm.groupingClassItem.classes"
@@ -18,7 +20,7 @@
             >
             </multi-combo>
         </div>
-        <div class="bold f-wrap eight flex-row align-center grouping-class-list-element-classes">
+        <div class="bold f-wrap eight flex-row align-center grouping-item-class-item-element-classes">
             <div class="two flex-row align-center" ng-repeat="classe in vm.groupingClassItem.classes">
                 <p class="flex-one vertical-spacing-twice">[[classe.name]]</p>
                 <i class="mdi-close" ng-click="vm.deleteClassItem(vm.groupingClassItem, vm.groupingItem, classe)"></i>
@@ -31,7 +33,7 @@
 <div class="flex-row vertical-spacing-six">
 
 </div>
-
+<!-- display lightbox for rename -->
 <lightbox show="vm.displayRenameGrouping" on-close="vm.resetEdit();"
           class="ng-isolate-scope">
 

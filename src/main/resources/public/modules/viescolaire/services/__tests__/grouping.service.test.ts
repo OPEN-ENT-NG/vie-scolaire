@@ -1,7 +1,7 @@
 // tricks to fake "mock" entcore ng class in order to use service
 import axios, {AxiosResponse} from "axios";
 import MockAdapter from "axios-mock-adapter";
-import {groupingService} from "../GroupingService";
+import {groupingService} from "../grouping.service";
 
 describe('GroupingService', () => {
 

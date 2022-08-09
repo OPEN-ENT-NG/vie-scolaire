@@ -3,6 +3,7 @@ import {IGroup} from "./Group";
 import {DefaultClasse} from "./DefaultClasse";
 import {TimeSlot} from "./TimeSlots";
 
+//will potentially be deleted
 export interface Grouping {
     id: string,
     name: string,
@@ -12,6 +13,8 @@ export interface Grouping {
 
 }
 
+
+//will potentially be deleted
 export interface GroupingClass {
     grouping: Grouping;
     classes: Classe[];
@@ -27,7 +30,7 @@ export class Grouping {
     class: Classe[];
     group: IGroup[];
 
-    constructor(name, structure) {
+    constructor(name: string, structure: string) {
         this.name = name;
         this.structureId = structure;
         this.class = [];
@@ -45,6 +48,7 @@ export class Grouping {
         }
     }
 
+    //setters will be delete later for the back
     setId(id: string): void {
         this.id = id;
     }

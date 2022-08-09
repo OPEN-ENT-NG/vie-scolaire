@@ -1,7 +1,7 @@
 import {idiom, ng} from "entcore";
 import {Grouping, GroupingClass} from "../../../models/common/Grouping";
 import {ILocationService, IScope, IWindowService} from "angular";
-import {GroupingService} from "../../../services/GroupingService";
+import {GroupingService} from "../../../services";
 import {Structure} from "../../../models/personnel/Structure";
 import {Classe} from "../../../models/personnel/Classe";
 
@@ -37,24 +37,27 @@ interface IViewModel {
 class Controller implements ng.IController, IViewModel {
     groupingItem: Grouping;
     structure: Structure;
-    onDeleteGroupingItem: () => (scope: IScope, grouping: Grouping) => void;
-    onUpdateGroupingItem: () => (scope: IScope, grouping: Grouping, name: string) => void;
-    onAddGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
-    onDeleteGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
+    private onDeleteGroupingItem: () => (scope: IScope, grouping: Grouping) => void;
+    private onUpdateGroupingItem: () => (scope: IScope, grouping: Grouping, name: string) => void;
+    private onAddGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
+    private onDeleteGroupingAudienceItem: () => (scope: IScope, grouping: Grouping, classOrGroup: Classe) => void;
     groupingClassItem: GroupingClass;
     groupingClass: GroupingClass[];
     lang: typeof idiom;
     displayRenameGrouping: boolean = false;
     groupingTitle: string = "";
 
-    constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
+    constructor(private $scope: IScope,
+                private $location: ILocationService,
+                private $window: IWindowService,
+                private groupingService: GroupingService) {
         this.$scope['vm'] = this;
         this.lang = idiom;
     }
 
     $onInit = async (): Promise<void> => {
-        this.groupingClassItem = this.groupingClass.find(groupingClass => groupingClass.grouping.id == this.groupingItem.id);
-        this.groupingClassItem.classes = this.structure.classes.filter((classe: Classe) => !!this.groupingItem.class.find(classeItem => classeItem.id === classe.id));
+        this.groupingClassItem = this.groupingClass.find((groupingClass: GroupingClass) => groupingClass.grouping.id == this.groupingItem.id);
+        this.groupingClassItem.classes = this.structure.classes.filter((classe: Classe) => !!this.groupingItem.class.find((classeItem: Classe) => classeItem.id === classe.id));
     };
 
     updateGroupingItem = (grouping: Grouping, name: string): void => {
@@ -77,7 +80,6 @@ class Controller implements ng.IController, IViewModel {
 
     deleteGroupingAudience = (grouping: Grouping, classOrGroup: Classe): void => {
         this.onDeleteGroupingAudienceItem()(this.$scope, grouping, classOrGroup)
-
     }
 
     getAllClass = (): Classe[] => {
@@ -88,9 +90,8 @@ class Controller implements ng.IController, IViewModel {
         groupingClass.classes.forEach((classe: Classe) => {
             if (grouping.class.length == 0) {
                 this.addGroupingAudience(grouping, classe);
-
             } else {
-                let classeForAudience = grouping.class.find((classeSelect: Classe) => classeSelect == classe);
+                let classeForAudience: Classe = grouping.class.find((classeSelect: Classe) => classeSelect == classe);
                 if (!classeForAudience) {
                     this.addGroupingAudience(grouping, classe);
                 }
@@ -100,7 +101,7 @@ class Controller implements ng.IController, IViewModel {
 
     classeUnselect(groupingClass: GroupingClass, grouping: Grouping): void {
         grouping.class.forEach((classe: Classe) => {
-            let classeTab = groupingClass.classes.find((classeFind: Classe) => classeFind == classe);
+            let classeTab: Classe = groupingClass.classes.find((classeFind: Classe) => classeFind == classe);
             if (!classeTab) {
                 this.deleteGroupingAudience(grouping, classe);
             }
@@ -119,7 +120,7 @@ function directive() {
     return {
         restrict: 'E',
         scope: {},
-        templateUrl: `/viescolaire/public/modules/viescolaire/directives/grouping/groupingItem/grouping-item.html`,
+        templateUrl: `/viescolaire/public/modules/viescolaire/directives/grouping/grouping-item/grouping-item.html`,
         controllerAs: 'vm',
         bindToController: {
             groupingItem: '=',

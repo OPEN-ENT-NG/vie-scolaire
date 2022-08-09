@@ -1,25 +1,25 @@
 import {ng} from "entcore";
 import {Grouping} from "../../../models/common/Grouping";
 import {ILocationService, IScope, IWindowService} from "angular";
-import {GroupingService} from "../../../services/GroupingService";
+import {GroupingService} from "../../../services";
 
 
 interface IViewModel {
 
     createGrouping(name: string): void;
-
-    onCreateGrouping(): void;
 }
-
 
 class Controller implements ng.IController, IViewModel {
     viewModel: IViewModel;
     groupingItem: Grouping;
-    onCreateGrouping: () => (name: string) => void;
+    private onCreateGrouping: () => (name: string) => void;
     groupingName: string = "";
 
 
-    constructor(private $scope: IScope, private $location: ILocationService, private $window: IWindowService, private groupingService: GroupingService) {
+    constructor(private $scope: IScope,
+                private $location: ILocationService,
+                private $window: IWindowService,
+                private groupingService: GroupingService) {
         this.$scope['vm'] = this;
     }
 
@@ -27,7 +27,6 @@ class Controller implements ng.IController, IViewModel {
         this.onCreateGrouping()(name);
         this.groupingName = "";
     }
-
 }
 
 function directive() {
@@ -36,7 +35,7 @@ function directive() {
         scope: {
             onCreateGrouping: `&`,
         },
-        templateUrl: `/viescolaire/public/modules/viescolaire/directives/grouping/groupingCreate/grouping-create.html`,
+        templateUrl: `/viescolaire/public/modules/viescolaire/directives/grouping/grouping-create/grouping-create.html`,
         controllerAs: 'vm',
         bindToController: true,
         replace: false,

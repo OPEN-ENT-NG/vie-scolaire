@@ -4,4 +4,4 @@ export * from './UserServices';
 export * from './SearchService';
 export * from './TrombinoscopeService';
 export * from './MementoService';
-export * from './GroupingService';
+export * from './grouping.service';

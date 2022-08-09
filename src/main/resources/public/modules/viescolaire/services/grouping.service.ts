@@ -1,6 +1,5 @@
 import http, {AxiosResponse} from "axios";
-import {Grouping} from "../models/common/Grouping";
-import {Mix} from "entcore-toolkit";
+import {Grouping, Groupings} from "../models/common/Grouping";
 import {ng} from "entcore";
 
 export interface GroupingService {
@@ -47,12 +46,8 @@ export const groupingService: GroupingService = {
     },
 
     getGroupingList: async (): Promise<Grouping[]> => {
-        try {
-            let {data} = await http.get(`/viescolaire/grouping/list/`);
-            return Mix.castArrayAs(Grouping, data);
-        } catch (err) {
-            throw err;
-        }
+        return http.get(`/viescolaire/grouping/list`)
+            .then((res: AxiosResponse) => res.data.map((grouping: Grouping[]) => new Groupings(grouping)));
     },
 }
 

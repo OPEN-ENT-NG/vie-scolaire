@@ -57,14 +57,12 @@
                                 <i18n>viescolaire.trombinoscope</i18n>
                             </a>
                         </li>
-                        <!-- test -->
                         <li>
                             <a href="" ng-class="{'selected': currParam === 7}"
                                ng-click="currParam = 7;">
                                 <i18n>viescolaire.grouping.set</i18n>
                             </a>
                         </li>
-                        <!--/test -->
                     </ul>
                 </nav>
             </div>
@@ -100,6 +98,6 @@
     </div>
     <!-- Paramétrage Grouping -->
     <div ng-if="currParam === 7"
-         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param_grouping.html'">
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param-grouping.html'">
     </div>
 </div>

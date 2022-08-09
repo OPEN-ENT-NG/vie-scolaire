@@ -1,10 +1,11 @@
-import {ng, notify, idiom as lang} from "entcore";
-import {GroupingService} from "../services/GroupingService";
+import {ng, notify, idiom as lang, template} from "entcore";
+import {GroupingService} from "../services";
 import {Grouping, GroupingClass, Groupings} from "../models/common/Grouping";
 import {Classe} from "../models/personnel/Classe";
 import {Structure} from "../models/personnel/Structure";
 import * as utils from "../../utils/functions/safeApply";
 import {ILocationService, IScope, IWindowService} from "angular";
+import {safeApply} from "../../utils/functions/safeApply";
 
 interface IViewModel {
 
@@ -24,7 +25,7 @@ interface IViewModel {
 
     getGrouping(): Grouping[];
 
-    groupings: Groupings;
+    groupings: Array<Grouping>;
 
     structure: Structure;
 
@@ -34,7 +35,7 @@ interface IViewModel {
 
 
 class Controller implements ng.IController, IViewModel {
-    groupings: Groupings;
+    groupings: Array<Grouping>;
     structure: Structure;
     groupingClass: GroupingClass[];
 
@@ -46,12 +47,22 @@ class Controller implements ng.IController, IViewModel {
     }
 
     $onInit = (): void => {
+        this.groupings = [];
         this.groupingClass = [];
         this.setAllGrouping();
+        console.log(this.groupings);
+        this.$scope.$watch(() => this.structure, async () => {
+            await this.initData;
+        });
+    }
+
+    initData = async (): Promise<void> => {
+        template.open('grouping', '../templates/viescolaire/param_etab_items/param-grouping.html');
+        safeApply(this.$scope);
     }
 
     //test for front, it will be delete later
-    getGrouping = (): Grouping[] => {
+    getGrouping = (): Array<Grouping> => {
         let grouping: Grouping = new Grouping("test", "");
         grouping.setId("1");
         let classe: Classe = new Classe();
@@ -61,9 +72,7 @@ class Controller implements ng.IController, IViewModel {
         let tabClasse = [classe];
         let grouping2: Grouping = new Grouping("test2", "");
         grouping2.setId("2");
-        let group: Grouping[] = [grouping, grouping2];
-
-
+        let group: Array<Grouping> = [grouping, grouping2];
         grouping.setClass(tabClasse);
         group.forEach((grouping: Grouping) => {
             this.groupingClass.push({grouping: grouping, classes: [], errorClasses: [], savedClasses: []});
@@ -76,7 +85,7 @@ class Controller implements ng.IController, IViewModel {
         try {
             await this.groupingService.createGrouping(structureId, name);
             let grouping: Grouping = new Grouping(name, "");//test for front, it will be delete later
-            this.groupings.all.push(grouping);
+            this.groupings.push(grouping);
             notify.success(lang.translate('viescolaire.create.done'));
             utils.safeApply(this.$scope);
         } catch (e) {
@@ -100,7 +109,7 @@ class Controller implements ng.IController, IViewModel {
     deleteGrouping = async (grouping: Grouping): Promise<void> => {
         try {
             await this.groupingService.deleteGrouping(grouping.id);
-            this.groupings.all = this.groupings.all.filter(groupingFilter => groupingFilter.name != grouping.name);//test for front will be delete later
+            this.groupings = this.groupings.filter((groupingFilter: Grouping) => groupingFilter.name != grouping.name);//test for front will be delete later
             notify.success(lang.translate('viescolaire.delete.done'));
             utils.safeApply(this.$scope);
         } catch (e) {
@@ -131,8 +140,7 @@ class Controller implements ng.IController, IViewModel {
 
     setAllGrouping = async (): Promise<void> => {
         try {
-            let grouping: Grouping[] = this.getGrouping();//test for front will be change later
-            this.groupings = new Groupings(grouping);
+            this.groupings = this.getGrouping();//test for front will be change later
         } catch (e) {
             notify.error(lang.translate('viescolaire.delete.fail'));
             console.error(e);

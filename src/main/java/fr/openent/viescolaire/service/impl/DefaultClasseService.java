@@ -843,4 +843,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         }));
         return promise.future();
     }
+
+    @Override
+    public Future<Boolean> classExist(String classId) {
+        Promise<Boolean> promise = Promise.promise();
+        getClasseInfo(classId)
+                .onSuccess(res -> {
+                    if (res.size() > 0) {
+                        promise.complete(true);
+                    } else {
+                        promise.complete(false);
+                    }
+                });
+        return promise.future();
+    }
 }

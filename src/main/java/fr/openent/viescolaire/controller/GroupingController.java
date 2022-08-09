@@ -39,11 +39,11 @@ public class GroupingController extends ControllerHelper {
                 .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
     }
 
-    @Put("/grouping/:grouping_id/add")
+    @Put("/grouping/:id/add")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Add classes or groups to a grouping")
     public void addGrouping(HttpServerRequest request) {
-        String groupingId = request.getParam(Field.GROUPING_ID);
+        String groupingId = request.getParam(Field.ID);
         String groupId = request.getParam(Field.GROUP_ID);
         String classId = request.getParam(Field.CLASS_ID);
         groupingService.addToGrouping(groupingId, groupId, classId)

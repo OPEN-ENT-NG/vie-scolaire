@@ -19,14 +19,19 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.VertxException;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
@@ -39,7 +44,7 @@ import java.util.List;
  * Created by vogelmt on 13/02/2017.
  */
 public class DefaultGroupeService extends SqlCrudService implements GroupeService {
-
+    protected static final Logger log = LoggerFactory.getLogger(DefaultGroupeService.class);
     private final Neo4j neo4j = Neo4j.getInstance();
     private UtilsService utilsService;
 
@@ -292,6 +297,25 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         } catch (VertxException e) {
             getTypesOfGroup(groupsIds, handler);
         }
+    }
+
+    @Override
+    public Future<Boolean> groupExist(String groupId) {
+        Promise<Boolean> promise = Promise.promise();
+        JsonObject values = new JsonObject();
+        values.put("groupeId", groupId);
+
+        String query = "MATCH (g:`Group` {id: {groupeId}})" +
+                "WITH COUNT(g) > 0 as node_exists RETURN node_exists";
+        neo4j.execute(query, values, Neo4jResult.validResultHandler(res -> {
+            if (res.isRight()) {
+                promise.complete(((JsonObject)res.right().getValue().getValue(0)).getBoolean("node_exists"));
+            } else {
+                String messageToFormat = "[vie-scolaire@%s::groupExist] Error while checking group existence : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
+            }
+        }));
+        return promise.future();
     }
 
 }

@@ -28,4 +28,12 @@ public interface GroupingService {
      * @return              Promise with the status of the operation.
      */
     Future<JsonObject> addToGrouping(String groupingId, String groupId, String classId);
+
+    /**
+     * Check if both class identifier and group identifiers exist in database.
+     * @param classId   Identifier of the class.
+     * @param groupId   Identifier of the group.
+     * @return          A promise with the result of the check.
+     */
+    Future<Boolean> groupAndClassExist(String classId, String groupId);
 }

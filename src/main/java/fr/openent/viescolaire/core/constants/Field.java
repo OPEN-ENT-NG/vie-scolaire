@@ -42,6 +42,7 @@ public class Field {
     public static final String USER_NOT_IN_AUDIENCE_STRUCTURE = "User must be in audience structure";
     public static final String USER_NOT_IN_TIMESLOT_STRUCTURE = "User must be in timeslot structure";
     public static final String USER_TIMESLOT_CLASS_NOT_SAME_STRUCTURE = "Class, timeslot and user must be in the same structure";
+    public static final String CLASS_EXISTS = "classExists";
 
 
     // User profiles

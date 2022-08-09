@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import org.entcore.common.service.CrudService;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -71,4 +72,5 @@ public interface GroupeService extends CrudService {
     void search(String structure_id, String userId, String query, List<String> fields, Handler<Either<String, JsonArray>> handler);
 
     void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler);
+    Future<Boolean> groupExist(String groupId);
 }

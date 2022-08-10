@@ -16,7 +16,7 @@ import org.entcore.common.sql.SqlResult;
 import java.util.UUID;
 
 public class DefaultGroupingService implements GroupingService {
-    protected static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
     private DefaultClasseService classeService = new DefaultClasseService();
     private DefaultGroupeService groupService = new DefaultGroupeService();
     /**

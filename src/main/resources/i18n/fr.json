@@ -775,5 +775,6 @@
   "viescolaire.service.warning.classesNonEvaluables" : "Vous ne pouvez pas sélectionner de services non-évaluables : ",
   "viescolaire.service.error.student": "Erreur lors de la récupération des élèves.",
   "evaluation.orderShowSubject.title": "Organiser les matières",
-  "viescolaire.confirmation.updateSchoolYear": "Vous allez changer les dates de l'année scolaire.Des applications pourraient être impactées par ce changement. Voulez-vous continuer ?"
+  "viescolaire.confirmation.updateSchoolYear": "Vous allez changer les dates de l'année scolaire.Des applications pourraient être impactées par ce changement. Voulez-vous continuer ?",
+  "viescolaire.competence.structure.option.title.calculate.level.skills": "Calcul du niveau des items de compétences"
 }

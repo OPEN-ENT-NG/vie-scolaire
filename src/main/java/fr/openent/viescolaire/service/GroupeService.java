@@ -72,5 +72,11 @@ public interface GroupeService extends CrudService {
     void search(String structure_id, String userId, String query, List<String> fields, Handler<Either<String, JsonArray>> handler);
 
     void getTypesOfGroup(JsonArray groupsIds, Handler<Either<String, JsonArray>> handler);
-    Future<Boolean> groupExist(String groupId);
+
+    /**
+     * Check if the group exist in the neo4j database
+     * @param groupId   Identifier of the group
+     * @return          Future with the state of the check
+     */
+    Future<Boolean> isGroupExist(String groupId);
 }

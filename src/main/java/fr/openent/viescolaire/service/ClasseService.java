@@ -227,5 +227,5 @@ public interface ClasseService extends CrudService {
      * @param classId   Identifier of the class.
      * @return          Future with the boolean result of the check.
      */
-    Future<Boolean> classExist(String classId);
+    Future<Boolean> isClassExist(String classId);
 }

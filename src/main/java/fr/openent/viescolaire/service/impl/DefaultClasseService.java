@@ -845,7 +845,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     }
 
     @Override
-    public Future<Boolean> classExist(String classId) {
+    public Future<Boolean> isClassExist(String classId) {
         Promise<Boolean> promise = Promise.promise();
         getClasseInfo(classId)
                 .onSuccess(res -> {

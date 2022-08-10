@@ -15,7 +15,6 @@ import org.entcore.common.controller.ControllerHelper;
 
 public class GroupingController extends ControllerHelper {
     private final DefaultGroupingService groupingService = new DefaultGroupingService();
-    protected static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Post("/grouping/structure/:id")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)

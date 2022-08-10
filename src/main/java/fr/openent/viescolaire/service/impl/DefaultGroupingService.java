@@ -13,7 +13,6 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class DefaultGroupingService implements GroupingService {
@@ -143,10 +142,10 @@ public class DefaultGroupingService implements GroupingService {
     public Future<Boolean> groupAndClassExist(String classId, String groupId) {
         Promise<Boolean> promise = Promise.promise();
         JsonObject results = new JsonObject();
-        classeService.classExist(classId)
+        classeService.isClassExist(classId)
                 .compose(res -> {
                     results.put(Field.CLASS_EXISTS, res);
-                    return groupService.groupExist(groupId);
+                    return groupService.isGroupExist(groupId);
                 })
                 .onSuccess(existence -> {
                     promise.complete(existence && results.getBoolean(Field.CLASS_EXISTS));

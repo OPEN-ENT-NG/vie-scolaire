@@ -44,7 +44,7 @@ import java.util.List;
  * Created by vogelmt on 13/02/2017.
  */
 public class DefaultGroupeService extends SqlCrudService implements GroupeService {
-    protected static final Logger log = LoggerFactory.getLogger(DefaultGroupeService.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultGroupeService.class);
     private final Neo4j neo4j = Neo4j.getInstance();
     private UtilsService utilsService;
 
@@ -300,7 +300,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     }
 
     @Override
-    public Future<Boolean> groupExist(String groupId) {
+    public Future<Boolean> isGroupExist(String groupId) {
         Promise<Boolean> promise = Promise.promise();
         JsonObject values = new JsonObject();
         values.put("groupeId", groupId);

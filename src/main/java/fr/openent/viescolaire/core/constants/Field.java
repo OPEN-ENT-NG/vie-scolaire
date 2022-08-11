@@ -103,6 +103,13 @@ public class Field {
     public static final String GROUPING_ID = "grouping_id";
     public static final String GROUP_ID = "group_id";
 
+
+    //Test
+    public static final String VALUES = "values";
+    public static final String STATEMENT = "statement";
+    public static final String ACTION = "action";
+    public static final String PREPARED = "prepared";
+
     private Field() {
         throw new IllegalStateException("Utility class");
     }

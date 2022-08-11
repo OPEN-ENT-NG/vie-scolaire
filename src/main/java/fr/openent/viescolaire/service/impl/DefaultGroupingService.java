@@ -71,9 +71,10 @@ public class DefaultGroupingService implements GroupingService {
         }
         JsonArray values = new JsonArray();
         StringBuilder query = new StringBuilder();
-        query.append("UPDATE viesco.grouping")
-                .append("SET name = '?' WHERE id = ?");
+        query.append("UPDATE viesco.grouping ")
+                .append("SET name = '?' AND updated_at = '?' WHERE id = ?");
         values.add(name);
+        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
         values.add(groupingId);
         Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())

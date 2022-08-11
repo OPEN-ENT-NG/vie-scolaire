@@ -305,8 +305,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         JsonObject values = new JsonObject();
         values.put("groupeId", groupId);
 
-        String query = "MATCH (g:`Group` {id: {groupeId}})" +
-                "WITH COUNT(g) > 0 as node_exists RETURN node_exists";
+        String query = "MATCH (g:`Group` {id: {groupeId}}) WITH COUNT(g) > 0 as node_exists RETURN node_exists";
         neo4j.execute(query, values, Neo4jResult.validResultHandler(res -> {
             if (res.isRight()) {
                 promise.complete(((JsonObject)res.right().getValue().getValue(0)).getBoolean("node_exists"));

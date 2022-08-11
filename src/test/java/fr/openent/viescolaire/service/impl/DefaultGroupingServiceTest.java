@@ -70,7 +70,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestUpdateGrouping(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "UPDATE viesco.grouping SET name = '?' AND updated_at = '?' WHERE id = ?";
+        String queryExpected = "UPDATE viesco.grouping SET name = ?, updated_at = ? WHERE id = ?";
         String date = DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT);
         PowerMockito.mockStatic(DateHelper.class);
         PowerMockito.when(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT)).thenReturn(date);

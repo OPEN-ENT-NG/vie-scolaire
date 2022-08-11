@@ -103,9 +103,6 @@ public class DefaultGroupingServiceTest {
         String classTestId = "class_id";
         String groupTestId = "group_id";
 
-//        PowerMockito.when(groupingService.groupAndClassExist(classTestId, groupTestId)).thenReturn(Future.succeededFuture(Boolean.TRUE));
-
-
         PowerMockito.doAnswer(answer -> Future.succeededFuture(Boolean.TRUE)).when(defaultGroupingService).groupAndClassExist(classTestId, groupTestId);
 
         vertx.eventBus().consumer(address, message -> {

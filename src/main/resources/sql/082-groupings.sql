@@ -7,3 +7,16 @@ CREATE TABLE viesco.grouping
     updated_at timestamp without time zone,
     CONSTRAINT grouping_pkey PRIMARY KEY (id)
 );
+
+CREATE FUNCTION grouping_date_update() RETURNS trigger AS $grouping_date_update$
+BEGIN
+    NEW.updated_at := now();
+RETURN NEW;
+END;
+$grouping_date_update$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER TR_UPD_REL_GROUPING
+AFTER UPDATE ON viesco.grouping
+FOR EACH ROW EXECUTE PROCEDURE grouping_date_update();

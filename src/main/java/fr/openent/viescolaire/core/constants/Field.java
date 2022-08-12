@@ -102,9 +102,10 @@ public class Field {
     //Grouping field
     public static final String GROUPING_ID = "grouping_id";
     public static final String GROUP_ID = "group_id";
+    public static final String GROUP_ID_CAMEL = "groupId";
 
 
-    //Test
+    //Test field
     public static final String VALUES = "values";
     public static final String STATEMENT = "statement";
     public static final String ACTION = "action";

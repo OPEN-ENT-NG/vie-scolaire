@@ -303,7 +303,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
     public Future<Boolean> isGroupExist(String groupId) {
         Promise<Boolean> promise = Promise.promise();
         JsonObject values = new JsonObject();
-        values.put("groupeId", groupId);
+        values.put(Field.GROUP_ID_CAMEL, groupId);
 
         String query = "MATCH (g:`Group` {id: {groupeId}}) WITH COUNT(g) > 0 as node_exists RETURN node_exists";
         neo4j.execute(query, values, Neo4jResult.validResultHandler(res -> {

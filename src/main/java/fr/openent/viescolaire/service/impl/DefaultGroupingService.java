@@ -3,6 +3,7 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupingService;
+import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.utils.DateHelper;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -17,8 +18,14 @@ import java.util.UUID;
 
 public class DefaultGroupingService implements GroupingService {
     private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
-    private DefaultClasseService classeService = new DefaultClasseService();
-    private DefaultGroupeService groupService = new DefaultGroupeService();
+    private final DefaultClasseService classService;
+    private final DefaultGroupeService groupService;
+
+    public DefaultGroupingService(ServiceFactory serviceFactory) {
+        classService = (DefaultClasseService) serviceFactory.classeService();
+        groupService = (DefaultGroupeService) serviceFactory.groupeService();
+    }
+
     /**
      * Create a new grouping
      * @param name          Name of the new grouping
@@ -34,9 +41,7 @@ public class DefaultGroupingService implements GroupingService {
         }
         String uuid = UUID.randomUUID().toString();
         JsonArray values = new JsonArray();
-        StringBuilder query = new StringBuilder();
-        query.append("INSERT INTO viesco.grouping(id, name, structure_id, created_at, updated_at) ")
-                .append("VALUES(?, ?, ?, ?, ?)");
+        String query = "INSERT INTO viesco.grouping(id, name, structure_id, created_at, updated_at) VALUES(?, ?, ?, ?, ?)";
         values.add(uuid);
         values.add(name);
         values.add(structureId);
@@ -70,9 +75,7 @@ public class DefaultGroupingService implements GroupingService {
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        StringBuilder query = new StringBuilder();
-        query.append("UPDATE viesco.grouping ")
-                .append("SET name = ?, updated_at = ? WHERE id = ?");
+        String query = "UPDATE viesco.grouping SET name = ?, updated_at = ? WHERE id = ?";
         values.add(name);
         values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
         values.add(groupingId);
@@ -104,12 +107,10 @@ public class DefaultGroupingService implements GroupingService {
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        StringBuilder query = new StringBuilder();
         groupAndClassExist(classId, groupId)
                 .onSuccess(res -> {
-                    if (res) {
-                        query.append("INSERT INTO viesco.rel_grouping_class(grouping_id, class_id, group_id, created_at, updated_at) ")
-                                .append("VALUES(?, ?, ?, ?, ?)");
+                    if (Boolean.TRUE.equals(res)) {
+                        String query = "INSERT INTO viesco.rel_grouping_class(grouping_id, class_id, group_id, created_at, updated_at) VALUES(?, ?, ?, ?, ?)";
                         values.add(groupingId);
                         values.add(classId);
                         values.add(groupId);
@@ -133,8 +134,7 @@ public class DefaultGroupingService implements GroupingService {
                 .onFailure(err -> {
                     String messageToFormat = "[vie-scolaire@%s::addToGrouping] Error while checking group or class existence : %s";
                     PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
-                })
-        ;
+                });
 
         return promise.future();
     }
@@ -143,14 +143,12 @@ public class DefaultGroupingService implements GroupingService {
     public Future<Boolean> groupAndClassExist(String classId, String groupId) {
         Promise<Boolean> promise = Promise.promise();
         JsonObject results = new JsonObject();
-        classeService.isClassExist(classId)
+        classService.isClassExist(classId)
                 .compose(res -> {
                     results.put(Field.CLASS_EXISTS, res);
                     return groupService.isGroupExist(groupId);
                 })
-                .onSuccess(existence -> {
-                    promise.complete(existence && results.getBoolean(Field.CLASS_EXISTS));
-                })
+                .onSuccess(existence -> promise.complete(existence && results.getBoolean(Field.CLASS_EXISTS)))
                 .onFailure(err -> {
                     String messageToFormat = "[vie-scolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
                     PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);

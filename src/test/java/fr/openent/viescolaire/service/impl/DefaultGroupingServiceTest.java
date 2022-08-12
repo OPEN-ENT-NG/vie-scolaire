@@ -1,6 +1,8 @@
 package fr.openent.viescolaire.service.impl;
 
+import com.redis.S;
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.utils.DateHelper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -38,7 +40,7 @@ public class DefaultGroupingServiceTest {
     @Before
     public void setUp() throws NoSuchFieldException {
         vertx = Vertx.vertx();
-        defaultGroupingService = PowerMockito.spy(new DefaultGroupingService());
+        defaultGroupingService = PowerMockito.spy(new DefaultGroupingService(new ServiceFactory()));
         Sql.getInstance().init(vertx.eventBus(), address);
         FieldSetter.setField(neo4j, neo4j.getClass().getDeclaredField("database"), neo4jRest);
 

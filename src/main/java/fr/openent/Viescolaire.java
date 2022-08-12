@@ -128,7 +128,7 @@ public class Viescolaire extends BaseServer {
         addController(new ConfigController(config));
         addController(new StructureController());
         addController(new TrombinoscopeController(vertx, storage));
-        addController(new GroupingController());
+        addController(new GroupingController(serviceFactory));
 
         addController(new EventBusController(eb, config));
 

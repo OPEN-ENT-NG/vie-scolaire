@@ -3,8 +3,8 @@ CREATE TABLE viesco.grouping
     id character varying(36) NOT NULL,
     name character varying(36),
     structure_id character varying(36),
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
     CONSTRAINT grouping_pkey PRIMARY KEY (id)
 );
 

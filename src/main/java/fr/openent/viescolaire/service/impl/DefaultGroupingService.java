@@ -72,9 +72,8 @@ public class DefaultGroupingService implements GroupingService {
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        String query = "UPDATE " + tableGrouping + " SET name = ?, updated_at = ? WHERE id = ?";
+        String query = "UPDATE " + tableGrouping + " SET name = ? WHERE id = ?";
         values.add(name);
-        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
         values.add(groupingId);
         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())

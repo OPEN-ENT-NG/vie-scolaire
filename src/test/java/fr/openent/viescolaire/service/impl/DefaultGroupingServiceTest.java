@@ -67,7 +67,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestUpdateGrouping(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "UPDATE " + tableGrouping + " SET name = ?, updated_at = ? WHERE id = ?";
+        String queryExpected = "UPDATE " + tableGrouping + " SET name = ? WHERE id = ?";
 
         //tests variables
         String groupingTestId = "test_id";

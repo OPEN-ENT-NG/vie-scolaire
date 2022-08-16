@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.security;
 
+import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.wseduc.webutils.http.Binding;
@@ -19,7 +20,7 @@ public class GroupingRights implements ResourcesProvider {
     private static final Logger log = LoggerFactory.getLogger(GroupingRights.class);
     private Future<Boolean> isUserAllowToManageGroupings(UserInfos user, String groupingId) {
         Promise<Boolean> promise = Promise.promise();
-        String query = "SELECT structure_id FROM viesco.grouping WHERE id = ? ;";
+        String query = "SELECT structure_id FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE + " WHERE id = ? ;";
         JsonArray values = new JsonArray();
         values.add(groupingId);
         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {

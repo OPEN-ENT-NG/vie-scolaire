@@ -22,18 +22,16 @@ public interface GroupingService {
 
     /**
      * Add classes and groups to the grouping
-     * @param groupingId    Identifier of the grouping
-     * @param groupId       Identifier of the group
-     * @param classId       Identifier of the class
-     * @return              Promise with the status of the operation.
+     * @param groupingId            Identifier of the grouping
+     * @param studentDivisionId     Class or group identifier.
+     * @return                      Promise with the status of the operation.
      */
-    Future<JsonObject> addToGrouping(String groupingId, String groupId, String classId);
+    Future<JsonObject> addToGrouping(String groupingId, String studentDivisionId);
 
     /**
      * Check if both class identifier and group identifiers exist in database.
-     * @param classId   Identifier of the class.
-     * @param groupId   Identifier of the group.
-     * @return          A promise with the result of the check.
+     * @param studentDivisionId     Identifier of the student division (group or class).
+     * @return                      A promise with the result of the check.
      */
-    Future<Boolean> groupAndClassExist(String classId, String groupId);
+    Future<Boolean> groupOrClassExist(String studentDivisionId);
 }

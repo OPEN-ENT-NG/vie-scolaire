@@ -1,8 +1,8 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
-import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.security.GroupAndClassManage;
+import fr.openent.viescolaire.security.GroupingRights;
 import fr.openent.viescolaire.security.StructureManage;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.impl.DefaultGroupingService;
@@ -15,7 +15,6 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
-import org.entcore.common.user.UserUtils;
 
 public class GroupingController extends ControllerHelper {
     private final DefaultGroupingService groupingService;
@@ -38,9 +37,9 @@ public class GroupingController extends ControllerHelper {
     }
 
     @Put("/grouping/:id")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ApiDoc("Update a grouping")
-    @ResourceFilter(AdminRight.class)
+    @ResourceFilter(GroupingRights.class)
     public void updateGrouping(HttpServerRequest request) {
         String groupingId = request.getParam(Field.ID);
         String groupingName = request.getParam(Field.NAME);
@@ -50,14 +49,13 @@ public class GroupingController extends ControllerHelper {
     }
 
     @Put("/grouping/:id/add")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ApiDoc("Add classes or groups to a grouping")
     @ResourceFilter(GroupAndClassManage.class)
     public void addGrouping(HttpServerRequest request) {
         String groupingId = request.getParam(Field.ID);
-        String groupId = request.getParam(Field.GROUP_ID);
-        String classId = request.getParam(Field.CLASS_ID);
-        groupingService.addToGrouping(groupingId, groupId, classId)
+        String studentsDivisionId = request.getParam(Field.STUDENT_DIVISION_ID);
+        groupingService.addToGrouping(groupingId, studentsDivisionId)
                 .onSuccess(res -> renderJson(request, res))
                 .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
     }

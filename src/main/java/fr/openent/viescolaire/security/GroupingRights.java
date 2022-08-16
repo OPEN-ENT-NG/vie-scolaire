@@ -15,9 +15,8 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.user.UserInfos;
 
-public class GroupAndClassManage implements ResourcesProvider {
-    private static final Logger log = LoggerFactory.getLogger(GroupAndClassManage.class);
-
+public class GroupingRights implements ResourcesProvider {
+    private static final Logger log = LoggerFactory.getLogger(GroupingRights.class);
     private Future<Boolean> isUserAllowToManageGroupings(UserInfos user, String groupingId) {
         Promise<Boolean> promise = Promise.promise();
         String query = "SELECT structure_id FROM viesco.grouping WHERE id = ? ;";
@@ -34,15 +33,14 @@ public class GroupAndClassManage implements ResourcesProvider {
         }));
         return promise.future();
     }
+
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
         String id = resourceRequest.getParam(Field.ID);
         isUserAllowToManageGroupings(user, id)
                 .onSuccess(res -> {
                     if (res) {
-                        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT)
-                                && (user.getGroupsIds().contains(resourceRequest.getParam(Field.STUDENT_DIVISION_ID))
-                                || user.getClasses().contains(resourceRequest.getParam(Field.STUDENT_DIVISION_ID))));
+                        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT));
                     } else {
                         handler.handle(false);
                     }

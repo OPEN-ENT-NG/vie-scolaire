@@ -103,7 +103,7 @@ public class Field {
     public static final String GROUPING_ID = "grouping_id";
     public static final String GROUP_ID = "group_id";
     public static final String GROUP_ID_CAMEL = "groupId";
-
+    public static final String STUDENT_DIVISION_ID = "student_division_id";
 
     //Test field
     public static final String VALUES = "values";

@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.service.impl;
 
+import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupingService;
@@ -18,11 +19,10 @@ import java.util.UUID;
 
 public class DefaultGroupingService implements GroupingService {
     private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
-    private final DefaultClasseService classService;
     private final DefaultGroupeService groupService;
-
+    private final String tableGrouping = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
+    private final String tableRel = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
     public DefaultGroupingService(ServiceFactory serviceFactory) {
-        classService = (DefaultClasseService) serviceFactory.classeService();
         groupService = (DefaultGroupeService) serviceFactory.groupeService();
     }
 
@@ -41,14 +41,11 @@ public class DefaultGroupingService implements GroupingService {
         }
         String uuid = UUID.randomUUID().toString();
         JsonArray values = new JsonArray();
-        String query = "INSERT INTO viesco.grouping(id, name, structure_id, created_at, updated_at) VALUES(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO " + tableGrouping + "(id, name, structure_id) VALUES(?, ?, ?)";
         values.add(uuid);
         values.add(name);
         values.add(structureId);
-        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
-        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
-
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(res -> {
+        Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if(res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
@@ -75,11 +72,11 @@ public class DefaultGroupingService implements GroupingService {
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        String query = "UPDATE viesco.grouping SET name = ?, updated_at = ? WHERE id = ?";
+        String query = "UPDATE " + tableGrouping + " SET name = ?, updated_at = ? WHERE id = ?";
         values.add(name);
         values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
         values.add(groupingId);
-        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(res -> {
+        Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
@@ -93,36 +90,31 @@ public class DefaultGroupingService implements GroupingService {
 
     /**
      * Add classes and groups to the grouping
-     * @param groupingId    Identifier of the grouping
-     * @param groupId       Identifier of the group
-     * @param classId       Identifier of the class
-     * @return              Promise with the status of the operation.
+     * @param groupingId           Identifier of the grouping
+     * @param studentDivisionId    Class or group identifier
+     * @return                     Promise with the status of the operation.
      */
     @Override
-    public Future<JsonObject> addToGrouping(String groupingId, String groupId, String classId) {
+    public Future<JsonObject> addToGrouping(String groupingId, String studentDivisionId) {
         Promise<JsonObject> promise = Promise.promise();
-        if (classId == null || groupId == null || groupingId == null ||classId.isEmpty() || groupingId.isEmpty() || groupId.isEmpty()) {
+        if (studentDivisionId == null || groupingId == null || studentDivisionId.isEmpty() || groupingId.isEmpty()) {
             String messageToFormat = "[vie-scolaire@%s::addToGrouping] Error while adding to grouping : %s";
             PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.parameters"), promise);
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        groupAndClassExist(classId, groupId)
+        groupOrClassExist(studentDivisionId)
                 .onSuccess(res -> {
                     if (Boolean.TRUE.equals(res)) {
-                        String query = "INSERT INTO viesco.rel_grouping_class(grouping_id, class_id, group_id, created_at, updated_at) VALUES(?, ?, ?, ?, ?)";
+                        String query = "INSERT INTO " + tableRel +"(grouping_id, student_division_id)  VALUES(?, ?)";
                         values.add(groupingId);
-                        values.add(classId);
-                        values.add(groupId);
-                        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
-                        values.add(DateHelper.getCurrentDate(DateHelper.MONGO_FORMAT));
-                        Sql.getInstance().prepared(query.toString(), values, SqlResult.validUniqueResultHandler(queryRes -> {
+                        values.add(studentDivisionId);
+                        Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(queryRes -> {
                             if(queryRes.isRight())
                                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
                             else {
                                 String messageToFormat = "[vie-scolaire@%s::addGrouping] Error while adding classes or groups to grouping : %s";
                                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(queryRes.left().getValue()), promise);
-
                             }
                         }));
                     } else {
@@ -140,19 +132,16 @@ public class DefaultGroupingService implements GroupingService {
     }
 
     @Override
-    public Future<Boolean> groupAndClassExist(String classId, String groupId) {
+    public Future<Boolean> groupOrClassExist(String studentDivisionId) {
         Promise<Boolean> promise = Promise.promise();
-        JsonObject results = new JsonObject();
-        classService.isClassExist(classId)
-                .compose(res -> {
-                    results.put(Field.CLASS_EXISTS, res);
-                    return groupService.isGroupExist(groupId);
-                })
-                .onSuccess(existence -> promise.complete(existence && results.getBoolean(Field.CLASS_EXISTS)))
-                .onFailure(err -> {
-                    String messageToFormat = "[vie-scolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
-                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
-                });
+        groupService.getNameOfGroupeClasse(studentDivisionId, divisionName -> {
+            if (divisionName.isRight()) {
+                promise.complete(divisionName.right().getValue().size() > 0);
+            } else {
+                String messageToFormat = "[vie-scolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.retrieving.classes.groups"), promise);
+            }
+        });
         return promise.future();
     }
 }

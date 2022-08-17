@@ -57,6 +57,12 @@
                                 <i18n>viescolaire.trombinoscope</i18n>
                             </a>
                         </li>
+                        <li>
+                            <a href="" ng-class="{'selected': currParam === 7}"
+                               ng-click="currParam = 7;">
+                                <i18n>viescolaire.grouping.set</i18n>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -89,5 +95,9 @@
     <!-- Paramétrage Trombinoscope -->
     <div ng-if="currParam === 6"
          ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/trombinoscope/param_trombinoscope.html'">
+    </div>
+    <!-- Paramétrage Grouping -->
+    <div ng-if="currParam === 7"
+         ng-include="'/viescolaire/public/templates/viescolaire/param_etab_items/param-grouping.html'">
     </div>
 </div>

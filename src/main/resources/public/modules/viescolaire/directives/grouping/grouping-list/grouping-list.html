@@ -1,0 +1,11 @@
+<div class="grouping-list" ng-repeat="grouping in vm.groupings">
+    <grouping-item grouping-item="grouping"
+                   grouping-class="vm.groupingClassList"
+                   on-update-grouping-item="vm.updateGroupingList"
+                   on-delete-grouping-item="vm.deleteGroupingList"
+                   on-get-class="vm.getAllClassList"
+                   structure="vm.structureList"
+                   on-add-grouping-audience-item="vm.addGroupingAudienceList"
+                   on-delete-grouping-audience-item="vm.deleteGroupingAudienceList">
+    </grouping-item>
+</div>

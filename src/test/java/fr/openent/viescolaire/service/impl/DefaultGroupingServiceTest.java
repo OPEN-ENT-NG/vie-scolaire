@@ -21,6 +21,7 @@ import org.powermock.api.mockito.PowerMockito;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -104,6 +105,23 @@ public class DefaultGroupingServiceTest {
             async.complete();
         });
         defaultGroupingService.addToGrouping(groupingTestId, studentDivisionId);
+    }
+
+    @Test
+    public void TestDeleteGrouping(TestContext ctx) {
+        Async async = ctx.async();
+        String queryExpected = "DELETE FROM " + tableGrouping + " WHERE " + tableGrouping + ".id = ?";
+        String groupingTestId = "grouping_id";
+
+        vertx.eventBus().consumer(address, message -> {
+            JsonObject body = (JsonObject) message.body();
+            ctx.assertEquals(Field.PREPARED, body.getString(Field.ACTION));
+            ctx.assertEquals(queryExpected, body.getString(Field.STATEMENT));
+            JsonArray args = body.getJsonArray(Field.VALUES);
+            ctx.assertEquals(new JsonArray(Collections.singletonList(groupingTestId)).toString(), args.toString());
+            async.complete();
+        });
+        defaultGroupingService.deleteGrouping(groupingTestId);
     }
 
 }

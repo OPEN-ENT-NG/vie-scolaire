@@ -34,4 +34,12 @@ public interface GroupingService {
      * @return                      A promise with the result of the check.
      */
     Future<Boolean> groupOrClassExist(String studentDivisionId);
+
+    /**
+     * Delete the grouping.
+     * @param groupingId     Identifier of the grouping.
+     * @return               A promise with the status of the deletion.
+     */
+    Future<JsonObject> deleteGrouping(String groupingId);
+
 }

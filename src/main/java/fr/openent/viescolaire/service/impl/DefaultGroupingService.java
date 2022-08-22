@@ -142,4 +142,21 @@ public class DefaultGroupingService implements GroupingService {
         });
         return promise.future();
     }
+
+    @Override
+    public Future<JsonObject> deleteGrouping(String groupingId) {
+        Promise<JsonObject> promise = Promise.promise();
+        JsonArray values = new JsonArray();
+        String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE + " WHERE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE + ".id = ?";
+        values.add(groupingId);
+        Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
+            if (res.isRight())
+                promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
+            else {
+                String messageToFormat = "[vie-scolaire@%s::deleteGrouping] Error while deleting grouping : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
+            }
+        }));
+        return promise.future();
+    }
 }

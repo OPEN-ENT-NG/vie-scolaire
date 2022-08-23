@@ -35,6 +35,7 @@ public class Field {
 
     public static final String ERROR_TIME_SLOT_STRUCTURE = "Error to get structure time slot.";
     public static final String ERROR = "error";
+    public static final String SUCCESS = "success";
     public static final String TIMESLOT_NOT_FOUND = "Timeslot not found";
     public static final String STRUCTURE_TIMESLOT_NOT_FOUND = "No timeslot found for this structure";
     public static final String CLASS_NOT_FOUND = "Class not found";
@@ -97,6 +98,15 @@ public class Field {
     public static final String SERVICES = "services";
     public static final String COMPETENCES = "competences";
     public static final String IDS = "ids";
+    public static final String ACTIVE = "active";
+    public static final String PICTURE_ID = "picture_id";
+    public static final String PICTUREID = "pictureId";
+    public static final String ERRORREPORT = "errorReport";
+    public static final String MESSAGE = "message";
+    public static final String ALL = "all";
+    public static final String FAILUREID = "failureId";
+    public static final String LIMIT = "limit";
+    public static final String OFFSET = "offset";
 
     private Field() {
         throw new IllegalStateException("Utility class");

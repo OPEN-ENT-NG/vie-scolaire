@@ -1,9 +1,9 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
-import fr.openent.viescolaire.security.GroupAndClassManage;
-import fr.openent.viescolaire.security.GroupingRights;
-import fr.openent.viescolaire.security.StructureOwnerFilter;
+import fr.openent.viescolaire.security.Grouping.GroupAndClassManage;
+import fr.openent.viescolaire.security.Grouping.GroupingRights;
+import fr.openent.viescolaire.security.Grouping.StructureOwnerFilter;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.impl.DefaultGroupingService;
 import fr.wseduc.rs.ApiDoc;

@@ -3,6 +3,7 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.PromiseHelper;
+import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.GroupingService;
 import fr.openent.viescolaire.service.ServiceFactory;
 import io.vertx.core.Future;
@@ -18,12 +19,12 @@ import java.util.UUID;
 
 public class DefaultGroupingService implements GroupingService {
     private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
-    private final DefaultGroupeService groupService;
+    private final GroupeService groupService;
     private static final String TABLE_GROUPING = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
     private static final String TABLE_REL = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
 
     public DefaultGroupingService(ServiceFactory serviceFactory) {
-        groupService = (DefaultGroupeService) serviceFactory.groupeService();
+        groupService = serviceFactory.groupeService();
     }
 
     /**

@@ -18,8 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +26,7 @@ import java.util.Collections;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(VertxUnitRunner.class)
+@RunWith(VertxUnitRunner.class)
 public class DefaultGroupingServiceTest {
     private Vertx vertx;
     private final String address = "fr.openent.Viescolaire";

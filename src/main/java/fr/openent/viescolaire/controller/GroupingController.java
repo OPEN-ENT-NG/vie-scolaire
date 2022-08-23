@@ -4,8 +4,8 @@ import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.security.Grouping.GroupAndClassManage;
 import fr.openent.viescolaire.security.Grouping.GroupingRights;
 import fr.openent.viescolaire.security.Grouping.StructureOwnerFilter;
+import fr.openent.viescolaire.service.GroupingService;
 import fr.openent.viescolaire.service.ServiceFactory;
-import fr.openent.viescolaire.service.impl.DefaultGroupingService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Post;
 import fr.wseduc.rs.Put;
@@ -17,10 +17,10 @@ import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 
 public class GroupingController extends ControllerHelper {
-    private final DefaultGroupingService groupingService;
+    private final GroupingService groupingService;
 
     public GroupingController(ServiceFactory serviceFactory) {
-        this.groupingService = (DefaultGroupingService) serviceFactory.groupingService();
+        this.groupingService = serviceFactory.groupingService();
     }
 
     @Post("/grouping/structure/:id")

@@ -35,7 +35,7 @@ public class DefaultGroupingService implements GroupingService {
     public Future<JsonObject> createGrouping(String name, String structureId) {
         Promise<JsonObject> promise = Promise.promise();
         if (name == null || structureId == null || name.isEmpty() || structureId.isEmpty()) {
-            String messageToFormat = "[vie-scolaire@%s::createGrouping] Error while creating grouping : %s";
+            String messageToFormat = "[Viescolaire@%s::createGrouping] Error while creating grouping : %s";
             PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.parameters"), promise);
             return promise.future();
         }
@@ -49,7 +49,7 @@ public class DefaultGroupingService implements GroupingService {
             if(res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
-                String messageToFormat = "[vie-scolaire@%s::createGrouping] Error while creating grouping : %s";
+                String messageToFormat = "[Viescolaire@%s::createGrouping] Error while creating grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

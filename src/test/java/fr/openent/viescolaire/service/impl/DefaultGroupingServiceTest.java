@@ -126,4 +126,23 @@ public class DefaultGroupingServiceTest {
         defaultGroupingService.deleteGrouping(groupingTestId);
     }
 
+    @Test
+    public void TestDeleteGroupingAudience(TestContext ctx) {
+        Async async = ctx.async();
+        String queryExpected = "DELETE FROM " + tableRel + " WHERE " + tableRel + ".grouping_id = ? AND " + tableRel + ".student_division_id = ?";
+        String groupingTestId = "grouping_id";
+        String studentDivisionId = "student_division_id";
+
+        vertx.eventBus().consumer(address, message -> {
+            JsonObject body = (JsonObject) message.body();
+            ctx.assertEquals(Field.PREPARED, body.getString(Field.ACTION));
+            ctx.assertEquals(queryExpected, body.getString(Field.STATEMENT));
+            JsonArray args = body.getJsonArray(Field.VALUES);
+            ctx.assertEquals(new JsonArray(Arrays.asList(groupingTestId,
+                    studentDivisionId)).toString(), args.toString());
+            async.complete();
+        });
+        defaultGroupingService.deleteGroupingAudience(groupingTestId,studentDivisionId);
+    }
+
 }

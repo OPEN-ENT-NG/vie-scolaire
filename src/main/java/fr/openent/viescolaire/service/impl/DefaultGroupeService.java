@@ -308,9 +308,9 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
         String query = "MATCH (g:`Group` {id: {groupeId}}) WITH COUNT(g) > 0 as node_exists RETURN node_exists";
         neo4j.execute(query, values, Neo4jResult.validResultHandler(res -> {
             if (res.isRight()) {
-                promise.complete(((JsonObject)res.right().getValue().getValue(0)).getBoolean("node_exists"));
+                promise.complete(((JsonObject)res.right().getValue().getValue(0)).getBoolean(Field.NODE_EXISTS));
             } else {
-                String messageToFormat = "[vie-scolaire@%s::groupExist] Error while checking group existence : %s";
+                String messageToFormat = "[Viescolaire@%s::groupExist] Error while checking group existence : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

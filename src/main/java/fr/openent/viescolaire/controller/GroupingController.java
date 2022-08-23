@@ -3,7 +3,7 @@ package fr.openent.viescolaire.controller;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.security.GroupAndClassManage;
 import fr.openent.viescolaire.security.GroupingRights;
-import fr.openent.viescolaire.security.StructureManage;
+import fr.openent.viescolaire.security.StructureOwnerFilter;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.impl.DefaultGroupingService;
 import fr.wseduc.rs.ApiDoc;
@@ -26,7 +26,7 @@ public class GroupingController extends ControllerHelper {
     @Post("/grouping/structure/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ApiDoc("Create a grouping")
-    @ResourceFilter(StructureManage.class)
+    @ResourceFilter(StructureOwnerFilter.class)
     public void createGrouping(HttpServerRequest request) {
         String structureId = request.getParam(Field.ID);
         String groupingName = request.getParam(Field.NAME);

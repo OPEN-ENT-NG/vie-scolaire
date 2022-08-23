@@ -5,7 +5,6 @@ import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupingService;
 import fr.openent.viescolaire.service.ServiceFactory;
-import fr.openent.viescolaire.utils.DateHelper;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
@@ -20,8 +19,9 @@ import java.util.UUID;
 public class DefaultGroupingService implements GroupingService {
     private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
     private final DefaultGroupeService groupService;
-    private final String tableGrouping = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
-    private final String tableRel = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
+    private static final String TABLE_GROUPING = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
+    private static final String TABLE_REL = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
+
     public DefaultGroupingService(ServiceFactory serviceFactory) {
         groupService = (DefaultGroupeService) serviceFactory.groupeService();
     }
@@ -41,7 +41,7 @@ public class DefaultGroupingService implements GroupingService {
         }
         String uuid = UUID.randomUUID().toString();
         JsonArray values = new JsonArray();
-        String query = "INSERT INTO " + tableGrouping + "(id, name, structure_id) VALUES(?, ?, ?)";
+        String query = "INSERT INTO " + TABLE_GROUPING + "(id, name, structure_id) VALUES(?, ?, ?)";
         values.add(uuid);
         values.add(name);
         values.add(structureId);
@@ -51,7 +51,6 @@ public class DefaultGroupingService implements GroupingService {
             else {
                 String messageToFormat = "[vie-scolaire@%s::createGrouping] Error while creating grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
-
             }
         }));
     return promise.future();
@@ -67,19 +66,19 @@ public class DefaultGroupingService implements GroupingService {
     public Future<JsonObject> updateGrouping(String groupingId ,String name) {
         Promise<JsonObject> promise = Promise.promise();
         if (name == null || groupingId == null || groupingId.isEmpty() || name.isEmpty()) {
-            String messageToFormat = "[vie-scolaire@%s::updateGrouping] Error while updating grouping : %s";
+            String messageToFormat = "[Viescolaire@%s::updateGrouping] Error while updating grouping : %s";
             PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.parameters"), promise);
             return promise.future();
         }
         JsonArray values = new JsonArray();
-        String query = "UPDATE " + tableGrouping + " SET name = ? WHERE id = ?";
+        String query = "UPDATE " + TABLE_GROUPING + " SET name = ? WHERE id = ?";
         values.add(name);
         values.add(groupingId);
         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
-                String messageToFormat = "[vie-scolaire@%s::updateGrouping] Error while updating grouping : %s";
+                String messageToFormat = "[Viescolaire@%s::updateGrouping] Error while updating grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));
@@ -97,7 +96,7 @@ public class DefaultGroupingService implements GroupingService {
     public Future<JsonObject> addToGrouping(String groupingId, String studentDivisionId) {
         Promise<JsonObject> promise = Promise.promise();
         if (studentDivisionId == null || groupingId == null || studentDivisionId.isEmpty() || groupingId.isEmpty()) {
-            String messageToFormat = "[vie-scolaire@%s::addToGrouping] Error while adding to grouping : %s";
+            String messageToFormat = "[Viescolaire@%s::addToGrouping] Error while adding to grouping : %s";
             PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.parameters"), promise);
             return promise.future();
         }
@@ -105,25 +104,25 @@ public class DefaultGroupingService implements GroupingService {
         groupOrClassExist(studentDivisionId)
                 .onSuccess(res -> {
                     if (Boolean.TRUE.equals(res)) {
-                        String query = "INSERT INTO " + tableRel +"(grouping_id, student_division_id)  VALUES(?, ?)";
+                        String query = "INSERT INTO " + TABLE_REL +"(grouping_id, student_division_id)  VALUES(?, ?)";
                         values.add(groupingId);
                         values.add(studentDivisionId);
                         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(queryRes -> {
                             if(queryRes.isRight())
                                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
                             else {
-                                String messageToFormat = "[vie-scolaire@%s::addGrouping] Error while adding classes or groups to grouping : %s";
+                                String messageToFormat = "[Viescolaire@%s::addGrouping] Error while adding classes or groups to grouping : %s";
                                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(queryRes.left().getValue()), promise);
                             }
                         }));
                     } else {
-                        String messageToFormat = "[vie-scolaire@%s::addToGrouping] Class or group does not exist : %s";
+                        String messageToFormat = "[Viescolaire@%s::addToGrouping] Class or group does not exist : %s";
                         PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("no.records.founded"), promise);
                     }
 
                 })
                 .onFailure(err -> {
-                    String messageToFormat = "[vie-scolaire@%s::addToGrouping] Error while checking group or class existence : %s";
+                    String messageToFormat = "[Viescolaire@%s::addToGrouping] Error while checking group or class existence : %s";
                     PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
                 });
 
@@ -135,9 +134,9 @@ public class DefaultGroupingService implements GroupingService {
         Promise<Boolean> promise = Promise.promise();
         groupService.getNameOfGroupeClasse(studentDivisionId, divisionName -> {
             if (divisionName.isRight()) {
-                promise.complete(divisionName.right().getValue().size() > 0);
+                promise.complete(!divisionName.right().getValue().isEmpty());
             } else {
-                String messageToFormat = "[vie-scolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
+                String messageToFormat = "[Viescolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.retrieving.classes.groups"), promise);
             }
         });

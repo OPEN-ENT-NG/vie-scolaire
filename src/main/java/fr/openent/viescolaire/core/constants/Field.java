@@ -98,6 +98,7 @@ public class Field {
     public static final String SERVICES = "services";
     public static final String COMPETENCES = "competences";
     public static final String IDS = "ids";
+    public static final String NODE_EXISTS = "node_exists";
 
     //Grouping field
     public static final String GROUPING_ID = "grouping_id";

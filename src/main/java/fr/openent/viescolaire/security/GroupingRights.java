@@ -18,7 +18,18 @@ import org.entcore.common.user.UserInfos;
 
 public class GroupingRights implements ResourcesProvider {
     private static final Logger log = LoggerFactory.getLogger(GroupingRights.class);
-    private Future<Boolean> isUserAllowToManageGroupings(UserInfos user, String groupingId) {
+
+    @Override
+    public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
+        String id = resourceRequest.getParam(Field.ID);
+        checkGroupingsRights(user, id)
+                .onSuccess(res -> handler.handle(res && WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT)))
+                .onFailure(err -> {
+                    handler.handle(false);
+                });
+    }
+
+    private Future<Boolean> checkGroupingsRights(UserInfos user, String groupingId) {
         Promise<Boolean> promise = Promise.promise();
         String query = "SELECT structure_id FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE + " WHERE id = ? ;";
         JsonArray values = new JsonArray();
@@ -28,26 +39,10 @@ public class GroupingRights implements ResourcesProvider {
                 promise.complete(user.getStructures().contains(res.right().getValue().getString(Field.STRUCTURE_ID)));
             }
             else {
-                String messageToFormat = "[vie-scolaire@%s::isUserAllowToManageGroupings] Error while checking rights : %s";
+                String messageToFormat = "[Viescolaire@%s::isUserAllowToManageGroupings] Error while checking rights : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));
         return promise.future();
-    }
-
-    @Override
-    public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
-        String id = resourceRequest.getParam(Field.ID);
-        isUserAllowToManageGroupings(user, id)
-                .onSuccess(res -> {
-                    if (res) {
-                        handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT));
-                    } else {
-                        handler.handle(false);
-                    }
-                })
-                .onFailure(err -> {
-                    handler.handle(false);
-                });
     }
 }

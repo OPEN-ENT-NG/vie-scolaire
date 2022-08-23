@@ -64,7 +64,7 @@ public class GroupingController extends ControllerHelper {
     @Delete("/grouping/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ApiDoc("Delete a grouping")
-    @ResourceFilter(StructureManage.class)
+    @ResourceFilter(GroupingRights.class)
     public void deleteGrouping(HttpServerRequest request) {
         String groupingId = request.getParam(Field.ID);
         groupingService.deleteGrouping(groupingId)

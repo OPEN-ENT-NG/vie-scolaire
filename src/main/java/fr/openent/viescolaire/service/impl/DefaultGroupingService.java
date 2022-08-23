@@ -148,7 +148,7 @@ public class DefaultGroupingService implements GroupingService {
     public Future<JsonObject> deleteGrouping(String groupingId) {
         Promise<JsonObject> promise = Promise.promise();
         JsonArray values = new JsonArray();
-        String query = "DELETE FROM " + tableGrouping + " WHERE " + tableGrouping + ".id = ?";
+        String query = "DELETE FROM " + TABLE_GROUPING + " WHERE " + TABLE_GROUPING + ".id = ?";
         values.add(groupingId);
         Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())

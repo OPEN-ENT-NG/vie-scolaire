@@ -221,4 +221,11 @@ public interface ClasseService extends CrudService {
      * @return {@link Future} of {@link JsonArray} completed or failure
      */
     Future<JsonArray> getClassIdFromTimeslot(String timeslotId);
+
+    /**
+     * Check if the corresponding class exists.
+     * @param classId   Identifier of the class.
+     * @return          Future with the boolean result of the check.
+     */
+    Future<Boolean> isClassExist(String classId);
 }

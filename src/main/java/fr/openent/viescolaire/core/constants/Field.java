@@ -42,6 +42,7 @@ public class Field {
     public static final String USER_NOT_IN_AUDIENCE_STRUCTURE = "User must be in audience structure";
     public static final String USER_NOT_IN_TIMESLOT_STRUCTURE = "User must be in timeslot structure";
     public static final String USER_TIMESLOT_CLASS_NOT_SAME_STRUCTURE = "Class, timeslot and user must be in the same structure";
+    public static final String CLASS_EXISTS = "classExists";
 
 
     // User profiles
@@ -97,6 +98,19 @@ public class Field {
     public static final String SERVICES = "services";
     public static final String COMPETENCES = "competences";
     public static final String IDS = "ids";
+    public static final String NODE_EXISTS = "node_exists";
+
+    //Grouping field
+    public static final String GROUPING_ID = "grouping_id";
+    public static final String GROUP_ID = "group_id";
+    public static final String GROUP_ID_CAMEL = "groupId";
+    public static final String STUDENT_DIVISION_ID = "student_division_id";
+
+    //Test field
+    public static final String VALUES = "values";
+    public static final String STATEMENT = "statement";
+    public static final String ACTION = "action";
+    public static final String PREPARED = "prepared";
 
     private Field() {
         throw new IllegalStateException("Utility class");

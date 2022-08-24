@@ -143,4 +143,39 @@ public class DefaultGroupingService implements GroupingService {
         });
         return promise.future();
     }
+
+    @Override
+    public Future<JsonObject> deleteGrouping(String groupingId) {
+        Promise<JsonObject> promise = Promise.promise();
+        JsonArray values = new JsonArray();
+        String query = "DELETE FROM " + TABLE_GROUPING + " WHERE " + TABLE_GROUPING + ".id = ?";
+        values.add(groupingId);
+        Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
+            if (res.isRight())
+                promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
+            else {
+                String messageToFormat = "[Viescolaire@%s::deleteGrouping] Error while deleting grouping : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
+            }
+        }));
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> deleteGroupingAudience(String groupingId, String studentDivisionId) {
+        Promise<JsonObject> promise = Promise.promise();
+        JsonArray values = new JsonArray();
+        String query = "DELETE FROM " + TABLE_REL + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
+        values.add(groupingId);
+        values.add(studentDivisionId);
+        Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
+            if (res.isRight())
+                promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
+            else {
+                String messageToFormat = "[Viescolaire@%s::deleteGroupingAudience] Error while deleting class or group to the grouping : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
+            }
+        }));
+        return promise.future();
+    }
 }

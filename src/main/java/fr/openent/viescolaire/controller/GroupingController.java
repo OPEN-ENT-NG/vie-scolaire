@@ -7,6 +7,7 @@ import fr.openent.viescolaire.security.Grouping.StructureOwnerFilter;
 import fr.openent.viescolaire.service.GroupingService;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.wseduc.rs.ApiDoc;
+import fr.wseduc.rs.Delete;
 import fr.wseduc.rs.Post;
 import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
@@ -56,6 +57,29 @@ public class GroupingController extends ControllerHelper {
         String groupingId = request.getParam(Field.ID);
         String studentsDivisionId = request.getParam(Field.STUDENT_DIVISION_ID);
         groupingService.addToGrouping(groupingId, studentsDivisionId)
+                .onSuccess(res -> renderJson(request, res))
+                .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
+    }
+
+    @Delete("/grouping/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ApiDoc("Delete a grouping")
+    @ResourceFilter(GroupingRights.class)
+    public void deleteGrouping(HttpServerRequest request) {
+        String groupingId = request.getParam(Field.ID);
+        groupingService.deleteGrouping(groupingId)
+                .onSuccess(res -> renderJson(request, res))
+                .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
+    }
+
+    @Delete("/grouping/:id/delete")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ApiDoc("Delete class or group to the grouping")
+    @ResourceFilter(GroupAndClassManage.class)
+    public void deleteGroupingAudience(HttpServerRequest request) {
+        String groupingId = request.getParam(Field.ID);
+        String studentsDivisionId = request.getParam(Field.STUDENT_DIVISION_ID);
+        groupingService.deleteGroupingAudience(groupingId, studentsDivisionId)
                 .onSuccess(res -> renderJson(request, res))
                 .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
     }

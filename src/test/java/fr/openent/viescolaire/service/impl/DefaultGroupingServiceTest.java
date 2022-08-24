@@ -21,6 +21,7 @@ import org.powermock.api.mockito.PowerMockito;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -33,7 +34,7 @@ public class DefaultGroupingServiceTest {
     private final Neo4j neo4j = Neo4j.getInstance();
     private final Neo4jRest neo4jRest = mock(Neo4jRest.class);
     private final String tableGrouping = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
-    private final String tableRel = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
+    private final String TABLE_REL = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
     @Before
     public void setUp() throws NoSuchFieldException {
         vertx = Vertx.vertx();
@@ -85,7 +86,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestAddGrouping(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "INSERT INTO " + tableRel +"(grouping_id, student_division_id)  VALUES(?, ?)";
+        String queryExpected = "INSERT INTO " + TABLE_REL +"(grouping_id, student_division_id)  VALUES(?, ?)";
 
         //tests variables
         String groupingTestId = "grouping_id";
@@ -104,6 +105,42 @@ public class DefaultGroupingServiceTest {
             async.complete();
         });
         defaultGroupingService.addToGrouping(groupingTestId, studentDivisionId);
+    }
+
+    @Test
+    public void TestDeleteGrouping(TestContext ctx) {
+        Async async = ctx.async();
+        String queryExpected = "DELETE FROM " + tableGrouping + " WHERE " + tableGrouping + ".id = ?";
+        String groupingTestId = "grouping_id";
+
+        vertx.eventBus().consumer(address, message -> {
+            JsonObject body = (JsonObject) message.body();
+            ctx.assertEquals(Field.PREPARED, body.getString(Field.ACTION));
+            ctx.assertEquals(queryExpected, body.getString(Field.STATEMENT));
+            JsonArray args = body.getJsonArray(Field.VALUES);
+            ctx.assertEquals(new JsonArray(Collections.singletonList(groupingTestId)).toString(), args.toString());
+            async.complete();
+        });
+        defaultGroupingService.deleteGrouping(groupingTestId);
+    }
+
+    @Test
+    public void TestDeleteGroupingAudience(TestContext ctx) {
+        Async async = ctx.async();
+        String queryExpected = "DELETE FROM " + TABLE_REL + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
+        String groupingTestId = "grouping_id";
+        String studentDivisionId = "student_division_id";
+
+        vertx.eventBus().consumer(address, message -> {
+            JsonObject body = (JsonObject) message.body();
+            ctx.assertEquals(Field.PREPARED, body.getString(Field.ACTION));
+            ctx.assertEquals(queryExpected, body.getString(Field.STATEMENT));
+            JsonArray args = body.getJsonArray(Field.VALUES);
+            ctx.assertEquals(new JsonArray(Arrays.asList(groupingTestId,
+                    studentDivisionId)).toString(), args.toString());
+            async.complete();
+        });
+        defaultGroupingService.deleteGroupingAudience(groupingTestId,studentDivisionId);
     }
 
 }

@@ -71,4 +71,16 @@ public class GroupingController extends ControllerHelper {
                 .onSuccess(res -> renderJson(request, res))
                 .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
     }
+
+    @Delete("/grouping/:id/delete")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ApiDoc("Delete class or group to the grouping")
+    @ResourceFilter(GroupAndClassManage.class)
+    public void deleteGroupingAudience(HttpServerRequest request) {
+        String groupingId = request.getParam(Field.ID);
+        String studentsDivisionId = request.getParam(Field.STUDENT_DIVISION_ID);
+        groupingService.deleteGroupingAudience(groupingId, studentsDivisionId)
+                .onSuccess(res -> renderJson(request, res))
+                .onFailure(err -> renderError(request, new JsonObject().put(Field.ERROR, err.getMessage())));
+    }
 }

@@ -42,4 +42,12 @@ public interface GroupingService {
      */
     Future<JsonObject> deleteGrouping(String groupingId);
 
+    /**
+     * Delete classes and groups to the grouping.
+     * @param groupingId         Identifier of the grouping.
+     * @param studentDivisionId  Class or group identifier
+     * @return                   A promise with the status of the deletion.
+     */
+    Future<JsonObject> deleteGroupingAudience(String groupingId, String studentDivisionId);
+
 }

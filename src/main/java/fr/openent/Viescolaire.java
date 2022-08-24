@@ -57,6 +57,8 @@ public class Viescolaire extends BaseServer {
     public static final String VSCO_REL_TIME_SLOT_CLASS = "rel_time_slot_class";
     public static final String VSCO_SLOTS = "slots";
     public static final String SERVICES_TABLE = "services";
+    public static final String GROUPING_TABLE = "grouping";
+    public static final String REL_GROUPING_CLASS_TABLE = "rel_grouping_class";
 
     /**
      * Déclaration des router préfixs
@@ -128,6 +130,7 @@ public class Viescolaire extends BaseServer {
         addController(new ConfigController(config));
         addController(new StructureController());
         addController(new TrombinoscopeController(vertx, storage));
+        addController(new GroupingController(serviceFactory));
 
         addController(new EventBusController(eb, config));
 

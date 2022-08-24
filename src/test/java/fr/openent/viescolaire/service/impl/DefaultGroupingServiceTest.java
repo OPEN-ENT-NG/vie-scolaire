@@ -34,7 +34,7 @@ public class DefaultGroupingServiceTest {
     private final Neo4j neo4j = Neo4j.getInstance();
     private final Neo4jRest neo4jRest = mock(Neo4jRest.class);
     private final String tableGrouping = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
-    private final String tableRel = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
+    private final String TABLE_REL = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
     @Before
     public void setUp() throws NoSuchFieldException {
         vertx = Vertx.vertx();
@@ -86,7 +86,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestAddGrouping(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "INSERT INTO " + tableRel +"(grouping_id, student_division_id)  VALUES(?, ?)";
+        String queryExpected = "INSERT INTO " + TABLE_REL +"(grouping_id, student_division_id)  VALUES(?, ?)";
 
         //tests variables
         String groupingTestId = "grouping_id";
@@ -127,7 +127,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestDeleteGroupingAudience(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "DELETE FROM " + tableRel + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
+        String queryExpected = "DELETE FROM " + TABLE_REL + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
         String groupingTestId = "grouping_id";
         String studentDivisionId = "student_division_id";
 

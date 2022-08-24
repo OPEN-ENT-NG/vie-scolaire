@@ -20,6 +20,7 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.FutureHelper;
+import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
@@ -841,6 +842,18 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 promise.complete(result);
             }
         }));
+        return promise.future();
+    }
+
+    @Override
+    public Future<Boolean> isClassExist(String classId) {
+        Promise<Boolean> promise = Promise.promise();
+        getClasseInfo(classId)
+                .onSuccess(res -> promise.complete(!res.isEmpty()))
+                .onFailure(err -> {
+                    String messageToFormat = "[Viescolaire@%s::isClassExist] Error while checking class existence : %s";
+                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err.getCause(), promise);
+                });
         return promise.future();
     }
 }

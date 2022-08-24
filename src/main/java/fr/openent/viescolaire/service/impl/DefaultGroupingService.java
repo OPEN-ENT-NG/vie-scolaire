@@ -165,14 +165,14 @@ public class DefaultGroupingService implements GroupingService {
     public Future<JsonObject> deleteGroupingAudience(String groupingId, String studentDivisionId) {
         Promise<JsonObject> promise = Promise.promise();
         JsonArray values = new JsonArray();
-        String query = "DELETE FROM " + TABLE_REL + " WHERE " + TABLE_REL + ".grouping_id = ? AND " + TABLE_REL + ".student_division_id = ?";
+        String query = "DELETE FROM " + TABLE_REL + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
         values.add(groupingId);
         values.add(studentDivisionId);
         Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
-                String messageToFormat = "[vie-scolaire@%s::deleteGrouping] Error while deleting class or group to the grouping : %s";
+                String messageToFormat = "[Viescolaire@%s::deleteGroupingAudience] Error while deleting class or group to the grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

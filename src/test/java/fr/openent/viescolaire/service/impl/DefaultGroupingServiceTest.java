@@ -127,7 +127,7 @@ public class DefaultGroupingServiceTest {
     @Test
     public void TestDeleteGroupingAudience(TestContext ctx) {
         Async async = ctx.async();
-        String queryExpected = "DELETE FROM " + tableRel + " WHERE " + tableRel + ".grouping_id = ? AND " + tableRel + ".student_division_id = ?";
+        String queryExpected = "DELETE FROM " + tableRel + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
         String groupingTestId = "grouping_id";
         String studentDivisionId = "student_division_id";
 

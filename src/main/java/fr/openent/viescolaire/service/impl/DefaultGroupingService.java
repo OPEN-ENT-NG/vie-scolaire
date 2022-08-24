@@ -137,7 +137,7 @@ public class DefaultGroupingService implements GroupingService {
             if (divisionName.isRight()) {
                 promise.complete(!divisionName.right().getValue().isEmpty());
             } else {
-                String messageToFormat = "[Viescolaire@%s::groupAndClassExist] Error while checking group or class existence : %s";
+                String messageToFormat = "[Viescolaire@%s::groupOrClassExist] Error while checking group or class existence : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.retrieving.classes.groups"), promise);
             }
         });

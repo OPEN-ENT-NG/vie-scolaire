@@ -310,7 +310,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
             if (res.isRight()) {
                 promise.complete(((JsonObject)res.right().getValue().getValue(0)).getBoolean(Field.NODE_EXISTS));
             } else {
-                String messageToFormat = "[Viescolaire@%s::groupExist] Error while checking group existence : %s";
+                String messageToFormat = "[Viescolaire@%s::isGroupExist] Error while checking group existence : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

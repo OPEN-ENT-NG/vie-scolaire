@@ -47,7 +47,7 @@ public class GroupAndClassManage implements ResourcesProvider {
             if (res.isRight() && !res.right().getValue().isEmpty()) {
                 promise.complete(user.getStructures().contains(res.right().getValue().getString(Field.STRUCTURE_ID)));
             } else {
-                String messageToFormat = "[Viescolaire@%s::isUserAllowToManageGroupings] Error while checking rights : %s";
+                String messageToFormat = "[Viescolaire@%s::checkGroupingsRights] Error while checking rights : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

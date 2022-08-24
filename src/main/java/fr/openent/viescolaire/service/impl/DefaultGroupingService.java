@@ -154,7 +154,7 @@ public class DefaultGroupingService implements GroupingService {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
-                String messageToFormat = "[vie-scolaire@%s::deleteGrouping] Error while deleting grouping : %s";
+                String messageToFormat = "[Viescolaire@%s::deleteGrouping] Error while deleting grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));

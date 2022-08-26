@@ -19,6 +19,7 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.UtilsService;
@@ -67,7 +68,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 if ("ok".equals(((JsonObject) event.body()).getString("status"))) {
 
                     JsonArray rNeo = ((JsonObject) event.body()).getJsonArray("result",
-                            new fr.wseduc.webutils.collections.JsonArray());
+                            new JsonArray());
                     // Si l'utilisateur est présent dans l'annuaire on renvoit le résultat
                     if (rNeo.size() > 0) {
                         handler.handle(new Either.Right(event));
@@ -92,7 +93,7 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                                                 JsonObject valuesGroup = new JsonObject();
                                                 queryGroup.append("MATCH (g:Group {id :{idGroupe}})")
                                                         .append(" WHERE g.externalId IN users.groups return g ");
-                                                valuesGroup.put("idGroupe", idGroupe);
+                                                valuesGroup.put(Field.IDGROUP, idGroupe);
 
                                                 // Avec l'id du groupe de l'utilisateur stocké dans la base de viesco
                                                 // On refait une requête NEo pour renvoyer les informations du groupe
@@ -128,8 +129,8 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 .append(" WHERE n.id IN {idGroupe} WITH  s, n, u ")
                 .append(" MATCH (c:Class)-[:BELONGS]->(s) WHERE c.externalId IN u.classes RETURN n.id as id_groupe, ")
                 .append(" COLLECT(DISTINCT c.id) AS id_classes ");
-        params.put("idGroupe", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idGroupe)))
-                .put("idGroupe", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idGroupe)));
+        params.put("idGroupe", new JsonArray(Arrays.asList(idGroupe)))
+                .put("idGroupe", new JsonArray(Arrays.asList(idGroupe)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -209,6 +210,21 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 "UNION " +
                 "MATCH (g:`ManualGroup` {id: {groupeId}}) return g.id as id, g.name as name ";
         neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public Future<JsonArray> getNameOfGroupClass(List<String> idsAudience) {
+        Promise<JsonArray> promise = Promise.promise();
+        JsonObject values = new JsonObject().put(Field.IDSAUDIENCE, new JsonArray(idsAudience));
+
+        String query = "MATCH (c:`Class`) WHERE c.id IN {idsAudience} RETURN c.id as id,  c.name as name " +
+                "UNION " +
+                "MATCH (g:`FunctionalGroup`) WHERE g.id IN {idsAudience} return g.id as id, g.name as name " +
+                "UNION " +
+                "MATCH (g:`ManualGroup`) WHERE g.id IN {idsAudience} return g.id as id, g.name as name ";
+        neo4j.execute(query, values, Neo4jResult.validResultHandler(FutureHelper.handlerEitherPromise(promise)));
+
+        return promise.future();
     }
 
     @Override

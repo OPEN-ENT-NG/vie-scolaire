@@ -15,7 +15,8 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultGroupingService implements GroupingService {
     private static final Logger log = LoggerFactory.getLogger(DefaultGroupingService.class);
@@ -27,11 +28,87 @@ public class DefaultGroupingService implements GroupingService {
         groupService = serviceFactory.groupeService();
     }
 
+    private Future<JsonArray> getGroupingsByStructure(String structureId) {
+        Promise<JsonArray> promise = Promise.promise();
+        if (structureId == null || structureId.isEmpty()) {
+            String messageToFormat = "[Viescolaire@%s::getGroupingsByStructure] Error while listing grouping : %s";
+            PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception("error.parameters"), promise);
+            return promise.future();
+        }
+        JsonArray values = new JsonArray().add(structureId);
+        String query = "SELECT GRP.id, name, structure_id, ARRAY_AGG(REL.student_division_id) AS student_divisions FROM " + DefaultGroupingService.TABLE_GROUPING + " AS GRP LEFT JOIN " + DefaultGroupingService.TABLE_REL
+                + " AS REL ON REL.grouping_id = GRP.id WHERE structure_id = ? GROUP BY GRP.id";
+        Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(res -> {
+            if (res.isRight()) {
+                promise.complete(res.right().getValue());
+            } else {
+                String messageToFormat = "[Viescolaire@%s::getGroupingsByStructure] Error while retrieving groupings : %s";
+                PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
+            }
+        }));
+        return promise.future();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Future<JsonArray> generateGroupingsList(JsonArray groupingSQLResults) {
+        Promise<JsonArray> promise = Promise.promise();
+
+        List<String> listAudienceId = groupingSQLResults.stream().map(JsonObject.class::cast)
+                .map(jsonObject -> jsonObject.getJsonArray(Field.STUDENT_DIVISIONS).getList())
+                .map(list -> (List<JsonArray>) list)
+                .map(jsonArrays -> {
+                    return jsonArrays.stream()
+                            .map(jsonArray -> jsonArray.getString(1))
+                            .collect(Collectors.toList());
+                })
+                .flatMap(List::stream)
+                .distinct()
+                .collect(Collectors.toList());
+
+        groupService.getNameOfGroupeClasse(listAudienceId.toArray(new String[]{}))
+                .onSuccess(jsonArray -> {
+                    Map<String, String> map = jsonArray.stream().map(JsonObject.class::cast)
+                            .collect(Collectors.toMap(jsonObject -> jsonObject.getString(Field.ID), jsonObject -> jsonObject.getString(Field.NAME)));
+                    for (Object groupingObject : groupingSQLResults) {
+                        JsonObject grouping = (JsonObject) groupingObject;
+                        JsonArray studentDivisions = grouping.getJsonArray(Field.STUDENT_DIVISIONS);
+                        List<JsonObject> jsonObjectList = (List<JsonObject>) studentDivisions.getList().stream().map(studentDivision -> {
+                             return new JsonObject()
+                                     .put(Field.ID, ((JsonArray) studentDivision).getString(1))
+                                     .put(Field.NAME, map.get(((JsonArray) studentDivision).getString(1)));
+                        }).collect(Collectors.toList());
+                        grouping.put(Field.STUDENT_DIVISIONS, new JsonArray(jsonObjectList));
+                    }
+                    promise.complete(groupingSQLResults);
+                })
+                .onFailure(err -> {
+                    String messageToFormat = "[Viescolaire@%s::generateGroupingsList] Error while retrieving class or group name : %s";
+                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
+                });
+
+        return promise.future();
+    }
+
+
+    @Override
+    public Future<JsonArray> listGrouping(String structureId) {
+        Promise<JsonArray> promise = Promise.promise();
+        getGroupingsByStructure(structureId)
+                .compose(this::generateGroupingsList)
+                .onSuccess(promise::complete)
+                .onFailure(err -> {
+                    String messageToFormat = "[Viescolaire@%s::listGrouping] Error while generating grouping list : %s";
+                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
+                });
+        return promise.future();
+    }
+
     /**
      * Create a new grouping
-     * @param name          Name of the new grouping
-     * @param structureId   Identifier of the structure to which the grouping belongs
-     * @return              Promise with the status of the grouping creation.
+     *
+     * @param name        Name of the new grouping
+     * @param structureId Identifier of the structure to which the grouping belongs
+     * @return Promise with the status of the grouping creation.
      */
     public Future<JsonObject> createGrouping(String name, String structureId) {
         Promise<JsonObject> promise = Promise.promise();
@@ -47,24 +124,27 @@ public class DefaultGroupingService implements GroupingService {
         values.add(name);
         values.add(structureId);
         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
-            if(res.isRight())
-                promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
+            if (res.isRight())
+                promise.complete(new JsonObject()
+                        .put(Field.STATUS, Field.OK)
+                        .put(Field.ID, uuid));
             else {
                 String messageToFormat = "[Viescolaire@%s::createGrouping] Error while creating grouping : %s";
                 PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), new Exception(res.left().getValue()), promise);
             }
         }));
-    return promise.future();
+        return promise.future();
     }
 
     /**
      * Update the grouping
-     * @param groupingId    Identifier of the grouping
-     * @param name          New grouping name
-     * @return              Promise with the status of the update
+     *
+     * @param groupingId Identifier of the grouping
+     * @param name       New grouping name
+     * @return Promise with the status of the update
      */
     @Override
-    public Future<JsonObject> updateGrouping(String groupingId ,String name) {
+    public Future<JsonObject> updateGrouping(String groupingId, String name) {
         Promise<JsonObject> promise = Promise.promise();
         if (name == null || groupingId == null || groupingId.isEmpty() || name.isEmpty()) {
             String messageToFormat = "[Viescolaire@%s::updateGrouping] Error while updating grouping : %s";
@@ -89,9 +169,10 @@ public class DefaultGroupingService implements GroupingService {
 
     /**
      * Add classes and groups to the grouping
-     * @param groupingId           Identifier of the grouping
-     * @param studentDivisionId    Class or group identifier
-     * @return                     Promise with the status of the operation.
+     *
+     * @param groupingId        Identifier of the grouping
+     * @param studentDivisionId Class or group identifier
+     * @return Promise with the status of the operation.
      */
     @Override
     public Future<JsonObject> addToGrouping(String groupingId, String studentDivisionId) {
@@ -105,11 +186,11 @@ public class DefaultGroupingService implements GroupingService {
         groupOrClassExist(studentDivisionId)
                 .onSuccess(res -> {
                     if (Boolean.TRUE.equals(res)) {
-                        String query = "INSERT INTO " + TABLE_REL +"(grouping_id, student_division_id)  VALUES(?, ?)";
+                        String query = "INSERT INTO " + TABLE_REL + "(grouping_id, student_division_id)  VALUES(?, ?)";
                         values.add(groupingId);
                         values.add(studentDivisionId);
                         Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(queryRes -> {
-                            if(queryRes.isRight())
+                            if (queryRes.isRight())
                                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
                             else {
                                 String messageToFormat = "[Viescolaire@%s::addGrouping] Error while adding classes or groups to grouping : %s";
@@ -150,7 +231,7 @@ public class DefaultGroupingService implements GroupingService {
         JsonArray values = new JsonArray();
         String query = "DELETE FROM " + TABLE_GROUPING + " WHERE " + TABLE_GROUPING + ".id = ?";
         values.add(groupingId);
-        Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
+        Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {
@@ -168,7 +249,7 @@ public class DefaultGroupingService implements GroupingService {
         String query = "DELETE FROM " + TABLE_REL + " WHERE " + "grouping_id = ? AND " + "student_division_id = ?";
         values.add(groupingId);
         values.add(studentDivisionId);
-        Sql.getInstance().prepared(query,values, SqlResult.validUniqueResultHandler(res -> {
+        Sql.getInstance().prepared(query, values, SqlResult.validUniqueResultHandler(res -> {
             if (res.isRight())
                 promise.complete(new JsonObject().put(Field.STATUS, Field.OK));
             else {

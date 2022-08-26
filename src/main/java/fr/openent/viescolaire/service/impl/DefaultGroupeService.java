@@ -19,6 +19,7 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.UtilsService;
@@ -209,6 +210,21 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
                 "UNION " +
                 "MATCH (g:`ManualGroup` {id: {groupeId}}) return g.id as id, g.name as name ";
         neo4j.execute(query, values, Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public Future<JsonArray> getNameOfGroupeClasse(String[] idsAudience) {
+        Promise<JsonArray> promise = Promise.promise();
+        JsonObject values = new JsonObject().put("idsAudience", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idsAudience)));
+
+        String query = "MATCH (c:`Class`) WHERE c.id IN {idsAudience} RETURN c.id as id,  c.name as name " +
+                "UNION " +
+                "MATCH (g:`FunctionalGroup`) WHERE g.id IN {idsAudience} return g.id as id, g.name as name " +
+                "UNION " +
+                "MATCH (g:`ManualGroup`) WHERE g.id IN {idsAudience} return g.id as id, g.name as name ";
+        neo4j.execute(query, values, Neo4jResult.validResultHandler(FutureHelper.handlerEitherPromise(promise)));
+
+        return promise.future();
     }
 
     @Override

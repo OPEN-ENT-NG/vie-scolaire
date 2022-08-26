@@ -22,12 +22,12 @@ public class GroupingRights implements ResourcesProvider {
 
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
+        resourceRequest.pause();
         String id = resourceRequest.getParam(Field.ID);
         checkGroupingsRights(user, id)
                 .onSuccess(res -> handler.handle(res && WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT)))
-                .onFailure(err -> {
-                    handler.handle(false);
-                });
+                .onFailure(err -> handler.handle(false))
+                .onComplete(event -> resourceRequest.resume());
     }
 
     private Future<Boolean> checkGroupingsRights(UserInfos user, String groupingId) {

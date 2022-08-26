@@ -14,7 +14,7 @@ public interface ServicesService extends CrudService {
 
     void getServicesNeo(String structureId, Handler<Either<String, JsonArray>> result);
 
-    void deleteService(JsonObject oService, Handler<Either<String, JsonObject>> handler);
+    void deleteService(JsonObject oService, JsonObject moduleServices, Handler<Either<String, JsonObject>> handler);
 
     void updateServices(JsonObject oServices, Handler<Either<String, JsonObject>> defaultResponseHandler);
 

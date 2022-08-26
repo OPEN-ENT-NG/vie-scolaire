@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.controller;
 
 
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.security.ParamServicesRight;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.ServicesService;
@@ -10,6 +11,7 @@ import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.request.RequestUtils;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
@@ -25,6 +27,9 @@ public class ServicesController extends ControllerHelper {
     private final ServicesService servicesConfigurationService;
     public ServicesController() {
         this.servicesConfigurationService = new DefaultServicesService();
+    }
+    public ServicesController(EventBus eb) {
+        this.servicesConfigurationService = new DefaultServicesService(eb);
     }
 
 
@@ -105,7 +110,7 @@ public class ServicesController extends ControllerHelper {
             badRequest(request, "id_groups or id_enseignant or id_matiere is null");
             return;
         } else {
-            servicesConfigurationService.deleteService(ServicesHelper.getParams(request), defaultResponseHandler(request));
+            servicesConfigurationService.deleteService(ServicesHelper.getParams(request), config.getJsonObject(Field.SERVICES), defaultResponseHandler(request));
         }
     }
 }

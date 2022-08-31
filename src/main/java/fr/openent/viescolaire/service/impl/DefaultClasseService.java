@@ -190,7 +190,9 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
         String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
         String queryLastGroup = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) WHERE ";
-        String paramEtab = "s.id = {idStructure} ";
+        //malformed class filter
+        String filterClass = "m.name IS NOT NULL ";
+        String paramEtab = "s.id = {idStructure} AND " + filterClass;
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
         String paramUser = "u.id = {userId} ";

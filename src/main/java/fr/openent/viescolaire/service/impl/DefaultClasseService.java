@@ -190,6 +190,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String queryClass = "MATCH (m:Class)-[b:BELONGS]->(s:Structure) ";
         String queryGroup = "MATCH (m:FunctionalGroup)-[d:DEPENDS]->(s:Structure) ";
         String queryLastGroup = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) WHERE ";
+        //malformed class filter
+        String filterClass = " AND m.name IS NOT NULL ";
         String paramEtab = "s.id = {idStructure} ";
         String paramClass = "m.id IN {classes} ";
         String paramGroup = "m.id IN {groups} ";
@@ -197,13 +199,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
         String paramGroupManuel;
         if (null == user || forAdmin) {
-            paramGroupManuel = paramEtab;
+            paramGroupManuel = paramEtab + filterClass;
 
             if (null == user && idClassesAndGroups != null) {
                 paramGroupManuel += " m.id IN {idClassesAndGroups}";
             }
         } else {
-            paramGroupManuel = paramGroup + " AND " + paramEtab;
+            paramGroupManuel = paramGroup + " AND " + paramEtab + filterClass;
         }
 
         // On date -> 08/02/2020 / 23:09, try a fix based on DBOI mail
@@ -223,7 +225,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         String param3;
         JsonObject params = new JsonObject();
         if (null == user || forAdmin) {
-            param1 = "WHERE " + paramEtab + "RETURN m ";
+            param1 = "WHERE " + paramEtab + filterClass + "RETURN m ";
             param2 = param1;
             param3 = paramEtab;
             params.put("idStructure", idStructure);
@@ -232,8 +234,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 params.put("idClassesAndGroups", idClassesAndGroups);
             }
         } else {
-            param1 = "WHERE " + paramClass + "AND " + paramEtab + "RETURN m ";
-            param2 = "WHERE " + paramGroup + "AND " + paramEtab + "RETURN m ";
+            param1 = "WHERE " + paramClass + "AND " + paramEtab + filterClass + "RETURN m ";
+            param2 = "WHERE " + paramGroup + "AND " + paramEtab + filterClass + "RETURN m ";
             param3 = paramUser + "AND " + paramEtab;
             params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
                     .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))

@@ -2,15 +2,18 @@ import {Classe} from "../personnel/Classe";
 import {IGroup} from "./Group";
 import {DefaultClasse} from "./DefaultClasse";
 import {TimeSlot} from "./TimeSlots";
+import {StudentDivision} from "./StudentDivision";
 
 //will potentially be deleted
-export interface Grouping {
+export interface IGrouping extends Grouping{
     id: string,
     name: string,
-    structureId: string,
-    class: Classe[],
-    group: IGroup[],
+    student_division: StudentDivision[],
+    structure_id: string;
+}
 
+export interface IGroupingResponse {
+    all: Array<IGrouping>;
 }
 
 
@@ -26,25 +29,22 @@ export interface GroupingClass {
 export class Grouping {
     id: string;
     name: string;
-    structureId: string;
-    class: Classe[];
-    group: IGroup[];
+    student_divisions: StudentDivision[];
+    structure_id: string;
 
-    constructor(name: string, structure: string) {
+    constructor(id: string, name: string, structure: string, division: StudentDivision[]) {
+        this.id = id;
         this.name = name;
-        this.structureId = structure;
-        this.class = [];
-        this.group = [];
-
+        this.structure_id = structure;
+        this.student_divisions = division;
     }
 
     toJson() {
         return {
             id: this.id,
             name: this.name,
-            structureId: this.structureId,
-            class: this.class,
-            group: this.group
+            structureId: this.structure_id,
+            division: this.student_divisions
         }
     }
 
@@ -58,22 +58,27 @@ export class Grouping {
     }
 
     setStructureId(structureId: string): void {
-        this.structureId = structureId;
+        this.structure_id = structureId;
     }
 
-    setClass(classTab: Classe[]): void {
-        this.class = classTab;
+    setDivision(division: StudentDivision[]): void {
+        this.student_divisions = division;
     }
 
-    setGroup(groupTab: IGroup[]) {
-        this.group = groupTab
-    }
 }
 
 export class Groupings {
     all: Grouping[]
+    groupingResponse: IGroupingResponse;
 
-    constructor(groupingTab: Grouping[]) {
+    constructor(groupingTab?: Grouping[]) {
         this.all = groupingTab;
+    }
+
+    async buildTest(data: Grouping[]): Promise<void> {
+        this.all = [];
+        data.forEach((grouping: Grouping) => {
+            this.all.push(grouping);
+        })
     }
 }

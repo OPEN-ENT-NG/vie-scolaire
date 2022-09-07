@@ -1,4 +1,3 @@
-// tricks to fake "mock" entcore ng class in order to use service
 import axios, {AxiosResponse} from "axios";
 import MockAdapter from "axios-mock-adapter";
 import {groupingService} from "../grouping.service";
@@ -8,12 +7,12 @@ describe('GroupingService', () => {
     const id = "id";
     const structureId = "structureId";
     const name = "test";
-    const classOrGroupId = "classOrGroupdId"
+    const studentDivisionId = "studentDivisionId"
 
     it('should returns data when createGrouping request is correctly called', done => {
         const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/grouping/structure/${structureId}`)
+        mock.onPost(`/viescolaire/grouping/structure/${structureId}`, {name : name})
             .reply(200, data);
 
         groupingService.createGrouping(structureId, name).then((response: AxiosResponse) => {
@@ -26,7 +25,7 @@ describe('GroupingService', () => {
         const mock = new MockAdapter(axios);
 
         const data = {response: true};
-        mock.onPut(`/viescolaire/grouping/${id}`)
+        mock.onPut(`/viescolaire/grouping/${id}`, {name : name})
             .reply(200, data);
 
         groupingService.updateGrouping(id, name).then((response: AxiosResponse) => {
@@ -53,7 +52,7 @@ describe('GroupingService', () => {
         mock.onPost(`/viescolaire/grouping/${id}/add`)
             .reply(200, data);
 
-        groupingService.addGroupingAudience(id, classOrGroupId).then((response: AxiosResponse) => {
+        groupingService.addGroupingAudience(id, studentDivisionId).then((response: AxiosResponse) => {
             expect(response.data).toEqual(data);
             done();
         });
@@ -62,10 +61,10 @@ describe('GroupingService', () => {
     it('should returns data when deleteGroupingAudience request is correctly called', done => {
         const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPut(`/viescolaire/grouping/${id}/delete`)
+        mock.onDelete(`/viescolaire/grouping/${id}/delete`, {student_division_id : studentDivisionId})
             .reply(200, data);
 
-        groupingService.deleteGroupingAudience(id, classOrGroupId).then((response: AxiosResponse) => {
+        groupingService.deleteGroupingAudience(id, studentDivisionId).then((response: AxiosResponse) => {
             expect(response.data).toEqual(data);
             done();
         });
@@ -73,16 +72,19 @@ describe('GroupingService', () => {
 
     it('should returns data when getGroupingList request is correctly called', done => {
         const mock = new MockAdapter(axios);
+        const structure = "structureId"
         const data = [{
             id: "id",
             name: "name",
-            strucutreId: "structureId",
-            class: [],
-            group: [],
+            student_divisions: [{
+                id: "student_division_id",
+                name: "name"
+            }],
+            structure_id: "structure_id"
         }]
-        mock.onGet(`/viescolaire/grouping/list/`)
+        mock.onGet(`/viescolaire/grouping/structure/${structureId}/list`)
             .reply(200, data);
-        groupingService.getGroupingList()
+        groupingService.getGroupingList(structure)
             .then(response => {
                 expect(response).toEqual(data);
                 done();

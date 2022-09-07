@@ -2,15 +2,18 @@ import {Classe} from "../personnel/Classe";
 import {IGroup} from "./Group";
 import {DefaultClasse} from "./DefaultClasse";
 import {TimeSlot} from "./TimeSlots";
+import {IStudentDivisionResponse, StudentDivision} from "./StudentDivision";
 
 //will potentially be deleted
-export interface Grouping {
+export interface IGroupingItemResponse {
     id: string,
     name: string,
-    structureId: string,
-    class: Classe[],
-    group: IGroup[],
+    student_divisions: IStudentDivisionResponse[],
+    structure_id: string;
+}
 
+export interface IGroupingResponse {
+    all: Array<IGroupingItemResponse>;
 }
 
 
@@ -26,54 +29,22 @@ export interface GroupingClass {
 export class Grouping {
     id: string;
     name: string;
-    structureId: string;
-    class: Classe[];
-    group: IGroup[];
+    student_divisions: StudentDivision[];
+    structure_id: string;
 
-    constructor(name: string, structure: string) {
-        this.name = name;
-        this.structureId = structure;
-        this.class = [];
-        this.group = [];
-
-    }
-
-    toJson() {
-        return {
-            id: this.id,
-            name: this.name,
-            structureId: this.structureId,
-            class: this.class,
-            group: this.group
-        }
-    }
-
-    //setters will be delete later for the back
-    setId(id: string): void {
+    construct(id: string, name: string, structure: string, division: StudentDivision[]): Grouping {
         this.id = id;
-    }
-
-    setName(name: string): void {
         this.name = name;
+        this.structure_id = structure;
+        this.student_divisions = division;
+        return this;
     }
 
-    setStructureId(structureId: string): void {
-        this.structureId = structureId;
-    }
-
-    setClass(classTab: Classe[]): void {
-        this.class = classTab;
-    }
-
-    setGroup(groupTab: IGroup[]) {
-        this.group = groupTab
-    }
-}
-
-export class Groupings {
-    all: Grouping[]
-
-    constructor(groupingTab: Grouping[]) {
-        this.all = groupingTab;
+    build(data: IGroupingItemResponse): Grouping {
+        this.id = data.id;
+        this.name = data.name;
+        this.structure_id = data.structure_id;
+        this.student_divisions = data.student_divisions.map((studentDivision: StudentDivision) => new StudentDivision(studentDivision));
+        return this;
     }
 }

@@ -63,6 +63,12 @@ public interface GroupeService extends CrudService {
     void getNameOfGroupeClasse(String idGroupe, Handler<Either<String, JsonArray>> handler);
 
     /**
+     * @param idsAudience list of id class/group
+     * @return Future of results
+     */
+    Future<JsonArray> getNameOfGroupClass(List<String> idsAudience);
+
+    /**
      * Search for group based on given name. Search for group in classes, functional groups and manual groups
      * @param structure_id Structure identifier
      * @param query query matcher

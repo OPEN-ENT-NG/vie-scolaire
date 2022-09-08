@@ -854,7 +854,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .onSuccess(res -> promise.complete(!res.isEmpty()))
                 .onFailure(err -> {
                     String messageToFormat = "[Viescolaire@%s::isClassExist] Error while checking class existence : %s";
-                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err.getCause(), promise);
+                    PromiseHelper.reject(log, messageToFormat, this.getClass().getSimpleName(), err, promise);
                 });
         return promise.future();
     }

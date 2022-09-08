@@ -99,18 +99,23 @@ public class Field {
     public static final String COMPETENCES = "competences";
     public static final String IDS = "ids";
     public static final String NODE_EXISTS = "node_exists";
-
+    public static final String DATA = "data";
     //Grouping field
+    public static final String GROUPING = "grouping";
     public static final String GROUPING_ID = "grouping_id";
     public static final String GROUP_ID = "group_id";
     public static final String GROUP_ID_CAMEL = "groupId";
     public static final String STUDENT_DIVISION_ID = "student_division_id";
+    public static final String STUDENT_DIVISION_NAME = "student_division_name";
+    public static final String STUDENT_DIVISIONS = "student_divisions";
 
     //Test field
     public static final String VALUES = "values";
     public static final String STATEMENT = "statement";
     public static final String ACTION = "action";
     public static final String PREPARED = "prepared";
+    public static final String IDSAUDIENCE = "idsAudience";
+    public static final String IDGROUP = "idGroupe";
 
     private Field() {
         throw new IllegalStateException("Utility class");

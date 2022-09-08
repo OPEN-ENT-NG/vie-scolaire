@@ -29,6 +29,9 @@ public class FutureHelper {
         };
     }
 
+    /**
+     * @deprecated  Replaced by {@link #handlerEitherPromise(Promise)}
+     */
     public static Handler<Either<String, JsonArray>> handlerJsonArray(Promise<JsonArray> promise) {
         return event -> {
             if (event.isRight()) {
@@ -51,6 +54,9 @@ public class FutureHelper {
         };
     }
 
+    /**
+     * @deprecated  Replaced by {@link #handlerEitherPromise(Promise)}
+     */
     public static Handler<Either<String, JsonObject>> handlerJsonObject(Promise<JsonObject> promise) {
         return event -> {
             if (event.isRight()) {
@@ -58,6 +64,17 @@ public class FutureHelper {
             } else {
                 LOGGER.error(event.left().getValue());
                 promise.fail(event.left().getValue());
+            }
+        };
+    }
+
+    public static <L, R> Handler<Either<L, R>> handlerEitherPromise(Promise<R> promise) {
+        return event -> {
+            if (event.isRight()) {
+                promise.complete(event.right().getValue());
+            } else {
+                LOGGER.error(event.left().getValue());
+                promise.fail(event.left().getValue().toString());
             }
         };
     }

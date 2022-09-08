@@ -1,9 +1,19 @@
 package fr.openent.viescolaire.service;
 
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.List;
+
 public interface GroupingService {
+    /**
+     * List groupings
+     * @param structureId   Identifier of the structure to which the groupings belong
+     * @return              Promise with the status of the grouping creation.
+     */
+    Future<JsonArray> listGrouping(String structureId);
+
     /**
      * Create a new grouping
      * @param name          Name of the new grouping

@@ -1,4 +1,4 @@
-package fr.openent.viescolaire.security.Grouping;
+package fr.openent.viescolaire.security.grouping;
 
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
@@ -8,7 +8,7 @@ import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 
-public class StructureOwnerFilter implements ResourcesProvider {
+public class StructureOwnerGroupingFilter implements ResourcesProvider {
     @Override
     public void authorize(final HttpServerRequest resourceRequest, Binding binding, final UserInfos user, final Handler<Boolean> handler) {
         handler.handle(WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT)

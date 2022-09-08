@@ -18,15 +18,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.powermock.api.mockito.PowerMockito;
-
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 
-@RunWith(VertxUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(VertxUnitRunner.class)
+@PrepareForTest(DefaultGroupingService.class)
 public class DefaultGroupingServiceTest {
     private Vertx vertx;
     private final String address = "fr.openent.Viescolaire";
@@ -35,14 +39,43 @@ public class DefaultGroupingServiceTest {
     private final Neo4jRest neo4jRest = mock(Neo4jRest.class);
     private final String tableGrouping = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.GROUPING_TABLE;
     private final String TABLE_REL = Viescolaire.VSCO_SCHEMA + "." + Viescolaire.REL_GROUPING_CLASS_TABLE;
+
     @Before
     public void setUp() throws NoSuchFieldException {
-        vertx = Vertx.vertx();
-        defaultGroupingService = PowerMockito.spy(new DefaultGroupingService(new ServiceFactory()));
+        this.vertx = Vertx.vertx();
+        this.defaultGroupingService = PowerMockito.spy(new DefaultGroupingService(new ServiceFactory()));
         Sql.getInstance().init(vertx.eventBus(), address);
         FieldSetter.setField(neo4j, neo4j.getClass().getDeclaredField("database"), neo4jRest);
-
     }
+
+    @Test
+    public void testListGrouping(TestContext ctx) throws Exception {
+        Async async = ctx.async(2);
+
+        JsonArray result = new JsonArray().add(3).add(4);
+        Future<JsonArray> futureGetGroupings = Future.succeededFuture(result);
+        Future<JsonArray> futureGenerateGroupings = Future.succeededFuture(result);
+        Future<JsonArray> futureFail = Future.failedFuture("error");
+        PowerMockito.doAnswer(invocation -> futureGetGroupings)
+                .when(this.defaultGroupingService, "getGroupingsByStructure", "structureId1");
+        PowerMockito.doAnswer(invocation -> futureFail)
+                .when(this.defaultGroupingService, "getGroupingsByStructure", "structureId2");
+        PowerMockito.doAnswer(invocation -> futureGenerateGroupings)
+                .when(this.defaultGroupingService, "generateGroupingsList", result);
+
+        this.defaultGroupingService.listGrouping("structureId1").onComplete(event -> {
+            ctx.assertTrue(event.succeeded() && event.result().toString().equals(result.toString()));
+            async.countDown();
+        });
+
+        this.defaultGroupingService.listGrouping("structureId2").onComplete(event -> {
+            ctx.assertTrue(event.failed() && "error".equals(event.cause().getMessage()));
+            async.countDown();
+        });
+
+        async.awaitSuccess(10000);
+    }
+
     @Test
     public void TestCreateGrouping(TestContext ctx) {
         Async async = ctx.async();

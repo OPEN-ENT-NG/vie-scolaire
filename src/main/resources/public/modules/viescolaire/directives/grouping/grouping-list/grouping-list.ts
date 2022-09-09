@@ -2,6 +2,7 @@ import {ng} from "entcore";
 import {Grouping, GroupingClass} from "../../../models/common/Grouping";
 import {ILocationService, IScope, IWindowService} from "angular";
 import {GroupingService} from "../../../services";
+import {Structure} from "../../../models/personnel/Structure";
 import {Classe} from "../../../models/personnel/Classe";
 
 
@@ -11,7 +12,7 @@ interface IViewModel {
 
     deleteGroupingList(scope: IScope, grouping: Grouping): void;
 
-    addGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): Promise<void>;
+    addGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void;
 
     deleteGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void;
 
@@ -19,7 +20,7 @@ interface IViewModel {
 
     groupingInfo: Grouping;
 
-    audienceList: Array<Classe>;
+    structureList: Structure;
 
     groupingClassList: GroupingClass[];
 }
@@ -27,7 +28,7 @@ interface IViewModel {
 class Controller implements ng.IController, IViewModel {
     groupings: Array<Grouping>;
     groupingInfo: Grouping;
-    audienceList: Array<Classe>;
+    structureList: Structure;
     groupingClassList: GroupingClass[];
 
     constructor(private $scope: IScope,
@@ -45,8 +46,8 @@ class Controller implements ng.IController, IViewModel {
         scope.$parent.$eval(scope.$parent["vm"].onDeleteGrouping()(grouping));
     }
 
-    async addGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): Promise<void> {
-        await scope.$parent.$eval(scope.$parent["vm"].onAddGroupingAudience()(grouping, classOrGroup));
+    addGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void {
+        scope.$parent.$eval(scope.$parent["vm"].onAddGroupingAudience()(grouping, classOrGroup));
     }
 
     deleteGroupingAudienceList(scope: IScope, grouping: Grouping, classOrGroup: Classe): void {
@@ -67,7 +68,7 @@ function directive() {
             onDeleteGrouping: '&',
             onAddGroupingAudience: '&',
             onDeleteGroupingAudience: '&',
-            audienceList: '=',
+            structureList: '=',
         },
         controllerAs: 'vm',
         bindToController: true,

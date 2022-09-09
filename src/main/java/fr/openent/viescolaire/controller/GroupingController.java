@@ -28,11 +28,9 @@ public class GroupingController extends ControllerHelper {
     @ResourceFilter(StructureOwnerGroupingFilter.class)
     public void listGroupings(HttpServerRequest request) {
         String structureId = request.getParam(Field.ID);
-        UserUtils.getUserInfos(eb, request, user -> {
-            groupingService.listGrouping(structureId)
-                    .onSuccess(res -> renderJson(request, res))
-                    .onFailure(err -> renderError(request));
-        });
+        groupingService.listGrouping(structureId)
+                .onSuccess(res -> renderJson(request, res))
+                .onFailure(err -> renderError(request));
     }
 
     @Post("/grouping/structure/:id")

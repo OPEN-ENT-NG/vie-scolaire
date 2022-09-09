@@ -55,6 +55,7 @@ public class EventBusController extends ControllerHelper {
     private TimeSlotService timeSlotService;
     private ServicesService servicesService;
     private ConfigController configController;
+    private GroupingService groupingService;
 
     public EventBusController(EventBus _eb, JsonObject _config) {
         groupeService = new DefaultGroupeService();
@@ -71,7 +72,7 @@ public class EventBusController extends ControllerHelper {
         configController = new ConfigController(_config);
         servicesService = new DefaultServicesService();
         mutliTeachingService = new DefaultMultiTeachingService(_eb);
-
+        groupingService = new DefaultGroupingService(new ServiceFactory());
     }
 
     @BusAddress("viescolaire")
@@ -132,6 +133,11 @@ public class EventBusController extends ControllerHelper {
             case "config": {
                 configBusService(method, message);
             }
+            break;
+            case "grouping": {
+                groupingService(method, message);
+            }
+            break;
             case "service": {
                 serviceBusService(method, message);
             }
@@ -142,6 +148,24 @@ public class EventBusController extends ControllerHelper {
         }
     }
 
+    private void groupingService(String method, Message<JsonObject> message) {
+        JsonObject body = message.body();
+        String structureId = body.getString(Field.STRUCTUREID);
+
+        switch (method) {
+            case "getGroupingStructure": {
+                groupingService.listGrouping(structureId)
+                        .onSuccess(groupingList -> getJsonArrayBusResultHandler(message).handle(new Either.Right<>(groupingList)))
+                        .onFailure(error -> {
+                            String messageError = String.format("[Viescolaire@%s::getGroupingStructure] Error when get grouping list %s",
+                                    this.getClass().getSimpleName(), error.getMessage());
+                            log.error(messageError);
+                            getJsonArrayBusResultHandler(message).handle(new Either.Left<>(error.getMessage()));
+                        });
+            }
+            break;
+        }
+    }
 
     private void mutliTeachingService(String method, Message<JsonObject> message) {
         JsonObject body = message.body();

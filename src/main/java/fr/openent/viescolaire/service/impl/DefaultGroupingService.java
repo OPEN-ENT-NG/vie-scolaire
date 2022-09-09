@@ -38,7 +38,9 @@ public class DefaultGroupingService implements GroupingService {
             return promise.future();
         }
         JsonArray values = new JsonArray().add(structureId);
-        String query = "SELECT GRP.id, name, structure_id, array_to_json(ARRAY_AGG(REL.student_division_id)) AS student_divisions FROM " + DefaultGroupingService.TABLE_GROUPING + " AS GRP LEFT JOIN " + DefaultGroupingService.TABLE_REL
+        //When a grouping has no studentDivision the ARRAY_AGG function return {null} instead of an empty array {}
+        String emptyStudentDivisionsFilter = "CASE WHEN ARRAY_AGG(REL.student_division_id) = '{null}' THEN '{}' ELSE ARRAY_AGG(REL.student_division_id) END";
+        String query = "SELECT GRP.id, name, structure_id, array_to_json(" + emptyStudentDivisionsFilter + ") AS student_divisions FROM " + DefaultGroupingService.TABLE_GROUPING + " AS GRP LEFT JOIN " + DefaultGroupingService.TABLE_REL
                 + " AS REL ON REL.grouping_id = GRP.id WHERE structure_id = ? GROUP BY GRP.id";
         Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(res -> {
             if (res.isRight()) {

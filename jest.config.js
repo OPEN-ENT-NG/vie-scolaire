@@ -10,8 +10,8 @@ module.exports = {
     ],
     "testPathIgnorePatterns": [
         "/node_modules/",
-        "<rootDir>/viescolaire/build/",
-        "<rootDir>/viescolaire/out/"
+        "<rootDir>/build/",
+        "<rootDir>/out/"
     ],
     "verbose": true,
     "testURL": "http://localhost/",

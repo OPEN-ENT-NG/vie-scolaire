@@ -1,26 +1,26 @@
 <div class="grouping-item-class-item">
     <!-- display each grouping with name, and class selected from the list -->
-    <div class="vertical-spacing-six flex-row align-center grouping-item-class-list-element">
-        <div class="one flex-row align-center grouping-item-class-list-element-name">
-            <span>[[vm.groupingItem.name]]</span>
-            <i class="margin-md edit" data-ng-click="vm.displayRenameGrouping = true;"></i>
-            <i class="margin-md trash" data-ng-click="vm.deleteGroupingItem(vm.groupingItem)"></i>
+    <div class="vertical-spacing-six flex-row align-center grouping-item-class-item-element">
+        <div class="flex-row align-center grouping-item-class-list-element-name three">
+            <span class="flex-row ten mr-12">[[vm.groupingItem.name]]</span>
+            <i class="margin-md edit flex-row one m-12" data-ng-click="vm.displayRenameGrouping = true;"></i>
+            <i class="margin-md trash flex-row one" data-ng-click="vm.deleteGroupingItem(vm.groupingItem)"></i>
         </div>
 
-        <div class="four flex-row">
+        <div class="flex-row three p-12">
             <!-- display a list of class to select or unselect -->
             <multi-combo title="[[vm.lang.translate('viescolaire.select.classes')]]"
                          combo-model="vm.getAllClass()"
                          filtered-model="vm.groupingClassItem.classes"
                          search-on="name"
                          order-by="name"
-                         selection-event="vm.classeSelect(vm.groupingClassItem, vm.groupingItem)"
-                         deselection-event="vm.classeUnselect(vm.groupingClassItem, vm.groupingItem)"
+                         selection-event="vm.classSelect(vm.groupingClassItem, vm.groupingItem)"
+                         deselection-event="vm.classUnselect(vm.groupingClassItem, vm.groupingItem)"
                          search-placeholder="[[vm.lang.translate('viescolaire.utils.search')]]"
             >
             </multi-combo>
         </div>
-        <div class="bold f-wrap eight flex-row align-center grouping-item-class-item-element-classes">
+        <div class="bold f-wrap four flex-row align-center grouping-item-class-item-element-classes">
             <div class="two flex-row align-center" ng-repeat="classe in vm.groupingClassItem.classes">
                 <p class="flex-one vertical-spacing-twice">[[classe.name]]</p>
                 <i class="mdi-close" ng-click="vm.deleteClassItem(vm.groupingClassItem, vm.groupingItem, classe)"></i>

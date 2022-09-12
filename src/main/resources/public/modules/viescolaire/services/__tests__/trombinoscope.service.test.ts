@@ -1,8 +1,3 @@
-// tricks to fake "mock" entcore ng class in order to use service
-jest.mock('entcore', () => ({
-    ng: {service: jest.fn()}
-}))
-
 import {trombinoscopeService} from "../TrombinoscopeService";
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import MockAdapter from 'axios-mock-adapter';

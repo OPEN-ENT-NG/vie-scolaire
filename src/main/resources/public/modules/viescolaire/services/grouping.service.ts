@@ -1,5 +1,5 @@
 import http, {AxiosResponse} from "axios";
-import {Grouping, Groupings} from "../models/common/Grouping";
+import {Grouping, IGroupingItemResponse} from "../models/common/grouping";
 import {ng} from "entcore";
 
 export interface GroupingService {
@@ -10,44 +10,40 @@ export interface GroupingService {
 
     deleteGrouping(id: string): Promise<AxiosResponse>;
 
-    addGroupingAudience(id: string, classOrGroupId: string): Promise<AxiosResponse>;
+    addGroupingAudience(id: string, studentDivisionId: string): Promise<AxiosResponse>;
 
-    deleteGroupingAudience(id: string, classOrGroupId: string): Promise<AxiosResponse>;
+    deleteGroupingAudience(id: string, studentDivisionId: string): Promise<AxiosResponse>;
 
-    getGroupingList(): Promise<Grouping[]>;
+    getGroupingList(structureId: string): Promise<Grouping[]>;
 }
 
 export const groupingService: GroupingService = {
 
     createGrouping: async (structureId: string, name: string): Promise<AxiosResponse> => {
-
-        return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return http.post(`/viescolaire/grouping/structure/${structureId}`, name);
+        return http.post(`/viescolaire/grouping/structure/${structureId}`,{name : name});
     },
 
     updateGrouping: async (id: string, name: string): Promise<AxiosResponse> => {
-        return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return http.put(`/viescolaire/grouping/${id}`, name);
+        return http.put(`/viescolaire/grouping/${id}`,{name : name});
     },
 
     deleteGrouping: async (id: string): Promise<AxiosResponse> => {
-        return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return http.delete(`/viescolaire/grouping/${id}`);
+        return http.delete(`/viescolaire/grouping/${id}`);
     },
 
-    addGroupingAudience: async (id: string, classOrGroupId: string): Promise<AxiosResponse> => {
-        return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return http.post(`/viescolaire/grouping/${id}/add`, classOrGroupId);
+    addGroupingAudience: async (id: string, studentDivisionId: string): Promise<AxiosResponse> => {
+        return http.post(`/viescolaire/grouping/${id}/add`,{student_division_id : studentDivisionId});
     },
 
-    deleteGroupingAudience: async (id: string, classOrGroupId: string): Promise<AxiosResponse> => {
-        return {config: undefined, data: {id: 4}, headers: undefined, request: undefined, status: 200, statusText: ""};
-        //return http.put(`/viescolaire/grouping/${id}/delete`, classOrGroupId);
+    deleteGroupingAudience: async (id: string, studentDivisionId: string): Promise<AxiosResponse> => {
+        return http.delete(`/viescolaire/grouping/${id}/delete`,{data : {student_division_id : studentDivisionId}});
     },
 
-    getGroupingList: async (): Promise<Grouping[]> => {
-        return http.get(`/viescolaire/grouping/list`)
-            .then((res: AxiosResponse) => res.data.map((grouping: Grouping[]) => new Groupings(grouping)));
+    getGroupingList: async (structureId: string): Promise<Grouping[]> => {
+        return http.get(`/viescolaire/grouping/structure/${structureId}/list`)
+            .then((res: AxiosResponse) =>
+                res.data.map((grouping: IGroupingItemResponse) => new Grouping().build(grouping))
+            );
     },
 }
 

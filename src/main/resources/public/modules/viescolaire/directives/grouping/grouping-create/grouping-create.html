@@ -1,6 +1,6 @@
 <div>
     <div class="row cell twelve-mobile">
-        <button data-ng-click="vm.createGrouping(vm.groupingName);">
+        <button data-ng-click="vm.createGrouping(vm.groupingName);" ng-disabled="!vm.groupingName">
             <span><i18n>viescolaire.grouping.create</i18n></span>
         </button>
     </div>

@@ -1,5 +1,5 @@
 import {ng} from "entcore";
-import {Grouping} from "../../../models/common/Grouping";
+import {Grouping} from "../../../models/common/grouping";
 import {ILocationService, IScope, IWindowService} from "angular";
 import {GroupingService} from "../../../services";
 

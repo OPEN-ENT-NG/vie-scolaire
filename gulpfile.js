@@ -22,7 +22,7 @@ var webpack = require('webpack-stream');
 var merge = require('merge2');
 var watch = require('gulp-watch');
 var rev = require('gulp-rev');
-var revReplace = require("gulp-rev-replace");
+const replace = require('gulp-replace');
 var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 var glob = require('glob');
@@ -51,7 +51,7 @@ function startWebpack(isLocal) {
 
 function updateRefs() {
     var vsco = gulp.src(glob.sync("./src/main/resources/view-src//*.html"))
-        .pipe(revReplace({manifest: gulp.src(["./manifests/vscos.json", "./manifests/entcore.json"]) }))
+        .pipe(replace('@@VERSION', Date.now()))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
     return vsco;
 }
@@ -61,27 +61,15 @@ gulp.task('drop-cache', function(){
         .pipe(clean());
 });
 
-gulp.task('copy-files', ['drop-cache'], () => {
-    var html = gulp.src('./node_modules/entcore/src/template/**/*.html')
-        .pipe(gulp.dest('./src/main/resources/public/template/entcore'));
-var bundle = gulp.src('./node_modules/entcore/bundle/*')
-    .pipe(gulp.dest('./src/main/resources/public/dist/entcore'));
 
-return merge(html, bundle);
-});
-
-gulp.task('webpack', ['copy-mdi-font'], function(){ return startWebpack() });
-
-gulp.task('rev', ['webpack'], function () {
-    updateRefs();
-});
-
-gulp.task('copy-mdi-font', ['copy-files'], function () {
+gulp.task('copy-mdi-font', ['drop-cache'], function () {
     return gulp.src('./node_modules/@mdi/font/fonts/*')
         .pipe(gulp.dest('./src/main/resources/public/font/material-design/fonts'));
 });
 
-gulp.task('copyBehaviours', ['rev'], function () {
+gulp.task('webpack', ['copy-mdi-font'], function(){ return startWebpack() });
+
+gulp.task('copyBehaviours', ['webpack'], function () {
     return gulp.src('./src/main/resources/public/dist/behaviours.js')
         .pipe(gulp.dest('./src/main/resources/public/js'));
 });

@@ -1,12 +1,13 @@
 package fr.openent.viescolaire.model.Trombinoscope;
 
-import fr.openent.viescolaire.model.Model;
+import fr.openent.viescolaire.model.IModel;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigInteger;
 
 
-public class TrombinoscopeFailure extends Model implements Cloneable {
+public class TrombinoscopeFailure implements Cloneable, IModel<TrombinoscopeFailure> {
 
     private BigInteger id;
     private String path;
@@ -22,17 +23,6 @@ public class TrombinoscopeFailure extends Model implements Cloneable {
         this.structure_id = failure.getString("structure_id", null);
         this.picture_id = failure.getString("picture_id", null);
         this.created_at = failure.getString("created_at", null);
-    }
-
-    @Override
-    public JsonObject toJsonObject() {
-        return new JsonObject()
-                .put("id", this.id)
-                .put("path", this.path)
-                .put("message", this.message)
-                .put("structure_id", this.structure_id)
-                .put("picture_id", this.picture_id)
-                .put("created_at", this.created_at);
     }
 
     public BigInteger getId() {
@@ -81,6 +71,22 @@ public class TrombinoscopeFailure extends Model implements Cloneable {
 
     public void setCreatedAt(String created_at) {
         this.created_at = created_at;
+    }
+
+    @Override
+    public JsonObject toJsonObject() {
+        return new JsonObject()
+                .put("id", this.id)
+                .put("path", this.path)
+                .put("message", this.message)
+                .put("structure_id", this.structure_id)
+                .put("picture_id", this.picture_id)
+                .put("created_at", this.created_at);
+    }
+
+    @Override
+    public boolean validate() {
+        throw new NotImplementedException();
     }
 }
 

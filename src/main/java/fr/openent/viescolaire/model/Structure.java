@@ -1,8 +1,9 @@
 package fr.openent.viescolaire.model;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.NotImplementedException;
 
-public class Structure extends Model implements Cloneable {
+public class Structure implements Cloneable, IModel<Structure> {
 
     private String id;
     private String name;
@@ -12,14 +13,6 @@ public class Structure extends Model implements Cloneable {
         this.id = structure.getString("id", null);
         this.name = structure.getString("name", null);
         this.UAI = structure.getString("UAI", null);
-    }
-
-    @Override
-    public JsonObject toJsonObject() {
-        return new JsonObject()
-                .put("id", this.id)
-                .put("name", this.name)
-                .put("UAI", this.UAI);
     }
 
     public String getId() {
@@ -44,6 +37,19 @@ public class Structure extends Model implements Cloneable {
 
     public void setUAI(String UAI) {
         this.UAI = UAI;
+    }
+
+    @Override
+    public JsonObject toJsonObject() {
+        return new JsonObject()
+                .put("id", this.id)
+                .put("name", this.name)
+                .put("UAI", this.UAI);
+    }
+
+    @Override
+    public boolean validate() {
+        throw new NotImplementedException();
     }
 }
 

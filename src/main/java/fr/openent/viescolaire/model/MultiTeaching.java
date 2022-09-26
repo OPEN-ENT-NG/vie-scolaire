@@ -4,16 +4,16 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigInteger;
-import java.text.ParseException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class MultiTeaching extends Model implements Cloneable{
+public class MultiTeaching implements Cloneable, IModel<MultiTeaching> {
 
     private BigInteger id;
     private String structureId;
@@ -198,5 +198,10 @@ public class MultiTeaching extends Model implements Cloneable{
         objectMultiTeaching.put("is_visible", this.isVisible);
 
         return objectMultiTeaching;
+    }
+
+    @Override
+    public boolean validate() {
+        throw new NotImplementedException();
     }
 }

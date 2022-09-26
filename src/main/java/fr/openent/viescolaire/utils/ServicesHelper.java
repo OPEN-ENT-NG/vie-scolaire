@@ -1,26 +1,20 @@
 package fr.openent.viescolaire.utils;
 
-import fr.openent.viescolaire.helper.ModelHelper;
-import fr.openent.viescolaire.model.Model;
+import fr.openent.viescolaire.helper.IModelHelper;
 import fr.openent.viescolaire.model.MultiTeaching;
 import fr.openent.viescolaire.model.ServiceModel;
 import fr.openent.viescolaire.service.GroupeService;
-import fr.openent.viescolaire.service.MultiTeachingService;
-import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultGroupeService;
-import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
-import fr.openent.viescolaire.service.impl.DefaultServicesService;
 import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import java.text.ParseException;
+
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -142,7 +136,7 @@ public class ServicesHelper {
                     if(compressed)
                         requestHandler.handle(new Either.Right<>(getCompressedService(resultList)));
                     else
-                        requestHandler.handle(new Either.Right<>(ModelHelper.convertToJsonArray(resultList)));
+                        requestHandler.handle(new Either.Right<>(IModelHelper.toJsonArray(resultList)));
                 }else{
                     log.info(event.left().getValue());
                 }

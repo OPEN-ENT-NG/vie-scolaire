@@ -1,15 +1,16 @@
 package fr.openent.viescolaire.model;
 
-import fr.openent.viescolaire.helper.ModelHelper;
+import fr.openent.viescolaire.helper.IModelHelper;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServiceModel extends Model implements Cloneable{
+public class ServiceModel implements Cloneable, IModel<ServiceModel>{
     private String idTopic;
     private String idTeacher;
     private String idGroup;
@@ -32,6 +33,21 @@ public class ServiceModel extends Model implements Cloneable{
         this.coTeachers = new ArrayList<>();
         this.substituteTeachers = new ArrayList<>();
         this.isVisible = true;
+    }
+
+    public ServiceModel(JsonObject jsonObject) {
+        this.idTopic = jsonObject.getString("id_matiere", null);
+        this.idTeacher = jsonObject.getString("id_enseignant", null);
+        this.idGroup = jsonObject.getString("id_groupe", null);
+        this.modalite = jsonObject.getString("modalite", null);
+        this.evaluable = jsonObject.getBoolean("evaluable", null);
+        this.coefficient = jsonObject.getLong("coefficient", null);
+        this.isManual = jsonObject.getBoolean("is_manual", null);
+        this.typeGroup = jsonObject.getString("typeGroupe", null);
+        this.isVisible = jsonObject.getBoolean("is_visible", null);
+        this.substituteTeachers = IModelHelper.toList(jsonObject.getJsonArray("substituteTeachers", new JsonArray()), MultiTeaching.class);
+        this.coTeachers = IModelHelper.toList(jsonObject.getJsonArray("coTeachers", new JsonArray()), MultiTeaching.class);
+        this.id_groups = jsonObject.getJsonArray("id_groups", null);
     }
 
     @Override
@@ -175,6 +191,14 @@ public class ServiceModel extends Model implements Cloneable{
         return newServices;
     }
 
+    public int compareTo(ServiceModel serviceModelB) {
+        if (this.getIdTeacher().compareTo(serviceModelB.getIdTeacher()) == 0) {
+            return this.getIdTopic().compareTo(serviceModelB.getIdTopic());
+        } else {
+            return this.getIdTeacher().compareTo(serviceModelB.getIdTeacher());
+        }
+    }
+
     @Override
     public JsonObject toJsonObject() {
         JsonObject oService = new JsonObject()
@@ -187,17 +211,14 @@ public class ServiceModel extends Model implements Cloneable{
                 .put("typeGroupe", this.getTypeGroup())
                 .put("is_visible", this.isVisible())
                 .put("is_manual", this.isManual())
-                .put("coTeachers", ModelHelper.convertToJsonArray(this.coTeachers))
-                .put("substituteTeachers", ModelHelper.convertToJsonArray(this.substituteTeachers));
+                .put("coTeachers", IModelHelper.toJsonArray(this.coTeachers))
+                .put("substituteTeachers", IModelHelper.toJsonArray(this.substituteTeachers));
         if(this.id_groups != null) oService.put("id_groups", this.getId_groups());
         return oService;
     }
 
-    public int compareTo(ServiceModel serviceModelB) {
-        if (this.getIdTeacher().compareTo(serviceModelB.getIdTeacher()) == 0) {
-            return this.getIdTopic().compareTo(serviceModelB.getIdTopic());
-        } else {
-            return this.getIdTeacher().compareTo(serviceModelB.getIdTeacher());
-        }
+    @Override
+    public boolean validate() {
+        throw new NotImplementedException();
     }
 }

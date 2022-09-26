@@ -68,6 +68,7 @@ dependencies {
   testCompile "org.powermock:powermock-module-junit4:$powerMockVersion"
   testCompile "org.powermock:powermock-module-testng:$powerMockVersion"
   testCompile 'io.gatling.highcharts:gatling-charts-highcharts:2.2.2'
+  testCompile "org.reflections:reflections:$reflectionsVersion"
   compile "com.opencsv:opencsv:4.0"
 }
 

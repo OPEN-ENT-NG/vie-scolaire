@@ -2,19 +2,25 @@ package fr.openent.viescolaire.helper;
 
 import fr.openent.viescolaire.model.Person.Student;
 import fr.openent.viescolaire.model.Person.User;
+import fr.wseduc.webutils.http.Renders;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserHelper {
+    private static final Logger log = LoggerFactory.getLogger(UserHelper.class);
 
     /**
      * Convert JsonArray into User list
@@ -67,4 +73,32 @@ public class UserHelper {
         UserUtils.getUserInfos(eb, request, promise::complete);
         return promise.future();
     }
+
+    public static Future<List<UserInfos>> getUserInfosFromIds(EventBus eb, List<String> idList) {
+        Promise<List<UserInfos>> promise = Promise.promise();
+
+        List<Promise<UserInfos>> promiseList = new ArrayList<>();
+        idList.forEach(userId -> {
+            Promise<UserInfos> promiseUserInfo = Promise.promise();
+            UserUtils.getUserInfos(eb, userId, promiseUserInfo::complete);
+            promiseList.add(promiseUserInfo);
+        });
+
+        CompositeFuture.all(promiseList.stream().map(Promise::future).collect(Collectors.toList()))
+                .onSuccess(result -> {
+                    List<UserInfos> userInfosList = promiseList.stream()
+                            .map(Promise::future)
+                            .map(Future::result)
+                            .collect(Collectors.toList());
+                    promise.complete(userInfosList);
+                })
+                .onFailure(error -> {
+                    String message = String.format("[Viescolaire@%s::getUserInfosFromIds] %s.", UserHelper.class.getSimpleName(), error.getMessage());
+                    log.error(message);
+                    promise.fail(error.getMessage());
+                });
+
+        return promise.future();
+    }
+
 }

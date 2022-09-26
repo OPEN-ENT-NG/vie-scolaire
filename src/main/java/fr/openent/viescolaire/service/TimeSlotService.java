@@ -1,5 +1,7 @@
 package fr.openent.viescolaire.service;
 
+import fr.openent.viescolaire.model.Person.Student;
+import fr.openent.viescolaire.model.TimeslotModel;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -7,6 +9,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TimeSlotService {
 
@@ -35,6 +38,14 @@ public interface TimeSlotService {
     Future<JsonArray> getSlotProfilesFromClasses(List<String> idsClass);
 
     /**
+     * Get the slotProfiles of a list of classId
+     *
+     * @param idsClass list of classId
+     * @return {@link Future} of {@link Map} completed or failure. Map with class id in key and timeslot id in value
+     */
+    Future<Map<String, String>> getTimeslotIdFromClasses(List<String> idsClass);
+
+    /**
      * Get the slotProfiles of a class
      *
      * @param idClass class identifier
@@ -43,6 +54,15 @@ public interface TimeSlotService {
     Future<String> getSlotProfilesFromClasse(String idClass);
 
     void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler);
+
+
+    /**
+     * Get slot profile for multiple structure
+     *
+     * @param structureIdList List of structure id
+     * @return a map with structure id as key and this slot profile id as value
+     */
+    Future<Map<String, String>> getSlotProfileSetting(List<String> structureIdList);
 
     /**
      * Retrieve ONLY slots defined by your default time slots. Returns slots
@@ -154,4 +174,22 @@ public interface TimeSlotService {
      * @return {@link Future} of {@link JsonArray} completed or failure
      */
     Future<JsonArray> getMultipleTimeSlot(List<String> slotIds);
+
+
+    /**
+     * Get multiple timeslot from id
+     *
+     * @param timeslotId List of timeslot id
+     * @return list of populated timeslot
+     */
+    Future<List<TimeslotModel>> getTimeSlotFromId(List<String> timeslotId);
+
+
+    /**
+     * Get timeslot for student list
+     *
+     * @param studentList student list (must have id defined)
+     * @return a map with student as key and this timeslot as value
+     */
+    Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList);
 }

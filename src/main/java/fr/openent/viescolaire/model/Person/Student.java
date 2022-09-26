@@ -1,8 +1,10 @@
 package fr.openent.viescolaire.model.Person;
 
+import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.model.IModel;
 import io.vertx.core.json.JsonObject;
 
-public class Student extends Person {
+public class Student extends Person implements IModel<Student> {
 
     private String classId;
     private String className;
@@ -56,5 +58,23 @@ public class Student extends Person {
 
     public void setAudienceName(String audienceName) {
         this.audienceName = audienceName;
+    }
+
+    @Override
+    public JsonObject toJson() {
+        return new JsonObject()
+                .put(Field.ID, this.id)
+                .put(Field.DISPLAYNAME, this.displayName)
+                .put(Field.FIRSTNAME, this.firstName)
+                .put(Field.LASTNAME, this.lastName)
+                .put(Field.CLASSID, this.classId)
+                .put(Field.CLASSNAME, this.className)
+                .put(Field.AUDIENCEID, this.audienceId)
+                .put(Field.AUDIENCENAME, this.audienceName);
+    }
+
+    @Override
+    public boolean validate() {
+        return false;
     }
 }

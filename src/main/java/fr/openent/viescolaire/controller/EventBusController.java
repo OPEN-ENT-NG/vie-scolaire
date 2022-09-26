@@ -18,12 +18,12 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.model.Person.Student;
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -56,22 +56,21 @@ public class EventBusController extends ControllerHelper {
     private ServicesService servicesService;
     private ConfigController configController;
 
-    public EventBusController(EventBus _eb, JsonObject _config) {
+    public EventBusController(ServiceFactory serviceFactory, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
-        userService = new DefaultUserService(_eb);
+        userService = new DefaultUserService(serviceFactory.getEventbus());
         eleveService = new DefaultEleveService();
-        matiereService = new DefaultMatiereService(_eb);
+        matiereService = new DefaultMatiereService(serviceFactory.getEventbus());
         periodeService = new DefaultPeriodeService();
         periodeAnneeService = new DefaultPeriodeAnneeService();
         eventService = new DefaultEventService();
         utilsService = new DefaultUtilsService();
-        commonCoursService = new DefaultCommonCoursService(_eb);
-        timeSlotService = new DefaultTimeSlotService();
+        commonCoursService = new DefaultCommonCoursService(serviceFactory.getEventbus());
+        timeSlotService = new DefaultTimeSlotService(serviceFactory);
         configController = new ConfigController(_config);
         servicesService = new DefaultServicesService();
-        mutliTeachingService = new DefaultMultiTeachingService(_eb);
-
+        mutliTeachingService = new DefaultMultiTeachingService(serviceFactory.getEventbus());
     }
 
     @BusAddress("viescolaire")
@@ -286,6 +285,27 @@ public class EventBusController extends ControllerHelper {
                             )));
                         })
                         .onFailure(err -> getJsonObjectBusResultHandler(message).handle(new Either.Left<>(err.getMessage())));
+            }
+            break;
+            case "getTimeslotFromStudentIds": {
+                List<Student> studentList = body.getJsonArray(Field.STUDENT_ID_LIST).stream()
+                        .map(String.class::cast)
+                        .map(Student::new)
+                        .collect(Collectors.toList());
+
+                this.timeSlotService.getTimeslotFromStudentId(studentList)
+                        .onSuccess(mapStudentTimeslotModel -> {
+                            JsonObject resultStudentTimeslot = new JsonObject();
+                            mapStudentTimeslotModel.forEach((student, timeslotModel) ->
+                                    resultStudentTimeslot.put(student.getId(), timeslotModel.toJson()));
+                            getJsonObjectBusResultHandler(message).handle(new Either.Right<>(resultStudentTimeslot));
+                        })
+                        .onFailure(error -> {
+                            String messageError = String.format("[Viescolaire@%s::getTimeslotFromStudentId] Error when get grouping list %s",
+                                    this.getClass().getSimpleName(), error.getMessage());
+                            log.error(messageError);
+                            getJsonObjectBusResultHandler(message).handle(new Either.Left<>(messageError));
+                        });
             }
         }
     }

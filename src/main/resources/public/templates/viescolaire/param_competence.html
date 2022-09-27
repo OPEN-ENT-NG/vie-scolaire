@@ -191,6 +191,22 @@
                             </div>
                         </div>
                     </article>
+                    <article>
+                        <div class="twelve">
+                            <h3>
+                                <i18n>viescolaire.competence.structure.option.title.calculate.level.skills</i18n>
+
+                            </h3>
+
+                            <div class="twelve" ng-init="source.idStructure = structure.id; ">
+                                <sniplet
+                                        template="structure-option-is-average-skills"
+                                        application="competences"
+                                        source="source"
+                                ></sniplet>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"

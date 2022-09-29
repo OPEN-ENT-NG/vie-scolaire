@@ -2,7 +2,7 @@ package fr.openent.viescolaire.model;
 
 import io.vertx.core.json.JsonObject;
 
-public class Structure extends Model implements Cloneable {
+public class Structure extends Model implements Cloneable, IModel<Structure> {
 
     private String id;
     private String name;
@@ -26,8 +26,9 @@ public class Structure extends Model implements Cloneable {
         return id;
     }
 
-    public void setId(String id) {
+    public Structure setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
@@ -44,6 +45,16 @@ public class Structure extends Model implements Cloneable {
 
     public void setUAI(String UAI) {
         this.UAI = UAI;
+    }
+
+    @Override
+    public JsonObject toJson() {
+        return this.toJsonObject();
+    }
+
+    @Override
+    public boolean validate() {
+        return false;
     }
 }
 

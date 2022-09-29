@@ -43,7 +43,7 @@ public class DefaultGroupingServiceTest {
     @Before
     public void setUp() throws NoSuchFieldException {
         this.vertx = Vertx.vertx();
-        this.defaultGroupingService = PowerMockito.spy(new DefaultGroupingService(new ServiceFactory()));
+        this.defaultGroupingService = PowerMockito.spy(new DefaultGroupingService(new ServiceFactory(vertx.eventBus())));
         Sql.getInstance().init(vertx.eventBus(), address);
         FieldSetter.setField(neo4j, neo4j.getClass().getDeclaredField("database"), neo4jRest);
     }

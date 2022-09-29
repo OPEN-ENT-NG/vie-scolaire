@@ -127,6 +127,16 @@ public class Field {
     public static final String FAILUREID = "failureId";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String CLASSNAME = "className";
+    public static final String AUDIENCENAME = "audienceName";
+    public static final String ID_STRUCTURE = "id_structure";
+    public static final String TIMESLOT = "timeslot";
+    public static final String SLOTS = "slots";
+    public static final String CREATED = "created";
+    public static final String MODIFIED = "modified";
+    public static final String STARTHOUR = "startHour";
+    public static final String ENDHOUR = "endHour";
+    public static final String STUDENT_ID_LIST = "student_id_list";
 
     private Field() {
         throw new IllegalStateException("Utility class");

@@ -302,24 +302,23 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle, String idMatiere,
                                Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
-        String query = "SELECT res.id_devoir, id_competence, id_domaine, max(evaluation) as evaluation, owner, id_eleve, " +
-                "created, modified, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, " +
-                "id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
-                "_type_libelle, owner_name, id_groupe FROM ( " +
-                "SELECT cd.id_devoir, cd.id_competence, id_domaine, evaluation, cn.owner, id_eleve, " +
-                "devoirs.created, devoirs.modified, devoirs.id_matiere, devoirs.id_sousmatiere, name, devoirs.is_evaluated, " +
-                "id_periode, devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
-                "type.nom as _type_libelle, users.username as owner_name, id_groupe " +
-                "FROM notes.competences_devoirs as cd " +
-                "INNER JOIN notes.competences on cd.id_competence = competences.id " +
-                "INNER JOIN notes.competences_notes as cn on cd.id_devoir = cn.id_devoir " +
-                "AND cd.id_competence = cn.id_competence " +
-                "INNER JOIN notes.devoirs on devoirs.id = cd.id_devoir " +
-                "INNER JOIN notes.type on devoirs.id_type = type.id " +
-                "INNER JOIN notes.rel_competences_domaines ON rel_competences_domaines.id_competence = cd.id_competence " +
-                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".users ON (users.id = devoirs.owner) " +
-                "LEFT JOIN notes.rel_devoirs_groupes on  cd.id_devoir = rel_devoirs_groupes.id_devoir " +
-                "WHERE date_publication <= Now() AND id_eleve = ? ";
+
+        //le DISTINCT est utilisé pour filtrer des données identiques multipliées sur la table competences_devoirs
+        StringBuilder query = new StringBuilder()
+                .append("SELECT DISTINCT cd.id_devoir, cd.id_competence, id_domaine, cn.id AS id_competences_notes,")
+                .append(" evaluation, cn.owner, id_eleve, devoirs.created, devoirs.modified, devoirs.id_matiere,")
+                .append(" devoirs.id_sousmatiere, name, devoirs.is_evaluated, id_periode, devoirs.id_type, diviseur,")
+                .append(" date_publication, date, apprec_visible, coefficient, libelle, type.nom as _type_libelle,")
+                .append(" users.username as owner_name, id_groupe")
+                .append(" FROM notes.competences_devoirs as cd")
+                .append(" INNER JOIN notes.competences on cd.id_competence = competences.id")
+                .append(" INNER JOIN notes.competences_notes as cn on cd.id_devoir = cn.id_devoir AND cd.id_competence = cn.id_competence")
+                .append(" INNER JOIN notes.devoirs on devoirs.id = cd.id_devoir")
+                .append(" INNER JOIN notes.type on devoirs.id_type = type.id")
+                .append(" INNER JOIN notes.rel_competences_domaines ON rel_competences_domaines.id_competence = cd.id_competence")
+                .append(" INNER JOIN notes.users ON users.id = devoirs.owner")
+                .append(" LEFT JOIN notes.rel_devoirs_groupes on  cd.id_devoir = rel_devoirs_groupes.id_devoir")
+                .append(" WHERE date_publication <= Now() AND id_eleve = ? ");
 
         values.add(idEleve);
 
@@ -329,79 +328,28 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
 
         if(idCycle == null) {
             // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
-            query += "AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
-                    "AND devoirs.eval_lib_historise = false ";
+            query.append("AND rel_devoirs_groupes.id_groupe IN ").append( Sql.listPrepared(idGroups.getList()))
+                    .append("AND devoirs.eval_lib_historise = false ");
+
         } else {
             // en vue cycle recuperation des devoirs de la classe (+groupes) actuelle de l'élève
             // + récupération des evaluations historisées
-            query += "AND ( (rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
-                    " AND devoirs.eval_lib_historise = false) OR  devoirs.eval_lib_historise = true) " +
-                    "AND competences.id_cycle = ? ";
+            query.append("AND ( (rel_devoirs_groupes.id_groupe IN ").append(Sql.listPrepared(idGroups.getList()))
+                    .append(" AND devoirs.eval_lib_historise = false) OR  devoirs.eval_lib_historise = true) " )
+                    .append("AND competences.id_cycle = ? ");
             values.add(idCycle);
         }
 
         if(idPeriode != null){
-            query += " AND id_periode = ? ";
+            query.append(" AND id_periode = ? ");
             values.add(idPeriode);
         }
 
         if(idMatiere != null){
-            query += " AND id_matiere = ? ";
+            query.append(" AND id_matiere = ? ");
             values.add(idMatiere);
         }
-
-        query += " UNION " +
-                "SELECT competences_devoirs.id_devoir, competences_devoirs.id_competence, id_domaine, "+
-                "-1 as evaluation, devoirs.owner, id_eleve, " +
-                "devoirs.created, devoirs.modified, id_matiere, id_sousmatiere, name, is_evaluated, id_periode, " +
-                "devoirs.id_type, diviseur, date_publication, date, apprec_visible, coefficient, libelle, " +
-                "type.nom as _type_libelle , users.username as owner_name, id_groupe " +
-                "FROM notes.competences_devoirs " +
-                "INNER JOIN notes.competences_notes ON competences_notes.id_devoir = competences_devoirs.id_devoir " +
-                "INNER JOIN notes.devoirs on devoirs.id = competences_devoirs.id_devoir " +
-                "INNER JOIN notes.type on devoirs.id_type = type.id " +
-                "INNER JOIN notes.rel_competences_domaines ON rel_competences_domaines.id_competence = competences_devoirs.id_competence " +
-                "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".users ON (users.id = devoirs.owner) " +
-                "INNER JOIN notes.rel_devoirs_groupes on  competences_devoirs.id_devoir = rel_devoirs_groupes.id_devoir ";
-
-        for (int i = 0; i < idGroups.size(); i++) {
-            values.add(idGroups.getString(i));
-        }
-
-        if(idCycle == null) {
-            // en vue trimestre / année, on ne recupere que les devoirs de la classe (+groupes) actuelle de l'élève
-            query += "WHERE date_publication <= Now() AND id_eleve = ? " +
-                    "AND rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
-                    " AND devoirs.eval_lib_historise = false ";
-            values.add(idEleve);
-        } else {
-            // en vue cycle recuperation des devoirs de la classe (+groupes) actuelle de l'élève
-            // + récupération des evaluations historisées
-            query += "INNER JOIN notes.competences ON competences.id = competences_devoirs.id_competence " +
-                    "WHERE date_publication <= Now() AND id_eleve = ? " +
-                    "AND ( (rel_devoirs_groupes.id_groupe IN " + Sql.listPrepared(idGroups.getList()) +
-                    " AND devoirs.eval_lib_historise = false) OR devoirs.eval_lib_historise = true) " +
-                    "AND competences.id_cycle = ? ";
-            values.add(idEleve);
-            values.add(idCycle);
-        }
-
-        if(idPeriode != null){
-            query += " AND id_periode = ? ";
-            values.add(idPeriode);
-        }
-
-        if(idMatiere != null){
-            query +=" AND id_matiere = ? ";
-            values.add(idMatiere);
-        }
-
-        query += " ) AS res " +
-                "GROUP BY res.id_devoir, id_competence, id_domaine, owner, id_eleve, created, modified, " +
-                "id_matiere, id_sousmatiere, name, is_evaluated, id_periode, id_type, diviseur, date_publication, " +
-                "date, apprec_visible, coefficient, libelle, _type_libelle, owner_name, id_groupe ";
-
-        Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
+        Sql.getInstance().prepared(query.toString(), values, SqlResult.validResultHandler(handler));
     }
 
     @Override

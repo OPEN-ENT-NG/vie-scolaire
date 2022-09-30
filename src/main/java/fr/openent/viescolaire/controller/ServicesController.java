@@ -25,9 +25,6 @@ public class ServicesController extends ControllerHelper {
      * Déclaration des services
      */
     private final ServicesService servicesConfigurationService;
-    public ServicesController() {
-        this.servicesConfigurationService = new DefaultServicesService();
-    }
     public ServicesController(EventBus eb) {
         this.servicesConfigurationService = new DefaultServicesService(eb);
     }

@@ -252,7 +252,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     private Future<JsonObject> deleteSubtopicsOfService(JsonObject oService) {
         Promise<JsonObject> promise = Promise.promise();
         JsonObject action = new JsonObject()
-                .put("action", "services.deleteSubtopics")
+                .put("action", "subtopics.deleteSubtopics")
                 .put("id_matiere", oService.getString("id_matiere"))
                 .put("id_enseignant", oService.getString("id_enseignant"))
                 .put("id_groups", oService.getJsonArray("id_groups"));

@@ -1,4 +1,4 @@
-<div class="grouping-list" ng-repeat="grouping in vm.groupings">
+<div class="grouping-list" ng-repeat="grouping in vm.groupings | orderBy:'name'">
     <grouping-item grouping-item="grouping"
                    grouping-class="vm.groupingClassList"
                    on-update-grouping-item="vm.updateGroupingList"

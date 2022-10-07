@@ -38,7 +38,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     private static MultiTeachingService multiTeachingService;
     private final Neo4j neo4j = Neo4j.getInstance();
     private UtilsService utilsService;
-    private final EventBus eb;
+    private EventBus eb;
 
     public DefaultServicesService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.SERVICES_TABLE);
@@ -48,9 +48,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     }
 
     public DefaultServicesService(EventBus eb) {
-        super(Viescolaire.VSCO_SCHEMA, Viescolaire.SERVICES_TABLE);
-        multiTeachingService = new DefaultMultiTeachingService();
-        this.utilsService = new DefaultUtilsService();
+        this();
         this.eb = eb;
     }
 

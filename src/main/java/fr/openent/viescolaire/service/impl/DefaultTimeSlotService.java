@@ -3,6 +3,10 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.FutureHelper;
+import fr.openent.viescolaire.helper.ModelHelper;
+import fr.openent.viescolaire.helper.UserHelper;
+import fr.openent.viescolaire.model.Person.Student;
+import fr.openent.viescolaire.model.TimeslotModel;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.TimeSlotService;
 import fr.wseduc.mongodb.MongoDb;
@@ -18,8 +22,10 @@ import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
+import org.entcore.common.user.UserInfos;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultTimeSlotService implements TimeSlotService {
 
@@ -29,9 +35,6 @@ public class DefaultTimeSlotService implements TimeSlotService {
 
     public DefaultTimeSlotService(ServiceFactory serviceFactory) {
         this.serviceFactory = serviceFactory;
-    }
-
-    public DefaultTimeSlotService() {
     }
 
     @Override
@@ -93,12 +96,52 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     @Override
+    public Future<Map<String, String>> getTimeslotIdFromClasses(List<String> idsClass) {
+        Promise<Map<String, String>> promise = Promise.promise();
+
+        this.getSlotProfilesFromClasses(idsClass)
+                .onSuccess(relTimeslotClassList -> {
+                    Map<String, String> map = new HashMap<>();
+                    relTimeslotClassList.stream()
+                            .map(JsonObject.class::cast)
+                            .forEach(relTimeslotClass ->
+                                    map.put(relTimeslotClass.getString(Field.ID_CLASS), relTimeslotClass.getString(Field.ID_TIME_SLOT)));
+                    promise.complete(map);
+                })
+                .onFailure(promise::fail);
+
+        return promise.future();
+    }
+
+    @Override
     public void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
                 " WHERE id_structure = ?";
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(id_structure);
 
         Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
+    }
+
+    @Override
+    public Future<Map<String, String>> getSlotProfileSetting(List<String> structureIdList) {
+        Promise<Map<String, String>> promise = Promise.promise();
+
+        String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
+                " WHERE id_structure IN " + Sql.listPrepared(structureIdList);
+        JsonArray params = new JsonArray(structureIdList);
+
+        Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(event -> {
+            if (event.isLeft()) {
+                promise.fail(event.left().getValue());
+            } else {
+                Map<String, String> mapStructureIdTimeslotId = event.right().getValue().stream()
+                        .map(JsonObject.class::cast)
+                        .collect(Collectors.toMap(timeslot -> timeslot.getString(Field.ID_STRUCTURE), timeslot -> timeslot.getString(Field.ID)));
+
+                promise.complete(mapStructureIdTimeslotId);
+            }
+        }));
+        return promise.future();
     }
 
     @Override
@@ -331,6 +374,73 @@ public class DefaultTimeSlotService implements TimeSlotService {
                 promise.complete(event.right().getValue());
             }
         }));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<List<TimeslotModel>> getTimeSlotFromId(List<String> timeslotId) {
+        Promise<List<TimeslotModel>> promise = Promise.promise();
+
+        this.getMultipleTimeSlot(timeslotId)
+                .onSuccess(timeslotList -> promise.complete(ModelHelper.toList(timeslotList, TimeslotModel.class)))
+                .onFailure(promise::fail);
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList) {
+        Promise<Map<Student, TimeslotModel>> promise = Promise.promise();
+
+        List<String> studentIdList = studentList.stream().map(Student::getId).collect(Collectors.toList());
+
+        UserHelper.getUserInfosFromIds(serviceFactory.getEventbus(), studentIdList)
+                .onSuccess(userInfosList -> {
+                    // It is assumed that all classes of students have the same timeslot, so we take the first class
+                    List<String> classIdList = userInfosList.stream()
+                            .map(UserInfos::getClasses)
+                            .map(classeIdList -> classeIdList.get(0))
+                            .distinct()
+                            .collect(Collectors.toList());
+                    Future<Map<String, String>> futureMapClassIdTimeslotId = this.getTimeslotIdFromClasses(classIdList);
+
+                    List<String> structureIdList = userInfosList.stream()
+                            .map(UserInfos::getStructures)
+                            .map(studentStructureList -> studentStructureList.get(0))
+                            .distinct()
+                            .collect(Collectors.toList());
+
+                    Future<Map<String, String>> futureMapStructureIdTimeslotId = this.getSlotProfileSetting(structureIdList);
+
+                    CompositeFuture.all(Arrays.asList(futureMapStructureIdTimeslotId, futureMapClassIdTimeslotId))
+                            .compose(event -> {
+                                List<String> timeslotIdList = new ArrayList<>(futureMapClassIdTimeslotId.result().values());
+                                timeslotIdList.addAll(futureMapStructureIdTimeslotId.result().values());
+
+                                return this.getTimeSlotFromId(timeslotIdList);
+                            })
+                            .onSuccess(timeslotModelList -> {
+                                Map<Student, TimeslotModel> mapStudentTimeslot = new HashMap<>();
+                                userInfosList.forEach(userInfos -> {
+                                    String classId = userInfos.getClasses().get(0);
+                                    String structureId = userInfos.getStructures().get(0);
+                                    String timeslotId = futureMapClassIdTimeslotId.result().containsKey(classId) ?
+                                            futureMapClassIdTimeslotId.result().get(classId) : futureMapStructureIdTimeslotId.result().getOrDefault(structureId, "");
+
+                                    TimeslotModel timeslot = timeslotModelList.stream()
+                                            .filter(timeslotModel -> timeslotModel.getId().equals(timeslotId))
+                                            .findFirst()
+                                            .orElse(new TimeslotModel());
+
+                                    mapStudentTimeslot.put(new Student(userInfos.getUserId()), timeslot);
+                                });
+
+                                promise.complete(mapStudentTimeslot);
+                            })
+                            .onFailure(promise::fail);
+                })
+                .onFailure(promise::fail);
 
         return promise.future();
     }

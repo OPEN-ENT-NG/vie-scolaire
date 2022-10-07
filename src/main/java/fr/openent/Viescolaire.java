@@ -95,7 +95,7 @@ public class Viescolaire extends BaseServer {
 
         final EventBus eb = getEventBus(vertx);
         final Storage storage = new StorageFactory(vertx).getStorage();
-        final ServiceFactory serviceFactory = new ServiceFactory();
+        final ServiceFactory serviceFactory = new ServiceFactory(eb);
 
         LSUN_CONFIG = config.getJsonObject("lsun");
         UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
@@ -132,7 +132,7 @@ public class Viescolaire extends BaseServer {
         addController(new TrombinoscopeController(vertx, storage));
         addController(new GroupingController(serviceFactory));
 
-        addController(new EventBusController(eb, config));
+        addController(new EventBusController(serviceFactory, config));
 
         setRepositoryEvents(new VieScolaireRepositoryEvents(eb, config));
     }

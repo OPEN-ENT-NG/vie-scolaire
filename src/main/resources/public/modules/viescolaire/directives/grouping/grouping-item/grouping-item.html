@@ -21,7 +21,7 @@
             </multi-combo>
         </div>
         <div class="bold f-wrap four flex-row align-center grouping-item-class-item-element-classes">
-            <div class="two flex-row align-center" ng-repeat="classe in vm.groupingClassItem.classes">
+            <div class="two flex-row align-center" ng-repeat="classe in vm.groupingClassItem.classes | orderBy:'name'">
                 <p class="flex-one vertical-spacing-twice">[[classe.name]]</p>
                 <i class="mdi-close" ng-click="vm.deleteClassItem(vm.groupingClassItem, vm.groupingItem, classe)"></i>
             </div>

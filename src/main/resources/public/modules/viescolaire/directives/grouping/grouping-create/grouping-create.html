@@ -1,11 +1,7 @@
-<div>
-    <div class="row cell twelve-mobile">
-        <button data-ng-click="vm.createGrouping(vm.groupingName);" ng-disabled="!vm.groupingName">
-            <span><i18n>viescolaire.grouping.create</i18n></span>
-        </button>
-    </div>
-    <div>
-        <input type="text" ng-model="vm.groupingName" i18n-placeholder="name">
-    </div>
+<div class="flex-row grouping-create">
+    <input class="grouping-create-field no-margin" type="text" ng-model="vm.groupingName" i18n-placeholder="name">
+    <button class="grouping-create-valid" data-ng-click="vm.createGrouping(vm.groupingName);" ng-disabled="!vm.groupingName">
+        <span><i18n>viescolaire.grouping.create</i18n></span>
+    </button>
 </div>
 

@@ -20,6 +20,8 @@ interface IViewModel extends ng.IController {
 
     deleteClassItem(groupingClass: GroupingClass, grouping: Grouping, classeSelect: Classe): void;
 
+    openEdit(): void;
+
     resetEdit(): void;
 
     groupingItem: Grouping;
@@ -72,6 +74,11 @@ class Controller implements IViewModel {
     updateGroupingItem = (grouping: Grouping, name: string): void => {
         this.$scope.vm.onUpdateGroupingItem()(grouping, name);
         this.resetEdit()
+    }
+
+    openEdit(): void {
+        this.displayRenameGrouping = true;
+        this.groupingTitle = this.groupingItem.name;
     }
 
     resetEdit = (): void => {

@@ -14,6 +14,8 @@ import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -25,8 +27,9 @@ import org.entcore.common.sql.Sql;
 
 import java.util.*;
 
-import static org.entcore.common.sql.SqlResult.validResultHandler;
-import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
+import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
+import static java.util.Objects.isNull;
+import static org.entcore.common.sql.SqlResult.*;
 
 public class DefaultServicesService extends SqlCrudService implements ServicesService {
 
@@ -35,11 +38,18 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     private static MultiTeachingService multiTeachingService;
     private final Neo4j neo4j = Neo4j.getInstance();
     private UtilsService utilsService;
+    private EventBus eb;
 
     public DefaultServicesService() {
         super(Viescolaire.VSCO_SCHEMA, Viescolaire.SERVICES_TABLE);
         multiTeachingService = new DefaultMultiTeachingService();
         this.utilsService = new DefaultUtilsService();
+        this.eb = null;
+    }
+
+    public DefaultServicesService(EventBus eb) {
+        this();
+        this.eb = eb;
     }
 
     public void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler) {
@@ -207,7 +217,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     }
 
 
-    public void deleteService(JsonObject oService, Handler<Either<String, JsonObject>> handler) {
+    public void deleteService(JsonObject oService, JsonObject moduleServices, Handler<Either<String, JsonObject>> handler) {
         JsonArray classOrGroupIds = oService.getJsonArray("id_groups");
 
         String query = "DELETE FROM " + this.resourceTable + " WHERE id_matiere=? AND id_enseignant=? " +
@@ -216,7 +226,44 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         JsonArray values = new JsonArray().add(oService.getString("id_matiere"))
                 .add(oService.getString("id_enseignant")).addAll(classOrGroupIds);
 
-        Sql.getInstance().prepared(query, values, validUniqueResultHandler(handler));
+        sql.prepared(query, values, validUniqueResultHandler(event -> {
+            if (event.isLeft()) {
+                log.error(String.format("[Viescolaire@%s::deleteService] Failed to send subtopics infos to delete: %s",
+                        this.getClass().getSimpleName(), event.left().getValue()));
+                handler.handle(new Either.Left<>(event.left().getValue()));
+            } else {
+                if (isNull(moduleServices) || Boolean.TRUE.equals(moduleServices.getBoolean(Field.COMPETENCES))) {
+                    deleteSubtopicsOfService(oService)
+                            .onSuccess(res -> handler.handle(new Either.Right<>(res)))
+                            .onFailure(err -> {
+                                log.error(String.format("[Viescolaire@%s::deleteService] Failed to send subtopics infos to delete: %s",
+                                        this.getClass().getSimpleName(), event.left().getValue()));
+                                handler.handle(new Either.Left<>(event.left().getValue()));
+                            });
+                } else {
+                    handler.handle(new Either.Right<>(event.right().getValue()));
+                }
+            }
+        }));
+    }
+
+    private Future<JsonObject> deleteSubtopicsOfService(JsonObject oService) {
+        Promise<JsonObject> promise = Promise.promise();
+        JsonObject action = new JsonObject()
+                .put("action", "subtopics.deleteSubtopics")
+                .put("id_matiere", oService.getString("id_matiere"))
+                .put("id_enseignant", oService.getString("id_enseignant"))
+                .put("id_groups", oService.getJsonArray("id_groups"));
+        this.eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(event -> {
+            if (event.body().getString(Field.STATUS).equals(Field.OK)) {
+                promise.complete(new JsonObject().put(Field.RESULTS, event.body().getJsonArray(Field.RESULTS)));
+            } else {
+                log.error(String.format("[Viescolaire@%s::deleteSubtopicsOfService] Failed to send subtopics infos to delete",
+                        this.getClass().getSimpleName()));
+                promise.fail(event.body().getString(Field.MESSAGE));
+            }
+        }));
+        return promise.future();
     }
 
     protected Handler<Either<String, JsonObject>> getHandler(Future<JsonObject> future) {

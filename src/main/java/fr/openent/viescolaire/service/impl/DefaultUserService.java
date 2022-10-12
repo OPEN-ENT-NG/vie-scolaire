@@ -870,14 +870,19 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
     @Override
     public void search(String structureId, String userId, String query, List<String> fields, String profile, Handler<Either<String, JsonArray>> handler) {
+        if (fields.isEmpty()) {
+            handler.handle(new Either.Right<>(new JsonArray()));
+            return;
+        }
 
         final StringBuilder filter = new StringBuilder();
         fields.forEach(field -> filter.append("OR toLower(").append(getFieldName(field)).append(") CONTAINS {query} "));
 
-        String neo4jquery = "MATCH (u:User)-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure) " +
+        String neo4jquery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure), (p)-[:DEPENDS]->(c:Class) " +
                 "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
                 "AND (" + filter.toString().replaceFirst("OR ", "") + ") " +
-                "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName, u.firstName as firstName, u.classes as idClasse " +
+                "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName," +
+                " u.firstName as firstName, u.classes as idClasse, collect(c.name) as classesNames " +
                 "ORDER BY displayName;";
 
 
@@ -887,7 +892,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                     "WHERE u.profiles = {profiles} " +
                     "AND (" + filter.toString().replaceFirst("OR ", "") + ") " +
                     "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName, " +
-                    "u.firstName as firstName, u.classes as idClasse " +
+                    "u.firstName as firstName, u.classes as idClasse, collect(c.name) as classesNames " +
                     "ORDER BY displayName;";
         }
 

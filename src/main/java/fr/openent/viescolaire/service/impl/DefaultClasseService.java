@@ -90,7 +90,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     public void getEleveClasse(String idClasse, Long idPeriode, Handler<Either<String, JsonArray>> handler) {
         //Requête Neo4j optimisé
         StringBuilder returning = new StringBuilder();
-        returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName, ")
+        returning.append("RETURN DISTINCT u.id as id, u.firstName as firstName, u.lastName as lastName, u.displayName as displayName, ")
                 .append("u.level as level, u.deleteDate as deleteDate, u.classes as classes, ")
                 .append("CASE WHEN u.birthDate IS NULL THEN 'undefined' ELSE u.birthDate END AS birthDate ")
                 .append("ORDER BY lastName, firstName ");

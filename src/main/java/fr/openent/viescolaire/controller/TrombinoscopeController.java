@@ -7,6 +7,7 @@ import fr.openent.viescolaire.core.enums.TrombinoscopeError;
 import fr.openent.viescolaire.model.Structure;
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeFailure;
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeReport;
+import fr.openent.viescolaire.security.Trombinoscope.AccessTrombinoscope;
 import fr.openent.viescolaire.security.Trombinoscope.ManageTrombinoscope;
 import fr.openent.viescolaire.service.TrombinoscopeFailureService;
 import fr.openent.viescolaire.service.TrombinoscopeReportService;
@@ -102,7 +103,7 @@ public class TrombinoscopeController extends ControllerHelper {
 
     @Get("/structures/:structureId/students/:studentId/picture")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(ManageTrombinoscope.class)
+    @ResourceFilter(AccessTrombinoscope.class)
     @ApiDoc("Retrieve structure trombinoscope or avatar picture")
     public void getTrombinoscopePicture(HttpServerRequest request) {
         String structureId = request.getParam(Field.STRUCTUREID);
@@ -373,7 +374,7 @@ public class TrombinoscopeController extends ControllerHelper {
     @Trace(value = Actions.VIESCOLAIRE_IMPORT_UPDATE, body = false)
     @ApiDoc("update trombinoscope")
     public void updateTrombinoscope(final HttpServerRequest request) {
-        String structureId = request.getParam(Field.STUDENTID);
+        String structureId = request.getParam(Field.STRUCTUREID);
         String studentId = request.getParam(Field.STUDENTID);
 
         storage.writeUploadFile(request, resultUpload -> {

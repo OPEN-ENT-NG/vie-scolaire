@@ -80,6 +80,17 @@ public interface MultiTeachingService {
 
     void getAllMultiTeachers(String structureId, JsonArray groupIds, Handler<Either<String, JsonArray>> handler);
 
+    /**
+     *
+     * @param structureId structure id
+     * @param groupIds classes ids
+     * @param periodId periode
+     * @param onlyVisible visible
+     * @param handler response visible multiteachers on periode on classIds and on etablissement
+     */
+    void getMultiTeachersAndDeleted(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
+                          Handler<Either<String, JsonArray>> handler);
+
     void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler);
 
     void getSubTeachersandCoTeachers(String userId, String idStructure, String subjectId, String groupId, Handler<Either<String, JsonArray>> handler);

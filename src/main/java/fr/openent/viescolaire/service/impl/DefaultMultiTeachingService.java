@@ -105,7 +105,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         query += "RETURNING * ) SELECT second_teacher_id FROM insert " +
                 "UNION SELECT DISTINCT second_teacher_id FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
                 " WHERE structure_id = ? AND main_teacher_id = ? AND subject_id = ? " +
-                "AND class_or_group_id IN " + Sql.listPrepared(classOrGroupIds.getList());
+                "AND class_or_group_id IN " + Sql.listPrepared(classOrGroupIds.getList()) +
+                " AND is_coteaching IS NOT NULL ";
 
         values.add(structureId).add(mainTeacherId).add(subjectId);
 

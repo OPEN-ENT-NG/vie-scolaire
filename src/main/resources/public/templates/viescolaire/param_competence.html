@@ -58,10 +58,10 @@
                                     <i18n>evaluations.educatif.project</i18n>
                                 </a>
                             </li>
-                            <li workflow="competences.paramServices">
+                            <li workflow="viescolaire.paramServices">
                                 <a href="" ng-class="{'selected': currParam === 7}"
                                    ng-click="currParam = 7;">
-                                    <span><i18n>evaluation.competences.service</i18n></span>
+                                    <span><i18n>evaluation.viescolaire.service</i18n></span>
                                 </a>
                             </li>
                             <li workflow="viescolaire.adminChefEtab">
@@ -284,7 +284,7 @@
                 </div>
             </div>
             <div ng-init="isMode = false;" class="twelve cell twelve-mobile"
-                 workflow="competences.paramServices">
+                 workflow="viescolaire.paramServices">
                 <div class="hash-magnet twelve cell" id="7" ng-if="currParam === 7">
                     <article ng-init="source.idStructure = structure.id; source.classes = structure.classes">
                         <sniplet

@@ -193,6 +193,20 @@ public class EventBusController extends ControllerHelper {
                         getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getMultiteachersAndDeleted":{
+                JsonArray groupIds = body.getJsonArray("groupIds");
+                String periodId = body.getString("periodId");
+                mutliTeachingService.getMultiTeachersAndDeleted(structureId, groupIds, periodId, true,
+                        getJsonArrayBusResultHandler(message));
+            }
+            break;
+            case "getMultiteachersAndDeletedByClass": {
+                String groupId = body.getString("groupId");
+                String periodId = body.getString("periodId");
+                mutliTeachingService.getMultiTeachersAndDeleted(structureId, new JsonArray().add(groupId), periodId,
+                        true, getJsonArrayBusResultHandler(message));
+            }
+            break;
             case "getAllMultiteachers": {
                 JsonArray groupIds = body.getJsonArray("groupIds");
                 mutliTeachingService.getAllMultiTeachers(structureId, groupIds, getJsonArrayBusResultHandler(message));

@@ -635,19 +635,34 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
+    public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible, String classId,
                                  Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray().add(structureId);
-        for (int i = 0; i < groupIds.size(); i++) {
-            values.add(groupIds.getString(i));
-        }
-        values.add(onlyVisible);
 
         StringBuffer query = new StringBuffer();
-        query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
+        /*query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
                 .append(" JOIN " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe ")
                 .append("WHERE structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
                 .append("AND is_visible = ? ");
+
+        if (periodId != null) {
+            query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
+                    .append("(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
+                    .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")
+                    .append("(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR ")
+                    .append("(start_date <= timestamp_fn AND timestamp_fn <= end_date) )))");
+
+            values.add(periodId);
+        }*/
+
+        query.append("WITH  p AS(SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " WHERE id_classe = ? AND id_type = ? ) ")
+        .append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
+        .append(" JOIN p on p.id_etablissement = structure_id ")
+        .append("WHERE  structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
+        .append("AND is_visible = ?");
+
+        JsonArray values = new JsonArray().add(classId).add(periodId).add(structureId);
+        values.addAll(groupIds);
+        values.add(onlyVisible);
 
         if (periodId != null) {
             query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")

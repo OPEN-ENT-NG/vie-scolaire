@@ -78,7 +78,7 @@ public class DefaultMultiTeachingServiceTest {
                 "SELECT second_teacher_id FROM insert " +
                 "UNION " +
                 "SELECT DISTINCT second_teacher_id FROM viesco.multi_teaching " +
-                "WHERE structure_id = ? AND main_teacher_id = ? AND subject_id = ? AND class_or_group_id IN (?,?,?)";
+                "WHERE structure_id = ? AND main_teacher_id = ? AND subject_id = ? AND class_or_group_id IN (?,?,?) AND is_coteaching IS NOT NULL ";
         JsonArray expectedValues = new JsonArray(Arrays.asList(
                 "structureId", "mainTeacherId", "secondTeacherId1", "subjectId", "classId1", true, "startDate", "endDate", "enteredEndDate",
                 "structureId", "mainTeacherId", "secondTeacherId1", "subjectId", "groupId1", true, "startDate", "endDate", "enteredEndDate",

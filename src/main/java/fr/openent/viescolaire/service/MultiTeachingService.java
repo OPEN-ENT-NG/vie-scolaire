@@ -2,10 +2,8 @@ package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import java.util.List;
 
 
 public interface MultiTeachingService {
@@ -68,14 +66,14 @@ public interface MultiTeachingService {
     void getMultiTeachings (JsonArray ids, Handler<Either<String, JsonArray>> handler);
 
     /**
-     *
-     * @param structureId structure id
+     *  @param structureId structure id
      * @param groupIds classes ids
      * @param periodId periode
      * @param onlyVisible visible
+     * @param classIds
      * @param handler response visible multiteachers on periode on classIds and on etablissement
      */
-    void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible, String idClasse,
+    void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible, JsonArray classIds,
                       Handler<Either<String, JsonArray>> handler);
 
     void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler);

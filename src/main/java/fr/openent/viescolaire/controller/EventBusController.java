@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
+import static fr.openent.viescolaire.core.constants.EventBusConstant.GET_MULTITEACHERS_AND_DELETED;
+import static fr.openent.viescolaire.core.constants.EventBusConstant.GET_MULTITEACHERS_AND_DELETED_BY_CLASS;
 
 public class EventBusController extends ControllerHelper {
 
@@ -193,14 +195,14 @@ public class EventBusController extends ControllerHelper {
                         getJsonArrayBusResultHandler(message));
             }
             break;
-            case "getMultiteachersAndDeleted":{
+            case GET_MULTITEACHERS_AND_DELETED:{
                 JsonArray groupIds = body.getJsonArray(Field.GROUP_IDS_CAMEL);
                 String periodId = body.getString(Field.PERIOD_ID_CAMEL);
                 mutliTeachingService.getMultiTeachersAndDeleted(structureId, groupIds, periodId, true,
                         getJsonArrayBusResultHandler(message));
             }
             break;
-            case "getMultiteachersAndDeletedByClass": {
+            case GET_MULTITEACHERS_AND_DELETED_BY_CLASS: {
                 String groupId = body.getString(Field.GROUP_ID_CAMEL);
                 String periodId = body.getString(Field.PERIOD_ID_CAMEL);
                 mutliTeachingService.getMultiTeachersAndDeleted(structureId, new JsonArray().add(groupId), periodId,

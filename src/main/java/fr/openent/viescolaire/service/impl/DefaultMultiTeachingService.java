@@ -638,7 +638,6 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible, JsonArray classIds,
                                  Handler<Either<String, JsonArray>> handler) {
 
-        StringBuffer query = new StringBuffer();
         /*query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
                 .append(" JOIN " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe ")
                 .append("WHERE structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
@@ -654,11 +653,11 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
             values.add(periodId);
         }*/
 
-        query.append("WITH  p AS(SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " WHERE id_classe IN " + Sql.listPrepared(classIds) + " AND id_type = ? ) ")
-        .append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
-        .append(" JOIN p on p.id_etablissement = structure_id")
-        .append(" WHERE  structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
-        .append(" AND is_visible = ?");
+        String query = "WITH  p AS(SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " WHERE id_classe IN " + Sql.listPrepared(classIds) + " AND id_type = ? )" +
+        " SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
+        " JOIN p on p.id_etablissement = structure_id" +
+        " WHERE  structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds) +
+        " AND is_visible = ?";
 
         JsonArray values = new JsonArray().addAll(classIds);
         values.add(periodId).add(structureId);
@@ -666,16 +665,16 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         values.add(onlyVisible);
 
         if (periodId != null) {
-            query.append(" AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
-                    .append("(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
-                    .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")
-                    .append("(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR ")
-                    .append("(start_date <= timestamp_fn AND timestamp_fn <= end_date) )))");
+            query += " AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (" +
+                    "(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR " +
+                    "(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR " +
+                    "(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR " +
+                    "(start_date <= timestamp_fn AND timestamp_fn <= end_date) )))";
 
             values.add(periodId);
         }
 
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+        sql.prepared(query, values, validResultHandler(handler));
     }
 
     @Override

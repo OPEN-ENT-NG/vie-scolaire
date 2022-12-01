@@ -190,8 +190,19 @@ public class EventBusController extends ControllerHelper {
                 JsonArray groupIds = body.getJsonArray("groupIds");
                 String periodId = body.getString("periodId");
                 JsonArray classIds = body.getJsonArray("classIds");
-                mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true, classIds,
-                        getJsonArrayBusResultHandler(message));
+                JsonArray idClasses = new JsonArray();
+
+                groupeService.getClasseGroupe(new String[]{classIds.getString(0)}, classesEvent -> {
+                    JsonArray classes = classesEvent.right().getValue();
+                    if (classes.isEmpty())
+                        mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true, new JsonArray().add(classIds.getString(0)), i(message));
+                    else {
+                        for(Object o : ((JsonObject) classes.iterator().next()).getJsonArray("id_classes")) {
+                            idClasses.add((String) o);
+                        }
+                        mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true, idClasses, i(message));
+                    }
+                });
             }
             case "getClasseGroupe": {
                 String[] groupIds = new String[]{body.getString("groupId")};
@@ -911,6 +922,21 @@ public class EventBusController extends ControllerHelper {
     }
 
     private Handler<Either<String, JsonArray>> getJsonArrayBusResultHandler(final Message<JsonObject> message) {
+        return new Handler<Either<String, JsonArray>>() {
+            @Override
+            public void handle(Either<String, JsonArray> result) {
+                if (result.isRight()) {
+                    message.reply(new JsonObject()
+                            .put("status", "ok")
+                            .put("results", result.right().getValue()));
+                } else {
+                    message.reply(getErrorReply(result.left().getValue()));
+                }
+            }
+        };
+    }
+
+    private Handler<Either<String, JsonArray>> i(final Message<JsonObject> message) {
         return new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> result) {

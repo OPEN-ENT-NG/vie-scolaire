@@ -190,7 +190,7 @@ public class EventBusController extends ControllerHelper {
                 JsonArray groupIds = body.getJsonArray("groupIds");
                 String periodId = body.getString("periodId");
                 JsonArray classIds = body.getJsonArray("classIds");
-                JsonArray idClasses = new JsonArray();
+                /*JsonArray idClasses = new JsonArray();
 
                 groupeService.getClasseGroupe(new String[]{classIds.getString(0)}, classesEvent -> {
                     JsonArray classes = classesEvent.right().getValue();
@@ -202,7 +202,9 @@ public class EventBusController extends ControllerHelper {
                         }
                         mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true, idClasses, i(message));
                     }
-                });
+                });*/
+                mutliTeachingService.getMultiTeachers(structureId, groupIds, periodId, true, classIds,
+                        getJsonArrayBusResultHandler(message));
             }
             case "getClasseGroupe": {
                 String[] groupIds = new String[]{body.getString("groupId")};

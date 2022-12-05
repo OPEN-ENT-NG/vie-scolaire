@@ -653,13 +653,15 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
             values.add(periodId);
         }*/
 
-        String query = "WITH  p AS(SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " WHERE id_classe IN " + Sql.listPrepared(classIds) + " AND id_type = ? )" +
+        String query = "WITH  p AS(SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " WHERE id_classe = ?" + // + Sql.listPrepared(classIds) +
+        " AND id_type = ? )" +
         " SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
         " JOIN p on p.id_etablissement = structure_id" +
         " WHERE  structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds) +
         " AND is_visible = ?";
 
-        JsonArray values = new JsonArray().addAll(classIds);
+        //JsonArray values = new JsonArray().addAll(classIds);
+        JsonArray values = new JsonArray().add(classIds.getValue(0));
         values.add(periodId).add(structureId);
         values.addAll(groupIds);
         values.add(onlyVisible);

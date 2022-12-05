@@ -663,6 +663,20 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
+    public void getAllMultiTeachers(String structureId, JsonArray groupIds, Handler<Either<String, JsonArray>> handler) {
+        JsonArray values = new JsonArray().add(structureId);
+
+        StringBuffer query = new StringBuffer();
+        query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
+                .append(" WHERE structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds));
+        for (int i = 0; i < groupIds.size(); i++) {
+            values.add(groupIds.getString(i));
+        }
+
+        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
+    }
+
+    @Override
     public void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();

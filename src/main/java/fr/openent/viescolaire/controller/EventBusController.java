@@ -193,6 +193,11 @@ public class EventBusController extends ControllerHelper {
                         getJsonArrayBusResultHandler(message));
             }
             break;
+            case "getAllMultiteachers": {
+                JsonArray groupIds = body.getJsonArray("groupIds");
+                mutliTeachingService.getAllMultiTeachers(structureId, groupIds, getJsonArrayBusResultHandler(message));
+            }
+            break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

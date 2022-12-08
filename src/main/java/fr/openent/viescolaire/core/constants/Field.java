@@ -138,7 +138,7 @@ public class Field {
     public static final String ENDHOUR = "endHour";
     public static final String STUDENT_ID_LIST = "student_id_list";
     public static final String PERIOD_ID_CAMEL = "periodId";
-    public static final String GROUP_IDS_CAMEL = "groupIdS";
+    public static final String GROUP_IDS_CAMEL = "groupIds";
 
     private Field() {
         throw new IllegalStateException("Utility class");

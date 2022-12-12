@@ -195,20 +195,6 @@ public class EventBusController extends ControllerHelper {
                         getJsonArrayBusResultHandler(message));
             }
             break;
-            case GET_MULTITEACHERS_AND_DELETED:{
-                JsonArray groupIds = body.getJsonArray(Field.GROUP_IDS_CAMEL);
-                String periodId = body.getString(Field.PERIOD_ID_CAMEL);
-                mutliTeachingService.getMultiTeachersAndDeleted(structureId, groupIds, periodId, true,
-                        getJsonArrayBusResultHandler(message));
-            }
-            break;
-            case GET_MULTITEACHERS_AND_DELETED_BY_CLASS: {
-                String groupId = body.getString(Field.GROUP_ID_CAMEL);
-                String periodId = body.getString(Field.PERIOD_ID_CAMEL);
-                mutliTeachingService.getMultiTeachersAndDeleted(structureId, new JsonArray().add(groupId), periodId,
-                        true, getJsonArrayBusResultHandler(message));
-            }
-            break;
             case "getAllMultiteachers": {
                 JsonArray groupIds = body.getJsonArray("groupIds");
                 mutliTeachingService.getAllMultiTeachers(structureId, groupIds, getJsonArrayBusResultHandler(message));

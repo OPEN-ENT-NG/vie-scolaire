@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.sql.Sql;
+import org.entcore.common.sql.SqlResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +67,138 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                                     String enteredEndDate, Boolean coTeaching, Handler<Either<String, JsonArray>> handler,
                                     boolean hasCompetences) {
 
+        if (coTeaching) {
+            List<JsonObject> existings = new ArrayList<>();
+            List<JsonObject> notExistings = new ArrayList<>();
+            Future<Void> current = sortExistingAndNonExistingCoTeachers(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds, existings, notExistings);
+            launchUpsertStatements(structureId, mainTeacherId, subjectId, handler, existings, notExistings, current);
+        } else {
+            createMultiTeachingSQL(structureId, mainTeacherId, secondTeacherIds, subjectId, classOrGroupIds, startDate, endDate, enteredEndDate, coTeaching, handler, hasCompetences);
+        }
+    }
 
+    private Future<Void> sortExistingAndNonExistingCoTeachers(String structureId, String mainTeacherId, JsonArray secondTeacherIds, String subjectId,
+                                                              JsonArray classOrGroupIds, List<JsonObject> existings, List<JsonObject> notExistings) {
+        Future<Void> current = Future.succeededFuture();
+        for (Object secondTeacherIdO : secondTeacherIds) {
+            for (Object classOrGroupIdO : classOrGroupIds) {
+                String classOrGroupId = (String) classOrGroupIdO;
+                String secondTeacherId = (String) secondTeacherIdO;
+                current = current.compose(r -> {
+                    Future<Boolean> future = multiTeachingExists(structureId, mainTeacherId, secondTeacherId, subjectId, classOrGroupId);
+                    Promise<Void> succeedPromise = Promise.promise();
+                    future
+                            .onComplete(complete -> {
+                                JsonObject idClass_IdTeacher = new JsonObject().put("idClass", classOrGroupId).put("idTeacher", secondTeacherId);
+                                if (complete.succeeded() && complete.result()) {
+                                    existings.add(idClass_IdTeacher);
+                                } else {
+                                    notExistings.add(idClass_IdTeacher);
+                                }
+                                succeedPromise.complete();
+                            });
+                    return succeedPromise.future();
+                });
+            }
+        }
+        return current;
+    }
+
+    private void
+    launchUpsertStatements(String structureId, String mainTeacherId, String subjectId,
+                                        Handler<Either<String, JsonArray>> handler, List<JsonObject> existings,
+                                        List<JsonObject> notExistings, Future<Void> current) {
+        current.onSuccess(v -> {
+            JsonArray statements = new JsonArray();
+            notExistings.forEach(elem -> statements.add(insertMultiTeacherStatement(structureId, mainTeacherId, elem.getString("idTeacher"),
+                    subjectId, elem.getString("idClass"), true)));
+            existings.forEach(elem -> statements.add(reactivateCoTeacherStatement(structureId,mainTeacherId,elem.getString("idTeacher"),
+                    subjectId, elem.getString("idClass"))));
+            Sql.getInstance().transaction(statements, event -> {
+                handler.handle(new Either.Right<>(new JsonArray()));
+            });
+        }).onFailure(error -> handler.handle(new Either.Left<>(error.getMessage())));
+    }
+
+    private JsonObject reactivateCoTeacherStatement(String structureId, String mainTeacherId, String secondIdTeacher, String subjectId, String idClass
+                                                    ) {
+        String query = "UPDATE " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
+                " SET deleted_date = NULL " +
+                " WHERE structure_id = ? AND main_teacher_id = ? AND second_teacher_id = ? AND subject_id = ? AND class_or_group_id = ?  "+
+                " RETURNING second_teacher_id, main_teacher_id,subject_id,class_or_group_id;";
+        JsonArray values = new JsonArray().add(structureId).add(mainTeacherId).add(secondIdTeacher).add(subjectId).add(idClass);
+
+        return new JsonObject()
+                .put(Field.STATEMENT, query)
+                .put(Field.VALUES, values)
+                .put(Field.ACTION, Field.PREPARED);
+    }
+
+    private JsonObject insertMultiTeacherStatement(String structureId, String mainTeacherId, String idTeacher, String subjectId,
+                                                   String idClass, Boolean coteaching) {
+        String statement = "INSERT INTO " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
+                " ( structure_id, main_teacher_id, second_teacher_id, subject_id, class_or_group_id, is_coteaching ) " +
+                " VALUES ( ?, ?, ?, ?, ? ,?) ;";
+        JsonArray values = new JsonArray().add(structureId).add(mainTeacherId).add(idTeacher).add(subjectId).add(idClass).add(coteaching);
+
+        return new JsonObject()
+                .put(Field.STATEMENT, statement)
+                .put(Field.VALUES, values)
+                .put(Field.ACTION, Field.PREPARED);
+    }
+
+    private Future<Boolean> multiTeachingExists(String structureId, String mainTeacherId, String secondTeacherId, String subjectId,
+                                                String classOrGroupId) {
+        Promise<Boolean> promise = Promise.promise();
+        getMultiTeachings(structureId, mainTeacherId, secondTeacherId, subjectId, classOrGroupId, true).onSuccess(result -> {
+            promise.complete(result.size() > 0);
+        })
+                .onFailure(error -> promise.fail(error.getMessage()));
+
+        return promise.future();
+    }
+
+    private Future<JsonArray> getMultiTeachings(String structureId, String mainTeacherId, String secondTeacherId, String subjectId,
+                                                String classOrGroupId, Boolean isCoteaching) {
+        Promise<JsonArray> promise = Promise.promise();
+        String query = "SELECT * from " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + "  WHERE structure_id = ? ";
+        JsonArray values = new JsonArray().add(structureId);
+
+        if (mainTeacherId != null) {
+            query += "  AND main_teacher_id = ? ";
+            values.add(mainTeacherId);
+        }
+        if (subjectId != null) {
+            query += "  AND subject_id = ? ";
+            values.add(subjectId);
+        }
+        if (secondTeacherId != null) {
+            query += "  AND second_teacher_id = ? ";
+            values.add(secondTeacherId);
+        }
+        if (classOrGroupId != null) {
+            query += " AND class_or_group_id = ? ";
+            values.add(classOrGroupId);
+        }
+        if (isCoteaching != null) {
+            query += "and is_coteaching = ?";
+            values.add(isCoteaching);
+        }
+
+        sql.prepared(query, values, SqlResult.validResultHandler(event -> {
+            if (event.isRight()) {
+                promise.complete(event.right().getValue());
+            } else {
+                promise.fail(event.left().getValue());
+            }
+        }));
+        return promise.future();
+    }
+
+    private void createMultiTeachingSQL(String structureId, String mainTeacherId,
+                                        JsonArray secondTeacherIds, String subjectId, JsonArray classOrGroupIds, String startDate,
+                                        String endDate, String enteredEndDate, Boolean coTeaching, Handler<Either<String, JsonArray>> handler,
+                                        boolean hasCompetences) {
         String query;
         query = "WITH insert AS ( INSERT INTO " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
                 " (structure_id, main_teacher_id,  second_teacher_id, subject_id, class_or_group_id, is_coteaching, " +
@@ -635,6 +767,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         sql.prepared(query, ids, validResultHandler(handler));
     }
 
+
     @Override
     public void getMultiTeachers(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
                                  Handler<Either<String, JsonArray>> handler) {
@@ -665,7 +798,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
 
     @Override
     public void getMultiTeachersAndDeleted(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
-                                 Handler<Either<String, JsonArray>> handler) {
+                                           Handler<Either<String, JsonArray>> handler) {
         JsonArray values = new JsonArray().add(structureId);
         for (int i = 0; i < groupIds.size(); i++) {
             values.add(groupIds.getString(i));

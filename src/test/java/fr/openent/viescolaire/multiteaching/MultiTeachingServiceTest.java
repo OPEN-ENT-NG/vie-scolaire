@@ -33,7 +33,7 @@ public class MultiTeachingServiceTest {
     @Test
     public void getMultiTeaching_should_use_proper_query(TestContext ctx) {
         String PROPER_QUERY = "SELECT * FROM "+ VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE structure_id = ? AND is_coteaching IS NOT NULL ;";
+                "WHERE structure_id = ? AND deleted_date IS NULL ";
 
 
         String structureId = "structureId";

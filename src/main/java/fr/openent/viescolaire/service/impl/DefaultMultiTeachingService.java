@@ -105,7 +105,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         query += "RETURNING * ) SELECT second_teacher_id FROM insert " +
                 "UNION SELECT DISTINCT second_teacher_id FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
                 " WHERE structure_id = ? AND main_teacher_id = ? AND subject_id = ? " +
-                "AND class_or_group_id IN " + Sql.listPrepared(classOrGroupIds.getList());
+                "AND class_or_group_id IN " + Sql.listPrepared(classOrGroupIds.getList()) +
+                " AND deleted_date IS NULL ";
 
         values.add(structureId).add(mainTeacherId).add(subjectId);
 
@@ -481,8 +482,9 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
         removeSubstitutesFromCourseList(multiTeachingIds)
                 .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
                 .onSuccess(evt -> {
-                    String deleteQuery = "DELETE FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
-                            " WHERE id IN " + Sql.listPrepared(multiTeachingIds.getList());
+                    String deleteQuery = "UPDATE " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE +
+                            " SET deleted_date = NOW() " +
+                            "WHERE id IN " + Sql.listPrepared(multiTeachingIds.getList());
                     String selectQuery = "SELECT second_teacher_id, main_teacher_id,subject_id,class_or_group_id " +
                             "FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " WHERE id IN "
                             + Sql.listPrepared(multiTeachingIds.getList())
@@ -620,7 +622,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getMultiTeaching(String structureId, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE structure_id = ? AND is_coteaching IS NOT NULL ;";
+                "WHERE structure_id = ? AND deleted_date IS NULL;";
 
         JsonArray values = new JsonArray().add(structureId);
         sql.prepared(query, values, validResultHandler(handler));
@@ -629,7 +631,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getMultiTeachings(JsonArray ids, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND is_coteaching IS NOT NULL ;";
+                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND deleted_date IS NULL;";
 
         sql.prepared(query, ids, validResultHandler(handler));
     }
@@ -650,7 +652,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                 .append("AND is_visible = ? ");
 
         if (periodId != null) {
-            query.append("AND id_type = ? AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
+            query.append("AND id_type = ? AND deleted_date IS NULL  AND (is_coteaching = TRUE OR (is_coteaching = FALSE AND (")
                     .append("(timestamp_dt <= start_date AND start_date <= timestamp_fn) OR ")
                     .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")
                     .append("(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR ")

@@ -33,7 +33,7 @@ public class MultiTeachingServiceTest {
     @Test
     public void getMultiTeaching_should_use_proper_query(TestContext ctx) {
         String PROPER_QUERY = "SELECT * FROM "+ VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE structure_id = ? AND deleted_date IS NULL ";
+                "WHERE structure_id = ? AND deleted_date IS NULL;";
 
 
         String structureId = "structureId";
@@ -58,7 +58,7 @@ public class MultiTeachingServiceTest {
 
 
         String PROPER_QUERY = "SELECT * FROM "+ VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND is_coteaching IS NOT NULL ;";
+                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND deleted_date IS NULL;";
 
         Mockito.doAnswer((Answer<Void>) invocation -> {
             String query = invocation.getArgument(0);

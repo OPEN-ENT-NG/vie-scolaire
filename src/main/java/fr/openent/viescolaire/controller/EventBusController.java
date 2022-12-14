@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 
 import static fr.openent.Viescolaire.FORADMIN;
 import static fr.openent.Viescolaire.ID_STRUCTURE_KEY;
-import static fr.openent.viescolaire.core.constants.EventBusConstant.GET_MULTITEACHERS_AND_DELETED;
-import static fr.openent.viescolaire.core.constants.EventBusConstant.GET_MULTITEACHERS_AND_DELETED_BY_CLASS;
 
 public class EventBusController extends ControllerHelper {
 

@@ -622,7 +622,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getMultiTeaching(String structureId, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE structure_id = ? AND deleted_date IS NULL ;";
+                "WHERE structure_id = ? AND deleted_date IS NULL;";
 
         JsonArray values = new JsonArray().add(structureId);
         sql.prepared(query, values, validResultHandler(handler));
@@ -631,7 +631,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getMultiTeachings(JsonArray ids, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE + " " +
-                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND  deleted_date IS NULL ;";
+                "WHERE id IN " + Sql.listPrepared(ids.getList()) + " AND deleted_date IS NULL;";
 
         sql.prepared(query, ids, validResultHandler(handler));
     }
@@ -657,30 +657,6 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     .append("(timestamp_dt <= end_date AND end_date <= timestamp_fn) OR ")
                     .append("(start_date <= timestamp_dt AND timestamp_dt <= end_date) OR ")
                     .append("(start_date <= timestamp_fn AND timestamp_fn <= end_date) )))");
-
-            values.add(periodId);
-        }
-
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }
-
-    @Override
-    public void getMultiTeachersAndDeleted(String structureId, JsonArray groupIds, String periodId, Boolean onlyVisible,
-                                 Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new JsonArray().add(structureId);
-        for (int i = 0; i < groupIds.size(); i++) {
-            values.add(groupIds.getString(i));
-        }
-        values.add(onlyVisible);
-
-        StringBuffer query = new StringBuffer();
-        query.append("SELECT * FROM " + VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
-                .append(" JOIN " + VSCO_SCHEMA + "." + Viescolaire.VSCO_PERIODE_TABLE + " on class_or_group_id = id_classe ")
-                .append("WHERE structure_id = ? AND class_or_group_id IN " + Sql.listPrepared(groupIds))
-                .append("AND is_visible = ? ");
-
-        if (periodId != null) {
-            query.append("AND id_type = ? ");
 
             values.add(periodId);
         }

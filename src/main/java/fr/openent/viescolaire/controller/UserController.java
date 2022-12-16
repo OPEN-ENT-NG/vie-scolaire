@@ -32,6 +32,7 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.*;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -188,23 +189,17 @@ public class UserController extends ControllerHelper {
     }
 
     @Get("/user/list")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @ResourceFilter(StructureRight.class)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     public void list(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if (user != null) {
-                    final String structureId = request.params().get("structureId");
-                    final String classId = request.params().get("classId");
-                    final JsonArray types = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("profile"));
-                    final String groupId = request.params().get("groupId");
-                    final String nameFilter = request.params().get("name");
-                    final String filterActive = request.params().get("filterActive");
+        UserUtils.getUserInfos(eb, request, user -> {
+            if (user != null) {
+                final String structureId = request.params().get(Field.STRUCTUREID);
+                final String profile = request.params().get(Field.PROFILE);
 
-                    userService.list(structureId, classId, groupId, types, filterActive, nameFilter, user, arrayResponseHandler(request));
-                } else {
-                    unauthorized(request);
-                }
+                userService.list(structureId, profile, arrayResponseHandler(request));
+            } else {
+                unauthorized(request);
             }
         });
     }

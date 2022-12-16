@@ -555,11 +555,9 @@ public class EventBusController extends ControllerHelper {
             }
             break;
             case "getUsersByTypeClassAndStructure": {
-                String structureId = message.body().getString("structureId");
-                String classId = message.body().getString("classId");
-                JsonArray types = message.body().getJsonArray("types");
-                userService.list(structureId, classId, null, types, null, null, null,
-                        getJsonArrayBusResultHandler(message));
+                String structureId = message.body().getString(Field.STRUCTUREID);
+                String profile = message.body().getString(Field.PROFILE);
+                userService.list(structureId, profile, getJsonArrayBusResultHandler(message));
             }
             break;
             case "getElevesRelatives": {

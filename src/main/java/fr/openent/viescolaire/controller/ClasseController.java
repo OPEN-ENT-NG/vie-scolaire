@@ -112,21 +112,6 @@ public class ClasseController extends BaseController {
         return value;
     }
 
-    @Get("/classes/secondary")
-    @ApiDoc("Récupère la liste des classes qui font ou ont fait l'objet de remplacement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getRemplacementClasses (final HttpServerRequest request) {
-        if (request.params().contains("idStructure")) {
-            UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-                @Override
-                public void handle(final UserInfos user) {
-                    classeService.getGroupsMutliTeaching(user.getUserId(),request.params().get("idStructure"),arrayResponseHandler(request));
-                }
-            });
-        } else {
-            badRequest(request);
-        }
-    }
     @Put("/class/:idClass/:idUser")
     @SecuredAction(value = "",type =  ActionType.AUTHENTICATED)
     public void setClasses(final  HttpServerRequest request){

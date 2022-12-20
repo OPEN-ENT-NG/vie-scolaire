@@ -31,3 +31,4 @@ tslint.json
 /gradle/wrapper/gradle-wrapper.jar
 /gradle/wrapper/gradle-wrapper.properties
 /gradlew
+package-lock.json

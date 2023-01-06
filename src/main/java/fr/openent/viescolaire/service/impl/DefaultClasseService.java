@@ -733,59 +733,6 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         };
     }
 
-    private void getNeoInfo(JsonArray classes, String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
-
-        String query = "MATCH (c:Class) " +
-                "WHERE NOT (:User {id: {userId}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class) " +
-                "AND c.id IN {ids} " +
-                "RETURN  c.id as id, c.name as name, true as remplacement, 0 as type_groupe";
-
-        query += " UNION ALL ";
-
-        query += "MATCH (c:FunctionalGroup) " +
-                "WHERE NOT (:User {id:{userId}})-[:IN]->(c:FunctionalGroup) " +
-                "AND c.id IN {ids} " +
-                "RETURN  c.id as id, c.name as name, true as remplacement, 1 as type_groupe";
-
-        JsonObject params = new JsonObject()
-                .put("ids", classes)
-                .put("userId", userId);
-
-        Neo4j.getInstance().execute(query, params, Neo4jResult.validResultHandler(handler));
-    }
-
-    @Override
-    public void getGroupsMutliTeaching(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
-        multiTeachingService.getIdGroupsMutliTeaching(userId, idStructure, new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(Either<String, JsonArray> event) {
-
-                        if (event.isRight()) {
-                            ArrayList<String> groupsId = (ArrayList<String>) event.right().getValue()
-                                    .stream()
-                                    .map((oEvent) -> ((JsonObject) oEvent).getString("group_id"))
-                                    .collect(Collectors.toList());
-
-                            final JsonArray classeIds = new JsonArray(groupsId);
-                            getNeoInfo(classeIds, userId, idStructure, new Handler<Either<String, JsonArray>>() {
-                                @Override
-                                public void handle(Either<String, JsonArray> event) {
-                                    if (event.isRight()) {
-                                        JsonArray values = event.right().getValue();
-                                        handler.handle(new Either.Right<>(values));
-                                    } else {
-                                        handler.handle(new Either.Left<>("Error when getting remplacments classes from neo"));
-                                    }
-                                }
-                            });
-                        } else {
-                            handler.handle(new Either.Left<>("Error when getting groups id classes from sql"));
-                        }
-                    }
-                }
-        );
-    }
-
     @Override
     public Future<String> getClasseIdFromAudience(String audiences) {
         Promise<String> promise = Promise.promise();

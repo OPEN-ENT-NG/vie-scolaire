@@ -69,7 +69,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getFailures(structureId: string): Promise<Array<IFailure>> {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/failures`)
-            .then((res: AxiosResponse<{all: Array<IFailure>}>) => {
+            .then((res: AxiosResponse) => {
             return res.data.all;
         });
     },
@@ -100,7 +100,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getStructureSettings: (structureId: string): Promise<boolean> => {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/setting`)
-            .then((res: AxiosResponse<{active: boolean}>) => {
+            .then((res: AxiosResponse) => {
                 return res.data.active;
             });
     },
@@ -113,7 +113,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getReports: (structureId: string, limit: number, offset: number): Promise<Array<IReport>> => {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/reports?limit=${limit}&offset=${offset}`)
-            .then((res: AxiosResponse<{all: Array<IReport>}>) => {
+            .then((res: AxiosResponse) => {
                 return res.data.all;
             });
     },

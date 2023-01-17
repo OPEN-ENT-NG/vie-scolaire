@@ -57,7 +57,7 @@ export const userService: UserService = {
         }
         let pathName: string = `/viescolaire/structures/${structureId}/students`;
 
-        return http.get(pathName + url.search).then((res: AxiosResponse<Array<IUser>>) => {
+        return http.get(pathName + url.search).then((res: AxiosResponse) => {
             return res.data;
         });
     }

@@ -3,8 +3,6 @@ import http, {AxiosResponse} from 'axios';
 import {Mix} from "toolkit";
 import {Utils} from "../../utils/Utils";
 import {Classe} from "../personnel/Classe";
-import {DefaultClasse} from "./DefaultClasse";
-import {Structure} from "../personnel/Structure";
 import {timeslotClasseService} from "../../services/TimeslotClasseService";
 
 export interface Slot {
@@ -73,7 +71,7 @@ export class TimeSlots {
 
     async syncAll() {
         try {
-            let {data} = await http.get<TimeSlot[]>(`/viescolaire/time-slots?structureId=${this.structure}`);
+            let {data} = await http.get(`/viescolaire/time-slots?structureId=${this.structure}`);
             this.all = Mix.castArrayAs(TimeSlot, Utils.toCamelCase(data));
         } catch (e) {
             notify.error('viescolaire.error.sync.time.slots');

@@ -39,7 +39,6 @@ public class AccesCompetencesVieScoStructureFilter implements ResourcesProvider 
                             && isInStructure
             );
         }
-        handler.handle(false);
     }
 
     public boolean validateStructure(UserInfos user, String idEtablissement) {

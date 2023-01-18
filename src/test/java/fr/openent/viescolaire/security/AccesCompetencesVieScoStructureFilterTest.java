@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.security;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.model.Person.User;
 import fr.wseduc.webutils.http.Binding;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -57,7 +58,7 @@ public class AccesCompetencesVieScoStructureFilterTest {
         actions.add(role1);
         actions.add(role2);
         user.setAuthorizedActions(actions);
-        params.set(Viescolaire.ID_ETABLISSEMENT_KEY,"1");
+        params.set(Field.STRUCTUREID,"1");
         structures.add("1");
         user.setStructures(structures);
         user.setGroupsIds(groupsId);
@@ -76,7 +77,7 @@ public class AccesCompetencesVieScoStructureFilterTest {
         actions.add(role1);
         actions.add(role2);
         user.setAuthorizedActions(actions);
-        params.set(Viescolaire.ID_ETABLISSEMENT_KEY,"1");
+        params.set(Field.STRUCTUREID,"1");
         structures.add("0");
         user.setStructures(structures);
         user.setGroupsIds(groupsId);
@@ -93,7 +94,7 @@ public class AccesCompetencesVieScoStructureFilterTest {
         role2.setDisplayName(WorkflowActionUtils.COMPETENCE_ACCESS);
         actions.add(role2);
         user.setAuthorizedActions(actions);
-        params.set(Viescolaire.ID_ETABLISSEMENT_KEY,"1");
+        params.set(Field.STRUCTUREID,"1");
         structures.add("1");
         user.setStructures(structures);
         user.setGroupsIds(groupsId);
@@ -110,7 +111,7 @@ public class AccesCompetencesVieScoStructureFilterTest {
         role2.setDisplayName(WorkflowActionUtils.ADMIN_RIGHT);
         actions.add(role2);
         user.setAuthorizedActions(actions);
-        params.set(Viescolaire.ID_ETABLISSEMENT_KEY,"1");
+        params.set(Field.STRUCTUREID,"1");
         structures.add("0");
         user.setStructures(structures);
         user.setGroupsIds(groupsId);
@@ -121,8 +122,5 @@ public class AccesCompetencesVieScoStructureFilterTest {
     }
 
     //TODO Test for filter with post http method
-    @Test
-    public void testAccessCompetanceAndViescoRightStructPost(TestContext ctx){
-//        Mockito.doReturn(params).when(request).bodyHandler(Mockito.any(Handler.class));
-    }
+
 }

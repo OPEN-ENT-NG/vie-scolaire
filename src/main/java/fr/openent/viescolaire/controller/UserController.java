@@ -88,7 +88,8 @@ public class UserController extends ControllerHelper {
      */
     @Post("/user/structures/actives")
     @ApiDoc("Active un module pour une structure donnée")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value="", type = ActionType.RESOURCE)
+    @ResourceFilter(AccesCompetencesVieScoStructureFilter.class)
     public void createActivedStructure(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -112,7 +113,8 @@ public class UserController extends ControllerHelper {
 
     @Delete("/user/structures/actives")
     @ApiDoc("Supprime une structure active pour un module donné.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value="", type = ActionType.RESOURCE)
+    @ResourceFilter(AccesCompetencesVieScoStructureFilter.class)
     public void deleteActivatedStructure(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

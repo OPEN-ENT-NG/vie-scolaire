@@ -32,6 +32,7 @@ public final class WorkflowActionUtils {
     public static final String PARAM_SERVICES_RIGHT = "viescolaire.paramServices";
     public static final String VIESCO_SEARCH = "viescolaire.search";
     public static final String VIESCO_SEARCH_RESTRICTED = Viescolaire.SEARCH_RESTRICTED;
+    public static final String COMPETENCE_ACCESS = "competences.access";
 
 
     private WorkflowActionUtils() {

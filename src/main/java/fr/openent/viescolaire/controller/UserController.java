@@ -67,16 +67,13 @@ public class UserController extends ControllerHelper {
     @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur pour un module donné ")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void getActivedStructures(final HttpServerRequest request){
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if(user != null){
-                    Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                    final String module = request.params().get("module");
-                    userService.getActivesIDsStructures(user,module,handler);
-                }else{
-                    unauthorized(request);
-                }
+        UserUtils.getUserInfos(eb, request, user -> {
+            if(user != null){
+                Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
+                final String module = request.params().get("module");
+                userService.getActivesIDsStructures(user,module,handler);
+            }else{
+                unauthorized(request);
             }
         });
     }
@@ -89,7 +86,7 @@ public class UserController extends ControllerHelper {
     @Post("/user/structures/actives")
     @ApiDoc("Active un module pour une structure donnée")
     @SecuredAction(value="", type = ActionType.RESOURCE)
-    @ResourceFilter(AccesCompetencesVieScoStructureFilter.class)
+    @ResourceFilter(AdministratorRight.class)
     public void createActivedStructure(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -114,7 +111,7 @@ public class UserController extends ControllerHelper {
     @Delete("/user/structures/actives")
     @ApiDoc("Supprime une structure active pour un module donné.")
     @SecuredAction(value="", type = ActionType.RESOURCE)
-    @ResourceFilter(AccesCompetencesVieScoStructureFilter.class)
+    @ResourceFilter(AdministratorRight.class)
     public void deleteActivatedStructure(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -140,7 +137,8 @@ public class UserController extends ControllerHelper {
      */
     @Get("/user/:idUser/enfants")
     @ApiDoc("Retourne la liste des enfants pour un utilisateur donné")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SuperAdminFilter.class)
     public void getEnfants(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -160,7 +158,8 @@ public class UserController extends ControllerHelper {
      */
     @Get("/personnels")
     @ApiDoc("Retourne la liste des personnels pour des ids donnes")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SuperAdminFilter.class)
     public void getPersonnel(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -181,7 +180,8 @@ public class UserController extends ControllerHelper {
      */
     @Get("/teachers")
     @ApiDoc("Retourne la liste des enseignants pour un etablissement donne")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(SuperAdminFilter.class)
     public void getTeachers(final HttpServerRequest request) {
         if (request.params().contains("idEtablissement")) {
             userService.getTeachers(request.params().get("idEtablissement"), arrayResponseHandler(request));

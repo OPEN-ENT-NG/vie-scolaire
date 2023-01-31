@@ -18,8 +18,11 @@
 package fr.openent.viescolaire.security;
 
 import fr.openent.*;
+import fr.openent.viescolaire.core.constants.Field;
+import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.user.UserInfos;
 
+import java.util.Arrays;
 import java.util.List;
 
 public final class WorkflowActionUtils {
@@ -47,6 +50,15 @@ public final class WorkflowActionUtils {
             }
         }
         return false;
+    }
+
+    public static String getParamStructure(HttpServerRequest request){
+        List<String> structureIdFields = Arrays.asList(Field.ID_STRUCTURE, Field.IDETABLISSEMENT, Field.ID_ETABLISSEMENT, Field.IDSTRUCTURE, Field.STRUCTUREID);
+        return structureIdFields.stream()
+                .map(structureIdField -> request.params().get(structureIdField))
+                .filter(structureIdField ->  structureIdField != null && !structureIdField.isEmpty())
+                .findFirst()
+                .orElse(null);
     }
 
 }

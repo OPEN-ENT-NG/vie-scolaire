@@ -60,8 +60,8 @@ public class UserController extends ControllerHelper {
     }
 
     /**
-     * Retourne retourne le cycle de la classe
      * @param request
+     * @queryParam {structureId} mandatory
      */
     @Get("/user/structures/actives")
     @ApiDoc("Retourne la liste des identifiants des structures actives de l'utilisateur pour un module donné ")
@@ -80,8 +80,8 @@ public class UserController extends ControllerHelper {
 
 
     /**
-     * Retourne retourne le cycle de la classe
      * @param request
+     * @queryParam {structureId} mandatory
      */
     @Post("/user/structures/actives")
     @ApiDoc("Active un module pour une structure donnée")
@@ -108,6 +108,11 @@ public class UserController extends ControllerHelper {
         });
     }
 
+
+    /**
+     * @param request
+     * @queryParam {structureId} mandatory
+     */
     @Delete("/user/structures/actives")
     @ApiDoc("Supprime une structure active pour un module donné.")
     @SecuredAction(value="", type = ActionType.RESOURCE)
@@ -131,47 +136,7 @@ public class UserController extends ControllerHelper {
 
     }
 
-    /**
-     * Retourne la liste des enfants pour un utilisateur donné
-     * @param request
-     */
-    @Get("/user/:idUser/enfants")
-    @ApiDoc("Retourne la liste des enfants pour un utilisateur donné")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(SuperAdminFilter.class)
-    public void getEnfants(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if (user.getUserId().equals(request.params().get("idUser"))) {
-                    userService.getEnfants(request.params().get("idUser"), arrayResponseHandler(request));
-                } else {
-                    unauthorized(request);
-                }
-            }
-        });
-    }
 
-    /**
-     * Retourne la liste des personnels dont l'id est passe en parametre
-     * @param request
-     */
-    @Get("/personnels")
-    @ApiDoc("Retourne la liste des personnels pour des ids donnes")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(SuperAdminFilter.class)
-    public void getPersonnel(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if (user != null) {
-                    userService.getPersonnels(request.params().getAll("idPersonnel"), arrayResponseHandler(request));
-                } else {
-                    unauthorized(request);
-                }
-            }
-        });
-    }
 
     /**
      * Retourne la liste des personnels dont l'id est passe en parametre
@@ -181,7 +146,7 @@ public class UserController extends ControllerHelper {
     @Get("/teachers")
     @ApiDoc("Retourne la liste des enseignants pour un etablissement donne")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(SuperAdminFilter.class)
+    @ResourceFilter(ParamServicesRight.class)
     public void getTeachers(final HttpServerRequest request) {
         if (request.params().contains("idEtablissement")) {
             userService.getTeachers(request.params().get("idEtablissement"), arrayResponseHandler(request));

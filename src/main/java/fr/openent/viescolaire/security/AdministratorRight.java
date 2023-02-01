@@ -6,6 +6,9 @@ import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 
+/**
+ * Concerne uniquement les droits pour viescolaire et competences
+ */
 public class AdministratorRight implements ResourcesProvider {
     @Override
     public void authorize(HttpServerRequest resourceRequest, Binding binding, UserInfos user, Handler<Boolean> handler) {

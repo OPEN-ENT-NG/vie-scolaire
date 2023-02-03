@@ -9,6 +9,8 @@ public class Field<id_groupes> {
     public static final String STRUCTURE = "structure";
     public static final String IDSTRUCTURE = "idStructure";
     public static final String SCHOOLID = "schoolId";
+    public static final String IDETABLISSEMENT = "idEtablissement";
+    public static final String ID_ETABLISSEMENT = "id_etablissement";
 
     // student field
     public static final String STUDENTID = "studentId";

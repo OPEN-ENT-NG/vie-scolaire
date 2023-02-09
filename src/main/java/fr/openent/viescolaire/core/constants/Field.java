@@ -1,6 +1,6 @@
 package fr.openent.viescolaire.core.constants;
 
-public class Field {
+public class Field<id_groupes> {
     public static final String ID = "id";
 
     // structure field
@@ -22,11 +22,13 @@ public class Field {
     public static final String ID_AUDIENCE = "id_audience";
 
     public static final String ID_CLASSES = "id_classes";
+
     public static final String ID_CLASS = "id_class";
     public static final String CLASSID = "classId";
     public static final String CLASS_ID = "class_id";
     public static final String CLASS = "Class";
     public static final String CLASS_SHORT = "c";
+    public static final String ID_CLASSE = "id_classe";
 
     public static final String TIMESLOTID = "timeslotId";
     public static final String TIMESLOTSTRUCTUREID = "timeslotStructureId";
@@ -105,7 +107,9 @@ public class Field {
     public static final String GROUPING = "grouping";
     public static final String GROUPING_ID = "grouping_id";
     public static final String GROUP_ID = "group_id";
+    public static final String ID_GROUP = "id_groupe";
     public static final String GROUP_ID_CAMEL = "groupId";
+    public static final String ID_GROUPES = "id_groupes";
     public static final String STUDENT_DIVISION_ID = "student_division_id";
     public static final String STUDENT_DIVISION_NAME = "student_division_name";
     public static final String STUDENT_DIVISIONS = "student_divisions";

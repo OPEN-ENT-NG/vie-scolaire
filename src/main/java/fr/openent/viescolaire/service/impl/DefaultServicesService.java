@@ -4,6 +4,7 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.core.enums.ServicesFieldEnum;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.model.MultiTeaching;
 import fr.openent.viescolaire.model.ServiceModel;
 import fr.openent.viescolaire.service.MultiTeachingService;
@@ -341,5 +342,24 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
                                                 Handler<Either<String, JsonArray>> arrayResponseHandler) {
         getAllServices(structureId, true, false, true, true, true,
                 false, oService, arrayResponseHandler);
+    }
+
+    public Future<JsonArray> getEvaluableGroups( List<String> groupIds) {
+        Promise<JsonArray> promiseEvaluableGroups = Promise.promise();
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT (id_groupe) FROM ").append(this.resourceTable)
+                .append(" WHERE evaluable = true ");
+
+        JsonArray valuesRequest = new JsonArray();
+
+        if (groupIds != null &&  !groupIds.isEmpty()) {
+            query.append("AND id_groupe IN ").append(Sql.listPrepared(groupIds));
+            valuesRequest.addAll(new JsonArray(groupIds));
+        }
+
+        Sql.getInstance().prepared(query.toString(),valuesRequest, validResultHandler(FutureHelper.handlerEitherPromise(promiseEvaluableGroups,
+                String.format("[Viescolaire@%s::getEvaluableGroups] error request sql : ", this.getClass().getSimpleName()))));
+
+        return promiseEvaluableGroups.future();
     }
 }

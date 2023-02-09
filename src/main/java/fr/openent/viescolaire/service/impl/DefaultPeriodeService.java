@@ -19,6 +19,7 @@ package fr.openent.viescolaire.service.impl;
 
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.GroupeService;
 import fr.openent.viescolaire.service.PeriodeService;
@@ -119,120 +120,127 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         if (idEtablissement != null && (idGroupes == null || idGroupes.length == 0)) {
             getPeriodesClasses(idEtablissement, null, handler);
         } else {
-            getTypeGroupe(idGroupes,
-                    new Handler<Either<String, Map<Boolean, List<String>>>>() {
+            getTypeGroupe(idGroupes, stringMapEither -> {
+
+                if (stringMapEither.isRight() && !stringMapEither.right().getValue().isEmpty()) {
+                    final List<String> groupes = stringMapEither.right().getValue().get(false);
+                    final List<String> classes = stringMapEither.right().getValue().get(true);
+
+                    final AtomicBoolean handled = new AtomicBoolean();
+                    final AtomicBoolean groupesDone = new AtomicBoolean(groupes == null);
+                    final AtomicBoolean classesDone = new AtomicBoolean(classes == null);
+                    final JsonArray result = new fr.wseduc.webutils.collections.JsonArray();
+
+                    final Handler<Either<String, JsonArray>> finalHandler = new Handler<Either<String, JsonArray>>() {
                         @Override
-                        public void handle(Either<String, Map<Boolean, List<String>>> stringMapEither) {
-                            if (stringMapEither.isRight() && !stringMapEither.right().getValue().isEmpty()) {
-                                final List<String> groupes = stringMapEither.right().getValue().get(false);
-                                final List<String> classes = stringMapEither.right().getValue().get(true);
-
-                                final AtomicBoolean handled = new AtomicBoolean();
-                                final AtomicBoolean groupesDone = new AtomicBoolean(groupes == null);
-                                final AtomicBoolean classesDone = new AtomicBoolean(classes == null);
-                                final JsonArray result = new fr.wseduc.webutils.collections.JsonArray();
-
-                                final Handler<Either<String, JsonArray>> finalHandler = new Handler<Either<String, JsonArray>>() {
-                                    @Override
-                                    public void handle(Either<String, JsonArray> stringEntryEither) {
-                                        if(!handled.get()) {
-                                            if(stringEntryEither.isRight()) {
-                                                for(Object o : stringEntryEither.right().getValue()) {
-                                                    result.add(o);
-                                                }
-                                                if(groupesDone.get() && classesDone.get()) {
-                                                    handler.handle(new Either.Right<String, JsonArray>(result));
-                                                    handled.set(true);
-                                                }
-                                            } else {
-                                                handler.handle(new Either.Left<String, JsonArray>(stringEntryEither.left().getValue()));
-                                                handled.set(true);
-                                            }
-                                        }
+                        public void handle(Either<String, JsonArray> stringEntryEither) {
+                            if(!handled.get()) {
+                                if(stringEntryEither.isRight()) {
+                                    for(Object o : stringEntryEither.right().getValue()) {
+                                        result.add(o);
                                     }
-                                };
+                                    if(groupesDone.get() && classesDone.get()) {
+                                        handler.handle(new Either.Right<>(result));
+                                        handled.set(true);
+                                    }
+                                } else {
+                                    handler.handle(new Either.Left<>(stringEntryEither.left().getValue()));
+                                    handled.set(true);
+                                }
+                            }
+                        }
+                    };
 
-                                if (groupes != null && !groupes.isEmpty()) {
+                    if (groupes != null && !groupes.isEmpty()) {
 
-                                    final AtomicInteger nbGroupe = new AtomicInteger(groupes.size());
-                                    final JsonArray groupePeriodeResult = new fr.wseduc.webutils.collections.JsonArray();
-                                    final AtomicBoolean groupeHandled = new AtomicBoolean();
+                        final AtomicInteger nbGroupe = new AtomicInteger(groupes.size());
+                        final JsonArray groupePeriodeResult = new fr.wseduc.webutils.collections.JsonArray();
+                        final AtomicBoolean groupeHandled = new AtomicBoolean();
 
-                                    final Handler<Either<String, JsonArray>> groupHandler = new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> stringEntryEither) {
-                                            if (!handled.get()) {
-                                                if (stringEntryEither.isRight()) {
-                                                    for (Object o : stringEntryEither.right().getValue()) {
-                                                        groupePeriodeResult.add(o);
-                                                    }
-                                                    if (nbGroupe.decrementAndGet() == 0) {
-                                                        groupesDone.set(true);
-                                                        groupeHandled.set(true);
-                                                        finalHandler.handle(new Either.Right<String, JsonArray>(groupePeriodeResult));
-                                                    }
-                                                } else {
-                                                    groupeHandled.set(true);
-                                                    finalHandler.handle(new Either.Left<String, JsonArray>(stringEntryEither.left().getValue()));
-                                                }
-                                            }
+                        final Handler<Either<String, JsonArray>> groupHandler = new Handler<Either<String, JsonArray>>() {
+                            @Override
+                            public void handle(Either<String, JsonArray> stringEntryEither) {
+                                if (!handled.get()) {
+                                    if (stringEntryEither.isRight()) {
+                                        for (Object o : stringEntryEither.right().getValue()) {
+                                            groupePeriodeResult.add(o);
                                         }
-                                    };
+                                        if (nbGroupe.decrementAndGet() == 0) {
+                                            groupesDone.set(true);
+                                            groupeHandled.set(true);
+                                            finalHandler.handle(new Either.Right<>(groupePeriodeResult));
+                                        }
+                                    } else {
+                                        groupeHandled.set(true);
+                                        finalHandler.handle(new Either.Left<>(stringEntryEither.left().getValue()));
+                                    }
+                                }
+                            }
+                        };
 
-                                    Iterator<String> groupeIterator = groupes.iterator();
+                        Iterator<String> groupeIterator = groupes.iterator();
 
-                                    while(groupeIterator.hasNext()) {
-                                        final String idGroupe = groupeIterator.next();
+                        while(groupeIterator.hasNext()) {
+                            final String idGroupe = groupeIterator.next();
+                            processGroupes(idEtablissement,
+                                    idGroupe,
+                                    stringListEither -> {
 
-                                        processGroupes(idEtablissement, idGroupe, new Handler<Either<String, List<String>>>() {
-                                            @Override
-                                            public void handle(Either<String, List<String>> stringListEither) {
-                                                if(stringListEither.isRight()) {
-                                                    final String[] idClasses = stringListEither.right().getValue().toArray(new String[0]);
-                                                    getPeriodesGroupe(idEtablissement, idClasses,
-                                                            new Handler<Either<String, JsonArray>>() {
-                                                                @Override
-                                                                public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                                                                    if (stringJsonArrayEither.isRight()) {
-                                                                        for (Object o : stringJsonArrayEither.right().getValue()) {
-                                                                            JsonObject groupePeriode = (JsonObject) o;
-                                                                            groupePeriode.put("id_groupe", idGroupe);
-                                                                        }
-                                                                        groupHandler.handle(new Either.Right<String, JsonArray>(stringJsonArrayEither.right().getValue()));
-                                                                    } else {
-                                                                        groupHandler.handle(new Either.Left<String, JsonArray>(stringJsonArrayEither.left().getValue()));
-                                                                    }
-                                                                }
-                                                            });
-                                                } else {
-                                                    groupHandler.handle(new Either.Left<String, JsonArray>(stringListEither.left().getValue()));
+                                if(stringListEither.isRight()) {
+                                    //if the groupe is not linked to classes
+                                    if (stringListEither.right().getValue().isEmpty())  {
+                                        groupHandler.handle(new Either.Right<>(new JsonArray()));
+                                    } else {
+                                        final String[] idClasses = stringListEither.right().getValue().toArray(new String[0]);
+                                        getPeriodesGroupe(idEtablissement,
+                                                idClasses,
+                                                stringJsonArrayEither -> {
+                                            if (stringJsonArrayEither.isRight()) {
+                                                for (JsonObject o : (List<JsonObject>) stringJsonArrayEither.right().getValue().getList()) {
+                                                    JsonObject groupePeriode = o;
+                                                    groupePeriode.put(Field.ID_GROUP, idGroupe);
                                                 }
+                                                groupHandler.handle(new Either.Right<>(stringJsonArrayEither.right().getValue()));
+                                            } else {
+                                                log.error(String.format("[Viescolaire@%s::getPeriodesGroup in getPeriodes] error sql request : %s",
+                                                        this.getClass().getSimpleName(), stringJsonArrayEither.left().getValue()));
+                                                groupHandler.handle(new Either.Left<>(stringJsonArrayEither.left().getValue()));
                                             }
                                         });
                                     }
+                                } else {
+                                    log.error(String.format("[Viescolaire@%s::processGroupes in getPeriodes] %s groupId : %s.",
+                                            this.getClass().getSimpleName(), stringListEither.left().getValue(), idGroupe));
+                                    groupHandler.handle(new Either.Left<>(stringListEither.left().getValue()));
                                 }
-
-                                if (classes != null && !classes.isEmpty()) {
-                                    getPeriodesClasses(idEtablissement, classes.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
-                                        @Override
-                                        public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                                            if (stringJsonArrayEither.isRight()) {
-                                                classesDone.set(true);
-                                                finalHandler.handle(stringJsonArrayEither.right());
-                                            } else {
-                                                finalHandler.handle(stringJsonArrayEither.left());
-                                            }
-                                        }
-                                    });
-                                }
-
-                            } else if (stringMapEither.isRight() && stringMapEither.right().getValue().isEmpty()) {
-                                handler.handle(new Either.Left<String, JsonArray>("getPeriodes : no class or group found"));
-                            } else {
-                                handler.handle(new Either.Left<String, JsonArray>(stringMapEither.left().getValue()));
-                            }
+                            });
                         }
-                    });
+                    }
+
+                    if (classes != null && !classes.isEmpty()) {
+                        getPeriodesClasses(idEtablissement, classes.toArray(new String[0]), jsonArrayEvent -> {
+                            if (jsonArrayEvent.isRight()) {
+                                classesDone.set(true);
+                                finalHandler.handle(jsonArrayEvent.right());
+                            } else {
+                                log.error(String.format("[Viecolaire@%s::getPeriodesClasses in getPeriodes] error sql resquest : %s",
+                                        this.getClass().getSimpleName(), jsonArrayEvent.left()));
+                                finalHandler.handle(jsonArrayEvent.left());
+                            }
+
+                        });
+                    }
+
+                } else if (stringMapEither.isRight() && stringMapEither.right().getValue().isEmpty()) {
+                    log.error(String.format("[Viecolaire@%s::getTypeGroupe in getPeriodes] no class or group found ",
+                            this.getClass().getSimpleName()));
+                    handler.handle(new Either.Left<>("getPeriodes : no class or group found"));
+                } else {
+                    log.error(String.format("[Viecolaire@%s::getTypeGroupe in getPeriodes] error sql resquest : %s ",
+                            this.getClass().getSimpleName(), stringMapEither.left()));
+                    handler.handle(new Either.Left<>(stringMapEither.left().getValue()));
+                }
+            });
         }
     }
 
@@ -428,54 +436,68 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
     private void processGroupes(final String idEtablissement, String idGroupe, final Handler<Either<String, List<String>>> handler) {
 
         groupeService.getClasseGroupe(new String[]{idGroupe},
-                new Handler<Either<String, JsonArray>>() {
-                    @Override
-                    public void handle(final Either<String, JsonArray> stringJsonArrayEither) {
-                        if (stringJsonArrayEither.isRight()) {
-                            List<String> idClasses = new ArrayList<>();
-                            for(Object o : ((JsonObject) stringJsonArrayEither.right().getValue().iterator().next()).getJsonArray("id_classes")) {
-                                idClasses.add((String) o);
-                            }
-
-                            // On compte le nombre de periode, pour chaque groupe de classe. Si l'une d'elles a
-                            // un nombre different de periode, une erreur survient.
-                            getPeriodesClasses(idEtablissement, idClasses.toArray(new String[0]), new Handler<Either<String, JsonArray>>() {
-                                @Override
-                                public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                                    if (stringJsonArrayEither.isRight()) {
-
-                                        Map<String, AtomicInteger> nbPeriodeClasse = new HashMap<>();
-
-                                        for (Object o : stringJsonArrayEither.right().getValue()) {
-                                            JsonObject periodeClasse = (JsonObject) o;
-                                            String id_classe = periodeClasse.getString("id_classe");
-                                            if (!nbPeriodeClasse.containsKey(id_classe)) {
-                                                nbPeriodeClasse.put(id_classe, new AtomicInteger());
-                                            }
-                                            nbPeriodeClasse.get(id_classe).incrementAndGet();
-                                        }
-
-                                        Iterator<AtomicInteger> iter = nbPeriodeClasse.values().iterator();
-                                        AtomicInteger first = iter.next();
-
-                                        while (iter.hasNext()) {
-                                            if (first.get() != iter.next().get()) {
-                                                handler.handle(new Either.Left<String, List<String>>("getPeriodesGroupe : Given classes have different type of periods"));
-                                            }
-                                        }
-
-                                        handler.handle(new Either.Right<String, List<String>>(new ArrayList<>(nbPeriodeClasse.keySet())));
-
-                                    } else {
-                                        handler.handle(new Either.Left<String, List<String>>(stringJsonArrayEither.left().getValue()));
-                                    }
-                                }
-                            });
-                        } else {
-                            handler.handle(new Either.Left<String, List<String>>(stringJsonArrayEither.left().getValue()));
-                        }
+                 stringJsonArrayEither -> {
+            if (stringJsonArrayEither.isRight()) {
+                List<String> idClasses = new ArrayList<>();
+                if(stringJsonArrayEither.right().getValue().isEmpty()) {
+                    handler.handle(new Either.Right<>(idClasses));
+                } else {
+                    for(Object o : (List<JsonObject>)((JsonObject) stringJsonArrayEither.right().getValue()
+                            .iterator().next()).getJsonArray(Field.ID_CLASSES).getList()) {
+                        idClasses.add((String) o);
                     }
-                });
+
+                    // On compte le nombre de periode, pour chaque groupe de classe. Si l'une d'elles a
+                    // un nombre different de periode, une erreur survient.
+                    getPeriodesClasses(idEtablissement, idClasses.toArray(new String[0]),
+                            stringJsonArrayEvent -> {
+                        if (stringJsonArrayEvent.isRight()) {
+
+                            Map<String, AtomicInteger> nbPeriodeClasse = new HashMap<>();
+
+                            for (JsonObject o : (List<JsonObject>) stringJsonArrayEvent.right().getValue().getList()) {
+                                JsonObject periodeClasse = o;
+                                String id_classe = periodeClasse.getString(Field.ID_CLASSE);
+                                if (!nbPeriodeClasse.containsKey(id_classe)) {
+                                    nbPeriodeClasse.put(id_classe, new AtomicInteger());
+                                }
+                                nbPeriodeClasse.get(id_classe).incrementAndGet();
+                            }
+                           if (nbPeriodeClasse.isEmpty()) handler.handle(new Either.Right<>(new ArrayList<>()));
+                           else {
+                               Iterator<AtomicInteger> iter = nbPeriodeClasse.values().iterator();
+                               AtomicInteger first = iter.next();
+
+                               while (iter.hasNext()) {
+                                   if (first.get() != iter.next().get()) {
+                                       log.error(String
+                                               .format("[Viescolaire@%s::getPeriodesClasses in processGroups] error getPeriodesGroupe : " +
+                                                               "Given classes have different type of periods first : %s , next : %s",
+                                                       this.getClass().getSimpleName(), first, iter.next().get()));
+                                       handler.handle(new Either.Left<>("getPeriodesGroupe : Given classes have different type of periods"));
+                                   }
+                               }
+
+                               handler.handle(new Either.Right<>(new ArrayList<>(nbPeriodeClasse.keySet())));
+                           }
+
+                        } else {
+                            log.error(String
+                                    .format("[Viescolaire@%s::getPeriodesClasses in processGroups] error sql request : %s.",
+                                                    this.getClass().getSimpleName(), stringJsonArrayEvent.left().getValue()));
+                            handler.handle(new Either.Left<>(stringJsonArrayEvent.left().getValue()));
+                        }
+                    });
+                }
+
+            } else {
+                log.error(String
+                        .format("[Viescolaire@%s::getClasseGroupe in processGroups] error sql request : %s idGroup : %s.",
+                                this.getClass().getSimpleName(), stringJsonArrayEither.left().getValue(),
+                        idGroupe));
+                handler.handle(new Either.Left<>(stringJsonArrayEither.left().getValue()));
+            }
+        });
     }
 
     /**

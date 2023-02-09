@@ -1,11 +1,14 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.service.CrudService;
+
+import java.util.List;
 
 public interface ServicesService extends CrudService {
     void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler);
@@ -27,4 +30,6 @@ public interface ServicesService extends CrudService {
 
     void getAllEvaluableServicesNoFilter(String structureId, JsonObject oService,
                                 Handler<Either<String, JsonArray>> arrayResponseHandler);
+
+    Future<JsonArray> getEvaluableGroups(List<String> groupIds);
 }

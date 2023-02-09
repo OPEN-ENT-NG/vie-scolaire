@@ -23,10 +23,7 @@ import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.helper.PromiseHelper;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
-import io.vertx.core.VertxException;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
@@ -400,13 +397,76 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         StringBuilder query = new StringBuilder();
         JsonObject params = new JsonObject();
 
-        query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class) ")
+        query.append("MATCH (u:User {profiles:['Student']})--(:ProfileGroup)--(c:Class)--(s:Structure) ")
                 .append("WHERE c.id IN {idClasses} ")
-                .append("WITH u, c OPTIONAL MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
+                .append("WITH u, c, s OPTIONAL MATCH (u)--(g)--(s) WHERE (g:FunctionalGroup OR g:ManualGroup) AND NOT EXISTS (g.autolinkUsersFromGroups) ")
                 .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.id) AS id_groupes");
         params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
+    }
+
+    public Future<JsonArray> getGroupeClasse(String[] classIds) {
+        Promise<JsonArray> promiseGpsClasses = Promise.promise();
+        getGroupeClasse(classIds, FutureHelper.handlerEitherPromise(promiseGpsClasses,
+                String.format("[Viescolaire@%s::getGroupeClasse] error neo resquest : ", this.getClass().getSimpleName())));
+        return promiseGpsClasses.future();
+    }
+
+    public void getEvaluableGroupsClasses(String[] classesIds, Handler<Either<String, JsonArray>> handler) {
+
+        getGroupeClasse(classesIds).onFailure(err -> {
+                    log.error(String.format("[Viescolaire@%s::getEvaluableGroupsClasses] error neo resquest to get groups of Classess : %s",
+                            this.getClass().getSimpleName(), err.getMessage()));
+                    handler.handle(new Either.Left<>( err.getMessage()));
+        })
+                .onSuccess( classesGroups  -> {
+                    if(classesGroups.isEmpty()) {
+                        handler.handle(new Either.Right<>(classesGroups ));
+                    } else {
+                        List<Future<Void>> listFutureGps = new ArrayList<>();
+                        for (JsonObject classGroupsJo : ((List<JsonObject>) classesGroups.getList())) {
+                            Promise<Void> promiseGroupsClass = Promise.promise();
+
+                            List<String> idsGroups = classGroupsJo.getJsonArray(Field.ID_GROUPES, new JsonArray()).getList();
+                            if(idsGroups.isEmpty()) {
+                                classesGroups.remove(classGroupsJo);
+                                promiseGroupsClass.complete();
+                            } else {
+                                servicesService.getEvaluableGroups(idsGroups)
+                                        .onFailure( err-> {
+                                            log.error(String.format("[Viescolaire@%s::getEvaluableGroups] error sql resquest to get evaluable groups : %s",
+                                                    this.getClass().getSimpleName(), err.getMessage()));
+                                            promiseGroupsClass.fail("error sql resquest to get evaluable groups : "
+                                                    + err.getMessage());
+                                        })
+                                        .onSuccess( respEvaluableGps -> {
+                                            if (respEvaluableGps.isEmpty()) {
+                                                classesGroups.remove(classGroupsJo);
+                                            } else {
+                                                JsonArray evaluableGroups = new JsonArray();
+                                                for ( Object evalGroup  : respEvaluableGps)
+                                                    evaluableGroups.add(((JsonObject) evalGroup).getString("id_groupe"));
+                                                classGroupsJo.put("id_groupes", evaluableGroups);
+                                            }
+                                            promiseGroupsClass.complete();
+                                        });
+                            }
+
+                            listFutureGps.add(promiseGroupsClass.future());
+                        }
+                        FutureHelper.all(listFutureGps)
+                                .onSuccess(event -> {
+                                    handler.handle(new Either.Right<>(classesGroups));
+                                })
+                                .onFailure( err -> {
+                                    log.error(String.format("[Viescolaire@%s::getEvaluableGroups in getEvaluableGroupsClasses] error get All evaluable groups : %s",
+                                            this.getClass().getSimpleName(), err.getMessage()));
+                                    handler.handle(new Either.Left<>(err.getMessage()));
+
+                                });
+                    }
+                });
     }
 
     /**

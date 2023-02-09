@@ -79,6 +79,17 @@ public class FutureHelper {
         };
     }
 
+    public static <L, R> Handler<Either<L, R>> handlerEitherPromise(Promise<R> promise, String logs) {
+        return event -> {
+            if (event.isRight()) {
+                promise.complete(event.right().getValue());
+            } else {
+                LOGGER.error(String.format("%s %s ", logs, event.left().getValue()));
+                promise.fail(event.left().getValue().toString());
+            }
+        };
+    }
+
     public static Handler<AsyncResult<JsonObject>> futureJsonObject(Future<JsonObject> future) {
         return event -> {
             if (event.failed()) {

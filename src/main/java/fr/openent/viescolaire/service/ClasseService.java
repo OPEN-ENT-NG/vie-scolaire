@@ -150,6 +150,13 @@ public interface ClasseService extends CrudService {
     void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler);
 
     /**
+     * get evaluable groups of classes
+     * @param classesIds array classes Ids
+     * @param handler  response
+     */
+    void getEvaluableGroupsClasses(String[] classesIds, Handler<Either<String, JsonArray>> handler);
+
+    /**
      * récupère l'id de la classe de l'élève dont l'id est passé en paramètre
      *
      * @param idEleve

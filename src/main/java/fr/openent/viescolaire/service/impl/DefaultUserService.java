@@ -848,12 +848,20 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         final StringBuilder filter = new StringBuilder();
         fields.forEach(field -> filter.append("OR toLower(").append(getFieldName(field)).append(") CONTAINS {query} "));
 
-        String neo4jquery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure), (p)-[:DEPENDS]->(c:Class) " +
-                "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
+        String neo4jquery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure) ";
+
+        if (!Objects.equals(profile, "Personnel"))
+            neo4jquery += ",(p)-[:DEPENDS]->(c:Class) ";
+
+        neo4jquery += "WHERE s.id = {structureId} AND u.profiles = {profiles} " +
                 "AND (" + filter.toString().replaceFirst("OR ", "") + ") " +
                 "RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName," +
-                " u.firstName as firstName, u.classes as idClasse, collect(c.name) as classesNames " +
-                "ORDER BY displayName;";
+                " u.firstName as firstName, u.classes as idClasse ";
+
+        if (!Objects.equals(profile, "Personnel"))
+            neo4jquery += ",collect(c.name) as classesNames ";
+
+        neo4jquery += "ORDER BY displayName;";
 
 
         if (userId != null) {

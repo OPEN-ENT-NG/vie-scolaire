@@ -92,10 +92,10 @@ public class DefaultUserServiceTest {
     public void testSearchNullUserId(TestContext ctx) {
         Async async = ctx.async();
         List<String> fields = Arrays.asList("field1", "field2");
-        String expectedQuery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure), (p)-[:DEPENDS]->(c:Class) WHERE s.id" +
+        String expectedQuery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure) ,(p)-[:DEPENDS]->(c:Class) WHERE s.id" +
                 " = {structureId} AND u.profiles = {profiles} AND (toLower(u.displayName) CONTAINS {query} OR toLower(u.displayName)" +
                 " CONTAINS {query} ) RETURN distinct u.id as id, (u.lastName + ' ' + u.firstName) as displayName, u.lastName as lastName," +
-                " u.firstName as firstName, u.classes as idClasse, collect(c.name) as classesNames ORDER BY displayName;";
+                " u.firstName as firstName, u.classes as idClasse ,collect(c.name) as classesNames ORDER BY displayName;";
         String expectedParams = "{\"structureId\":\"structureId\",\"userId\":null,\"query\":\"query\",\"profiles\":[\"profile\"]}";
 
         Mockito.doAnswer((Answer<Void>) invocation -> {

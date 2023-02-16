@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static fr.wseduc.webutils.http.Renders.getHost;
 import static org.entcore.common.sql.SqlResult.*;
@@ -365,11 +366,36 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         getPeriodesClasses(idEtablissement, idClasses, null, handler);
     }
 
+    /**
+     * get classes periods
+     *
+     * @param idEtablissement   structureId
+     * @param idClasses         list of class id
+     * @param idPeriode         period id
+     * @param handler           Handler replying with Either of {@link JsonArray}
+     *                          Containing response of
+     *                          [
+     *                              {
+     *                                  "id": Number,
+     *                                  "id_etablissement": String,
+     *                                  "libelle": String,
+     *                                  "timestamp_dt": String,
+     *                                  "timestamp_fn": String",
+     *                                  "date_fin_saisie": String,
+     *                                  "id_classe": String,
+     *                                  "id_type": Number,
+     *                                  "date_conseil_classe": String,
+     *                                  "publication_bulletin": Boolean,
+     *                                  "type": Number,
+     *                                  "ordre": Number
+     *                              }
+     *                          ]
+     */
     public void getPeriodesClasses(String idEtablissement, String[] idClasses,
                                    Long idPeriode, final Handler<Either<String, JsonArray>> handler) {
 
         if (idEtablissement == null && (idClasses == null || idClasses.length == 0)) {
-            handler.handle(new Either.Left<String, JsonArray>("getPeriodesClasses : No parameter given."));
+            handler.handle(new Either.Left<>("getPeriodesClasses : No parameter given."));
         }
 
         StringBuilder query = new StringBuilder();
@@ -435,51 +461,50 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
      */
     private void processGroupes(final String idEtablissement, String idGroupe, final Handler<Either<String, List<String>>> handler) {
 
-        groupeService.getClasseGroupe(new String[]{idGroupe},
-                 stringJsonArrayEither -> {
+        groupeService.getClasseGroupe(new String[]{idGroupe}, stringJsonArrayEither -> {
             if (stringJsonArrayEither.isRight()) {
                 List<String> idClasses = new ArrayList<>();
-                if(stringJsonArrayEither.right().getValue().isEmpty()) {
+                if (stringJsonArrayEither.right().getValue().isEmpty()) {
                     handler.handle(new Either.Right<>(idClasses));
                 } else {
-                    for(Object o : (List<JsonObject>)((JsonObject) stringJsonArrayEither.right().getValue()
-                            .iterator().next()).getJsonArray(Field.ID_CLASSES).getList()) {
-                        idClasses.add((String) o);
+                    // find first class group in array
+                    JsonObject classGroup = stringJsonArrayEither.right().getValue().stream()
+                            .filter(JsonObject.class::isInstance)
+                            .map(JsonObject.class::cast)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (classGroup != null) {
+                        // fetching my key JsonArray "id_classes" which is supposed to be a list of string map to list
+                        idClasses = classGroup.getJsonArray(Field.ID_CLASSES, new JsonArray()).stream()
+                                .filter(String.class::isInstance)
+                                .map(String.class::cast)
+                                .collect(Collectors.toList());
                     }
 
                     // On compte le nombre de periode, pour chaque groupe de classe. Si l'une d'elles a
                     // un nombre different de periode, une erreur survient.
-                    getPeriodesClasses(idEtablissement, idClasses.toArray(new String[0]),
-                            stringJsonArrayEvent -> {
+                    getPeriodesClasses(idEtablissement, idClasses.toArray(new String[0]), stringJsonArrayEvent -> {
                         if (stringJsonArrayEvent.isRight()) {
 
-                            Map<String, AtomicInteger> nbPeriodeClasse = new HashMap<>();
+                            final Map<String, Integer> idClassPeriodClassNumberMap = stringJsonArrayEither.right().getValue().stream()
+                                    .filter(JsonObject.class::isInstance)
+                                    .map(JsonObject.class::cast)
+                                    .collect(Collectors.groupingBy(periodClass -> periodClass.getString("id_classe", "")))
+                                    .entrySet()
+                                    .stream()
+                                    .collect(Collectors.toMap(Map.Entry::getKey, stringListEntry -> stringListEntry.getValue().size()));
+                            idClassPeriodClassNumberMap.remove("");
 
-                            for (JsonObject o : (List<JsonObject>) stringJsonArrayEvent.right().getValue().getList()) {
-                                JsonObject periodeClasse = o;
-                                String id_classe = periodeClasse.getString(Field.ID_CLASSE);
-                                if (!nbPeriodeClasse.containsKey(id_classe)) {
-                                    nbPeriodeClasse.put(id_classe, new AtomicInteger());
-                                }
-                                nbPeriodeClasse.get(id_classe).incrementAndGet();
+                            boolean hasDifferentValues = idClassPeriodClassNumberMap.values().stream().distinct().count() > 1;
+                            if (hasDifferentValues) {
+                                log.error(String
+                                        .format("[Viescolaire@%s::getPeriodesClasses] error : getPeriodesGroupe : Given classes have different type of periods. Classes id: %s",
+                                                this.getClass().getSimpleName(), new JsonArray(new ArrayList<>(idClassPeriodClassNumberMap.keySet()))));
+                                handler.handle(new Either.Left<>("getPeriodesGroupe : Given classes have different type of periods"));
+                            } else {
+                                handler.handle(new Either.Right<>(new ArrayList<>(idClassPeriodClassNumberMap.keySet())));
                             }
-                           if (nbPeriodeClasse.isEmpty()) handler.handle(new Either.Right<>(new ArrayList<>()));
-                           else {
-                               Iterator<AtomicInteger> iter = nbPeriodeClasse.values().iterator();
-                               AtomicInteger first = iter.next();
-
-                               while (iter.hasNext()) {
-                                   if (first.get() != iter.next().get()) {
-                                       log.error(String
-                                               .format("[Viescolaire@%s::getPeriodesClasses in processGroups] error getPeriodesGroupe : " +
-                                                               "Given classes have different type of periods first : %s , next : %s",
-                                                       this.getClass().getSimpleName(), first, iter.next().get()));
-                                       handler.handle(new Either.Left<>("getPeriodesGroupe : Given classes have different type of periods"));
-                                   }
-                               }
-
-                               handler.handle(new Either.Right<>(new ArrayList<>(nbPeriodeClasse.keySet())));
-                           }
 
                         } else {
                             log.error(String

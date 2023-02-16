@@ -413,57 +413,54 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         return promiseGpsClasses.future();
     }
 
+    /**
+     * @param classesIds array of string
+     * @param handler handler {@link JsonArray}
+     */
+    @SuppressWarnings("unchecked")
     public void getEvaluableGroupsClasses(String[] classesIds, Handler<Either<String, JsonArray>> handler) {
-
-        getGroupeClasse(classesIds).onFailure(err -> {
-                    log.error(String.format("[Viescolaire@%s::getEvaluableGroupsClasses] error neo resquest to get groups of Classess : %s",
-                            this.getClass().getSimpleName(), err.getMessage()));
+        getGroupeClasse(classesIds)
+                .onFailure(err -> {
+                    log.error(String.format("[Viescolaire@%s::getEvaluableGroupsClasses] error neo request to get groups" +
+                                    " of Classes : %s", this.getClass().getSimpleName(), err.getMessage()));
                     handler.handle(new Either.Left<>( err.getMessage()));
-        })
-                .onSuccess( classesGroups  -> {
-                    if(classesGroups.isEmpty()) {
-                        handler.handle(new Either.Right<>(classesGroups ));
+                })
+                .onSuccess(classesGroups -> {
+                    if(classesGroups == null || classesGroups.isEmpty()) {
+                        handler.handle(new Either.Right<>(new JsonArray()));
                     } else {
                         List<Future<Void>> listFutureGps = new ArrayList<>();
                         for (JsonObject classGroupsJo : ((List<JsonObject>) classesGroups.getList())) {
                             Promise<Void> promiseGroupsClass = Promise.promise();
 
                             List<String> idsGroups = classGroupsJo.getJsonArray(Field.ID_GROUPES, new JsonArray()).getList();
-                            if(idsGroups.isEmpty()) {
-                                classesGroups.remove(classGroupsJo);
+                            if (idsGroups.isEmpty()) {
                                 promiseGroupsClass.complete();
                             } else {
                                 servicesService.getEvaluableGroups(idsGroups)
-                                        .onFailure( err-> {
-                                            log.error(String.format("[Viescolaire@%s::getEvaluableGroups] error sql resquest to get evaluable groups : %s",
-                                                    this.getClass().getSimpleName(), err.getMessage()));
-                                            promiseGroupsClass.fail("error sql resquest to get evaluable groups : "
-                                                    + err.getMessage());
+                                        .onFailure(err-> {
+                                            log.error(String.format("[Viescolaire@%s::getEvaluableGroups] error sql request" +
+                                                            " to get evaluable groups : %s", this.getClass().getSimpleName(), err.getMessage()));
+                                            promiseGroupsClass.fail(err.getMessage());
                                         })
-                                        .onSuccess( respEvaluableGps -> {
-                                            if (respEvaluableGps.isEmpty()) {
-                                                classesGroups.remove(classGroupsJo);
-                                            } else {
+                                        .onSuccess(respEvaluableGps -> {
+                                            if (respEvaluableGps != null && !respEvaluableGps.isEmpty()) {
                                                 JsonArray evaluableGroups = new JsonArray();
-                                                for ( Object evalGroup  : respEvaluableGps)
-                                                    evaluableGroups.add(((JsonObject) evalGroup).getString("id_groupe"));
-                                                classGroupsJo.put("id_groupes", evaluableGroups);
+                                                for (Object evalGroup : respEvaluableGps)
+                                                    evaluableGroups.add(((JsonObject) evalGroup).getString(Field.ID_GROUP));
+                                                classGroupsJo.put(Field.ID_GROUP, evaluableGroups);
                                             }
                                             promiseGroupsClass.complete();
                                         });
                             }
-
                             listFutureGps.add(promiseGroupsClass.future());
                         }
                         FutureHelper.all(listFutureGps)
-                                .onSuccess(event -> {
-                                    handler.handle(new Either.Right<>(classesGroups));
-                                })
-                                .onFailure( err -> {
+                                .onSuccess(event -> handler.handle(new Either.Right<>(classesGroups)))
+                                .onFailure(err -> {
                                     log.error(String.format("[Viescolaire@%s::getEvaluableGroups in getEvaluableGroupsClasses] error get All evaluable groups : %s",
                                             this.getClass().getSimpleName(), err.getMessage()));
                                     handler.handle(new Either.Left<>(err.getMessage()));
-
                                 });
                     }
                 });

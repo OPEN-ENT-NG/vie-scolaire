@@ -41,7 +41,13 @@ public interface GroupeService extends CrudService {
      * Récupère les classes des groupes passes en parametre
      *
      * @param idGroupes Identifiant des groupes
-     * @param handler  Handler portant le résultat de la requête
+     * @param handler  Handler portant le résultat de la requête {@link JsonArray} :
+     *                 [
+     *                      {
+     *                          "id_groupe": String,
+     *                          "id_classes": List<String>
+     *                      }
+     *                  ]
      */
     void getClasseGroupe(String[] idGroupes, Handler<Either<String, JsonArray>> handler);
 

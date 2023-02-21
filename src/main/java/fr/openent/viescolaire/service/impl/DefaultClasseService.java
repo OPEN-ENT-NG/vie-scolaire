@@ -392,6 +392,20 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         neo4j.execute(queries, params, Neo4jResult.validResultHandler(handler));
     }
 
+    /**
+     * get class with all groups matching
+     *
+     * @param idClasses         all classes identifier
+     * @param handler           Handler replying with Either of {@link JsonArray}
+     *                          Containing response of
+     *                          [
+     *                              {
+     *                                  "id_classe": String,
+     *                                  "name_classe": String,
+     *                                  "id_groupes": List of {@link String} (containing all groupes matching)
+     *                              }
+     *                          ]
+     */
     @Override
     public void getGroupeClasse(String[] idClasses, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
@@ -413,9 +427,19 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
         return promiseGpsClasses.future();
     }
 
-    /**
-     * @param classesIds array of string
+    /** We fetch all classes and groups matching to each class in neo4j (getGroupeClasse)
+     * Then we fetch all groups from service in SQL for each class and make a "filtering" operation to get all groups those are evaluable ONLY
+     *
+     * @param classesIds list of classes identifier
      * @param handler handler {@link JsonArray}
+     * Containing response of
+     *      [
+     *        {
+     *          "id_classe": String,
+     *          "name_classe": String,
+     *          "id_groupes": List of {@link String}
+     *        }
+     *      ]
      */
     @SuppressWarnings("unchecked")
     public void getEvaluableGroupsClasses(String[] classesIds, Handler<Either<String, JsonArray>> handler) {
@@ -430,6 +454,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                         handler.handle(new Either.Right<>(new JsonArray()));
                     } else {
                         List<Future<Void>> listFutureGps = new ArrayList<>();
+                        JsonArray finalEvaluableGroupsInClass = new JsonArray();
                         for (JsonObject classGroupsJo : ((List<JsonObject>) classesGroups.getList())) {
                             Promise<Void> promiseGroupsClass = Promise.promise();
 
@@ -444,11 +469,13 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                             promiseGroupsClass.fail(err.getMessage());
                                         })
                                         .onSuccess(respEvaluableGps -> {
+                                            // Reassign in class all evaluable groups fetched in service SQL
                                             if (respEvaluableGps != null && !respEvaluableGps.isEmpty()) {
                                                 JsonArray evaluableGroups = new JsonArray();
                                                 for (Object evalGroup : respEvaluableGps)
                                                     evaluableGroups.add(((JsonObject) evalGroup).getString(Field.ID_GROUP));
                                                 classGroupsJo.put(Field.ID_GROUPES, evaluableGroups);
+                                                finalEvaluableGroupsInClass.add(classGroupsJo);
                                             }
                                             promiseGroupsClass.complete();
                                         });
@@ -456,7 +483,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                             listFutureGps.add(promiseGroupsClass.future());
                         }
                         FutureHelper.all(listFutureGps)
-                                .onSuccess(event -> handler.handle(new Either.Right<>(classesGroups)))
+                                .onSuccess(event -> handler.handle(new Either.Right<>(finalEvaluableGroupsInClass)))
                                 .onFailure(err -> {
                                     log.error(String.format("[Viescolaire@%s::getEvaluableGroups in getEvaluableGroupsClasses] error get All evaluable groups : %s",
                                             this.getClass().getSimpleName(), err.getMessage()));

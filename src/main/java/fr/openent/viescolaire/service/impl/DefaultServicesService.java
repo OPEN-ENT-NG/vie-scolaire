@@ -344,7 +344,19 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
                 false, oService, arrayResponseHandler);
     }
 
-    public Future<JsonArray> getEvaluableGroups( List<String> groupIds) {
+    /**
+     * get evaluables groups in service SQL
+     *
+     * @param groupIds      list of group id
+     * @return  {@link JsonArray}
+     *  Containing response of
+     *  [
+     *    {
+     *      "id_groupe": String
+     *    }
+     *  ]
+     */
+    public Future<JsonArray> getEvaluableGroups(List<String> groupIds) {
         Promise<JsonArray> promiseEvaluableGroups = Promise.promise();
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT (id_groupe) FROM ").append(this.resourceTable)

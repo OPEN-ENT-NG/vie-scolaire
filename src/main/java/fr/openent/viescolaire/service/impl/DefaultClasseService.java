@@ -448,7 +448,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                                                 JsonArray evaluableGroups = new JsonArray();
                                                 for (Object evalGroup : respEvaluableGps)
                                                     evaluableGroups.add(((JsonObject) evalGroup).getString(Field.ID_GROUP));
-                                                classGroupsJo.put(Field.ID_GROUP, evaluableGroups);
+                                                classGroupsJo.put(Field.ID_GROUPES, evaluableGroups);
                                             }
                                             promiseGroupsClass.complete();
                                         });

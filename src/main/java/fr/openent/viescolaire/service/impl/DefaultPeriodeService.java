@@ -487,7 +487,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                     getPeriodesClasses(idEtablissement, idClasses.toArray(new String[0]), stringJsonArrayEvent -> {
                         if (stringJsonArrayEvent.isRight()) {
 
-                            final Map<String, Integer> idClassPeriodClassNumberMap = stringJsonArrayEither.right().getValue().stream()
+                            final Map<String, Integer> idClassPeriodClassNumberMap = stringJsonArrayEvent.right().getValue().stream()
                                     .filter(JsonObject.class::isInstance)
                                     .map(JsonObject.class::cast)
                                     .collect(Collectors.groupingBy(periodClass -> periodClass.getString("id_classe", "")))

@@ -19,7 +19,7 @@ import java.util.List;
 
 @RunWith(VertxUnitRunner.class)
 public class AccessIfMyStructureParamServiceTest {
-    AccessStructureAdminRightParamService access;
+    AccessIfMyStructureParamService access;
     HttpServerRequest request;
     Binding binding;
     MultiMap map;
@@ -31,7 +31,7 @@ public class AccessIfMyStructureParamServiceTest {
 
     @Before
     public void setUp() throws NoSuchFieldException {
-        access = new AccessStructureAdminRightParamService();
+        access = new AccessIfMyStructureParamService();
         request = Mockito.mock(HttpServerRequest.class);
         binding = Mockito.mock(Binding.class);
         params = Mockito.spy(new HeadersAdaptor(new DefaultHttpHeaders()));

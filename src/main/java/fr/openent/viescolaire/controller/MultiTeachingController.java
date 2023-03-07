@@ -1,6 +1,9 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.security.AccessIfMyStructureParamService;
+import fr.openent.viescolaire.security.AccessStructureAdminRightParamService;
+import fr.openent.viescolaire.security.StructureRight;
 import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
 import fr.wseduc.rs.*;
@@ -15,6 +18,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserUtils;
 
 import static java.util.Objects.isNull;
@@ -36,7 +40,8 @@ public class MultiTeachingController extends ControllerHelper {
      */
     @Post("/multiteaching/create")
     @ApiDoc("add a new teacher to service, can be co-teaching or substitute")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureParamService.class)
     public void addTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "multiteaching_create", params -> {
 
@@ -58,7 +63,8 @@ public class MultiTeachingController extends ControllerHelper {
 
     @Put("/multiteaching/update_visibility")
     @ApiDoc("Mets à jour la visibilité d'un co-enseignant / remplaçant")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureParamService.class)
     public void updateVisibility(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,  params -> {
             JsonArray groupsId = params.getJsonArray(Field.CLASS_OR_GROUP_IDS);
@@ -82,7 +88,8 @@ public class MultiTeachingController extends ControllerHelper {
 
     @Put("/multiteaching/update")
     @ApiDoc("update a co-teaching or substitute teacher in a service")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureParamService.class)
     public void updateTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + "multiteaching_update", params -> {
             String secondTeacherId = params.getJsonArray(Field.SECOND_TEACHER_IDS).getString(0);
@@ -145,7 +152,8 @@ public class MultiTeachingController extends ControllerHelper {
 
     @Get("/mainteachers/:idStructure")
     @ApiDoc("Retourne tous les types de devoir par etablissement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(StructureRight.class)
     public void viewTittulaires(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             multiTeachingService.getSubTeachers(user.getUserId(), request.getParam(Field.IDSTRUCTURE), event -> {
@@ -156,7 +164,8 @@ public class MultiTeachingController extends ControllerHelper {
 
     @Put("/multiteaching/delete")
     @ApiDoc("delete a co-teaching or substitute teacher in a service")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessStructureAdminRightParamService.class)
     public void deleteTeacher(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, entries -> {
             if (entries.containsKey(Field.IDS) && entries.getJsonArray(Field.IDS).size() > 0) {

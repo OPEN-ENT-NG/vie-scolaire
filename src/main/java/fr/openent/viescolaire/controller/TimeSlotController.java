@@ -3,9 +3,7 @@ package fr.openent.viescolaire.controller;
 import fr.openent.viescolaire.core.constants.Actions;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.UserHelper;
-import fr.openent.viescolaire.security.TimeSlotsManage;
-import fr.openent.viescolaire.security.TimeSlotsRead;
-import fr.openent.viescolaire.security.WorkflowActionUtils;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.TimeSlotService;
@@ -117,7 +115,8 @@ public class TimeSlotController extends ControllerHelper {
     }
 
     @Get("/structures/:id/time-slot")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureCheckIdParam.class)
     @ApiDoc("Retrieve default structure time slot")
     public void getDefaultStructureTimeSlot(final HttpServerRequest request) {
         String structureId = request.getParam("id");

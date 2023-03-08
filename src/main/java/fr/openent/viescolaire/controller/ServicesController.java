@@ -2,6 +2,7 @@ package fr.openent.viescolaire.controller;
 
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.security.AccessIfMyStructureParamService;
 import fr.openent.viescolaire.security.ParamServicesRight;
 import fr.openent.viescolaire.security.WorkflowActionUtils;
 import fr.openent.viescolaire.service.ServicesService;
@@ -32,7 +33,8 @@ public class ServicesController extends ControllerHelper {
 
     @Get("/services")
     @ApiDoc("Récupère les services")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureParamService.class)
     public void getDefaultServices(final HttpServerRequest request) {
         if (!request.params().contains("idEtablissement")) {
             log.error("Error : idEtablissement should be provided.");

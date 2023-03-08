@@ -251,7 +251,7 @@ export let evalAcuTeacherController = ng.controller('ServiceController',[
                             classe = new ServiceClasse(classe);
                             return classe;
                         });
-                    $scope.columns.enseignant.data = _.map(aTeachers.data, teacher => new Teacher(teacher.u.data));
+                    $scope.columns.enseignant.data = _.map(aTeachers.data, teacher => new Teacher(teacher));
                     $scope.columns.matiere.data = aMatieres.data;
                     setServices(aServices.data);
                     await $scope.stopArrayLoader();

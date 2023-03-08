@@ -79,7 +79,7 @@ export class MultiTeaching {
     async addCoTeaching(newCoTeachers, classesCoteaching){
         try{
             let idsClassesCoteaching =  _.pluck(classesCoteaching, "id");
-            let {status}= await http.post('viescolaire/multiteaching/create',
+            let {status}= await http.post(`viescolaire/multiteaching/create?structureId=${this.structure_id}`,
                 this.toJson(newCoTeachers, idsClassesCoteaching));
 
             if(status === 200){
@@ -98,7 +98,7 @@ export class MultiTeaching {
        try{
            let idsClassesCoteaching = _.pluck(classesCoteaching, "id");
            let idsAndIdsGroupsOldTeacher = oldSubstituteTeacher.idsAndIdsGroups;
-           let {status} = await http.put('viescolaire/multiteaching/update',
+           let {status} = await http.put(`viescolaire/multiteaching/update?structureId=${this.structure_id}`,
                this.toJson(newCoTeachers, idsClassesCoteaching, idsAndIdsGroupsOldTeacher));
            if(status != 200){
                toasts.warning('evaluation.coteaching.create.error');
@@ -112,7 +112,7 @@ export class MultiTeaching {
    async deleteCoTeaching(){
         try{
             let multiTeachingIds = _.pluck(this.idsAndIdsGroups, "id");
-            return  http.put('viescolaire/multiteaching/delete', {ids : multiTeachingIds });
+            return  http.put(`viescolaire/multiteaching/delete?structureId=${this.structure_id}`, {ids : multiTeachingIds });
 
         }catch (e) {
             toasts.warning('evaluation.coteaching.delete.error');

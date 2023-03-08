@@ -19,6 +19,8 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AdminPersonnalTeacherRight;
+import fr.openent.viescolaire.security.StructureAdminPersonnalTeacher;
+import fr.openent.viescolaire.security.StructureRight;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.openent.viescolaire.security.AdminRight;
@@ -76,8 +78,8 @@ public class ClasseController extends BaseController {
 
     @Get("/classe/eleves")
     @ApiDoc("Recupere tous les élèves d'une liste de classes.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(StructureAdminPersonnalTeacher.class)
     public void getElevesClasse(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -112,22 +114,10 @@ public class ClasseController extends BaseController {
         return value;
     }
 
-    @Put("/class/:idClass/:idUser")
-    @SecuredAction(value = "",type =  ActionType.AUTHENTICATED)
-    public void setClasses(final  HttpServerRequest request){
-        String classId = request.params().get("idClass");
-        String userId = request.params().get("idUser");
-        JsonObject action = new JsonObject()
-                .put("action", "manual-add-user")
-                .put("classId", classId)
-                .put("userId", userId);
-//        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
-        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
-
-    }
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'établissement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(StructureAdminPersonnalTeacher.class)
     public void getClasses(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             if (!(user != null && !request.params().isEmpty() && request.params().contains("idEtablissement"))) {

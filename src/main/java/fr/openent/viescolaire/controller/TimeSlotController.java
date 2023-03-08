@@ -139,8 +139,13 @@ public class TimeSlotController extends ControllerHelper {
         });
     }
 
+    /**
+     * @param request
+     * @queryParam {structureId} mandatory
+     */
     @Put("/time-slots")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AdminRightStructure.class)
     @ApiDoc("Update forgotten notebook")
     public void update(final HttpServerRequest request) {
         if (!request.params().contains(Field.ID)) {

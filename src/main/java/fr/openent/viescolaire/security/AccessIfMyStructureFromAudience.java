@@ -13,9 +13,9 @@ import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 
 public class AccessIfMyStructureFromAudience implements ResourcesProvider {
+    public static final Logger log = LoggerFactory.getLogger(Renders.class);
     @Override
     public void authorize(HttpServerRequest request, Binding binding, UserInfos user, Handler<Boolean> handler) {
-        final Logger log = LoggerFactory.getLogger(Renders.class);
         String audienceId = request.params().get(Field.AUDIENCEID);
         ClasseService service = new DefaultClasseService();
         if (audienceId == null) {

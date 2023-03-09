@@ -169,7 +169,8 @@ public class TimeSlotController extends ControllerHelper {
      */
     @Get("/timeslot/audience/:audienceId")
     @ApiDoc("Get timeslot from audience")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureFromAudience.class)
     public void getAudienceTimeslot(final HttpServerRequest request) {
         String audienceId = request.getParam(Field.AUDIENCEID);
 

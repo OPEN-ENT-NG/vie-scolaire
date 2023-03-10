@@ -27,6 +27,7 @@ public class Field<id_groupes> {
 
     public static final String ID_CLASS = "id_class";
     public static final String CLASSID = "classId";
+    public static final String IDCLASSE = "idClasse";
     public static final String CLASS_ID = "class_id";
     public static final String CLASS = "Class";
     public static final String CLASS_SHORT = "c";

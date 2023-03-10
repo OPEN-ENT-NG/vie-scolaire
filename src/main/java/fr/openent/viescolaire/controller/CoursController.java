@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.security.AccessStructureMyCourse;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.CoursService;
@@ -31,7 +32,6 @@ import fr.wseduc.webutils.Either;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.impl.DefaultCoursService;
 import fr.wseduc.webutils.http.Renders;
-import fr.wseduc.webutils.http.response.DefaultResponseHandler;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
@@ -111,7 +111,8 @@ public class CoursController extends ControllerHelper {
 
     @Get("/common/course/:idCourse")
     @ApiDoc("Get course by id.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessStructureMyCourse.class)
     public void courseById(final HttpServerRequest request) {
         final String idCourse = request.params().get("idCourse");
         commonCoursService.getCourse(idCourse, notEmptyResponseHandler(request));

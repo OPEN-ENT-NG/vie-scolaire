@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.security;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.webutils.http.Binding;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -39,11 +40,10 @@ public class AccessIfMyStructureFromAudienceTest {
     UserInfos user;
     List<String> structures;
     DefaultClasseService service;
-    Handler<Boolean> handler;
+
 
     @Before
     public void setUp() throws Exception {
-        access = new AccessIfMyStructureFromAudience();
         params = Mockito.spy(new HeadersAdaptor(new DefaultHttpHeaders()));
         binding = Mockito.mock(Binding.class);
         request = Mockito.mock(HttpServerRequest.class);
@@ -52,18 +52,20 @@ public class AccessIfMyStructureFromAudienceTest {
         service = Mockito.spy(new DefaultClasseService());
         PowerMockito.spy(DefaultClasseService.class);
         PowerMockito.whenNew(DefaultClasseService.class).withNoArguments().thenReturn(service);
+        access = new AccessIfMyStructureFromAudience();
     }
 
     @Test
     public void testAuthorize(TestContext ctx){
         String audienceId = "11111";
+        String classId = "aaaaa";
         JsonObject EtabInfStructureId = new JsonObject();
         EtabInfStructureId.put(Field.IDSTRUCTURE, "aaaaa");
         JsonArray etabInfos = new JsonArray();
         etabInfos.add(EtabInfStructureId);
         params.set(Field.AUDIENCEID, audienceId);
         Mockito.doReturn(params).when(request).params();
-        Mockito.doReturn(Future.succeededFuture()).when(service).getClasseIdFromAudience(Mockito.any());
+        Mockito.doReturn(Future.succeededFuture(classId)).when(service).getClasseIdFromAudience(Mockito.any());
         Mockito.doReturn(Future.succeededFuture(etabInfos)).when(service).getEtabClasses(Mockito.any());
         structures.add("aaaaa");
         user.setStructures(structures);
@@ -79,13 +81,14 @@ public class AccessIfMyStructureFromAudienceTest {
     @Test
     public void testBadStructure(TestContext ctx){
         String audienceId = "11111";
+        String classId = "aaaaa";
         JsonObject EtabInfStructureId = new JsonObject();
         EtabInfStructureId.put(Field.IDSTRUCTURE, "aaaaa");
         JsonArray etabInfos = new JsonArray();
         etabInfos.add(EtabInfStructureId);
         params.set(Field.AUDIENCEID, audienceId);
         Mockito.doReturn(params).when(request).params();
-        Mockito.doReturn(Future.succeededFuture()).when(service).getClasseIdFromAudience(Mockito.any());
+        Mockito.doReturn(Future.succeededFuture(classId)).when(service).getClasseIdFromAudience(Mockito.any());
         Mockito.doReturn(Future.succeededFuture(etabInfos)).when(service).getEtabClasses(Mockito.any());
         structures.add("azerty123");
         user.setStructures(structures);

@@ -14,11 +14,15 @@ import org.entcore.common.user.UserInfos;
 
 public class AccessStructureMyClasse implements ResourcesProvider {
     public static final Logger log = LoggerFactory.getLogger(Renders.class);
+    private  final ClasseService service;
+    public AccessStructureMyClasse(){
+        this.service = new DefaultClasseService();
+    }
+
     @Override
     public void authorize(HttpServerRequest request, Binding binding, UserInfos user, Handler<Boolean> handler) {
-        ClasseService service = new DefaultClasseService();
         String classeId = request.getParam(Field.IDCLASSE);
-        service.getEtabClasses(classeId)
+        this.service.getEtabClasses(classeId)
                 .onSuccess(etabInfos -> {
                     if (etabInfos.isEmpty() || etabInfos.getJsonObject(0).isEmpty()) {
                         handler.handle(false);

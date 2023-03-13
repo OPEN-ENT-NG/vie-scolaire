@@ -3,9 +3,7 @@ package fr.openent.viescolaire.controller;
 import fr.openent.viescolaire.core.constants.Actions;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.helper.UserHelper;
-import fr.openent.viescolaire.security.TimeSlotsManage;
-import fr.openent.viescolaire.security.TimeSlotsRead;
-import fr.openent.viescolaire.security.WorkflowActionUtils;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.TimeSlotService;
@@ -116,11 +114,12 @@ public class TimeSlotController extends ControllerHelper {
                 });
     }
 
-    @Get("/structures/:id/time-slot")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @Get("/structures/:structureId/time-slot")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructure.class)
     @ApiDoc("Retrieve default structure time slot")
     public void getDefaultStructureTimeSlot(final HttpServerRequest request) {
-        String structureId = request.getParam("id");
+        String structureId = request.getParam(Field.STRUCTUREID);
 
         timeSlotService.getSlotProfiles(structureId, either -> {
             if (either.isLeft()) {
@@ -136,12 +135,17 @@ public class TimeSlotController extends ControllerHelper {
             }
 
             JsonObject setting = slots.getJsonObject(0);
-            timeSlotService.getDefaultTimeSlot(setting.getString("id"), defaultResponseHandler(request));
+            timeSlotService.getDefaultTimeSlot(setting.getString(Field.ID), defaultResponseHandler(request));
         });
     }
 
+    /**
+     * @param request
+     * @queryParam {structureId} mandatory
+     */
     @Put("/time-slots")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AdminRightStructure.class)
     @ApiDoc("Update forgotten notebook")
     public void update(final HttpServerRequest request) {
         if (!request.params().contains(Field.ID)) {
@@ -165,7 +169,8 @@ public class TimeSlotController extends ControllerHelper {
      */
     @Get("/timeslot/audience/:audienceId")
     @ApiDoc("Get timeslot from audience")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructureFromAudience.class)
     public void getAudienceTimeslot(final HttpServerRequest request) {
         String audienceId = request.getParam(Field.AUDIENCEID);
 

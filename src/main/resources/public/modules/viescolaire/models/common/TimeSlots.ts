@@ -46,7 +46,7 @@ export class TimeSlot {
 
     async saveEndHalfDay(): Promise<AxiosResponse> {
         let bodyRequest = {time: this.endOfHalfDay, structureId: this.schoolId};
-        let response = await http.put(`/viescolaire/time-slots?id=${this._id}`, bodyRequest);
+        let response = await http.put(`/viescolaire/time-slots?id=${this._id}&structureId=${this.schoolId}`, bodyRequest);
         return Utils.setToastMessage(response, 'viescolaire.save.end.of.half.day','viescolaire.error.sauvegarde');
     }
 

@@ -114,12 +114,12 @@ public class TimeSlotController extends ControllerHelper {
                 });
     }
 
-    @Get("/structures/:id/time-slot")
+    @Get("/structures/:structureId/time-slot")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessIfMyStructureCheckIdParam.class)
+    @ResourceFilter(AccessIfMyStructure.class)
     @ApiDoc("Retrieve default structure time slot")
     public void getDefaultStructureTimeSlot(final HttpServerRequest request) {
-        String structureId = request.getParam("id");
+        String structureId = request.getParam(Field.STRUCTUREID);
 
         timeSlotService.getSlotProfiles(structureId, either -> {
             if (either.isLeft()) {
@@ -135,7 +135,7 @@ public class TimeSlotController extends ControllerHelper {
             }
 
             JsonObject setting = slots.getJsonObject(0);
-            timeSlotService.getDefaultTimeSlot(setting.getString("id"), defaultResponseHandler(request));
+            timeSlotService.getDefaultTimeSlot(setting.getString(Field.ID), defaultResponseHandler(request));
         });
     }
 

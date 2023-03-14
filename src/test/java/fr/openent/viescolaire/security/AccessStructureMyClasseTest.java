@@ -26,6 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @RunWith(PowerMockRunner.class) //Using the PowerMock runner
 @PowerMockRunnerDelegate(VertxUnitRunner.class) //And the Vertx runner
 @PrepareForTest({AccessStructureMyClasse.class}) //Prepare the static class you want to test
@@ -38,9 +39,9 @@ public class AccessStructureMyClasseTest {
     List<String> structures;
     DefaultClasseService service;
 
+
     @Before
     public void setUp() throws Exception {
-        access = new AccessStructureMyClasse();
         params = Mockito.spy(new HeadersAdaptor(new DefaultHttpHeaders()));
         binding = Mockito.mock(Binding.class);
         request = Mockito.mock(HttpServerRequest.class);
@@ -49,16 +50,16 @@ public class AccessStructureMyClasseTest {
         service = Mockito.spy(new DefaultClasseService());
         PowerMockito.spy(DefaultClasseService.class);
         PowerMockito.whenNew(DefaultClasseService.class).withNoArguments().thenReturn(service);
+        access = new AccessStructureMyClasse();
     }
 
     @Test
-    public void testAuthorize(TestContext ctx) {
-        String classeId = "11111";
+    public void testAuthorize(TestContext ctx){
+        String classId = "aaaaa";
         JsonObject EtabInfStructureId = new JsonObject();
         EtabInfStructureId.put(Field.IDSTRUCTURE, "aaaaa");
         JsonArray etabInfos = new JsonArray();
         etabInfos.add(EtabInfStructureId);
-        params.set(Field.IDCLASSE, classeId);
         Mockito.doReturn(params).when(request).params();
         Mockito.doReturn(Future.succeededFuture(etabInfos)).when(service).getEtabClasses(Mockito.any());
         structures.add("aaaaa");
@@ -73,13 +74,13 @@ public class AccessStructureMyClasseTest {
 
 
     @Test
-    public void testBadStructure(TestContext ctx) {
-        String classeId = "11111";
+    public void testBadStructure(TestContext ctx){
+        String audienceId = "11111";
         JsonObject EtabInfStructureId = new JsonObject();
         EtabInfStructureId.put(Field.IDSTRUCTURE, "aaaaa");
         JsonArray etabInfos = new JsonArray();
         etabInfos.add(EtabInfStructureId);
-        params.set(Field.IDCLASSE, classeId);
+        params.set(Field.AUDIENCEID, audienceId);
         Mockito.doReturn(params).when(request).params();
         Mockito.doReturn(Future.succeededFuture(etabInfos)).when(service).getEtabClasses(Mockito.any());
         structures.add("azerty123");
@@ -91,4 +92,6 @@ public class AccessStructureMyClasseTest {
         });
         async.awaitSuccess(10000);
     }
+
+
 }

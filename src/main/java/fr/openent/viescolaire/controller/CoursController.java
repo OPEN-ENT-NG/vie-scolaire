@@ -17,6 +17,7 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.security.AccessIfMyStructure;
 import fr.openent.viescolaire.security.AccessStructureMyClasse;
 import fr.openent.viescolaire.security.AccessStructureMyCourse;
 import fr.openent.viescolaire.service.ClasseService;
@@ -91,7 +92,7 @@ public class CoursController extends ControllerHelper {
     @Get("/common/courses/:structureId/:begin/:end")
     @ApiDoc("Get courses for a structure between two dates by optional teacher id and/or optional group name.")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessStructureMyClasse.class)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void listCoursesBetweenTwoDates(final HttpServerRequest request) {
         final String structureId = request.params().get("structureId");
         final List<String> teacherId = request.params().getAll("teacherId");
@@ -121,22 +122,6 @@ public class CoursController extends ControllerHelper {
         commonCoursService.getCourse(idCourse, notEmptyResponseHandler(request));
 
     }
-
-    @Get("/cours/classes/:dateDebut/:dateFin")
-    @ApiDoc("Recupere tous les cours d'une liste de classe dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessStructureMyClasse.class)
-    public void getClasseCoursListClasses(final HttpServerRequest request) {
-        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
-        String dateFin = request.params().get("dateFin") + " 23:59:59";
-
-        List<String> listIdClasse = request.params().getAll("classeId");
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
-    }
-
 
     @Get("/:idClasse/cours/:dateDebut/:dateFin/time/:timeDb/:timeFn")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")

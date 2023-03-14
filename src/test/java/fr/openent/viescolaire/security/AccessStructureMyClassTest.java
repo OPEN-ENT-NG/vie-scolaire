@@ -29,9 +29,9 @@ import java.util.List;
 
 @RunWith(PowerMockRunner.class) //Using the PowerMock runner
 @PowerMockRunnerDelegate(VertxUnitRunner.class) //And the Vertx runner
-@PrepareForTest({AccessStructureMyClasse.class}) //Prepare the static class you want to test
-public class AccessStructureMyClasseTest {
-    AccessStructureMyClasse access;
+@PrepareForTest({AccessStructureMyClass.class}) //Prepare the static class you want to test
+public class AccessStructureMyClassTest {
+    AccessStructureMyClass access;
     HttpServerRequest request;
     Binding binding;
     MultiMap params;
@@ -50,11 +50,11 @@ public class AccessStructureMyClasseTest {
         service = Mockito.spy(new DefaultClasseService());
         PowerMockito.spy(DefaultClasseService.class);
         PowerMockito.whenNew(DefaultClasseService.class).withNoArguments().thenReturn(service);
-        access = new AccessStructureMyClasse();
+        access = new AccessStructureMyClass();
     }
 
     @Test
-    public void testAuthorize(TestContext ctx){
+    public void testAuthorize_should_retrieve_correct_param(TestContext ctx){
         String classId = "aaaaa";
         JsonObject EtabInfStructureId = new JsonObject();
         EtabInfStructureId.put(Field.IDSTRUCTURE, "aaaaa");

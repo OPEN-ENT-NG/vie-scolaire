@@ -1,8 +1,7 @@
 package fr.openent.viescolaire.security;
 
-import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.service.CommonCoursService;
-import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.openent.viescolaire.service.impl.DefaultCommonCoursService;
 import fr.wseduc.webutils.http.Binding;
 import fr.wseduc.webutils.http.Renders;
@@ -14,28 +13,25 @@ import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 
 public class AccessStructureMyCourse implements ResourcesProvider {
-    public static final Logger log = LoggerFactory.getLogger(Renders.class);
+    public static final Logger log = LoggerFactory.getLogger(AccessStructureMyCourse.class);
+    private final CommonCoursService service;
+    public AccessStructureMyCourse(){this.service = new DefaultCommonCoursService();}
+
+
     @Override
     public void authorize(HttpServerRequest request, Binding binding, UserInfos user, Handler<Boolean> handler) {
-        CommonCoursService commonService = new DefaultCommonCoursService();
-        ClasseService classService = new DefaultClasseService();
-        String idCourse = request.params().get("idCourse");
-        if (idCourse == null) {
-            handler.handle(false);
-            return;
-        }
-        commonService.getCourse(idCourse)
+        String idCourse = request.getParam(Field.IDCOURSE);
+        this.service.getCourse(idCourse)
                 .onSuccess(course -> {
-                    if(course.isEmpty()){
+                    if (course.isEmpty()) {
                         handler.handle(false);
                         return;
                     }
-                    String structureId = course.getString("structureId");
-                    handler.handle(user.getStructures().contains(structureId));
+                    String structureId = course.getString(Field.STRUCTUREID);
+                    handler.handle(structureId != null && user.getStructures().contains(structureId));
                 })
-
                 .onFailure(err -> {
-                    log.error("error", err.getMessage());
+                    log.error("[Viescolaire] Failed to retrieve structure from course", this.getClass().getSimpleName(), err.getMessage());
                     handler.handle(false);
                 });
     }

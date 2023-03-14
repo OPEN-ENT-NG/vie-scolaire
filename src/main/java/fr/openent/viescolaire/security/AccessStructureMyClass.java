@@ -4,7 +4,6 @@ import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
 import fr.wseduc.webutils.http.Binding;
-import fr.wseduc.webutils.http.Renders;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.Handler;
@@ -12,10 +11,10 @@ import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.user.UserInfos;
 
-public class AccessStructureMyClasse implements ResourcesProvider {
-    public static final Logger log = LoggerFactory.getLogger(Renders.class);
+public class AccessStructureMyClass implements ResourcesProvider {
+    public static final Logger log = LoggerFactory.getLogger(AccessStructureMyClass.class);
     private  final ClasseService service;
-    public AccessStructureMyClasse(){
+    public AccessStructureMyClass(){
         this.service = new DefaultClasseService();
     }
 
@@ -32,7 +31,7 @@ public class AccessStructureMyClasse implements ResourcesProvider {
                     handler.handle(user.getStructures().contains(structureId));
                 })
                 .onFailure(err -> {
-                    log.error("[Viescolaire@CoursController] Failed to retrieve structure from classe", err.getMessage());
+                    log.error("[Viescolaire] Failed to retrieve structure from classe", this.getClass().getSimpleName(), err.getMessage());
                     handler.handle(false);
                 });
     }

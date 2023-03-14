@@ -19,7 +19,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AccessChildrenParentFilter;
-import fr.openent.viescolaire.security.AccessStructureMyClasse;
+import fr.openent.viescolaire.security.AccessStructureMyClass;
 import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.impl.DefaultEleveService;
@@ -57,7 +57,7 @@ public class EleveController extends ControllerHelper {
     @Get("/classe/:idClasse/eleves")
     @ApiDoc("Recupere tous les élèves d'une classe.")
     @SecuredAction(value = "", type= ActionType.RESOURCE)
-    @ResourceFilter(AccessStructureMyClasse.class)
+    @ResourceFilter(AccessStructureMyClass.class)
     public void getEleveClasse(final HttpServerRequest request){
         String idClasse = request.params().get("idClasse");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);

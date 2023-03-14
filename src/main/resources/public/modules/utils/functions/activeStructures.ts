@@ -16,6 +16,7 @@
  */
 
 import { http, model } from 'entcore';
+import {VieScolaire} from "../../viescolaire/models/vsco_personnel_mdl";
 
 declare const _: any;
 
@@ -26,7 +27,7 @@ declare const _: any;
  */
 export function getActiveStructures (module: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().getJson('/viescolaire/user/structures/actives?module=' + module )
+        http().getJson('/viescolaire/user/structures/actives?module=' + module)
             .done((activeStructures) => {
                 let structures: any[] = [];
                 for (let i = 0; i < model.me.structures.length; i++) {
@@ -54,7 +55,7 @@ export function getActiveStructures (module: string): Promise<any[]> {
  */
 export function createActiveStructure (module: string, id_structure: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().postJson('/viescolaire/user/structures/actives', {structureId: id_structure, module: module})
+        http().postJson('/viescolaire/user/structures/actives' + '?structureId=' + id_structure, {structureId: id_structure, module: module})
             .done((res) => {
                 resolve(res);
             })
@@ -73,7 +74,7 @@ export function createActiveStructure (module: string, id_structure: string): Pr
  */
 export function deleteActiveStructure (module: string, id_structure: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-        http().delete('/viescolaire/user/structures/actives', {structureId: id_structure, module: module})
+        http().delete('/viescolaire/user/structures/actives' + '?structureId=' + id_structure, {structureId: id_structure, module: module})
             .done((res) => {
                 resolve(res);
             })

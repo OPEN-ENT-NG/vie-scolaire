@@ -59,6 +59,7 @@ compileTestJava {
 dependencies {
   compileOnly "io.vertx:vertx-core:$vertxVersion"
   compile "org.entcore:common:$entCoreVersion"
+  testCompile "io.vertx:vertx-codegen:$vertxVersion"
   testCompile "io.vertx:vertx-unit:$vertxVersion"
   testCompile "org.entcore:tests:$entCoreVersion"
   testCompile "junit:junit:$junitVersion"

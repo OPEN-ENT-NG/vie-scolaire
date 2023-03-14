@@ -20,34 +20,30 @@ package fr.openent.viescolaire.controller;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AdminPersonnalTeacherRight;
 import fr.openent.viescolaire.security.StructureAdminPersonnalTeacher;
-import fr.openent.viescolaire.security.StructureRight;
-import fr.openent.viescolaire.service.UtilsService;
-import fr.openent.viescolaire.service.impl.DefaultUtilsService;
-import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
-import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.BaseController;
-import org.entcore.common.http.filter.ResourceFilter;
-import org.entcore.common.user.UserInfos;
-import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static java.util.Objects.isNull;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-import static org.entcore.common.neo4j.Neo4jResult.validUniqueResultHandler;
 
 /**
  * Created by ledunoiss on 19/02/2016.

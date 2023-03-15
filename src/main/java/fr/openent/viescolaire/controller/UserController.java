@@ -156,8 +156,8 @@ public class UserController extends ControllerHelper {
     }
 
     @Get("/user/list")
-    @ResourceFilter(StructureRight.class)
     @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void list(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             if (user != null) {

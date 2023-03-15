@@ -19,33 +19,31 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AdminPersonnalTeacherRight;
-import fr.openent.viescolaire.service.UtilsService;
-import fr.openent.viescolaire.service.impl.DefaultUtilsService;
-import fr.openent.viescolaire.security.AdminRight;
+import fr.openent.viescolaire.security.StructureAdminPersonnalTeacher;
 import fr.openent.viescolaire.service.ClasseService;
+import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultClasseService;
+import fr.openent.viescolaire.service.impl.DefaultUtilsService;
 import fr.wseduc.rs.ApiDoc;
 import fr.wseduc.rs.Get;
-import fr.wseduc.rs.Put;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.BaseController;
-import org.entcore.common.http.filter.ResourceFilter;
-import org.entcore.common.user.UserInfos;
-import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static java.util.Objects.isNull;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-import static org.entcore.common.neo4j.Neo4jResult.validUniqueResultHandler;
 
 /**
  * Created by ledunoiss on 19/02/2016.
@@ -76,8 +74,8 @@ public class ClasseController extends BaseController {
 
     @Get("/classe/eleves")
     @ApiDoc("Recupere tous les élèves d'une liste de classes.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(StructureAdminPersonnalTeacher.class)
     public void getElevesClasse(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override
@@ -112,22 +110,10 @@ public class ClasseController extends BaseController {
         return value;
     }
 
-    @Put("/class/:idClass/:idUser")
-    @SecuredAction(value = "",type =  ActionType.AUTHENTICATED)
-    public void setClasses(final  HttpServerRequest request){
-        String classId = request.params().get("idClass");
-        String userId = request.params().get("idUser");
-        JsonObject action = new JsonObject()
-                .put("action", "manual-add-user")
-                .put("classId", classId)
-                .put("userId", userId);
-//        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
-        eb.send("entcore.feeder", action, handlerToAsyncHandler(validUniqueResultHandler(defaultResponseHandler(request))));
-
-    }
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'établissement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(StructureAdminPersonnalTeacher.class)
     public void getClasses(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             if (!(user != null && !request.params().isEmpty() && request.params().contains("idEtablissement"))) {

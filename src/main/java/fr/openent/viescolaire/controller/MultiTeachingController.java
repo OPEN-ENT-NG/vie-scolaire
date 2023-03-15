@@ -1,9 +1,9 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.security.AccessIfMyStructure;
 import fr.openent.viescolaire.security.AccessIfMyStructureParamService;
 import fr.openent.viescolaire.security.AccessStructureAdminRightParamService;
-import fr.openent.viescolaire.security.StructureRight;
 import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.impl.DefaultMultiTeachingService;
 import fr.wseduc.rs.*;
@@ -153,7 +153,7 @@ public class MultiTeachingController extends ControllerHelper {
     @Get("/mainteachers/:idStructure")
     @ApiDoc("Retourne tous les types de devoir par etablissement")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(StructureRight.class)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void viewTittulaires(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             multiTeachingService.getSubTeachers(user.getUserId(), request.getParam(Field.IDSTRUCTURE), event -> {

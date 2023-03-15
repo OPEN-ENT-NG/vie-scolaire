@@ -12,7 +12,6 @@ public class AccessStructureAdminRightParamService implements ResourcesProvider 
         boolean hasAdminRight = WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT);
         boolean hasParamServiceRight = WorkflowActionUtils.hasRight(user, WorkflowActionUtils.PARAM_SERVICES_RIGHT);
         String structureId = WorkflowActionUtils.getParamStructure(request);
-
-        handler.handle(hasAdminRight && hasParamServiceRight && user.getStructures().contains(structureId));
+        handler.handle(structureId != null && hasAdminRight && hasParamServiceRight && user.getStructures().contains(structureId));
     }
 }

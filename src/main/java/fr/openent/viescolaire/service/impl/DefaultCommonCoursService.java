@@ -18,37 +18,39 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.db.DBService;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.openent.viescolaire.service.CommonCoursService;
 import fr.openent.viescolaire.service.MatiereService;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.utils.DateHelper;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
-
 import fr.wseduc.webutils.Utils;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.entcore.common.mongodb.MongoDbResult.*;
+import static org.entcore.common.mongodb.MongoDbResult.validResultHandler;
 
 public class DefaultCommonCoursService extends DBService implements CommonCoursService {
     protected static final Logger LOG = LoggerFactory.getLogger(fr.openent.viescolaire.service.impl.DefaultPeriodeService.class);
@@ -498,6 +500,14 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         query.put(COURSE_TABLE._id, idCourse);
         MongoDb.getInstance().findOne(COURSES, query, KEYS, validResultHandler(handler));
     }
+
+    public Future<JsonObject> getCourse(String idCourse) {
+        Promise<JsonObject> promise = Promise.promise();
+        this.getCourse(idCourse, FutureHelper.handlerEitherPromise(promise));
+        return promise.future();
+    }
+
+
 
     @Override
     public void addCoursesTeachers(List<String> courseIds, List<String> teacherIds, Handler<Either<String, JsonObject>> handler) {

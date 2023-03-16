@@ -19,6 +19,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AccessChildrenParentFilter;
+import fr.openent.viescolaire.security.AccessStructureMyClass;
 import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.impl.DefaultEleveService;
@@ -55,59 +56,13 @@ public class EleveController extends ControllerHelper {
 
     @Get("/classe/:idClasse/eleves")
     @ApiDoc("Recupere tous les élèves d'une classe.")
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type= ActionType.RESOURCE)
+    @ResourceFilter(AccessStructureMyClass.class)
     public void getEleveClasse(final HttpServerRequest request){
         String idClasse = request.params().get("idClasse");
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
 
         eleveService.getEleveClasse(idClasse, handler);
-    }
-    /**
-     * récupère les éleves d'un etablissement juste avec leurs classes
-     * @param request
-     */
-    @Get("/etab/eleves/:idEtab")
-    @ApiDoc("Recupere tous les élèves d'un etablissment.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getEleveEtab(final HttpServerRequest request){
-        String idEtab = request.params().get("idEtab");
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        eleveService.getEleve(idEtab, handler);
-    }
-
-    /**
-     * récupère les éleves d'un etablissement avec leurs classes et groupes
-     * @param request
-     */
-    @Get("/etab/eleves/classes/groupes/:idEtab")
-    @ApiDoc("Recupere tous les élèves d'un etablissment.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type= ActionType.AUTHENTICATED)
-    public void getElevesEtab(final HttpServerRequest request){
-        String idEtab = request.params().get("idEtab");
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        eleveService.getEleves(idEtab, handler);
-    }
-
-    @Get("/eleves/:idEleve/responsables")
-    @ApiDoc("Recupere les relatives d'un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getResponsablesEleve(final HttpServerRequest request) {
-        String idEleve = request.params().get("idEleve");
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        eleveService.getResponsables(idEleve, handler);
-    }
-
-    @Get("/eleve/enseignants")
-    @ApiDoc("Récupère les enseingants rattaché à un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getEnseignantsEleve(final HttpServerRequest request) {
-        String idEleve = request.params().get("idEleve");
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        eleveService.getEnseignants(idEleve, handler);
     }
 
     @Get("/enseignants")

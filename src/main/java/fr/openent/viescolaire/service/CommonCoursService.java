@@ -96,8 +96,6 @@ public interface CommonCoursService {
     Future<JsonObject> getCourse(String idCourse);
 
 
-    Future<JsonObject> getCourse(String idCourse);
-
     void getCoursesByIds(List<String> courseIds, Handler<Either<String,JsonArray>> handler);
 
     /**

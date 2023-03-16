@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.service;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -92,6 +93,8 @@ public interface CommonCoursService {
                               boolean descendingDate, Boolean searchTeacher, Handler<Either<String,JsonArray>> handler);
 
     void getCourse(String idCourse, Handler<Either<String,JsonObject>> handler);
+    Future<JsonObject> getCourse(String idCourse);
+
 
     void getCoursesByIds(List<String> courseIds, Handler<Either<String,JsonArray>> handler);
 

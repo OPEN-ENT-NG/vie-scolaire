@@ -29,11 +29,12 @@ public class Field<id_groupes> {
 
     public static final String ID_CLASS = "id_class";
     public static final String CLASSID = "classId";
+    public static final String IDCLASSE = "idClasse";
     public static final String CLASS_ID = "class_id";
     public static final String CLASS = "Class";
     public static final String CLASS_SHORT = "c";
     public static final String ID_CLASSE = "id_classe";
-
+    public static final String IDCOURSE = "idCourse";
     public static final String TIMESLOTID = "timeslotId";
     public static final String TIMESLOTSTRUCTUREID = "timeslotStructureId";
     public static final String TIMESLOT_ID = "timeslot_id";

@@ -31,7 +31,7 @@ public class AccessStructureMyCourse implements ResourcesProvider {
                     handler.handle(structureId != null && user.getStructures().contains(structureId));
                 })
                 .onFailure(err -> {
-                    log.error(String.format("[Viescolaire@%s] Failed to retrieve structure from course %s", this.getClass().getSimpleName(), err.getMessage()));
+                    log.error(String.format("[Viescolaire@%s::authorize] Failed to retrieve structure from course %s", this.getClass().getSimpleName(), err.getMessage()));
                     handler.handle(false);
                 });
     }

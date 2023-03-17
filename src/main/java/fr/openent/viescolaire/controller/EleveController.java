@@ -19,6 +19,7 @@ package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.security.AccessChildrenParentFilter;
+import fr.openent.viescolaire.security.AccessIfMyStructure;
 import fr.openent.viescolaire.security.AccessStructureMyClass;
 import fr.openent.viescolaire.security.AdminRight;
 import fr.openent.viescolaire.service.EleveService;
@@ -65,16 +66,6 @@ public class EleveController extends ControllerHelper {
         eleveService.getEleveClasse(idClasse, handler);
     }
 
-    @Get("/enseignants")
-    @ApiDoc("Récupère les enseingants ayant créé les devoir d'un élève.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getUsersById(final HttpServerRequest request) {
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        final JsonArray idUsers = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idUser"));
-        eleveService.getUsers(idUsers,handler);
-    }
-
     @Get("/eleves")
     @ApiDoc("Récupère les informations des élèves.")
     @ResourceFilter(AdminRight.class)
@@ -84,16 +75,6 @@ public class EleveController extends ControllerHelper {
         String[] idEleves = request.params().getAll("idUser").toArray(new String[0]);
         String idEtablissement = request.params().get("idStructure");
         eleveService.getInfoEleve(idEleves, idEtablissement, handler);
-    }
-
-    @Get("/users")
-    @ApiDoc("Récupère les informations des users.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getUsersByIdBis(final HttpServerRequest request) {
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-        final JsonArray idUsers = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idUser"));
-        eleveService.getUsers(idUsers,handler);
     }
 
     @Get("/annotations/eleve")
@@ -213,8 +194,8 @@ public class EleveController extends ControllerHelper {
 
     @Get("/structures/:structureId/students")
     @ApiDoc("Get list of students from a structure")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void getStudentsFromStructure(final HttpServerRequest request) {
         String structureId = request.getParam("structureId");
 

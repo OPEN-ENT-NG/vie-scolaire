@@ -17,6 +17,8 @@
 
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.security.AccessIfMyStructure;
+import fr.openent.viescolaire.security.AccessStructureMyClass;
 import fr.openent.viescolaire.security.AccessStructureMyCourse;
 import fr.openent.viescolaire.service.ClasseService;
 import fr.openent.viescolaire.service.CommonCoursService;
@@ -72,7 +74,8 @@ public class CoursController extends ControllerHelper {
     // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
     @Get("/:idClasse/cours/:dateDebut/:dateFin")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessStructureMyClass.class)
     public void getClasseCours(final HttpServerRequest request) {
         String idClasse = request.params().get("idClasse");
         String dateDebut = request.params().get("dateDebut") + " 00:00:00";
@@ -88,7 +91,8 @@ public class CoursController extends ControllerHelper {
 
     @Get("/common/courses/:structureId/:begin/:end")
     @ApiDoc("Get courses for a structure between two dates by optional teacher id and/or optional group name.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void listCoursesBetweenTwoDates(final HttpServerRequest request) {
         final String structureId = request.params().get("structureId");
         final List<String> teacherId = request.params().getAll("teacherId");
@@ -119,24 +123,10 @@ public class CoursController extends ControllerHelper {
 
     }
 
-    @Get("/cours/classes/:dateDebut/:dateFin")
-    @ApiDoc("Recupere tous les cours d'une liste de classe dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getClasseCoursListClasses(final HttpServerRequest request) {
-        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
-        String dateFin = request.params().get("dateFin") + " 23:59:59";
-
-        List<String> listIdClasse = request.params().getAll("classeId");
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
-    }
-
-
     @Get("/:idClasse/cours/:dateDebut/:dateFin/time/:timeDb/:timeFn")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessStructureMyClass.class)
     public void getClasseCoursByTime(final HttpServerRequest request) {
         String idClasse = request.params().get("idClasse");
         String dateDebut = request.params().get("dateDebut") + ' ' + request.params().get("timeDb");

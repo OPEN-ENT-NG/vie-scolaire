@@ -325,9 +325,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
     @Override
     public Future<JsonArray> getEtabClasses(String idClasses) {
         Promise<JsonArray> promise = Promise.promise();
-
-        this.getEtabClasses(new String[]{idClasses}, FutureHelper.handlerJsonArray(promise));
-
+        this.getEtabClasses(new String[]{idClasses}, FutureHelper.handlerEitherPromise(promise));
         return promise.future();
     }
 

@@ -158,7 +158,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         StringBuilder returning = new StringBuilder()
                 .append(" RETURN u.id as idEleve, u.firstName as firstName, u.lastName as lastName, u.ine as ine, ")
                 .append(" u.deleteDate,c.id as idClasse, c.name as classeName, s.id as idEtablissement, ")
-                .append(" u.birthDate as birthDate, u.level as level, c.externalId as externalId, ");
+                .append(" u.level as level, c.externalId as externalId, ");
 
         // Condition de récupération des noeuds
         StringBuilder condition = new StringBuilder()

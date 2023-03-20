@@ -68,8 +68,8 @@ public class EleveController extends ControllerHelper {
 
     @Get("/eleves")
     @ApiDoc("Récupère les informations des élèves.")
-    @ResourceFilter(AdminRight.class)
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void getEleves(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
         String[] idEleves = request.params().getAll("idUser").toArray(new String[0]);

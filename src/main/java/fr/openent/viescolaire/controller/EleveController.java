@@ -18,10 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.security.AccessChildrenParentFilter;
-import fr.openent.viescolaire.security.AccessIfMyStructure;
-import fr.openent.viescolaire.security.AccessStructureMyClass;
-import fr.openent.viescolaire.security.AdminRight;
+import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.EleveService;
 import fr.openent.viescolaire.service.impl.DefaultEleveService;
 import fr.wseduc.rs.ApiDoc;
@@ -169,7 +166,6 @@ public class EleveController extends ControllerHelper {
 
     @Get("/cycle/eleve/:idClasse")
     @ApiDoc("Récupère les competences-notes des devoirs d'un élève.")
-    @ResourceFilter(AdminRight.class)
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     public void getCycleEleve(final HttpServerRequest request) {
         Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);

@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.AdminRightStructure;
 import fr.openent.viescolaire.service.PeriodeService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeService;
@@ -28,6 +29,7 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -92,7 +94,7 @@ public class PeriodeController extends ControllerHelper {
     }
 
     @Get("/periodes/eval")
-    @ApiDoc("Informe si les periodes passes en parametres possedent des evaluations")
+    @ApiDoc("Informe si les periodes passees en parametres possedent des evaluations")
     @SecuredAction(value="", type = ActionType.AUTHENTICATED)
     public void getPeriodesEval(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -116,7 +118,8 @@ public class PeriodeController extends ControllerHelper {
 
     @Put("/periodes")
     @ApiDoc("Met à jour des periodes")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value="", type = ActionType.RESOURCE)
+    @ResourceFilter(AdminRightStructure.class)
     public void updatePeriodes(final HttpServerRequest request){
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

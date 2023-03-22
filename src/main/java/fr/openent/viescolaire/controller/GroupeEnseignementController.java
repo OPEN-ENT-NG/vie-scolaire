@@ -102,7 +102,8 @@ public class GroupeEnseignementController extends ControllerHelper {
      */
     @Get("/groupe/enseignement/users/:groupId")
     @ApiDoc("Liste les groupes dse utilisateurs d'un groupe d'enseignement")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(StructureAdminPersonnalTeacherFromGroup.class)
     public void getGroupesEnseignementUsers(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
             @Override

@@ -91,6 +91,7 @@ public class Viescolaire extends BaseServer {
 
 	@Override
     public void start() throws Exception {
+        DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
         super.start();
 
         final EventBus eb = getEventBus(vertx);
@@ -103,7 +104,6 @@ public class Viescolaire extends BaseServer {
             throw new RuntimeException("no date in update-classes");
         }
 
-        DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
 
         /*
 			DISPLAY CONTROLLER

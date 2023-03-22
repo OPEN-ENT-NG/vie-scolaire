@@ -56,45 +56,6 @@ public class GroupeEnseignementController extends ControllerHelper {
         classeService = new DefaultClasseService();
     }
 
-    /**
-     * Liste les groupes d'enseignement d'un utilisateur
-     * @param request
-     */
-    @Get("/groupe/enseignement/user")
-    @ApiDoc("Liste les groupes d'enseignement d'un utilisateur")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getGroupesEnseignementUser(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                if (user != null) {
-                    groupeService.listGroupesEnseignementsByUserId(user.getUserId(), new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> event) {
-                            if(event.isRight()){
-                                JsonArray r = event.right().getValue();
-                                JsonObject groupeEnseignement, g;
-                                JsonArray groupesEnseignementJsonArray = new fr.wseduc.webutils.collections.JsonArray();
-
-                                for(int i = 0; i < r.size(); i++){
-                                    JsonObject o = r.getJsonObject(i);
-                                    g = o.getJsonObject("g");
-                                    groupeEnseignement = g.getJsonObject("data");
-                                    groupesEnseignementJsonArray.add(groupeEnseignement);
-                                }
-
-                                Renders.renderJson(request, groupesEnseignementJsonArray);
-                            }else{
-                                leftToResponse(request, event.left());
-                            }
-                        }
-                    });
-                } else {
-                    unauthorized(request);
-                }
-            }
-        });
-    }
 
     /**
      * Liste les groupes d'enseignement d'un utilisateur
@@ -126,20 +87,6 @@ public class GroupeEnseignementController extends ControllerHelper {
         });
     }
 
-    /**
-     * get name of groupe or classe
-     * @param request
-     */
-    @Get("/class/group/:groupId")
-    @ApiDoc("get the name of a groupe or classe ")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getNameOfGroupeClasse(final HttpServerRequest request) {
-
-        String idGroupe = request.params().get("groupId");
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        groupeService.getNameOfGroupeClasse(idGroupe, handler);
-    }
 
     /**
      * get the groups from a class

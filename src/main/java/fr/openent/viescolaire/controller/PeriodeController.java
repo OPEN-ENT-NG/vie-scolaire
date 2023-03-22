@@ -92,7 +92,12 @@ public class PeriodeController extends ControllerHelper {
             }
         });
     }
-    
+
+
+    /**
+     * @param request
+     * @queryParam {idEtablissement} mandatory
+     */
     @Put("/periodes")
     @ApiDoc("Met à jour des periodes")
     @SecuredAction(value="", type = ActionType.RESOURCE)

@@ -47,15 +47,15 @@ public class StructureAdminPersonnalTeacherFromGroupTest {
         params = Mockito.spy(new HeadersAdaptor(new DefaultHttpHeaders()));
         user = new UserInfos();
         access = new StructureAdminPersonnalTeacherFromGroup();
-        PROPER_QUERY = "MATCH(s:Structure)<-[:DEPENDS]-(g:Group) WHERE g.id = {idGroup} RETURN DISTINCT s.id as structureId";
+        PROPER_QUERY = "MATCH(s:Structure)<-[:DEPENDS]-(g:Group) WHERE g.id = {groupId} RETURN DISTINCT s.id as structureId";
         groupId = "groupId";
         queryParamObject = new JsonObject();
-        queryParamObject.put("idGroup", groupId);
+        queryParamObject.put(Field.GROUP_ID_CAMEL, groupId);
     }
 
     @Test
     public void authorize_should_use_proper_query(TestContext ctx) {
-        params.set(Field.GROUP_ID_CAMEL, "groupId");
+        params.set(Field.GROUP_ID_CAMEL, Field.GROUP_ID_CAMEL);
         Mockito.doReturn(params).when(request).params();
         Mockito.doAnswer((Answer<Void>) invocation -> {
             String query = invocation.getArgument(0);

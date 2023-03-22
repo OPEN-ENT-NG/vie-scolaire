@@ -14,15 +14,15 @@ import org.entcore.common.user.UserInfos;
 public class StructureAdminPersonnalTeacherFromGroup extends DBService implements ResourcesProvider {
     @Override
     public void authorize(HttpServerRequest request, Binding binding, UserInfos user, Handler<Boolean> handler) {
-        String idGroup = request.params().get(Field.GROUP_ID_CAMEL);
-        if (idGroup == null || idGroup.trim().isEmpty()) {
+        String groupId = request.params().get(Field.GROUP_ID_CAMEL);
+        if (groupId == null || groupId.trim().isEmpty()) {
             handler.handle(false);
             return;
         }
-        String query = "MATCH(s:Structure)<-[:DEPENDS]-(g:Group) WHERE g.id = {idGroup} RETURN DISTINCT s.id as structureId";
+        String query = "MATCH(s:Structure)<-[:DEPENDS]-(g:Group) WHERE g.id = {groupId} RETURN DISTINCT s.id as structureId";
         JsonObject params = new JsonObject();
 
-        params.put(Field.GROUP_ID_CAMEL, idGroup);
+        params.put(Field.GROUP_ID_CAMEL, groupId);
 
         neo4j.execute(query ,params, Neo4jResult.validResultHandler(either -> {
             if (either.right().getValue() != null && !either.right().getValue().isEmpty()) {

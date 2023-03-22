@@ -335,8 +335,11 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
         JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
 
         query.append("SELECT periode.id_type, MAX(periode.timestamp_dt) AS timestamp_dt, ")
-                .append("MIN(timestamp_fn) AS timestamp_fn, MIN(date_fin_saisie) AS date_fin_saisie ")
+                .append("MIN(timestamp_fn) AS timestamp_fn, MIN(date_fin_saisie) AS date_fin_saisie, ")
+                .append("rel_type_periode.ordre, rel_type_periode.type ")
                 .append("FROM viesco.periode ")
+                .append(" INNER JOIN ")
+                .append( Viescolaire.VSCO_SCHEMA + ".rel_type_periode ON id_type = rel_type_periode.id ")
                 .append("WHERE ");
 
         if(idEtablissement != null) {
@@ -353,7 +356,7 @@ public class DefaultPeriodeService extends SqlCrudService implements PeriodeServ
                 values.add(id_groupe);
             }
         }
-        query.append(" GROUP BY periode.id_type");
+        query.append(" GROUP BY periode.id_type, rel_type_periode.ordre, rel_type_periode.type ");
 
         Sql.getInstance().prepared(query.toString(), values,
                 new DeliveryOptions().setSendTimeout(Viescolaire.TIME_OUT_HANDLER),

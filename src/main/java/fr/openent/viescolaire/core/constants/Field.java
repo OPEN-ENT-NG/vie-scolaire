@@ -125,7 +125,7 @@ public class Field<id_groupes> {
     public static final String PREPARED = "prepared";
     public static final String IDSAUDIENCE = "idsAudience";
     public static final String IDGROUP = "idGroupe";
-
+    public static final String IDGROUP_CAMEL = "idGroup";
     public static final String ACTIVE = "active";
     public static final String PICTURE_ID = "picture_id";
     public static final String PICTUREID = "pictureId";

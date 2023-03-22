@@ -22,16 +22,16 @@ public class StructureAdminPersonnalTeacherFromGroup extends DBService implement
         String query = "MATCH(s:Structure)<-[:DEPENDS]-(g:Group) WHERE g.id = {idGroup} RETURN DISTINCT s.id as structureId";
         JsonObject params = new JsonObject();
 
-        params.put("idGroup", idGroup);
+        params.put(Field.GROUP_ID_CAMEL, idGroup);
 
         neo4j.execute(query ,params, Neo4jResult.validResultHandler(either -> {
-            if (either.isLeft()) {
-                handler.handle(false);
+            if (either.right().getValue() != null && !either.right().getValue().isEmpty()) {
+                String structureId = either.right().getValue().getJsonObject(0).getString(Field.STRUCTUREID);
+                handler.handle(structureId != null && user.getStructures().contains(structureId) && (WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT) ||
+                        Field.PERSONNEL.equals(user.getType()) || Field.TEACHER.equals(user.getType())));
                 return;
             }
-            String structureId = either.right().getValue().getJsonObject(0).getString("structureId");
-            handler.handle(structureId != null && user.getStructures().contains(structureId) && (WorkflowActionUtils.hasRight(user, WorkflowActionUtils.ADMIN_RIGHT) ||
-                    Field.PERSONNEL.equals(user.getType()) || Field.TEACHER.equals(user.getType())));
+            handler.handle(false);
         }));
     }
 }

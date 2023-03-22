@@ -92,30 +92,7 @@ public class PeriodeController extends ControllerHelper {
             }
         });
     }
-
-    @Get("/periodes/eval")
-    @ApiDoc("Informe si les periodes passees en parametres possedent des evaluations")
-    @SecuredAction(value="", type = ActionType.AUTHENTICATED)
-    public void getPeriodesEval(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                if (user != null) {
-                    final String[] idClasses = request.params().getAll("idClasse").toArray(new String[0]);
-
-                    if (idClasses.length == 0) {
-                        badRequest(request);
-                        log.error("getPeriodesEval : incorrect parameter");
-                    }
-
-                    periodeService.checkEvalOnPeriode(idClasses, defaultResponseHandler(request));
-                } else {
-                    unauthorized(request);
-                }
-            }
-        });
-    }
-
+    
     @Put("/periodes")
     @ApiDoc("Met à jour des periodes")
     @SecuredAction(value="", type = ActionType.RESOURCE)

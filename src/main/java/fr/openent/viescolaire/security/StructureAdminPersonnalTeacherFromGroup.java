@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.security;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.helper.FutureHelper;
 import fr.wseduc.webutils.http.Binding;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -50,14 +51,7 @@ public class StructureAdminPersonnalTeacherFromGroup implements ResourcesProvide
         JsonObject params = new JsonObject();
 
         params.put(Field.GROUP_ID_CAMEL, groupId);
-
-        Neo4j.getInstance().execute(query ,params, Neo4jResult.validUniqueResultHandler(either -> {
-                  if(either.isLeft()) {
-                      promise.fail(either.left().getValue());
-                  } else {
-                      promise.complete(either.right().getValue());
-                  }
-        }));
+        Neo4j.getInstance().execute(query ,params, Neo4jResult.validUniqueResultHandler(FutureHelper.handlerEitherPromise(promise)));
         return promise.future();
     }
 }

@@ -2,6 +2,7 @@ package fr.openent.viescolaire.security;
 
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.db.DB;
+import org.entcore.common.neo4j.Neo4jRest;
 import fr.wseduc.webutils.http.Binding;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.vertx.core.Handler;
@@ -17,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -34,14 +36,16 @@ public class StructureAdminPersonnalTeacherFromGroupTest {
     Binding binding;
     MultiMap params;
     UserInfos user;
-    Neo4j neo4j = Mockito.mock(Neo4j.class);
+//    Neo4j neo4j = Mockito.mock(Neo4j.class);
+    private final Neo4j neo4j = Neo4j.getInstance();
+    private final Neo4jRest neo4jRest = Mockito.mock(Neo4jRest.class);
     String PROPER_QUERY;
     String groupId;
     JsonObject queryParamObject;
 
     @Before
     public void setUp() throws NoSuchFieldException {
-        DB.getInstance().init(neo4j, null, null);
+//        DB.getInstance().init(neo4j, null, null);
         request = Mockito.mock(HttpServerRequest.class);
         binding = Mockito.mock(Binding.class);
         params = Mockito.spy(new HeadersAdaptor(new DefaultHttpHeaders()));
@@ -51,6 +55,7 @@ public class StructureAdminPersonnalTeacherFromGroupTest {
         groupId = "groupId";
         queryParamObject = new JsonObject();
         queryParamObject.put(Field.GROUP_ID_CAMEL, groupId);
+        FieldSetter.setField(neo4j, neo4j.getClass().getDeclaredField("database"), neo4jRest);
     }
 
     @Test
@@ -63,7 +68,7 @@ public class StructureAdminPersonnalTeacherFromGroupTest {
             ctx.assertEquals(query, PROPER_QUERY);
             ctx.assertEquals(queryParams,  queryParamObject);
             return null;
-        }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
+        }).when(neo4jRest).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
         access.authorize(request, binding, user, null);
     }
 }

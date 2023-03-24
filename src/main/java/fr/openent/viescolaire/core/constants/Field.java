@@ -59,6 +59,7 @@ public class Field<id_groupes> {
     public static final String TEACHER = "Teacher";
     public static final String PERSONNEL = "Personnel";
 
+    public static final String PERSONNEL = "Personnel";
     public static final String FIRSTNAME = "firstName";
     public static final String LASTNAME = "lastName";
     public static final String DISPLAYNAME = "displayName";
@@ -127,7 +128,7 @@ public class Field<id_groupes> {
     public static final String PREPARED = "prepared";
     public static final String IDSAUDIENCE = "idsAudience";
     public static final String IDGROUP = "idGroupe";
-
+    public static final String IDGROUP_CAMEL = "idGroup";
     public static final String ACTIVE = "active";
     public static final String PICTURE_ID = "picture_id";
     public static final String PICTUREID = "pictureId";
@@ -149,6 +150,7 @@ public class Field<id_groupes> {
     public static final String STUDENT_ID_LIST = "student_id_list";
     public static final String PERIOD_ID_CAMEL = "periodId";
     public static final String GROUP_IDS_CAMEL = "groupIds";
+    public static final String PROFILE_TYPE = "type";
 
     private Field() {
         throw new IllegalStateException("Utility class");

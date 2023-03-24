@@ -146,9 +146,9 @@ public class DefaultGroupeService extends SqlCrudService implements GroupeServic
 
         // Format de retour des données
         StringBuilder RETURNING = new StringBuilder().append(" RETURN DISTINCT users.lastName as lastName, ")
-                .append(" users.firstName as firstName, users.id as id, users.deleteDate as deleteDate, ")
-                .append(" users.login as login, users.activationCode as activationCode, users.birthDate as birthDate, ")
-                .append(" users.blocked as blocked, users.source as source, c.name as className, c.id as classId ORDER")
+                .append(" users.firstName as firstName, users.id as id, ")
+                .append(" users.deleteDate as deleteDate, users.birthDate as birthDate, ")
+                .append(" c.name as className, c.id as classId ORDER")
                 .append(" BY lastName, firstName ");
 
         if (!StringUtils.isEmpty(profile)) {

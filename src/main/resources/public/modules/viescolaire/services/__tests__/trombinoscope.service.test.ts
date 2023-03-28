@@ -1,6 +1,7 @@
 import {trombinoscopeService} from "../TrombinoscopeService";
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+
 
 describe('TrombinoscopeService', () => {
 
@@ -42,22 +43,24 @@ describe('TrombinoscopeService', () => {
         });
     });
 
-    it('should return data when API getFailures request is correctly called', () => {
-        let mock = new MockAdapter(axios);
+    it('should return data when API getFailures request is correctly called', done => {
+        const mock = new MockAdapter(axios);
         const data = [{
             id: "id",
             structureId: "structure",
             pictureId: "pictureId",
             path: "path",
             createdAt: "createdAt",
-            message: "message"
+            message: "message1"
         }];
-        let correctData;
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/failures`).reply(
-            (_: AxiosRequestConfig) => new Promise(() => correctData = data)
-        );
-        trombinoscopeService.getFailures(structure).then(() => {
-            expect(correctData).toEqual(data);
+        const respApi = {
+            all: data
+        };
+        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/failures`)
+            .reply(200, respApi);
+        trombinoscopeService.getFailures(structure).then(res => {
+            expect(res).toEqual(data);
+            done();
         });
     });
 
@@ -83,19 +86,21 @@ describe('TrombinoscopeService', () => {
         });
     });
 
-    it('should return data when API getStructureSettings request is correctly called', () => {
+    it('should return data when API getStructureSettings request is correctly called', done => {
         let mock = new MockAdapter(axios);
         const data = true;
-        let correctData;
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/setting`).reply(
-            (_: AxiosRequestConfig) => new Promise(() => correctData = data)
-        );
-        trombinoscopeService.getStructureSettings(structure).then(() => {
-            expect(correctData).toEqual(data);
+
+        const respApi = {
+            active: data
+        };
+        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/setting`).reply(200, respApi);
+        trombinoscopeService.getStructureSettings(structure).then((res) => {
+            expect(res).toEqual(data);
+            done();
         });
     });
 
-    it('should return data when API getReports request is correctly called',  () => {
+    it('should return data when API getReports request is correctly called',  done => {
         let mock = new MockAdapter(axios);
         const data = [{
             _id: "id",
@@ -105,12 +110,15 @@ describe('TrombinoscopeService', () => {
             content: "content"
         }];
 
-        let correctData;
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/reports?limit=${5}&offset=${5}`).reply(
-            (_: AxiosRequestConfig) => new Promise(() => correctData = data)
-        );
-        trombinoscopeService.getReports(structure, 5, 5).then(() => {
-            expect(correctData).toEqual(data);
+        const respApi = {
+            all: data
+        };
+
+        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/reports?limit=${5}&offset=${5}`)
+            .reply(200, respApi);
+        trombinoscopeService.getReports(structure, 5, 5).then((res) => {
+            expect(res).toEqual(data);
+            done();
         });
     });
 

@@ -12,7 +12,9 @@
   },
   "scripts": {
     "coverage": "./node_modules/.bin/jest --config jest.config.js --coverage",
-    "test": "npm run coverage"
+    "test": "npm run coverage",
+    "coverage:dev": "./node_modules/.bin/jest --config jest.config.js --coverage --watch --verbose false",
+    "test:dev": "npm run coverage:dev"
   },
   "repository": {
     "type": "git",
@@ -32,7 +34,7 @@
     "@types/jquery": "^2.0.34",
     "@types/node": "7.10.9",
     "angular-mocks": "^1.8.2",
-    "axios-mock-adapter": "^1.19.0",
+    "axios-mock-adapter": "1.21.2",
     "bower": "^1.8.4",
     "colors": "^1.2.5",
     "glob": "^7.1.1",

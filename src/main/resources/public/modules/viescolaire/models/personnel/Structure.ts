@@ -57,8 +57,7 @@ export class Structure extends DefaultStructure {
             PERIODE : {
                 synchronization: '/viescolaire/periodes?idEtablissement=' + this.id,
                 type: '/viescolaire/periodes/types',
-                update : '/viescolaire/periodes',
-                evalOnPeriode : '/viescolaire/periodes/eval?'
+                update : '/viescolaire/periodes?idEtablissement=' + this.id,
             },
             NIVEAU_COMPETENCES : {
                 synchronisation: '/competences/maitrise/level/' + this.id,
@@ -261,19 +260,6 @@ export class Structure extends DefaultStructure {
                     periodes = _.difference(periodes, classe.periodes.all);
                 });
                 resolve();
-            });
-        });
-    }
-
-    checkEval(idClasses):Promise<any> {
-        return new Promise((resolve, reject) => {
-            let url = this.api.PERIODE.evalOnPeriode;
-            _.each(idClasses, (idClasse, index) => {
-                url += "idClasse=" + idClasse;
-                if( index != idClasses.length - 1 ) url +='&' ;
-            });
-            http().getJson(url).done((boolean) => {
-                resolve(boolean.exist);
             });
         });
     }

@@ -149,19 +149,6 @@ public class MultiTeachingController extends ControllerHelper {
         return isNull(services) || services.getBoolean(Field.COMPETENCES);
     }
 
-
-    @Get("/mainteachers/:idStructure")
-    @ApiDoc("Retourne tous les types de devoir par etablissement")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessIfMyStructure.class)
-    public void viewTittulaires(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, user -> {
-            multiTeachingService.getSubTeachers(user.getUserId(), request.getParam(Field.IDSTRUCTURE), event -> {
-                log.info(event.right().getValue());
-            });
-        });
-    }
-
     @Put("/multiteaching/delete")
     @ApiDoc("delete a co-teaching or substitute teacher in a service")
     @SecuredAction(value = "", type = ActionType.RESOURCE)

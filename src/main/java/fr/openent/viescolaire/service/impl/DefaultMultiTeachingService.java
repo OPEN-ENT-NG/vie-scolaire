@@ -679,24 +679,6 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     }
 
     @Override
-    public void getSubTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
-        StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
-
-        query.append("SELECT DISTINCT main_teacher_id ")
-                .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
-                .append(" WHERE second_teacher_id = ? ")
-                .append("AND structure_id = ? ")
-                .append("AND start_date <= current_date ")
-                .append("AND is_coteaching is FALSE ")
-                .append("AND current_date <= entered_end_date ");
-
-        values.add(userId);
-        values.add(idStructure);
-        Sql.getInstance().prepared(query.toString(), values, validResultHandler(handler));
-    }
-
-    @Override
     public void getSubTeachersandCoTeachers(String userId, String idStructure, String subjectId,
                                             String groupId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();

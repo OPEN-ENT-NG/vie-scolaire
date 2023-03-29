@@ -3,6 +3,8 @@ package fr.openent.viescolaire.core.constants;
 public class Field<id_groupes> {
     public static final String ID = "id";
 
+    public static final String ACCESS = "access";
+
     // structure field
     public static final String STRUCTUREID = "structureId";
     public static final String STRUCTURE_ID = "structure_id";
@@ -54,6 +56,7 @@ public class Field<id_groupes> {
     public static final String PROFILE = "profile";
     public static final String PROFILES = "profiles";
     public static final String TEACHER = "Teacher";
+    public static final String PERSONNEL = "Personnel";
 
     public static final String FIRSTNAME = "firstName";
     public static final String LASTNAME = "lastName";

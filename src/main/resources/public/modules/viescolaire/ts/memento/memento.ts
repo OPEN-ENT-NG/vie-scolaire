@@ -2,6 +2,7 @@ import http, {AxiosError, AxiosResponse} from 'axios';
 import {Behaviours, idiom, toasts} from 'entcore';
 import {mementoService} from '../../services';
 import {DateUtils} from '../../utils/dateUtils';
+import {MementoAccess} from "../../models/memento.model";
 
 declare let window: any;
 
@@ -85,18 +86,26 @@ const vm: IMementoViewModel = {
         value: null,
         list: null
     },
-    loadMemento(studentId: string): void {
-        document.getElementsByTagName('html')[0].style['overflowY'] = 'hidden';
-        vm.show = true;
-        vm.studentId = studentId;
-        http.get(`/viescolaire/memento/students/${studentId}`).then(({data}) => {
-            vm.student = data;
-            vm.$apply();
-            console.log('triggering event');
-            vm.that.$broadcast('memento:init', {student: vm.student.id, group: vm.student.class_id});
-        }).catch(err => {
+    async loadMemento(studentId: string): Promise<void> {
+        try {
+            let mementoAccess: MementoAccess = await mementoService.checkAccess();
+            if (mementoAccess.access) {
+                document.getElementsByTagName('html')[0].style['overflowY'] = 'hidden';
+                vm.show = true;
+                vm.studentId = studentId;
+                http.get(`/viescolaire/memento/students/${studentId}`).then(({data}) => {
+                    vm.student = data;
+                    vm.$apply();
+                    console.log('triggering event');
+                    vm.that.$broadcast('memento:init', {student: vm.student.id, group: vm.student.class_id});
+                }).catch(err => {
+                    throw err;
+                });
+            }
+        } catch (err) {
+            console.error("an error has occurred while attempting to fetch memento access", err);
             throw err;
-        });
+        }
     },
     async saveComment(comment: string): Promise<void> {
         mementoService.saveComment(vm.studentId, comment)

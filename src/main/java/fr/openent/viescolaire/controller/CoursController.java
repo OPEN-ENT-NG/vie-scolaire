@@ -123,6 +123,7 @@ public class CoursController extends ControllerHelper {
 
     }
 
+
     @Get("/:idClasse/cours/:dateDebut/:dateFin/time/:timeDb/:timeFn")
     @ApiDoc("Recupere tous les cours d'une classe dans une période donnée.")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
@@ -137,125 +138,6 @@ public class CoursController extends ControllerHelper {
         coursService.getClasseCoursBytime(dateDebut, dateFin, idClasse, handler);
     }
 
-    // TODO : MODIFIER L'URL POUR LA RENDRE CORRECTE
-    @Get("/enseignant/:userId/:structureId/cours/:dateDebut/:dateFin")
-    @ApiDoc("Récupère tous les cours d'un utilisateur dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getCoursByUserId(final HttpServerRequest request) {
-        String userId = request.params().get("userId");
-        String structureId = request.params().get("structureId");
-        String dateDebut = request.params().get("dateDebut") + " 00:00:00";
-        String dateFin = request.params().get("dateFin") + " 00:00:00";
-
-        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-
-        coursService.getCoursByUserId(dateDebut, dateFin, userId, structureId, handler);
-    }
-
-    //
-    @Get("/cours/:etabId/:eleveId/:dateDebut/:dateFin/time/:timeDb/:timeFn")
-    @ApiDoc("Récupère tous les cours d'un eleve dans une période donnée.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getCoursByStudentId(final HttpServerRequest request) {
-        String eleveId = request.params().get("eleveId");
-        String etabId = request.params().get("etabId");
-
-        //chercher les classes/groupes
-        classeService.getClasseEleve(etabId, eleveId, new Handler<Either<String, JsonArray>>() {
-            @Override
-            public void handle(Either<String, JsonArray> event) {
-                String dateDebut = request.params().get("dateDebut") + ' ' + request.params().get("timeDb");
-                String dateFin = request.params().get("dateFin") + ' ' + request.params().get("timeFn");
-                if (event.isRight()) {
-                    //get key
-                    JsonObject obj = event.right().getValue().getJsonObject(0);
-                    int size = obj.getJsonArray("Classes").size();
-                    if (size > 0) {
-                        Object[] Ids = new Object[size];
-                        String[] IdsStr = new String[size];
-                        try {
-                            Ids = obj.getJsonArray("Classes").getList().toArray();
-                        } catch (ClassCastException e) {
-                            log.error("Cannot cast evenementId to Number on delete evenement : " + e);
-                        }
-                        Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                        for (int i = 0; i < Ids.length; i++) {
-                            IdsStr[i] = Ids[i].toString();
-                        }
-
-                        List<String> listIdClasse = Arrays.asList(IdsStr);
-
-                        coursService.getClasseCours(dateDebut, dateFin, listIdClasse, handler);
-                    } else {
-                        log.error("This Student has no Classes or Groups");
-                    }
-                } else {
-                    leftToResponse(request, event.left());
-                }
-            }
-        });
-    }
-
-    @Get("/cours")
-    @ApiDoc("Recupere tous les cours en fonction de leur id")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void getCours(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                if (user != null) {
-                    List<Long> idCours = new ArrayList<>();
-                    for (String s : request.params().getAll("idCours")) {
-                        idCours.add(Long.valueOf(s));
-                    }
-                    coursService.getCoursById(idCours, new Handler<Either<String, JsonArray>>() {
-                        @Override
-                        public void handle(Either<String, JsonArray> stringJsonArrayEither) {
-                            if (stringJsonArrayEither.isRight()) {
-                                Renders.renderJson(request, stringJsonArrayEither.right().getValue());
-                            } else {
-                                JsonObject error = new JsonObject()
-                                        .put("error", stringJsonArrayEither.left().getValue());
-                                log.error(stringJsonArrayEither.left().getValue());
-                                Renders.renderJson(request, error, 400);
-                            }
-                        }
-                    });
-                } else {
-                    unauthorized(request);
-                }
-            }
-        });
-    }
-
-    @Post("/cours")
-    @ApiDoc("Créé un cours.")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    public void createCours(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(final UserInfos user) {
-                RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-                    @Override
-                    public void handle(JsonObject resource) {
-                        String userId = user.getUserId();
-
-                        String idEtablissement = resource.getString("idEtablissement");
-                        String idMatiere = resource.getString("idMatiere");
-                        String dateDebut = resource.getString("dateDebut"); //format YYYY-MM-DD HH:mm
-                        String dateFin = resource.getString("dateFin"); //format YYYY-MM-DD HH:mm
-
-                        List<String> listIdClasse = resource.getJsonArray("classeIds").getList();
-                        List<String> listIdTeacher = resource.getJsonArray("teacherIds").getList();
-
-                        Handler<Either<String, JsonObject>> handler = defaultResponseHandler(request);
-
-                        coursService.createCours(userId, idEtablissement, idMatiere, dateDebut, dateFin, listIdClasse, listIdTeacher, handler);
-                    }
-                });
-            }
-        });
-    }
 
     @Get("/structures/:id/courses/purge")
     @SecuredAction(value = "", type = ActionType.RESOURCE)

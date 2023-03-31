@@ -191,7 +191,7 @@ public class EleveController extends ControllerHelper {
     @Get("/structures/:structureId/students")
     @ApiDoc("Get list of students from a structure")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(AccessIfMyStructure.class)
+    @ResourceFilter(AdminRight.class)
     public void getStudentsFromStructure(final HttpServerRequest request) {
         String structureId = request.getParam("structureId");
 

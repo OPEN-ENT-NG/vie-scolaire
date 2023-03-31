@@ -85,6 +85,7 @@ public class Field<id_groupes> {
     public static final String CLASSGROUPEXTERNALIDS = "classGroupExternalIds";
     public static final String MANUALGROUPNAMES = "manualGroupNames";
     public static final String STARTDATE = "startDate";
+    public static final String ENDDATE = "endDate";
     public static final String STARTTIME = "startTime";
     public static final String NAME = "name";
     public static final String MAIN_TEACHER_ID = "main_teacher_id";
@@ -149,6 +150,29 @@ public class Field<id_groupes> {
     public static final String COUNT = "count";
 
     public static final String INITIALIZED = "initialized";
+
+    public static final String MORNING = "morning";
+    public static final String AFTERNOON = "afternoon";
+    public static final String FULLDAYS = "fullDays";
+    public static final String HALFDAYS = "halfDays";
+    public static final String SYSTEM = "system";
+    public static final String ZONE = "zone";
+    public static final String INITTYPE = "initType";
+    public static final String SCHOOLYEAR = "schoolYear";
+    public static final String TIMETABLE = "timetable";
+    public static final String HOLIDAYS = "holidays";
+    public static final String PARAMS = "params";
+
+    public static final String I18N_PARAMS = "i18nParams";
+
+    public static final String DOMAIN = "domain";
+    public static final String ACCEPT_LANGUAGE = "acceptLanguage";
+    public static final String OWNER = "owner";
+    public static final String OWNERID = "ownerId";
+    public static final String OWNERNAME = "ownerName";
+    public static final String LANGUAGE = "language";
+    public static final String ENDOFHALFDAY = "endOfHalfDay";
+    public static final String BODY = "body";
 
     private Field() {
         throw new IllegalStateException("Utility class");

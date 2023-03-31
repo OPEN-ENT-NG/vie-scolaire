@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.viescolaire.service.*;
+import fr.wseduc.mongodb.*;
 import io.vertx.core.*;
 import io.vertx.core.json.*;
 import io.vertx.ext.unit.*;
@@ -20,13 +21,15 @@ public class DefaultInitServiceTest {
     Neo4j neo4j = Mockito.mock(Neo4j.class);
     Sql sql = Mockito.mock(Sql.class);
 
+    MongoDb mongoDb = Mockito.mock(MongoDb.class);
+
     private InitService initService;
 
     private static final String STRUCTURE_ID = "structureId";
 
     @Before
     public void setUp() {
-        ServiceFactory serviceFactory = new ServiceFactory(Vertx.vertx().eventBus(), sql, neo4j);
+        ServiceFactory serviceFactory = new ServiceFactory(Vertx.vertx().eventBus(), sql, neo4j, mongoDb);
         this.initService = new DefaultInitService(serviceFactory);
     }
 

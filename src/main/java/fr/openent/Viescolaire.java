@@ -94,8 +94,10 @@ public class Viescolaire extends BaseServer {
         super.start();
 
         final EventBus eb = getEventBus(vertx);
+        final Sql sql = Sql.getInstance();
+        final Neo4j neo4j = Neo4j.getInstance();
         final Storage storage = new StorageFactory(vertx).getStorage();
-        final ServiceFactory serviceFactory = new ServiceFactory(eb);
+        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j);
 
         LSUN_CONFIG = config.getJsonObject("lsun");
         UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
@@ -103,7 +105,7 @@ public class Viescolaire extends BaseServer {
             throw new RuntimeException("no date in update-classes");
         }
 
-        DB.getInstance().init(Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
+        DB.getInstance().init(neo4j, sql, MongoDb.getInstance());
 
         /*
 			DISPLAY CONTROLLER
@@ -131,6 +133,7 @@ public class Viescolaire extends BaseServer {
         addController(new StructureController());
         addController(new TrombinoscopeController(vertx, storage));
         addController(new GroupingController(serviceFactory));
+        addController(new InitController(serviceFactory));
 
         addController(new EventBusController(serviceFactory, config));
 

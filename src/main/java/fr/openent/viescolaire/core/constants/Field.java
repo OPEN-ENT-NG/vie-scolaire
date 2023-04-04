@@ -58,6 +58,7 @@ public class Field<id_groupes> {
     public static final String PROFILES = "profiles";
     public static final String TEACHER = "Teacher";
     public static final String PERSONNEL = "Personnel";
+    public static final String TEACHERS = "teachers";
     public static final String FIRSTNAME = "firstName";
     public static final String LASTNAME = "lastName";
     public static final String DISPLAYNAME = "displayName";
@@ -149,6 +150,10 @@ public class Field<id_groupes> {
     public static final String PERIOD_ID_CAMEL = "periodId";
     public static final String GROUP_IDS_CAMEL = "groupIds";
     public static final String PROFILE_TYPE = "type";
+
+    public static final String COUNT = "count";
+
+    public static final String INITIALIZED = "initialized";
 
     private Field() {
         throw new IllegalStateException("Utility class");

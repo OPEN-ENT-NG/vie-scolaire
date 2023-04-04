@@ -1,23 +1,31 @@
 package fr.openent.viescolaire.service;
 
-import fr.openent.viescolaire.service.impl.DefaultClasseService;
-import fr.openent.viescolaire.service.impl.DefaultGroupeService;import fr.openent.viescolaire.service.impl.DefaultGroupingService;
-import fr.openent.viescolaire.service.impl.DefaultTimeSlotService;
+import fr.openent.viescolaire.service.impl.*;
 import io.vertx.core.eventbus.EventBus;
+import org.entcore.common.neo4j.*;
+import org.entcore.common.sql.*;
 
 public class ServiceFactory {
     private final EventBus eb;
+
+    private final Sql sql;
+    private final Neo4j neo4j;
     private final TimeSlotService timeSlotService;
     private final ClasseService classeService;
     private final GroupeService groupeService;
     private final GroupingService groupingService;
 
-    public ServiceFactory(EventBus eb) {
+    private final InitService initService;
+
+    public ServiceFactory(EventBus eb, Sql sql, Neo4j neo4j) {
         this.eb = eb;
+        this.sql = sql;
+        this.neo4j = neo4j;
         this.classeService = new DefaultClasseService(this);
         this.groupeService = new DefaultGroupeService();
         this.timeSlotService = new DefaultTimeSlotService(this);
         this.groupingService = new DefaultGroupingService(this);
+        this.initService = new DefaultInitService(this);
     }
 
     public TimeSlotService timeSlotService() {
@@ -36,7 +44,19 @@ public class ServiceFactory {
         return this.groupingService;
     }
 
+    public InitService initService() {
+        return this.initService;
+    }
+
     public EventBus getEventbus() {
         return eb;
+    }
+
+    public Sql sql() {
+        return sql;
+    }
+
+    public Neo4j neo4j() {
+        return neo4j;
     }
 }

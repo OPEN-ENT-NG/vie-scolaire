@@ -28,7 +28,18 @@ public class DateHelper {
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
 
+    public static Date parseDate(String dateString, String format) {
+        Date date = new Date();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try {
+            date = sdf.parse(dateString);
+        } catch (ParseException e) {
+            LOGGER.error(String.format("[Viescolaire@DateHelper::parseDate] Error when casting date: %s", e.getMessage()));
+        }
+
+        return date;
+    }
     Calendar firstOccurrenceDate(JsonObject course){
         Calendar start = getCalendar(course.getString(START_DATE), DATE_FORMATTER);
         start.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
@@ -139,6 +150,70 @@ public class DateHelper {
     public static String getDateString(Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
+    }
+
+    public static String addHour(String date, int number, String format) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(parseDate(date, format));
+        cal.add(Calendar.HOUR, number);
+        return getDateString(cal.getTime(), format);
+    }
+
+    /**
+     * Same that isAfter, but from a given format and without try / catch
+     *
+     * @param date1 First hour
+     * @param date2 Second hour
+     * @param format base dates format
+     * @return Boolean that match if the first date is before the second date
+     */
+    public static boolean isDateFormatAfter(String date1, String date2, String format) {
+        Date firstHour = new Date();
+        Date secondHour = new Date();
+        SimpleDateFormat sdft = new SimpleDateFormat(format);
+        try {
+            firstHour = sdft.parse(date1);
+            secondHour = sdft.parse(date2);
+        } catch (ParseException e) {
+            LOGGER.error("[Viescolaire@DateHelper::isHourAfter] Error when casting hour: ", e);
+        }
+
+        return firstHour.after(secondHour);
+    }
+
+    /**
+     * Test if 2 hours are equals from a given format, but without try / catch
+     *
+     * @param date1 First hour
+     * @param date2 Second hour
+     * @param format base dates format
+     * @return Boolean that match if the first hour is before the second hour
+     */
+    public static boolean isDateFormatEqual(String date1, String date2, String format) {
+        Date firstDate = new Date();
+        Date secondDate = new Date();
+        SimpleDateFormat sdft = new SimpleDateFormat(format);
+
+        try {
+            firstDate = sdft.parse(date1);
+            secondDate = sdft.parse(date2);
+        } catch (ParseException e) {
+            LOGGER.error("[Viescolaire@DateHelper::isHourEqual] Error when casting hour: ", e);
+        }
+
+        return firstDate.equals(secondDate);
+    }
+
+    /**
+     * Same that isAfter, but from a given format and without try / catch
+     *
+     * @param date1 First hour
+     * @param date2 Second hour
+     * @param format base dates format
+     * @return Boolean that match if the first date is after the second date
+     */
+    public static boolean isHourAfterOrEqual(String date1, String date2, String format) {
+        return isDateFormatAfter(date1, date2, format) || isDateFormatEqual(date1, date2, format);
     }
 
 

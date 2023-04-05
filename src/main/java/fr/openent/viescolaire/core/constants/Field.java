@@ -82,6 +82,7 @@ public class Field<id_groupes> {
     public static final String STATUS = "status";
     public static final String OK = "ok";
     public static final String RESULTS = "results";
+    public static final String RESULT = "result";
     public static final String CLASSGROUPEXTERNALIDS = "classGroupExternalIds";
     public static final String MANUALGROUPNAMES = "manualGroupNames";
     public static final String STARTDATE = "startDate";
@@ -173,6 +174,10 @@ public class Field<id_groupes> {
     public static final String LANGUAGE = "language";
     public static final String ENDOFHALFDAY = "endOfHalfDay";
     public static final String BODY = "body";
+
+    public static final String LABEL = "label";
+    public static final String CODE = "code";
+    public static final String SUBJECT = "subject";
 
     private Field() {
         throw new IllegalStateException("Utility class");

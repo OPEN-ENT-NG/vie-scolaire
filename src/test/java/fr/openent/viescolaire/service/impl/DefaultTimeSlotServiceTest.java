@@ -39,7 +39,7 @@ public class DefaultTimeSlotServiceTest {
     public void setUp() {
         vertx = Vertx.vertx();
         Sql.getInstance().init(vertx.eventBus(), "fr.openent.viescolaire");
-        this.defaultTimeSlotService = new DefaultTimeSlotService(new ServiceFactory(vertx.eventBus(), null, null));
+        this.defaultTimeSlotService = new DefaultTimeSlotService(new ServiceFactory(vertx.eventBus(), null, null, null));
         this.defaultTimeSlotService = Mockito.spy(this.defaultTimeSlotService);
     }
 

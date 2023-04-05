@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.Field;
+import fr.openent.viescolaire.model.InitForm.*;
 import fr.openent.viescolaire.model.Person.Student;
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
@@ -57,6 +58,8 @@ public class EventBusController extends ControllerHelper {
     private ConfigController configController;
     private GroupingService groupingService;
 
+    private InitService initService;
+
     public EventBusController(ServiceFactory serviceFactory, JsonObject _config) {
         groupeService = new DefaultGroupeService();
         classeService = new DefaultClasseService();
@@ -73,6 +76,7 @@ public class EventBusController extends ControllerHelper {
         servicesService = new DefaultServicesService();
         mutliTeachingService = new DefaultMultiTeachingService(serviceFactory.getEventbus());
         groupingService = new DefaultGroupingService(serviceFactory);
+        initService = new DefaultInitService(serviceFactory);
     }
 
     @BusAddress("viescolaire")
@@ -144,6 +148,14 @@ public class EventBusController extends ControllerHelper {
             break;
             case "multiTeaching": {
                 mutliTeachingService(method, message);
+            }
+            break;
+            case "init": {
+                initService(method, message);
+            }
+            break;
+            default: {
+                message.reply(getErrorReply("Service not found"));
             }
         }
     }
@@ -824,6 +836,33 @@ public class EventBusController extends ControllerHelper {
                 matiereService.listMatieresEtab(idStructure, onlyId, getJsonArrayBusResultHandler(message));
             }
             break;
+            default: {
+                message.reply(getErrorReply("Method not found"));
+            }
+        }
+    }
+
+    private void initService(String method, final Message<JsonObject> message) {
+        switch (method) {
+            case "launchWorker":
+                final String structureId = message.body().getString(Field.STRUCTUREID);
+                final String structureName = message.body().getString(Field.STRUCTURENAME);
+                final String ownerId = message.body().getString(Field.OWNERID);
+                final String userName = message.body().getString(Field.OWNERNAME);
+                final JsonObject body = message.body().getJsonObject(Field.BODY);
+                final JsonObject i18nParams = new JsonObject()
+                        .put(Field.DOMAIN, message.body().getString(Field.DOMAIN))
+                        .put(Field.ACCEPT_LANGUAGE, message.body().getString(Field.ACCEPT_LANGUAGE));
+
+                final UserInfos user = new UserInfos();
+                user.setUserId(ownerId);
+                user.setUsername(userName);
+                user.setStructures(Collections.singletonList(structureId));
+                user.setStructureNames(Collections.singletonList(structureName));
+                InitFormModel initFormModel = new InitFormModel(body);
+
+                this.initService.launchInitWorker(user, structureId, initFormModel, i18nParams);
+                break;
             default: {
                 message.reply(getErrorReply("Method not found"));
             }

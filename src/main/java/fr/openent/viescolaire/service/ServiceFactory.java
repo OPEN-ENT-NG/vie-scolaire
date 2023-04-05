@@ -1,6 +1,7 @@
 package fr.openent.viescolaire.service;
 
 import fr.openent.viescolaire.service.impl.*;
+import fr.wseduc.mongodb.*;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.neo4j.*;
 import org.entcore.common.sql.*;
@@ -10,6 +11,8 @@ public class ServiceFactory {
 
     private final Sql sql;
     private final Neo4j neo4j;
+
+    private final MongoDb mongoDb;
     private final TimeSlotService timeSlotService;
     private final ClasseService classeService;
     private final GroupeService groupeService;
@@ -17,10 +20,11 @@ public class ServiceFactory {
 
     private final InitService initService;
 
-    public ServiceFactory(EventBus eb, Sql sql, Neo4j neo4j) {
+    public ServiceFactory(EventBus eb, Sql sql, Neo4j neo4j, MongoDb mongoDb) {
         this.eb = eb;
         this.sql = sql;
         this.neo4j = neo4j;
+        this.mongoDb = mongoDb;
         this.classeService = new DefaultClasseService(this);
         this.groupeService = new DefaultGroupeService();
         this.timeSlotService = new DefaultTimeSlotService(this);
@@ -54,6 +58,10 @@ public class ServiceFactory {
 
     public Sql sql() {
         return sql;
+    }
+
+    public MongoDb mongoDb() {
+        return mongoDb;
     }
 
     public Neo4j neo4j() {

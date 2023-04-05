@@ -27,6 +27,8 @@ import org.entcore.common.user.UserInfos;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fr.openent.viescolaire.helper.FutureHelper.handlerEitherPromise;
+
 public class DefaultTimeSlotService implements TimeSlotService {
 
     private String COLLECTION = "slotprofile";
@@ -153,6 +155,13 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     @Override
+    public Future<JsonArray> saveTimeProfil(JsonObject timeSlot) {
+        Promise<JsonArray> promise = Promise.promise();
+        this.saveTimeProfil(timeSlot, handlerEitherPromise(promise));
+        return promise.future();
+    }
+
+    @Override
     public void saveTimeProfil(JsonObject timeSlot, Handler<Either<String, JsonArray>> handler) {
         JsonArray statements = new JsonArray();
         getTimeSlot(timeSlot.getString("id"), slotResult -> {
@@ -185,6 +194,13 @@ public class DefaultTimeSlotService implements TimeSlotService {
                 .put("action", "prepared")
                 .put("statement", query)
                 .put("values", params);
+    }
+
+    @Override
+    public Future<JsonObject> updateEndOfHalfDay(String id, String time, String structureId) {
+        Promise<JsonObject> promise = Promise.promise();
+        this.updateEndOfHalfDay(id, time, structureId, handlerEitherPromise(promise));
+        return promise.future();
     }
 
     @Override

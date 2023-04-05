@@ -22,5 +22,9 @@
   "viescolaire.grouping.buttonCancel": "Cancel",
   "viescolaire.grouping.buttonRename": "Rename",
   "viescolaire.grouping.set": "Grouping, levels",
-  "viescolaire.presentation": "Association of classes and groups to a group or a level: this will allow you to search for information by group or level rather than by class and group."
+  "viescolaire.presentation": "Association of classes and groups to a group or a level: this will allow you to search for information by group or level rather than by class and group.",
+  "viescolaire.time.grid": "Time grid",
+  "viescolaire.time.grid.lunch": "Midday",
+  "viescolaire.time.grid.morning.prefix": "M",
+  "viescolaire.time.grid.afternoon.prefix": "A"
 }

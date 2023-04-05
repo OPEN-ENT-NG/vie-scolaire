@@ -783,5 +783,9 @@
   "evaluation.orderShowSubject.title": "Organiser les matières",
   "viescolaire.confirmation.updateSchoolYear": "Vous allez changer les dates de l'année scolaire.Des applications pourraient être impactées par ce changement. Voulez-vous continuer ?",
   "viescolaire.competence.structure.option.title.calculate.level.skills": "Calcul du niveau des items de compétences",
-  "viescolaire.presentation": "Association de classes et groupes à un regroupement ou un niveau : cela vous permettra de chercher des informations par regroupement ou niveau plutôt que par classe et groupe."
+  "viescolaire.presentation": "Association de classes et groupes à un regroupement ou un niveau : cela vous permettra de chercher des informations par regroupement ou niveau plutôt que par classe et groupe.",
+  "viescolaire.time.grid": "Grille horaire",
+  "viescolaire.time.grid.lunch": "Midi",
+  "viescolaire.time.grid.morning.prefix": "M",
+  "viescolaire.time.grid.afternoon.prefix": "AM"
 }

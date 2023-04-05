@@ -72,6 +72,7 @@ public interface TimeSlotService {
      */
     void getDefaultSlots(String structureId, Handler<Either<String, JsonArray>> handler);
 
+    Future<JsonArray> saveTimeProfil(JsonObject timeSlot);
     void saveTimeProfil(JsonObject timeSlot, Handler<Either<String, JsonArray>> handler);
 
     /**
@@ -83,7 +84,7 @@ public interface TimeSlotService {
      * @param handler     Function handler returning data
      */
     void updateEndOfHalfDay(String id, String time, String structureId, Handler<Either<String, JsonObject>> handler);
-
+    Future<JsonObject> updateEndOfHalfDay(String id, String time, String structureId);
     /**
      * Retrieve default structure timeslot. Returns slots sort by hour
      *

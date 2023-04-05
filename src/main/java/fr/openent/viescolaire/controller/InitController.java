@@ -1,15 +1,19 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.viescolaire.core.constants.*;
+import fr.openent.viescolaire.model.InitForm.*;
 import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.*;
+import fr.wseduc.webutils.*;
+import fr.wseduc.webutils.request.*;
 import io.vertx.core.http.*;
 import io.vertx.core.json.*;
 import io.vertx.core.logging.*;
 import org.entcore.common.controller.*;
 import org.entcore.common.http.filter.*;
+import org.entcore.common.user.*;
 
 public class InitController extends ControllerHelper {
 
@@ -50,5 +54,30 @@ public class InitController extends ControllerHelper {
                     renderError(request);
                 })
                 .onSuccess(status -> renderJson(request, new JsonObject().put(Field.INITIALIZED, (status != null) && status)));
+    }
+
+    @Post("/structures/:structureId/initialize")
+    @ApiDoc("Initialize structure")
+    @SecuredAction(value="", type = ActionType.RESOURCE)
+    @ResourceFilter(AdministratorRight.class)
+    public void initialize(HttpServerRequest request) {
+
+        RequestUtils.bodyToJson(request, pathPrefix + "init_structure", body -> {
+            UserUtils.getUserInfos(eb, request, user -> {
+
+                String structureId = request.getParam(Field.STRUCTUREID);
+                JsonObject i18nParams = new JsonObject()
+                        .put(Field.DOMAIN, getHost(request))
+                        .put(Field.ACCEPT_LANGUAGE, I18n.acceptLanguage(request));
+
+                this.initService.launchInitWorker(user, structureId, new InitFormModel(body), i18nParams)
+                        .onFailure(fail -> {
+                            log.error(String.format("[Viescolaire@%s::initialize] Failed to launch init worker",
+                                    this.getClass().getSimpleName()), fail.getMessage());
+                            renderError(request);
+                        })
+                        .onSuccess(success -> renderJson(request, new JsonObject().put(Field.SUCCESS, Field.OK)));
+            });
+        });
     }
 }

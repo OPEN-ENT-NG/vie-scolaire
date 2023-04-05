@@ -21,7 +21,9 @@ import fr.openent.viescolaire.controller.*;
 import fr.openent.viescolaire.db.DB;
 import fr.openent.viescolaire.service.ServiceFactory;
 import fr.openent.viescolaire.service.impl.VieScolaireRepositoryEvents;
+import fr.openent.viescolaire.worker.*;
 import fr.wseduc.mongodb.MongoDb;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.http.BaseServer;
@@ -96,8 +98,9 @@ public class Viescolaire extends BaseServer {
         final EventBus eb = getEventBus(vertx);
         final Sql sql = Sql.getInstance();
         final Neo4j neo4j = Neo4j.getInstance();
+        final MongoDb mongoDb = MongoDb.getInstance();
         final Storage storage = new StorageFactory(vertx).getStorage();
-        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j);
+        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j, mongoDb);
 
         LSUN_CONFIG = config.getJsonObject("lsun");
         UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
@@ -105,7 +108,7 @@ public class Viescolaire extends BaseServer {
             throw new RuntimeException("no date in update-classes");
         }
 
-        DB.getInstance().init(neo4j, sql, MongoDb.getInstance());
+        DB.getInstance().init(neo4j, sql, mongoDb);
 
         /*
 			DISPLAY CONTROLLER
@@ -138,6 +141,9 @@ public class Viescolaire extends BaseServer {
         addController(new EventBusController(serviceFactory, config));
 
         setRepositoryEvents(new VieScolaireRepositoryEvents(eb, config));
+
+        // worker to be triggered manually
+        vertx.deployVerticle(InitWorker1D.class, new DeploymentOptions().setConfig(config).setWorker(true));
     }
 
 }

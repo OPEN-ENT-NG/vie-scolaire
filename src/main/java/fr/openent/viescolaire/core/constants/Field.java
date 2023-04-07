@@ -24,6 +24,7 @@ public class Field<id_groupes> {
     public static final String ID_AUDIENCE = "id_audience";
 
     public static final String ID_CLASSES = "id_classes";
+    public static final String CLASSIDS = "classIds";
 
     public static final String ID_CLASS = "id_class";
     public static final String CLASSID = "classId";
@@ -146,8 +147,7 @@ public class Field<id_groupes> {
     public static final String ENDHOUR = "endHour";
     public static final String STUDENT_ID_LIST = "student_id_list";
     public static final String PERIOD_ID_CAMEL = "periodId";
-    public static final String GROUP_IDS_CAMEL = "groupIds";
-
+    public static final String GROUPIDS = "groupIds";
     public static final String COUNT = "count";
 
     public static final String INITIALIZED = "initialized";
@@ -179,6 +179,15 @@ public class Field<id_groupes> {
     public static final String CODE = "code";
     public static final String SUBJECT = "subject";
 
+    public static final String ID_MATIERE = "id_matiere";
+
+    public static final String ID_ENSEIGNANT = "id_enseignant";
+
+    public static final String COEFFICIENT = "coefficient";
+
+    public static final String MODALITE = "modalite";
+
+    public static final String EVALUABLE = "evaluable";
     private Field() {
         throw new IllegalStateException("Utility class");
     }

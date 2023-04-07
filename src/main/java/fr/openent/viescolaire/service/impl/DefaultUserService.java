@@ -789,7 +789,13 @@ public class DefaultUserService extends SqlCrudService implements UserService {
      */
     public void getTeachers(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
         //String query = "MATCH (:Structure {id: {idEtablissement}})-[:ADMINISTRATIVE_ATTACHMENT]-(u:User {profiles: ['Teacher']}) RETURN u";
-        String query = "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure {id: {idEtablissement}}) RETURN DISTINCT u.classes as classes, u.displayName as displayName, u.displayNameSearchField as displayNameSearchField , u.externalId as externalId, u.firstName as firstName, u.firstNameSearchField as firstNameSearchField, u.functions as functions, u.groups as groups, u.headTeacher as headTeacher, u.id as id, u.isTeacher as isTeacher, u.joinKey as joinKey, u.lastName as lastName, u.lastNameSearchField as lastNameSearchField, u.oldClasses as oldClasses, u.profiles as profiles, u.structures as structures, u.subjectTaught as subjectTaught, u.surname as surname, u.teaches as teaches, u.title as title";
+        String query = "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure {id: {idEtablissement}}) " +
+                "RETURN DISTINCT u.classes as classes, u.displayName as displayName, u.displayNameSearchField as displayNameSearchField , " +
+                "u.externalId as externalId, u.firstName as firstName, u.firstNameSearchField as firstNameSearchField, " +
+                "u.functions as functions, u.groups as groups, u.headTeacher as headTeacher, u.id as id, u.isTeacher as isTeacher," +
+                " u.joinKey as joinKey, u.lastName as lastName, u.lastNameSearchField as lastNameSearchField, " +
+                "u.oldClasses as oldClasses, u.profiles as profiles, u.structures as structures, " +
+                "u.subjectTaught as subjectTaught, u.surname as surname, u.teaches as teaches, u.title as title";
         neo4j.execute(query, new JsonObject().put("idEtablissement", idEtablissement), Neo4jResult.validResultHandler(handler));
     }
 

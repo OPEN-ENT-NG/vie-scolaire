@@ -129,8 +129,9 @@ export class Service implements Selectable{
 
     getDevoirsService(){
         try {
-            return http.get("/competences/devoirs/service"+
-                `?id_matiere=${this.id_matiere}` +
+            return http.get("/competences/devoirs/service" +
+                `?idEtablissement=${this.id_etablissement}` +
+                `&id_matiere=${this.id_matiere}` +
                 `&id_groups=${this.id_groups}` +
                 `&id_enseignant=${this.id_enseignant}`);
         } catch (e) {
@@ -140,7 +141,7 @@ export class Service implements Selectable{
 
     updateDevoirsService(devoirs, matiere) {
         try {
-            return http.put("/competences/devoirs/service", {
+            return http.put("/competences/devoirs/service?idEtablissement=" + this.id_etablissement, {
                 id_devoirs: devoirs,
                 id_matiere: matiere
             });

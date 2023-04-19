@@ -22,6 +22,7 @@ import org.entcore.common.user.*;
 import java.util.*;
 import java.util.stream.*;
 
+import static fr.openent.Viescolaire.FEEDER_ADDRESS;
 import static fr.openent.Viescolaire.VSCO_SCHEMA;
 
 public class DefaultInitService implements InitService {
@@ -148,6 +149,24 @@ public class DefaultInitService implements InitService {
                         .onSuccess(success -> promise.complete());
             }
         }));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> initSubjects(String structureId, String label, String code) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject subject = new JsonObject()
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.LABEL, label)
+                .put(Field.CODE, code);
+
+        JsonObject action = new JsonObject()
+                .put(Field.ACTION, "manual-add-subject")
+                .put(Field.SUBJECT, subject);
+
+        eb.request(FEEDER_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
 
         return promise.future();
     }

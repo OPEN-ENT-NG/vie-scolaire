@@ -787,5 +787,6 @@
   "viescolaire.time.grid": "Grille horaire",
   "viescolaire.time.grid.lunch": "Midi",
   "viescolaire.time.grid.morning.prefix": "M",
-  "viescolaire.time.grid.afternoon.prefix": "AM"
+  "viescolaire.time.grid.afternoon.prefix": "AM",
+  "viescolaire.default.subject.name": "ÉCOLE"
 }

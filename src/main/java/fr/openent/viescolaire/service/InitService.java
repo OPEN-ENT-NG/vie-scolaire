@@ -22,4 +22,5 @@ public interface InitService {
 
     Future<Void> initTimeSlots(String structureId, String structureName, User owner, InitFormTimetable timetable, String locale, String acceptLanguage);
 
+    Future<JsonObject> initSubjects(String structureId, String label, String code);
 }

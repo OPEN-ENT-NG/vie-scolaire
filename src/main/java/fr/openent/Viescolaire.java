@@ -74,7 +74,8 @@ public class Viescolaire extends BaseServer {
 
     public static final String COMPETENCES_BUS_ADDRESS = "competences";
     public static final String VIESCO_BUS_ADDRESS = "viescolaire";
-    public final static String DIRECTORY_ADDRESS = "directory";
+    public static final String DIRECTORY_ADDRESS = "directory";
+    public static final String FEEDER_ADDRESS = "entcore.feeder";
     // rights
     public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
     public static final String SEARCH = "viescolaire.search";

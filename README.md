@@ -49,7 +49,8 @@ gradle copyMod
         "edt": false,
         "diary": false,
         "massmailing": false
-    }
+    },
+    "initDefaultSubject": "ÉCOLE"
   }
 }
 

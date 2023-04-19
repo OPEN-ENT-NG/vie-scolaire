@@ -26,5 +26,6 @@
   "viescolaire.time.grid": "Time grid",
   "viescolaire.time.grid.lunch": "Midday",
   "viescolaire.time.grid.morning.prefix": "M",
-  "viescolaire.time.grid.afternoon.prefix": "A"
+  "viescolaire.time.grid.afternoon.prefix": "A",
+  "viescolaire.default.subject.name": "SCHOOL"
 }

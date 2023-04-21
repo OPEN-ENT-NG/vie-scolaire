@@ -1,9 +1,12 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.*;
+import fr.openent.viescolaire.helper.*;
+import fr.openent.viescolaire.model.*;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -13,7 +16,20 @@ import org.entcore.common.sql.SqlResult;
 
 public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
 
-    protected static final Logger log = LoggerFactory.getLogger(DefaultCoursService.class);
+    protected static final Logger log = LoggerFactory.getLogger(DefaultPeriodeAnneeService.class);
+
+    @Override
+    public Future<Period> getPeriodeAnnee(String structureId) {
+        Promise<Period> promise = Promise.promise();
+        this.getPeriodeAnnee(structureId, res -> {
+            if (res.isRight()) {
+                promise.complete(new Period(res.right().getValue()));
+            } else {
+                promise.fail(res.left().getValue());
+            }
+        });
+        return promise.future();
+    }
 
     @Override
     public void getPeriodeAnnee(String structure, Handler<Either<String, JsonObject>> handler) {
@@ -34,20 +50,28 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
     }
 
     @Override
+    public Future<JsonArray> createPeriode(Period period, boolean isOpening) {
+        Promise<JsonArray> promise = Promise.promise();
+        this.createPeriode(period.toJson(), isOpening, FutureHelper.handlerEitherPromise(promise,
+                String.format("[Viescolaire@%s::createPeriode] Failed to create period", this.getClass().getSimpleName())));
+        return promise.future();
+    }
+
+    @Override
     public void createPeriode(JsonObject periode, boolean isOpening, Handler<Either<String, JsonArray>> handler) {
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD + "(" +
                 "start_date, end_date, description, id_structure, is_opening, code) " +
                 "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?";
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
-                .add(periode.getString("start_date"))
-                .add(periode.getString("end_date"))
-                .add(periode.getString("description"))
-                .add(periode.getString("id_structure"))
+                .add(periode.getString(Field.START_DATE))
+                .add(periode.getString(Field.END_DATE))
+                .add(periode.getString(Field.DESCRIPTION))
+                .add(periode.getString(Field.ID_STRUCTURE))
                 .add(isOpening);
-        if (periode.containsKey("code")) {
-            params.add("YEAR");
+        if (periode.containsKey(Field.CODE)) {
+            params.add(PeriodeCode.YEAR);
         }
-        else params.add("EXCLUSION");
+        else params.add(PeriodeCode.EXCLUSION);
         query += ", ? ";
         query += ") RETURNING *;";
 
@@ -56,15 +80,23 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
 
 
     @Override
+    public Future<JsonArray> updatePeriode(Integer id, Period period, boolean isOpening) {
+        Promise<JsonArray> promise = Promise.promise();
+        this.updatePeriode(id, period.toJson(), isOpening, FutureHelper.handlerEitherPromise(promise,
+                String.format("[Viescolaire@%s::updatePeriode] Failed to update period", this.getClass().getSimpleName())));
+        return promise.future();
+    }
+
+    @Override
     public void updatePeriode(Integer id, JsonObject periode, boolean isOpening, Handler<Either<String, JsonArray>> handler) {
         String query = "UPDATE "+ Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
                 " SET start_date= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), end_date = to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), " +
                 "description= ?, id_structure= ?" + " WHERE id = ? RETURNING *;";
         JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
-                .add(periode.getString("start_date"))
-                .add(periode.getString("end_date"))
-                .add(periode.getString("description"))
-                .add(periode.getString("id_structure"))
+                .add(periode.getString(Field.START_DATE))
+                .add(periode.getString(Field.END_DATE))
+                .add(periode.getString(Field.DESCRIPTION))
+                .add(periode.getString(Field.ID_STRUCTURE))
                 .add(id);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));

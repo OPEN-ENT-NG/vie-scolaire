@@ -32,6 +32,7 @@ public abstract class InitWorker extends AbstractVerticle {
 
     protected SubjectModel mainSubject;
     protected InitService initService;
+    protected PeriodeAnneeService periodeAnneeService;
 
     @Override
     public void start() {
@@ -43,6 +44,7 @@ public abstract class InitWorker extends AbstractVerticle {
         ServiceFactory serviceFactory = new ServiceFactory(vertx.eventBus(), Sql.getInstance(), Neo4j.getInstance(), MongoDb.getInstance());
 
         initService = new DefaultInitService(serviceFactory);
+        periodeAnneeService = new DefaultPeriodeAnneeService();
 
         vertx.eventBus().consumer(this.getClass().getName(), this::run);
     }
@@ -60,6 +62,7 @@ public abstract class InitWorker extends AbstractVerticle {
 
         FutureHelper.all(Arrays.asList(initTimeSlots(), initSubjects()))
                 .compose(r -> initServices())
+                .compose(r -> initSchoolYear())
                 .compose(r -> initExclusionPeriods())
                 .compose(r -> initCourses());
     }
@@ -70,6 +73,7 @@ public abstract class InitWorker extends AbstractVerticle {
 
     protected abstract Future<Void> initServices();
 
+    protected abstract Future<Void> initSchoolYear();
     protected abstract Future<Void> initExclusionPeriods();
 
     protected abstract Future<Void> initCourses();

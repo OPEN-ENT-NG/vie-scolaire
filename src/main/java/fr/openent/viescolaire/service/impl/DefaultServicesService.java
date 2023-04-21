@@ -4,9 +4,8 @@ package fr.openent.viescolaire.service.impl;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.Field;
 import fr.openent.viescolaire.core.enums.ServicesFieldEnum;
-import fr.openent.viescolaire.helper.FutureHelper;
-import fr.openent.viescolaire.model.MultiTeaching;
-import fr.openent.viescolaire.model.ServiceModel;
+import fr.openent.viescolaire.helper.*;
+import fr.openent.viescolaire.model.*;
 import fr.openent.viescolaire.service.MultiTeachingService;
 import fr.openent.viescolaire.service.ServicesService;
 import fr.openent.viescolaire.service.UtilsService;
@@ -27,6 +26,7 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 
 import java.util.*;
+import java.util.stream.*;
 
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static java.util.Objects.isNull;
@@ -53,65 +53,88 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         this.eb = eb;
     }
 
+    @Override
+    public Future<JsonObject> createService(InitServiceModel service) {
+        Promise<JsonObject> promise = Promise.promise();
+        this.createService(service.toJson(), FutureHelper.handlerEitherPromise(promise,
+                String.format("[Viescolaire@%s::createService] Failed to create service", this.getClass().getSimpleName())));
+        return promise.future();
+    }
+
+    @Override
     public void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler) {
+        List<TransactionElement> statements = new ArrayList<>();
+
+        List<String> groupIds = oService.getJsonArray(Field.ID_GROUPES).stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .collect(Collectors.toList());
+
+        for (String id_groupe : groupIds) {
+            statements.add(this.createServiceForGroup(oService, id_groupe));
+        }
+
+        String message = String.format("[Viescolaire@%s::createService] Failed to create service", this.getClass().getSimpleName());
+
+        TransactionHelper.executeTransaction(statements, message)
+                        .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
+                        .onSuccess(success -> handler.handle(new Either.Right<>(new JsonObject().put(Field.SUCCESS, true))));
+    }
+
+    private TransactionElement createServiceForGroup(JsonObject oService, String groupId) {
+        JsonArray values = new JsonArray();
         String query = "";
         String columns = "id_matiere, id_groupe, id_enseignant, coefficient";
         String params = "?,?,?,?";
-        JsonArray values = new JsonArray();
 
-        for (Object id_groupe : oService.getJsonArray("id_groupes")) {
+        values.add(oService.getString(Field.ID_MATIERE));
+        values.add(groupId);
+        values.add(oService.getString(Field.ID_ENSEIGNANT));
+        values.add(oService.getValue(Field.COEFFICIENT));
 
-            values.add(oService.getString("id_matiere"));
-            values.add(id_groupe);
-            values.add(oService.getString("id_enseignant"));
-            values.add(oService.getValue("coefficient"));
-
-            columns = "id_matiere, id_groupe, id_enseignant, coefficient";
-            params = "?,?,?,?";
-
-            if (oService.containsKey("id_etablissement")) {
-                columns += ", id_etablissement";
-                params += ",?";
-                values.add(oService.getString("id_etablissement"));
-            }
-
-            if (oService.containsKey("modalite")) {
-                columns += ", modalite";
-                params += ",?";
-                values.add(oService.getString("modalite"));
-            }
-
-            if (oService.containsKey("evaluable")) {
-                columns += ", evaluable";
-                params += ",?";
-                values.add(oService.getBoolean("evaluable"));
-            }
-
-            query += "INSERT INTO " + this.resourceTable + " (" + columns + ") "
-                    + "VALUES (" + params + ") ON CONFLICT (id_enseignant, id_matiere, id_groupe) DO UPDATE SET";
-
-            if (oService.containsKey("modalite")) {
-                query += " modalite=?";
-                values.add(oService.getValue("modalite"));
-            }
-            if (oService.containsKey("evaluable")) {
-                query += oService.containsKey("modalite") ? ", evaluable=?" : " evaluable=?";
-                values.add(oService.getBoolean("evaluable"));
-            }
-            if (oService.containsKey(COEFFICIENT)) {
-                query += oService.containsKey("modalite") || oService.containsKey("evaluable") ? ", coefficient=?" : " coefficient=?";
-                values.add(oService.getLong(COEFFICIENT));
-            }
-            if (oService.containsKey("is_visible")) {
-                query += oService.containsKey("modalite") || oService.containsKey("evaluable")
-                        || oService.containsKey(COEFFICIENT) ? ", is_visible=?" : " is_visible=?";
-                values.add(oService.getBoolean("is_visible"));
-            }
-
-            query += "; ";
+        if (oService.containsKey(Field.ID_ETABLISSEMENT)) {
+            columns += ", id_etablissement";
+            params += ",?";
+            values.add(oService.getString(Field.ID_ETABLISSEMENT));
         }
 
-        Sql.getInstance().prepared(query, values, validUniqueResultHandler(handler));
+        if (oService.containsKey(Field.MODALITE)) {
+            columns += ", modalite";
+            params += ",?";
+            values.add(oService.getString(Field.MODALITE));
+        }
+
+        if (oService.containsKey(Field.EVALUABLE)) {
+            columns += ", evaluable";
+            params += ",?";
+            values.add(oService.getBoolean(Field.EVALUABLE));
+        }
+
+        query += "INSERT INTO " + this.resourceTable + " (" + columns + ") "
+                + "VALUES (" + params + ") ON CONFLICT (id_enseignant, id_matiere, id_groupe) DO UPDATE SET";
+
+        if (oService.containsKey(Field.MODALITE)) {
+            query += " modalite=?";
+            values.add(oService.getValue(Field.MODALITE));
+        }
+        if (oService.containsKey(Field.EVALUABLE)) {
+            query += oService.containsKey(Field.MODALITE) ? ", evaluable=?" : " evaluable=?";
+            values.add(oService.getBoolean(Field.EVALUABLE));
+        }
+        if (oService.containsKey(Field.COEFFICIENT)) {
+            query += oService.containsKey(Field.MODALITE) || oService.containsKey(Field.EVALUABLE)
+                    ? ", coefficient=?" : " coefficient=?";
+            values.add(oService.getLong(Field.COEFFICIENT));
+        }
+        if (oService.containsKey(Field.IS_VISIBLE)) {
+            query += oService.containsKey(Field.MODALITE) || oService.containsKey(Field.EVALUABLE)
+                    || oService.containsKey(Field.COEFFICIENT) ? ", is_visible=?" : " is_visible=?";
+            values.add(oService.getBoolean(Field.IS_VISIBLE));
+        }
+
+        query += "; ";
+
+        return new TransactionElement(query, values);
     }
 
     public void getServicesSQL(String idEtablissement, JsonObject oService, Handler<Either<String, JsonArray>> handler) {

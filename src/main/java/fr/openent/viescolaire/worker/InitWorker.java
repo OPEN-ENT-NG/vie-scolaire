@@ -2,6 +2,7 @@ package fr.openent.viescolaire.worker;
 
 import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.helper.*;
+import fr.openent.viescolaire.model.*;
 import fr.openent.viescolaire.model.InitForm.*;
 import fr.openent.viescolaire.model.Person.*;
 import fr.openent.viescolaire.service.*;
@@ -28,6 +29,8 @@ public abstract class InitWorker extends AbstractVerticle {
     // I18N PARAMS
     protected String locale;
     protected String acceptLanguage;
+
+    protected SubjectModel mainSubject;
     protected InitService initService;
 
     @Override

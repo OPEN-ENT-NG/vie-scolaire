@@ -19,6 +19,8 @@ public class ServiceFactory {
     private final GroupingService groupingService;
 
     private final InitService initService;
+    private final UserService userService;
+    private final ServicesService servicesService;
 
     public ServiceFactory(EventBus eb, Sql sql, Neo4j neo4j, MongoDb mongoDb) {
         this.eb = eb;
@@ -30,6 +32,8 @@ public class ServiceFactory {
         this.timeSlotService = new DefaultTimeSlotService(this);
         this.groupingService = new DefaultGroupingService(this);
         this.initService = new DefaultInitService(this);
+        this.userService = new DefaultUserService(eb);
+        this.servicesService = new DefaultServicesService(eb);
     }
 
     public TimeSlotService timeSlotService() {
@@ -50,6 +54,14 @@ public class ServiceFactory {
 
     public InitService initService() {
         return this.initService;
+    }
+
+    public UserService userService() {
+        return this.userService;
+    }
+
+    public ServicesService servicesService() {
+        return this.servicesService;
     }
 
     public EventBus getEventbus() {

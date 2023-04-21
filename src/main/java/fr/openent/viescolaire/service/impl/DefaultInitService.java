@@ -34,6 +34,9 @@ public class DefaultInitService implements InitService {
     private static final String SLOTPROFILE_COLLECTION = "slotprofile";
 
     private final TimeSlotService timeSlotService;
+    private final UserService userService;
+
+    private final ServicesService servicesService;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultInitService.class);
     public DefaultInitService(ServiceFactory serviceFactory) {
         this.neo4j = serviceFactory.neo4j();
@@ -41,6 +44,8 @@ public class DefaultInitService implements InitService {
         this.mongoDb = serviceFactory.mongoDb();
         this.eb = serviceFactory.getEventbus();
         this.timeSlotService = serviceFactory.timeSlotService();
+        this.userService = serviceFactory.userService();
+        this.servicesService = serviceFactory.servicesService();
     }
 
     @Override
@@ -171,5 +176,57 @@ public class DefaultInitService implements InitService {
         return promise.future();
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public Future<JsonObject> initServices(String structureId, SubjectModel subject) {
+        Promise<JsonObject> promise = Promise.promise();
+        this.userService.getTeachersWithClassGroupIds(structureId)
+                .onFailure(fail -> {
+                    LOGGER.error(String.format("[Viescolaire@%s::initServices] Failed to retrieve teachers with classes/groups",
+                            this.getClass().getSimpleName()), fail);
+                    promise.fail(fail);
+                })
+                .onSuccess(teachers -> {
+                    List<Future<JsonObject>> createServiceFutures = new ArrayList<>();
 
+                    teachers.stream()
+                            .filter(JsonObject.class::isInstance)
+                            .map(JsonObject.class::cast)
+                            .collect(Collectors.toList()).forEach(teacher -> {
+                                String teacherId = teacher.getString(Field.ID);
+                                List<String> classIds = teacher.getJsonArray(Field.CLASSIDS, new JsonArray())
+                                        .stream()
+                                        .filter(String.class::isInstance)
+                                        .map(String.class::cast)
+                                        .collect(Collectors.toList());
+                                List<String> groupIds = teacher.getJsonArray(Field.GROUPIDS, new JsonArray())
+                                        .stream()
+                                        .filter(String.class::isInstance)
+                                        .map(String.class::cast)
+                                        .collect(Collectors.toList());
+                                classIds.addAll(groupIds);
+
+                                if (!classIds.isEmpty()) {
+                                    InitServiceModel service = new InitServiceModel(
+                                            new JsonObject()
+                                                    .put(Field.ID_MATIERE, subject.getId())
+                                                    .put(Field.ID_GROUPES, classIds)
+                                                    .put(Field.ID_ENSEIGNANT, teacherId)
+                                                    .put(Field.ID_ETABLISSEMENT, structureId));
+
+                                    createServiceFutures.add(this.servicesService.createService(service));
+                                }
+                            });
+
+                    FutureHelper.all(createServiceFutures)
+                            .onFailure(fail -> {
+                                LOGGER.error(String.format("[Viescolaire@%s::initServices] Failed to create services: %s",
+                                        this.getClass().getSimpleName(), fail.getMessage()));
+                                promise.fail(fail.getMessage());
+                            })
+                            .onSuccess(res -> promise.complete());
+                });
+
+        return promise.future();
+    }
 }

@@ -1,7 +1,12 @@
 package fr.openent.viescolaire.worker;
 
+import fr.openent.viescolaire.core.constants.*;
+import fr.openent.viescolaire.model.*;
 import fr.wseduc.webutils.*;
 import io.vertx.core.*;
+import io.vertx.core.json.*;
+
+import java.util.*;
 
 public class InitWorker1D extends InitWorker {
     @Override
@@ -22,9 +27,17 @@ public class InitWorker1D extends InitWorker {
                 I18n.getInstance().translate("viescolaire.default.subject.name", this.locale, this.acceptLanguage));
 
         this.initService.initSubjects(this.structureId, defaultSubjectLabel, "999999")
-                .onSuccess(res -> promise.complete())
+                .onSuccess(res -> {
+                    JsonArray resArray = res.getJsonArray(Field.RESULTS, new JsonArray());
+                    if (!resArray.isEmpty()
+                            && !resArray.getJsonArray(0).isEmpty() && !resArray.getJsonArray(0).getJsonObject(0).isEmpty()) {
+                        this.mainSubject = new SubjectModel(resArray.getJsonArray(0).getJsonObject(0));
+                    }
+                    promise.complete();
+                })
                 .onFailure(fail -> {
-                    String message = String.format("[Viescolaire@%s::initSubjects] Failed to init subjects", this.getClass().getSimpleName());
+                    String message = String.format("[Viescolaire@%s::initSubjects] Failed to init subjects: %s", this.getClass().getSimpleName(),
+                            fail.getMessage());
                     promise.fail(message);
                 });
         return promise.future();
@@ -33,8 +46,13 @@ public class InitWorker1D extends InitWorker {
     @Override
     protected Future<Void> initServices() {
         Promise<Void> promise = Promise.promise();
-        //TODO : MA-1001
-        promise.complete();
+        this.initService.initServices(this.structureId, this.mainSubject)
+                .onSuccess(res -> promise.complete())
+                .onFailure(fail -> {
+                    String message = String.format("[Viescolaire@%s::initServices] Failed to init services: %s", this.getClass().getSimpleName(),
+                            fail.getMessage());
+                    promise.fail(message);
+                });
         return promise.future();
     }
 

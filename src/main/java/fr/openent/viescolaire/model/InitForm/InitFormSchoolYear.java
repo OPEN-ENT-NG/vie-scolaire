@@ -1,8 +1,11 @@
 package fr.openent.viescolaire.model.InitForm;
 import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.helper.*;
-import fr.openent.viescolaire.model.IModel;
+import fr.openent.viescolaire.model.*;
+import fr.openent.viescolaire.utils.*;
 import io.vertx.core.json.JsonObject;
+
+import static fr.openent.viescolaire.utils.DateHelper.*;
 
 public class InitFormSchoolYear implements IModel<InitFormSchoolYear> {
     private String startDate;
@@ -12,8 +15,8 @@ public class InitFormSchoolYear implements IModel<InitFormSchoolYear> {
     }
 
     public InitFormSchoolYear(JsonObject json) {
-        this.startDate = json.getString(Field.STARTDATE);
-        this.endDate = json.getString(Field.ENDDATE);
+        this.startDate = DateHelper.getDateString(json.getString(Field.STARTDATE), MONGO_FORMAT_START_DAY);
+        this.endDate = DateHelper.getDateString(json.getString(Field.ENDDATE), MONGO_FORMAT_END_DAY);
     }
 
     public String getStartDate() {
@@ -32,6 +35,14 @@ public class InitFormSchoolYear implements IModel<InitFormSchoolYear> {
     public InitFormSchoolYear setEndDate(String endDate) {
         this.endDate = endDate;
         return this;
+    }
+
+    public Period getPeriod(String structureId) {
+        return new Period()
+                .setStartDate(this.startDate)
+                .setEndDate(this.endDate)
+                .setCode(PeriodeCode.YEAR)
+                .setIdStructure(structureId);
     }
 
     @Override

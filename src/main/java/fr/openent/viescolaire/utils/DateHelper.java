@@ -15,18 +15,23 @@ public class DateHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
     public final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
     public static final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    public final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+    public static final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
     public static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     public static final String MONGO_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    public static final String MONGO_FORMAT_START_DAY = "yyyy-MM-dd 00:00:00";
+    public static final String MONGO_FORMAT_END_DAY = "yyyy-MM-dd 23:59:59";
     public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
     public static final String HOUR_MINUTES_SECONDS = "HH:mm:ss";
     public static final String HOUR_MINUTES = "HH:mm";
-
     public  final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
     private static final String  START_DATE = "startDate";
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
+
+    public static Date parse(String date) throws ParseException {
+        return date.contains("T") ? DATE_FORMATTER.parse(date) : DATE_TIME_FORMATTER.parse(date);
+    }
 
     public static Date parseDate(String dateString, String format) {
         Date date = new Date();
@@ -84,7 +89,7 @@ public class DateHelper {
         return dateA.before(dateB) || dateA.equals(dateB);
     }
 
-    public Date getDate(String dateString,SimpleDateFormat dateFormat ){
+    public static Date getDate(String dateString,SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
             date =  dateFormat.parse(dateString);
@@ -93,6 +98,24 @@ public class DateHelper {
         }
         return date ;
     }
+
+    /**
+     * Get Simple date as string
+     *
+     * @param date   date to format
+     * @param format the format wished
+     * @return Simple date format as string
+     */
+    public static String getDateString(String date, String format) {
+        try {
+            Date parsedDate = parse(date);
+            return new SimpleDateFormat(format).format(parsedDate);
+        } catch (ParseException err) {
+            LOGGER.error("[Common@DateHelper::getDateString] Failed to parse date " + date, err);
+            return date;
+        }
+    }
+
     Calendar getCalendar(String dateString, SimpleDateFormat dateFormat){
         Calendar date= Calendar.getInstance();
         try{

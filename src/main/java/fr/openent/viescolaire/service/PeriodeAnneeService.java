@@ -1,7 +1,8 @@
 package fr.openent.viescolaire.service;
 
+import fr.openent.viescolaire.model.*;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -15,7 +16,7 @@ public interface PeriodeAnneeService {
      */
 
     void getPeriodeAnnee(String structure, Handler<Either<String, JsonObject>> handler);
-
+    Future<Period> getPeriodeAnnee(String structureId);
     /**
      * List all period exclusions in database based on structure id
      *
@@ -31,6 +32,7 @@ public interface PeriodeAnneeService {
      * @param handler handler returning result
      */
     void createPeriode(JsonObject periode, boolean isOpening, Handler<Either<String, JsonArray>> handler);
+    Future<JsonArray> createPeriode(Period period, boolean isOpening);
 
     /**
      * Update an exclusion based on id
@@ -40,7 +42,7 @@ public interface PeriodeAnneeService {
      * @param handler handler returning result
      */
     void updatePeriode (Integer id, JsonObject periode, boolean isOpening, Handler<Either<String, JsonArray>> handler);
-
+    Future<JsonArray> updatePeriode(Integer id, Period period, boolean isOpening);
     /**
      * Delete provided exclusion
      * @param exclusionId exclusion to delete

@@ -6,8 +6,6 @@ import fr.wseduc.webutils.*;
 import io.vertx.core.*;
 import io.vertx.core.json.*;
 
-import java.util.*;
-
 public class InitWorker1D extends InitWorker {
     @Override
     protected Future<Void> initTimeSlots() {
@@ -53,6 +51,20 @@ public class InitWorker1D extends InitWorker {
                             fail.getMessage());
                     promise.fail(message);
                 });
+        return promise.future();
+    }
+
+    @Override
+    protected Future<Void> initSchoolYear() {
+        Promise<Void> promise = Promise.promise();
+        Period schoolYear = this.form.getSchoolYear().getPeriod(this.structureId);
+        this.periodeAnneeService.getPeriodeAnnee(this.structureId)
+                .compose(periodYear -> periodYear.getId() == null ?
+                        this.periodeAnneeService.createPeriode(schoolYear, true) :
+                        this.periodeAnneeService.updatePeriode(periodYear.getId(), schoolYear, true))
+                .onFailure(promise::fail)
+                .onSuccess(res -> promise.complete());
+
         return promise.future();
     }
 

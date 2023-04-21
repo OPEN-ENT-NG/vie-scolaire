@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.controller;
 
+import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.security.*;
 import fr.openent.viescolaire.service.PeriodeAnneeService;
 import fr.openent.viescolaire.service.impl.DefaultPeriodeAnneeService;
@@ -91,11 +92,10 @@ public class PeriodeAnneeController extends ControllerHelper {
     public void createYear(final HttpServerRequest request) {
         RequestUtils.bodyToJson(request,
                 periode -> {
-                    DateHelper dateHelper = new DateHelper();
-                    Date start_date =  dateHelper.getDate( periode.getString("start_date"), dateHelper.DATE_FORMATTER_SQL);
-                    Date end_date =  dateHelper.getDate( periode.getString("end_date"), dateHelper.DATE_FORMATTER_SQL);
-                    periode.put("code", "YEAR");
-                    if(end_date.after(start_date)) {
+                    Date start_date =  DateHelper.getDate( periode.getString(Field.START_DATE), DateHelper.DATE_FORMATTER_SQL);
+                    Date end_date =  DateHelper.getDate( periode.getString(Field.END_DATE), DateHelper.DATE_FORMATTER_SQL);
+                    periode.put(Field.CODE, PeriodeCode.YEAR);
+                    if (end_date.after(start_date)) {
                         periodeAnneeService.createPeriode(periode, true, arrayResponseHandler(request));
                     } else {
                         badRequest(request);

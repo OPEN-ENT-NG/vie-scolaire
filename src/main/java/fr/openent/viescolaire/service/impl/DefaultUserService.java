@@ -19,10 +19,11 @@ package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.*;
+import fr.openent.viescolaire.helper.*;
 import fr.openent.viescolaire.service.UserService;
 import fr.openent.viescolaire.service.UtilsService;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -787,10 +788,37 @@ public class DefaultUserService extends SqlCrudService implements UserService {
      * @param idEtablissement id de l'etablissement
      * @param handler      Handler comportant le resultat de la requete
      */
+    @Override
     public void getTeachers(String idEtablissement, Handler<Either<String, JsonArray>> handler) {
-        //String query = "MATCH (:Structure {id: {idEtablissement}})-[:ADMINISTRATIVE_ATTACHMENT]-(u:User {profiles: ['Teacher']}) RETURN u";
         String query = "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s:Structure {id: {idEtablissement}}) RETURN distinct(u)";
         neo4j.execute(query, new JsonObject().put("idEtablissement", idEtablissement), Neo4jResult.validResultHandler(handler));
+    }
+
+    @Override
+    public Future<JsonArray> getTeachersWithClassGroupIds(String structureId) {
+        Promise<JsonArray> promise = Promise.promise();
+        String query = "MATCH (s:Structure {id: {structureId}}) " +
+                "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s) " +
+                "WITH u, u.classes AS classes_externalIds, u.groups AS groups_externalIds " +
+                "UNWIND CASE " +
+                "  WHEN classes_externalIds IS NULL OR size(classes_externalIds) = 0 " +
+                "  THEN [null] " +
+                "  ELSE classes_externalIds " +
+                "END AS class_externalId " +
+                "OPTIONAL MATCH (c:Class {externalId: class_externalId})-[:BELONGS]->(s) " +
+                "WITH u, COLLECT(DISTINCT c.id) AS classIds, groups_externalIds " +
+                "UNWIND CASE " +
+                "  WHEN groups_externalIds IS NULL OR size(groups_externalIds) = 0 " +
+                "  THEN [null] " +
+                "  ELSE groups_externalIds " +
+                "END AS group_externalId " +
+                "OPTIONAL MATCH (g:Group {externalId: group_externalId})-[:DEPENDS]->(s) " +
+                "RETURN u.id AS id, u.displayName AS displayName, classIds, COLLECT(DISTINCT g.id) AS groupIds " +
+                "ORDER BY displayName";
+
+        JsonObject params = new JsonObject().put(Field.STRUCTUREID, structureId);
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(FutureHelper.handlerEitherPromise(promise)));
+        return promise.future();
     }
 
     @Override

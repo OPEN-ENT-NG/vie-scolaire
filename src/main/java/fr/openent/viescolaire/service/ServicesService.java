@@ -1,5 +1,6 @@
 package fr.openent.viescolaire.service;
 
+import fr.openent.viescolaire.model.*;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -12,6 +13,7 @@ import java.util.List;
 
 public interface ServicesService extends CrudService {
     void createService(JsonObject oService, Handler<Either<String, JsonObject>> handler);
+    Future<JsonObject> createService(InitServiceModel service);
 
     void getServicesSQL(String idEtablissement, JsonObject oService, Handler<Either<String, JsonArray>> handler) ;
 

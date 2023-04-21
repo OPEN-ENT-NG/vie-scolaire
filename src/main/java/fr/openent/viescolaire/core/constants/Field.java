@@ -103,6 +103,8 @@ public class Field<id_groupes> {
     public static final String ENTERED_END_DATE = "entered_end_date";
     public static final String CO_TEACHING = "co_teaching";
     public static final String IS_VISIBLE = "is_visible";
+
+    public static final String DESCRIPTION = "description";
     public static final String IDS_MULTITEACHINGTOUPDATE = "ids_multiTeachingToUpdate";
     public static final String IDS_MULTITEACHINGTODELETE = "ids_multiTeachingToDelete";
     public static final String DELETE = "delete";

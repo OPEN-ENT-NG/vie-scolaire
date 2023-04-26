@@ -21,8 +21,7 @@ import fr.openent.Viescolaire;
 
 public enum WorkflowActions {
     MANAGE_TROMBINOSCOPE(Viescolaire.MANAGE_TROMBINOSCOPE),
-    ADMIN_RIGHT("Viescolaire.view"),
-    COMPETENCES_ACCESS("competences.access");
+    ADMIN_RIGHT("Viescolaire.view");
 
 
     private final String actionName;

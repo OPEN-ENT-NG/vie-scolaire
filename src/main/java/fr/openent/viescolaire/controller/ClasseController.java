@@ -18,6 +18,7 @@
 package fr.openent.viescolaire.controller;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.security.AccessIfMyStructure;
 import fr.openent.viescolaire.security.AdminPersonnalTeacherRight;
 import fr.openent.viescolaire.security.StructureAdminPersonnalTeacher;
 import fr.openent.viescolaire.service.ClasseService;
@@ -113,7 +114,7 @@ public class ClasseController extends BaseController {
     @Get("/classes")
     @ApiDoc("Retourne les classes de l'établissement")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(StructureAdminPersonnalTeacher.class)
+    @ResourceFilter(AccessIfMyStructure.class)
     public void getClasses(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> {
             if (!(user != null && !request.params().isEmpty() && request.params().contains("idEtablissement"))) {

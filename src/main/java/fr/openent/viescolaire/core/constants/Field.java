@@ -160,6 +160,8 @@ public class Field<id_groupes> {
     public static final String HALFDAYS = "halfDays";
     public static final String SYSTEM = "system";
     public static final String ZONE = "zone";
+
+    public static final String INITSCHOOLYEAR = "initSchoolYear";
     public static final String INITTYPE = "initType";
     public static final String SCHOOLYEAR = "schoolYear";
     public static final String TIMETABLE = "timetable";

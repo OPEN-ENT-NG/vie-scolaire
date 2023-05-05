@@ -73,8 +73,11 @@ public class FutureHelper {
             if (event.isRight()) {
                 promise.complete(event.right().getValue());
             } else {
-                LOGGER.error(event.left().getValue());
-                promise.fail(event.left().getValue().toString());
+                String errormessage = event.left().getValue() != null ? event.left().getValue().toString() : "";
+                String message = String.format("[Viescolaire@%s::handlerEitherPromise]: %s",
+                        FutureHelper.class.getSimpleName(), errormessage);
+                LOGGER.error(message);
+                promise.fail(errormessage);
             }
         };
     }

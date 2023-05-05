@@ -71,8 +71,9 @@ public class InitWorker1D extends InitWorker {
     @Override
     protected Future<Void> initExclusionPeriods() {
         Promise<Void> promise = Promise.promise();
-        //TODO: MA-1066
-        promise.complete();
+        this.initService.initExclusionPeriod(this.structureId, this.form.getHolidays().getZone())
+                        .onFailure(promise::fail)
+                        .onSuccess(res -> promise.complete());
         return promise.future();
     }
 

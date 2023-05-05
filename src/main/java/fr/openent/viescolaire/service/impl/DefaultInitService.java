@@ -22,8 +22,7 @@ import org.entcore.common.user.*;
 import java.util.*;
 import java.util.stream.*;
 
-import static fr.openent.Viescolaire.FEEDER_ADDRESS;
-import static fr.openent.Viescolaire.VSCO_SCHEMA;
+import static fr.openent.Viescolaire.*;
 
 public class DefaultInitService implements InitService {
 
@@ -226,6 +225,33 @@ public class DefaultInitService implements InitService {
                             })
                             .onSuccess(res -> promise.complete());
                 });
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> initExclusionPeriod(String structureId, String zone) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        if (!"A".equals(zone) && !"B".equals(zone) && !"C".equals(zone)) {
+           promise.complete();
+        } else {
+            JsonObject action = new JsonObject()
+                    .put(Field.ACTION, "init")
+                    .put(Field.STRUCTUREID, structureId)
+                    .put(Field.ZONE, zone)
+                    .put(Field.INITSCHOOLYEAR, false);
+
+            eb.request(EDT_ADDRESS, action, res -> {
+                if (res.failed()) {
+                    LOGGER.error(String.format("[Viescolaire@%s::initExclusionPeriod] Failed to init exclusion period : %s",
+                            this.getClass().getSimpleName(), res.cause()), res.cause());
+                    promise.fail(res.cause());
+                } else {
+                    promise.complete((JsonObject) res.result().body());
+                }
+            });
+        }
 
         return promise.future();
     }

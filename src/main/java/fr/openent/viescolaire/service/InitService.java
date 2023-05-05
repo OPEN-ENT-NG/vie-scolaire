@@ -25,4 +25,6 @@ public interface InitService {
     Future<JsonObject> initSubjects(String structureId, String label, String code);
 
     Future<JsonObject> initServices(String structureId, SubjectModel subject);
+
+    Future<JsonObject> initExclusionPeriod(String structureId, String zone);
 }

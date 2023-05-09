@@ -114,9 +114,9 @@ public class DefaultInitService implements InitService {
     }
 
     @Override
-    public Future<Void> initTimeSlots(String structureId, String structureName, User owner, InitFormTimetable timetable,
+    public Future<SlotProfile> initTimeSlots(String structureId, String structureName, User owner, InitFormTimetable timetable,
                                       String locale, String acceptLanguage) {
-        Promise<Void> promise = Promise.promise();
+        Promise<SlotProfile> promise = Promise.promise();
 
         SlotProfile slotProfile = new SlotProfile();
 
@@ -150,7 +150,7 @@ public class DefaultInitService implements InitService {
                                     this.getClass().getSimpleName()), fail);
                             promise.fail(fail);
                         })
-                        .onSuccess(success -> promise.complete());
+                        .onSuccess(success -> promise.complete(slotProfile));
             }
         }));
 
@@ -252,6 +252,29 @@ public class DefaultInitService implements InitService {
                 }
             });
         }
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> initCourses(String structureId, String subjectId,
+                                          String startDate, String endDate, InitFormTimetable timetable,
+                                          List<Timeslot> timeslots, String userId) {
+
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject action = new JsonObject()
+                .put(Field.ACTION, "init-courses")
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.SUBJECTID, subjectId)
+                .put(Field.STARTDATE, startDate)
+                .put(Field.ENDDATE, endDate)
+                .put(Field.TIMETABLE, timetable.toJson())
+                .put(Field.TIMESLOTS, timeslots.stream().map(Timeslot::toJson).collect(Collectors.toList()))
+                .put(Field.USERID, userId);
+
+        eb.request(EDT_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
+
 
         return promise.future();
     }

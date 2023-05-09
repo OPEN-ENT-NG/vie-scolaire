@@ -5,6 +5,7 @@ import fr.openent.viescolaire.helper.*;
 import fr.openent.viescolaire.model.*;
 import fr.openent.viescolaire.model.InitForm.*;
 import fr.openent.viescolaire.model.Person.*;
+import fr.openent.viescolaire.model.SlotProfile.*;
 import fr.openent.viescolaire.service.*;
 import fr.openent.viescolaire.service.impl.*;
 import fr.wseduc.mongodb.*;
@@ -31,6 +32,7 @@ public abstract class InitWorker extends AbstractVerticle {
     protected String acceptLanguage;
 
     protected SubjectModel mainSubject;
+    protected List<Timeslot> timeslots;
     protected InitService initService;
     protected PeriodeAnneeService periodeAnneeService;
 

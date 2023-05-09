@@ -25,6 +25,8 @@ public class Field<id_groupes> {
 
     public static final String ID_CLASSES = "id_classes";
     public static final String CLASSIDS = "classIds";
+    public static final String CLASSES = "classes";
+    public static final String GROUPS = "groups";
 
     public static final String ID_CLASS = "id_class";
     public static final String CLASSID = "classId";
@@ -56,6 +58,7 @@ public class Field<id_groupes> {
     public static final String PROFILES = "profiles";
     public static final String TEACHER = "Teacher";
     public static final String TEACHERS = "teachers";
+    public static final String TEACHERIDS = "teacherIds";
     public static final String FIRSTNAME = "firstName";
     public static final String LASTNAME = "lastName";
     public static final String DISPLAYNAME = "displayName";
@@ -93,6 +96,7 @@ public class Field<id_groupes> {
     public static final String MAIN_TEACHER_ID = "main_teacher_id";
     public static final String SECOND_TEACHER_IDS = "second_teacher_ids";
     public static final String SUBJECT_ID = "subject_id";
+    public static final String SUBJECTID = "subjectId";
     public static final String CLASS_OR_GROUP_IDS = "class_or_group_ids";
     public static final String START_DATE = "start_date";
     public static final String END_DATE = "end_date";
@@ -165,6 +169,7 @@ public class Field<id_groupes> {
     public static final String INITTYPE = "initType";
     public static final String SCHOOLYEAR = "schoolYear";
     public static final String TIMETABLE = "timetable";
+    public static final String TIMESLOTS = "timeslots";
     public static final String HOLIDAYS = "holidays";
     public static final String PARAMS = "params";
 

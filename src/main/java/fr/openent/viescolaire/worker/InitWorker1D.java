@@ -12,7 +12,10 @@ public class InitWorker1D extends InitWorker {
         Promise<Void> promise = Promise.promise();
 
         this.initService.initTimeSlots(this.structureId, this.structureName, this.owner, this.form.getTimetable(), this.locale, this.acceptLanguage)
-                .onSuccess(res -> promise.complete())
+                .onSuccess(slotProfile -> {
+                    this.timeslots = slotProfile.getSlots();
+                    promise.complete();
+                })
                 .onFailure(promise::fail);
         return promise.future();
     }
@@ -45,7 +48,9 @@ public class InitWorker1D extends InitWorker {
     protected Future<Void> initServices() {
         Promise<Void> promise = Promise.promise();
         this.initService.initServices(this.structureId, this.mainSubject)
-                .onSuccess(res -> promise.complete())
+                .onSuccess(res -> {
+                    promise.complete();
+                })
                 .onFailure(fail -> {
                     String message = String.format("[Viescolaire@%s::initServices] Failed to init services: %s", this.getClass().getSimpleName(),
                             fail.getMessage());
@@ -80,8 +85,13 @@ public class InitWorker1D extends InitWorker {
     @Override
     protected Future<Void> initCourses() {
         Promise<Void> promise = Promise.promise();
-        //TODO: MA-1002
-        promise.complete();
+
+        this.initService.initCourses(this.structureId, this.mainSubject.getId(),
+                this.form.getSchoolYear().getStartDate(), this.form.getSchoolYear().getEndDate(),
+                        this.form.getTimetable(), this.timeslots, this.owner.getId())
+                        .onFailure(promise::fail)
+                        .onSuccess(res -> promise.complete());
+
         return promise.future();
     }
 

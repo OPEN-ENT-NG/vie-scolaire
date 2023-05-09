@@ -31,6 +31,7 @@ import java.util.stream.*;
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 import static java.util.Objects.isNull;
 import static org.entcore.common.sql.SqlResult.*;
+import static org.entcore.common.sql.SqlResult.validUniqueResultHandler;
 
 public class DefaultServicesService extends SqlCrudService implements ServicesService {
 
@@ -241,6 +242,7 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     }
 
 
+    @Override
     public void deleteService(JsonObject oService, JsonObject moduleServices, Handler<Either<String, JsonObject>> handler) {
         JsonArray classOrGroupIds = oService.getJsonArray("id_groups");
 
@@ -269,6 +271,20 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
                 }
             }
         }));
+    }
+
+    @Override
+    public Future<JsonObject> deleteServiceBySubjectId(String structureId, String subjectId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        String query = "DELETE FROM " + this.resourceTable + " WHERE id_etablissement = ? AND id_matiere = ?";
+        JsonArray values = new JsonArray().add(structureId).add(subjectId);
+
+        sql.prepared(query, values, validUniqueResultHandler(
+                FutureHelper.handlerEitherPromise(promise, String.format("[Viescolaire@%s::deleteServiceBySubjectId] " +
+                                "Failed to delete services",
+                        this.getClass().getSimpleName()))));
+        return promise.future();
     }
 
     private Future<JsonObject> deleteSubtopicsOfService(JsonObject oService) {

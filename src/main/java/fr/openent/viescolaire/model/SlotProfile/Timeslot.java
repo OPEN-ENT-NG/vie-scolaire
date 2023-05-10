@@ -76,4 +76,10 @@ public class Timeslot implements IModel<Timeslot> {
                 && this.startHour != null && !this.startHour.isEmpty()
                 && this.endHour != null && !this.endHour.isEmpty();
     }
+
+    public boolean isEquals(Timeslot timeslot) {
+        return this.name.equals(timeslot.getName())
+                && this.startHour.equals(timeslot.getStartHour())
+                && this.endHour.equals(timeslot.getEndHour());
+    }
 }

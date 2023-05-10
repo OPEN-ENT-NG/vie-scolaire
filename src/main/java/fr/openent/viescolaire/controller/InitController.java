@@ -80,4 +80,20 @@ public class InitController extends ControllerHelper {
             });
         });
     }
+
+    @Post("/structures/:structureId/initialize/reset")
+    @ApiDoc("Reset structure initialization")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(AdministratorRight.class)
+    public void resetInitialisation(HttpServerRequest request) {
+        String structureId = request.getParam(Field.STRUCTUREID);
+        this.initService.resetInit(structureId)
+                .onFailure(fail -> {
+                    log.error(String.format("[Viescolaire@%s::resetInitialisation] Failed to reset init: %s",
+                            this.getClass().getSimpleName(), fail.getMessage()), fail.getMessage());
+                    renderError(request);
+                })
+                .onSuccess(success -> renderJson(request, new JsonObject().put(Field.SUCCESS, Field.OK)));
+
+    }
 }

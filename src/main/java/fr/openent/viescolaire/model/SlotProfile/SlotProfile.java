@@ -6,7 +6,7 @@ import fr.openent.viescolaire.model.Person.*;
 import io.vertx.core.json.JsonObject;
 
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SlotProfile implements IModel<SlotProfile> {
@@ -110,5 +110,10 @@ public class SlotProfile implements IModel<SlotProfile> {
                 && this.schoolId != null && !this.schoolId.isEmpty()
                 && this.slots != null && !this.slots.isEmpty()
                 && this.owner != null;
+    }
+    public boolean isEquals(SlotProfile slotProfile) {
+        return this.name.equals(slotProfile.name) &&
+               this.schoolId.equals(slotProfile.schoolId) &&
+                this.slots.stream().allMatch(slot -> slotProfile.slots.stream().anyMatch(slot::isEquals));
     }
 }

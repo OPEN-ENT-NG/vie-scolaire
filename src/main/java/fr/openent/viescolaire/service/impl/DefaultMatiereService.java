@@ -18,17 +18,18 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
+import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.helper.SubjectHelper;
+import fr.openent.viescolaire.model.*;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.VertxException;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.service.impl.SqlCrudService;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -477,6 +478,29 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         };
     }
 
+    public Future<SubjectModel> getSubjectByCode(String structureId, String code) {
+        Promise<SubjectModel> promise = Promise.promise();
+        String query = "MATCH (s: Structure)<-[:SUBJECT]-(sub: Subject) " +
+                "WHERE s.id = {structureId} AND sub.code = {code} " +
+                "RETURN sub.id AS id, sub.code AS code, sub.label AS label, sub.source AS source";
+
+        JsonObject params = new JsonObject()
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.CODE, code);
+
+        neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(res -> {
+            if (res.isLeft()) {
+                String message = String.format("[Viescolaire@%s::getSubjectByCode] Failed to get subject by code %s : %s",
+                        this.getClass().getSimpleName(), code, res.left().getValue());
+                log.error(message);
+                promise.fail(res.left().getValue());
+            } else {
+                JsonObject subject = res.right().getValue();
+                promise.complete(!subject.isEmpty() ? new SubjectModel(subject) : null);
+            }
+        }));
+        return promise.future();
+    }
 
     private class Service {
 

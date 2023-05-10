@@ -197,6 +197,9 @@ public class Field<id_groupes> {
     public static final String MODALITE = "modalite";
 
     public static final String EVALUABLE = "evaluable";
+
+    public static final String SETTINGS = "settings";
+    public static final String ALLOW_MULTIPLE_SLOTS = "allow_multiple_slots";
     private Field() {
         throw new IllegalStateException("Utility class");
     }

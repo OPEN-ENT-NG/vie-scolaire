@@ -23,9 +23,16 @@ public interface InitService {
      */
     Future<Boolean> getInitializationStatus(String structureId);
 
+    /**
+     * Set initialization status for a structure
+     * @param structureId structure id
+     * @param status initialization status
+     */
+    Future<Void> setInitializationStatus(String structureId, boolean status);
+
     Future<SlotProfile> initTimeSlots(String structureId, String structureName, User owner, InitFormTimetable timetable, String locale, String acceptLanguage);
 
-    Future<JsonObject> initSubjects(String structureId, String label, String code);
+    Future<SubjectModel> initSubject(String structureId, SubjectModel subject);
 
     Future<JsonObject> initServices(String structureId, SubjectModel subject);
 
@@ -33,4 +40,6 @@ public interface InitService {
 
     Future<JsonObject> initCourses(String structureId, String subjectId, String startDate, String endDate,
                                    InitFormTimetable timetable, List<Timeslot> timeslots, String userId);
+
+    Future<Void> resetInit(String structureId);
 }

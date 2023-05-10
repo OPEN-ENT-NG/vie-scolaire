@@ -29,7 +29,7 @@ public class DefaultInitServiceTest {
 
     @Before
     public void setUp() {
-        ServiceFactory serviceFactory = new ServiceFactory(Vertx.vertx().eventBus(), sql, neo4j, mongoDb);
+        ServiceFactory serviceFactory = new ServiceFactory(Vertx.vertx().eventBus(), sql, neo4j, mongoDb, new JsonObject());
         this.initService = new DefaultInitService(serviceFactory);
     }
 

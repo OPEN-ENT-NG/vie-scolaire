@@ -65,7 +65,7 @@ public class EventBusController extends ControllerHelper {
         classeService = new DefaultClasseService();
         userService = new DefaultUserService(serviceFactory.getEventbus());
         eleveService = new DefaultEleveService();
-        matiereService = new DefaultMatiereService(serviceFactory.getEventbus());
+        matiereService = serviceFactory.matiereService();
         periodeService = new DefaultPeriodeService();
         periodeAnneeService = new DefaultPeriodeAnneeService();
         eventService = new DefaultEventService();

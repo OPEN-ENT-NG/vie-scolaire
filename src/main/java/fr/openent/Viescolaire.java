@@ -103,7 +103,7 @@ public class Viescolaire extends BaseServer {
         final Neo4j neo4j = Neo4j.getInstance();
         final MongoDb mongoDb = MongoDb.getInstance();
         final Storage storage = new StorageFactory(vertx).getStorage();
-        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j, mongoDb);
+        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j, mongoDb, config);
 
         LSUN_CONFIG = config.getJsonObject("lsun");
         UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");

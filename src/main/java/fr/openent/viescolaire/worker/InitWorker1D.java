@@ -1,10 +1,8 @@
 package fr.openent.viescolaire.worker;
 
-import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.model.*;
 import fr.wseduc.webutils.*;
 import io.vertx.core.*;
-import io.vertx.core.json.*;
 
 public class InitWorker1D extends InitWorker {
     @Override
@@ -27,13 +25,9 @@ public class InitWorker1D extends InitWorker {
         String defaultSubjectLabel = config().getString("initDefaultSubject",
                 I18n.getInstance().translate("viescolaire.default.subject.name", this.locale, this.acceptLanguage));
 
-        this.initService.initSubjects(this.structureId, defaultSubjectLabel, "999999")
+        this.initService.initSubject(this.structureId, new SubjectModel().setLabel(defaultSubjectLabel).setCode("999999"))
                 .onSuccess(res -> {
-                    JsonArray resArray = res.getJsonArray(Field.RESULTS, new JsonArray());
-                    if (!resArray.isEmpty()
-                            && !resArray.getJsonArray(0).isEmpty() && !resArray.getJsonArray(0).getJsonObject(0).isEmpty()) {
-                        this.mainSubject = new SubjectModel(resArray.getJsonArray(0).getJsonObject(0));
-                    }
+                    this.mainSubject = res;
                     promise.complete();
                 })
                 .onFailure(fail -> {
@@ -48,9 +42,7 @@ public class InitWorker1D extends InitWorker {
     protected Future<Void> initServices() {
         Promise<Void> promise = Promise.promise();
         this.initService.initServices(this.structureId, this.mainSubject)
-                .onSuccess(res -> {
-                    promise.complete();
-                })
+                .onSuccess(res -> promise.complete())
                 .onFailure(fail -> {
                     String message = String.format("[Viescolaire@%s::initServices] Failed to init services: %s", this.getClass().getSimpleName(),
                             fail.getMessage());
@@ -92,6 +84,15 @@ public class InitWorker1D extends InitWorker {
                         .onFailure(promise::fail)
                         .onSuccess(res -> promise.complete());
 
+        return promise.future();
+    }
+
+    @Override
+    protected Future<Void> setInitStatus() {
+        Promise<Void> promise = Promise.promise();
+        this.initService.setInitializationStatus(this.structureId, true)
+                .onFailure(promise::fail)
+                .onSuccess(res -> promise.complete());
         return promise.future();
     }
 

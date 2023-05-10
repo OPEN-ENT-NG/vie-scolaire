@@ -21,6 +21,7 @@ public interface ServicesService extends CrudService {
 
     void deleteService(JsonObject oService, JsonObject moduleServices, Handler<Either<String, JsonObject>> handler);
 
+    Future<JsonObject> deleteServiceBySubjectId(String structureId, String subjectId);
     void updateServices(JsonObject oServices, Handler<Either<String, JsonObject>> defaultResponseHandler);
 
     void getAllServices(String structureId, Boolean evaluable, Boolean notEvaluable,

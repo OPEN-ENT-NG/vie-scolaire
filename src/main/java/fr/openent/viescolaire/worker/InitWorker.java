@@ -43,7 +43,8 @@ public abstract class InitWorker extends AbstractVerticle {
                 this.getClass().getSimpleName(), this.getClass().getSimpleName(), initContext.deploymentID());
         log.info(launchLog);
 
-        ServiceFactory serviceFactory = new ServiceFactory(vertx.eventBus(), Sql.getInstance(), Neo4j.getInstance(), MongoDb.getInstance());
+        ServiceFactory serviceFactory = new ServiceFactory(vertx.eventBus(), Sql.getInstance(), Neo4j.getInstance(),
+                MongoDb.getInstance(), config());
 
         initService = new DefaultInitService(serviceFactory);
         periodeAnneeService = new DefaultPeriodeAnneeService();
@@ -66,7 +67,8 @@ public abstract class InitWorker extends AbstractVerticle {
                 .compose(r -> initServices())
                 .compose(r -> initSchoolYear())
                 .compose(r -> initExclusionPeriods())
-                .compose(r -> initCourses());
+                .compose(r -> initCourses())
+                .compose(r -> setInitStatus());
     }
 
     protected abstract Future<Void> initTimeSlots();
@@ -79,6 +81,8 @@ public abstract class InitWorker extends AbstractVerticle {
     protected abstract Future<Void> initExclusionPeriods();
 
     protected abstract Future<Void> initCourses();
+
+    protected abstract Future<Void> setInitStatus();
 
 
 

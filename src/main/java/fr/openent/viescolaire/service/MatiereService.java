@@ -17,9 +17,10 @@
 
 package fr.openent.viescolaire.service;
 
+import fr.openent.viescolaire.model.*;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.*;
 import org.entcore.common.service.CrudService;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -112,4 +113,13 @@ public interface MatiereService extends CrudService {
      */
     void matieresFilteredByServices(String structureId, Boolean onlyId,
                                          Handler<Either<String, JsonArray>> handler );
+
+
+    /**
+     * Get subject from code
+     * @param structureId structure identifier
+     * @param code subject code
+     * @return {@link SubjectModel} subject object
+     */
+    Future<SubjectModel> getSubjectByCode(String structureId, String code);
 }

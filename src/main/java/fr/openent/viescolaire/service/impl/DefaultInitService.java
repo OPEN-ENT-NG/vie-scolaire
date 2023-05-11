@@ -163,7 +163,9 @@ public class DefaultInitService implements InitService {
                     } else {
                         return this.createSlotProfile(structureId, slotProfile, timetable);
                     }
-                });
+                })
+                .onFailure(promise::fail)
+                .onSuccess(promise::complete);
 
         return promise.future();
     }
@@ -182,6 +184,8 @@ public class DefaultInitService implements InitService {
                                 this.getClass().getSimpleName(), res.left().getValue());
                         LOGGER.error(message);
                         promise.fail(res.left().getValue());
+                    } else {
+                        promise.complete(null);
                     }
                 }));
 
@@ -351,6 +355,32 @@ public class DefaultInitService implements InitService {
         eb.request(EDT_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
 
 
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> initPresences(String structureId, String userId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject action = new JsonObject()
+                .put(Field.ACTION, "init-presences")
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.USERID, userId);
+
+        eb.request(PRESENCES_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> setInitPresencesSettings(String structureId) {
+        Promise<JsonObject> promise = Promise.promise();
+        JsonObject action = new JsonObject()
+                .put(Field.ACTION, "update-settings")
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.SETTINGS, new JsonObject().put(Field.ALLOW_MULTIPLE_SLOTS, false));
+
+        eb.request(PRESENCES_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
         return promise.future();
     }
 

@@ -88,6 +88,20 @@ public class InitWorker1D extends InitWorker {
     }
 
     @Override
+    protected Future<Void> initPresences() {
+        Promise<Void> promise = Promise.promise();
+        this.initService.initPresences(this.structureId, this.owner.getId())
+                .compose(done -> this.initService.setInitPresencesSettings(this.structureId))
+                .onFailure(fail -> {
+                    String message = String.format("[Viescolaire@%s::initPresences] Failed to init presences: %s", this.getClass().getSimpleName(),
+                            fail.getMessage());
+                    promise.fail(message);
+                })
+                .onSuccess(res -> promise.complete());
+        return promise.future();
+    }
+
+    @Override
     protected Future<Void> setInitStatus() {
         Promise<Void> promise = Promise.promise();
         this.initService.setInitializationStatus(this.structureId, true)

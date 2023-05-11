@@ -85,6 +85,9 @@ public class InitFormTimetable implements IModel<InitFormTimetable> {
         boolean lunchAdded = false;
         String lunchStart = null;
 
+        String endOfMorning = null;
+        String startOfAfternoon = null;
+
         for (int i = 0; i < nbHours; i++) {
             String currentTime = DateHelper.addHour(this.morning.getString(Field.STARTHOUR), i, DateHelper.HOUR_MINUTES);
             String nextTime = DateHelper.addHour(currentTime, 1, DateHelper.HOUR_MINUTES);
@@ -102,11 +105,19 @@ public class InitFormTimetable implements IModel<InitFormTimetable> {
             if (!lunchAdded) {
                 // Add morning timeslot
                 slots.add(new Timeslot(morningPrefix + (i + 1), currentTime, nextTime));
+                endOfMorning = nextTime;
             } else {
                 // Add afternoon timeslot
+                if (startOfAfternoon == null) {
+                    startOfAfternoon = currentTime;
+                }
                 slots.add(new Timeslot(afternoonPrefix + (++afternoonIndex), currentTime, nextTime));
             }
         }
+
+        // Adjust morning and afternoon start/end time in timetable from the generated slots
+        this.getMorning().put(Field.ENDHOUR, endOfMorning);
+        this.getAfternoon().put(Field.STARTHOUR, startOfAfternoon);
 
         return slots;
     }

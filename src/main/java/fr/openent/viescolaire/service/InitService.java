@@ -42,4 +42,8 @@ public interface InitService {
                                    InitFormTimetable timetable, List<Timeslot> timeslots, String userId);
 
     Future<Void> resetInit(String structureId);
+
+    Future<JsonObject> initPresences(String structureId, String userId);
+
+    Future<JsonObject> setInitPresencesSettings(String structureId);
 }

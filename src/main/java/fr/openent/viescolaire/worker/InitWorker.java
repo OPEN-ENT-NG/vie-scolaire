@@ -68,6 +68,7 @@ public abstract class InitWorker extends AbstractVerticle {
                 .compose(r -> initSchoolYear())
                 .compose(r -> initExclusionPeriods())
                 .compose(r -> initCourses())
+                .compose(r -> initPresences())
                 .compose(r -> setInitStatus());
     }
 
@@ -81,6 +82,8 @@ public abstract class InitWorker extends AbstractVerticle {
     protected abstract Future<Void> initExclusionPeriods();
 
     protected abstract Future<Void> initCourses();
+
+    protected abstract Future<Void> initPresences();
 
     protected abstract Future<Void> setInitStatus();
 

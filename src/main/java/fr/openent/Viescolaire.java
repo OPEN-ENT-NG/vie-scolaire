@@ -78,6 +78,7 @@ public class Viescolaire extends BaseServer {
     public static final String FEEDER_ADDRESS = "entcore.feeder";
 
     public static final String EDT_ADDRESS = "fr.cgi.edt";
+    public static final String PRESENCES_ADDRESS = "fr.openent.presences";
     // rights
     public static final String MANAGE_TROMBINOSCOPE = "viescolaire.trombinoscope.manage";
     public static final String SEARCH = "viescolaire.search";

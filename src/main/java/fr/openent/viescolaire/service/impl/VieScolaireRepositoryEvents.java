@@ -18,11 +18,11 @@
 package fr.openent.viescolaire.service.impl;
 
 import fr.openent.Viescolaire;
-import fr.openent.viescolaire.service.UserService;
+import fr.openent.viescolaire.core.constants.*;
+import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.user.RepositoryEvents;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -30,7 +30,6 @@ import io.vertx.core.logging.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 
 /**
@@ -40,11 +39,13 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     private static final Logger log = LoggerFactory.getLogger(VieScolaireRepositoryEvents.class);
     private final UserService userService;
+    private final InitService initService;
     private final JsonObject config;
 
-    public VieScolaireRepositoryEvents(EventBus eb, JsonObject config) {
-        userService = new DefaultUserService(eb);
-        this.config = config;
+    public VieScolaireRepositoryEvents(ServiceFactory serviceFactory) {
+        userService = serviceFactory.userService();
+        initService = serviceFactory.initService();
+        this.config = serviceFactory.config();
     }
 
     @Override
@@ -139,8 +140,17 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
 
     }
 
+    @Override
     public void transition(JsonObject structure) {
-        log.info("[VieScolaireRepositoryEvents] : transition event is not implemented");
+        this.initService.setInitializationStatus(structure.getString(Field.ID), false)
+                .onFailure(fail -> {
+                    String message = String.format("[Viescolaire@%s::transition] An error occurred when setting " +
+                            "initialization status : %s", this.getClass().getSimpleName(), fail.getMessage());
+                    log.error(message);
+                })
+                .onSuccess(success -> log.info(String.format("[Viescolaire@%s::transition] Initialization status " +
+                        "successfully set to false for structure %s", this.getClass().getSimpleName(),
+                        structure.getString(Field.ID))));
     }
 
 }

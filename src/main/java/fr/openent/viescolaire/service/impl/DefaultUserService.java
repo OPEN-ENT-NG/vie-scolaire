@@ -802,25 +802,19 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     }
 
     @Override
-    public Future<JsonArray> getTeachersWithClassGroupIds(String structureId) {
+    public Future<JsonArray> getTeachersWithClassIds(String structureId) {
         Promise<JsonArray> promise = Promise.promise();
-        String query = "MATCH (s:Structure {id: {structureId}}) " +
+        String query =  "MATCH (s:Structure {id: {structureId}}) " +
                 "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s) " +
-                "WITH u, u.classes AS classes_externalIds, u.groups AS groups_externalIds " +
+                "WITH u, u.classes AS classes_externalIds " +
                 "UNWIND CASE " +
                 "  WHEN classes_externalIds IS NULL OR size(classes_externalIds) = 0 " +
                 "  THEN [null] " +
                 "  ELSE classes_externalIds " +
                 "END AS class_externalId " +
                 "OPTIONAL MATCH (c:Class {externalId: class_externalId})-[:BELONGS]->(s) " +
-                "WITH u, COLLECT(DISTINCT c.id) AS classIds, groups_externalIds " +
-                "UNWIND CASE " +
-                "  WHEN groups_externalIds IS NULL OR size(groups_externalIds) = 0 " +
-                "  THEN [null] " +
-                "  ELSE groups_externalIds " +
-                "END AS group_externalId " +
-                "OPTIONAL MATCH (g:Group {externalId: group_externalId})-[:DEPENDS]->(s) " +
-                "RETURN u.id AS id, u.displayName AS displayName, classIds, COLLECT(DISTINCT g.id) AS groupIds " +
+                "WITH u, COLLECT(DISTINCT c.id) AS classIds " +
+                "RETURN u.id AS id, u.displayName AS displayName, classIds " +
                 "ORDER BY displayName";
 
         JsonObject params = new JsonObject().put(Field.STRUCTUREID, structureId);

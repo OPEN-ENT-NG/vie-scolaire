@@ -140,13 +140,16 @@ public class DefaultInitService implements InitService {
                                              String locale, String acceptLanguage) {
         Promise<SlotProfile> promise = Promise.promise();
 
+        // Copy timetable to avoid modifying the original object (start and end date can be modified here,
+        // but are used for courses)
+        InitFormTimetable timetableCopy = new InitFormTimetable(timetable.toJson());
         SlotProfile slotProfile = new SlotProfile();
 
         slotProfile.setId(UUID.randomUUID().toString());
         slotProfile.setName(String.format("%s %s", I18n.getInstance().translate("viescolaire.time.grid",
                 locale, acceptLanguage), structureName));
         slotProfile.setSchoolId(structureId);
-        slotProfile.setSlots(timetable.getSlots(
+        slotProfile.setSlots(timetableCopy.getSlots(
                 I18n.getInstance().translate("viescolaire.time.grid.morning.prefix", locale, acceptLanguage),
                 I18n.getInstance().translate("viescolaire.time.grid.afternoon.prefix", locale, acceptLanguage),
                 I18n.getInstance().translate("viescolaire.time.grid.lunch", locale, acceptLanguage)));
@@ -159,7 +162,7 @@ public class DefaultInitService implements InitService {
                     if (res != null) {
                         return Future.succeededFuture(res);
                     } else {
-                        return this.createSlotProfile(structureId, slotProfile, timetable);
+                        return this.createSlotProfile(structureId, slotProfile, timetableCopy);
                     }
                 })
                 .onFailure(promise::fail)
@@ -256,7 +259,8 @@ public class DefaultInitService implements InitService {
     @SuppressWarnings("unchecked")
     public Future<JsonObject> initServices(String structureId, SubjectModel subject) {
         Promise<JsonObject> promise = Promise.promise();
-        this.userService.getTeachersWithClassGroupIds(structureId)
+        this.servicesService.deleteServiceBySubjectId(structureId, subject.getId())
+                .compose(v -> this.userService.getTeachersWithClassIds(structureId))
                 .onFailure(fail -> {
                     LOGGER.error(String.format("[Viescolaire@%s::initServices] Failed to retrieve teachers with classes/groups",
                             this.getClass().getSimpleName()), fail);
@@ -386,16 +390,14 @@ public class DefaultInitService implements InitService {
     public Future<Void> resetInit(String structureId) {
         Promise<Void> promise = Promise.promise();
         this.matiereService.getSubjectByCode(structureId, "999999")
-                .onFailure(promise::fail)
-                .onSuccess(subject -> this.servicesService.deleteServiceBySubjectId(structureId, subject.getId())
-                        .compose(res -> this.resetCourses(structureId, subject.getId()))
-                        .compose(res -> this.setInitializationStatus(structureId, false))
-                        .onSuccess(res -> promise.complete())
-                        .onFailure(fail -> {
-                            LOGGER.error(String.format("[Viescolaire@%s::resetInit] Failed to reset init : %s",
-                                    this.getClass().getSimpleName(), fail.getMessage()), fail);
-                            promise.fail(fail);
-                        }));
+                .compose(subject -> this.resetCourses(structureId, subject.getId()))
+                .compose(res -> this.setInitializationStatus(structureId, false))
+                .onSuccess(res -> promise.complete())
+                .onFailure(fail -> {
+                    LOGGER.error(String.format("[Viescolaire@%s::resetInit] Failed to reset init : %s",
+                            this.getClass().getSimpleName(), fail.getMessage()), fail);
+                    promise.fail(fail);
+                });
 
         return promise.future();
     }

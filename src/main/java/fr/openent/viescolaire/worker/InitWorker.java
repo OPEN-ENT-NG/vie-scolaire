@@ -14,6 +14,7 @@ import io.vertx.core.eventbus.*;
 import io.vertx.core.json.*;
 import io.vertx.core.logging.*;
 import org.entcore.common.neo4j.*;
+import org.entcore.common.notification.*;
 import org.entcore.common.sql.*;
 
 import java.util.*;
@@ -33,6 +34,8 @@ public abstract class InitWorker extends AbstractVerticle {
 
     protected SubjectModel mainSubject;
     protected List<Timeslot> timeslots;
+
+    private TimelineHelper timelineHelper;
     protected InitService initService;
     protected PeriodeAnneeService periodeAnneeService;
 
@@ -45,6 +48,8 @@ public abstract class InitWorker extends AbstractVerticle {
 
         ServiceFactory serviceFactory = new ServiceFactory(vertx.eventBus(), Sql.getInstance(), Neo4j.getInstance(),
                 MongoDb.getInstance(), config());
+
+        timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), config());
 
         initService = new DefaultInitService(serviceFactory);
         periodeAnneeService = new DefaultPeriodeAnneeService();
@@ -69,7 +74,33 @@ public abstract class InitWorker extends AbstractVerticle {
                 .compose(r -> initExclusionPeriods())
                 .compose(r -> initCourses())
                 .compose(r -> initPresences())
-                .compose(r -> setInitStatus());
+                .compose(r -> setInitStatus())
+                .compose(r -> sendNotification(owner.getId(), false))
+                .onSuccess(r -> {
+                    log.info(String.format("[Viescolaire@%s::run] Structure %s initialized",
+                            this.getClass().getSimpleName(), structureId));
+                    event.reply(new JsonObject().put(Field.STATUS,Field.OK));
+                })
+                .onFailure(err -> {
+                    log.error(String.format("[Viescolaire@%s::run] Failed to initialize structure %s : %s",
+                            this.getClass().getSimpleName(), structureId, err.getMessage()), err);
+                    sendNotification(owner.getId(), true);
+                });
+    }
+
+    protected Future<Void> sendNotification(String userId, boolean isError) {
+        Promise<Void> promise = Promise.promise();
+
+        JsonObject params = new JsonObject()
+                .put(Field.PUSHNOTIF, new JsonObject()
+                    .put(Field.TITLE,"push.notif.viescolaire.new.notification")
+                    .put(Field.BODY, ""));
+
+        timelineHelper.notifyTimeline(null, isError ? "viescolaire.initialization_error"
+                        : "viescolaire.initialization_done", null,
+                Collections.singletonList(userId), userId, params);
+        promise.complete();
+        return promise.future();
     }
 
     protected abstract Future<Void> initTimeSlots();

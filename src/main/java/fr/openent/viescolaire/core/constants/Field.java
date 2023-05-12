@@ -52,6 +52,22 @@ public class Field<id_groupes> {
     public static final String USER_TIMESLOT_CLASS_NOT_SAME_STRUCTURE = "Class, timeslot and user must be in the same structure";
     public static final String CLASS_EXISTS = "classExists";
 
+    // UserInfos
+    public static final String HASAPP = "hasApp";
+    public static final String CLASSNAMES = "classNames";
+    public static final String REALCLASSNAMES = "realClassNames";
+    public static final String STRUCTURENAMES = "structureNames";
+    public static final String UAI = "uai";
+    public static final String CHILDRENIDS = "childrenIds";
+    public static final String LEVEL = "level";
+    public static final String LOGIN = "login";
+    public static final String AUTHORIZEDACTIONS = "authorizedActions";
+    public static final String GROUPSIDS = "groupsIds";
+    public static final String USERNAME = "username";
+    public static final String BIRTHDAY = "birthDay";
+    public static final String TYPE = "type";
+    public static final String STRUCTURES = "structures";
+
 
     // User profiles
     public static final String PROFILE = "profile";
@@ -183,6 +199,8 @@ public class Field<id_groupes> {
     public static final String LANGUAGE = "language";
     public static final String ENDOFHALFDAY = "endOfHalfDay";
     public static final String BODY = "body";
+    public static final String TITLE = "title";
+    public static final String PUSHNOTIF = "pushNotif";
 
     public static final String LABEL = "label";
     public static final String CODE = "code";

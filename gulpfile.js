@@ -27,6 +27,7 @@ var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 var glob = require('glob');
 var colors = require('colors');
+const mergeStream = require('merge-stream');
 
 var paths = {
     infra: './bower_components/entcore',
@@ -50,10 +51,15 @@ function startWebpack(isLocal) {
 }
 
 function updateRefs() {
-    var vsco = gulp.src(glob.sync("./src/main/resources/view-src//*.html"))
+    const notifyFiles = gulp.src("./src/main/resources/view-src/notify/**/*.html")
+        .pipe(replace('@@VERSION', Date.now()))
+        .pipe(gulp.dest("./src/main/resources/view/notify"));
+
+    const otherFiles = gulp.src(["./src/main/resources/view-src/**/*.html", "!./src/main/resources/view-src/notify/**/*.html"])
         .pipe(replace('@@VERSION', Date.now()))
         .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
-    return vsco;
+
+    return mergeStream(notifyFiles, otherFiles);
 }
 
 gulp.task('drop-cache', function(){

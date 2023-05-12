@@ -256,7 +256,8 @@ public class DefaultInitService implements InitService {
     @SuppressWarnings("unchecked")
     public Future<JsonObject> initServices(String structureId, SubjectModel subject) {
         Promise<JsonObject> promise = Promise.promise();
-        this.userService.getTeachersWithClassGroupIds(structureId)
+        this.servicesService.deleteServiceBySubjectId(structureId, subject.getId())
+                .compose(v -> this.userService.getTeachersWithClassGroupIds(structureId))
                 .onFailure(fail -> {
                     LOGGER.error(String.format("[Viescolaire@%s::initServices] Failed to retrieve teachers with classes/groups",
                             this.getClass().getSimpleName()), fail);
@@ -386,16 +387,14 @@ public class DefaultInitService implements InitService {
     public Future<Void> resetInit(String structureId) {
         Promise<Void> promise = Promise.promise();
         this.matiereService.getSubjectByCode(structureId, "999999")
-                .onFailure(promise::fail)
-                .onSuccess(subject -> this.servicesService.deleteServiceBySubjectId(structureId, subject.getId())
-                        .compose(res -> this.resetCourses(structureId, subject.getId()))
-                        .compose(res -> this.setInitializationStatus(structureId, false))
-                        .onSuccess(res -> promise.complete())
-                        .onFailure(fail -> {
-                            LOGGER.error(String.format("[Viescolaire@%s::resetInit] Failed to reset init : %s",
-                                    this.getClass().getSimpleName(), fail.getMessage()), fail);
-                            promise.fail(fail);
-                        }));
+                .compose(subject -> this.resetCourses(structureId, subject.getId()))
+                .compose(res -> this.setInitializationStatus(structureId, false))
+                .onSuccess(res -> promise.complete())
+                .onFailure(fail -> {
+                    LOGGER.error(String.format("[Viescolaire@%s::resetInit] Failed to reset init : %s",
+                            this.getClass().getSimpleName(), fail.getMessage()), fail);
+                    promise.fail(fail);
+                });
 
         return promise.future();
     }

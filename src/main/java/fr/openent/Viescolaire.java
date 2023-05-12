@@ -144,7 +144,7 @@ public class Viescolaire extends BaseServer {
 
         addController(new EventBusController(serviceFactory, config));
 
-        setRepositoryEvents(new VieScolaireRepositoryEvents(eb, config));
+        setRepositoryEvents(new VieScolaireRepositoryEvents(serviceFactory));
 
         // worker to be triggered manually
         vertx.deployVerticle(InitWorker1D.class, new DeploymentOptions().setConfig(config).setWorker(true));

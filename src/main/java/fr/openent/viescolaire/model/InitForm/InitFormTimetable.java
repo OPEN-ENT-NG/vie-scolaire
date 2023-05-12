@@ -88,7 +88,7 @@ public class InitFormTimetable implements IModel<InitFormTimetable> {
         String endOfMorning = null;
         String startOfAfternoon = null;
 
-        for (int i = 0; i < nbHours; i++) {
+        for (int i = -1; i < nbHours + 1; i++) {
             String currentTime = DateHelper.addHour(this.morning.getString(Field.STARTHOUR), i, DateHelper.HOUR_MINUTES);
             String nextTime = DateHelper.addHour(currentTime, 1, DateHelper.HOUR_MINUTES);
 
@@ -124,9 +124,10 @@ public class InitFormTimetable implements IModel<InitFormTimetable> {
 
     @Override
     public JsonObject toJson() {
+
         return new JsonObject()
-                .put(Field.MORNING, this.morning)
-                .put(Field.AFTERNOON, this.afternoon)
+                .put(Field.MORNING, this.morning.copy())
+                .put(Field.AFTERNOON, this.afternoon.copy())
                 .put(Field.FULLDAYS, new JsonArray(this.fullDays.stream().map(DayOfWeek::name).collect(Collectors.toList())))
                 .put(Field.HALFDAYS, new JsonArray(this.halfDays.stream().map(DayOfWeek::name).collect(Collectors.toList())));
     }

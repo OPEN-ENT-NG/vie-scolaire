@@ -147,7 +147,7 @@ public interface UserService {
     void getPersonnels(List<String> idPersonnels, Handler<Either<String, JsonArray>> handler);
 
     void getTeachers(String idStructure, Handler<Either<String, JsonArray>> handler);
-    Future<JsonArray> getTeachersWithClassGroupIds(String structureId);
+    Future<JsonArray> getTeachersWithClassIds(String structureId);
 
     /**
      * Récupère la liste des utilisateurs selon les paramètres précisés

@@ -258,6 +258,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 "       coefficient, " +
                 "       devoirs.libelle AS lib, " +
                 "       type.nom        AS _type_libelle, " +
+                "       type.formative, " +
                 "       sum_notes, " +
                 "       nbr_eleves, " +
                 "       id_groupe " +

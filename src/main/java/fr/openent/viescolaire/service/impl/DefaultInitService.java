@@ -158,13 +158,9 @@ public class DefaultInitService implements InitService {
         slotProfile.setOwner(owner);
 
         this.getSlotProfile(structureId, slotProfile)
-                .compose(res -> {
-                    if (res != null) {
-                        return Future.succeededFuture(res);
-                    } else {
-                        return this.createSlotProfile(structureId, slotProfile, timetableCopy);
-                    }
-                })
+                .compose(res -> (res != null) ?
+                        this.saveSlotProfile(structureId, res, timetableCopy.getMorning().getString(Field.ENDHOUR)) :
+                        this.createSlotProfile(structureId, slotProfile, timetableCopy))
                 .onFailure(promise::fail)
                 .onSuccess(promise::complete);
 
@@ -173,13 +169,19 @@ public class DefaultInitService implements InitService {
 
     private Future<SlotProfile> getSlotProfile(String structureId, SlotProfile slotProfile) {
         Promise<SlotProfile> promise = Promise.promise();
-        mongoDb.findOne(SLOTPROFILE_COLLECTION, new JsonObject()
+        mongoDb.find(SLOTPROFILE_COLLECTION, new JsonObject()
                         .put(Field.NAME, slotProfile.getName())
                         .put(Field.SCHOOLID, structureId),
-                MongoDbResult.validResultHandler(res -> {
-                    if (res.isRight() && res.right().getValue() != null &&
-                            !res.right().getValue().isEmpty() && new SlotProfile(res.right().getValue()).isEquals(slotProfile)) {
-                        promise.complete(new SlotProfile(res.right().getValue()));
+                MongoDbResult.validResultsHandler(res -> {
+                    if (res.isRight() && res.right().getValue() != null && !res.right().getValue().isEmpty()) {
+                        JsonArray slots = res.right().getValue();
+
+                        if (slots.stream().anyMatch(s -> new SlotProfile((JsonObject) s).isEquals(slotProfile))) {
+                            promise.complete(new SlotProfile((JsonObject) Objects.requireNonNull(slots.stream()
+                                    .filter(s -> new SlotProfile((JsonObject) s).isEquals(slotProfile)).findFirst().orElse(null))));
+                        } else {
+                            promise.complete(null);
+                        }
                     } else if (res.isLeft()){
                         String message = String.format("[Viescolaire@%s::initTimeSlots] Failed to retrieve slot profile : %s",
                                 this.getClass().getSimpleName(), res.left().getValue());
@@ -202,21 +204,28 @@ public class DefaultInitService implements InitService {
                 LOGGER.error(message, results.left().getValue());
                 promise.fail(results.left().getValue());
             } else {
-                this.timeSlotService.saveTimeProfil(
-                                new JsonObject()
-                                        .put(Field.ID, slotProfile.getId())
-                                        .put(Field.ID_STRUCTURE, structureId))
-                        .compose(v -> this.timeSlotService.updateEndOfHalfDay(slotProfile.getId(),
-                                timetable.getMorning().getString(Field.ENDHOUR), structureId))
-                        .onFailure(fail -> {
-                            LOGGER.error(String.format("[Viescolaire@%s::createSlotProfile] Failed to save and update " +
-                                            "end of half day : %s",
-                                    this.getClass().getSimpleName(), fail.getMessage()), fail.getMessage());
-                            promise.fail(fail);
-                        })
-                        .onSuccess(success -> promise.complete(slotProfile));
+                this.saveSlotProfile(structureId, slotProfile, timetable.getMorning().getString(Field.ENDHOUR))
+                        .onFailure(promise::fail)
+                        .onSuccess(v -> promise.complete(slotProfile));
             }
         }));
+        return promise.future();
+    }
+
+    private Future<SlotProfile> saveSlotProfile(String structureId, SlotProfile slotProfile, String endOfHalfDay) {
+        Promise<SlotProfile> promise = Promise.promise();
+        this.timeSlotService.saveTimeProfil(
+                        new JsonObject()
+                                .put(Field.ID, slotProfile.getId())
+                                .put(Field.ID_STRUCTURE, structureId))
+                .compose(v -> this.timeSlotService.updateEndOfHalfDay(slotProfile.getId(), endOfHalfDay, structureId))
+                .onFailure(fail -> {
+                    LOGGER.error(String.format("[Viescolaire@%s::saveSlotProfile] Failed to save and update " +
+                                    "end of half day : %s",
+                            this.getClass().getSimpleName(), fail.getMessage()), fail.getMessage());
+                    promise.fail(fail);
+                })
+                .onSuccess(success -> promise.complete(slotProfile));
         return promise.future();
     }
 

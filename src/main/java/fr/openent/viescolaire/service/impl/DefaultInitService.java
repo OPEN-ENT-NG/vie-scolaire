@@ -280,13 +280,8 @@ public class DefaultInitService implements InitService {
                                         .stream()
                                         .filter(String.class::isInstance)
                                         .map(String.class::cast)
+                                        .distinct()
                                         .collect(Collectors.toList());
-                                List<String> groupIds = teacher.getJsonArray(Field.GROUPIDS, new JsonArray())
-                                        .stream()
-                                        .filter(String.class::isInstance)
-                                        .map(String.class::cast)
-                                        .collect(Collectors.toList());
-                                classIds.addAll(groupIds);
 
                                 if (!classIds.isEmpty()) {
                                     InitServiceModel service = new InitServiceModel(

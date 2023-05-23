@@ -37,11 +37,10 @@ import org.entcore.common.service.impl.SqlCrudService;
 import org.entcore.common.sql.Sql;
 import org.entcore.common.sql.SqlResult;
 import org.entcore.common.sql.SqlStatementsBuilder;
-import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
 import static fr.wseduc.webutils.Utils.handlerToAsyncHandler;
 
@@ -804,17 +803,20 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     @Override
     public Future<JsonArray> getTeachersWithClassIds(String structureId) {
         Promise<JsonArray> promise = Promise.promise();
-        String query =  "MATCH (s:Structure {id: {structureId}}) " +
-                "MATCH (u:User {profiles: ['Teacher']})-[:IN]->(:ProfileGroup)-[:DEPENDS*]->(s) " +
-                "WITH u, u.classes AS classes_externalIds " +
+        String query =  "MATCH (s:Structure {id: {structureId}})" +
+                "<-[:DEPENDS*]-(:ProfileGroup)<-[:IN]-(u:User {profiles: ['Teacher']}) " +
+                "WITH u, s " +
+                "OPTIONAL MATCH (u)-[:IN]->(f:ProfileGroup)-[:DEPENDS]->(c: Class)-[:BELONGS]->(s) " +
+                "WITH u, COLLECT(DISTINCT(c.id)) AS attachedClassIds " +
+                "WITH u, u.classes AS classes_externalIds, attachedClassIds " +
                 "UNWIND CASE " +
-                "  WHEN classes_externalIds IS NULL OR size(classes_externalIds) = 0 " +
-                "  THEN [null] " +
-                "  ELSE classes_externalIds " +
+                "WHEN classes_externalIds IS NULL OR size(classes_externalIds) = 0 " +
+                "THEN [null] " +
+                "ELSE classes_externalIds " +
                 "END AS class_externalId " +
-                "OPTIONAL MATCH (c:Class {externalId: class_externalId})-[:BELONGS]->(s) " +
-                "WITH u, COLLECT(DISTINCT c.id) AS classIds " +
-                "RETURN u.id AS id, u.displayName AS displayName, classIds " +
+                "OPTIONAL MATCH (c:Class {externalId: class_externalId})-[:BELONGS]->(s:Structure {id: {structureId}}) " +
+                "WITH u, COLLECT(DISTINCT c.id) + attachedClassIds AS allClassIds " +
+                "RETURN u.id AS id, u.displayName AS displayName, allClassIds AS classIds " +
                 "ORDER BY displayName";
 
         JsonObject params = new JsonObject().put(Field.STRUCTUREID, structureId);

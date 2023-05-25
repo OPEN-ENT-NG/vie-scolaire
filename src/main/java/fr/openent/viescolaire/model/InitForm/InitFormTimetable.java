@@ -104,7 +104,7 @@ public class InitFormTimetable implements IModel<InitFormTimetable> {
 
             if (!lunchAdded) {
                 // Add morning timeslot
-                slots.add(new Timeslot(morningPrefix + (i + 1), currentTime, nextTime));
+                slots.add(new Timeslot(morningPrefix + (i + 2), currentTime, nextTime));
                 endOfMorning = nextTime;
             } else {
                 // Add afternoon timeslot

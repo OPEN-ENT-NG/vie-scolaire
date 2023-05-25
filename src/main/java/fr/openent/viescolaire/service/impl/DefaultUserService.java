@@ -852,7 +852,13 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         }
 
         final StringBuilder filter = new StringBuilder();
-        fields.forEach(field -> filter.append("OR toLower(").append(getFieldName(field)).append(") CONTAINS {query} "));
+
+        if(fields.size() == 2 && fields.contains(Field.FIRSTNAME) && fields.contains(Field.LASTNAME)){
+            filter.append("OR (toLower(").append(getFieldName(Field.FIRSTNAME)).append(") + ' ' + toLower(").append(getFieldName(Field.LASTNAME)).append(")) STARTS WITH {query} ")
+                    .append("OR (toLower(").append(getFieldName(Field.LASTNAME)).append(") + ' ' + toLower(").append(getFieldName(Field.FIRSTNAME)).append(")) STARTS WITH {query} ");
+        }
+        else
+            fields.forEach(field -> filter.append("OR toLower(").append(getFieldName(field)).append(") CONTAINS {query} "));
 
         String neo4jquery = "MATCH (u:User)-[:IN]->(p:ProfileGroup)-[:DEPENDS*]->(s:Structure) ";
 

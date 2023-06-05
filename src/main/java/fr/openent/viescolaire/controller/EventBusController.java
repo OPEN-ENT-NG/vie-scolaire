@@ -335,7 +335,7 @@ public class EventBusController extends ControllerHelper {
                         .map(Student::new)
                         .collect(Collectors.toList());
 
-                this.timeSlotService.getTimeslotFromStudentId(studentList)
+                this.timeSlotService.getTimeslotFromStudentId(studentList, structureId)
                         .onSuccess(mapStudentTimeslotModel -> {
                             JsonObject resultStudentTimeslot = new JsonObject();
                             mapStudentTimeslotModel.forEach((student, timeslotModel) ->

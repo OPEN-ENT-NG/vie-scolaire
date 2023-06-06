@@ -423,7 +423,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
                     Future<Map<String, String>> futureMapClassIdTimeslotId = this.getTimeslotIdFromClasses(classIdList);
 
                     Future<Map<String, String>> futureMapStructureIdTimeslotId =
-                            this.getSlotProfileSetting(Stream.of(structureId).collect(Collectors.toList()));
+                            this.getSlotProfileSetting(Collections.singletonList(structureId));
 
                     CompositeFuture.all(Arrays.asList(futureMapStructureIdTimeslotId, futureMapClassIdTimeslotId))
                             .compose(event -> {

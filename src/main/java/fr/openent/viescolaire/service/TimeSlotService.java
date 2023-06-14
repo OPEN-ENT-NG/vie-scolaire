@@ -190,7 +190,8 @@ public interface TimeSlotService {
      * Get timeslot for student list
      *
      * @param studentList student list (must have id defined)
+     * @param structureId
      * @return a map with student as key and this timeslot as value
      */
-    Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList);
+    Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList, String structureId);
 }

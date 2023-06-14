@@ -26,6 +26,7 @@ import org.entcore.common.user.UserInfos;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fr.openent.viescolaire.helper.FutureHelper.handlerEitherPromise;
 
@@ -406,7 +407,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     @Override
-    public Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList) {
+    public Future<Map<Student, TimeslotModel>> getTimeslotFromStudentId(List<Student> studentList, String structureId) {
         Promise<Map<Student, TimeslotModel>> promise = Promise.promise();
 
         List<String> studentIdList = studentList.stream().map(Student::getId).collect(Collectors.toList());
@@ -421,13 +422,8 @@ public class DefaultTimeSlotService implements TimeSlotService {
                             .collect(Collectors.toList());
                     Future<Map<String, String>> futureMapClassIdTimeslotId = this.getTimeslotIdFromClasses(classIdList);
 
-                    List<String> structureIdList = userInfosList.stream()
-                            .map(UserInfos::getStructures)
-                            .map(studentStructureList -> studentStructureList.get(0))
-                            .distinct()
-                            .collect(Collectors.toList());
-
-                    Future<Map<String, String>> futureMapStructureIdTimeslotId = this.getSlotProfileSetting(structureIdList);
+                    Future<Map<String, String>> futureMapStructureIdTimeslotId =
+                            this.getSlotProfileSetting(Collections.singletonList(structureId));
 
                     CompositeFuture.all(Arrays.asList(futureMapStructureIdTimeslotId, futureMapClassIdTimeslotId))
                             .compose(event -> {
@@ -440,7 +436,6 @@ public class DefaultTimeSlotService implements TimeSlotService {
                                 Map<Student, TimeslotModel> mapStudentTimeslot = new HashMap<>();
                                 userInfosList.forEach(userInfos -> {
                                     String classId = userInfos.getClasses().get(0);
-                                    String structureId = userInfos.getStructures().get(0);
                                     String timeslotId = futureMapClassIdTimeslotId.result().containsKey(classId) ?
                                             futureMapClassIdTimeslotId.result().get(classId) : futureMapStructureIdTimeslotId.result().getOrDefault(structureId, "");
 

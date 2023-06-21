@@ -519,7 +519,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,")
                 .append(" u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,")
                 .append(" r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, ")
-                .append(" r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city");
+                .append(" r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city, r.id as idResponsable");
 
         JsonObject param = new JsonObject();
         param.put("idEleve", idEleve);

@@ -402,7 +402,8 @@ public class DefaultInitService implements InitService {
                     promise.fail(fail);
                 })
                 .onSuccess(subject -> {
-                    this.resetCourses(structureId, subject.getId())
+
+                    this.resetCourses(structureId, subject != null ? subject.getId() : null)
                             .compose(res ->  this.servicesService.deleteServiceBySubjectId(structureId, subject.getId()))
                             .compose(res -> this.setInitializationStatus(structureId, false))
                             .onSuccess(res -> promise.complete())
@@ -421,12 +422,16 @@ public class DefaultInitService implements InitService {
     private Future<JsonObject> resetCourses(String structureId, String subjectId) {
         Promise<JsonObject> promise = Promise.promise();
 
-        JsonObject action = new JsonObject()
-                .put(Field.ACTION, "delete-courses-subject")
-                .put(Field.STRUCTUREID, structureId)
-                .put(Field.SUBJECTID, subjectId);
+        if (subjectId != null) {
+            JsonObject action = new JsonObject()
+                    .put(Field.ACTION, "delete-courses-subject")
+                    .put(Field.STRUCTUREID, structureId)
+                    .put(Field.SUBJECTID, subjectId);
 
-        eb.request(EDT_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
+            eb.request(EDT_ADDRESS, action, MessageResponseHandler.messageJsonObjectHandler(FutureHelper.handlerEitherPromise(promise)));
+        } else {
+            promise.complete();
+        }
 
         return promise.future();
     }

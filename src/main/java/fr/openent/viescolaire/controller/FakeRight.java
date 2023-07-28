@@ -20,6 +20,8 @@ public class FakeRight extends ControllerHelper {
     @SecuredAction(Viescolaire.SEARCH_RESTRICTED)
     public void searchRestricted(HttpServerRequest request) {notImplemented(request);}
 
-
+    @Get("/rights/viescolaire/1d")
+    @SecuredAction(Viescolaire.VIESCOLAIRE_1D)
+    public void viescolaire1d(HttpServerRequest request) {notImplemented(request);}
 
 }

@@ -94,6 +94,7 @@ public class Viescolaire extends BaseServer {
     public static String NAME = "name";
     public static String FORADMIN = "forAdmin";
 	public static final String SEARCH_RESTRICTED = "viescolaire.search.restricted";
+    public static final String VIESCOLAIRE_1D = "viescolaire.1d";
 
 	@Override
     public void start() throws Exception {

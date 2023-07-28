@@ -113,13 +113,13 @@
                 </div>
             </div>
             <!-- Competences sniplet showing notes -->
-            <div class="content-sniplet-comptences flex-one left-spacing">
+            <div class="content-sniplet-comptences flex-one left-spacing" ng-if="!vm.hasRight('viescolaire1d')">
                 <div data-ng-if="vm.config.competences" id="notes-section">
                     <sniplet application="competences" template="notes-memento-widget"></sniplet>
                 </div>
             </div>
         </div>
-        <div data-ng-if="vm.config.presences" id="incidents-section">
+        <div data-ng-if="vm.config.presences && !vm.hasRight('viescolaire1d')" id="incidents-section">
             <sniplet application="incidents" template="memento/incidents"></sniplet>
         </div>
     </div>

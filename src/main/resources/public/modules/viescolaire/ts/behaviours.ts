@@ -17,19 +17,10 @@
 
 import {Behaviours} from 'entcore';
 import {MementoSniplet} from './memento/sniplet';
+import rights from "./rights";
 
 Behaviours.register('viescolaire', {
-    rights: {
-        workflow: {
-            adminChefEtab: 'fr.openent.DisplayController|view',
-            importRetardAndAbsences: 'fr.openent.viescolaire.controller.ImportCsvController|importRetadsAndAbsences',
-            periodYearManage: 'fr.openent.viescolaire.controller.PeriodeAnneeController|PeriodYearManage',
-            timeSlotsManage: 'fr.openent.viescolaire.controller.TimeSlotController|getSlotProfilesByStructure',
-            paramServices: 'fr.openent.viescolaire.controller.ServicesController|createService',
-            paramTrombinoscope: 'fr.openent.viescolaire.controller.TrombinoscopeController|manageTrombinoscope'
-        },
-        resource: {}
-    },
+    rights,
     sniplets: {
         'memento': MementoSniplet
     }

@@ -3,6 +3,7 @@ import {Behaviours, idiom, toasts} from 'entcore';
 import {mementoService} from '../../services';
 import {DateUtils} from '../../utils/dateUtils';
 import {MementoAccess} from "../../models/memento.model";
+import rights from "../rights";
 
 declare let window: any;
 
@@ -52,6 +53,8 @@ interface IMementoViewModel {
     };
 
     setApplier(obj: any): void;
+
+    hasRight(right: string): boolean;
 
     saveComment(comment: string): Promise<void>;
 
@@ -117,6 +120,10 @@ const vm: IMementoViewModel = {
             .catch((_: AxiosError) => {
                 toasts.warning('viescolaire.memento.student.comment.error');
             });
+    },
+
+    hasRight(right: string): boolean {
+        return model.me.hasWorkflow(rights.workflow[right]);
     },
 
     formatBirthDate(date: string): string {

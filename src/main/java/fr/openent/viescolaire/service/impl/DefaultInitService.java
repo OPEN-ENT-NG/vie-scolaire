@@ -317,9 +317,15 @@ public class DefaultInitService implements InitService {
     }
 
     @Override
-    public Future<JsonObject> initExclusionPeriod(String structureId, String zone) {
+    public Future<JsonObject> initExclusionPeriod(String structureId, InitFormHolidays holidaysForm) {
         Promise<JsonObject> promise = Promise.promise();
 
+        if(!Field.FRENCH.equals(holidaysForm.getSystem())) {
+            promise.complete();
+            return promise.future();
+        }
+
+        String zone = holidaysForm.getZone();
         if (!"A".equals(zone) && !"B".equals(zone) && !"C".equals(zone)) {
            promise.complete();
         } else {

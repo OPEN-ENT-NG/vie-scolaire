@@ -36,7 +36,7 @@ public interface InitService {
 
     Future<JsonObject> initServices(String structureId, SubjectModel subject);
 
-    Future<JsonObject> initExclusionPeriod(String structureId, String zone);
+    Future<JsonObject> initExclusionPeriod(String structureId, InitFormHolidays holidaysForm);
 
     Future<JsonObject> initCourses(String structureId, String subjectId, String startDate, String endDate,
                                    InitFormTimetable timetable, List<Timeslot> timeslots, String userId);

@@ -225,6 +225,10 @@ public class Field<id_groupes> {
 
     public static final String SETTINGS = "settings";
     public static final String ALLOW_MULTIPLE_SLOTS = "allow_multiple_slots";
+
+    //Holidays System
+    public static final String OTHER = "OTHER";
+    public static final String FRENCH = "FRENCH";
     private Field() {
         throw new IllegalStateException("Utility class");
     }

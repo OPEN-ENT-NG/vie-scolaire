@@ -29,7 +29,7 @@ public class ModelHelper {
     }
 
     public static JsonArray toJsonArray(List<? extends IModel<?>> dataList) {
-        return new JsonArray(dataList.stream().map(IModel::toJson).collect(Collectors.toList()));
+        return (dataList != null) ? new JsonArray(dataList.stream().map(IModel::toJson).collect(Collectors.toList())) : new JsonArray();
     }
 
     public static <T extends IModel<T>> List<T> toList(JsonArray results, Class<T> modelClass) {

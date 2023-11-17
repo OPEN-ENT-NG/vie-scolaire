@@ -8,6 +8,9 @@ module.exports = {
         "tsx",
         "js"
     ],
+    "moduleNameMapper": {
+        '^axios$': require.resolve('axios'),
+    },
     "testPathIgnorePatterns": [
         "/node_modules/",
         "<rootDir>/build/",

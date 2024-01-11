@@ -3,7 +3,7 @@ package fr.openent.viescolaire.model.Trombinoscope;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.utils.DateHelper;
 import fr.wseduc.mongodb.MongoDb;
-import fr.wseduc.webutils.template.TemplateProcessor;
+import fr.wseduc.webutils.template.FileTemplateProcessor;
 import fr.wseduc.webutils.template.lambdas.I18nLambda;
 import fr.wseduc.webutils.template.lambdas.LocaleDateLambda;
 import io.vertx.core.AsyncResult;
@@ -24,7 +24,7 @@ public class TrombinoscopeReport {
 
     private String content;
 
-    private final TemplateProcessor templateProcessor;
+    private final FileTemplateProcessor templateProcessor;
     private Long startDate;
     private Long endDate;
     private String uai;
@@ -35,7 +35,8 @@ public class TrombinoscopeReport {
 
     public TrombinoscopeReport(Vertx vertx, String locale) {
         this.reports = new ArrayList<>();
-        templateProcessor = new TemplateProcessor(vertx, "template").escapeHTML(false);
+        templateProcessor = new FileTemplateProcessor(vertx, "template");
+        templateProcessor.escapeHTML(false);
         templateProcessor.setLambda("i18n", new I18nLambda(locale));
         templateProcessor.setLambda("datetime", new LocaleDateLambda(locale));
     }

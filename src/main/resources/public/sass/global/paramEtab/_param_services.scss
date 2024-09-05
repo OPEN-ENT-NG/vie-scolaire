@@ -9,13 +9,13 @@
 
   .service-list-container{
     .serviceList {
-
-      &.active {
-        box-shadow: -0.2em 0 3px rgba(10, 10, 10, 0.2), 0.2em 0 3px rgba(10, 10, 10, 0.2);
-      }
       padding-top: 0.6%;
       padding-bottom: 0.6%;
       border-top: 0.5px solid darkgrey;
+      
+      &.active {
+        box-shadow: -0.2em 0 3px rgba(10, 10, 10, 0.2), 0.2em 0 3px rgba(10, 10, 10, 0.2);
+      }
 
       & > * {
         vertical-align: middle;
@@ -230,10 +230,11 @@
   }
 
   .selectedMultiBox {
+    font-size: 16px;
+    
     .selected{
       background-color: unset;
     }
-    font-size: 16px;
   }
 
 }

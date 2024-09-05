@@ -209,15 +209,17 @@ body.viescolaire {
       background-color: $primary;
       color: $white !important;
       font-weight: bold;
+      min-height: 65px;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+
+
       > label.checkbox {
         > input[type="checkbox"]:checked + span::before {
           border-color: $white;
         }
       }
-      min-height: 65px;
-      align-items: center;
-      display: flex;
-      justify-content: center;
     }
 
     .expandable-list-item {

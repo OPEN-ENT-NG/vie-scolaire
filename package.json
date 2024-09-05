@@ -6,16 +6,16 @@
     "angular-chart.js": "^1.1.1",
     "axios": "0.27.2",
     "core-js": "2.4.1",
-    "entcore": "4.8.4",
+    "entcore": "~4.8.0-dev",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0",
     "entcore-toolkit": "^1.0.1"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/jest --config jest.config.js --coverage",
-    "test": "npm run coverage",
+    "test": "pnpm run coverage",
     "coverage:dev": "./node_modules/.bin/jest --config jest.config.js --coverage --watch --verbose false",
-    "test:dev": "npm run coverage:dev",
+    "test:dev": "pnpm run coverage:dev",
     "build:sass": "sass --load-path=node_modules/ --no-source-map src/main/resources/public/sass/index.scss src/main/resources/public/css/viescolaire-specifics.css"
   },
   "repository": {
@@ -61,6 +61,6 @@
     "webpack": "^1.13.1",
     "webpack-stream": "3.2.0",
     "sass": "^1.49.9",
-    "entcore-css-lib": "npm:ode-csslib@4.0.12"
+    "entcore-css-lib": "npm:ode-csslib@develop"
   }
 }

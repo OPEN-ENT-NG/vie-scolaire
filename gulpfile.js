@@ -17,111 +17,138 @@
  *
  */
 
-var gulp = require('gulp');
-var webpack = require('webpack-stream');
-var merge = require('merge2');
-var watch = require('gulp-watch');
-var rev = require('gulp-rev');
-const replace = require('gulp-replace');
-var clean = require('gulp-clean');
-var sourcemaps = require('gulp-sourcemaps');
-var glob = require('glob');
-var colors = require('colors');
-const mergeStream = require('merge-stream');
+var gulp = require("gulp");
+var webpack = require("webpack-stream");
+var merge = require("merge2");
+var watch = require("gulp-watch");
+var rev = require("gulp-rev");
+const replace = require("gulp-replace");
+var clean = require("gulp-clean");
+var sourcemaps = require("gulp-sourcemaps");
+var glob = require("glob");
+var colors = require("colors");
+const mergeStream = require("merge-stream");
 
 var paths = {
-    infra: './bower_components/entcore',
-    toolkit: '../toolkit'
+  infra: "./bower_components/entcore",
+  toolkit: "../toolkit",
 };
 
 function startWebpack(isLocal) {
-    gulp.src("./manifests/*").pipe(clean());
+  gulp.src("./manifests/*").pipe(clean());
 
-    var vsco = gulp.src('./src/main/resources/public/modules/viescolaire/')
-        .pipe(webpack(require('./src/main/resources/public/modules/viescolaire/webpack.config.vsco.js')))
-        .pipe(gulp.dest('./src/main/resources/public/dist/'))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(rev())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./src/main/resources/public/dist/'))
-        .pipe(rev.manifest({path : './manifests/vsco.json' }))
-        .pipe(gulp.dest('./'));
+  var vsco = gulp
+    .src("./src/main/resources/public/modules/viescolaire/")
+    .pipe(
+      webpack(
+        require("./src/main/resources/public/modules/viescolaire/webpack.config.vsco.js")
+      )
+    )
+    .pipe(gulp.dest("./src/main/resources/public/dist/"))
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(rev())
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./src/main/resources/public/dist/"))
+    .pipe(rev.manifest({ path: "./manifests/vsco.json" }))
+    .pipe(gulp.dest("./"));
 
-    return vsco;
+  return vsco;
 }
 
 function updateRefs() {
-    const notifyFiles = gulp.src("./src/main/resources/view-src/notify/**/*.html")
-        .pipe(replace('@@VERSION', Date.now()))
-        .pipe(gulp.dest("./src/main/resources/view/notify"));
+  const notifyFiles = gulp
+    .src("./src/main/resources/view-src/notify/**/*.html")
+    .pipe(replace("@@VERSION", Date.now()))
+    .pipe(gulp.dest("./src/main/resources/view/notify"));
 
-    const otherFiles = gulp.src(["./src/main/resources/view-src/**/*.html", "!./src/main/resources/view-src/notify/**/*.html"])
-        .pipe(replace('@@VERSION', Date.now()))
-        .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
+  const otherFiles = gulp
+    .src([
+      "./src/main/resources/view-src/**/*.html",
+      "!./src/main/resources/view-src/notify/**/*.html",
+    ])
+    .pipe(replace("@@VERSION", Date.now()))
+    .pipe(gulp.dest("./src/main/resources/view/viescolaire"));
 
-    return mergeStream(notifyFiles, otherFiles);
+  return mergeStream(notifyFiles, otherFiles);
 }
 
-gulp.task('drop-cache', function(){
-    return gulp.src(['./src/main/resources/public/dist'], { read: false })
-        .pipe(clean());
+gulp.task("drop-cache", function () {
+  return gulp
+    .src(["./src/main/resources/public/dist"], { read: false })
+    .pipe(clean());
 });
 
-
-gulp.task('copy-mdi-font', ['drop-cache'], function () {
-    return gulp.src('./node_modules/@mdi/font/fonts/*')
-        .pipe(gulp.dest('./src/main/resources/public/font/material-design/fonts'));
+gulp.task("copy-mdi-font", ["drop-cache"], function () {
+  return gulp
+    .src("./node_modules/@mdi/font/fonts/*")
+    .pipe(gulp.dest("./src/main/resources/public/font/material-design/fonts"));
 });
 
-gulp.task('webpack', ['copy-mdi-font'], function(){ return startWebpack() });
-
-gulp.task('copyBehaviours', ['webpack'], function () {
-    return gulp.src('./src/main/resources/public/dist/behaviours.js')
-        .pipe(gulp.dest('./src/main/resources/public/js'));
-});
-gulp.task('build',['copyBehaviours'], function () {
-    var refs = updateRefs();
-    var copyBehaviours = gulp.src('./src/main/resources/public/dist/behaviours.js')
-        .pipe(gulp.dest('./src/main/resources/public/js'));
-    return merge[refs, copyBehaviours];
+gulp.task("webpack", ["copy-mdi-font"], function () {
+  return startWebpack();
 });
 
-gulp.task('removeTemp', function () {
-    return gulp.src(['./src/main/resources/public/temp'], { read: false })
-        .pipe(clean());
+gulp.task("copyBehaviours", ["webpack"], function () {
+  return gulp
+    .src("./src/main/resources/public/dist/behaviours.js")
+    .pipe(gulp.dest("./src/main/resources/public/js"));
+});
+gulp.task("build", ["copyBehaviours"], function () {
+  var refs = updateRefs();
+  var copyBehaviours = gulp
+    .src("./src/main/resources/public/dist/behaviours.js")
+    .pipe(gulp.dest("./src/main/resources/public/js"));
+  return merge[(refs, copyBehaviours)];
 });
 
+gulp.task("removeTemp", function () {
+  return gulp
+    .src(["./src/main/resources/public/temp"], { read: false })
+    .pipe(clean());
+});
 
-function getModName(fileContent){
-    var getProp = function(prop){
-        return fileContent.split(prop + '=')[1].split(/\r?\n/)[0];
-    }
-    return getProp('modowner') + '~' + getProp('modname') + '~' + getProp('version');
+function getModName(fileContent) {
+  var getProp = function (prop) {
+    return fileContent.split(prop + "=")[1].split(/\r?\n/)[0];
+  };
+  return (
+    getProp("modowner") + "~" + getProp("modname") + "~" + getProp("version")
+  );
 }
 
-gulp.task('watch', () => {
-    var springboard = argv.springboard;
-if(!springboard){
-    springboard = '../springboard-ent77/';
-}
-if(springboard[springboard.length - 1] !== '/'){
-    springboard += '/';
-}
+gulp.task("watch", () => {
+  var springboard = argv.springboard;
+  if (!springboard) {
+    springboard = "../springboard-ent77/";
+  }
+  if (springboard[springboard.length - 1] !== "/") {
+    springboard += "/";
+  }
 
-gulp.watch('./src/main/resources/public/modules/**/*.ts', () => gulp.start('build'));
+  gulp.watch("./src/main/resources/public/modules/**/*.ts", () =>
+    gulp.start("build")
+  );
 
-fs.readFile("./gradle.properties", "utf8", function(error, content){
+  fs.readFile("./gradle.properties", "utf8", function (error, content) {
     var modName = getModName(content);
-    gulp.watch(['./src/main/resources/public/template/**/*.html', '!./src/main/resources/public/template/entcore/*.html'], () => {
-        console.log('Copying resources to ' + springboard + 'mods/' + modName);
-    gulp.src('./src/main/resources/**/*')
-        .pipe(gulp.dest(springboard + 'mods/' + modName));
-});
+    gulp.watch(
+      [
+        "./src/main/resources/public/template/**/*.html",
+        "!./src/main/resources/public/template/entcore/*.html",
+      ],
+      () => {
+        console.log("Copying resources to " + springboard + "mods/" + modName);
+        gulp
+          .src("./src/main/resources/**/*")
+          .pipe(gulp.dest(springboard + "mods/" + modName));
+      }
+    );
 
-    gulp.watch('./src/main/resources/view/**/*.html', () => {
-        console.log('Copying resources to ' + springboard + 'mods/' + modName);
-    gulp.src('./src/main/resources/**/*')
-        .pipe(gulp.dest(springboard + 'mods/' + modName));
-});
-});
+    gulp.watch("./src/main/resources/view/**/*.html", () => {
+      console.log("Copying resources to " + springboard + "mods/" + modName);
+      gulp
+        .src("./src/main/resources/**/*")
+        .pipe(gulp.dest(springboard + "mods/" + modName));
+    });
+  });
 });

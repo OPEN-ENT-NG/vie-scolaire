@@ -10,6 +10,7 @@ import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.neo4j.Neo4jResult;
@@ -27,26 +28,29 @@ public class DefaultMementoService extends DBService implements MementoService {
 
     @Override
     public void getStudent(String id, String user, Handler<Either<String, JsonObject>> handler) {
-        Future<JsonObject> classes = Future.future();
-        Future<JsonObject> information = Future.future();
-        Future<JsonArray> relatives = Future.future();
-        Future<String> comment = Future.future();
-        CompositeFuture.all(classes, information, relatives, comment).setHandler(res -> {
+        Promise<JsonObject> classesPromise = Promise.promise();
+        Promise<JsonObject> informationPromise = Promise.promise();
+        Promise<JsonArray> relativesPromise = Promise.promise();
+        Promise<String> commentPromise = Promise.promise();
+
+
+
+        Future.all(classesPromise.future(), informationPromise.future(), relativesPromise.future(), commentPromise.future()).onComplete(res -> {
             if (res.failed()) handler.handle(new Either.Left<>(res.cause().toString()));
             else {
-                JsonObject student = information.result();
-                student.put("classes", classes.result().getJsonArray("classes", new JsonArray()));
-                student.put("class_id", classes.result().getJsonArray("id", new JsonArray()));
-                student.put("relatives", relatives.result());
-                student.put("comment", comment.result());
+                JsonObject student = informationPromise.future().result();
+                student.put("classes", classesPromise.future().result().getJsonArray("classes", new JsonArray()));
+                student.put("class_id", classesPromise.future().result().getJsonArray("id", new JsonArray()));
+                student.put("relatives", relativesPromise.future().result());
+                student.put("comment", commentPromise.future().result());
                 handler.handle(new Either.Right<>(student));
             }
         });
 
-        getRelatives(id, relatives);
-        retrieveStudentAndItsFunctionalGroups(id, information);
-        retrieveStudentClasses(id, classes);
-        getStudentComment(id, user, comment);
+        getRelatives(id, relativesPromise);
+        retrieveStudentAndItsFunctionalGroups(id, informationPromise);
+        retrieveStudentClasses(id, classesPromise);
+        getStudentComment(id, user, commentPromise);
     }
 
     @Override
@@ -58,12 +62,12 @@ public class DefaultMementoService extends DBService implements MementoService {
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(handler));
     }
 
-    private void getStudentComment(String student, String user, Future<String> future) {
+    private void getStudentComment(String student, String user, Promise<String> promise) {
         String query = "SELECT comment FROM " + Viescolaire.MEMENTO_SCHEMA + ".comments WHERE owner = ? AND student = ?;";
         JsonArray params = new JsonArray(Arrays.asList(user, student));
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(res -> {
-            if (res.isLeft()) future.fail(res.left().getValue());
-            else future.complete(res.right().getValue().getString("comment", ""));
+            if (res.isLeft()) promise.fail(res.left().getValue());
+            else promise.complete(res.right().getValue().getString("comment", ""));
         }));
     }
 
@@ -72,15 +76,15 @@ public class DefaultMementoService extends DBService implements MementoService {
      * It returns an array containing its class names
      *
      * @param id     Student identifier
-     * @param future future completing the process
+     * @param promise future completing the process
      */
-    private void retrieveStudentClasses(String id, Future<JsonObject> future) {
+    private void retrieveStudentClasses(String id, Promise<JsonObject> promise) {
         String query = "MATCH (u:User {id:{id}})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(g:Class)" +
                 "RETURN collect(g.name) AS classes, collect(g.id) as id";
         JsonObject params = new JsonObject().put("id", id);
         neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(res -> {
-            if (res.isLeft()) future.fail(res.left().getValue());
-            else future.complete(res.right().getValue());
+            if (res.isLeft()) promise.fail(res.left().getValue());
+            else promise.complete(res.right().getValue());
         }));
     }
 
@@ -89,17 +93,17 @@ public class DefaultMementoService extends DBService implements MementoService {
      * It returns those information: id, name, birth date and an array containing its group names
      *
      * @param id     student identifier
-     * @param future future completing the process
+     * @param promise future completing the process
      */
-    private void retrieveStudentAndItsFunctionalGroups(String id, Future<JsonObject> future) {
+    private void retrieveStudentAndItsFunctionalGroups(String id, Promise<JsonObject> promise) {
         String query = "MATCH(u:User {id:{id}})" +
                 "OPTIONAL MATCH (u)-[:IN]-(g:FunctionalGroup) " +
                 "RETURN u.id as id, u.lastName + ' ' + u.firstName AS name, u.birthDate as birth_date, " +
                 "u.accommodation as accommodation, u.transport as transport, collect(g.name) as groups";
         JsonObject params = new JsonObject().put("id", id);
         neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(res -> {
-            if (res.isLeft()) future.fail(res.left().getValue());
-            else future.complete(res.right().getValue());
+            if (res.isLeft()) promise.fail(res.left().getValue());
+            else promise.complete(res.right().getValue());
         }));
     }
 
@@ -107,22 +111,22 @@ public class DefaultMementoService extends DBService implements MementoService {
     /**
      * Get student relatives
      * @param studentId     student identifier
-     * @param future        future completing the process
+     * @param promise        future completing the process
      */
 
     @SuppressWarnings("unchecked")
-    private void getRelatives(String studentId, Future<JsonArray> future) {
+    private void getRelatives(String studentId, Promise<JsonArray> promise) {
 
-        Future<JsonArray> getPrimaryRelativesIdsFuture = Future.future();
-        Future<JsonArray> getAllRelativesFuture = Future.future();
+        Promise<JsonArray> getPrimaryRelativesIdsPromise = Promise.promise();
+        Promise<JsonArray> getAllRelativesPromise = Promise.promise();
 
-        CompositeFuture.all(getPrimaryRelativesIdsFuture, getAllRelativesFuture).setHandler(asyncHandler -> {
+        Future.all(getPrimaryRelativesIdsPromise.future(), getAllRelativesPromise.future()).onComplete(asyncHandler -> {
             if (asyncHandler.failed()) {
-                future.fail(asyncHandler.cause().toString());
+                promise.fail(asyncHandler.cause().toString());
                 return;
             }
-            List<Relative> relatives = RelativeHelper.toRelativeList(getAllRelativesFuture.result());
-            List<JsonObject> studentRelatives = getPrimaryRelativesIdsFuture.result().getList();
+            List<Relative> relatives = RelativeHelper.toRelativeList(getPrimaryRelativesIdsPromise.future().result());
+            List<JsonObject> studentRelatives = getPrimaryRelativesIdsPromise.future().result().getList();
             JsonArray primaryRelativesIds = getRelativeIdsFromList(studentId, studentRelatives);
 
             for (Relative relative: relatives) {
@@ -137,11 +141,11 @@ public class DefaultMementoService extends DBService implements MementoService {
                 relative.setPrimary(primary);
             }
 
-            future.complete(RelativeHelper.toJsonArray(relatives));
+            promise.complete(RelativeHelper.toJsonArray(relatives));
         });
 
-        studentService.getPrimaryRelatives(new JsonArray().add(studentId), FutureHelper.handlerJsonArray(getPrimaryRelativesIdsFuture));
-        getAllRelatives(studentId, FutureHelper.handlerJsonArray(getAllRelativesFuture));
+        studentService.getPrimaryRelatives(new JsonArray().add(studentId), FutureHelper.handlerEitherPromise(getPrimaryRelativesIdsPromise));
+        getAllRelatives(studentId, FutureHelper.handlerEitherPromise(getAllRelativesPromise));
     }
 
     /**

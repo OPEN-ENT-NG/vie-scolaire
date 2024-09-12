@@ -97,8 +97,8 @@ public class Viescolaire extends BaseServer {
     public static final String VIESCOLAIRE_1D = "viescolaire.1d";
 
 	@Override
-    public void start() throws Exception {
-        super.start();
+    public void start(Promise<Void> startPromise) throws Exception {
+        super.start(startPromise);
 
         final EventBus eb = getEventBus(vertx);
         final Sql sql = Sql.getInstance();
@@ -146,6 +146,9 @@ public class Viescolaire extends BaseServer {
         addController(new EventBusController(serviceFactory, config));
 
         setRepositoryEvents(new VieScolaireRepositoryEvents(serviceFactory));
+
+        startPromise.tryComplete();
+        startPromise.tryFail("[Vie-Scolaire@Viescolaire::start] Failed to start Vie-scolaire module.");
 
         // worker to be triggered manually
         vertx.deployVerticle(InitWorker1D.class, new DeploymentOptions().setConfig(config).setWorker(true));

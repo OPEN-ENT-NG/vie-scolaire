@@ -61,7 +61,7 @@ public class TimeSlotController extends ControllerHelper {
                 .put("structureId", structureId);
 
         Handler<Either<String, JsonArray>> handler = DefaultResponseHandler.arrayResponseHandler(request);
-        eb.send(DIRECTORY_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+        eb.request(DIRECTORY_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> message) {
                 JsonObject body = message.body();

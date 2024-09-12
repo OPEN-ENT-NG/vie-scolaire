@@ -231,7 +231,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
             }
         }
 
-        sendIdsToShare(idsToSend, FutureHelper.handlerJsonArray(promise));
+        sendIdsToShare(idsToSend, FutureHelper.handlerEitherPromise(promise));
 
         return promise.future();
     }
@@ -536,7 +536,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     }
                 }
 
-                FutureHelper.all(futures)
+                Future.all(futures)
                         .onFailure(fail -> {
                             String message = String.format("[Viescolaire@%s::removeSubstitutesFromCourseList] " +
                                             "Error deleting course teachers : %s",
@@ -572,7 +572,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                         futures.add(addCourseSubstitutes(m, secondTeacherIds, classOrGroupIds));
                     }
 
-                    FutureHelper.all(futures)
+                    Future.all(futures)
                             .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
                             .onSuccess(ar -> {
                                 JsonArray values = new JsonArray();
@@ -682,7 +682,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     public void getSubTeachersandCoTeachers(String userId, String idStructure, String subjectId,
                                             String groupId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
         query.append("SELECT DISTINCT main_teacher_id  as teacher_id ")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
                 .append(" WHERE second_teacher_id = ? ")
@@ -743,7 +743,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     public void getOtherSubTeachersandCoTeachers(String userId, String idStructure, String subjectId, Handler<Either<String, JsonArray>> handler) {
         //TODO PASSER PAR LE MAIN TEACHER
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT main_teacher_id  as teacher_id ")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
@@ -775,7 +775,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getCoTeachers(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT main_teacher_id ")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)
@@ -791,7 +791,7 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
     @Override
     public void getIdGroupsMutliTeaching(String userId, String idStructure, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT class_or_group_id  as group_id ")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_MULTI_TEACHING_TABLE)

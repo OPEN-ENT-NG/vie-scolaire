@@ -17,7 +17,6 @@
 
 package fr.openent.viescolaire.service.impl;
 
-import com.mongodb.Mongo;
 import fr.openent.Viescolaire;
 import fr.openent.viescolaire.service.CoursService;
 import fr.wseduc.mongodb.MongoDb;
@@ -54,7 +53,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getClasseCours(String pSDateDebut, String pSDateFin, List<String> listIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT" );
                 query.append("   cours.*, ");
@@ -94,7 +93,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getClasseCoursBytime(String pSDateDebut, String pSDateFin, String pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT cours.* , appel.id id_appel, rel_cours_groupes.id_groupe as id_classe ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".cours ")
@@ -115,7 +114,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getCoursByStudentId(String pSDateDebut, String pSDateFin, String[] pLIdClasse, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT cours.*, appel.id id_appel, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ")
                 .append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ")
@@ -149,7 +148,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getCoursByUserId(String pSDateDebut, String pSDateFin, String psUserId, String structureId, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT" );
         query.append("   cours.*, ");
@@ -191,7 +190,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
     @Override
     public void getCoursById(List<Long> idCours, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT cours.*")
                 .append("FROM " + Viescolaire.VSCO_SCHEMA + ".cours ")
@@ -210,7 +209,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
         log.debug("DEBUG : DEBUT : createCours");
 
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT cours.*, string_agg(distinct rel_cours_groupes.id_groupe , ',') AS classes, ");
         query.append("string_agg(distinct rel_cours_users.id_user , ',') AS personnels ");
@@ -265,11 +264,10 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
                                     Long idCours = event.right().getValue().getLong("id");
 
                                     StringBuilder query = new StringBuilder();
-                                    JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
-                                    JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
+                                    JsonArray values = new JsonArray();
+                                    JsonArray statements = new JsonArray();
 
                                     //#4 - Insert cours
-                                    values = new fr.wseduc.webutils.collections.JsonArray();
                                     query = new StringBuilder();
                                     // Query & value
                                     query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".cours ");
@@ -288,7 +286,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
 
                                     //#4.1 Insert dans rel_cours_groupes
                                     if (listIdClasse != null && !listIdClasse.isEmpty()) {
-                                        values = new fr.wseduc.webutils.collections.JsonArray();
+                                        values = new JsonArray();
                                         query = new StringBuilder();
                                         // Query & value
                                         query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_groupes ");
@@ -312,7 +310,7 @@ public class DefaultCoursService extends SqlCrudService implements CoursService 
 
                                     //#4.2 Insert dans rel_cours_users
                                     if (listIdPersonnel != null && !listIdPersonnel.isEmpty()) {
-                                        values = new fr.wseduc.webutils.collections.JsonArray();
+                                        values = new JsonArray();
                                         query = new StringBuilder();
                                         // Query & value
                                         query.append("INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_cours_users ");

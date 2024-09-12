@@ -108,8 +108,8 @@ public class DefaultUtilsService implements UtilsService{
                 .append(" MATCH (g:ManualGroup) WHERE g.id IN {id_classes} RETURN g.id AS id, NOT(g IS NOT NULL) ")
                 .append(" AS isClass ");
 
-        values.put("id_classes", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(id_classes)))
-                .put("id_classes", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(id_classes)));
+        values.put("id_classes", new JsonArray(Arrays.asList(id_classes)))
+                .put("id_classes", new JsonArray(Arrays.asList(id_classes)));
 
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
@@ -230,7 +230,7 @@ public class DefaultUtilsService implements UtilsService{
      */
     public void getTitulaires(String psIdRemplacant, String psIdEtablissement, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT DISTINCT main_teacher_id ")
                 .append("FROM "+ Viescolaire.VSCO_SCHEMA +".multi_teaching ")
@@ -465,22 +465,22 @@ public class DefaultUtilsService implements UtilsService{
                             }
 
                             // Récupération des périodes si nécessaire
-                            Future<JsonArray> periodeFuture = Future.future();
+                            Promise<JsonArray> periodePromise = Promise.promise();
                             if(null == idPeriode){
-                                periodeFuture.complete(null);
+                                periodePromise.complete(null);
                             }
                             else{
                                 new DefaultPeriodeService().getPeriodes(null, idClasses,
-                                        message -> FormateFutureEvent.formate(periodeFuture, message));
+                                        message -> FormateFutureEvent.formate(periodePromise, message));
                             }
 
 
-                            Future<JsonArray> classesNameFuture = Future.future();
+                            Promise<JsonArray> classesNamePromise = Promise.promise();
                             getClassesName(idClassePostgresStudents,
-                                    event -> FormateFutureEvent.formate(classesNameFuture, event));
+                                    event -> FormateFutureEvent.formate(classesNamePromise, event));
 
                             // On récupère les noms des Classes des élèves Stockés dans Postgres
-                            CompositeFuture.all(classesNameFuture, periodeFuture).setHandler(
+                            Future.all(classesNamePromise.future(), periodePromise.future()).onComplete(
                                     event -> {
                                         if(event.failed()){
                                             String error = event.cause().getMessage();
@@ -488,12 +488,12 @@ public class DefaultUtilsService implements UtilsService{
                                             handler.handle(new Either.Left<>(error));
                                             return;
                                         }
-                                        JsonArray classesNames = classesNameFuture.result();
+                                        JsonArray classesNames = classesNamePromise.future().result();
                                         JsonArray studentPostgres = formatDeletedStudent( classesNames, rPostgres);
 
                                         JsonArray students =  utilsService.saUnionUniq(rNeo, studentPostgres);
                                         // Si on veut filtrer sur la période
-                                        JsonArray periodes = periodeFuture.result();
+                                        JsonArray periodes = classesNamePromise.future().result();
                                         filterStudentOnPeriode(students, periodes, idPeriode, handler);
                                     });
                         }
@@ -517,7 +517,7 @@ public class DefaultUtilsService implements UtilsService{
 
             query.append("MATCH (c:Class)-[BELONGS]->(s:Structure) WHERE c.id IN {idClasses} ")
                     .append(" RETURN c.id as idClasse, c.name as name ORDER BY c.name ");
-            params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+            params.put("idClasses", new JsonArray(Arrays.asList(idClasses)));
 
             neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
         }
@@ -541,7 +541,7 @@ public class DefaultUtilsService implements UtilsService{
                 "RETURN c.id as id, c.externalId as externalId");
 
         JsonObject values = new JsonObject();
-        values.put("id", new fr.wseduc.webutils.collections.JsonArray(externalIdGroups));
+        values.put("id", new JsonArray(externalIdGroups));
         neo4j.execute(query.toString(), values, Neo4jResult.validResultHandler(handler));
     }
 

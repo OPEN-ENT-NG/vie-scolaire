@@ -7,10 +7,7 @@ import fr.openent.viescolaire.helper.TrombinoscopeHelper;
 import fr.openent.viescolaire.model.Trombinoscope.TrombinoscopeFailure;
 import fr.openent.viescolaire.service.TrombinoscopeFailureService;
 import fr.openent.viescolaire.utils.FileHelper;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -114,20 +111,20 @@ public class DefaultTrombinoscopeFailureService extends DBService implements Tro
                     .map(TrombinoscopeFailure::getPictureId)
                     .collect(Collectors.toList());
 
-            Future<JsonObject> removePictureFuture = Future.future();
-            Future<JsonObject> deleteRows = Future.future();
+            Promise<JsonObject> removePicturePromise = Promise.promise();
+            Promise<JsonObject> deleteRowsPromise = Promise.promise();
 
-            FileHelper.removeFiles(storage, pictureIds, FutureHelper.futureJsonObject(removePictureFuture));
-            deleteRequest(structureId, FutureHelper.futureJsonObject(deleteRows));
 
-            CompositeFuture.all(removePictureFuture, deleteRows).setHandler(result -> {
+            FileHelper.removeFiles(storage, pictureIds, FutureHelper.promiseHandler(removePicturePromise));
+            deleteRequest(structureId, FutureHelper.promiseHandler(deleteRowsPromise));
+
+            Future.all(removePicturePromise.future(), deleteRowsPromise.future()).onComplete(result -> {
                 if (result.failed()) {
                     String message = "[Viescolaire@DefaultTrombinoscopeService::delete] Failed to delete failures from structure "
                             + structureId + ".";
                     handler.handle(Future.failedFuture(message));
                     return;
                 }
-
                 handler.handle(Future.succeededFuture());
             });
 

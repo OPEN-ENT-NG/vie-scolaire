@@ -36,3 +36,6 @@ pnpm-lock.yaml
 .pnpm-store
 css
 ?
+.env
+target
+dependency-reduced-pom.xml

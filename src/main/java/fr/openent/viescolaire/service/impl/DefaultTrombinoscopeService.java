@@ -115,7 +115,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
         fetchDirectoriesContentName(path, report, request, handler)
                 .compose((directoriesAudienceNamesResult) -> getStudentsByFetchedAudiences(structureId, directoriesAudienceNamesResult, path, report, request))
                 .compose((audienceStudentMap) -> startImportTrombinoscope(structureId, audienceStudentMap, path, report, request, handler))
-                .setHandler(ar -> {
+                .onComplete(ar -> {
                     if (ar.failed()) {
                         log.error("[Viescolaire@DefaultTrombinoscopeService::process] An error has occured during processus." +
                                 " See previous logs", ar.cause());
@@ -129,7 +129,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
 
     private Future<List<String>> fetchDirectoriesContentName(String path, TrombinoscopeReport report, final HttpServerRequest request,
                                                              Handler<AsyncResult<Void>> requestHandler) {
-        Future<List<String>> future = Future.future();
+        Promise<List<String>> promise = Promise.promise();
 
         fileSystem.readDir(path, audiencesPath -> {
             if (audiencesPath.failed()) {
@@ -137,25 +137,25 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                         "An error has occured while reading the whole directory", audiencesPath.cause());
                 String message = getTranslated(TrombinoscopeError.DIRECTORY_READ_FAILURE.key(), request);
                 report.addReport(new ReportException(message, FileHelper.getAbsolutePath(path)));
-                future.fail(audiencesPath.cause());
+                promise.fail(audiencesPath.cause());
             } else {
                 List<String> audienceDirectories = FileHelper.readDirectoryHandler(path, audiencesPath, requestHandler);
                 if (audienceDirectories == null) {
                     log.error("[Viescolaire@DefaultTrombinoscopeService::fetchDirectoriesContentName] Read directory but contain no folder");
                     String message = getTranslated(TrombinoscopeError.DIRECTORY_READ_FAILURE.key(), request);
                     report.addReport(new ReportException(message, FileHelper.getAbsolutePath(path)));
-                    future.fail(message);
+                    promise.fail(message);
                 } else {
-                    future.complete(getContentNames(audienceDirectories));
+                    promise.complete(getContentNames(audienceDirectories));
                 }
             }
         });
-        return future;
+        return promise.future();
     }
 
     private Future<HashMap<String, List<Student>>> getStudentsByFetchedAudiences(String structureId, List<String> audienceNames,
                                                                                  String path, TrombinoscopeReport report, final HttpServerRequest request) {
-        Future<HashMap<String, List<Student>>> future = Future.future();
+        Promise<HashMap<String, List<Student>>> promise = Promise.promise();
 
         studentService.getStudentsFromStructure(structureId, null, null, audienceNames, false, audiencesStudentsResult -> {
             if (audiencesStudentsResult.isLeft()) {
@@ -163,7 +163,7 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                         "An error has occured while reading the whole directory", audiencesStudentsResult.left().getValue());
                 String message = getTranslated(TrombinoscopeError.FETCH_STUDENT_BY_NAME_FAILURE.key(), request);
                 report.addReport(new ReportException(message, FileHelper.getAbsolutePath(path), audienceNames, null));
-                future.fail(audiencesStudentsResult.left().getValue());
+                promise.fail(audiencesStudentsResult.left().getValue());
             } else {
                 List<Student> students = UserHelper.toStudentList(audiencesStudentsResult.right().getValue());
                 HashMap<String, List<Student>> audienceHashMap = new HashMap<>();
@@ -182,16 +182,16 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
                     }
                 }
 
-                future.complete(audienceHashMap);
+                promise.complete(audienceHashMap);
 
             }
         });
-        return future;
+        return promise.future();
     }
 
     private Future<Void> startImportTrombinoscope(String structureId, HashMap<String, List<Student>> audienceStudentMap, String path,
                                                   TrombinoscopeReport report, final HttpServerRequest request, Handler<AsyncResult<Void>> handler) {
-        Future<Void> processStudentTrombinoscopeFuture = Future.future();
+        Promise<Void> processStudentTrombinoscopePromise = Promise.promise();
 
         List<Future<Void>> processImportTrombinoscopeFutures = new ArrayList<>();
 
@@ -199,64 +199,64 @@ public class DefaultTrombinoscopeService extends DBService implements Trombinosc
             processImportTrombinoscopeFutures.add(processImportTrombinoscope(structureId, audienceStudentMap, path, report, request, handler, audienceName));
         }
 
-        FutureHelper.join(processImportTrombinoscopeFutures).setHandler(event -> {
+        Future.join(processImportTrombinoscopeFutures).onComplete(event -> {
             if (event.failed()) {
                 log.error("[Viescolaire@DefaultTrombinoscopeService::startImportTrombinoscope]" +
                         " Some audience folder import trombinoscope failed during their processes", event.cause());
-                processStudentTrombinoscopeFuture.fail(event.cause());
+                processStudentTrombinoscopePromise.fail(event.cause());
             } else {
-                processStudentTrombinoscopeFuture.complete();
+                processStudentTrombinoscopePromise.complete();
             }
         });
 
-        return processStudentTrombinoscopeFuture;
+        return processStudentTrombinoscopePromise.future();
     }
 
     private Future<Void> processImportTrombinoscope(String structureId, HashMap<String, List<Student>> audienceStudentMap,
                                                     String path, TrombinoscopeReport report, final HttpServerRequest request, Handler<AsyncResult<Void>> handler, String audienceName) {
         String audiencePath = path + "/" + audienceName;
         List<Student> students = getStudentsFromAudienceNames(audiencePath, audienceName, report, request, audienceStudentMap);
-        Future<Void> future = Future.future();
+        Promise<Void> promise = Promise.promise();
 
         if (students == null) {
-            future.handle(Future.failedFuture("[Viescolaire@DefaultTrombinoscopeService::processImportTrombinoscope]: " +
+            promise.handle(Future.failedFuture("[Viescolaire@DefaultTrombinoscopeService::processImportTrombinoscope]: " +
                     " No Students fetched for this audience"));
         } else {
             getPicturesNamesFromAudienceDirectories(audiencePath, handler, pictureNamesResult -> {
                 if (pictureNamesResult.failed()) {
                     String message = getTranslated(TrombinoscopeError.RETRIEVE_LINKED_STUDENT_AUDIENCE_FAILURE.key(), request);
                     report.addReport(new ReportException(message, FileHelper.getAbsolutePath(path), Collections.singletonList(audienceName), null));
-                    future.handle(Future.failedFuture(pictureNamesResult.cause()));
+                    promise.handle(Future.failedFuture(pictureNamesResult.cause()));
                     return;
                 }
                 List<String> pictureNames = pictureNamesResult.result();
-                List<Future<JsonObject>> picturesFuture = new ArrayList<>();
+                List<Future<JsonObject>> listPicturesFuture = new ArrayList<>();
 
                 for (String pictureName : pictureNames) {
                     String picturePath = audiencePath + '/' + pictureName;
                     String extension = getAllowedExtension(pictureName);
-                    Future<JsonObject> pictureFuture = Future.future();
-                    picturesFuture.add(pictureFuture);
+                    Promise<JsonObject> picturePromise = Promise.promise();
+                    listPicturesFuture.add(picturePromise.future());
                     if (extension == null) {
                         String message = getTranslated(TrombinoscopeError.EXTENSION_FILE_FAILURE.key(), request);
                         report.addReport(new ReportException(message, FileHelper.getAbsolutePath(picturePath)));
-                        pictureFuture.fail("[Viescolaire@DefaultTrombinoscopeService::processImportTrombinoscope] extension fetched was null");
+                        picturePromise.fail("[Viescolaire@DefaultTrombinoscopeService::processImportTrombinoscope] extension fetched was null");
                     } else {
                         saveTrombinoscope(structureId, picturePath, pictureName, extension, students, report, request,
-                                FutureHelper.futureJsonObject(pictureFuture));
+                                FutureHelper.promiseHandler(picturePromise));
                     }
                 }
-                FutureHelper.join(picturesFuture).setHandler(ar -> {
+                Future.join(listPicturesFuture).onComplete(ar -> {
                     if (ar.failed()) {
-                        future.handle(Future.failedFuture(ar.cause()));
+                        promise.handle(Future.failedFuture(ar.cause()));
                     } else {
-                        future.handle(Future.succeededFuture());
+                        promise.handle(Future.succeededFuture());
                     }
                 });
             });
         }
 
-        return future;
+        return promise.future();
     }
 
     private List<Student> getStudentsFromAudienceNames(String audiencePath, String audienceName,

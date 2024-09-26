@@ -165,7 +165,7 @@ public class DefaultImportCsvService implements ImportCsvService {
                                                     .append(" abs_non_just=?, abs_non_just_heure=?, abs_just=?, ")
                                                     .append(" abs_just_heure=?, retard=? ");
 
-                                            JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+                                            JsonArray params = new JsonArray();
 
                                             params.add(idPeriode).add(idEleve).add(abs).add(abs_hour)
                                                     .add(notjustifiedAbs).add(notjustifiedAbsHour)

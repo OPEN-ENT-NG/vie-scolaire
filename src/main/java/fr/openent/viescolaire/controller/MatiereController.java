@@ -55,7 +55,7 @@ public class MatiereController extends ControllerHelper {
         matiereService.getEnseignantsMatieres(classesFieldOfStudy, new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
-                final JsonArray response = new fr.wseduc.webutils.collections.JsonArray();
+                final JsonArray response = new JsonArray();
                 if(event.isRight()){
                     JsonArray r = event.right().getValue();
 
@@ -171,7 +171,7 @@ public class MatiereController extends ControllerHelper {
             @Override
             public void handle(final UserInfos user) {
                 final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-                final JsonArray idMatieres = new fr.wseduc.webutils.collections.JsonArray(request.params().getAll("idMatiere"));
+                final JsonArray idMatieres = new JsonArray(request.params().getAll("idMatiere"));
                 String idStructure = request.params().get("idStructure");
                 matiereService.subjectsListWithUnderSubjects(idMatieres, idStructure, handler);
             }

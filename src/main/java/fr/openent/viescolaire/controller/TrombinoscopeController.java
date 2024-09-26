@@ -158,7 +158,7 @@ public class TrombinoscopeController extends ControllerHelper {
                 .compose((clearOldFailureResult) -> uploadFile(request, report, fileHelper))
                 .compose((zipFilename) -> unzipFile(zipFilename, report, request))
                 .compose((uploadPathFromUnzip) -> processImportTrombinoscope(request, structureId, report, uploadPathFromUnzip))
-                .setHandler(ar -> {
+                .onComplete(ar -> {
                     if (ar.failed()) {
                         log.error("[Viescolaire@TrombinoscopeController::importTrombinoscope] Importing trombinoscope failed." +
                                 " See previous logs", ar.cause());

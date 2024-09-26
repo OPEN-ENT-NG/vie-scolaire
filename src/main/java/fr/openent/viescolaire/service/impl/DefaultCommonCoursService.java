@@ -332,37 +332,39 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                                      List<String> group, String begin, String end, String startTime, String endTime,
                                      boolean union, boolean crossDateFilter, String limit, String offset,
                                      boolean descendingDate, Boolean searchTeacher, Handler<Either<String, JsonArray>> handler) {
-        Future<JsonArray> coursesFuture = Future.future();
-        Future<JsonArray> classeFuture = Future.future();
-        Future<JsonArray> exclusionPeriodsFuture = Future.future();
+
+
+        Promise<JsonArray> coursesPromise = Promise.promise();
+        Promise<JsonArray> classePromise = Promise.promise();
+        Promise<JsonArray> exclusionPeriodsPromise = Promise.promise();
 
         getCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, group, begin, end, startTime, endTime, union,
-                crossDateFilter, limit, offset, descendingDate, searchTeacher, coursesFuture);
+                crossDateFilter, limit, offset, descendingDate, searchTeacher, coursesPromise);
 
         checkGroupFromClass(groupIds, groupExternalIds, group, structureId, response -> {
             if (response.isRight()) {
-                classeFuture.complete(response.right().getValue());
+                classePromise.complete(response.right().getValue());
             } else {
-                classeFuture.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get courses from mongo");
+                classePromise.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get courses from mongo");
             }
         });
 
         periodeAnneeService.listExclusion(structureId, resExlusions -> {
             if (resExlusions.isLeft()) {
-                exclusionPeriodsFuture.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get exclusion periods. "
+                exclusionPeriodsPromise.fail("[Viescolaire@DefaultCommonCoursService::getCoursesOccurences] Can't get exclusion periods. "
                         + resExlusions.left().getValue());
                 return;
             }
-            exclusionPeriodsFuture.complete(resExlusions.right().getValue());
+            exclusionPeriodsPromise.complete(resExlusions.right().getValue());
         });
 
-        CompositeFuture.all(coursesFuture, classeFuture, exclusionPeriodsFuture).setHandler(event -> {
+        Future.all(coursesPromise.future(), classePromise.future(), exclusionPeriodsPromise.future()).onComplete(event -> {
             if (event.succeeded()) {
                 JsonArray results = new JsonArray();
-                for (Object o : coursesFuture.result()) {
+                for (Object o : coursesPromise.future().result()) {
                     JsonObject course = (JsonObject) o;
-                    if (isCourseInsideExcludedPeriods(exclusionPeriodsFuture.result(), course)) continue;
-                    boolean onlyOneClass = isOneClass(classeFuture.result(), teacherId, group);
+                    if (isCourseInsideExcludedPeriods(exclusionPeriodsPromise.future().result(), course)) continue;
+                    boolean onlyOneClass = isOneClass(classePromise.future().result(), teacherId, group);
                     Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
                     Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
                     results.add(formatOccurence(course, onlyOneClass, startMoment, endMoment));
@@ -378,22 +380,22 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                                            List<String> groupExternalIds, List<String> groupNames, String begin,
                                            String end, String startTime, String endTime, boolean union,
                                            boolean crossDateFilter, String limit, String offset,
-                                           boolean descendingDate, Boolean searchTeacher, Future<JsonArray> coursesFuture) {
+                                           boolean descendingDate, Boolean searchTeacher, Promise<JsonArray> coursesPromise) {
         listCoursesBetweenTwoDates(structureId, teacherId, groupIds, groupExternalIds, groupNames, null, begin, end,
                 startTime, endTime, union, crossDateFilter, limit, offset, descendingDate, searchTeacher,
                 response -> {
                     if (response.isLeft()) {
                         LOG.error("[Viescolaire@DefaultCommonCoursService::getCoursesBetweenTwoDates] " +
                                 "failed to list courses from mongoDb");
-                        coursesFuture.fail(response.left().getValue());
+                        coursesPromise.fail(response.left().getValue());
                     } else {
                         JsonArray courses = response.right().getValue();
 
                         setCoursesSubjects(response.right().getValue(), res -> {
                             if (res.isLeft()) {
-                                coursesFuture.fail(res.left().getValue());
+                                coursesPromise.fail(res.left().getValue());
                             } else {
-                                coursesFuture.complete(courses);
+                                coursesPromise.complete(courses);
                             }
                         });
                     }

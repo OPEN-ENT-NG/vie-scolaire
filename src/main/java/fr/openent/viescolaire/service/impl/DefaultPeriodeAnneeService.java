@@ -35,7 +35,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
     public void getPeriodeAnnee(String structure, Handler<Either<String, JsonObject>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
                 " WHERE id_structure = ? AND code = 'YEAR';";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structure);
+        JsonArray params = new JsonArray().add(structure);
 
         Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
     }
@@ -44,7 +44,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
     public void listExclusion(String structureId, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
                 " WHERE id_structure = ? AND code = 'EXCLUSION'";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(structureId);
+        JsonArray params = new JsonArray().add(structureId);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
@@ -62,7 +62,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD + "(" +
                 "start_date, end_date, description, id_structure, is_opening, code) " +
                 "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(periode.getString(Field.START_DATE))
                 .add(periode.getString(Field.END_DATE))
                 .add(periode.getString(Field.DESCRIPTION))
@@ -92,7 +92,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
         String query = "UPDATE "+ Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
                 " SET start_date= to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), end_date = to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), " +
                 "description= ?, id_structure= ?" + " WHERE id = ? RETURNING *;";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(periode.getString(Field.START_DATE))
                 .add(periode.getString(Field.END_DATE))
                 .add(periode.getString(Field.DESCRIPTION))
@@ -106,7 +106,7 @@ public class DefaultPeriodeAnneeService implements PeriodeAnneeService {
     public void deleteExclusion(Integer exclusionId, Handler<Either<String, JsonArray>> result) {
         String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_SETTING_PERIOD +
                 " WHERE id = ?;";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(exclusionId);
+        JsonArray params = new JsonArray().add(exclusionId);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(result));
     }

@@ -8,6 +8,7 @@ import fr.openent.viescolaire.service.impl.DefaultTrombinoscopeService;
 import fr.openent.viescolaire.service.impl.StructureService;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
@@ -124,7 +125,7 @@ public class TrombinoscopeTest {
 
         try {
             Whitebox.invokeMethod(trombinoscopeService, "saveTrombinoscope",
-                    structureId, studentId, pictureId, Future.future());
+                    structureId, studentId, pictureId, Promise.promise().future());
         } catch (Exception e) {
             ctx.assertFalse(e.getMessage().isEmpty());
         }

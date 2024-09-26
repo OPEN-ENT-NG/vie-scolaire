@@ -92,7 +92,7 @@ public class EleveController extends ControllerHelper {
             eleveService.getGroups(idEleve, new Handler<Either<String, JsonArray>>() {
                 @Override
                 public void handle(Either<String, JsonArray> event) {
-                    JsonArray idGroups = new fr.wseduc.webutils.collections.JsonArray().add(idClasse);
+                    JsonArray idGroups = new JsonArray().add(idClasse);
                     if (event.isRight()) {
                         JsonArray values = event.right().getValue();
                         if (values.size() > 0) {

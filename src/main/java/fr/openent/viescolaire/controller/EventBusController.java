@@ -235,7 +235,7 @@ public class EventBusController extends ControllerHelper {
                         JsonObject action = new JsonObject()
                                 .put("action", "list-slots")
                                 .put("slotProfileId", slotProfile);
-                        eb.send("directory", action, directoryMessage -> {
+                        eb.request("directory", action, directoryMessage -> {
                             String status = ((JsonObject) directoryMessage.result().body()).getString("status");
                             if ("error".equals(status)) {
                                 message.reply(getErrorReply(directoryMessage.cause().getMessage()));

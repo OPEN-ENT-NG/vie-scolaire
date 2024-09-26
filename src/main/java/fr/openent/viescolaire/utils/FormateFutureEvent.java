@@ -2,17 +2,18 @@ package fr.openent.viescolaire.utils;
 
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 
 public class FormateFutureEvent {
 
 
-    public static <T> void formate (Future<T> future, Either<String, T> event) {
+    public static <T> void formate (Promise<T> promise, Either<String, T> event) {
         if(event.isLeft()) {
             String error = event.left().getValue();
-            future.fail(error);
+            promise.fail(error);
         }
         else {
-            future.complete(event.right().getValue());
+            promise.complete(event.right().getValue());
         }
     }
 

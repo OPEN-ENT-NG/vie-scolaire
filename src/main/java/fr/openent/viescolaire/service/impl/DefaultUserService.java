@@ -87,7 +87,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         }
         query.append(" WHERE fk4j_user_id = ?;");
 
-        Sql.getInstance().prepared(query.toString(), new fr.wseduc.webutils.collections.JsonArray().add(user.getUserId()),
+        Sql.getInstance().prepared(query.toString(), new JsonArray().add(user.getUserId()),
                 SqlResult.validUniqueResultHandler(handler));
     }
 
@@ -97,7 +97,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         StringBuilder query = new StringBuilder()
                 .append("SELECT * FROM " + Viescolaire.VSCO_SCHEMA + ".structure " +
                         "WHERE structure.fk4j_structure_id IN " + Sql.listPrepared(structures.toArray()));
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
         for (int i = 0; i < structures.size(); i++) {
             params.add(structures.get(i));
         }
@@ -107,7 +107,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     @Override
     public void getClasses(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         List<String> classes = user.getClasses();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
         StringBuilder query = new StringBuilder()
                 .append("SELECT * FROM " + Viescolaire.VSCO_SCHEMA + ".classe " +
                         "WHERE classe.fk4j_classe_id IN " + Sql.listPrepared(classes.toArray()));
@@ -120,7 +120,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     @Override
     public void getMatiere(UserInfos user, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
         switch (user.getType()) {
             case "Teacher" : {
                 query.append("SELECT matiere.* " +
@@ -143,7 +143,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             }
             break;
             default : {
-                handler.handle(new Either.Right<String, JsonArray>(new fr.wseduc.webutils.collections.JsonArray()));
+                handler.handle(new Either.Right<String, JsonArray>(new JsonArray()));
             }
         }
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
@@ -153,14 +153,14 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     public void getMoyenne(String idEleve, Long[] idDevoirs, final Handler<Either<String, JsonObject>> handler) {
         JsonObject action = new JsonObject()
                 .put("action", "note.getNotesParElevesParDevoirs")
-                .put("idEleves", new fr.wseduc.webutils.collections.JsonArray().add(idEleve))
-                .put("idDevoirs", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idDevoirs)));
+                .put("idEleves", new JsonArray().add(idEleve))
+                .put("idDevoirs", new JsonArray(Arrays.asList(idDevoirs)));
 
-        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+        eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> message) {
                 if ("ok".equals(message.body().getString("status"))) {
-                    JsonArray notes = new fr.wseduc.webutils.collections.JsonArray();
+                    JsonArray notes = new JsonArray();
                     JsonArray listNotes = message.body().getJsonArray("results");
 
                     for (int i = 0; i < listNotes.size(); i++) {
@@ -185,7 +185,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                 .put("statistiques", false)
                                 .put("diviseurM", 20);
 
-                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+                        eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
                             @Override
                             public void handle(Message<JsonObject> message) {
                                 Either<String, JsonObject> result = null;
@@ -390,7 +390,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                                             "first_name, last_name, delete_date, birth_date) " +
                                             "VALUES (?, ?, ?, ?, ?, ?, to_timestamp(?), ? ) " +
                                             "ON CONFLICT (id) DO NOTHING; ";
-                            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                            JsonArray uParams = new JsonArray()
                                     .add(idPersonneSupp)
                                     .add(user.getString("id"))
                                     .add(user.getString("displayName"))
@@ -406,7 +406,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                         if(user.getString("type").equals("Teacher")){
                             String query = "DELETE FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.SERVICES_TABLE +
                                     " WHERE id_enseignant=?";
-                            JsonArray uParams = new fr.wseduc.webutils.collections.JsonArray()
+                            JsonArray uParams = new JsonArray()
                                     .add(user.getString("id"));
                             statements.prepared(query, uParams);
                         }
@@ -456,7 +456,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 //            log.info("users : " + users.toString());
 //        }
         StringBuilder query ;
-        JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray statements = new JsonArray();
         JsonArray params;
 
         for(Object u : users){
@@ -474,7 +474,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
 
             if(isStudent && newClassIds != null && newClassIds.size() > 0 && structureIds.size() > 0) {
                 query = new StringBuilder();
-                params = new fr.wseduc.webutils.collections.JsonArray();
+                params = new JsonArray();
                 query.append("INSERT INTO " + Viescolaire.EVAL_SCHEMA + ".rel_annotations_devoirs (id_devoir, id_annotation, id_eleve) " +
                         "(SELECT " + Viescolaire.EVAL_SCHEMA + ".rel_devoirs_groupes.id_devoir, " + // Récupère les ids des devoirs sur la classe/groupe
                         "(SELECT " + Viescolaire.EVAL_SCHEMA + ".annotations.id " + // Récupère les ids de l'annotaion NN de l'étab
@@ -535,7 +535,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA +
                             ".rel_groupes_personne_supp(id_groupe, id, type_groupe) " +
                             "VALUES (?, ?, ?);";
-            JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+            JsonArray params = new JsonArray()
                     .add(ids.getString(i))
                     .add(userId)
                     .add(type);
@@ -563,7 +563,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
             String query =
                     "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".rel_structures_personne_supp(id_structure, id) " +
                             "VALUES (?, ?);";
-            JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+            JsonArray params = new JsonArray()
                     .add(ids.getString(i))
                     .add(userId);
             statements.prepared(query, params);
@@ -579,7 +579,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     public void getActivesIDsStructures(UserInfos userInfos, String module,
                                         Handler<Either<String, JsonArray>> handler) {
         StringBuilder query =new StringBuilder();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
 
         query.append("SELECT id_etablissement ")
                 .append("FROM "+ module +".etablissements_actifs  ")
@@ -600,7 +600,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     public void getActivesIDsStructures( String module,
                                          Handler<Either<String, JsonArray>> handler) {
         StringBuilder query =new StringBuilder();
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
 
         query.append("SELECT id_etablissement ")
                 .append("FROM "+ module +".etablissements_actifs  ")
@@ -622,7 +622,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         SqlStatementsBuilder s = new SqlStatementsBuilder();
         JsonObject data = new JsonObject();
         String userQuery = "SELECT " + module + ".merge_users(?,?)";
-        s.prepared(userQuery, (new fr.wseduc.webutils.collections.JsonArray()).add(user.getUserId()).add(user.getUsername()));
+        s.prepared(userQuery, (new JsonArray()).add(user.getUserId()).add(user.getUsername()));
         data.put("id_etablissement", id);
         data.put("actif", true);
         s.insert(module + ".etablissements_actifs ", data, "id_etablissement");
@@ -638,7 +638,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
     @Override
     public void deleteActiveStructure(String id, String module, Handler<Either<String, JsonArray>> handler) {
         String query = "DELETE FROM " + module + ".etablissements_actifs WHERE id_etablissement = ?";
-        Sql.getInstance().prepared(query, (new fr.wseduc.webutils.collections.JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
+        Sql.getInstance().prepared(query, (new JsonArray()).add(Sql.parseId(id)), SqlResult.validResultHandler(handler));
     }
 
     @Override
@@ -662,7 +662,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 "COLLECT(DISTINCT s.id) AS structureIds, COLLECT(DISTINCT g.id) AS currentGroupIds, COLLECT(DISTINCT g.externalId) AS currentGroupExternalIds, " +
                 "COLLECT(DISTINCT c.id) AS currentClassIds, COLLECT(DISTINCT c.externalId) AS currentClassExternalIds");
 
-        fr.wseduc.webutils.collections.JsonArray usersArr = new fr.wseduc.webutils.collections.JsonArray(idUsers);
+        JsonArray usersArr = new JsonArray(idUsers);
         log.debug("usersArr : " + usersArr.toString());
 //        log.info("getUsers : " + query.toString());
         Neo4j.getInstance().execute(query.toString(), new JsonObject().put("id",usersArr), Neo4jResult.validResultHandler(handler));
@@ -676,7 +676,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         query.append(" RETURN u.id as idNeo4j, u.externalId as externalId,u.attachmentId as attachmentId,u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative,");
         query.append("r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city,");
         query.append("c.id as idClass, c.name as nameClass, c.externalId as externalIdClass ORDER BY nameClass, lastName");
-        param.put("idClass", new fr.wseduc.webutils.collections.JsonArray(idsClass));
+        param.put("idClass", new JsonArray(idsClass));
         // TODO PUT ExternalId of deleted students and store deleted parents
         /*
         Neo4j.getInstance().execute(query.toString(), param, new DefaultUtilsService()
@@ -736,7 +736,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         query.append("FROM notes.domaines INNER JOIN notes.rel_groupe_cycle ");
         query.append("ON notes.domaines.id_cycle= notes.rel_groupe_cycle.id_cycle ");
         query.append("WHERE notes.rel_groupe_cycle.id_groupe = ? AND code_domaine IS NOT NULL");
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray params = new JsonArray();
 
         params.add(idClass);
         Sql.getInstance().prepared(query.toString(), params, SqlResult.validResultHandler(handler));
@@ -778,7 +778,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         query.append("MATCH (u:User)")
                 .append("WHERE ANY (x IN u.profiles WHERE x IN ['Teacher', 'Personnel']) AND u.id IN {idPersonnel}")
                 .append("RETURN u.id as id, u.lastName as lastName, u.firstName as firstName, u.emailAcademy as emailAcademy");
-        neo4j.execute(query.toString(), new JsonObject().put("idPersonnel", new fr.wseduc.webutils.collections.JsonArray(idPersonnels)), Neo4jResult.validResultHandler(handler));
+        neo4j.execute(query.toString(), new JsonObject().put("idPersonnel", new JsonArray(idPersonnels)), Neo4jResult.validResultHandler(handler));
     }
 
     /**
@@ -931,7 +931,7 @@ public class DefaultUserService extends SqlCrudService implements UserService {
         String query = "SELECT * FROM "+ Viescolaire.VSCO_SCHEMA + ".personnes_supp WHERE user_type = 'Teacher' " +
                 "AND id_user IN "+Sql.listPrepared(idsTeacher);
 
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
         for (String idTeacher : idsTeacher) values.add(idTeacher);
 
         Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));

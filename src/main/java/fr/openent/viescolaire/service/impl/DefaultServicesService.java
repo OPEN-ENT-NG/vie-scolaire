@@ -182,17 +182,17 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
     @Override
     public void getServicesNeo(String structureId, Handler<Either<String, JsonArray>> result) {
-        List<Future> futures = new ArrayList<>();
+        List<Future<JsonArray>> futures = new ArrayList<>();
 
-        Future<JsonArray> getSubjectANdTeachersFuture = Future.future();
-        futures.add(getSubjectANdTeachersFuture);
-        getSubjectANdTeachersForServices(structureId, getHandlerJsonArray(getSubjectANdTeachersFuture));
+        Promise<JsonArray> getSubjectANdTeachersPromise = Promise.promise();
+        futures.add(getSubjectANdTeachersPromise.future());
+        getSubjectANdTeachersForServices(structureId, getHandlerJsonArray(getSubjectANdTeachersPromise));
 
-        Future<JsonArray> getClassesFromStructureForFuture = Future.future();
-        futures.add(getClassesFromStructureForFuture);
-        getClassesFromStructureForServices(structureId, getHandlerJsonArray(getClassesFromStructureForFuture));
+        Promise<JsonArray> getClassesFromStructureForPromise = Promise.promise();
+        futures.add(getClassesFromStructureForPromise.future());
+        getClassesFromStructureForServices(structureId, getHandlerJsonArray(getClassesFromStructureForPromise));
 
-        CompositeFuture.all(futures).setHandler(event -> {
+        Future.all(futures).onComplete(event -> {
             if (event.succeeded()) {
                 JsonArray subjectANdTeachersResult = (JsonArray) event.result().list().get(0);
                 JsonArray classResult = (JsonArray) event.result().list().get(1);
@@ -231,12 +231,12 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         return classResult;
     }
 
-    private Handler<Either<String, JsonArray>> getHandlerJsonArray(Future<JsonArray> serviceFuture) {
+    private Handler<Either<String, JsonArray>> getHandlerJsonArray(Promise<JsonArray> servicePromise) {
         return event -> {
             if (event.isRight()) {
-                serviceFuture.complete(event.right().getValue());
+                servicePromise.complete(event.right().getValue());
             } else {
-                serviceFuture.fail(event.left().getValue());
+                servicePromise.fail(event.left().getValue());
             }
         };
     }
@@ -306,21 +306,21 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
         return promise.future();
     }
 
-    protected Handler<Either<String, JsonObject>> getHandler(Future<JsonObject> future) {
+    protected Handler<Either<String, JsonObject>> getHandler(Promise<JsonObject> promise) {
         return event -> {
             if (event.isRight()) {
-                future.complete(event.right().getValue());
+                promise.complete(event.right().getValue());
             } else {
-                future.fail(event.left().getValue());
+                promise.fail(event.left().getValue());
             }
         };
     }
 
     @Override
     public void updateServices(JsonObject oServices, Handler<Either<String, JsonObject>> defaultResponseHandler) {
-        List<Future> futures = new ArrayList<>();
+        List<Future<JsonObject>> futures = new ArrayList<>();
 
-        CompositeFuture.all(futures).setHandler(event -> {
+        Future.all(futures).onComplete(event -> {
             if (event.succeeded()) {
                 defaultResponseHandler.handle(new Either.Right<>(new JsonObject().put("services", new JsonArray(event.result().list()))));
             } else {
@@ -330,9 +330,9 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
 
         JsonArray services = oServices.getJsonArray("services");
         for (Object service : services) {
-            Future<JsonObject> serviceFuture = Future.future();
-            futures.add(serviceFuture);
-            createService((JsonObject) service, getHandler(serviceFuture));
+            Promise<JsonObject> servicePromise = Promise.promise();
+            futures.add(servicePromise.future());
+            createService((JsonObject) service, getHandler(servicePromise));
         }
     }
 
@@ -340,20 +340,21 @@ public class DefaultServicesService extends SqlCrudService implements ServicesSe
     public void getAllServices(String structureId, Boolean evaluable, Boolean notEvaluable, Boolean classes,
                                Boolean groups, Boolean manualGroups, Boolean compressed, JsonObject oService,
                                Handler<Either<String, JsonArray>> arrayResponseHandler) {
-        List<Future> futures = new ArrayList<>();
+        List<Future<JsonArray>> futures = new ArrayList<>();
 
-        Future<JsonArray> getServicesNeoFuture = Future.future();
-        Future<JsonArray> getServiceSQLFuture = Future.future();
-        Future<JsonArray> getMutliTeachingFuture = Future.future();
 
-        futures.add(getServicesNeoFuture);
-        futures.add(getServiceSQLFuture);
-        futures.add(getMutliTeachingFuture);
+        Promise<JsonArray> getServicesNeoPromise = Promise.promise();
+        Promise<JsonArray> getServiceSQLPromise = Promise.promise();
+        Promise<JsonArray> getMutliTeachingPromise = Promise.promise();
 
-        getServicesNeo(structureId, getHandlerJsonArray(getServicesNeoFuture));
-        getServicesSQL(structureId, oService, getHandlerJsonArray(getServiceSQLFuture));
-        multiTeachingService.getMultiTeaching(structureId, getHandlerJsonArray(getMutliTeachingFuture));
-        CompositeFuture.all(futures).setHandler(event -> {
+        futures.add(getServicesNeoPromise.future());
+        futures.add(getServiceSQLPromise.future());
+        futures.add(getMutliTeachingPromise.future());
+
+        getServicesNeo(structureId, getHandlerJsonArray(getServicesNeoPromise));
+        getServicesSQL(structureId, oService, getHandlerJsonArray(getServiceSQLPromise));
+        multiTeachingService.getMultiTeaching(structureId, getHandlerJsonArray(getMutliTeachingPromise));
+        Future.all(futures).onComplete(event -> {
             if (event.succeeded()) {
                 JsonArray getServicesNeoResult = (JsonArray) event.result().list().get(0);
                 JsonArray getServicesSQLResult = (JsonArray) event.result().list().get(1);

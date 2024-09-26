@@ -235,8 +235,8 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
             param1 = "WHERE " + paramClass + "AND " + paramEtab + filterClass + "RETURN m ";
             param2 = "WHERE " + paramGroup + "AND " + paramEtab + filterClass + "RETURN m ";
             param3 = paramUser + "AND " + paramEtab;
-            params.put("classes", new fr.wseduc.webutils.collections.JsonArray(user.getClasses()))
-                    .put("groups", new fr.wseduc.webutils.collections.JsonArray(user.getGroupsIds()))
+            params.put("classes", new JsonArray(user.getClasses()))
+                    .put("groups", new JsonArray(user.getGroupsIds()))
                     .put("idStructure", idStructure)
                     .put("userId", user.getUserId());
         }
@@ -290,7 +290,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" AND  c.externalId IN u.classes) ")
                 .append(RETURNING);
 
-        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+        params.put("idClasses", new JsonArray(Arrays.asList(idClasses)));
         try {
             neo4j.execute(query.toString(), params, utilsService.getEleveWithClasseName(idClasses, null,
                     idPeriode, handler));
@@ -317,7 +317,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append(" UNION MATCH (g:ManualGroup)-[:DEPENDS]->(:Class)-[BELONGS]->(s:Structure) ")
                 .append(" WHERE g.id IN {idClasses} ")
                 .append(" return DISTINCT(s.id) AS idStructure, COLLECT(g.id) AS idClasses");
-        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+        params.put("idClasses", new JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -413,7 +413,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("WHERE c.id IN {idClasses} ")
                 .append("WITH u, c, s OPTIONAL MATCH (u)--(g)--(s) WHERE (g:FunctionalGroup OR g:ManualGroup) AND NOT EXISTS (g.autolinkUsersFromGroups) ")
                 .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.id) AS id_groupes");
-        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+        params.put("idClasses", new JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -480,7 +480,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                             }
                             listFutureGps.add(promiseGroupsClass.future());
                         }
-                        FutureHelper.all(listFutureGps)
+                        Future.all(listFutureGps)
                                 .onSuccess(event -> handler.handle(new Either.Right<>(finalEvaluableGroupsInClass)))
                                 .onFailure(err -> {
                                     log.error(String.format("[Viescolaire@%s::getEvaluableGroups in getEvaluableGroupsClasses] error get All evaluable groups : %s",
@@ -512,7 +512,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
 
                             // Si l'élève est présent dans l'annuaire.
                             JsonArray rNeo = ((JsonObject) event.body()).getJsonArray("result",
-                                    new fr.wseduc.webutils.collections.JsonArray());
+                                    new JsonArray());
                             if (rNeo.size() > 0) {
                                 handler.handle(Neo4jResult.validUniqueResult(event));
                             } else {
@@ -573,7 +573,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 .append("WHERE c.id IN {idClasses} ")
                 .append("WITH u, c MATCH (u)--(g) WHERE g:FunctionalGroup OR g:ManualGroup ")
                 .append("RETURN c.id as id_classe, c.name as name_classe, COLLECT(DISTINCT g.name) AS name_groups ,COLLECT(DISTINCT g.id) as id_groups");
-        params.put("idClasses", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idClasses)));
+        params.put("idClasses", new JsonArray(Arrays.asList(idClasses)));
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
@@ -622,7 +622,7 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 badRequest(request);
             } else {
                 JsonArray recipient = event.right().getValue();
-                final JsonArray classes = new fr.wseduc.webutils.collections.JsonArray();
+                final JsonArray classes = new JsonArray();
                 List<String> idGroupes = new ArrayList<>();
                 for (int i = 0; i < recipient.size(); i++) {
                     JsonObject classe = recipient.getJsonObject(i).getJsonObject("m");
@@ -643,17 +643,17 @@ public class DefaultClasseService extends SqlCrudService implements ClasseServic
                 }
 
                 if (idGroupes.isEmpty()) {
-                    renderJson(request, new fr.wseduc.webutils.collections.JsonArray(idGroupes));
+                    renderJson(request, new JsonArray(idGroupes));
                 } else {
                     if (isPresence || isEdt || noCompetence) {
                         renderJson(request, classes);
                     } else {
                         JsonObject action = new JsonObject()
                                 .put("action", "utils.getCycle")
-                                .put("ids", new fr.wseduc.webutils.collections.JsonArray(idGroupes));
-                        eb.send(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
+                                .put("ids", new JsonArray(idGroupes));
+                        eb.request(Viescolaire.COMPETENCES_BUS_ADDRESS, action, handlerToAsyncHandler(message -> {
                             if ("ok".equals(message.body().getString("status"))) {
-                                JsonArray returnedList = new fr.wseduc.webutils.collections.JsonArray();
+                                JsonArray returnedList = new JsonArray();
                                 JsonObject cycles = utilsService.mapListNumber(message.body()
                                         .getJsonArray("results"), "id_groupe", "id_cycle");
                                 JsonObject cycleLibelle = utilsService.mapListString(message.body()

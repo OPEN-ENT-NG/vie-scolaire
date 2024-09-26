@@ -68,7 +68,7 @@ public abstract class InitWorker extends AbstractVerticle {
         log.info(String.format("[Viescolaire@%s::run] Starting worker %s process, initializing structure %s",
                 this.getClass().getSimpleName(), this.getClass().getSimpleName(), structureId));
 
-        FutureHelper.all(Arrays.asList(setInitStatus(), initTimeSlots(), initSubjects()))
+        Future.all(Arrays.asList(setInitStatus(), initTimeSlots(), initSubjects()))
                 .compose(r -> initServices())
                 .compose(r -> initSchoolYear())
                 .compose(r -> initExclusionPeriods())

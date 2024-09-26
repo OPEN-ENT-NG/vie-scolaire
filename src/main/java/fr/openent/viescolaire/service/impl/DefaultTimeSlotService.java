@@ -44,7 +44,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
     public void getSlotProfiles(String id_structure, Handler<Either<String, JsonArray>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
                 " WHERE id_structure = ?";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(id_structure);
+        JsonArray params = new JsonArray().add(id_structure);
 
         Sql.getInstance().prepared(query, params, SqlResult.validResultHandler(handler));
     }
@@ -120,7 +120,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
     public void getSlotProfileSetting(String id_structure, Handler<Either<String, JsonObject>> handler) {
         String query = "SELECT * FROM " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
                 " WHERE id_structure = ?";
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(id_structure);
+        JsonArray params = new JsonArray().add(id_structure);
 
         Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
     }
@@ -186,7 +186,7 @@ public class DefaultTimeSlotService implements TimeSlotService {
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
                 "(id_structure, id) " + "VALUES (?, ?)" + "ON CONFLICT (id_structure) DO UPDATE SET id = ? RETURNING *;";
 
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(timeSlot.getString("id_structure"))
                 .add(timeSlot.getString("id"))
                 .add(timeSlot.getString("id"));
@@ -245,23 +245,24 @@ public class DefaultTimeSlotService implements TimeSlotService {
 
     @Override
     public void getDefaultTimeSlot(String id, Handler<Either<String, JsonObject>> handler) {
-        Future<JsonArray> slotsFuture = Future.future();
-        Future<JsonObject> profileFuture = Future.future();
 
-        CompositeFuture.all(slotsFuture, profileFuture).setHandler(event -> {
+        Promise<JsonArray> slotsPromise = Promise.promise();
+        Promise<JsonObject> profilePromise = Promise.promise();
+
+        Future.all(slotsPromise.future(), profilePromise.future()).onComplete(event -> {
             if (event.failed()) {
                 LOGGER.error("[Viescolaire@DefaultTimeSlotService] Failed retrieve default structure timeslot. One future failed.", event.cause());
                 handler.handle(new Either.Left<>(event.cause().toString()));
             }
 
-            JsonObject profile = profileFuture.result();
-            JsonArray slots = slotsFuture.result();
+            JsonObject profile = profilePromise.future().result();
+            JsonArray slots = slotsPromise.future().result();
 
             handler.handle(new Either.Right<>(profile.put("slots", slots)));
         });
 
-        getSortedSlots(id, slotsFuture);
-        getTimeSlot(id, profileFuture);
+        getSortedSlots(id, slotsPromise);
+        getTimeSlot(id, profilePromise);
     }
 
     @Override
@@ -365,14 +366,14 @@ public class DefaultTimeSlotService implements TimeSlotService {
                 .compose(serviceFactory.timeSlotService()::getDefaultTimeSlot);
     }
 
-    private void getTimeSlot(String slotId, Future<JsonObject> future) {
+    private void getTimeSlot(String slotId, Promise<JsonObject> promise) {
         MongoDb.getInstance().findOne(COLLECTION, new JsonObject().put("_id", slotId), message -> {
             Either<String, JsonObject> either = MongoDbResult.validResult(message);
             if (either.isLeft()) {
                 LOGGER.error("[Viescolaire@DefaultTimeSlotService] Failed to fetch given slot", either.left().getValue());
-                future.fail(either.left().getValue());
+                promise.fail(either.left().getValue());
             } else {
-                future.complete(either.right().getValue());
+                promise.complete(either.right().getValue());
             }
         });
     }
@@ -459,17 +460,15 @@ public class DefaultTimeSlotService implements TimeSlotService {
     }
 
     private void getTimeSlot(String slotId, Handler<Either<String, JsonObject>> handler) {
-        Future<JsonObject> future = Future.future();
-        getTimeSlot(slotId, future.setHandler(event -> {
-            if (event.failed()) {
-                handler.handle(new Either.Left<>(event.cause().toString()));
-            } else {
-                handler.handle(new Either.Right<>(event.result()));
-            }
-        }));
+        Promise<JsonObject> promise = Promise.promise();
+        getTimeSlot(slotId, promise);
+
+        promise.future()
+                .onSuccess(event -> handler.handle(new Either.Right<>(event)))
+                .onFailure(error -> handler.handle(new Either.Left<>(error.getCause().toString())));
     }
 
-    private void getSortedSlots(String slotId, Future<JsonArray> future) {
+    private void getSortedSlots(String slotId, Promise<JsonArray> promise) {
         JsonArray pipeline = new JsonArray();
         JsonObject command = new JsonObject()
                 .put("aggregate", COLLECTION)
@@ -494,11 +493,11 @@ public class DefaultTimeSlotService implements TimeSlotService {
         MongoDb.getInstance().command(command.toString(), message -> {
             JsonObject body = message.body();
             if ("ok".equals(body.getString("status"))) {
-                future.complete(body.getJsonObject("result").getJsonObject("cursor").getJsonArray("firstBatch"));
+                promise.complete(body.getJsonObject("result").getJsonObject("cursor").getJsonArray("firstBatch"));
             } else {
                 String error = "[Viescolaire@DefaultTimeSlotsService] Failed to retrieve sorted slots";
                 LOGGER.error(error);
-                future.fail(error);
+                promise.fail(error);
             }
 
         });

@@ -304,7 +304,7 @@ public class DefaultInitService implements InitService {
                                 }
                             });
 
-                    FutureHelper.all(createServiceFutures)
+                    Future.all(createServiceFutures)
                             .onFailure(fail -> {
                                 LOGGER.error(String.format("[Viescolaire@%s::initServices] Failed to create services: %s",
                                         this.getClass().getSimpleName(), fail.getMessage()));

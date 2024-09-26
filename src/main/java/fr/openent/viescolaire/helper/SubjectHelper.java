@@ -4,10 +4,10 @@ import fr.openent.viescolaire.utils.ServicesHelper;
 import fr.openent.viescolaire.utils.SortUtils;
 
 import fr.wseduc.webutils.Either;
-import fr.wseduc.webutils.collections.JsonArray;
-import fr.wseduc.webutils.collections.JsonObject;
 
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 

@@ -85,7 +85,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getEvenements(String psIdEleve, String psDateDebut, String psDateFin, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("SELECT evenement.* ")
                 .append("FROM "+ Viescolaire.ABSC_SCHEMA +".evenement, "+ Viescolaire.VSCO_SCHEMA +".cours, "+ Viescolaire.ABSC_SCHEMA +".appel ")
@@ -196,7 +196,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 .append(order);
 
         params.put("idStructure", idEtablissement)
-                .put("idEleves", new fr.wseduc.webutils.collections.JsonArray(Arrays.asList(idEleves)));
+                .put("idEleves", new JsonArray(Arrays.asList(idEleves)));
 
         // Rajout des élèves supprimés au résultat
         try {
@@ -227,7 +227,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getAnnotations(String idEleve, Long idPeriode, JsonArray idGroups, String idMatiere,
                                Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         query.append("WITH values  " +
                 "     AS (SELECT devoirs.id          AS id_devoir, " +
@@ -302,7 +302,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getCompetences(String idEleve, Long idPeriode, JsonArray idGroups, Long idCycle, String idMatiere,
                                Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         //le DISTINCT est utilisé pour filtrer des données identiques multipliées sur la table competences_devoirs
         StringBuilder query = new StringBuilder()
@@ -356,7 +356,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getCycle(String idClasse,Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
         query.append("SELECT id_cycle, libelle ")
                 .append(" FROM " + Viescolaire.EVAL_SCHEMA + ".rel_groupe_cycle ")
                 .append(" INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".cycle ON cycle.id = id_cycle ")
@@ -369,7 +369,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     @Override
     public void getAppreciationDevoir(Long idDevoir, String idEleve, Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
         query.append("SELECT valeur as appreciation  ")
                 .append(" FROM notes.appreciations INNER JOIN notes.devoirs  ON appreciations.id_devoir = devoirs.id ")
                 .append(" WHERE id_eleve = ?  AND id_devoir = ? AND devoirs.apprec_visible = true");
@@ -397,7 +397,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
     public void getStoredDeletedStudent(JsonArray idClasse, String idStructure, String[] idEleves,
                                         Handler<Either<String, JsonArray>> handler){
         StringBuilder query = new StringBuilder();
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray();
+        JsonArray values = new JsonArray();
 
         // Si les élèves sont dans le résultat Neo, on ne les récupère pas dans postgres
         /*JsonArray idsNeo = new JsonArray();
@@ -543,7 +543,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
                 " AND personnes_supp.delete_date > to_timestamp(?,'YYYY-MM-DD') " +
                 " GROUP BY id_user,display_name,first_name,last_name";
 
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(idClass).add(beginningPeriode);
+        JsonArray values = new JsonArray().add(idClass).add(beginningPeriode);
 
         Sql.getInstance().prepared(query, values, SqlResult.validResultHandler(handler));
     }

@@ -44,7 +44,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
 
     @Override
     public void listSousMatieres(String id, String idStructure, Handler<Either<String, JsonArray>> handler) {
-        JsonArray values = new fr.wseduc.webutils.collections.JsonArray().add(id).add(idStructure);
+        JsonArray values = new JsonArray().add(id).add(idStructure);
 
         String query = "SELECT sousmatiere.id ,type_sousmatiere.libelle " +
                 "FROM " + Viescolaire.VSCO_SCHEMA + ".sousmatiere, " + Viescolaire.VSCO_SCHEMA + ".type_sousmatiere " +
@@ -56,7 +56,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
 
     @Override
     public void getSousMatiereById(String[] ids, String idStructure, Handler<Either<String, JsonArray>> handler) {
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray().add(idStructure);
+        JsonArray params = new JsonArray().add(idStructure);
         for (String id : ids) {
             params.add(id);
         }
@@ -121,7 +121,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
                 "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
                 "ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ?))";
 
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(id_sub_topic).add(id_topic).add(id_topic);
 
         return new JsonObject()
@@ -138,7 +138,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
                 "INNER JOIN " + Viescolaire.EVAL_SCHEMA + ".devoirs " +
                 "ON id_type_sousmatiere = devoirs.id_sousmatiere AND sousmatiere.id_matiere = ?)";
 
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(id_topic).add(id_topic);
 
         return new JsonObject()
@@ -150,7 +150,7 @@ public class DefaultSousMatiereService extends SqlCrudService implements SousMat
         String query = "INSERT INTO " + Viescolaire.VSCO_SCHEMA + ".sousmatiere (id_matiere, id_type_sousmatiere) " +
                 " VALUES (? , ? )";
 
-        JsonArray params = new fr.wseduc.webutils.collections.JsonArray()
+        JsonArray params = new JsonArray()
                 .add(id_topic).add(id_sub_topic);
 
         return new JsonObject()

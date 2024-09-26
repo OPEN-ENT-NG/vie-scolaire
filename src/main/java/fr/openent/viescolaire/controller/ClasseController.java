@@ -87,7 +87,7 @@ public class ClasseController extends BaseController {
                     } else {
                         final Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
                         List<String> idClasse = request.params().getAll("idClasse");
-                        JsonArray idClasseArray = new fr.wseduc.webutils.collections.JsonArray(idClasse);
+                        JsonArray idClasseArray = new JsonArray(idClasse);
                         Boolean isTeacher = "Teacher".equals(user.getType());
                         String idEtablissement = request.params().get("idEtablissement");
 

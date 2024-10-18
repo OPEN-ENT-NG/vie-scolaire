@@ -206,10 +206,12 @@ public class DefaultTimeSlotService implements TimeSlotService {
 
     @Override
     public void updateEndOfHalfDay(String id, String time, String structureId, Handler<Either<String, JsonObject>> handler) {
-        String query = "UPDATE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
-                " SET end_of_half_day = ? WHERE id = ? returning id";
-        JsonArray params = new JsonArray().add(time).add(id);
-        Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
+        if (time != null && !time.isEmpty()) {
+            String query = "UPDATE " + Viescolaire.VSCO_SCHEMA + "." + Viescolaire.VSCO_TIME_SLOTS +
+                    " SET end_of_half_day = ? WHERE id = ? returning id";
+            JsonArray params = new JsonArray().add(time).add(id);
+            Sql.getInstance().prepared(query, params, SqlResult.validUniqueResultHandler(handler));
+        }
     }
 
     private void addStructureToSlots(String structureId, JsonArray slots) {

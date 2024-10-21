@@ -493,7 +493,7 @@ public class DefaultUtilsService implements UtilsService{
 
                                         JsonArray students =  utilsService.saUnionUniq(rNeo, studentPostgres);
                                         // Si on veut filtrer sur la période
-                                        JsonArray periodes = classesNamePromise.future().result();
+                                        JsonArray periodes = periodePromise.future().result();
                                         filterStudentOnPeriode(students, periodes, idPeriode, handler);
                                     });
                         }

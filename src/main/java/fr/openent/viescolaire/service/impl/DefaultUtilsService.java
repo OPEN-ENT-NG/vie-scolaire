@@ -398,7 +398,7 @@ public class DefaultUtilsService implements UtilsService{
         sortedField[0] = "lastName";
         sortedField[1] = "firstName";
 
-
+        System.out.println(periodes.toString());
         if (null == idPeriode) {
             handler.handle(new Either.Right<>(utilsService.sortArray(students, sortedField)));
         }

@@ -35,7 +35,7 @@ public class TrombinoscopeReport {
 
     public TrombinoscopeReport(Vertx vertx, String locale) {
         this.reports = new ArrayList<>();
-        templateProcessor = new TemplateProcessor(vertx, "template").escapeHTML(false);
+        templateProcessor = new TemplateProcessor().escapeHTML(false);
         templateProcessor.setLambda("i18n", new I18nLambda(locale));
         templateProcessor.setLambda("datetime", new LocaleDateLambda(locale));
     }

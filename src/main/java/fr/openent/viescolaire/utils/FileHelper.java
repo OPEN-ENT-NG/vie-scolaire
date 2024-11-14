@@ -51,8 +51,16 @@ public class FileHelper {
 
             final String filePath = path + File.separator + filename;
 
-            upload.endHandler(event -> handler.handle(Future.succeededFuture(filePath)));
-            upload.streamToFileSystem(filePath);
+            upload.handler(buffer -> log.info(buffer.toJson().toString()));
+//            upload.endHandler(event -> handler.handle(Future.succeededFuture(filePath)));
+//            upload.streamToFileSystem(filePath);
+
+            upload.streamToFileSystem(path)
+                    .onSuccess(e -> handler.handle(Future.succeededFuture(filePath)))
+                    .onFailure(th ->  {
+                        log.error("Cannot write to filesystem" + th.getMessage());
+                        handler.handle(Future.failedFuture(th.getMessage()));
+                    });
         });
 
         this.vertx.fileSystem().mkdir(path, directory -> {

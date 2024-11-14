@@ -55,7 +55,7 @@ public class FileHelper {
 //            upload.endHandler(event -> handler.handle(Future.succeededFuture(filePath)));
 //            upload.streamToFileSystem(filePath);
 
-            upload.streamToFileSystem(path)
+            upload.streamToFileSystem(filePath)
                     .onSuccess(e -> handler.handle(Future.succeededFuture(filePath)))
                     .onFailure(th ->  {
                         log.error("Cannot write to filesystem" + th.getMessage());

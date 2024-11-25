@@ -99,7 +99,7 @@ public class DefaultTimeSlotServiceTest {
             ctx.assertEquals(params.toString(), invocation.getArgument(1).toString());
             ((Handler<Message<JsonObject>>) invocation.getArgument(2)).handle(new ResultMessage(new JsonObject().put("results", sqlResult)).put("fields", fields));
             return null;
-        }).when(sql).prepared(Mockito.any(), Mockito.any(), Mockito.any());
+        }).when(sql).prepared(Mockito.any(), Mockito.any(), Mockito.any(Handler.class));
 
         this.defaultTimeSlotService.getSlotProfileSetting(structureIdList)
                 .onSuccess(event -> {

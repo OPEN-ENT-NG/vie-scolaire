@@ -15,6 +15,7 @@ import io.vertx.core.impl.VertxInternal;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.entcore.common.sql.Sql;
@@ -122,7 +123,7 @@ public class DefaultMultiTeachingServiceTest {
             Handler<Message<JsonObject>> handler = invocation.getArgument(2);
             handler.handle(new ResultMessage(new JsonObject().put("results", sqlResult)));
             return null;
-        }).when(sql).prepared(Mockito.any(), Mockito.any(), Mockito.any());
+        }).when(sql).prepared(Mockito.any(), Mockito.any(), Mockito.any(Handler.class));
 
         MultiTeaching multiTeaching = new MultiTeaching();
         multiTeaching.setStartDate("");

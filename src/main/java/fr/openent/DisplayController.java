@@ -24,10 +24,18 @@ import io.vertx.core.json.JsonObject;
 import org.entcore.common.controller.ControllerHelper;
 import io.vertx.core.http.HttpServerRequest;
 
+import org.entcore.common.events.EventHelper;
+import org.entcore.common.events.EventStore;
+import org.entcore.common.events.EventStoreFactory;
+
 public class DisplayController extends ControllerHelper {
+
+    private EventHelper eventHelper;
 
     public DisplayController(){
         pathPrefix = "";
+        final EventStore eventStore = EventStoreFactory.getFactory().getEventStore(Viescolaire.class.getSimpleName());
+		this.eventHelper =  new EventHelper(eventStore);
     }
 
     @Get(Viescolaire.VSCO_PATHPREFIX)
@@ -43,5 +51,6 @@ public class DisplayController extends ControllerHelper {
                 .put("ENABLE_MASSMAILING", services.getBoolean("massmailing", false))
                 .put("ENABLE_INCIDENTS", services.getBoolean("incidents", false));
         renderView(request, params, "viescolaire/vsco_personnel.html", null);
+        eventHelper.onAccess(request);
     }
 }

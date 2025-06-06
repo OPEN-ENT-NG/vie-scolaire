@@ -7,7 +7,6 @@ import fr.openent.viescolaire.helper.RelativeHelper;
 import fr.openent.viescolaire.model.Person.Relative;
 import fr.openent.viescolaire.service.MementoService;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -125,7 +124,7 @@ public class DefaultMementoService extends DBService implements MementoService {
                 promise.fail(asyncHandler.cause().toString());
                 return;
             }
-            List<Relative> relatives = RelativeHelper.toRelativeList(getPrimaryRelativesIdsPromise.future().result());
+            List<Relative> relatives = RelativeHelper.toRelativeList(getAllRelativesPromise.future().result());
             List<JsonObject> studentRelatives = getPrimaryRelativesIdsPromise.future().result().getList();
             JsonArray primaryRelativesIds = getRelativeIdsFromList(studentId, studentRelatives);
 

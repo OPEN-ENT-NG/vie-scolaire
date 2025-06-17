@@ -6,7 +6,9 @@ const rights = {
         timeSlotsManage: 'fr.openent.viescolaire.controller.TimeSlotController|getSlotProfilesByStructure',
         paramServices: 'fr.openent.viescolaire.controller.ServicesController|createService',
         paramTrombinoscope: 'fr.openent.viescolaire.controller.TrombinoscopeController|manageTrombinoscope',
-        viescolaire1d: 'fr.openent.viescolaire.controller.FakeRight|viescolaire1d'
+        viescolaire1d: 'fr.openent.viescolaire.controller.FakeRight|viescolaire1d',
+        initSettings1D: 'fr.openent.presences.controller.FakeRight|initSettings1D',
+        initPopup: 'fr.openent.presences.controller.FakeRight|initPopup',
     }
 }
 

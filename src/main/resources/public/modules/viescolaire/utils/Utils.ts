@@ -16,6 +16,7 @@
  */
 
 import {model, Behaviours} from 'entcore';
+import rights from '../ts/rights';
 
 export class Utils {
 
@@ -41,6 +42,17 @@ export class Utils {
 
     static canAccessDiary () {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.diary);
+    }
+
+    // Fix #COCO-4007
+    // Hide the Presences tab for Director 1D => 
+    // to initialize Presences Director 1D have to go to Presences app and use the init modal
+    static async isUserDirector1D() {
+        if (model.me.workflow && !model.me.workflow.hasOwnProperty("presences")) {
+            await model.me.workflow.load(["presences"]);
+        }
+        return model.me.hasWorkflow(rights.workflow["initSettings1D"]) 
+            && model.me.hasWorkflow(rights.workflow["initPopup"]);
     }
 
     static moduleCompetenceIsInstalled() {

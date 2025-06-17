@@ -47,7 +47,10 @@
                 <span><i18n>evaluations.competences.title</i18n></span>
             </a>
         </header>
-        <header ng-if="canAccessPresences" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
+        <!-- Fix #COCO-4007: -->
+        <!-- Hide the Presences tab for Director 1D -->
+        <!-- => to initialize Presences Director 1D have to go to Presences app and use the init modal -->
+        <header ng-if="canAccessPresences && !isUserDirector1D" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.presences.title')]]"
                class="horizontal-spacing">

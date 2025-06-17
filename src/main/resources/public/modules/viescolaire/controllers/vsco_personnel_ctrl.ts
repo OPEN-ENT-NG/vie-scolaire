@@ -65,6 +65,8 @@ export let viescolaireController = ng.controller('ViescolaireController', [
             $scope.canAccessPresences = Utils.canAccessPresences();
             $scope.canAccessEdt = Utils.canAccessEdt();
             $scope.canAccessDiary = Utils.canAccessDiary();
+            $scope.isUserDirector1D = await Utils.isUserDirector1D();
+
             //
             let modulesAccess = {
                 moduleCompetenceIsInstalled: $scope.moduleCompetenceIsInstalled,

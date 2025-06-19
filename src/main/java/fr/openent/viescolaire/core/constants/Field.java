@@ -191,6 +191,8 @@ public class Field<id_groupes> {
     public static final String INITSCHOOLYEAR = "initSchoolYear";
     public static final String INITTYPE = "initType";
     public static final String SCHOOLYEAR = "schoolYear";
+    public static final String SCHOOLYEAR_START_DATE = "schoolYearStartDate";
+    public static final String SCHOOLYEAR_END_DATE = "schoolYearEndDate";
     public static final String TIMETABLE = "timetable";
     public static final String TIMESLOTS = "timeslots";
     public static final String HOLIDAYS = "holidays";

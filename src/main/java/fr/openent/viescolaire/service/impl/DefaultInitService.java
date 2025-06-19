@@ -317,7 +317,8 @@ public class DefaultInitService implements InitService {
     }
 
     @Override
-    public Future<JsonObject> initExclusionPeriod(String structureId, InitFormHolidays holidaysForm) {
+    public Future<JsonObject> initExclusionPeriod(String structureId, InitFormHolidays holidaysForm,
+                                                  InitFormSchoolYear schoolYearForm) {
         Promise<JsonObject> promise = Promise.promise();
 
         if(!Field.FRENCH.equals(holidaysForm.getSystem())) {
@@ -333,7 +334,9 @@ public class DefaultInitService implements InitService {
                     .put(Field.ACTION, "init")
                     .put(Field.STRUCTUREID, structureId)
                     .put(Field.ZONE, zone)
-                    .put(Field.INITSCHOOLYEAR, false);
+                    .put(Field.INITSCHOOLYEAR, false)
+                    .put(Field.SCHOOLYEAR_START_DATE, schoolYearForm.getStartDate())
+                    .put(Field.SCHOOLYEAR_END_DATE, schoolYearForm.getEndDate());
 
             eb.request(EDT_ADDRESS, action, res -> {
                 if (res.failed()) {

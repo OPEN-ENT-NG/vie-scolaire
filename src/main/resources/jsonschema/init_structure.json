@@ -73,7 +73,21 @@
         },
         "zone": {
           "type": "string",
-          "enum": ["A", "B", "C"]
+          "enum": [
+            "Zone A",
+            "Zone B",
+            "Zone C",
+            "Corse",
+            "Guadeloupe",
+            "Guyane",
+            "Martinique",
+            "Mayotte",
+            "Nouvelle Calédonie",
+            "Polynésie",
+            "Réunion",
+            "Saint Pierre et Miquelon",
+            "Wallis et Futuna"
+          ]
         }
       },
       "required": ["system", "zone"]

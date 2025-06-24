@@ -7,6 +7,7 @@ import fr.openent.viescolaire.model.InitForm.*;
 import fr.openent.viescolaire.model.Person.*;
 import fr.openent.viescolaire.model.SlotProfile.*;
 import fr.openent.viescolaire.service.*;
+import fr.openent.viescolaire.utils.ZoneUtils;
 import fr.openent.viescolaire.worker.*;
 import fr.wseduc.mongodb.*;
 import fr.wseduc.webutils.*;
@@ -327,8 +328,10 @@ public class DefaultInitService implements InitService {
         }
 
         String zone = holidaysForm.getZone();
-        if (!"A".equals(zone) && !"B".equals(zone) && !"C".equals(zone)) {
-           promise.complete();
+        if (!ZoneUtils.isValidZone(zone)) {
+            LOGGER.error(String.format("[Viescolaire@%s::initExclusionPeriod] Invalid zone: %s",
+                    this.getClass().getSimpleName(), zone));
+            promise.complete();
         } else {
             JsonObject action = new JsonObject()
                     .put(Field.ACTION, "init")

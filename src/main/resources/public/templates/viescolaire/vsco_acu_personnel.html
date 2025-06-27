@@ -48,10 +48,13 @@
             </a>
         </header>
         <!-- Fix #COCO-4007: -->
-        <!-- Hide the Presences tab for Director 1D -->
-        <!-- => to initialize Presences Director 1D have to go to Presences app and use the init modal -->
-        <header ng-if="canAccessPresences && !isUserDirector1D" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
-                class="horizontal-spacing-twice">
+        <!-- Hide the Presences tab for Director 1D non ADMC -->
+        <!-- => to initialize Presences Director 1D have to go to Presences app and use the init modal there -->
+        <header 
+            ng-if="canAccessPresences" 
+            ng-class="{selected : findParam('filter') === lang.translate('viescolaire.presences.title') }"
+            class="horizontal-spacing-twice"
+        >
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.presences.title')]]"
                class="horizontal-spacing">
                 <span><i18n>viescolaire.presences.title</i18n></span>
@@ -64,6 +67,9 @@
                 <span><i18n>viescolaire.cdt.title</i18n></span>
             </a>
         </header>
+        <!-- Fix #COCO-4273: -->
+        <!-- Hide the EDT tab for Director 1D non ADMC -->
+        <!-- => to initialize EDT Director 1D have to go to Presences app and use the init modal there -->
         <header ng-if="canAccessEdt" ng-class="{selected : findParam('filter') === lang.translate('viescolaire.edt.title') }"
                 class="horizontal-spacing-twice">
             <a href="#/viescolaire/accueil?filter=[[lang.translate('viescolaire.edt.title')]]"

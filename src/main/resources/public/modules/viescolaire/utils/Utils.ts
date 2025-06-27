@@ -32,11 +32,23 @@ export class Utils {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.competences);
     }
 
-    static canAccessPresences () {
+    static async canAccessPresences () {
+        // Fix: #COCO-4263, hide Presences tab if user is Director 1D and non ADMC
+        const isDirector1DButNonAdmc: boolean = await Utils.isDirector1DButNonAdmc();
+        if (isDirector1DButNonAdmc) {
+            return false;
+        }
+
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.presences);
     }
 
-    static canAccessEdt () {
+    static async canAccessEdt () {
+        // Fix: #COCO-4263, hide EDT tab if user is Director 1D and non ADMC
+        const isDirector1DButNonAdmc: boolean = await Utils.isDirector1DButNonAdmc();
+        if (isDirector1DButNonAdmc) {
+            return false;
+        }
+
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.edt);
     }
 
@@ -44,15 +56,24 @@ export class Utils {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.diary);
     }
 
-    // Fix #COCO-4007
-    // Hide the Presences tab for Director 1D => 
-    // to initialize Presences Director 1D have to go to Presences app and use the init modal
-    static async isUserDirector1D() {
+    // Fix: #COCO-4007 & #COCO-4263, utility method to hide the following items if user is Director 1D and non ADMC:
+    // - Presences Tab
+    // - EDT Tab
+    static async isDirector1DButNonAdmc(): Promise<boolean> {
+        const isUserDirector1D = await Utils.isUserDirector1D();
+        return isUserDirector1D && !Utils.isAdmc();
+    }
+
+    static async isUserDirector1D(): Promise<boolean> {
         if (model.me.workflow && !model.me.workflow.hasOwnProperty("presences")) {
             await model.me.workflow.load(["presences"]);
         }
         return model.me.hasWorkflow(rights.workflow["initSettings1D"]) 
             && model.me.hasWorkflow(rights.workflow["initPopup"]);
+    }
+
+    static isAdmc(): boolean {
+        return model.me.functions["SUPER_ADMIN"];
     }
 
     static moduleCompetenceIsInstalled() {

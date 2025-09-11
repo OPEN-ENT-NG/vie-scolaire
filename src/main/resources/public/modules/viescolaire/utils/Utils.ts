@@ -32,13 +32,7 @@ export class Utils {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.competences);
     }
 
-    static async canAccessPresences () {
-        // Fix: #COCO-4263, hide Presences tab if user is Director 1D and non ADMC
-        const isDirector1DButNonAdmc: boolean = await Utils.isDirector1DButNonAdmc();
-        if (isDirector1DButNonAdmc) {
-            return false;
-        }
-
+    static canAccessPresences () {
         return Utils.userCanAccessModule(Behaviours.applicationsBehaviours.presences);
     }
 

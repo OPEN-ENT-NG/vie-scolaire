@@ -28,6 +28,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.shareddata.AsyncMap;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.Trace;
@@ -51,18 +52,23 @@ public class TrombinoscopeController extends ControllerHelper {
     private final TrombinoscopeFailureService failureService;
     private final TrombinoscopeService trombinoscopeService;
     private final TrombinoscopeReportService reportService;
-    private final Map<String, String> skins;
+    private Map<String, String> skins;
     private static final String ASSET_THEME = "/assets/themes/";
     private static final String IMG_ILLUSTRATION = "img/illustrations";
     private static final String NO_AVATAR = "no-avatar.svg";
 
-    public TrombinoscopeController(Vertx vertx, Storage storage) {
+    public TrombinoscopeController(Vertx vertx, Storage storage, final Promise<Void> promise) {
         this.vertx = vertx;
         this.storage = storage;
         this.failureService = new DefaultTrombinoscopeFailureService(storage);
         this.trombinoscopeService = new DefaultTrombinoscopeService(vertx.fileSystem(), storage, failureService);
         this.reportService = new DefaultTrombinoscopeReportService();
-        this.skins = vertx.sharedData().getLocalMap("skins");
+        vertx.sharedData().<String, String>getAsyncMap("skins")
+          .flatMap(AsyncMap::entries)
+          .onSuccess(skins -> {
+            this.skins = skins;
+            promise.complete();
+          }).onFailure(promise::fail);
     }
 
     @SecuredAction(value = Viescolaire.MANAGE_TROMBINOSCOPE)

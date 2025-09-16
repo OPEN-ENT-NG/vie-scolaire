@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.unit.Async;
 import org.entcore.common.neo4j.Neo4j;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -51,7 +52,11 @@ public class TrombinoscopeTest {
         /* Server mocked settings */
         vertx = Vertx.vertx();
         vertx.exceptionHandler(context.exceptionHandler());
-        storage = new StorageFactory(vertx).getStorage();
+        final Async async = context.async();
+        StorageFactory.build(vertx).andThen(sf -> {
+          storage = sf.result().getStorage();
+          async.complete();
+        }).onFailure(context::fail);
 
         DB.getInstance().init(null, sql, null);
 

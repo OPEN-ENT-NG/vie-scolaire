@@ -9,7 +9,7 @@
     </parent>
     <groupId>fr.openent</groupId>
     <artifactId>viescolaire</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.1-zookeeper-SNAPSHOT</version>
     <scm>
         <connection>scm:git:https://github.com/OPEN-ENT-NG/vie-scolaire.git</connection>
         <developerConnection>scm:git:https://github.com/OPEN-ENT-NG/vie-scolaire.git</developerConnection>
@@ -27,9 +27,8 @@
         <junitVersion>5.1.0</junitVersion>
         <powerMockVersion>2.0.2</powerMockVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
-        <entCoreVersion>6.12-SNAPSHOT</entCoreVersion>
+        <entCoreVersion>6.10-zookeeper-SNAPSHOT</entCoreVersion>
         <reflectionsVersion>0.10.2</reflectionsVersion>
-        <gatlingHighchartsVersion>2.3.1</gatlingHighchartsVersion>
         <opencsvVersion>4.0</opencsvVersion>
     </properties>
     <dependencies>
@@ -103,12 +102,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-testng</artifactId>
             <version>${powerMockVersion}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.gatling.highcharts</groupId>
-            <artifactId>gatling-charts-highcharts</artifactId>
-            <version>${gatlingHighchartsVersion}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -32,6 +32,9 @@ import org.entcore.common.sql.Sql;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Viescolaire extends BaseServer {
 
     /**
@@ -98,60 +101,68 @@ public class Viescolaire extends BaseServer {
 
 	@Override
     public void start(Promise<Void> startPromise) throws Exception {
-        super.start(startPromise);
-
+    final Promise<Void> promise = Promise.promise();
+    super.start(promise);
+    promise.future()
+      .andThen(e -> this.initViescolaire())
+      .onComplete(startPromise);
+  }
+  public Future<Void> initViescolaire() {
         final EventBus eb = getEventBus(vertx);
         final Sql sql = Sql.getInstance();
         final Neo4j neo4j = Neo4j.getInstance();
         final MongoDb mongoDb = MongoDb.getInstance();
-        final Storage storage = new StorageFactory(vertx).getStorage();
-        final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j, mongoDb, config);
+        return StorageFactory.build(vertx).compose(storageFactory -> {
+          final List<Future<?>> futures = new ArrayList<>();
+          final Storage storage = storageFactory.getStorage();
+          final ServiceFactory serviceFactory = new ServiceFactory(eb, sql, neo4j, mongoDb, config);
 
-        LSUN_CONFIG = config.getJsonObject("lsun");
-        UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
-        if (UPDATE_CLASSES_CONFIG.getString("enable-date") == null) {
+          LSUN_CONFIG = config.getJsonObject("lsun");
+          UPDATE_CLASSES_CONFIG = config.getJsonObject("update-classes");
+          if (UPDATE_CLASSES_CONFIG.getString("enable-date") == null) {
             throw new RuntimeException("no date in update-classes");
-        }
+          }
 
-        DB.getInstance().init(neo4j, sql, mongoDb);
+          DB.getInstance().init(neo4j, sql, mongoDb);
 
-        /*
-			DISPLAY CONTROLLER
-		 */
-        addController(new DisplayController());
+          /*
+        DISPLAY CONTROLLER
+       */
+          addController(new DisplayController());
 
-		/*
-			CONTROLEURS VIE SCOLAIRE
-		 */
-        addController(new CoursController());
-        addController(new EleveController());
-        addController(new ClasseController());
-        addController(new PeriodeController());
-        addController(new MatiereController(eb));
-        addController(new MultiTeachingController(eb));
-        addController(new GroupeEnseignementController());
-        addController(new SousMatiereController());
-        addController(new UserController());
-        addController(new ImportCsvController(storage));
-        addController(new PeriodeAnneeController());
-        addController(new ServicesController(eb));
-        addController(new TimeSlotController(serviceFactory));
-        addController(new MementoController(eb));
-        addController(new ConfigController(config));
-        addController(new StructureController());
-        addController(new TrombinoscopeController(vertx, storage));
-        addController(new GroupingController(serviceFactory));
-        addController(new InitController(serviceFactory));
+      /*
+        CONTROLEURS VIE SCOLAIRE
+       */
+          addController(new CoursController());
+          addController(new EleveController());
+          addController(new ClasseController());
+          addController(new PeriodeController());
+          addController(new MatiereController(eb));
+          addController(new MultiTeachingController(eb));
+          addController(new GroupeEnseignementController());
+          addController(new SousMatiereController());
+          addController(new UserController());
+          addController(new ImportCsvController(storage));
+          addController(new PeriodeAnneeController());
+          addController(new ServicesController(eb));
+          addController(new TimeSlotController(serviceFactory));
+          addController(new MementoController(eb));
+          addController(new ConfigController(config));
+          addController(new StructureController());
+          final Promise<Void> promise = Promise.promise();
+          addController(new TrombinoscopeController(vertx, storage, promise));
+          futures.add(promise.future());
+          addController(new GroupingController(serviceFactory));
+          addController(new InitController(serviceFactory));
 
-        addController(new EventBusController(serviceFactory, config));
+          addController(new EventBusController(serviceFactory, config));
 
-        setRepositoryEvents(new VieScolaireRepositoryEvents(serviceFactory));
+          setRepositoryEvents(new VieScolaireRepositoryEvents(serviceFactory));
 
-        startPromise.tryComplete();
-        startPromise.tryFail("[Vie-Scolaire@Viescolaire::start] Failed to start Vie-scolaire module.");
-
-        // worker to be triggered manually
-        vertx.deployVerticle(InitWorker1D.class, new DeploymentOptions().setConfig(config).setWorker(true));
+          // worker to be triggered manually
+          futures.add(vertx.deployVerticle(InitWorker1D.class, new DeploymentOptions().setConfig(config).setWorker(true)));
+          return Future.all(futures).mapEmpty();
+        }).mapEmpty();
     }
 
 }

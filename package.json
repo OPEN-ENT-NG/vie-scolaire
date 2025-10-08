@@ -1,12 +1,12 @@
 {
   "name": "VieScolaire",
-  "version": "2.0.5-dev.0",
+  "version": "2.0.6",
   "main": "gulpfile.js",
   "dependencies": {
     "angular-chart.js": "^1.1.1",
     "axios": "0.27.2",
     "core-js": "2.4.1",
-    "entcore": "dev",
+    "entcore": "4.8.14",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0",
     "entcore-toolkit": "^1.0.1"

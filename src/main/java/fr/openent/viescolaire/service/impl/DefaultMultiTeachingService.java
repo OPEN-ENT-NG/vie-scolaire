@@ -311,13 +311,8 @@ public class DefaultMultiTeachingService extends DBService implements MultiTeach
                     responseArrays.put(Field.MANUALGROUPNAMES, manualNamesFuture.future().result())
                             .put(Field.CLASSGROUPEXTERNALIDS, externalIdsFuture.future().result());
 
-
-                    String currentDate = DateHelper.getCurrentDate(DateHelper.YEAR_MONTH_DAY);
-
-                    boolean isPastCourse = dateHelper.isBeforeOrEquals(startDate, currentDate, dateHelper.SIMPLE_DATE_FORMATTER);
-
-                    responseArrays.put(Field.STARTDATE, isPastCourse ? currentDate : startDate)
-                            .put(Field.STARTTIME, isPastCourse ? DateHelper.getCurrentDate(DateHelper.HOUR_MINUTES_SECONDS) : null);
+                    responseArrays.put(Field.STARTDATE, startDate)
+                            .put(Field.STARTTIME, null);
 
                     promise.complete(responseArrays);
                 });

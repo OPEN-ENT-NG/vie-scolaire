@@ -117,7 +117,7 @@ public class PeriodeAnneeController extends ControllerHelper {
                     Date start_date =  dateHelper.getDate( periode.getString("start_date"), dateHelper.DATE_FORMATTER_SQL);
                     Date end_date =  dateHelper.getDate( periode.getString("end_date"), dateHelper.DATE_FORMATTER_SQL);
                     Date now = new Date();
-                    if(end_date.after(start_date)&& now.before(start_date)) {
+                    if(end_date.after(start_date)) {
                         periodeAnneeService.createPeriode(periode,false, arrayResponseHandler(request));
                     } else {
                         badRequest(request);

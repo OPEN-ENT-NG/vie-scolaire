@@ -39,28 +39,28 @@ public class DefaultImportCsvService implements ImportCsvService {
                         if(event.isLeft()) {
                             handler.handle(new Either.Left(event.left().getValue()));
                             return;
-                            }
-                            else {
-                            JsonArray classes = event.right().getValue();
-                            ArrayList<String> idClasse = new ArrayList();
+                        }
+                        else {
+                        JsonArray classes = event.right().getValue();
+                        ArrayList<String> idClasse = new ArrayList();
 
-                            for(Object o : classes) {
-                                JsonObject classe = (JsonObject) o;
+                        for(Object o : classes) {
+                            JsonObject classe = (JsonObject) o;
 
-                                idClasse.add(classe.getString("id_classe"));
-                                }
-                                 new DefaultClasseService().getElevesClasses(idClasse.toArray(new String[0]), idPeriode, new Handler<Either<String, JsonArray>>() {
-                                     @Override
-                                     public void handle(Either<String, JsonArray> event) {
-                                         if (event.isLeft()) {
-                                             handler.handle(new Either.Left(event.left()));
-                                             return;
-                                         } else {
-                                             // On lance la sauvegarde des données en fonction des ids récupérés dans Neo
-                                             saveImportData(storage, uploaded, event.right().getValue(), idPeriode, handler);
-                                         }
-                                     }
-                                 });
+                            idClasse.add(classe.getString("id_classe"));
+                        }
+                         new DefaultClasseService().getElevesClasses(idClasse.toArray(new String[0]), idPeriode, new Handler<Either<String, JsonArray>>() {
+                             @Override
+                             public void handle(Either<String, JsonArray> event) {
+                                 if (event.isLeft()) {
+                                     handler.handle(new Either.Left(event.left()));
+                                     return;
+                                 } else {
+                                     // On lance la sauvegarde des données en fonction des ids récupérés dans Neo
+                                     saveImportData(storage, uploaded, event.right().getValue(), idPeriode, handler);
+                                 }
+                             }
+                         });
                         }
                     }
                 });
@@ -74,8 +74,10 @@ public class DefaultImportCsvService implements ImportCsvService {
         JsonObject metadata = uploaded.getJsonObject("metadata");
         String contentType = metadata.getString("content-type");
 
-        if (Arrays.asList(".csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "application/vnd.ms-excel").contains(contentType)) {
+        boolean isContentTypeValid = Arrays.asList(".csv", "text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "application/vnd.ms-excel").contains(contentType);
+
+        if (isContentTypeValid) {
             storage.readFile(uploaded.getString("_id"), new Handler<Buffer>() {
                 @Override
                 public void handle(Buffer eventBuffer) {
@@ -208,8 +210,8 @@ public class DefaultImportCsvService implements ImportCsvService {
 
                                             boolean exist = existHomonyme(homonymes, currentStudent);
                                             if(!exist) {
-                                            homonymes.add(currentStudent);
-                                        }
+                                                homonymes.add(currentStudent);
+                                            }
                                         }
                                         else {
                                             if (v.size() == 1) {
@@ -252,6 +254,10 @@ public class DefaultImportCsvService implements ImportCsvService {
                 }
 
             });
+        }
+        else {
+            log.error("[VieScolaire@DefaultImportCsvService::saveImportData] Wrong file type : " + contentType);
+            handler.handle(new Either.Left<>("Wrong file type"));
         }
     }
 

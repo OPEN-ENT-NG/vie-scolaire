@@ -27,7 +27,7 @@
         <junitVersion>5.1.0</junitVersion>
         <powerMockVersion>2.0.2</powerMockVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
-        <entCoreVersion>6.8-zookeeper-SNAPSHOT</entCoreVersion>
+        <entCoreVersion>6.10-zookeeper-SNAPSHOT</entCoreVersion>
         <reflectionsVersion>0.10.2</reflectionsVersion>
         <opencsvVersion>4.0</opencsvVersion>
     </properties>

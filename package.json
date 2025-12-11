@@ -6,7 +6,7 @@
     "angular-chart.js": "^1.1.1",
     "axios": "0.27.2",
     "core-js": "2.4.1",
-    "entcore": "dev",
+    "entcore": "zookeeper",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0",
     "entcore-toolkit": "^1.0.1"

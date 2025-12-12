@@ -21,6 +21,7 @@ import fr.openent.Viescolaire;
 import fr.openent.viescolaire.core.constants.*;
 import fr.openent.viescolaire.service.*;
 import fr.wseduc.webutils.Either;
+import org.entcore.common.user.ExportResourceResult;
 import org.entcore.common.user.RepositoryEvents;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -49,7 +50,7 @@ public class VieScolaireRepositoryEvents implements RepositoryEvents {
     }
 
     @Override
-    public void exportResources(boolean exportDocuments, boolean exportSharedResources, String exportId, String userId, JsonArray groups, String exportPath, String locale, String host, Handler<Boolean> handler) {
+    public void exportResources(boolean exportDocuments, boolean exportSharedResources, String exportId, String userId, JsonArray groups, String exportPath, String locale, String host, Handler<ExportResourceResult> handler) {
         log.info("[VieScolaireRepositoryEvents] : export resources event is not implemented");
     }
 

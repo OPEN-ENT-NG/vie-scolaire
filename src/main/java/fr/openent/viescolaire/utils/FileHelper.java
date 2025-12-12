@@ -25,10 +25,12 @@ public class FileHelper {
 
     private final Vertx vertx;
     private final String path;
+    private final Storage storage;
 
-    public FileHelper(Vertx vertx, String path) {
+    public FileHelper(Vertx vertx, String path, Storage storage) {
         this.vertx = vertx;
         this.path = path;
+        this.storage = storage;
     }
 
     /**
@@ -86,7 +88,7 @@ public class FileHelper {
         return event -> {
             log.error("[Viescolaire@FileHelper::getExceptionHandler] Due to error " + event.getMessage() + ", will delete path");
             handler.handle(new DefaultAsyncResult<>(event));
-            deleteImportPath(vertx, path);
+            deleteImportPath(vertx, storage, path);
         };
     }
 

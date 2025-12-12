@@ -21,33 +21,33 @@ case `uname -s` in
 esac
 
 clean () {
-  docker-compose run --rm maven mvn $MVN_OPTS clean
+  docker compose run --rm maven mvn $MVN_OPTS clean
 }
 
 buildNode () {
   case `uname -s` in
     MINGW*)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build  && pnpm run build:sass"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build  && pnpm run build:sass"
       ;;
     *)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build  && pnpm run build:sass"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build  && pnpm run build:sass"
   esac
 }
 
 install() {
-    docker-compose run --rm maven mvn $MVN_OPTS install -DskipTests
+    docker compose run --rm maven mvn $MVN_OPTS install -DskipTests
 }
 
 buildGulp() {
-    docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build"
+    docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js build"
 }
 
 buildCss() {
-  docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm run build:sass"
+  docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm run build:sass"
 }
 
 publish() {
-    version=`docker-compose run --rm maven mvn $MVN_OPTS help:evaluate -Dexpression=project.version -q -DforceStdout`
+    version=`docker compose run --rm maven mvn $MVN_OPTS help:evaluate -Dexpression=project.version -q -DforceStdout`
     level=`echo $version | cut -d'-' -f3`
 
     case "$level" in
@@ -59,7 +59,7 @@ publish() {
             ;;
     esac
 
-    docker-compose run --rm maven mvn -DrepositoryId=ode-$nexusRepository -DskiptTests -Dmaven.test.skip=true --settings /var/maven/.m2/settings.xml deploy
+    docker compose run --rm maven mvn -DrepositoryId=ode-$nexusRepository -DskiptTests -Dmaven.test.skip=true --settings /var/maven/.m2/settings.xml deploy
 }
 
 init() {
@@ -72,10 +72,10 @@ testNode () {
   rm -rf */build
   case `uname -s` in
     MINGW*)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache &&  npm test"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache &&  npm test"
       ;;
     *)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache && npm test"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache && npm test"
   esac
 }
 
@@ -84,15 +84,15 @@ testNodeDev () {
   rm -rf */build
   case `uname -s` in
     MINGW*)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache &&  npm run test:dev"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache &&  npm run test:dev"
       ;;
     *)
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache && npm run test:dev"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install && node_modules/gulp/bin/gulp.js drop-cache && npm run test:dev"
   esac
 }
 
 test() {
-    docker-compose run --rm maven mvn $MVN_OPTS test
+    docker compose run --rm maven mvn $MVN_OPTS test
 }
 
 publishNexus() {

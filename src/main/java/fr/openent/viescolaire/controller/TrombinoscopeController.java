@@ -155,7 +155,7 @@ public class TrombinoscopeController extends ControllerHelper {
         String structureId = request.getParam(Field.STRUCTUREID);
         final String importId = UUID.randomUUID().toString();
         final String path = config.getString("import-folder", "/tmp") + File.separator + importId;
-        FileHelper fileHelper = new FileHelper(vertx, path);
+        FileHelper fileHelper = new FileHelper(vertx, path, storage);
         TrombinoscopeReport report = new TrombinoscopeReport(vertx, "fr");
         request.pause();
         report.start();

@@ -43,10 +43,7 @@ import org.entcore.common.neo4j.Neo4jResult;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -140,11 +137,23 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
 
-        if (Boolean.TRUE.equals(searchTeacher))
-            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));
+        if (Boolean.TRUE.equals(searchTeacher)) {
+            JsonArray hasTeacher = new JsonArray()
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$exists", true)))    // le champ doit exister
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$ne", null)))        // pas null
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));                                       // pas []
 
-        if (Boolean.FALSE.equals(searchTeacher))
-            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)));
+            $and.add(new JsonObject().put("$and", hasTeacher));
+        }
+
+        if (Boolean.FALSE.equals(searchTeacher)) {
+            JsonArray noTeacher = new JsonArray()
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)))    // []
+                    .add(new JsonObject().put("teacherIds", null))                                 // null
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$exists", false))); // absent
+
+            $and.add(new JsonObject().put("$or", noTeacher));
+        }
 
 
         JsonObject filterGroupIds = (groupIds != null && !groupIds.isEmpty()) ?
@@ -222,6 +231,14 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
             } else {
                 JsonArray result = either.right().getValue().getJsonObject("cursor", new JsonObject()).getJsonArray("firstBatch", new JsonArray());
                 handler.handle(new Either.Right<>(result));
+//                JsonArray resultWithTeacherIds = result.stream()
+//                        .map(course -> {
+//                            if (!course.fieldNames().contains("teacherIds") || course.getValue("teacherIds") == null) {
+//                                course.put("teacherIds", new ArrayList<>());
+//                            }
+//                        })
+//                        .collect();
+//                handler.handle(new Either.Right<>(resultWithTeacherIds));
             }
         }));
     }
@@ -368,6 +385,8 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                     Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
                     Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
                     results.add(formatOccurence(course, onlyOneClass, startMoment, endMoment));
+
+                    //TODO here
                 }
                 handler.handle(new Either.Right<>(results));
             } else {

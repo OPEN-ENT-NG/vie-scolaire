@@ -27,7 +27,6 @@ import fr.openent.viescolaire.utils.DateHelper;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.Utils;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -43,11 +42,9 @@ import org.entcore.common.neo4j.Neo4jResult;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.entcore.common.mongodb.MongoDbResult.validResultHandler;
@@ -140,11 +137,23 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
         $and.add(new JsonObject().put("startDate", startFilter))
                 .add(new JsonObject().put("endDate", endFilter));
 
-        if (Boolean.TRUE.equals(searchTeacher))
-            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));
+        if (Boolean.TRUE.equals(searchTeacher)) {
+            JsonArray hasTeacher = new JsonArray()
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$exists", true)))    // le champ doit exister
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$ne", null)))        // pas null
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$not", new JsonObject().put("$size", 0))));                                       // pas []
 
-        if (Boolean.FALSE.equals(searchTeacher))
-            $and.add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)));
+            $and.add(new JsonObject().put("$and", hasTeacher));
+        }
+
+        if (Boolean.FALSE.equals(searchTeacher)) {
+            JsonArray noTeacher = new JsonArray()
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$size", 0)))    // []
+                    .add(new JsonObject().put("teacherIds", null))                                 // null
+                    .add(new JsonObject().put("teacherIds", new JsonObject().put("$exists", false))); // absent
+
+            $and.add(new JsonObject().put("$or", noTeacher));
+        }
 
 
         JsonObject filterGroupIds = (groupIds != null && !groupIds.isEmpty()) ?
@@ -221,7 +230,14 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                 handler.handle(new Either.Left<>(either.left().getValue()));
             } else {
                 JsonArray result = either.right().getValue().getJsonObject("cursor", new JsonObject()).getJsonArray("firstBatch", new JsonArray());
-                handler.handle(new Either.Right<>(result));
+                JsonArray resultWithTeacherIds = result.stream()
+                    .map(JsonObject.class::cast)
+                    .peek(course -> {
+                        Object teacherIds = course.getValue("teacherIds");
+                        if (!(teacherIds instanceof JsonArray)) course.put("teacherIds", new JsonArray());
+                    })
+                    .collect(Collector.of(JsonArray::new, JsonArray::add, JsonArray::addAll));
+                handler.handle(new Either.Right<>(resultWithTeacherIds));
             }
         }));
     }
@@ -368,6 +384,8 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                     Calendar startMoment = getCalendarDate(course.getString(COURSE_TABLE.startDate), handler);
                     Calendar endMoment = getCalendarDate(course.getString(COURSE_TABLE.endDate), handler);
                     results.add(formatOccurence(course, onlyOneClass, startMoment, endMoment));
+
+                    //TODO here
                 }
                 handler.handle(new Either.Right<>(results));
             } else {
@@ -550,7 +568,14 @@ public class DefaultCommonCoursService extends DBService implements CommonCoursS
                     if (subjectRes.isLeft()) {
                         handler.handle(new Either.Left<>(subjectRes.left().getValue()));
                     } else {
-                        handler.handle(new Either.Right<>(courses));
+                        JsonArray resultWithTeacherIds = courses.stream()
+                            .map(JsonObject.class::cast)
+                            .peek(course -> {
+                                Object teacherIds = course.getValue("teacherIds");
+                                if (!(teacherIds instanceof JsonArray)) course.put("teacherIds", new JsonArray());
+                            })
+                            .collect(Collector.of(JsonArray::new, JsonArray::add, JsonArray::addAll));
+                        handler.handle(new Either.Right<>(resultWithTeacherIds));
                     }
                 });
             }

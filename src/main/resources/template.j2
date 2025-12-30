@@ -1,0 +1,37 @@
+{
+  "name": "fr.openent~viescolaire",
+  "config": {
+    "main": "fr.openent.Viescolaire",
+    "port": 8128,
+    "sql": true,
+    "app-name": "Viescolaire",
+    "app-address": "/viescolaire",
+    "app-icon": "https://{{ host }}/viescolaire/public/img/uni-parametres.svg",
+    "db-schema": "viesco",
+    "host": "https://{{ host }}",
+    "ssl": true,
+    {% if overrideTheme %} "override-theme": {{ override2d }}, {% endif %}
+    "auto-redeploy": false,
+    "userbook-host": "https://{{ host }}",
+    "integration-mode": "{{ integration_mode|default('HTTP') }}",
+    "app-registry.port": 8012,
+    "mode": "prod",
+    "entcore.port": 8009,
+    "initDefaultSubject": "ECOLE",
+    "services": {
+      "competences": {{ vieScolaireEnableCompetences | default('false') }},
+      "presences": {{ vieScolaireEnablePresences | default('true') }},
+      "edt": {{ vieScolaireEnableEdt | default('true') }},
+      "diary": {{ vieScolaireEnableDiary | default('true') }},
+      "incidents": {{ vieScolaireEnableIncidents | default('true') }},
+      "massmailing": {{ vieScolaireEnableMassmailing | default('true') }}
+    },
+    "exports": {
+      "template-path": "./public/templates/pdf/"
+    },
+    "update-classes" : {
+      "timeout-transaction" : 1000,
+      "enable-date": "{{ vieScolaireStartOfYearDate | default('2025-09-18') }}"
+    }
+  }
+}

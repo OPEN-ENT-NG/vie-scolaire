@@ -163,9 +163,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         // Condition de récupération des noeuds
         StringBuilder condition = new StringBuilder()
                 .append(" WHERE ")
-                .append(" u.id IN {idEleves}")
-                .append(" AND c.externalId IN u.classes ")
-                .append(" AND s.externalId IN u.structures");
+                .append(" u.id IN {idEleves}");
 
         StringBuilder order = new StringBuilder()
                 .append(" ORDER BY lastName, firstName ");
@@ -174,8 +172,7 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
         JsonObject params = new JsonObject();
 
         // Récupération d'élèves non supprimés
-        query.append("MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->")
-                .append("(s:Structure {id:{idStructure}}), (c:Class)-[b:BELONGS]->(s)  ")
+        query.append("MATCH (u:User {profiles:[\"Student\"]})-[:IN]->(:ProfileGroup)-[:DEPENDS]->(c:Class)-[b:BELONGS]->(s:Structure {id:{idStructure}}) ")
                 .append(condition)
                 .append(" with u, c, s")
                 .append(" OPTIONAL MATCH (f:FunctionalGroup)<-[i:IN]-(u) with  u, c, s, f")

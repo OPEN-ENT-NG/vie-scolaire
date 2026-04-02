@@ -697,8 +697,8 @@ public class DefaultUserService extends SqlCrudService implements UserService {
                 " RETURN c.id as idClass, c.name as nameClass, c.externalId as externalIdClass, u.id as idEleve, "+
                 "u.created as createdDate,u.deleteDate as deleteDate, u.externalId as externalId,u.attachmentId as attachmentId, "+
                 "u.lastName as lastName,u.level as level,u.firstName as firstName,u.relative as relative, " +
-                "r.externalId as externalIdRelative, r.title as civilite, r.lastName as lastNameRelative, "+
-                "r.firstName as firstNameRelative, r.address as address, r.zipCode as zipCode, r.city as city " +
+                "null as externalIdRelative,null as civilite, null as lastNameRelative, "+
+                "null as firstNameRelative, null as address, null as zipCode, null as city " +
                 "ORDER BY nameClass, lastName "+
                 "UNION MATCH (u:User {profiles: ['Student']})-[:HAS_RELATIONSHIPS]->(b:Backup), " +
                 "(s:Structure{id:{structureId}})<-[:BELONGS]-(c:Class) WHERE HAS(u.deleteDate) AND "+

@@ -242,13 +242,38 @@ public class EventBusController extends ControllerHelper {
                             } else {
                                 JsonObject timeslot = ((JsonObject) directoryMessage.result().body()).getJsonObject("result");
                                 JsonArray slots = timeslot.getJsonArray("slots", new JsonArray());
-                                List<JsonObject> sortedSlots = ((List<JsonObject>) slots.getList());
-                                sortedSlots.sort((Comparator) (o, t1) -> ((JsonObject) o).getString("startHour").compareTo(((JsonObject) t1).getString("startHour")));
-                                timeslot.put("slots", new JsonArray(sortedSlots));
-                                JsonObject result = new JsonObject()
-                                        .put("status", "ok")
-                                        .put("result", timeslot);
-                                message.reply(result);
+                                List sortedSlots = slots.getList();
+                                    try {
+                                        sortedSlots.sort((o, t1) -> {
+                                            final String startHour1;
+                                            final String startHour2;
+                                            if (o instanceof JsonObject) {
+                                                startHour1 = ((JsonObject) o).getString("startHour");
+                                            } else if (o instanceof Map) {
+                                                startHour1 = (String) (((Map) o)).get("startHour");
+                                            } else {
+                                                log.warn("Could not extract information from an object of class : " + o.getClass());
+                                                startHour1 = null;
+                                            }
+                                            if (t1 instanceof JsonObject) {
+                                                startHour2 = ((JsonObject) t1).getString("startHour");
+                                            } else if (t1 instanceof Map) {
+                                                startHour2 = (String) (((Map) t1)).get("startHour");
+                                            } else {
+                                                log.warn("Could not extract information from an object of class : " + t1.getClass());
+                                                startHour2 = null;
+                                            }
+                                            return startHour1.compareTo(startHour2);
+                                        });
+                                        timeslot.put("slots", new JsonArray(sortedSlots));
+                                        JsonObject result = new JsonObject()
+                                                .put("status", "ok")
+                                                .put("result", timeslot);
+                                        message.reply(result);
+                                    } catch (Exception e) {
+                                        log.error("An error occurred while getting timeslots", e);
+                                        message.reply(getErrorReply(e.getMessage()));
+                                    }
                             }
                         });
                     }

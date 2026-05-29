@@ -9,7 +9,7 @@
   </parent>
   <groupId>fr.openent</groupId>
   <artifactId>viescolaire</artifactId>
-  <version>2.2.0</version>
+  <version>2.2-SNAPSHOT</version>
   <scm>
     <connection>scm:git:https://github.com/OPEN-ENT-NG/vie-scolaire.git</connection>
     <developerConnection>scm:git:https://github.com/OPEN-ENT-NG/vie-scolaire.git</developerConnection>
@@ -27,13 +27,13 @@
     <junitVersion>5.1.0</junitVersion>
     <powerMockVersion>2.0.2</powerMockVersion>
     <mockitoVersion>2.28.2</mockitoVersion>
-    <entCoreVersion>6.15.0</entCoreVersion>
+    <entCoreVersion>6.15-SNAPSHOT</entCoreVersion>
     <reflectionsVersion>0.10.2</reflectionsVersion>
     <opencsvVersion>4.0</opencsvVersion>
-    <modMongoVersion>4.2.0</modMongoVersion>
-    <modPostgresVersion>2.2.0</modPostgresVersion>
-    <modJsonSchemaValidatorVersion>2.2.0</modJsonSchemaValidatorVersion>
-    <entCoreLibsVersion>6.15.0</entCoreLibsVersion>
+    <modMongoVersion>4.2-SNAPSHOT</modMongoVersion>
+    <modPostgresVersion>2.2-SNAPSHOT</modPostgresVersion>
+    <modJsonSchemaValidatorVersion>2.2-SNAPSHOT</modJsonSchemaValidatorVersion>
+    <entCoreLibsVersion>6.15-SNAPSHOT</entCoreLibsVersion>
   </properties>
   <dependencies>
     <dependency>

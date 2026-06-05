@@ -110,6 +110,43 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     }
 
     @Override
+    public void listMatieresEtabWithModalite(String idStructure, Boolean onlyId, Handler<Either<String, JsonArray>> handler) {
+        if (onlyId) {
+            listMatieresEtab(idStructure, true, handler);
+            return;
+        }
+
+        Promise<JsonArray> matieresPromise = Promise.promise();
+        Promise<JsonArray> servicesPromise = Promise.promise();
+
+        listMatieresEtab(idStructure, false, getHandlerJsonArray(matieresPromise));
+        servicesService.getAllServices(idStructure, true, true, true, true, true, false, new JsonObject(), getHandlerJsonArray(servicesPromise));
+
+        Future.all(matieresPromise.future(), servicesPromise.future()).onComplete(event -> {
+            if (event.failed()) {
+                handler.handle(new Either.Left<>("Error when getting matières and services"));
+                return;
+            }
+
+            JsonArray matieres = (JsonArray) event.result().list().get(0);
+            JsonArray services = (JsonArray) event.result().list().get(1);
+
+            for (int i = 0; i < matieres.size(); i++) {
+                JsonObject matiere = matieres.getJsonObject(i);
+                for (int j = 0; j < services.size(); j++) {
+                    JsonObject service = services.getJsonObject(j);
+                    if (matiere.getString("id").equals(service.getString("id_matiere"))) {
+                        matiere.put("modalite", service.getString("modalite"));
+                        break;
+                    }
+                }
+            }
+
+            handler.handle(new Either.Right<>(matieres));
+        });
+}
+
+    @Override
     public void listMatieres(String structureId , JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe,
                              Handler<Either<String, JsonArray>> result) {
         String query = "MATCH (s:Structure)<-[:SUBJECT]-(sub:Subject)<-[r:TEACHES]-(u:User) ";
@@ -214,6 +251,31 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
     public void listMatieresEtabWithSousMatiere(String structureId, Boolean onlyId,
                                                 Handler<Either<String, JsonArray>> handler){
         listMatieresEtab(structureId, onlyId, event2 -> {
+            if (event2.isRight()) {
+                if(onlyId) {
+                    handler.handle(event2.right());
+                } else {
+                    JsonArray matieresEtab = event2.right().getValue();
+                    if(matieresEtab.size() > 0){
+                        final List<String> ids = new ArrayList<>();
+
+                        for (Object res : matieresEtab) {
+                            ids.add(((JsonObject) res).getString("id"));
+                        }
+                        addSousMatiere(ids, structureId, matieresEtab, handler);
+                    } else {
+                        handler.handle(new Either.Right(matieresEtab));
+                    }
+                }
+            }else{
+                handler.handle(event2.left());
+            }
+        });
+    }
+
+    public void listMatieresEtabWithSousMatiereWithModalite(String structureId, Boolean onlyId,
+                                                Handler<Either<String, JsonArray>> handler){
+        listMatieresEtabWithModalite(structureId, onlyId, event2 -> {
             if (event2.isRight()) {
                 if(onlyId) {
                     handler.handle(event2.right());

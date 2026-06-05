@@ -850,6 +850,12 @@ public class EventBusController extends ControllerHelper {
                 }
             }
             break;
+            case "getMatieresForUserWithModalite": {
+                final String idStructure = message.body().getString(ID_STRUCTURE_KEY);
+                final Boolean onlyId = message.body().containsKey("onlyId") ? message.body().getBoolean("onlyId") : false;
+                matiereService.listMatieresEtabWithSousMatiereWithModalite(idStructure, onlyId, getJsonArrayBusResultHandler(message));
+            }
+            break;
             case "getAllMatieresEnseignants": {
                 final String idStructure = message.body().getString(ID_STRUCTURE_KEY);
                 matiereService.listMatieres(idStructure, null, null, null, getJsonArrayBusResultHandler(message));

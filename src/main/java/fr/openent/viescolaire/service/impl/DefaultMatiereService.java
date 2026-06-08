@@ -564,6 +564,16 @@ public class DefaultMatiereService extends SqlCrudService implements MatiereServ
         return promise.future();
     }
 
+    private Handler<Either<String, JsonArray>> getHandlerJsonArray(Promise<JsonArray> servicePromise) {
+        return event -> {
+            if (event.isRight()) {
+                servicePromise.complete(event.right().getValue());
+            } else {
+                servicePromise.fail(event.left().getValue());
+            }
+        };
+    }
+
     private class Service {
 
         public String idMatiere, idEnseignant, idEtablissement, name, externalId, modalite;

@@ -38,6 +38,8 @@ public interface MatiereService extends CrudService {
      */
     void listMatieresEleve(String userId, Handler<Either<String, JsonArray>> handler);
 
+    void listMatieresEtabWithModalite(String idStructure, Boolean onlyId, Handler<Either<String, JsonArray>> handler);
+
     void listMatieres(String structureId, JsonArray aIdEnseignant, JsonArray aIdMatiere, JsonArray aIdGroupe, Handler<Either<String, JsonArray>> result);
 
     void listAllMatieres(String structureId, String idEnseignant, Boolean onlyId, Handler<Either<String, JsonArray>> handler);
@@ -64,6 +66,9 @@ public interface MatiereService extends CrudService {
      */
     void listMatieresEtabWithSousMatiere(String structureId, Boolean onlyId,
                                          Handler<Either<String, JsonArray>> handler );
+
+    void listMatieresEtabWithSousMatiereWithModalite(String idStructure, Boolean onlyId,
+                                                     Handler<Either<String,JsonArray>> handler);
 
     /**
      * Fetch all Subjects and TimetableSubjects

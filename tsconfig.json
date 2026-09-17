@@ -12,7 +12,11 @@
       "jquery",
       "core-js",
       "jest"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@test-utils/*": ["test-utils/*"]
+    }
   },
   "exclude": [
     "build", "node_modules"

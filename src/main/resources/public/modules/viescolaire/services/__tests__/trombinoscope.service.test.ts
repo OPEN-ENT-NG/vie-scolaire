@@ -1,6 +1,10 @@
+jest.mock('entcore-toolkit', () => Object.assign({}, (jest as any).requireActual('entcore-toolkit'), {
+    http: {get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn(), postFile: jest.fn(), putFile: jest.fn()},
+}));
+
 import {trombinoscopeService} from "../TrombinoscopeService";
-import axios, {AxiosResponse} from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import {http, HttpResponse} from 'entcore-toolkit';
+import {mockHttpResponse} from '@test-utils/httpMock';
 
 
 describe('TrombinoscopeService', () => {
@@ -12,39 +16,40 @@ describe('TrombinoscopeService', () => {
     const file: File = new File([new Blob()], "");
 
     it('should return data when API importTrombinoscope request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/structures/${structure}/trombinoscope`).reply(200, data);
-        trombinoscopeService.importTrombinoscope(structure, file).then((response: AxiosResponse) => {
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.importTrombinoscope(structure, file).then((response: HttpResponse) => {
+            expect(http.post).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope`, expect.any(FormData));
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should return data when API updateTrombinoscope request is correctly called', done => {
-        let mock = new MockAdapter(axios);
-
         const data = {response: true};
-        mock.onPut(`/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`)
-            .reply(200, data);
-        trombinoscopeService.updateTrombinoscope(structure, studentId, file).then((response: AxiosResponse) => {
+        (http.put as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.updateTrombinoscope(structure, studentId, file).then((response: HttpResponse) => {
+            expect(http.put).toHaveBeenCalledWith(
+                `/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`,
+                expect.any(FormData),
+                {'headers': {'Content-type': 'multipart/form-data'}}
+            );
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should return data when API deleteTrombinoscope request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onDelete(`/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`).reply(200, data);
-        trombinoscopeService.deleteTrombinoscope(structure, studentId).then((response: AxiosResponse) => {
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.deleteTrombinoscope(structure, studentId).then((response: HttpResponse) => {
+            expect(http.delete).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`);
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should return data when API getFailures request is correctly called', done => {
-        const mock = new MockAdapter(axios);
         const data = [{
             id: "id",
             structureId: "structure",
@@ -56,52 +61,52 @@ describe('TrombinoscopeService', () => {
         const respApi = {
             all: data
         };
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/failures`)
-            .reply(200, respApi);
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(respApi));
         trombinoscopeService.getFailures(structure).then(res => {
+            expect(http.get).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope/failures`);
             expect(res).toEqual(data);
             done();
         });
     });
 
     it('should return data when API linkTrombinoscope request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`,
-            { pictureId: picture}).reply(200, data);
-        trombinoscopeService.linkTrombinoscope(structure, studentId, picture).then((response: AxiosResponse) => {
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.linkTrombinoscope(structure, studentId, picture).then((response: HttpResponse) => {
+            expect(http.post).toHaveBeenCalledWith(
+                `/viescolaire/structures/${structure}/students/${studentId}/trombinoscope`,
+                {pictureId: picture}
+            );
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should return data when API setStructureSettings request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/structures/${structure}/trombinoscope/setting`, {active: true})
-            .reply(200, data);
-        trombinoscopeService.setStructureSettings(structure, true).then((response: AxiosResponse) => {
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.setStructureSettings(structure, true).then((response: HttpResponse) => {
+            expect(http.post).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope/setting`, {active: true});
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should return data when API getStructureSettings request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = true;
 
         const respApi = {
             active: data
         };
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/setting`).reply(200, respApi);
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(respApi));
         trombinoscopeService.getStructureSettings(structure).then((res) => {
+            expect(http.get).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope/setting`);
             expect(res).toEqual(data);
             done();
         });
     });
 
-    it('should return data when API getReports request is correctly called',  done => {
-        let mock = new MockAdapter(axios);
+    it('should return data when API getReports request is correctly called', done => {
         const data = [{
             _id: "id",
             UAI: "UAI",
@@ -114,19 +119,19 @@ describe('TrombinoscopeService', () => {
             all: data
         };
 
-        mock.onGet(`/viescolaire/structures/${structure}/trombinoscope/reports?limit=${5}&offset=${5}`)
-            .reply(200, respApi);
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(respApi));
         trombinoscopeService.getReports(structure, 5, 5).then((res) => {
+            expect(http.get).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope/reports?limit=${5}&offset=${5}`);
             expect(res).toEqual(data);
             done();
         });
     });
 
     it('should return data when API deleteFailuresHistory request is correctly called', done => {
-        let mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onDelete(`/viescolaire/structures/${structure}/trombinoscope/failures`).reply(200, data);
-        trombinoscopeService.deleteFailuresHistory(structure).then((response: AxiosResponse) => {
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
+        trombinoscopeService.deleteFailuresHistory(structure).then((response: HttpResponse) => {
+            expect(http.delete).toHaveBeenCalledWith(`/viescolaire/structures/${structure}/trombinoscope/failures`);
             expect(response.data).toEqual(data);
             done();
         });

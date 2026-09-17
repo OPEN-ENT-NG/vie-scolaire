@@ -6,7 +6,7 @@ import {GroupsSearch} from '../../utils/autocomplete';
 import {IUser} from '../../models/common/User';
 import {IGroup} from '../../models/common/Group';
 import {INFINITE_SCROLL_EVENTER} from '../../core/enum/infinite-scroll-eventer';
-import {AxiosError} from "axios";
+import {HttpError} from 'entcore-toolkit';
 
 interface IFilter {
     students: Array<string>;
@@ -129,7 +129,7 @@ export const trombinoscopeStudentListController = ng.controller('TrombinoscopeSt
                         studentQuery($scope.structure.id, vm.removePictureLightbox.student.id) + timestamp;
                     vm.toggleRemovePictureLightbox(false);
                     safeApply($scope);
-                }).catch((err: AxiosError) => {
+                }).catch((err: HttpError) => {
                     toasts.warning('viescolaire.trombinoscope.param.photo.delete.error');
                     vm.toggleRemovePictureLightbox(false);
                     throw err;

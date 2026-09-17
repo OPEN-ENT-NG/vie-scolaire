@@ -1,5 +1,5 @@
 import {moment, notify} from 'entcore';
-import http from 'axios';
+import { http } from 'entcore-toolkit';
 import {Utils} from "../../utils/Utils";
 import {Mix} from "toolkit";
 

@@ -1,5 +1,5 @@
 import {ng, notify} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 import {IUser} from '../models/common/User';
 
 
@@ -7,13 +7,13 @@ import {IUser} from '../models/common/User';
 declare const window: any;
 
 export interface UserService {
-    getTeachers(structureId: string): Promise<AxiosResponse>;
+    getTeachers(structureId: string): Promise<HttpResponse>;
 
     getStudents(structureId: string, page?: number, studentId?: Array<string>, groupName?: Array<string>, crossFilter?: boolean): Promise<Array<IUser>>;
 }
 
 export const userService: UserService = {
-    async getTeachers (idStructure: string): Promise<AxiosResponse> {
+    async getTeachers (idStructure: string): Promise<HttpResponse> {
         try {
             return http.get(`/viescolaire/teachers?idEtablissement=${idStructure}`);
         } catch (e) {
@@ -57,7 +57,7 @@ export const userService: UserService = {
         }
         let pathName: string = `/viescolaire/structures/${structureId}/students`;
 
-        return http.get(pathName + url.search).then((res: AxiosResponse) => {
+        return http.get(pathName + url.search).then((res: HttpResponse) => {
             return res.data;
         });
     }

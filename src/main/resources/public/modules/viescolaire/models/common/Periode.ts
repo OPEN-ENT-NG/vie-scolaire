@@ -16,7 +16,7 @@
  */
 
 import {Model, notify} from 'entcore';
-import  http  from "axios";
+import { http } from 'entcore-toolkit';
 /**
  * Created by rahnir on 10/08/2017.
  */

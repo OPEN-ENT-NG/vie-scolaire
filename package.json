@@ -8,7 +8,7 @@
     "entcore": "dev",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0",
-    "entcore-toolkit": "2.0.0-dev.2"
+    "entcore-toolkit": "2.0.0-dev.3"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/jest --config jest.config.js --coverage",

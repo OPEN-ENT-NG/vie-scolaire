@@ -1,5 +1,9 @@
-import axios, {AxiosResponse} from "axios";
-import MockAdapter from "axios-mock-adapter";
+jest.mock('entcore-toolkit', () => Object.assign({}, (jest as any).requireActual('entcore-toolkit'), {
+    http: {get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn(), postFile: jest.fn(), putFile: jest.fn()},
+}));
+
+import {http, HttpResponse} from "entcore-toolkit";
+import {mockHttpResponse} from '@test-utils/httpMock';
 import {groupingService} from "../grouping.service";
 
 describe('GroupingService', () => {
@@ -7,72 +11,65 @@ describe('GroupingService', () => {
     const id = "id";
     const structureId = "structureId";
     const name = "test";
-    const studentDivisionId = "studentDivisionId"
+    const studentDivisionId = "studentDivisionId";
 
     it('should returns data when createGrouping request is correctly called', done => {
-        const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/grouping/structure/${structureId}`, {name : name})
-            .reply(200, data);
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
 
-        groupingService.createGrouping(structureId, name).then((response: AxiosResponse) => {
+        groupingService.createGrouping(structureId, name).then((response: HttpResponse) => {
+            expect(http.post).toHaveBeenCalledWith(`/viescolaire/grouping/structure/${structureId}`, {name: name});
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should returns data when updateGrouping request is correctly called', done => {
-        const mock = new MockAdapter(axios);
-
         const data = {response: true};
-        mock.onPut(`/viescolaire/grouping/${id}`, {name : name})
-            .reply(200, data);
+        (http.put as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
 
-        groupingService.updateGrouping(id, name).then((response: AxiosResponse) => {
+        groupingService.updateGrouping(id, name).then((response: HttpResponse) => {
+            expect(http.put).toHaveBeenCalledWith(`/viescolaire/grouping/${id}`, {name: name});
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should returns data when deleteGrouping request is correctly called', done => {
-        const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onDelete(`/viescolaire/grouping/${id}`)
-            .reply(200, data);
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
 
-        groupingService.deleteGrouping(id).then((response: AxiosResponse) => {
+        groupingService.deleteGrouping(id).then((response: HttpResponse) => {
+            expect(http.delete).toHaveBeenCalledWith(`/viescolaire/grouping/${id}`);
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should returns data when addGroupingAudience request is correctly called', done => {
-        const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onPost(`/viescolaire/grouping/${id}/add`)
-            .reply(200, data);
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
 
-        groupingService.addGroupingAudience(id, studentDivisionId).then((response: AxiosResponse) => {
+        groupingService.addGroupingAudience(id, studentDivisionId).then((response: HttpResponse) => {
+            expect(http.post).toHaveBeenCalledWith(`/viescolaire/grouping/${id}/add`, {student_division_id: studentDivisionId});
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should returns data when deleteGroupingAudience request is correctly called', done => {
-        const mock = new MockAdapter(axios);
         const data = {response: true};
-        mock.onDelete(`/viescolaire/grouping/${id}/delete`, {student_division_id : studentDivisionId})
-            .reply(200, data);
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
 
-        groupingService.deleteGroupingAudience(id, studentDivisionId).then((response: AxiosResponse) => {
+        groupingService.deleteGroupingAudience(id, studentDivisionId).then((response: HttpResponse) => {
+            expect(http.delete).toHaveBeenCalledWith(`/viescolaire/grouping/${id}/delete`, {data: {student_division_id: studentDivisionId}});
             expect(response.data).toEqual(data);
             done();
         });
     });
 
     it('should returns data when getGroupingList request is correctly called', done => {
-        const mock = new MockAdapter(axios);
-        const structure = "structureId"
+        const structure = "structureId";
         const data = [{
             id: "id",
             name: "name",
@@ -81,11 +78,11 @@ describe('GroupingService', () => {
                 name: "name"
             }],
             structure_id: "structure_id"
-        }]
-        mock.onGet(`/viescolaire/grouping/structure/${structureId}/list`)
-            .reply(200, data);
+        }];
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(data));
         groupingService.getGroupingList(structure)
             .then(response => {
+                expect(http.get).toHaveBeenCalledWith(`/viescolaire/grouping/structure/${structureId}/list`);
                 expect(response).toEqual(data);
                 done();
             });

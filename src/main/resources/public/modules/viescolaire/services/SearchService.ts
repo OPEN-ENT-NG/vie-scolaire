@@ -1,5 +1,5 @@
 import {ng} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 import {IUser} from '../models/common/User';
 import {IGroup} from '../models/common/Group';
 
@@ -16,7 +16,7 @@ export const SearchService: ISearchService = {
     searchStudents: async (structureId: string, value: string): Promise<IUser[]> => {
         try {
             value = value.replace('\\s', '').toLowerCase();
-            const {data}: AxiosResponse = await http.get(`/viescolaire/user/search?q=${value}&structureId=${structureId}&field=lastName&field=firstName&field=displayName&profile=Student`);
+            const {data}: HttpResponse = await http.get(`/viescolaire/user/search?q=${value}&structureId=${structureId}&field=lastName&field=firstName&field=displayName&profile=Student`);
             data.forEach((user) => {
                 if (user.idClasse && user.idClasse != null) {
                     let idClass = user.idClasse;
@@ -34,7 +34,7 @@ export const SearchService: ISearchService = {
     searchGroups: async (structureId: string, value: string): Promise<IGroup[]> => {
         try {
             value = value.replace('\\s', '').toLowerCase();
-            const {data}: AxiosResponse = await http.get(`/viescolaire/group/search?q=${value}&structureId=${structureId}&field=name`);
+            const {data}: HttpResponse = await http.get(`/viescolaire/group/search?q=${value}&structureId=${structureId}&field=name`);
             data.forEach((user) => {
                 if (user.idClasse && user.idClasse != null) {
                     let idClass = user.idClasse;

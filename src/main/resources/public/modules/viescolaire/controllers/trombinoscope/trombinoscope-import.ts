@@ -3,7 +3,7 @@ import {IReport} from '../../models/trombinoscope';
 import {IFailure} from '../../models/trombinoscope';
 import {safeApply} from '../../../utils/functions/safeApply';
 import {ITrombinoscopeService} from '../../services';
-import {AxiosError, AxiosResponse} from 'axios';
+import {HttpError, HttpResponse} from 'entcore-toolkit';
 import {FAILURE_EVENTER} from '../../core/enum/failure-eventer';
 import {DateUtils} from '../../utils/dateUtils';
 
@@ -93,7 +93,7 @@ export const trombinoscopeImportController = ng.controller('TrombinoscopeImportC
                 const zipFile: File = file[0];
 
                 trombinoscopeService.importTrombinoscope($scope.structure.id, zipFile)
-                    .then(async (res: AxiosResponse) => {
+                    .then(async (res: HttpResponse) => {
                             if (res.status === 200) {
                                 toasts.confirm('viescolaire.trombinoscope.import.zip.confirm');
                                 await Promise.all([ vm.getFailureList(), vm.getReportList()]);
@@ -101,7 +101,7 @@ export const trombinoscopeImportController = ng.controller('TrombinoscopeImportC
                                 toasts.warning('viescolaire.trombinoscope.import.zip.error');
                             }
                     })
-                    .catch(async (err: AxiosError) => {
+                    .catch(async (err: HttpError) => {
                         switch (err.response.status) {
                             case 401:
                                 toasts.warning('evaluation.error.unautorize');
@@ -119,14 +119,14 @@ export const trombinoscopeImportController = ng.controller('TrombinoscopeImportC
 
             vm.deleteFailuresHistory = async (): Promise<void> => {
                 trombinoscopeService.deleteFailuresHistory($scope.structure.id)
-                    .then((res: AxiosResponse) => {
+                    .then((res: HttpResponse) => {
                         if (res.status === 200 || res.status === 201) {
                             vm.failureList = [];
                             toasts.confirm('viescolaire.trombinoscope.param.photo.failure.delete.success');
                         }
                         safeApply($scope);
                     })
-                    .catch((_: AxiosError) => toasts.warning('viescolaire.trombinoscope.param.photo.failure.delete.error'));
+                    .catch((_: HttpError) => toasts.warning('viescolaire.trombinoscope.param.photo.failure.delete.error'));
             };
 
             vm.goToStudents = (): void => {

@@ -2,7 +2,6 @@ import {TimeSlot, TimeSlots} from "../models/common/TimeSlots";
 import {NotificationToast} from "../models/common/NotificationToast";
 import * as utils from "../../utils/functions/safeApply";
 import {idiom as lang, ng, _, moment} from "entcore";
-import {AxiosError, AxiosPromise, AxiosResponse} from "axios";
 
 export const timeSlotsController = ng.controller('timeSlotsController', [
     '$scope',  'route', 'model',

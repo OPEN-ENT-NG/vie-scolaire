@@ -1,5 +1,5 @@
 import {notify} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 import {Mix} from "toolkit";
 import {Utils} from "../../utils/Utils";
 import {Classe} from "../personnel/Classe";
@@ -39,12 +39,12 @@ export class TimeSlot {
         };
     }
 
-    async save(): Promise<AxiosResponse> {
+    async save(): Promise<HttpResponse> {
         let response = await http.post('/viescolaire/time-slots', this.toJson());
         return Utils.setToastMessage(response, 'viescolaire.save.time.slot.profil','viescolaire.error.sauvegarde');
     }
 
-    async saveEndHalfDay(): Promise<AxiosResponse> {
+    async saveEndHalfDay(): Promise<HttpResponse> {
         let bodyRequest = {time: this.endOfHalfDay, structureId: this.schoolId};
         let response = await http.put(`/viescolaire/time-slots?id=${this._id}&structureId=${this.schoolId}`, bodyRequest);
         return Utils.setToastMessage(response, 'viescolaire.save.end.of.half.day','viescolaire.error.sauvegarde');

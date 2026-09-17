@@ -1,25 +1,25 @@
 import {ng} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 import {IFailure, IReport} from '../models/trombinoscope';
 
 export interface ITrombinoscopeService {
-    importTrombinoscope(structureId: string, file: File): Promise<AxiosResponse>;
+    importTrombinoscope(structureId: string, file: File): Promise<HttpResponse>;
 
-    updateTrombinoscope(structureId: string, studentId: string, file: File): Promise<AxiosResponse>;
+    updateTrombinoscope(structureId: string, studentId: string, file: File): Promise<HttpResponse>;
 
-    deleteTrombinoscope(structureId: string, studentId: string): Promise<AxiosResponse>;
+    deleteTrombinoscope(structureId: string, studentId: string): Promise<HttpResponse>;
 
     getFailures(structureId: string): Promise<Array<IFailure>>;
 
-    linkTrombinoscope(structureId: string, studentId: string, pictureId: string): Promise<AxiosResponse>;
+    linkTrombinoscope(structureId: string, studentId: string, pictureId: string): Promise<HttpResponse>;
 
-    setStructureSettings(structureId: string, useAvatar: boolean): Promise<AxiosResponse>;
+    setStructureSettings(structureId: string, useAvatar: boolean): Promise<HttpResponse>;
 
     getStructureSettings(structureId: string): Promise<boolean>;
 
     getReports(structureId: string, limit: number, offset: number): Promise<Array<IReport>>;
 
-    deleteFailuresHistory(structureId: string): Promise<AxiosResponse>;
+    deleteFailuresHistory(structureId: string): Promise<HttpResponse>;
 }
 
 export const trombinoscopeService: ITrombinoscopeService = {
@@ -30,7 +30,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      * @param structureId   structure identifier
      * @param file          trombinoscope file
      */
-    importTrombinoscope: async (structureId: string, file: File): Promise<AxiosResponse> => {
+    importTrombinoscope: async (structureId: string, file: File): Promise<HttpResponse> => {
         const formData = new FormData();
         formData.append('file', file);
         return http.post(`/viescolaire/structures/${structureId}/trombinoscope`, formData);
@@ -43,7 +43,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      * @param studentId     student identifier
      * @param file          picture file
      */
-    updateTrombinoscope: async (structureId: string, studentId: string, file: File): Promise<AxiosResponse> => {
+    updateTrombinoscope: async (structureId: string, studentId: string, file: File): Promise<HttpResponse> => {
         const formData: FormData = new FormData();
         const headers = {'headers': {'Content-type': 'multipart/form-data'}};
 
@@ -69,7 +69,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getFailures(structureId: string): Promise<Array<IFailure>> {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/failures`)
-            .then((res: AxiosResponse) => {
+            .then((res: HttpResponse) => {
             return res.data.all;
         });
     },
@@ -81,7 +81,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      * @param studentId     student identifier
      * @param pictureId     picture identifier
      */
-    linkTrombinoscope: async (structureId: string, studentId: string, pictureId: string): Promise<AxiosResponse> => {
+    linkTrombinoscope: async (structureId: string, studentId: string, pictureId: string): Promise<HttpResponse> => {
         return http.post(`/viescolaire/structures/${structureId}/students/${studentId}/trombinoscope`, { pictureId: pictureId});
     },
 
@@ -90,7 +90,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      * @param structureId   structure identifier
      * @param useAvatar     enable/diable use of trombinoscope images
      */
-    setStructureSettings: async (structureId: string, useAvatar: boolean): Promise<AxiosResponse> => {
+    setStructureSettings: async (structureId: string, useAvatar: boolean): Promise<HttpResponse> => {
         return http.post(`/viescolaire/structures/${structureId}/trombinoscope/setting`, {active: useAvatar});
     },
 
@@ -100,7 +100,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getStructureSettings: (structureId: string): Promise<boolean> => {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/setting`)
-            .then((res: AxiosResponse) => {
+            .then((res: HttpResponse) => {
                 return res.data.active;
             });
     },
@@ -113,7 +113,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      */
     getReports: (structureId: string, limit: number, offset: number): Promise<Array<IReport>> => {
         return http.get(`/viescolaire/structures/${structureId}/trombinoscope/reports?limit=${limit}&offset=${offset}`)
-            .then((res: AxiosResponse) => {
+            .then((res: HttpResponse) => {
                 return res.data.all;
             });
     },
@@ -123,7 +123,7 @@ export const trombinoscopeService: ITrombinoscopeService = {
      *
      * @param structureId   structure identifier
      */
-    deleteFailuresHistory: (structureId: string): Promise<AxiosResponse> => {
+    deleteFailuresHistory: (structureId: string): Promise<HttpResponse> => {
         return http.delete(`/viescolaire/structures/${structureId}/trombinoscope/failures`);
     }
 

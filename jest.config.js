@@ -9,7 +9,7 @@ module.exports = {
         "js"
     ],
     "moduleNameMapper": {
-        '^axios$': require.resolve('axios'),
+        "^@test-utils(.*)$": "<rootDir>/test-utils$1",
     },
     "testPathIgnorePatterns": [
         "/node_modules/",

@@ -1,8 +1,8 @@
 import {ng,notify} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 
 export interface GroupService {
-    getClasses(structureId: string): Promise<AxiosResponse>
+    getClasses(structureId: string): Promise<HttpResponse>
 }
 
 export const groupService: GroupService = {

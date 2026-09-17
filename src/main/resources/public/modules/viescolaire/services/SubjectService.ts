@@ -1,8 +1,8 @@
 import {ng,notify} from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 
 export interface SubjectService {
-    getMatieres(structureId: string): Promise<AxiosResponse>
+    getMatieres(structureId: string): Promise<HttpResponse>
 }
 
 export const subjectService: SubjectService = {

@@ -1,7 +1,7 @@
 import {Directive, moment, ng} from 'entcore';
 import {trombinoscopeService} from '../../../viescolaire/services';
 import {IUser} from '../../../viescolaire/models/common/User';
-import {AxiosError, AxiosResponse} from "axios";
+import {HttpError, HttpResponse} from "entcore-toolkit";
 import {safeApply} from "../../functions/safeApply";
 
 interface IViewModel {
@@ -98,12 +98,12 @@ export const studentPicture: Directive = ng.directive('studentPicture', () => {
 
             vm.uploadStudentPicture = async (file: FileList): Promise<void> => {
                 const studentPicture: File = file[0];
-                trombinoscopeService.updateTrombinoscope(vm.structureId, vm.student.id, studentPicture).then((res: AxiosResponse) => {
+                trombinoscopeService.updateTrombinoscope(vm.structureId, vm.student.id, studentPicture).then((res: HttpResponse) => {
                     if (res.status === 200 || res.status === 201) {
                         updatePictureDOM();
                         safeApply($scope);
                     }
-                }).catch((_: AxiosError) => {
+                }).catch((_: HttpError) => {
                     updatePictureDOM();
                     safeApply($scope);
                 });

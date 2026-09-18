@@ -1,4 +1,4 @@
-import http from 'axios';
+import { http } from 'entcore-toolkit';
 import {_, moment, toasts} from "entcore";
 
 export class MultiTeaching {

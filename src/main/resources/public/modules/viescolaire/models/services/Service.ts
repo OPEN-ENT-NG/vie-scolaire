@@ -1,7 +1,7 @@
 
 
 import {Mix, Selectable,Selection} from "entcore-toolkit";
-import http from "axios";
+import { http } from 'entcore-toolkit';
 import {toasts} from "entcore";
 import {Utils} from "../../utils/Utils";
 import {MultiTeaching} from "./MultiTeaching";

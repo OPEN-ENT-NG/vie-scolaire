@@ -1,4 +1,4 @@
-import http, {AxiosError, AxiosResponse} from 'axios';
+import { http, HttpError, HttpResponse } from 'entcore-toolkit';
 import {Behaviours, idiom, toasts} from 'entcore';
 import {mementoService} from '../../services';
 import {DateUtils} from '../../utils/dateUtils';
@@ -112,12 +112,12 @@ const vm: IMementoViewModel = {
     },
     async saveComment(comment: string): Promise<void> {
         mementoService.saveComment(vm.studentId, comment)
-            .then((response: AxiosResponse) => {
+            .then((response: HttpResponse) => {
                 if (response.status !== 200 && response.status !== 201) {
                     toasts.warning('viescolaire.memento.student.comment.error');
                 }
             })
-            .catch((_: AxiosError) => {
+            .catch((_: HttpError) => {
                 toasts.warning('viescolaire.memento.student.comment.error');
             });
     },
@@ -141,12 +141,12 @@ const vm: IMementoViewModel = {
         }
 
         mementoService.updateRelativePriorities(vm.studentId, primaryRelatives)
-            .then((response: AxiosResponse) => {
+            .then((response: HttpResponse) => {
                 if (response.status !== 200 && response.status !== 201) {
                     toasts.warning('viescolaire.memento.primary.contact.error');
                 }
             })
-            .catch((_: AxiosError) => {
+            .catch((_: HttpError) => {
                 toasts.warning('viescolaire.memento.primary.contact.error');
             });
     },
@@ -177,7 +177,7 @@ const vm: IMementoViewModel = {
     },
     async loadConfig(): Promise<void> {
         try {
-            const {data}: AxiosResponse = await http.get('/viescolaire/config');
+            const {data}: HttpResponse = await http.get('/viescolaire/config');
             vm.config = data;
         } catch (err) {
             toasts.warning('viescolaire.memento.config.err');
@@ -186,7 +186,7 @@ const vm: IMementoViewModel = {
     },
     async searchForStudent(): Promise<void> {
         try {
-            const {data}: AxiosResponse = await http.get(`/viescolaire/user/search?q=${vm.search.value}&field=lastName&field=firstName&field=displayName&profile=Student&structureId=${window.structure.id}`);
+            const {data}: HttpResponse = await http.get(`/viescolaire/user/search?q=${vm.search.value}&field=lastName&field=firstName&field=displayName&profile=Student&structureId=${window.structure.id}`);
             const toString = function () {
                 return `${this.lastName} ${this.firstName}`;
             };

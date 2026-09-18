@@ -1,29 +1,29 @@
-import MockAdapter from "axios-mock-adapter";
+jest.mock('entcore-toolkit', () => Object.assign({}, (jest as any).requireActual('entcore-toolkit'), {
+    http: {get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn(), postFile: jest.fn(), putFile: jest.fn()},
+}));
+
+import {http} from 'entcore-toolkit';
+import {mockHttpResponse} from '@test-utils/httpMock';
 import {TimeSlot} from "../../models/common/TimeSlots";
-import axios from 'axios';
 import {timeslotClasseService} from "../TimeslotClasseService";
 
 describe('TimeslotClasseService', () => {
 
     it('verification of createOrUpdateClassTimeslot method', done => {
-        const mock = new MockAdapter(axios);
-
         let dataGraph = {
             status: "ok"
         };
-        mock.onPost(`/viescolaire/timeslot/audience`, {timeslot_id: "timeslotId", class_id: "classeId"})
-            .reply(200, dataGraph);
+        (http.post as jest.Mock).mockResolvedValueOnce(mockHttpResponse(dataGraph));
 
         timeslotClasseService.createOrUpdateClassTimeslot("timeslotId", "classeId")
             .then(response => {
+                expect(http.post).toHaveBeenCalledWith(`/viescolaire/timeslot/audience`, {timeslot_id: "timeslotId", class_id: "classeId"});
                 expect(response.data).toEqual(dataGraph);
                 done();
             });
     })
 
     it('verification of getAudienceTimeslot method', done => {
-        const mock = new MockAdapter(axios);
-
         let audienceId = "audienceId";
 
         let timeslot: TimeSlot = {
@@ -39,65 +39,58 @@ describe('TimeslotClasseService', () => {
             toJson: undefined
         };
 
-        let dataGraph = ["data1", "data2"];
-        mock.onGet(`/viescolaire/timeslot/audience/${audienceId}`)
-            .reply(200, timeslot);
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(timeslot));
 
         timeslotClasseService.getAudienceTimeslot("audienceId")
             .then(response => {
+                expect(http.get).toHaveBeenCalledWith(`/viescolaire/timeslot/audience/${audienceId}`);
                 expect(response).toEqual(timeslot);
                 done();
             });
     })
 
     it('verification of getAllClassFromTimeslot method', done => {
-        const mock = new MockAdapter(axios);
-
         let timeslotId = "timeslotId";
 
         let dataGraph = ["data1", "data2"];
-        mock.onGet(`/viescolaire/timeslot/${timeslotId}`)
-            .reply(200, dataGraph);
+        (http.get as jest.Mock).mockResolvedValueOnce(mockHttpResponse(dataGraph));
 
         timeslotClasseService.getAllClassFromTimeslot("timeslotId")
             .then(response => {
+                expect(http.get).toHaveBeenCalledWith(`/viescolaire/timeslot/${timeslotId}`);
                 expect(response).toEqual(dataGraph);
                 done();
             });
     })
 
     it('verification of deleteClassTimeslot method', done => {
-        const mock = new MockAdapter(axios);
-
         let dataGraph = {
             status: "ok"
         };
 
-        let classId = "classeId"
-        mock.onDelete(`/viescolaire/timeslot/audience/${classId}`)
-            .reply(204, dataGraph);
+        let classId = "classeId";
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(dataGraph, {status: 204}));
 
         timeslotClasseService.deleteClassTimeslot("classeId")
             .then(response => {
+                expect(http.delete).toHaveBeenCalledWith(`/viescolaire/timeslot/audience/${classId}`);
                 expect(response.data).toEqual(dataGraph);
                 done();
             });
     })
 
     it('verification of deleteAllAudienceFromTimeslot method', done => {
-        const mock = new MockAdapter(axios);
-
         let dataGraph = {
             status: "ok"
         };
 
-        let timeslotId = "timeslotId"
+        let timeslotId = "timeslotId";
 
-        mock.onDelete(`/viescolaire/timeslot/${timeslotId}`)
-            .reply(204, dataGraph);
+        (http.delete as jest.Mock).mockResolvedValueOnce(mockHttpResponse(dataGraph, {status: 204}));
 
         timeslotClasseService.deleteAllAudienceFromTimeslot("timeslotId")
             .then(response => {
+                expect(http.delete).toHaveBeenCalledWith(`/viescolaire/timeslot/${timeslotId}`);
                 expect(response.data).toEqual(dataGraph);
                 done();
             });

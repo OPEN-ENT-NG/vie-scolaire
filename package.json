@@ -1,14 +1,14 @@
 {
   "name": "VieScolaire",
-  "version": "2.2.4-dev.1",
+  "version": "2.2.5",
   "main": "gulpfile.js",
   "dependencies": {
     "angular-chart.js": "^1.1.1",
     "core-js": "2.4.1",
-    "entcore": "dev",
+    "entcore": "4.8.20",
     "toolkit": "git+https://git@github.com/entcore/toolkit.git#1.0",
     "ts-loader": "^3.3.0",
-    "entcore-toolkit": "2.0.0-dev.3"
+    "entcore-toolkit": "2.0.0"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/jest --config jest.config.js --coverage",

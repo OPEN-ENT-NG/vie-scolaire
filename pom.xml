@@ -27,13 +27,13 @@
     <junitVersion>5.1.0</junitVersion>
     <powerMockVersion>2.0.2</powerMockVersion>
     <mockitoVersion>2.28.2</mockitoVersion>
-    <entCoreVersion>6.17-SNAPSHOT</entCoreVersion>
+    <entCoreVersion>6.17-develop-pedago-SNAPSHOT</entCoreVersion>
     <reflectionsVersion>0.10.2</reflectionsVersion>
     <opencsvVersion>4.0</opencsvVersion>
-    <modMongoVersion>4.2-SNAPSHOT</modMongoVersion>
+    <modMongoVersion>4.2-develop-pedago-SNAPSHOT</modMongoVersion>
     <modPostgresVersion>2.2-SNAPSHOT</modPostgresVersion>
     <modJsonSchemaValidatorVersion>2.2-SNAPSHOT</modJsonSchemaValidatorVersion>
-    <entCoreLibsVersion>6.16-SNAPSHOT</entCoreLibsVersion>
+    <entCoreLibsVersion>6.16-develop-pedago-SNAPSHOT</entCoreLibsVersion>
   </properties>
   <dependencies>
     <dependency>

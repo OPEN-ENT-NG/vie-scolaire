@@ -406,6 +406,14 @@ public class DefaultEleveService extends SqlCrudService implements EleveService 
             idsNeo.add(idEleve);
             //values.add(idEleve);
         }*/
+
+        if ((idClasse != null && idClasse.isEmpty()) || (idEleves != null && idEleves.length == 0)) {
+            // If no filter on class or student is provided, we should not return any result
+            handler.handle(new Either.Right<>(new JsonArray()));
+            return;
+        }
+
+
         if (idClasse != null){
             for(int i=0; i < idClasse.size(); i++) {
                 values.add(idClasse.getValue(i));
